@@ -1,13 +1,16 @@
 import * as p5 from 'p5';
+import {BattleScene, PositiveNumber} from './battleScene'
+
+let battleScene: BattleScene;
 
 export const sketch = (p: p5) => {
   p.setup = () => {
-    p.createCanvas(400, 400);
+    p.createCanvas(1024, 576);
+    battleScene = new BattleScene( 1024 as PositiveNumber, 576 as PositiveNumber);
   }
 
   p.draw = () => {
-    p.background(220);
-    p.ellipse(50,50,80,80);
+    battleScene.draw(p);
   }
 }
 
