@@ -5,26 +5,52 @@ function assertsInteger(value: number): asserts value is Integer {
   if(Number.isInteger(value) !== true) throw new Error('Value must be an integer');
 }
 
+export enum HexGridTerrainTypes {
+  grass = 1,
+  sand,
+  stone,
+  water,
+  floor,
+}
+
+type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
 
 export class HexGridTile {
   r: number;
   q: number;
-  appearance: string;
+  appearance: HexGridTerrainTypes;
+  colorByAppearance: HexGridTerrainToColor
 
-  constructor(rcoord: number, qcoord: number, appearance: string) {
+  constructor(rcoord: number, qcoord: number, appearance: HexGridTerrainTypes) {
     assertsInteger(rcoord);
     assertsInteger(qcoord);
 
     this.r = rcoord;
     this.q = qcoord;
     this.appearance = appearance;
+
+    this.colorByAppearance = {
+      [HexGridTerrainTypes.grass]: [117, 50, 33],
+      [HexGridTerrainTypes.sand]: [57, 50, 45],
+      [HexGridTerrainTypes.stone]: [355, 10, 13],
+      [HexGridTerrainTypes.water]: [209, 46, 40],
+      [HexGridTerrainTypes.floor]: [41, 15, 40],
+    }
   }
 
   draw(p: p5)  {
     p.push();
-    p.stroke(117, 10, 10);
+
+    const fillColor = this.colorByAppearance[this.appearance];
+    const strokeColor = [
+      fillColor[0],
+      10,
+      10
+    ];
+
+    p.stroke(strokeColor);
     p.strokeWeight(1);
-    p.fill(117, 50, 33);
+    p.fill(fillColor)
 
     // See Axial Coordinates in:
     // https://www.redblobgames.com/grids/hexagons/
@@ -33,7 +59,10 @@ export class HexGridTile {
     let xPos = this.r + this.q*0.5
     let yPos = this.q * 0.866
 
+    // radius is the length from the center of the hexagon to one of the corners.
     const radius = 30;
+
+    // halfside is the length of the square that contains the hexagon.
     const halfSide = radius * Math.sqrt(3);
 
     xPos *= halfSide;
