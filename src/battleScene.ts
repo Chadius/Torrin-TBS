@@ -18,17 +18,40 @@ export class BattleScene {
     this.width = w;
     this.height = h;
 
-    this.hexMap = new HexMap(
-      [
-        new HexGridTile(0, 1, HexGridTerrainTypes.water),
-        new HexGridTile(1, 1, HexGridTerrainTypes.sand),
-        new HexGridTile(0, 0, HexGridTerrainTypes.floor),
-        new HexGridTile(2, 1, HexGridTerrainTypes.stone),
-        new HexGridTile(-3, 0, HexGridTerrainTypes.grass),
-        new HexGridTile(2, 2, HexGridTerrainTypes.stone),
-        new HexGridTile(-1, -1, HexGridTerrainTypes.water),
-      ]
-    )
+    type Tile = [number, number, HexGridTerrainTypes];
+    const rawTiles: Tile[] = [
+      [-1, -1, HexGridTerrainTypes.water],
+      [ 0, -1, HexGridTerrainTypes.water],
+      [ 1, -1, HexGridTerrainTypes.water],
+      [ 2, -1, HexGridTerrainTypes.water],
+      [ 3, -1, HexGridTerrainTypes.water],
+
+      [-1, 0, HexGridTerrainTypes.floor],
+      [ 0, 0, HexGridTerrainTypes.floor],
+      [ 1, 0, HexGridTerrainTypes.floor],
+      [ 2, 0, HexGridTerrainTypes.floor],
+
+      [-2, 1, HexGridTerrainTypes.grass],
+      [-1, 1, HexGridTerrainTypes.grass],
+      [ 0, 1, HexGridTerrainTypes.grass],
+      [ 1, 1, HexGridTerrainTypes.grass],
+      [ 2, 1, HexGridTerrainTypes.grass],
+
+      [-2, 2, HexGridTerrainTypes.sand],
+      [-1, 2, HexGridTerrainTypes.sand],
+      [ 0, 2, HexGridTerrainTypes.sand],
+      [ 1, 2, HexGridTerrainTypes.sand],
+
+      [-3, 3, HexGridTerrainTypes.stone],
+      [-2, 3, HexGridTerrainTypes.stone],
+      [-1, 3, HexGridTerrainTypes.stone],
+      [ 0, 3, HexGridTerrainTypes.stone],
+      [ 1, 3, HexGridTerrainTypes.stone],
+    ];
+
+    this.hexMap = new HexMap( rawTiles.map(triple => {
+      return new HexGridTile(triple[0], triple[1], triple[2])
+    }));
   }
 
   draw(p: p5)  {

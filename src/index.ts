@@ -5,8 +5,8 @@ let battleScene: BattleScene;
 
 export const sketch = (p: p5) => {
   p.setup = () => {
-    p.createCanvas(1024, 576);
-    battleScene = new BattleScene( 1024 as PositiveNumber, 576 as PositiveNumber);
+    p.createCanvas(1280, 720);
+    battleScene = new BattleScene( 1280 as PositiveNumber, 720 as PositiveNumber);
   }
 
   p.draw = () => {
