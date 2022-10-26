@@ -60,7 +60,7 @@ export class HexGridTile {
     let yPos = this.q * 0.866
 
     // radius is the length from the center of the hexagon to one of the corners.
-    const radius = 30;
+    const radius = 30; // TODO extract const
 
     // halfside is the length of the square that contains the hexagon.
     const halfSide = radius * Math.sqrt(3);
@@ -68,8 +68,9 @@ export class HexGridTile {
     xPos *= halfSide;
     yPos *= halfSide;
 
-    xPos += 1024 / 2;
-    yPos += 576 / 2;
+    // TODO Magic numbers
+    xPos += 1280 / 2;
+    yPos += 720 / 2;
 
     p.push();
     p.translate(xPos, yPos);

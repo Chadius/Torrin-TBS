@@ -60,4 +60,8 @@ export class BattleScene {
 
     this.hexMap.draw(p);
   }
+
+  mouseClicked(mouseX: number, mouseY: number) {
+    this.hexMap.mouseClicked(mouseX, mouseY);
+  }
 }
