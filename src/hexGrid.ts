@@ -1,4 +1,5 @@
 import * as p5 from "p5";
+import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 
 export type Integer = number & {_brand: 'Integer'}
 function assertsInteger(value: number): asserts value is Integer {
@@ -59,18 +60,11 @@ export class HexGridTile {
     let xPos = this.r + this.q*0.5
     let yPos = this.q * 0.866
 
-    // radius is the length from the center of the hexagon to one of the corners.
-    const radius = 30; // TODO extract const
+    xPos *= HEX_TILE_WIDTH;
+    yPos *= HEX_TILE_WIDTH;
 
-    // halfside is the length of the square that contains the hexagon.
-    const halfSide = radius * Math.sqrt(3);
-
-    xPos *= halfSide;
-    yPos *= halfSide;
-
-    // TODO Magic numbers
-    xPos += 1280 / 2;
-    yPos += 720 / 2;
+    xPos += SCREEN_WIDTH / 2;
+    yPos += SCREEN_HEIGHT / 2;
 
     p.push();
     p.translate(xPos, yPos);
@@ -79,8 +73,8 @@ export class HexGridTile {
     p.beginShape();
     const startAngle = Math.PI / 6;
     for (let a = 0; a < 6; a += 1) {
-      let sx = Math.cos(startAngle + a * angle) * 30;
-      let sy = Math.sin(startAngle + a * angle) * 30;
+      let sx = Math.cos(startAngle + a * angle) * HEX_TILE_RADIUS;
+      let sy = Math.sin(startAngle + a * angle) * HEX_TILE_RADIUS;
       p.vertex(sx, sy);
     }
     p.endShape("close");

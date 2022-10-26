@@ -1,5 +1,6 @@
 import * as p5 from "p5";
 import {HexGridTile} from "./hexGrid";
+import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 
 export class HexMap {
   tiles: HexGridTile[];
@@ -32,9 +33,8 @@ export class HexMap {
   mouseClicked(mouseX: number, mouseY: number) {
     console.log(`mouse: ${mouseX}, ${mouseY}`);
 
-    // TODO magic numbers
-    const worldX = mouseX - 1280 / 2;
-    const worldY = mouseY - 720 / 2;
+    const worldX = mouseX - SCREEN_WIDTH / 2;
+    const worldY = mouseY - SCREEN_HEIGHT / 2;
     console.log(`world: ${worldX}, ${worldY}`);
 
     const tileCoordinates = this.convertWorldCoordinatesToMapCoordinates(worldX, worldY);
@@ -42,11 +42,8 @@ export class HexMap {
   }
 
   convertWorldCoordinatesToMapCoordinates(worldX: number, worldY: number): [number, number] {
-    // TODO 30 is a magic number radius
-    const halfSide = 30 * Math.sqrt(3);
-
-    const xScaled = worldX / (halfSide);
-    const yScaled = worldY / (halfSide);
+    const xScaled = worldX / HEX_TILE_WIDTH;
+    const yScaled = worldY / HEX_TILE_WIDTH;
 
     // q = 2 * yScaled / sqrt(3)
     const q = yScaled * 1.154;

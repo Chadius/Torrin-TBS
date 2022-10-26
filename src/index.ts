@@ -1,12 +1,13 @@
 import * as p5 from 'p5';
 import {BattleScene, PositiveNumber} from './battleScene'
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 
 let battleScene: BattleScene;
 
 export const sketch = (p: p5) => {
   p.setup = () => {
-    p.createCanvas(1280, 720);
-    battleScene = new BattleScene( 1280 as PositiveNumber, 720 as PositiveNumber);
+    p.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+    battleScene = new BattleScene( SCREEN_WIDTH as PositiveNumber, SCREEN_HEIGHT as PositiveNumber);
   }
 
   p.draw = () => {
