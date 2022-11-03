@@ -1,6 +1,7 @@
 import * as p5 from "p5";
 import {HexGridTile, Integer} from "./hexGrid";
-import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
+import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
+import {drawHexShape} from "./hexDrawingUtils";
 
 export class HexMap {
   tiles: HexGridTile[];
@@ -37,14 +38,11 @@ export class HexMap {
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
-    console.log(`mouse: ${mouseX}, ${mouseY}`);
-
     const worldX = mouseX - SCREEN_WIDTH / 2;
     const worldY = mouseY - SCREEN_HEIGHT / 2;
-    console.log(`world: ${worldX}, ${worldY}`);
-
     const tileCoordinates = this.convertWorldCoordinatesToMapCoordinates(worldX, worldY);
-    console.log(`tile : ${tileCoordinates[0]}, ${tileCoordinates[1]}`);
+    this.highlightedTileCoordinates.q = tileCoordinates[0] as Integer;
+    this.highlightedTileCoordinates.r = tileCoordinates[1] as Integer;
   }
 
   convertWorldCoordinatesToMapCoordinates(worldX: number, worldY: number): [number, number] {
@@ -92,27 +90,7 @@ export class HexMap {
 
     let xPos = this.highlightedTileCoordinates.r + this.highlightedTileCoordinates.q * 0.5
     let yPos = this.highlightedTileCoordinates.q * 0.866
-
-    xPos *= HEX_TILE_WIDTH;
-    yPos *= HEX_TILE_WIDTH;
-
-    xPos += SCREEN_WIDTH / 2;
-    yPos += SCREEN_HEIGHT / 2;
-
-    p.push();
-    p.translate(xPos, yPos);
-
-    let angle = Math.PI / 3;
-    p.beginShape();
-    const startAngle = Math.PI / 6;
-    for (let a = 0; a < 6; a += 1) {
-      let sx = Math.cos(startAngle + a * angle) * HEX_TILE_RADIUS;
-      let sy = Math.sin(startAngle + a * angle) * HEX_TILE_RADIUS;
-      p.vertex(sx, sy);
-    }
-    p.endShape("close");
-
-    p.pop();
+    drawHexShape(p, xPos, yPos);
     p.pop();
   }
 }

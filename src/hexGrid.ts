@@ -1,5 +1,6 @@
 import * as p5 from "p5";
 import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
+import {drawHexShape} from "./hexDrawingUtils";
 
 export type Integer = number & {_brand: 'Integer'}
 function assertsInteger(value: number): asserts value is Integer {
@@ -60,26 +61,7 @@ export class HexGridTile {
     let xPos = this.r + this.q*0.5
     let yPos = this.q * 0.866
 
-    xPos *= HEX_TILE_WIDTH;
-    yPos *= HEX_TILE_WIDTH;
-
-    xPos += SCREEN_WIDTH / 2;
-    yPos += SCREEN_HEIGHT / 2;
-
-    p.push();
-    p.translate(xPos, yPos);
-
-    let angle = Math.PI / 3;
-    p.beginShape();
-    const startAngle = Math.PI / 6;
-    for (let a = 0; a < 6; a += 1) {
-      let sx = Math.cos(startAngle + a * angle) * HEX_TILE_RADIUS;
-      let sy = Math.sin(startAngle + a * angle) * HEX_TILE_RADIUS;
-      p.vertex(sx, sy);
-    }
-    p.endShape("close");
-
-    p.pop();
+    drawHexShape(p, xPos, yPos);
     p.pop();
   }
 }
