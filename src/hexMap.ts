@@ -1,9 +1,10 @@
 import * as p5 from "p5";
-import {HexGridTile} from "./hexGrid";
-import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
+import {HexGridTile, Integer} from "./hexGrid";
+import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 
 export class HexMap {
   tiles: HexGridTile[];
+  highlightedTileCoordinates: {q: Integer, r: Integer} | undefined;
 
   constructor(tiles: HexGridTile[]) {
     const tileCoords = tiles.map((tile, index) => {
@@ -24,10 +25,15 @@ export class HexMap {
     })
 
     this.tiles = tileCoords.map((v) => tiles[v.i])
+    this.highlightedTileCoordinates = {
+      q: tiles[0].q as Integer,
+      r: tiles[0].r as Integer
+    }
   }
 
   draw(p: p5)  {
     this.tiles.forEach((tile) => {tile.draw(p)});
+    this.drawHighlightedTile(p);
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
@@ -52,5 +58,61 @@ export class HexMap {
     const r = xScaled - (yScaled / 1.732);
 
     return [Math.round(q), Math.round(r)];
+  }
+
+  drawHighlightedTile(p: p5) {
+    if (this.highlightedTileCoordinates === undefined) {
+      return;
+    }
+
+    p.push();
+
+    const d = new Date();
+    const millisecondsSinceEpoch = d.getTime();
+    const highlightIntensityPeriodMilliseconds = 2000;
+    const highlightIntensityLow = 50;
+    const highlightIntensityHigh = 100;
+
+    const highlightIntensityBase = (highlightIntensityHigh + highlightIntensityLow) / 2;
+    const highlightIntensityAmplitude = (highlightIntensityHigh - highlightIntensityLow) / 2;
+
+    const intensity = Math.sin(
+      millisecondsSinceEpoch * (Math.PI * 2) / highlightIntensityPeriodMilliseconds
+    ) * highlightIntensityAmplitude + highlightIntensityBase;
+
+    const strokeColor = [
+      0,
+      10,
+      intensity
+    ];
+
+    p.stroke(strokeColor);
+    p.strokeWeight(2);
+    p.noFill();
+
+    let xPos = this.highlightedTileCoordinates.r + this.highlightedTileCoordinates.q * 0.5
+    let yPos = this.highlightedTileCoordinates.q * 0.866
+
+    xPos *= HEX_TILE_WIDTH;
+    yPos *= HEX_TILE_WIDTH;
+
+    xPos += SCREEN_WIDTH / 2;
+    yPos += SCREEN_HEIGHT / 2;
+
+    p.push();
+    p.translate(xPos, yPos);
+
+    let angle = Math.PI / 3;
+    p.beginShape();
+    const startAngle = Math.PI / 6;
+    for (let a = 0; a < 6; a += 1) {
+      let sx = Math.cos(startAngle + a * angle) * HEX_TILE_RADIUS;
+      let sy = Math.sin(startAngle + a * angle) * HEX_TILE_RADIUS;
+      p.vertex(sx, sy);
+    }
+    p.endShape("close");
+
+    p.pop();
+    p.pop();
   }
 }
