@@ -1,6 +1,8 @@
 import * as p5 from "p5";
 import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 
+export type BlendColor = [number,number,number,number];
+
 export function drawHexShape(p: p5, xPos: any, yPos: number) {
   xPos *= HEX_TILE_WIDTH;
   yPos *= HEX_TILE_WIDTH;

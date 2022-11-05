@@ -1,5 +1,5 @@
 import * as p5 from 'p5';
-import {HexGridTerrainTypes, HexGridTile} from "./hexGrid";
+import {HexGridTerrainTypes, HexGridTile, Integer} from "./hexGrid";
 import {HexMap} from "./hexMap";
 
 export type PositiveNumber = number & {_brand: 'PositiveNumber'}
@@ -52,6 +52,27 @@ export class BattleScene {
     this.hexMap = new HexMap( rawTiles.map(triple => {
       return new HexGridTile(triple[0], triple[1], triple[2])
     }));
+
+    this.hexMap.highlightTiles(
+      [
+        {
+          q: 0 as Integer,
+          r: 0 as Integer,
+        },
+        {
+          q: 2 as Integer,
+          r: 0 as Integer,
+        }
+      ],
+      {
+        hue: 0,
+        saturation: 80,
+        brightness: 80,
+        lowAlpha: 80,
+        highAlpha: 90,
+        periodAlpha: 2000,
+      },
+    );
   }
 
   draw(p: p5)  {
@@ -62,6 +83,7 @@ export class BattleScene {
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
+    this.hexMap.stopHighlightingTiles();
     this.hexMap.mouseClicked(mouseX, mouseY);
   }
 }

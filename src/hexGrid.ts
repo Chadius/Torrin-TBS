@@ -1,7 +1,8 @@
 import * as p5 from "p5";
-import {drawHexShape} from "./hexDrawingUtils";
+import {BlendColor, drawHexShape} from "./hexDrawingUtils";
 
 export type Integer = number & {_brand: 'Integer'}
+export type HexCoordinate = {q: Integer, r: Integer}
 function assertsInteger(value: number): asserts value is Integer {
   if(Number.isInteger(value) !== true) throw new Error('Value must be an integer');
 }
@@ -39,7 +40,7 @@ export class HexGridTile {
     }
   }
 
-  draw(p: p5, blendColor?: number[])  {
+  draw(p: p5, blendColor?: BlendColor)  {
     // blendColor is an optional fill/blend color, an array of 4 numbers:
     // - Hue (0-360)
     // - Saturation (0-100)
@@ -51,7 +52,7 @@ export class HexGridTile {
     const appearanceFillColor = this.colorByAppearance[this.appearance];
     let fillColor;
 
-    if (blendColor && blendColor.length >= 4) {
+    if (blendColor) {
       const appearanceColorWeight = 100 - blendColor[3];
 
       fillColor = [

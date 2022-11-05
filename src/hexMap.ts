@@ -1,11 +1,20 @@
 import * as p5 from "p5";
-import {HexGridTile, Integer} from "./hexGrid";
+import {HexCoordinate, HexGridTile, Integer} from "./hexGrid";
 import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
-import {calculatePulseValueOverTime, drawHexShape} from "./hexDrawingUtils";
+import {BlendColor, calculatePulseValueOverTime, drawHexShape} from "./hexDrawingUtils";
 
 export class HexMap {
   tiles: HexGridTile[];
-  highlightedTileCoordinates: {q: Integer, r: Integer} | undefined;
+  outlineTileCoordinates: HexCoordinate | undefined;
+  highlightedColoredTiles: HexCoordinate[];
+  highlightedColor: {
+    hue: number,
+    saturation: number,
+    brightness: number,
+    lowAlpha: number,
+    highAlpha: number,
+    periodAlpha: number,
+  }
 
   constructor(tiles: HexGridTile[]) {
     const tileCoords = tiles.map((tile, index) => {
@@ -26,15 +35,37 @@ export class HexMap {
     })
 
     this.tiles = tileCoords.map((v) => tiles[v.i])
-    this.highlightedTileCoordinates = {
+    this.outlineTileCoordinates = {
       q: tiles[0].q as Integer,
       r: tiles[0].r as Integer
     }
+    this.highlightedColoredTiles = [];
   }
 
   draw(p: p5)  {
-    this.tiles.forEach((tile) => {tile.draw(p)});
-    this.drawHighlightedTile(p);
+    const currentHighlightedColor: BlendColor = [
+      this.highlightedColor.hue,
+      this.highlightedColor.saturation,
+      this.highlightedColor.brightness,
+      calculatePulseValueOverTime(
+        this.highlightedColor.lowAlpha,
+        this.highlightedColor.highAlpha,
+        this.highlightedColor.periodAlpha,
+      )
+    ]
+
+    this.tiles.forEach(
+      (tile) => {
+        if (
+          this.highlightedColoredTiles.some((sameTile) => sameTile.q == tile.q && sameTile.r == tile.r)
+        ) {
+          tile.draw(p, currentHighlightedColor);
+        } else {
+          tile.draw(p)
+        }
+      }
+    );
+    this.drawOutlinedTile(p);
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
@@ -45,12 +76,12 @@ export class HexMap {
     if (
       this.tiles.some((tile) => tile.q == tileCoordinates[0] && tile.r == tileCoordinates[1])
     ) {
-      this.highlightedTileCoordinates = {
+      this.outlineTileCoordinates = {
         q: tileCoordinates[0] as Integer,
         r: tileCoordinates[1] as Integer,
       }
     } else {
-      this.highlightedTileCoordinates = undefined;
+      this.outlineTileCoordinates = undefined;
     }
   }
 
@@ -67,8 +98,8 @@ export class HexMap {
     return [Math.round(q), Math.round(r)];
   }
 
-  drawHighlightedTile(p: p5) {
-    if (this.highlightedTileCoordinates === undefined) {
+  drawOutlinedTile(p: p5) {
+    if (this.outlineTileCoordinates === undefined) {
       return;
     }
 
@@ -84,9 +115,28 @@ export class HexMap {
     p.strokeWeight(2);
     p.noFill();
 
-    let xPos = this.highlightedTileCoordinates.r + this.highlightedTileCoordinates.q * 0.5
-    let yPos = this.highlightedTileCoordinates.q * 0.866
+    let xPos = this.outlineTileCoordinates.r + this.outlineTileCoordinates.q * 0.5
+    let yPos = this.outlineTileCoordinates.q * 0.866
     drawHexShape(p, xPos, yPos);
     p.pop();
+  }
+
+  highlightTiles(
+    highlightedTiles: HexCoordinate[],
+    color: {
+      hue: number,
+      saturation: number,
+      brightness: number,
+      lowAlpha: number,
+      highAlpha: number,
+      periodAlpha: number,
+    }
+  ) {
+    this.highlightedColoredTiles = [...highlightedTiles];
+    this.highlightedColor = color;
+  }
+
+  stopHighlightingTiles() {
+    this.highlightedColoredTiles = [];
   }
 }
