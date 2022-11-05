@@ -1,7 +1,7 @@
 import * as p5 from "p5";
 import {HexGridTile, Integer} from "./hexGrid";
 import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
-import {drawHexShape} from "./hexDrawingUtils";
+import {calculatePulseValueOverTime, drawHexShape} from "./hexDrawingUtils";
 
 export class HexMap {
   tiles: HexGridTile[];
@@ -74,23 +74,10 @@ export class HexMap {
 
     p.push();
 
-    const d = new Date();
-    const millisecondsSinceEpoch = d.getTime();
-    const highlightIntensityPeriodMilliseconds = 2000;
-    const highlightIntensityLow = 50;
-    const highlightIntensityHigh = 100;
-
-    const highlightIntensityBase = (highlightIntensityHigh + highlightIntensityLow) / 2;
-    const highlightIntensityAmplitude = (highlightIntensityHigh - highlightIntensityLow) / 2;
-
-    const intensity = Math.sin(
-      millisecondsSinceEpoch * (Math.PI * 2) / highlightIntensityPeriodMilliseconds
-    ) * highlightIntensityAmplitude + highlightIntensityBase;
-
     const strokeColor = [
       0,
       10,
-      intensity
+      calculatePulseValueOverTime(50, 100, 2000)
     ];
 
     p.stroke(strokeColor);

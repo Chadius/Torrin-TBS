@@ -39,10 +39,30 @@ export class HexGridTile {
     }
   }
 
-  draw(p: p5)  {
+  draw(p: p5, blendColor?: number[])  {
+    // blendColor is an optional fill/blend color, an array of 4 numbers:
+    // - Hue (0-360)
+    // - Saturation (0-100)
+    // - Brightness (0-100)
+    // - Blending factor (0 = no blending, 100 = override original color)
+
     p.push();
 
-    const fillColor = this.colorByAppearance[this.appearance];
+    const appearanceFillColor = this.colorByAppearance[this.appearance];
+    let fillColor;
+
+    if (blendColor && blendColor.length >= 4) {
+      const appearanceColorWeight = 100 - blendColor[3];
+
+      fillColor = [
+        ((appearanceFillColor[0] * appearanceColorWeight) + (blendColor[0] * blendColor[3])) / 100,
+        ((appearanceFillColor[1] * appearanceColorWeight) + (blendColor[1] * blendColor[3])) / 100,
+        ((appearanceFillColor[2] * appearanceColorWeight) + (blendColor[2] * blendColor[3])) / 100,
+      ]
+    } else {
+      fillColor = appearanceFillColor;
+    }
+
     const strokeColor = [
       fillColor[0],
       10,

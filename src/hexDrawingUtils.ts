@@ -23,3 +23,15 @@ export function drawHexShape(p: p5, xPos: any, yPos: number) {
 
   p.pop();
 }
+
+export function calculatePulseValueOverTime(low: number, high: number, periodInMilliseconds: number) {
+  const d = new Date();
+  const millisecondsSinceEpoch = d.getTime();
+
+  const base = (high + low) / 2;
+  const amplitude = (high - low) / 2;
+
+  return Math.sin(
+    millisecondsSinceEpoch * (Math.PI * 2) / periodInMilliseconds
+  ) * amplitude + base;
+}
