@@ -41,8 +41,17 @@ export class HexMap {
     const worldX = mouseX - SCREEN_WIDTH / 2;
     const worldY = mouseY - SCREEN_HEIGHT / 2;
     const tileCoordinates = this.convertWorldCoordinatesToMapCoordinates(worldX, worldY);
-    this.highlightedTileCoordinates.q = tileCoordinates[0] as Integer;
-    this.highlightedTileCoordinates.r = tileCoordinates[1] as Integer;
+
+    if (
+      this.tiles.some((tile) => tile.q == tileCoordinates[0] && tile.r == tileCoordinates[1])
+    ) {
+      this.highlightedTileCoordinates = {
+        q: tileCoordinates[0] as Integer,
+        r: tileCoordinates[1] as Integer,
+      }
+    } else {
+      this.highlightedTileCoordinates = undefined;
+    }
   }
 
   convertWorldCoordinatesToMapCoordinates(worldX: number, worldY: number): [number, number] {

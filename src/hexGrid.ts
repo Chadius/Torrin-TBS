@@ -1,5 +1,4 @@
 import * as p5 from "p5";
-import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 import {drawHexShape} from "./hexDrawingUtils";
 
 export type Integer = number & {_brand: 'Integer'}
