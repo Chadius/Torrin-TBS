@@ -1,6 +1,6 @@
 import * as p5 from 'p5';
-import {HexGridTerrainTypes, HexGridTile, Integer} from "./hexGrid";
-import {HexMap} from "./hexMap";
+import {HexGridTerrainTypes, HexGridTile, Integer} from "../hexMap/hexGrid";
+import {HexMap} from "../hexMap/hexMap";
 
 export type PositiveNumber = number & {_brand: 'PositiveNumber'}
 function assertsPositiveNumber(value: number): asserts value is PositiveNumber {

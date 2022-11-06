@@ -1,5 +1,5 @@
 import * as p5 from 'p5';
-import {BattleScene, PositiveNumber} from './battleScene'
+import {BattleScene, PositiveNumber} from './battle/battleScene'
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 
 let battleScene: BattleScene;
