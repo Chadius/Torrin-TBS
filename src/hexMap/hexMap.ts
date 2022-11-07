@@ -1,20 +1,19 @@
 import * as p5 from "p5";
 import {HexCoordinate, HexGridTile, Integer} from "./hexGrid";
 import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
-import {BlendColor, calculatePulseValueOverTime, drawHexShape} from "./hexDrawingUtils";
+import {
+  BlendColor,
+  calculatePulseValueOverTime,
+  drawHexShape,
+  PulseBlendColor,
+  pulseBlendColorToBlendColor
+} from "./hexDrawingUtils";
 
 export class HexMap {
   tiles: HexGridTile[];
   outlineTileCoordinates: HexCoordinate | undefined;
   highlightedColoredTiles: HexCoordinate[];
-  highlightedColor: {
-    hue: number,
-    saturation: number,
-    brightness: number,
-    lowAlpha: number,
-    highAlpha: number,
-    periodAlpha: number,
-  }
+  highlightedColor: PulseBlendColor;
 
   constructor(tiles: HexGridTile[]) {
     const tileCoords = tiles.map((tile, index) => {
@@ -42,17 +41,8 @@ export class HexMap {
     this.highlightedColoredTiles = [];
   }
 
-  draw(p: p5)  {
-    const currentHighlightedColor: BlendColor = [
-      this.highlightedColor.hue,
-      this.highlightedColor.saturation,
-      this.highlightedColor.brightness,
-      calculatePulseValueOverTime(
-        this.highlightedColor.lowAlpha,
-        this.highlightedColor.highAlpha,
-        this.highlightedColor.periodAlpha,
-      )
-    ]
+  draw(p: p5): void {
+    const currentHighlightedColor: BlendColor = pulseBlendColorToBlendColor(this.highlightedColor);
 
     this.tiles.forEach(
       (tile) => {
@@ -98,7 +88,7 @@ export class HexMap {
     return [Math.round(q), Math.round(r)];
   }
 
-  drawOutlinedTile(p: p5) {
+  drawOutlinedTile(p: p5): void {
     if (this.outlineTileCoordinates === undefined) {
       return;
     }
@@ -131,12 +121,12 @@ export class HexMap {
       highAlpha: number,
       periodAlpha: number,
     }
-  ) {
+  ): void {
     this.highlightedColoredTiles = [...highlightedTiles];
     this.highlightedColor = color;
   }
 
-  stopHighlightingTiles() {
+  stopHighlightingTiles(): void {
     this.highlightedColoredTiles = [];
   }
 }

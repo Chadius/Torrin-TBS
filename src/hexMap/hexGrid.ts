@@ -18,12 +18,12 @@ export enum HexGridTerrainTypes {
 type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
 
 export class HexGridTile {
-  r: number;
   q: number;
+  r: number;
   appearance: HexGridTerrainTypes;
   colorByAppearance: HexGridTerrainToColor
 
-  constructor(rcoord: number, qcoord: number, appearance: HexGridTerrainTypes) {
+  constructor(qcoord: number, rcoord: number, appearance: HexGridTerrainTypes) {
     assertsInteger(rcoord);
     assertsInteger(qcoord);
 
@@ -40,7 +40,7 @@ export class HexGridTile {
     }
   }
 
-  draw(p: p5, blendColor?: BlendColor)  {
+  draw(p: p5, blendColor?: BlendColor): void  {
     // blendColor is an optional fill/blend color, an array of 4 numbers:
     // - Hue (0-360)
     // - Saturation (0-100)

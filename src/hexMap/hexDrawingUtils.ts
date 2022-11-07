@@ -3,6 +3,28 @@ import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../g
 
 export type BlendColor = [number,number,number,number];
 
+export type PulseBlendColor = {
+  hue: number,
+  saturation: number,
+  brightness: number,
+  lowAlpha: number,
+  highAlpha: number,
+  periodAlpha: number,
+};
+
+export function pulseBlendColorToBlendColor(pulse: PulseBlendColor): BlendColor {
+  return [
+    pulse.hue,
+    pulse.saturation,
+    pulse.brightness,
+    calculatePulseValueOverTime(
+      pulse.lowAlpha,
+      pulse.highAlpha,
+      pulse.periodAlpha,
+    )
+  ] as BlendColor;
+}
+
 export function drawHexShape(p: p5, xPos: any, yPos: number) {
   xPos *= HEX_TILE_WIDTH;
   yPos *= HEX_TILE_WIDTH;
@@ -26,9 +48,8 @@ export function drawHexShape(p: p5, xPos: any, yPos: number) {
   p.pop();
 }
 
-export function calculatePulseValueOverTime(low: number, high: number, periodInMilliseconds: number) {
-  const d = new Date();
-  const millisecondsSinceEpoch = d.getTime();
+export function calculatePulseValueOverTime(low: number, high: number, periodInMilliseconds: number): number {
+  const millisecondsSinceEpoch = new Date(Date.now()).getMilliseconds();
 
   const base = (high + low) / 2;
   const amplitude = (high - low) / 2;
@@ -37,3 +58,4 @@ export function calculatePulseValueOverTime(low: number, high: number, periodInM
     millisecondsSinceEpoch * (Math.PI * 2) / periodInMilliseconds
   ) * amplitude + base;
 }
+
