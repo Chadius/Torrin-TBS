@@ -26,7 +26,15 @@ export class Cutscene {
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
-    this.getNextAction();
+    if (this.currentDialogue === undefined) {
+      this.getNextAction();
+      return;
+    }
+
+    this.currentDialogue.mouseClicked(mouseX, mouseY);
+    if (this.currentDialogue.isFinished()) {
+      this.getNextAction();
+    }
   }
 
   start(): void {
