@@ -3,6 +3,12 @@ import {SplashScreen} from "./splashScreen";
 
 export type DialogueAction = DialogueBox | SplashScreen;
 
+export type DialogueBoxOptions = {
+  name: string;
+  text: string;
+  animationDuration: number;
+}
+
 export class DialogueBox {
   speakerName: string;
   speakerText: string;
@@ -11,10 +17,10 @@ export class DialogueBox {
   startTime: number;
   dialogFinished: boolean;
 
-  constructor(name: string, text: string, animationDuration: number) {
-    this.speakerName = name;
-    this.speakerText = text;
-    this.animationDuration = animationDuration;
+  constructor(options: Partial<DialogueBoxOptions>) {
+    this.speakerName = options.name;
+    this.speakerText = options.text;
+    this.animationDuration = options.animationDuration;
     this.dialogFinished = false;
   }
 

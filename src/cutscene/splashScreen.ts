@@ -1,17 +1,30 @@
+export type SplashScreenOptions = {
+  imageName: string;
+}
+
 export class SplashScreen {
   imageName: string;
   dialogFinished: boolean;
 
-  constructor(imageName: string) {
-    this.imageName = imageName;
+  constructor(options: Partial<SplashScreenOptions>) {
+    this.imageName = options.imageName;
     this.dialogFinished = false;
   }
 
+  start(): void {
+  }
+
   mouseClicked(mouseX: number, mouseY: number) {
-    this.dialogFinished = true;
+    if (this.isAnimating()) {
+      this.dialogFinished = true;
+    }
+  }
+
+  isAnimating(): boolean {
+    return !this.dialogFinished;
   }
 
   isFinished(): boolean {
-    return this.dialogFinished;
+    return !this.isAnimating() || this.dialogFinished;
   }
 }
