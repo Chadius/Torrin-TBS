@@ -1,4 +1,4 @@
-import * as p5 from 'p5';
+import p5 from 'p5';
 import {BattleScene, PositiveNumber} from './battle/battleScene'
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "./graphicsConstants";
 

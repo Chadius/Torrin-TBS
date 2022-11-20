@@ -1,3 +1,5 @@
+import p5 from "p5";
+
 export type SplashScreenOptions = {
   imageName: string;
 }
@@ -26,5 +28,8 @@ export class SplashScreen {
 
   isFinished(): boolean {
     return !this.isAnimating() || this.dialogFinished;
+  }
+
+  draw(p: p5): void {
   }
 }

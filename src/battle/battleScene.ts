@@ -1,6 +1,8 @@
-import * as p5 from 'p5';
+import p5 from "p5";
 import {HexGridTerrainTypes, HexGridTile, Integer} from "../hexMap/hexGrid";
 import {HexMap} from "../hexMap/hexMap";
+import {Cutscene} from "../cutscene/cutscene";
+import {DialogueBox} from "../cutscene/dialogueBox";
 
 export type PositiveNumber = number & {_brand: 'PositiveNumber'}
 function assertsPositiveNumber(value: number): asserts value is PositiveNumber {
@@ -11,6 +13,7 @@ export class BattleScene {
   width: PositiveNumber;
   height: PositiveNumber;
   hexMap: HexMap;
+  cutscene: Cutscene;
 
   constructor(w: number, h: number) {
     assertsPositiveNumber(w);
@@ -20,34 +23,45 @@ export class BattleScene {
 
     type Tile = [number, number, HexGridTerrainTypes];
     const rawTiles: Tile[] = [
-      [-1, -1, HexGridTerrainTypes.water],
-      [ 0, -1, HexGridTerrainTypes.water],
-      [ 1, -1, HexGridTerrainTypes.water],
-      [ 2, -1, HexGridTerrainTypes.water],
-      [ 3, -1, HexGridTerrainTypes.water],
+      [0, -1, HexGridTerrainTypes.water],
+      [0,  0, HexGridTerrainTypes.water],
+      [0,  1, HexGridTerrainTypes.water],
+      [0,  2, HexGridTerrainTypes.water],
+      [0,  3, HexGridTerrainTypes.water],
 
-      [-1, 0, HexGridTerrainTypes.floor],
-      [ 0, 0, HexGridTerrainTypes.floor],
-      [ 1, 0, HexGridTerrainTypes.floor],
-      [ 2, 0, HexGridTerrainTypes.floor],
+      [ 1, -1, HexGridTerrainTypes.floor],
+      [ 1,  0, HexGridTerrainTypes.floor],
+      [ 1,  1, HexGridTerrainTypes.floor],
+      [ 1,  2, HexGridTerrainTypes.floor],
 
-      [-2, 1, HexGridTerrainTypes.grass],
-      [-1, 1, HexGridTerrainTypes.grass],
-      [ 0, 1, HexGridTerrainTypes.grass],
-      [ 1, 1, HexGridTerrainTypes.grass],
-      [ 2, 1, HexGridTerrainTypes.grass],
+      [ 2, -2, HexGridTerrainTypes.grass],
+      [ 2, -1, HexGridTerrainTypes.grass],
+      [ 2,  0, HexGridTerrainTypes.grass],
+      [ 2,  1, HexGridTerrainTypes.grass],
+      [ 2,  2, HexGridTerrainTypes.grass],
 
-      [-2, 2, HexGridTerrainTypes.sand],
-      [-1, 2, HexGridTerrainTypes.sand],
-      [ 0, 2, HexGridTerrainTypes.sand],
-      [ 1, 2, HexGridTerrainTypes.sand],
+      [ 3, -2, HexGridTerrainTypes.sand],
+      [ 3, -1, HexGridTerrainTypes.sand],
+      [ 3,  0, HexGridTerrainTypes.sand],
+      [ 3,  1, HexGridTerrainTypes.sand],
 
-      [-3, 3, HexGridTerrainTypes.stone],
-      [-2, 3, HexGridTerrainTypes.stone],
-      [-1, 3, HexGridTerrainTypes.stone],
-      [ 0, 3, HexGridTerrainTypes.stone],
-      [ 1, 3, HexGridTerrainTypes.stone],
+      [ 4, -3, HexGridTerrainTypes.stone],
+      [ 4, -2, HexGridTerrainTypes.stone],
+      [ 4, -1, HexGridTerrainTypes.stone],
+      [ 4,  0, HexGridTerrainTypes.stone],
+      [ 4,  1, HexGridTerrainTypes.stone],
     ];
+
+    this.cutscene = new Cutscene(
+      [
+        new DialogueBox({
+          name: "Restaurant Host",
+          text: "Someone will lead you to your table shortly.",
+          animationDuration: 0,
+        })
+      ]
+    );
+    this.cutscene.start();
 
     this.hexMap = new HexMap( rawTiles.map(triple => {
       return new HexGridTile(triple[0], triple[1], triple[2])
@@ -79,10 +93,21 @@ export class BattleScene {
     p.colorMode("hsb", 360, 100, 100, 255)
     p.background(50, 10, 20);
 
-    this.hexMap.draw(p);
+    if (this.hexMap) {
+      this.hexMap.draw(p);
+    }
+
+    if (this.cutscene && this.cutscene.isInProgress()) {
+      this.cutscene.draw(p);
+    }
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
+    if (this.cutscene && this.cutscene.isInProgress()) {
+      this.cutscene.mouseClicked(mouseX, mouseY);
+      return;
+    }
+
     this.hexMap.stopHighlightingTiles();
     this.hexMap.mouseClicked(mouseX, mouseY);
   }

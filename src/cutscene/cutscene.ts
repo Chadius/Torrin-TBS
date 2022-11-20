@@ -23,6 +23,10 @@ export class Cutscene {
   }
 
   draw(p: p5) {
+    if (this.currentDialogue !== undefined) {
+      this.currentDialogue.draw(p);
+      return;
+    }
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
