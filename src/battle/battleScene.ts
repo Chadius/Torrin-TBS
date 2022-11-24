@@ -15,7 +15,7 @@ export class BattleScene {
   hexMap: HexMap;
   cutscene: Cutscene;
 
-  constructor(w: number, h: number) {
+  constructor(p: p5, w: number, h: number) {
     assertsPositiveNumber(w);
     assertsPositiveNumber(h);
     this.width = w;
@@ -57,7 +57,8 @@ export class BattleScene {
         new DialogueBox({
           name: "Restaurant Host",
           text: "Someone will lead you to your table shortly.",
-          animationDuration: 0,
+          animationDuration: 1000,
+          portrait: p.loadImage("assets/testPortrait0001.png")
         })
       ]
     );

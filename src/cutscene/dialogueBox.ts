@@ -6,7 +6,7 @@ export type DialogueAction = DialogueBox | SplashScreen;
 export type DialogueBoxOptions = {
   name: string;
   text: string;
-  portrait: p5.IMAGE;
+  portrait: p5.Image;
   animationDuration: number;
 }
 
@@ -14,7 +14,7 @@ export class DialogueBox {
   speakerName: string;
   speakerText: string;
   animationDuration: number;
-  speakerPortrait: p5.IMAGE;
+  speakerPortrait: p5.Image;
 
   startTime: number;
   dialogFinished: boolean;
@@ -52,13 +52,14 @@ export class DialogueBox {
       dialogueBoxHeight - margin
     );
 
+    const speakerBoxTop = dialogueBoxTop - (2.5 * margin);
+    const speakerBoxHeight = margin * 3;
+    const speakerBoxLeft = margin * 0.5;
+
     if (this.speakerName) {
       // draw a speaker's box
       const speakerBackgroundColor: [number, number, number] = dialogueBoxBackgroundColor;
       const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
-      const speakerBoxTop = dialogueBoxTop - (2.5 * margin);
-      const speakerBoxHeight = margin * 3;
-      const speakerBoxLeft = margin * 0.5;
 
       p.fill(speakerBackgroundColor);
       p.rect(speakerBoxLeft, speakerBoxTop, p.width * 0.3, speakerBoxHeight);
@@ -76,6 +77,14 @@ export class DialogueBox {
     }
 
     // draw a portrait above the box
+    if (this.speakerPortrait) {
+      p.image(
+        this.speakerPortrait,
+        dialogueBoxLeft,
+        speakerBoxTop - this.speakerPortrait.height
+      );
+    }
+
     p.pop();
   }
 
@@ -84,14 +93,21 @@ export class DialogueBox {
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
+    if (this.isTimeExpired()) {
+      return;
+    }
+
     if (this.isAnimating()) {
       this.dialogFinished = true;
     }
   }
 
+  isTimeExpired(): boolean {
+    return new Date(Date.now()).getMilliseconds() >= this.startTime + this.animationDuration
+  }
+
   isAnimating(): boolean {
-    const timeExpired = new Date(Date.now()).getMilliseconds() >= this.startTime + this.animationDuration
-    if (timeExpired) {
+    if (this.isTimeExpired()) {
       return false;
     }
 

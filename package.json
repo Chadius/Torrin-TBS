@@ -5,7 +5,7 @@
   "private": "true",
   "source": "src/index.html",
   "scripts": {
-    "start": "webpack serve --open",
+    "start": "rsync --recursive assets dist/ && webpack serve --open",
     "test": "jest"
   },
   "author": "",

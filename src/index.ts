@@ -7,7 +7,7 @@ let battleScene: BattleScene;
 export const sketch = (p: p5) => {
   p.setup = () => {
     p.createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
-    battleScene = new BattleScene( SCREEN_WIDTH as PositiveNumber, SCREEN_HEIGHT as PositiveNumber);
+    battleScene = new BattleScene(p, SCREEN_WIDTH as PositiveNumber, SCREEN_HEIGHT as PositiveNumber);
   }
 
   p.draw = () => {
