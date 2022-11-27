@@ -93,10 +93,6 @@ export class DialogueBox {
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
-    if (this.isTimeExpired()) {
-      return;
-    }
-
     if (this.isAnimating()) {
       this.dialogFinished = true;
     }

@@ -5,21 +5,18 @@ export class Cutscene {
   dialogueActions: DialogueAction[];
   dialogueActionIndex: number | undefined;
   currentDialogue: DialogueAction | undefined;
-  dialogueInProgress: boolean;
 
   constructor(dialogues: DialogueAction[]) {
     this.dialogueActions = [...dialogues];
     this.dialogueActionIndex = undefined;
-
-    this.dialogueInProgress = false;
   }
 
   isInProgress(): boolean {
-    return this.dialogueInProgress;
+    return (this.dialogueActionIndex === undefined || this.currentDialogue !== undefined);
   }
 
   isFinished(): boolean {
-    return false;
+    return (this.dialogueActionIndex !== undefined && this.currentDialogue === undefined);
   }
 
   draw(p: p5) {
@@ -42,7 +39,6 @@ export class Cutscene {
   }
 
   start(): void {
-    this.dialogueInProgress = true;
     this.getNextAction();
   }
 
@@ -61,7 +57,6 @@ export class Cutscene {
   }
 
   stop(): void {
-    this.dialogueInProgress = false;
     this.currentDialogue = undefined;
     this.dialogueActionIndex = undefined;
   }

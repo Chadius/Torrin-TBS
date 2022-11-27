@@ -49,6 +49,7 @@ describe('Cutscene', () => {
     expect(dinnerDate.getCurrentAction()).toBe(splash2);
   });
 
+  // TODO this test is bad
   it('should wait for the DialogueAction to end before sending more messages', () => {
     const dinnerDate = new Cutscene([
       frontDoorGreeting,
@@ -59,5 +60,25 @@ describe('Cutscene', () => {
     expect(dinnerDate.getCurrentAction()).toBe(frontDoorGreeting);
     dinnerDate.mouseClicked(100, 100);
     expect(dinnerDate.getCurrentAction()).toBe(frontDoorGreeting);
+  });
+
+  it('should be finished when all of the actions are finished', () => {
+    const dinnerDate = new Cutscene([
+      frontDoorGreeting,
+      hostGreeting
+    ]);
+
+    dinnerDate.start();
+    expect(dinnerDate.isInProgress()).toBeTruthy();
+
+    expect(dinnerDate.getCurrentAction()).toBe(frontDoorGreeting);
+    dinnerDate.mouseClicked(100, 100);
+
+    expect(dinnerDate.getCurrentAction()).toBe(hostGreeting);
+    dinnerDate.mouseClicked(100, 100);
+
+    expect(dinnerDate.getCurrentAction()).toBeUndefined();
+    expect(dinnerDate.isInProgress()).toBeFalsy();
+    expect(dinnerDate.isFinished()).toBeTruthy();
   });
 });

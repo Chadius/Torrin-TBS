@@ -13,16 +13,4 @@ describe('dialogue box', () => {
     expect(frontDoorGreeting.isAnimating()).toBeFalsy();
     expect(frontDoorGreeting.isFinished()).toBeTruthy();
   });
-
-  it('should mark as finished if clicked on after showing text', () => {
-    jest.spyOn(Date, 'now').mockImplementation(() => 0);
-    frontDoorGreeting.start();
-    expect(frontDoorGreeting.isAnimating()).toBeTruthy();
-    expect(frontDoorGreeting.isFinished()).toBeFalsy();
-
-    frontDoorGreeting.mouseClicked(100, 100);
-
-    expect(frontDoorGreeting.isAnimating()).toBeFalsy();
-    expect(frontDoorGreeting.isFinished()).toBeTruthy();
-  });
 });
