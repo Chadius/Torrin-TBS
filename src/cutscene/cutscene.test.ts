@@ -3,8 +3,8 @@ import {SplashScreen} from "./splashScreen";
 import {Cutscene} from "./cutscene";
 
 describe('Cutscene', () => {
-  const splash1 = new SplashScreen({imageName: "splash1.png"})
-  const splash2 = new SplashScreen({imageName: "splash2.png"})
+  const splash1 = new SplashScreen({})
+  const splash2 = new SplashScreen({})
 
   const frontDoorGreeting = new DialogueBox({ name: "Doorman", text: "Welcome, come inside", animationDuration: 0});
   const hostGreeting = new DialogueBox({ name: "Host", text: "Someone will lead you to your table shortly.", animationDuration: 0});
@@ -47,19 +47,6 @@ describe('Cutscene', () => {
     expect(dinnerDate.getCurrentAction()).toBe(splash1);
     dinnerDate.mouseClicked(100, 100);
     expect(dinnerDate.getCurrentAction()).toBe(splash2);
-  });
-
-  // TODO this test is bad
-  it('should wait for the DialogueAction to end before sending more messages', () => {
-    const dinnerDate = new Cutscene([
-      frontDoorGreeting,
-      hostGreeting
-    ]);
-
-    dinnerDate.start();
-    expect(dinnerDate.getCurrentAction()).toBe(frontDoorGreeting);
-    dinnerDate.mouseClicked(100, 100);
-    expect(dinnerDate.getCurrentAction()).toBe(frontDoorGreeting);
   });
 
   it('should be finished when all of the actions are finished', () => {

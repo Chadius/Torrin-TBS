@@ -3,6 +3,7 @@ import {HexGridTerrainTypes, HexGridTile, Integer} from "../hexMap/hexGrid";
 import {HexMap} from "../hexMap/hexMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {DialogueBox} from "../cutscene/dialogueBox";
+import {SplashScreen} from "../cutscene/splashScreen";
 
 export type PositiveNumber = number & {_brand: 'PositiveNumber'}
 function assertsPositiveNumber(value: number): asserts value is PositiveNumber {
@@ -54,6 +55,9 @@ export class BattleScene {
 
     this.cutscene = new Cutscene(
       [
+        new SplashScreen({
+          screenImage: p.loadImage("assets/testPortrait0001.png"),
+        }),
         new DialogueBox({
           name: "Restaurant Host",
           text: "Someone will lead you to your table shortly.",

@@ -12,7 +12,7 @@ export class Cutscene {
   }
 
   isInProgress(): boolean {
-    return (this.dialogueActionIndex === undefined || this.currentDialogue !== undefined);
+    return (this.dialogueActionIndex !== undefined && this.currentDialogue !== undefined)
   }
 
   isFinished(): boolean {
@@ -29,17 +29,26 @@ export class Cutscene {
   mouseClicked(mouseX: number, mouseY: number) {
     if (this.currentDialogue === undefined) {
       this.getNextAction();
+      this.startAction();
       return;
     }
 
     this.currentDialogue.mouseClicked(mouseX, mouseY);
     if (this.currentDialogue.isFinished()) {
       this.getNextAction();
+      this.startAction();
     }
   }
 
   start(): void {
     this.getNextAction();
+    this.startAction();
+  }
+
+  startAction(): void {
+    if (this.currentDialogue !== undefined) {
+      this.currentDialogue.start();
+    }
   }
 
   getNextAction(): DialogueAction {

@@ -1,17 +1,36 @@
 import {SplashScreen} from "./splashScreen";
 
 describe('splash screen', () => {
-  const restaurantEntrance = new SplashScreen({ imageName: "restaurant_entrance.png"});
+  it('should mark as finished if clicked', () => {
+    const titleScreen = new SplashScreen({});
 
-  it('should mark as finished if clicked on after showing text', () => {
     jest.spyOn(Date, 'now').mockImplementation(() => 0);
-    restaurantEntrance.start();
-    expect(restaurantEntrance.isAnimating()).toBeTruthy();
-    expect(restaurantEntrance.isFinished()).toBeFalsy();
+    titleScreen.start();
+    expect(titleScreen.isAnimating()).toBeTruthy();
+    expect(titleScreen.isFinished()).toBeFalsy();
 
-    restaurantEntrance.mouseClicked(100, 100);
+    titleScreen.mouseClicked(100, 100);
 
-    expect(restaurantEntrance.isAnimating()).toBeFalsy();
-    expect(restaurantEntrance.isFinished()).toBeTruthy();
+    expect(titleScreen.isAnimating()).toBeFalsy();
+    expect(titleScreen.isFinished()).toBeTruthy();
+  });
+
+  it('should ignore input until the animation Duration passes', () => {
+    const titleScreen = new SplashScreen({ animationDuration: 500});
+
+    jest.spyOn(Date, 'now').mockImplementation(() => 0);
+    titleScreen.start();
+    expect(titleScreen.isAnimating()).toBeTruthy();
+    expect(titleScreen.isFinished()).toBeFalsy();
+
+    titleScreen.mouseClicked(100, 100);
+    expect(titleScreen.isAnimating()).toBeTruthy();
+    expect(titleScreen.isFinished()).toBeFalsy();
+
+    jest.spyOn(Date, 'now').mockImplementation(() => 501);
+    titleScreen.mouseClicked(100, 100);
+
+    expect(titleScreen.isAnimating()).toBeFalsy();
+    expect(titleScreen.isFinished()).toBeTruthy();
   });
 });
