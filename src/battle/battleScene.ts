@@ -59,10 +59,12 @@ export class BattleScene {
           screenImage: p.loadImage("assets/testPortrait0001.png"),
         }),
         new DialogueBox({
-          name: "Restaurant Host",
-          text: "Someone will lead you to your table shortly.",
+          name: "Crazy Pete's",
+          text: "Please buy my book!",
           animationDuration: 1000,
-          portrait: p.loadImage("assets/testPortrait0001.png")
+          portrait: p.loadImage("assets/testPortrait0001.png"),
+          answers: ["Okay fine!", "No way!"],
+          screenDimensions: [this.width, this.height]
         })
       ]
     );

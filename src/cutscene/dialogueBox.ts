@@ -8,22 +8,37 @@ export type DialogueBoxOptions = {
   text: string;
   portrait: p5.Image;
   animationDuration: number;
+  answers: string[];
+  screenDimensions: [number, number];
 }
+
+type ButtonRectangle = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
 
 export class DialogueBox {
   speakerName: string;
   speakerText: string;
   animationDuration: number;
   speakerPortrait: p5.Image;
+  answers: string[];
+  screenDimensions: [number, number];
 
   startTime: number;
   dialogFinished: boolean;
+  answerSelected: number;
 
   constructor(options: Partial<DialogueBoxOptions>) {
     this.speakerName = options.name;
     this.speakerText = options.text;
     this.animationDuration = options.animationDuration;
     this.speakerPortrait = options.portrait;
+    this.answers = options.answers || [];
+    this.screenDimensions = options.screenDimensions || [0, 0];
+
     this.dialogFinished = false;
   }
 
@@ -85,6 +100,30 @@ export class DialogueBox {
       );
     }
 
+    // draw dialogue boxes
+    const answerButtonPositions: ButtonRectangle[] = this.getAnswerButtonPositions();
+    answerButtonPositions.forEach((button, answerIndex) => {
+      p.fill(dialogueBoxBackgroundColor);
+      p.rect(
+        button.left,
+        button.top,
+        button.width,
+        button.height
+      );
+
+      p.textSize(24);
+      p.fill(dialogueBoxTextColor);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(
+        this.answers[answerIndex],
+        button.left + button.width * 0.1,
+        button.top + button.height * 0.1,
+        button.width * 0.9,
+        button.height * 0.9,
+      );
+      p.textAlign(p.LEFT, p.BASELINE);
+    });
+
     p.pop();
   }
 
@@ -92,8 +131,75 @@ export class DialogueBox {
     this.startTime = new Date(Date.now()).getMilliseconds();
   }
 
+  getAnswerButtonPositions(): ButtonRectangle[] {
+    if (this.answers.length < 1) {
+      return [];
+    }
+
+    const buttonTop = this.screenDimensions[1] * 0.9;
+    const buttonHeight = this.screenDimensions[1] * 0.1;
+
+    if (this.answers.length == 1) {
+      return [
+        {
+          left: 0,
+          top: buttonTop,
+          width: this.screenDimensions[0],
+          height: buttonHeight
+        }
+      ];
+    }
+
+    // TODO Buttons span along the bottom of the screen
+    // TODO Buttons follow flexbox space-between style
+    // TODO Buttons leave 25% whitespace or 50 pixels, whichever is less
+
+    const BUTTON_GAP_WHITESPACE_PERCENTAGE = 25;
+    const BUTTON_GAP_PIXEL_MINIMUM = 50;
+
+    let numberOfGaps = this.answers.length - 1;
+    let rawTotalButtonGapSpace = this.screenDimensions[0] * BUTTON_GAP_WHITESPACE_PERCENTAGE / 100;
+
+    let buttonGapWidth = rawTotalButtonGapSpace / numberOfGaps;
+    if (buttonGapWidth < BUTTON_GAP_PIXEL_MINIMUM) {
+      buttonGapWidth = BUTTON_GAP_PIXEL_MINIMUM;
+    }
+
+    let totalButtonGap = buttonGapWidth * (this.answers.length - 1);
+    let totalButtonSpace = this.screenDimensions[0] - totalButtonGap;
+    let buttonWidth = totalButtonSpace / this.answers.length;
+
+    return this.answers.map((text, index): ButtonRectangle => {
+      return {
+        left: (buttonWidth + buttonGapWidth) * index,
+        top: buttonTop,
+        width: buttonWidth,
+        height: buttonHeight
+      };
+    });
+  }
+
   mouseClicked(mouseX: number, mouseY: number) {
-    if (this.isAnimating()) {
+    if(this.isWaitingForAnswer()) {
+      const answerButtonPositions: ButtonRectangle[] = this.getAnswerButtonPositions();
+
+      const answerSelected: number | null = answerButtonPositions.findIndex((buttonPosition) => {
+        return (
+          mouseX >= buttonPosition.left
+          && mouseX <= buttonPosition.left + buttonPosition.width
+          && mouseY >= buttonPosition.top
+          && mouseY <= buttonPosition.top + buttonPosition.height
+        );
+      });
+
+      if (answerSelected !== -1) {
+        this.dialogFinished = true;
+        this.answerSelected = answerSelected;
+      }
+      return;
+    }
+
+    if (this.isAnimating() && !this.isWaitingForAnswer()) {
       this.dialogFinished = true;
     }
   }
@@ -102,8 +208,12 @@ export class DialogueBox {
     return new Date(Date.now()).getMilliseconds() >= this.startTime + this.animationDuration
   }
 
+  isWaitingForAnswer(): boolean {
+    return this.answers.length > 0;
+  }
+
   isAnimating(): boolean {
-    if (this.isTimeExpired()) {
+    if (this.isTimeExpired() && !this.isWaitingForAnswer()) {
       return false;
     }
 
