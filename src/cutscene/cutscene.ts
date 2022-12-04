@@ -1,13 +1,23 @@
-import {DialogueAction} from "./dialogueBox";
+import {DialogueBox} from "./dialogueBox";
 import p5 from "p5";
+import {DecisionTrigger} from "./DecisionTrigger";
+import {CutsceneAction} from "./cutsceneAction";
+
+type Options = {
+  actions: CutsceneAction[];
+  decisionTriggers: DecisionTrigger[];
+}
 
 export class Cutscene {
-  dialogueActions: DialogueAction[];
+  dialogueActions: CutsceneAction[];
   dialogueActionIndex: number | undefined;
-  currentDialogue: DialogueAction | undefined;
+  currentDialogue: CutsceneAction | undefined;
+  decisionTriggers: DecisionTrigger[];
 
-  constructor(dialogues: DialogueAction[]) {
-    this.dialogueActions = [...dialogues];
+  constructor(options: Partial<Options>) {
+    this.dialogueActions = options.actions ? [...options.actions] : [];
+    this.decisionTriggers = options.decisionTriggers ? [...options.decisionTriggers] : [];
+
     this.dialogueActionIndex = undefined;
   }
 
@@ -51,22 +61,63 @@ export class Cutscene {
     }
   }
 
-  getNextAction(): DialogueAction {
+  getNextAction(): CutsceneAction {
+    const trigger: DecisionTrigger = this.getTriggeredAction();
+    if (trigger !== undefined) {
+      this.currentDialogue = this.findDialogueByID(trigger.destination_dialog_id);
+      if (this.currentDialogue !== undefined) {
+        this.dialogueActionIndex = this.findDialogueIndexByID(this.currentDialogue.id);
+      } else {
+        this.dialogueActionIndex = undefined;
+      }
+      return;
+    }
+
     this.dialogueActionIndex =
       this.dialogueActionIndex === undefined ?
-      0 :
-      this.dialogueActionIndex + 1;
+        0 :
+        this.dialogueActionIndex + 1;
 
     this.currentDialogue = this.dialogueActions[this.dialogueActionIndex];
     return this.currentDialogue;
   }
 
-  getCurrentAction(): DialogueAction {
+  private getTriggeredAction(): DecisionTrigger {
+    if (
+      this.currentDialogue === undefined
+    ) {
+      return undefined;
+    }
+
+    const selectedAnswer = this.currentDialogue instanceof DialogueBox ? this.currentDialogue.answerSelected : undefined;
+
+    return this.decisionTriggers.find((action) =>
+      action.source_dialog_id === this.currentDialogue.id
+      && (
+        !action.doesThisRequireAMatchingAnswer()
+        || action.source_dialog_answer === selectedAnswer
+      )
+    );
+  }
+
+  getCurrentAction(): CutsceneAction {
     return this.currentDialogue;
   }
 
   stop(): void {
     this.currentDialogue = undefined;
     this.dialogueActionIndex = undefined;
+  }
+
+  private findDialogueByID(target_id: string): CutsceneAction | undefined {
+    return this.dialogueActions.find((dialog) =>
+      dialog.id === target_id
+    );
+  }
+
+  private findDialogueIndexByID(target_id: string): number {
+    return this.dialogueActions.findIndex((dialog) =>
+      dialog.id === target_id
+    );
   }
 };

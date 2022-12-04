@@ -1,9 +1,10 @@
 import p5 from "p5";
-import {SplashScreen} from "./splashScreen";
 
-export type DialogueAction = DialogueBox | SplashScreen;
+type RequiredOptions = {
+  id: string;
+}
 
-export type DialogueBoxOptions = {
+type Options = {
   name: string;
   text: string;
   portrait: p5.Image;
@@ -20,6 +21,7 @@ type ButtonRectangle = {
 };
 
 export class DialogueBox {
+  id: string;
   speakerName: string;
   speakerText: string;
   animationDuration: number;
@@ -31,7 +33,8 @@ export class DialogueBox {
   dialogFinished: boolean;
   answerSelected: number;
 
-  constructor(options: Partial<DialogueBoxOptions>) {
+  constructor(options: RequiredOptions & Partial<Options>) {
+    this.id = options.id;
     this.speakerName = options.name;
     this.speakerText = options.text;
     this.animationDuration = options.animationDuration;
@@ -39,6 +42,7 @@ export class DialogueBox {
     this.answers = options.answers || [];
     this.screenDimensions = options.screenDimensions || [0, 0];
 
+    this.answerSelected = -1;
     this.dialogFinished = false;
   }
 

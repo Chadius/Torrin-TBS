@@ -4,6 +4,7 @@ import {HexMap} from "../hexMap/hexMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {DialogueBox} from "../cutscene/dialogueBox";
 import {SplashScreen} from "../cutscene/splashScreen";
+import {DecisionTrigger} from "../cutscene/DecisionTrigger";
 
 export type PositiveNumber = number & {_brand: 'PositiveNumber'}
 function assertsPositiveNumber(value: number): asserts value is PositiveNumber {
@@ -54,19 +55,53 @@ export class BattleScene {
     ];
 
     this.cutscene = new Cutscene(
-      [
-        new SplashScreen({
-          screenImage: p.loadImage("assets/testPortrait0001.png"),
-        }),
-        new DialogueBox({
-          name: "Crazy Pete's",
-          text: "Please buy my book!",
-          animationDuration: 1000,
-          portrait: p.loadImage("assets/testPortrait0001.png"),
-          answers: ["Okay fine!", "No way!"],
-          screenDimensions: [this.width, this.height]
-        })
-      ]
+      {
+        actions: [
+            new SplashScreen({
+              screenImage: p.loadImage("assets/testPortrait0001.png"),
+            }),
+            new DialogueBox({
+              id: "purchase Offer",
+              name: "Crazy Pete's",
+              text: "Please buy my book!",
+              portrait: p.loadImage("assets/testPortrait0001.png"),
+              answers: ["Okay fine!", "No way!"],
+              screenDimensions: [this.width, this.height]
+            }),
+          new DialogueBox({
+              id: "reconsider",
+              name: "Crazy Pete's",
+              text: "I implore you to reconsider...",
+              animationDuration: 100,
+              portrait: p.loadImage("assets/testPortrait0001.png"),
+              screenDimensions: [this.width, this.height]
+            }),
+          new DialogueBox({
+              id: "sold",
+              name: "Crazy Pete's",
+              text: "Thank you, come again!",
+              animationDuration: 100,
+              portrait: p.loadImage("assets/testPortrait0001.png"),
+              screenDimensions: [this.width, this.height]
+            })
+          ],
+        decisionTriggers: [
+          new DecisionTrigger({
+            source_dialog_id: "purchase Offer",
+            source_dialog_answer: 1,
+            destination_dialog_id: "reconsider"
+          }),
+          new DecisionTrigger({
+            source_dialog_id: "purchase Offer",
+            source_dialog_answer: 0,
+            destination_dialog_id: "sold"
+          }),
+          new DecisionTrigger({
+            source_dialog_id: "reconsider",
+            destination_dialog_id: "purchase Offer"
+          })
+        ]
+      }
     );
     this.cutscene.start();
 

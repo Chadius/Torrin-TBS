@@ -1,17 +1,23 @@
 import p5 from "p5";
 
-export type SplashScreenOptions = {
+type RequiredOptions = {
+  id: string;
+}
+
+type Options = {
   animationDuration: number;
   screenImage: p5.Image;
 }
 
 export class SplashScreen {
+  id: string;
   startTime: number;
   dialogFinished: boolean;
   animationDuration: number;
   screenImage: p5.Image;
 
-  constructor(options: Partial<SplashScreenOptions>) {
+  constructor(options: RequiredOptions & Partial<Options>) {
+    this.id = options.id;
     this.screenImage = options.screenImage;
     this.animationDuration = options.animationDuration || 0;
     this.dialogFinished = false;
@@ -51,6 +57,5 @@ export class SplashScreen {
     }
 
     p.pop();
-
   }
 }
