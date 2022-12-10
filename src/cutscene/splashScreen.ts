@@ -24,11 +24,11 @@ export class SplashScreen {
   }
 
   start(): void {
-    this.startTime = new Date(Date.now()).getMilliseconds();
+    this.startTime = Date.now();
   }
 
   isTimeExpired(): boolean {
-    return new Date(Date.now()).getMilliseconds() >= this.startTime + this.animationDuration
+    return Date.now() >= this.startTime + this.animationDuration
   }
 
   mouseClicked(mouseX: number, mouseY: number) {

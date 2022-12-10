@@ -3,96 +3,160 @@ import p5 from "p5";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
 
+const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
+
 type Options = {
   actions: CutsceneAction[];
   decisionTriggers: DecisionTrigger[];
+  screenDimensions: [number, number];
 }
 
 export class Cutscene {
   dialogueActions: CutsceneAction[];
-  dialogueActionIndex: number | undefined;
-  currentDialogue: CutsceneAction | undefined;
   decisionTriggers: DecisionTrigger[];
+  screenDimensions: {width: number, height: number};
+
+  dialogueActionIndex: number | undefined;
+  currentAction: CutsceneAction | undefined;
+  fastForwardPreviousTimeTick: number | undefined;
 
   constructor(options: Partial<Options>) {
     this.dialogueActions = options.actions ? [...options.actions] : [];
     this.decisionTriggers = options.decisionTriggers ? [...options.decisionTriggers] : [];
+    this.screenDimensions = {
+      width: options.screenDimensions ? options.screenDimensions[0] : 0,
+      height: options.screenDimensions ? options.screenDimensions[1] : 0,
+    };
 
     this.dialogueActionIndex = undefined;
+    this.fastForwardPreviousTimeTick = undefined;
   }
 
   isInProgress(): boolean {
-    return (this.dialogueActionIndex !== undefined && this.currentDialogue !== undefined)
+    return (this.dialogueActionIndex !== undefined && this.currentAction !== undefined)
   }
 
   isFinished(): boolean {
-    return (this.dialogueActionIndex !== undefined && this.currentDialogue === undefined);
+    return (this.dialogueActionIndex !== undefined && this.currentAction === undefined);
   }
 
   draw(p: p5) {
-    if (this.currentDialogue !== undefined) {
-      this.currentDialogue.draw(p);
+    if (this.currentAction !== undefined) {
+      this.currentAction.draw(p);
+    }
+
+    this.drawFastForwardButton(p);
+  }
+
+  private drawFastForwardButton(p: p5): void {
+    if (!this.canFastForward()) {
       return;
     }
+
+    const fastForwardButtonLocation = this.getFastForwardButtonLocation();
+    const buttonActivateBackgroundColor: [number, number, number] = [200, 10, 50];
+    const buttonDeactivateBackgroundColor: [number, number, number] = [200, 5, 30];
+    const buttonTextColor: [number, number, number] = [0, 0, 0];
+    let buttonText: string;
+
+    p.push();
+    if (this.isFastForward()) {
+      p.fill(buttonDeactivateBackgroundColor);
+      buttonText = "Stop FF";
+    } else {
+      p.fill(buttonActivateBackgroundColor);
+      buttonText = "Fast-forward";
+    }
+
+    p.rect(fastForwardButtonLocation.left, fastForwardButtonLocation.top, fastForwardButtonLocation.width, fastForwardButtonLocation.height);
+
+    const margin = 8;
+    p.textSize(32);
+    p.fill(buttonTextColor);
+    p.text(
+      buttonText,
+      fastForwardButtonLocation.left + margin,
+      fastForwardButtonLocation.top + margin,
+      fastForwardButtonLocation.width - margin - margin,
+      fastForwardButtonLocation.height - margin
+    );
+
+    p.pop();
+    return;
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
-    if (this.currentDialogue === undefined) {
-      this.getNextAction();
+    if (this.didUserClickOnFastForwardButton(mouseX, mouseY)) {
+      this.toggleFastForwardMode();
+      return;
+    }
+
+    if (this.currentAction === undefined) {
+      this.gotoNextAction();
       this.startAction();
       return;
     }
 
-    this.currentDialogue.mouseClicked(mouseX, mouseY);
-    if (this.currentDialogue.isFinished()) {
-      this.getNextAction();
+    this.currentAction.mouseClicked(mouseX, mouseY);
+    if (this.currentAction.isFinished()) {
+      this.gotoNextAction();
       this.startAction();
     }
   }
 
   start(): void {
-    this.getNextAction();
+    this.gotoNextAction();
     this.startAction();
   }
 
   startAction(): void {
-    if (this.currentDialogue !== undefined) {
-      this.currentDialogue.start();
+    if (this.currentAction !== undefined) {
+      this.currentAction.start();
     }
   }
 
-  getNextAction(): CutsceneAction {
+  getNextAction(): {nextAction: CutsceneAction, actionIndex: number} {
     const trigger: DecisionTrigger = this.getTriggeredAction();
+    let nextAction: CutsceneAction;
+    let currentActionIndex: number = this.dialogueActionIndex;
+
     if (trigger !== undefined) {
-      this.currentDialogue = this.findDialogueByID(trigger.destination_dialog_id);
-      if (this.currentDialogue !== undefined) {
-        this.dialogueActionIndex = this.findDialogueIndexByID(this.currentDialogue.id);
-      } else {
-        this.dialogueActionIndex = undefined;
-      }
-      return;
+      nextAction = this.findDialogueByID(trigger.destination_dialog_id);
+      return {
+        nextAction: nextAction,
+        actionIndex: this.findDialogueIndexByID(trigger.destination_dialog_id)
+      };
     }
 
-    this.dialogueActionIndex =
-      this.dialogueActionIndex === undefined ?
+    currentActionIndex =
+      currentActionIndex === undefined ?
         0 :
-        this.dialogueActionIndex + 1;
+        currentActionIndex + 1;
 
-    this.currentDialogue = this.dialogueActions[this.dialogueActionIndex];
-    return this.currentDialogue;
+    nextAction = this.dialogueActions[currentActionIndex];
+    return {
+      nextAction: nextAction,
+      actionIndex: currentActionIndex
+    };
+  }
+
+  gotoNextAction(): void {
+    const nextAction = this.getNextAction();
+    this.currentAction = nextAction.nextAction;
+    this.dialogueActionIndex = nextAction.actionIndex;
   }
 
   private getTriggeredAction(): DecisionTrigger {
     if (
-      this.currentDialogue === undefined
+      this.currentAction === undefined
     ) {
       return undefined;
     }
 
-    const selectedAnswer = this.currentDialogue instanceof DialogueBox ? this.currentDialogue.answerSelected : undefined;
+    const selectedAnswer = this.currentAction instanceof DialogueBox ? this.currentAction.answerSelected : undefined;
 
     return this.decisionTriggers.find((action) =>
-      action.source_dialog_id === this.currentDialogue.id
+      action.source_dialog_id === this.currentAction.id
       && (
         !action.doesThisRequireAMatchingAnswer()
         || action.source_dialog_answer === selectedAnswer
@@ -101,11 +165,11 @@ export class Cutscene {
   }
 
   getCurrentAction(): CutsceneAction {
-    return this.currentDialogue;
+    return this.currentAction;
   }
 
   stop(): void {
-    this.currentDialogue = undefined;
+    this.currentAction = undefined;
     this.dialogueActionIndex = undefined;
   }
 
@@ -120,4 +184,80 @@ export class Cutscene {
       dialog.id === target_id
     );
   }
-};
+
+  isFastForward(): boolean {
+    return this.fastForwardPreviousTimeTick !== undefined;
+  }
+
+  private didUserClickOnFastForwardButton(mouseX: number, mouseY: number): boolean {
+    const fastForwardButtonDimensions = this.getFastForwardButtonLocation();
+
+    return (
+      mouseX >= fastForwardButtonDimensions.left
+      && mouseX < fastForwardButtonDimensions.left + fastForwardButtonDimensions.width
+      && mouseY >= fastForwardButtonDimensions.top
+      && mouseY < fastForwardButtonDimensions.top + fastForwardButtonDimensions.height
+    );
+  }
+
+  private getFastForwardButtonLocation() {
+    return {
+      left: this.screenDimensions.width * 0.8,
+      top: this.screenDimensions.height * 0.1,
+      width: this.screenDimensions.width * 0.15,
+      height: this.screenDimensions.height * 0.1
+    };
+  }
+
+  private toggleFastForwardMode(): void {
+    if (this.isFastForward()) {
+      this.deactivateFastForwardMode();
+      return;
+    }
+    this.activateFastForwardMode();
+  }
+
+  private activateFastForwardMode(): void {
+    this.fastForwardPreviousTimeTick = Date.now();
+  }
+
+  private deactivateFastForwardMode(): void {
+    this.fastForwardPreviousTimeTick = undefined;
+  }
+
+  update(): void {
+    if(!this.canFastForward()) {
+      this.deactivateFastForwardMode();
+      return;
+    }
+
+    if (!this.isFastForward()) {
+      return;
+    }
+
+    if (
+      Date.now() > this.fastForwardPreviousTimeTick + FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS
+    ) {
+      if (this.getNextAction().nextAction !== undefined) {
+        this.gotoNextAction();
+        this.startAction();
+        this.activateFastForwardMode();
+      } else {
+        this.deactivateFastForwardMode();
+      }
+      return;
+    }
+  }
+
+  canFastForward(): boolean {
+    if (this.getNextAction().nextAction === undefined) {
+      return false;
+    }
+
+    if(!(this.currentAction instanceof DialogueBox)) {
+      return true;
+    }
+
+    return !(this.currentAction instanceof DialogueBox && this.currentAction.asksUserForAnAnswer());
+  }
+}

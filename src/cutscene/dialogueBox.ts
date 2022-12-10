@@ -132,11 +132,11 @@ export class DialogueBox {
   }
 
   start(): void {
-    this.startTime = new Date(Date.now()).getMilliseconds();
+    this.startTime = Date.now();
   }
 
   getAnswerButtonPositions(): ButtonRectangle[] {
-    if (this.answers.length < 1) {
+    if (!this.asksUserForAnAnswer()) {
       return [];
     }
 
@@ -153,10 +153,6 @@ export class DialogueBox {
         }
       ];
     }
-
-    // TODO Buttons span along the bottom of the screen
-    // TODO Buttons follow flexbox space-between style
-    // TODO Buttons leave 25% whitespace or 50 pixels, whichever is less
 
     const BUTTON_GAP_WHITESPACE_PERCENTAGE = 25;
     const BUTTON_GAP_PIXEL_MINIMUM = 50;
@@ -184,7 +180,7 @@ export class DialogueBox {
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
-    if(this.isWaitingForAnswer()) {
+    if(this.asksUserForAnAnswer()) {
       const answerButtonPositions: ButtonRectangle[] = this.getAnswerButtonPositions();
 
       const answerSelected: number | null = answerButtonPositions.findIndex((buttonPosition) => {
@@ -203,21 +199,21 @@ export class DialogueBox {
       return;
     }
 
-    if (this.isAnimating() && !this.isWaitingForAnswer()) {
+    if (this.isAnimating() && !this.asksUserForAnAnswer()) {
       this.dialogFinished = true;
     }
   }
 
   isTimeExpired(): boolean {
-    return new Date(Date.now()).getMilliseconds() >= this.startTime + this.animationDuration
+    return Date.now() >= this.startTime + this.animationDuration
   }
 
-  isWaitingForAnswer(): boolean {
+  asksUserForAnAnswer(): boolean {
     return this.answers.length > 0;
   }
 
   isAnimating(): boolean {
-    if (this.isTimeExpired() && !this.isWaitingForAnswer()) {
+    if (this.isTimeExpired() && !this.asksUserForAnAnswer()) {
       return false;
     }
 

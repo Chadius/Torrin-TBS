@@ -58,7 +58,29 @@ export class BattleScene {
       {
         actions: [
             new SplashScreen({
+              id: "splash",
               screenImage: p.loadImage("assets/testPortrait0001.png"),
+            }),
+            new DialogueBox({
+              id: "welcome",
+              name: "Crazy Pete's",
+              text: "Welcome to Crazy Pete's!",
+              portrait: p.loadImage("assets/testPortrait0001.png"),
+              screenDimensions: [this.width, this.height]
+            }),
+            new DialogueBox({
+              id: "blah",
+              name: "Crazy Pete's",
+              text: "Blah blah blah blah blahdy blahski!",
+              portrait: p.loadImage("assets/testPortrait0001.png"),
+              screenDimensions: [this.width, this.height]
+            }),
+            new DialogueBox({
+              id: "look at this book",
+              name: "Crazy Pete's",
+              text: "Are you even listening? Look at this book!",
+              portrait: p.loadImage("assets/testPortrait0001.png"),
+              screenDimensions: [this.width, this.height]
             }),
             new DialogueBox({
               id: "purchase Offer",
@@ -100,7 +122,8 @@ export class BattleScene {
             source_dialog_id: "reconsider",
             destination_dialog_id: "purchase Offer"
           })
-        ]
+        ],
+        screenDimensions: [p.width, p.height]
       }
     );
     this.cutscene.start();
@@ -140,6 +163,7 @@ export class BattleScene {
     }
 
     if (this.cutscene && this.cutscene.isInProgress()) {
+      this.cutscene.update();
       this.cutscene.draw(p);
     }
   }

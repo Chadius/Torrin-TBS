@@ -49,7 +49,7 @@ export function drawHexShape(p: p5, xPos: any, yPos: number) {
 }
 
 export function calculatePulseValueOverTime(low: number, high: number, periodInMilliseconds: number): number {
-  const millisecondsSinceEpoch = new Date(Date.now()).getMilliseconds();
+  const millisecondsSinceEpoch = Date.now();
 
   const base = (high + low) / 2;
   const amplitude = (high - low) / 2;
