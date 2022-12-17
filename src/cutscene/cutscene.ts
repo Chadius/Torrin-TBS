@@ -2,6 +2,7 @@ import {DialogueBox} from "./dialogueBox";
 import p5 from "p5";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
+import {WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
@@ -70,8 +71,8 @@ export class Cutscene {
 
     p.rect(fastForwardButtonLocation.left, fastForwardButtonLocation.top, fastForwardButtonLocation.width, fastForwardButtonLocation.height);
 
-    const margin = 8;
-    p.textSize(32);
+    const margin = WINDOW_SPACING1;
+    p.textSize(WINDOW_SPACING4);
     p.fill(buttonTextColor);
     p.text(
       buttonText,

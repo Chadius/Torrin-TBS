@@ -1,4 +1,5 @@
 import p5 from "p5";
+import {WINDOW_SPACING2, WINDOW_SPACING4} from "../ui/constants";
 
 type RequiredOptions = {
   id: string;
@@ -47,7 +48,7 @@ export class DialogueBox {
   }
 
   draw(p: p5) {
-    const margin: number = 16;
+    const margin: number = WINDOW_SPACING2;
 
     const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
     const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
@@ -61,7 +62,7 @@ export class DialogueBox {
     p.rect(dialogueBoxLeft, dialogueBoxTop - margin, p.width - margin - margin, dialogueBoxHeight);
 
     // draw the text
-    p.textSize(32);
+    p.textSize(WINDOW_SPACING4);
     p.fill(dialogueBoxTextColor);
     p.text(
       this.speakerText,
