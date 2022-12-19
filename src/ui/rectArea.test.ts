@@ -1,10 +1,10 @@
-import {HorizontalAnchor, Rect, RectArguments, VerticalAnchor} from "./rect";
+import {HorizontalAnchor, RectArea, VerticalAnchor} from "./rectArea";
 import {WINDOW_SPACING05, WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4} from "./constants";
 
-describe('Rect', () => {
-  describe('Rect created from Position arguments', () => {
+describe('RectArea', () => {
+  describe('RectArea created from Position arguments', () => {
     it('can make a new Rectangle with top, left, width and height', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         top: 0,
         left: 10,
         height: 30,
@@ -18,7 +18,7 @@ describe('Rect', () => {
     });
 
     it('can make a new Rectangle with top, left, bottom and right', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         top: 0,
         left: 10,
         bottom: 20,
@@ -31,9 +31,9 @@ describe('Rect', () => {
       expect(rect.width).toBe(20);
     });
   });
-  describe('Rect created from Screen Percentage arguments', () => {
+  describe('RectArea created from Screen Percentage arguments', () => {
     it('can make a new Rectangle with screen percentage top, left, width and height', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         screenWidth: 1000,
         screenHeight: 500,
         percentTop: 10,
@@ -49,7 +49,7 @@ describe('Rect', () => {
     });
 
     it('can make a new Rectangle with screen percentage top, left, bottom and right', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         screenWidth: 1000,
         screenHeight: 500,
         percentTop: 10,
@@ -64,9 +64,9 @@ describe('Rect', () => {
       expect(rect.width).toBe(100);
     });
   });
-  describe('Rect created from 12 point column', () => {
+  describe('RectArea created from 12 point column', () => {
     it('can make a new Rectangle with screen dimensions, start column, end column and top and bottom', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         screenWidth: 1200,
         screenHeight: 500,
         startColumn: 1,
@@ -82,7 +82,7 @@ describe('Rect', () => {
     });
 
     it('can make a new Rectangle with screen dimensions, start column, end column and percent top and percent bottom', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         screenWidth: 1200,
         screenHeight: 500,
         startColumn: 11,
@@ -98,7 +98,7 @@ describe('Rect', () => {
     });
 
     it('can make a new Rectangle with screen dimensions, left, end column and top and percent bottom', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         screenWidth: 1200,
         screenHeight: 500,
         left: 100,
@@ -113,16 +113,16 @@ describe('Rect', () => {
       expect(rect.width).toBe(1100);
     });
   });
-  describe('Rect anchored to another rect', () => {
+  describe('RectArea anchored to another rect', () => {
     it('can create a rect with the same top and left corner', () => {
-      const baseRect = new Rect({
+      const baseRect = new RectArea({
         top: 10,
         left: 20,
         height: 30,
         width: 40
       });
 
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         anchorLeft: HorizontalAnchor.LEFT,
         anchorTop: VerticalAnchor.TOP,
@@ -136,14 +136,14 @@ describe('Rect', () => {
       expect(rect.width).toBe(50);
     });
     it('can create a rect in the middle and center', () => {
-      const baseRect = new Rect({
+      const baseRect = new RectArea({
         top: 10,
         left: 20,
         height: 30,
         width: 40
       });
 
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         anchorLeft: HorizontalAnchor.MIDDLE,
         anchorTop: VerticalAnchor.CENTER,
@@ -157,14 +157,14 @@ describe('Rect', () => {
       expect(rect.width).toBe(50);
     });
     it('can create a rect with the bottom right corner', () => {
-      const baseRect = new Rect({
+      const baseRect = new RectArea({
         top: 10,
         left: 20,
         height: 30,
         width: 40
       });
 
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         anchorLeft: HorizontalAnchor.RIGHT,
         anchorTop: VerticalAnchor.BOTTOM,
@@ -178,16 +178,16 @@ describe('Rect', () => {
       expect(rect.width).toBe(50);
     });
   });
-  describe('Rect can combine multiple options', () => {
+  describe('RectArea can combine multiple options', () => {
     it('can combine multiple top options', () => {
-      const baseRect = new Rect({
+      const baseRect = new RectArea({
         top: 10,
         left: 20,
         height: 30,
         width: 40
       });
 
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         anchorTop: VerticalAnchor.TOP,
         screenHeight: 500,
@@ -205,14 +205,14 @@ describe('Rect', () => {
     });
 
     it('can combine multiple left options', () => {
-      const baseRect = new Rect({
+      const baseRect = new RectArea({
         top: 10,
         left: 20,
         height: 30,
         width: 40
       });
 
-      const rect = new Rect({
+      const rect = new RectArea({
         screenWidth: 1200,
         percentLeft: 20,
         startColumn: 2,
@@ -231,10 +231,10 @@ describe('Rect', () => {
       expect(rect.left).toBe(baseRect.left + expectedAnchor + expectedPercent + expectedColumn);
     });
   });
-  describe('Rect can apply margins based on another Rect', () => {
-    let baseRect: Rect;
+  describe('RectArea can apply margins based on another Rect', () => {
+    let baseRect: RectArea;
     beforeEach(() => {
-      baseRect = new Rect({
+      baseRect = new RectArea({
         top: 10,
         left: 20,
         height: 30,
@@ -243,7 +243,7 @@ describe('Rect', () => {
     });
 
     it('Can apply all margins', ()=>{
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         margin: WINDOW_SPACING1
       });
@@ -255,7 +255,7 @@ describe('Rect', () => {
     });
 
     it('Can apply vertical and horizontal margins', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         margin: [WINDOW_SPACING1, WINDOW_SPACING2]
       });
@@ -267,7 +267,7 @@ describe('Rect', () => {
     });
 
     it('Can apply top, horizontal, bottom margins', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         margin: [WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4]
       });
@@ -279,7 +279,7 @@ describe('Rect', () => {
     });
 
     it('Can apply top, right, bottom, left margins', () => {
-      const rect = new Rect({
+      const rect = new RectArea({
         baseRectangle: baseRect,
         margin: [WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4, WINDOW_SPACING05]
       });
@@ -288,6 +288,25 @@ describe('Rect', () => {
       expect(rect.left).toBe(baseRect.left + WINDOW_SPACING05);
       expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING1 + WINDOW_SPACING4));
       expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING2 + WINDOW_SPACING05));
+    });
+  });
+  describe('RectArea getters', () => {
+    it('should return parts of the RectArea', () => {
+      const rect = new RectArea({
+        top: 0,
+        left: 10,
+        height: 30,
+        width: 40
+      });
+
+      expect(rect.getTop()).toBe(0);
+      expect(rect.getLeft()).toBe(10);
+      expect(rect.getHeight()).toBe(30);
+      expect(rect.getWidth()).toBe(40);
+      expect(rect.getBottom()).toBe(30);
+      expect(rect.getRight()).toBe(50);
+      expect(rect.getCenterY()).toBe(15);
+      expect(rect.getCenterX()).toBe(30);
     });
   });
 });

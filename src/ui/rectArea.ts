@@ -79,17 +79,17 @@ type TwelvePointColumnEnd = {
 }
 
 type AnchorLeft = {
-  baseRectangle: Rect
+  baseRectangle: RectArea
   anchorLeft: HorizontalAnchor
 }
 
 type AnchorTop = {
-  baseRectangle: Rect
+  baseRectangle: RectArea
   anchorTop: VerticalAnchor
 }
 
 type Margins = {
-  baseRectangle: Rect;
+  baseRectangle: RectArea;
   margin: number | [number, number] | [number, number, number] | [number, number, number, number];
 }
 
@@ -124,7 +124,7 @@ type RectWidth = PositionWidth
   | Margins
 export type RectArguments = RectTop & RectLeft & RectHeight & RectWidth
 
-export class Rect {
+export class RectArea {
   top: number;
   left: number;
   width: number;
@@ -359,5 +359,30 @@ export class Rect {
         this.width = marginsAll.baseRectangle.width - marginsAll.margin[1] - marginsAll.margin[3];
       }
     }
+  }
+
+  getTop(): number {
+    return this.top;
+  }
+  getLeft(): number {
+    return this.left;
+  }
+  getHeight(): number {
+    return this.height;
+  }
+  getWidth(): number {
+    return this.width;
+  }
+  getBottom(): number {
+    return this.top + this.height;
+  }
+  getRight(): number {
+    return this.left + this.width;
+  }
+  getCenterY(): number {
+    return this.top + (this.height / 2);
+  }
+  getCenterX(): number {
+    return this.left + (this.width / 2);
   }
 }
