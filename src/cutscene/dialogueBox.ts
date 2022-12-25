@@ -2,6 +2,7 @@ import p5 from "p5";
 import {WINDOW_SPACING2, WINDOW_SPACING4} from "../ui/constants";
 import {Rectangle} from "../ui/rectangle";
 import {RectArea} from "../ui/rectArea";
+import {TextBox} from "../ui/textBox";
 
 type RequiredOptions = {
   id: string;
@@ -41,6 +42,10 @@ export class DialogueBox {
   speakerNameBoxArea: RectArea;
   speakerNameBox: Rectangle;
   answerRectangles: Rectangle[];
+
+  answerTextRectangles: TextBox[];
+  speakerTextBox: TextBox;
+  speakerNameTextBox: TextBox;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     this.id = options.id;
@@ -107,52 +112,66 @@ export class DialogueBox {
         })
       });
     });
+    this.answerTextRectangles = answerButtonPositions.map((buttonRect, answerIndex) => {
+      return new TextBox({
+        textSize: 24,
+        fontColor: dialogueBoxTextColor,
+        text: this.answers[answerIndex],
+        horizAlign: "center",
+        vertAlign: "center",
+        area: new RectArea({
+          left: buttonRect.left + buttonRect.width * 0.1,
+          top: buttonRect.top + buttonRect.height * 0.1,
+          width: buttonRect.width * 0.9,
+          height: buttonRect.height * 0.9,
+        })
+      })
+    });
+
+    this.speakerTextBox = new TextBox({
+      text: this.speakerText,
+      textSize: WINDOW_SPACING4,
+      fontColor: dialogueBoxTextColor,
+      area: new RectArea({
+        left: dialogueBoxLeft + margin,
+        top: dialogueBoxTop + margin,
+        width: this.screenDimensions[0] - margin - margin,
+        height: dialogueBoxHeight - margin
+      })
+    })
+
+    const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
+    this.speakerNameTextBox = new TextBox({
+      fontColor: speakerBoxTextColor,
+      textSize: 24,
+      text: this.speakerName,
+      horizAlign: "left",
+      vertAlign: "alphabetic",
+      area: new RectArea({
+        left: speakerBoxLeft + (margin * 0.5),
+        top: speakerBoxTop + margin,
+        width: (this.screenDimensions[0]) - margin,
+        height: speakerBoxHeight - margin
+      })
+    });
   }
 
   draw(p: p5) {
     const margin: number = WINDOW_SPACING2;
 
-    const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
-    const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
     const dialogueBoxTop = p.height * 0.7;
-    const dialogueBoxHeight = p.height * 0.3;
     const dialogueBoxLeft = margin;
-
-    this.textBox.draw(p);
 
     p.push();
 
-    // draw the text
-    p.textSize(WINDOW_SPACING4);
-    p.fill(dialogueBoxTextColor);
-    p.text(
-      this.speakerText,
-      dialogueBoxLeft + margin,
-      dialogueBoxTop + margin,
-      p.width - margin - margin,
-      dialogueBoxHeight - margin
-    );
+    this.textBox.draw(p);
+    this.speakerTextBox.draw(p);
 
     const speakerBoxTop = dialogueBoxTop - (2.5 * margin);
-    const speakerBoxHeight = margin * 3;
-    const speakerBoxLeft = margin * 0.5;
 
     if (this.speakerName) {
-      // draw a speaker's box
-      const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
-
       this.speakerNameBox.draw(p);
-
-      // draw the speaker's name
-      p.textSize(24);
-      p.fill(speakerBoxTextColor);
-      p.text(
-        this.speakerName,
-        speakerBoxLeft + (margin * 0.5),
-        speakerBoxTop + margin,
-        (p.width * 0.3) - margin,
-        speakerBoxHeight - margin
-      );
+      this.speakerNameTextBox.draw(p);
     }
 
     // draw a portrait above the box
@@ -164,24 +183,12 @@ export class DialogueBox {
       );
     }
 
-    // draw dialogue boxes
     this.answerRectangles.forEach((answer) => {
       answer.draw(p);
     });
 
-    const answerButtonPositions: RectArea[] = this.getAnswerButtonPositions();
-    answerButtonPositions.forEach((button, answerIndex) => {
-      p.textSize(24);
-      p.fill(dialogueBoxTextColor);
-      p.textAlign(p.CENTER, p.CENTER);
-      p.text(
-        this.answers[answerIndex],
-        button.left + button.width * 0.1,
-        button.top + button.height * 0.1,
-        button.width * 0.9,
-        button.height * 0.9,
-      );
-      p.textAlign(p.LEFT, p.BASELINE);
+    this.answerTextRectangles.forEach((answer) => {
+      answer.draw(p);
     });
 
     p.pop();
