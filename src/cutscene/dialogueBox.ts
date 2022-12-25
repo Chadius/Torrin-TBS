@@ -1,5 +1,7 @@
 import p5 from "p5";
 import {WINDOW_SPACING2, WINDOW_SPACING4} from "../ui/constants";
+import {Rectangle} from "../ui/rectangle";
+import {RectArea} from "../ui/rectArea";
 
 type RequiredOptions = {
   id: string;
@@ -34,6 +36,12 @@ export class DialogueBox {
   dialogFinished: boolean;
   answerSelected: number;
 
+  textBoxArea: RectArea;
+  textBox: Rectangle;
+  speakerNameBoxArea: RectArea;
+  speakerNameBox: Rectangle;
+  answerRectangles: Rectangle[];
+
   constructor(options: RequiredOptions & Partial<Options>) {
     this.id = options.id;
     this.speakerName = options.name;
@@ -45,6 +53,60 @@ export class DialogueBox {
 
     this.answerSelected = -1;
     this.dialogFinished = false;
+
+    this.createUIObjects();
+  }
+
+  createUIObjects() {
+    const margin: number = WINDOW_SPACING2;
+
+    const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
+    const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
+    const dialogueBoxTop = this.screenDimensions[1] * 0.7;
+    const dialogueBoxHeight = this.screenDimensions[1] * 0.3;
+    const dialogueBoxLeft = margin;
+
+    this.textBoxArea = new RectArea({
+      left: dialogueBoxLeft,
+      top: dialogueBoxTop - margin,
+      width: this.screenDimensions[0] - margin - margin,
+      height: dialogueBoxHeight
+    });
+
+    this.textBox = new Rectangle({
+      fillColor: dialogueBoxBackgroundColor,
+      area: this.textBoxArea
+    });
+
+    const speakerBackgroundColor: [number, number, number] = dialogueBoxBackgroundColor;
+    const speakerBoxTop = dialogueBoxTop - (2.5 * margin);
+    const speakerBoxHeight = margin * 3;
+    const speakerBoxLeft = margin * 0.5;
+
+    this.speakerNameBoxArea = new RectArea({
+      left: speakerBoxLeft,
+      top: speakerBoxTop,
+      width: this.screenDimensions[0] * 0.3,
+      height: speakerBoxHeight
+    });
+
+    this.speakerNameBox = new Rectangle({
+      fillColor: speakerBackgroundColor,
+      area: this.speakerNameBoxArea
+    });
+
+    const answerButtonPositions: RectArea[] = this.getAnswerButtonPositions();
+    this.answerRectangles = answerButtonPositions.map((buttonRect) => {
+      return new Rectangle({
+        fillColor: dialogueBoxBackgroundColor,
+        area: new RectArea({
+          left: buttonRect.left,
+          top: buttonRect.top,
+          width: buttonRect.width,
+          height: buttonRect.height,
+        })
+      });
+    });
   }
 
   draw(p: p5) {
@@ -56,10 +118,9 @@ export class DialogueBox {
     const dialogueBoxHeight = p.height * 0.3;
     const dialogueBoxLeft = margin;
 
-    // draw a box across the bottom
+    this.textBox.draw(p);
+
     p.push();
-    p.fill(dialogueBoxBackgroundColor);
-    p.rect(dialogueBoxLeft, dialogueBoxTop - margin, p.width - margin - margin, dialogueBoxHeight);
 
     // draw the text
     p.textSize(WINDOW_SPACING4);
@@ -78,11 +139,9 @@ export class DialogueBox {
 
     if (this.speakerName) {
       // draw a speaker's box
-      const speakerBackgroundColor: [number, number, number] = dialogueBoxBackgroundColor;
       const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
 
-      p.fill(speakerBackgroundColor);
-      p.rect(speakerBoxLeft, speakerBoxTop, p.width * 0.3, speakerBoxHeight);
+      this.speakerNameBox.draw(p);
 
       // draw the speaker's name
       p.textSize(24);
@@ -106,16 +165,12 @@ export class DialogueBox {
     }
 
     // draw dialogue boxes
-    const answerButtonPositions: ButtonRectangle[] = this.getAnswerButtonPositions();
-    answerButtonPositions.forEach((button, answerIndex) => {
-      p.fill(dialogueBoxBackgroundColor);
-      p.rect(
-        button.left,
-        button.top,
-        button.width,
-        button.height
-      );
+    this.answerRectangles.forEach((answer) => {
+      answer.draw(p);
+    });
 
+    const answerButtonPositions: RectArea[] = this.getAnswerButtonPositions();
+    answerButtonPositions.forEach((button, answerIndex) => {
       p.textSize(24);
       p.fill(dialogueBoxTextColor);
       p.textAlign(p.CENTER, p.CENTER);
@@ -136,7 +191,7 @@ export class DialogueBox {
     this.startTime = Date.now();
   }
 
-  getAnswerButtonPositions(): ButtonRectangle[] {
+  getAnswerButtonPositions(): RectArea[] {
     if (!this.asksUserForAnAnswer()) {
       return [];
     }
@@ -146,12 +201,12 @@ export class DialogueBox {
 
     if (this.answers.length == 1) {
       return [
-        {
+        new RectArea({
           left: 0,
           top: buttonTop,
           width: this.screenDimensions[0],
           height: buttonHeight
-        }
+        })
       ];
     }
 
@@ -170,19 +225,19 @@ export class DialogueBox {
     let totalButtonSpace = this.screenDimensions[0] - totalButtonGap;
     let buttonWidth = totalButtonSpace / this.answers.length;
 
-    return this.answers.map((text, index): ButtonRectangle => {
-      return {
+    return this.answers.map((text, index): RectArea => {
+      return new RectArea({
         left: (buttonWidth + buttonGapWidth) * index,
         top: buttonTop,
         width: buttonWidth,
         height: buttonHeight
-      };
+      });
     });
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
     if(this.asksUserForAnAnswer()) {
-      const answerButtonPositions: ButtonRectangle[] = this.getAnswerButtonPositions();
+      const answerButtonPositions: RectArea[] = this.getAnswerButtonPositions();
 
       const answerSelected: number | null = answerButtonPositions.findIndex((buttonPosition) => {
         return (
