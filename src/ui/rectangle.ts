@@ -10,13 +10,15 @@ type Options = {
   strokeWeight?: number;
 }
 
+export type RectangleArguments = RequiredOptions & Partial<Options>;
+
 export class Rectangle {
   area: RectArea;
   fillColor?: number[];
   strokeColor?: number[];
   strokeWeight?: number;
 
-  constructor(options: RequiredOptions & Partial<Options>) {
+  constructor(options: RectangleArguments) {
     this.area = options.area;
     this.fillColor = options.fillColor;
     this.strokeColor = options.strokeColor;

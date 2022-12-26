@@ -5,11 +5,13 @@ type RequiredOptions = {
   area: RectArea;
 }
 
+export type ImageUIOptions = RequiredOptions;
+
 export class ImageUI {
   graphic: p5.Image;
   area: RectArea;
 
-  constructor(options: RequiredOptions) {
+  constructor(options: ImageUIOptions) {
     this.graphic = options.graphic;
     this.area = options.area;
   }

@@ -1,9 +1,14 @@
 import p5 from "p5";
-import {WINDOW_SPACING2, WINDOW_SPACING4} from "../ui/constants";
-import {Rectangle} from "../ui/rectangle";
+import {
+  HORIZ_ALIGN_CENTER,
+  HORIZ_ALIGN_LEFT,
+  VERT_ALIGN_BASELINE, VERT_ALIGN_CENTER,
+  WINDOW_SPACING2,
+  WINDOW_SPACING4
+} from "../ui/constants";
 import {RectArea} from "../ui/rectArea";
-import {TextBox} from "../ui/textBox";
 import {ImageUI} from "../ui/imageUI";
+import {Label} from "../ui/label";
 
 type RequiredOptions = {
   id: string;
@@ -31,17 +36,11 @@ export class DialogueBox {
   dialogFinished: boolean;
   answerSelected: number;
 
-  textBoxArea: RectArea;
-  textBox: Rectangle;
-  speakerNameBoxArea: RectArea;
-  speakerNameBox: Rectangle;
-  answerRectangles: Rectangle[];
-
-  answerTextRectangles: TextBox[];
-  speakerTextBox: TextBox;
-  speakerNameTextBox: TextBox;
-
   speakerImage: ImageUI;
+
+  speakerTextLabel: Label;
+  speakerNameLabel: Label;
+  answerLabels: Label[];
 
   constructor(options: RequiredOptions & Partial<Options>) {
     this.id = options.id;
@@ -67,16 +66,18 @@ export class DialogueBox {
     const dialogueBoxHeight = this.screenDimensions[1] * 0.3;
     const dialogueBoxLeft = margin;
 
-    this.textBoxArea = new RectArea({
-      left: dialogueBoxLeft,
-      top: dialogueBoxTop - margin,
-      width: this.screenDimensions[0] - margin - margin,
-      height: dialogueBoxHeight
-    });
-
-    this.textBox = new Rectangle({
+    this.speakerTextLabel = new Label({
+      padding: [margin * 2, margin, 0, margin],
+      area: new RectArea({
+        left: dialogueBoxLeft,
+        top: dialogueBoxTop - margin,
+        width: this.screenDimensions[0] - margin - margin,
+        height: dialogueBoxHeight
+      }),
       fillColor: dialogueBoxBackgroundColor,
-      area: this.textBoxArea
+      text: this.speakerText,
+      textSize: WINDOW_SPACING4,
+      fontColor: dialogueBoxTextColor
     });
 
     const speakerBackgroundColor: [number, number, number] = dialogueBoxBackgroundColor;
@@ -84,80 +85,47 @@ export class DialogueBox {
     const speakerBoxHeight = margin * 3;
     const speakerBoxLeft = margin * 0.5;
 
-    this.speakerNameBoxArea = new RectArea({
-      left: speakerBoxLeft,
-      top: speakerBoxTop,
-      width: this.screenDimensions[0] * 0.3,
-      height: speakerBoxHeight
-    });
-
-    this.speakerNameBox = new Rectangle({
+    const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
+    this.speakerNameLabel = new Label({
+      padding: [margin, 0, 0, margin * 0.5],
+      area: new RectArea({
+        left: speakerBoxLeft,
+        top: speakerBoxTop,
+        width: this.screenDimensions[0] * 0.3,
+        height: speakerBoxHeight
+      }),
       fillColor: speakerBackgroundColor,
-      area: this.speakerNameBoxArea
+      text: this.speakerName,
+      textSize: 24,
+      fontColor: speakerBoxTextColor,
+      horizAlign: HORIZ_ALIGN_LEFT,
+      vertAlign: VERT_ALIGN_BASELINE,
     });
 
     const answerButtonPositions: RectArea[] = this.getAnswerButtonPositions();
-    this.answerRectangles = answerButtonPositions.map((buttonRect) => {
-      return new Rectangle({
-        fillColor: dialogueBoxBackgroundColor,
+    this.answerLabels = answerButtonPositions.map((buttonRect, answerIndex) =>
+      new Label({
+        padding: [buttonRect.height *0.1, buttonRect.width*0.1],
         area: new RectArea({
           left: buttonRect.left,
           top: buttonRect.top,
           width: buttonRect.width,
           height: buttonRect.height,
-        })
-      });
-    });
-    this.answerTextRectangles = answerButtonPositions.map((buttonRect, answerIndex) => {
-      return new TextBox({
+        }),
+        fillColor: dialogueBoxBackgroundColor,
+        text: this.answers[answerIndex],
         textSize: 24,
         fontColor: dialogueBoxTextColor,
-        text: this.answers[answerIndex],
-        horizAlign: "center",
-        vertAlign: "center",
-        area: new RectArea({
-          left: buttonRect.left + buttonRect.width * 0.1,
-          top: buttonRect.top + buttonRect.height * 0.1,
-          width: buttonRect.width * 0.9,
-          height: buttonRect.height * 0.9,
-        })
+        horizAlign: HORIZ_ALIGN_CENTER,
+        vertAlign: VERT_ALIGN_CENTER
       })
-    });
-
-    this.speakerTextBox = new TextBox({
-      text: this.speakerText,
-      textSize: WINDOW_SPACING4,
-      fontColor: dialogueBoxTextColor,
-      area: new RectArea({
-        left: dialogueBoxLeft + margin,
-        top: dialogueBoxTop + margin,
-        width: this.screenDimensions[0] - margin - margin,
-        height: dialogueBoxHeight - margin
-      })
-    })
-
-    const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
-    this.speakerNameTextBox = new TextBox({
-      fontColor: speakerBoxTextColor,
-      textSize: 24,
-      text: this.speakerName,
-      horizAlign: "left",
-      vertAlign: "alphabetic",
-      area: new RectArea({
-        left: speakerBoxLeft + (margin * 0.5),
-        top: speakerBoxTop + margin,
-        width: (this.screenDimensions[0]) - margin,
-        height: speakerBoxHeight - margin
-      })
-    });
+    );
 
     if (this.speakerPortrait) {
-      console.log(this.speakerPortrait.height);
       this.speakerImage = new ImageUI({
         graphic: this.speakerPortrait,
         area: new RectArea({
           left: dialogueBoxLeft,
-          // top: speakerBoxTop - this.speakerPortrait.height,
           top: speakerBoxTop - this.speakerPortrait.height,
           width: this.speakerPortrait.width,
           height: this.speakerPortrait.height,
@@ -169,23 +137,12 @@ export class DialogueBox {
   draw(p: p5) {
     p.push();
 
-    this.textBox.draw(p);
-    this.speakerTextBox.draw(p);
-
+    this.speakerTextLabel.draw(p);
     if (this.speakerName) {
-      this.speakerNameBox.draw(p);
-      this.speakerNameTextBox.draw(p);
+      this.speakerNameLabel.draw(p);
     }
-
     this.speakerImage.draw(p);
-
-    this.answerRectangles.forEach((answer) => {
-      answer.draw(p);
-    });
-
-    this.answerTextRectangles.forEach((answer) => {
-      answer.draw(p);
-    });
+    this.answerLabels.forEach((answer) => answer.draw(p));
 
     p.pop();
   }

@@ -289,6 +289,18 @@ describe('RectArea', () => {
       expect(rect.height).toBe(baseRect.height - (WINDOW_SPACING1 + WINDOW_SPACING4));
       expect(rect.width).toBe(baseRect.width - (WINDOW_SPACING2 + WINDOW_SPACING05));
     });
+
+    it('Can apply zero margins', () => {
+      const rect = new RectArea({
+        baseRectangle: baseRect,
+        margin: 0
+      });
+
+      expect(rect.top).toBe(baseRect.top);
+      expect(rect.left).toBe(baseRect.left);
+      expect(rect.height).toBe(baseRect.height);
+      expect(rect.width).toBe(baseRect.width);
+    });
   });
   describe('RectArea getters', () => {
     it('should return parts of the RectArea', () => {

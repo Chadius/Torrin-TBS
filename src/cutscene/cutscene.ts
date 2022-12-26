@@ -3,6 +3,8 @@ import p5 from "p5";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
 import {WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
+import {Label} from "../ui/label";
+import {RectArea} from "../ui/rectArea";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 

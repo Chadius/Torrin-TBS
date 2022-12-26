@@ -1,5 +1,8 @@
 import {RectArea} from "./rectArea";
-import p5 from "p5";
+//import p5 from "p5";
+import * as p5 from "p5";
+import { LEFT, p5InstanceExtensions } from "p5";
+import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE} from "./constants";
 
 type RequiredOptions = {
   text: string;
@@ -13,6 +16,8 @@ type Options = {
   vertAlign: p5.VERT_ALIGN;
 }
 
+export type TextBoxArguments = RequiredOptions & Partial<Options>;
+
 export class TextBox {
   text: string;
   textSize: number;
@@ -22,14 +27,14 @@ export class TextBox {
   vertAlign: p5.VERT_ALIGN;
 
 
-  constructor(options: RequiredOptions & Partial<Options>) {
+  constructor(options: TextBoxArguments) {
     this.text = options.text;
     this.textSize = options.textSize;
     this.fontColor = options.fontColor;
     this.area = options.area;
 
-    this.horizAlign = options.horizAlign || "left";
-    this.vertAlign = options.vertAlign || "alphabetic";
+    this.horizAlign = options.horizAlign || HORIZ_ALIGN_LEFT;
+    this.vertAlign = options.vertAlign || VERT_ALIGN_BASELINE;
   }
 
   draw(p: p5) {

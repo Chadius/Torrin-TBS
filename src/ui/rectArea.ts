@@ -173,7 +173,7 @@ export class RectArea {
 
     const marginsAll = (params as Margins)
     if (
-      marginsAll.margin
+      (marginsAll.margin || marginsAll.margin === 0)
       && marginsAll.baseRectangle
     ) {
       top = top ?? 0;
@@ -231,7 +231,7 @@ export class RectArea {
 
     const marginsAll = (params as Margins)
     if (
-      marginsAll.margin
+      (marginsAll.margin || marginsAll.margin === 0)
       && marginsAll.baseRectangle
     ) {
       left = left ?? 0;
@@ -284,7 +284,7 @@ export class RectArea {
 
     const marginsAll = (params as Margins)
     if (
-      marginsAll.margin
+      (marginsAll.margin || marginsAll.margin === 0)
       && marginsAll.baseRectangle
     ) {
       if (typeof marginsAll.margin === "number") {
@@ -346,7 +346,7 @@ export class RectArea {
 
     const marginsAll = (params as Margins)
     if (
-      marginsAll.margin
+      (marginsAll.margin || marginsAll.margin === 0)
       && marginsAll.baseRectangle
     ) {
       if (typeof marginsAll.margin === "number") {
