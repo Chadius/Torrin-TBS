@@ -17,11 +17,16 @@ export class BattleScene {
   hexMap: HexMap;
   cutscene: Cutscene;
 
+  resourcesLoaded: boolean;
+  testPortrait: p5.Image;
+
   constructor(p: p5, w: number, h: number) {
     assertsPositiveNumber(w);
     assertsPositiveNumber(h);
     this.width = w;
     this.height = h;
+
+    this.resourcesLoaded = false;
 
     type Tile = [number, number, HexGridTerrainTypes];
     const rawTiles: Tile[] = [
@@ -54,79 +59,13 @@ export class BattleScene {
       [ 4,  1, HexGridTerrainTypes.stone],
     ];
 
-    this.cutscene = new Cutscene(
-      {
-        actions: [
-            new SplashScreen({
-              id: "splash",
-              screenImage: p.loadImage("assets/testPortrait0001.png"),
-            }),
-            new DialogueBox({
-              id: "welcome",
-              name: "Crazy Pete's",
-              text: "Welcome to Crazy Pete's!",
-              portrait: p.loadImage("assets/testPortrait0001.png"),
-              screenDimensions: [this.width, this.height]
-            }),
-            new DialogueBox({
-              id: "blah",
-              name: "Crazy Pete's",
-              text: "Blah blah blah blah blahdy blahski!",
-              portrait: p.loadImage("assets/testPortrait0001.png"),
-              screenDimensions: [this.width, this.height]
-            }),
-            new DialogueBox({
-              id: "look at this book",
-              name: "Crazy Pete's",
-              text: "Are you even listening? Look at this book!",
-              portrait: p.loadImage("assets/testPortrait0001.png"),
-              screenDimensions: [this.width, this.height]
-            }),
-            new DialogueBox({
-              id: "purchase Offer",
-              name: "Crazy Pete's",
-              text: "Please buy my book!",
-              portrait: p.loadImage("assets/testPortrait0001.png"),
-              answers: ["Okay fine!", "No way!"],
-              screenDimensions: [this.width, this.height]
-            }),
-          new DialogueBox({
-              id: "reconsider",
-              name: "Crazy Pete's",
-              text: "I implore you to reconsider...",
-              animationDuration: 100,
-              portrait: p.loadImage("assets/testPortrait0001.png"),
-              screenDimensions: [this.width, this.height]
-            }),
-          new DialogueBox({
-              id: "sold",
-              name: "Crazy Pete's",
-              text: "Thank you, come again!",
-              animationDuration: 100,
-              portrait: p.loadImage("assets/testPortrait0001.png"),
-              screenDimensions: [this.width, this.height]
-            })
-          ],
-        decisionTriggers: [
-          new DecisionTrigger({
-            source_dialog_id: "purchase Offer",
-            source_dialog_answer: 1,
-            destination_dialog_id: "reconsider"
-          }),
-          new DecisionTrigger({
-            source_dialog_id: "purchase Offer",
-            source_dialog_answer: 0,
-            destination_dialog_id: "sold"
-          }),
-          new DecisionTrigger({
-            source_dialog_id: "reconsider",
-            destination_dialog_id: "purchase Offer"
-          })
-        ],
-        screenDimensions: [p.width, p.height]
+    p.loadImage(
+      "assets/testPortrait0001.png",
+      (loadedImage: p5.Image) => {
+        this.resourcesLoaded = true;
+        this.testPortrait = loadedImage;
       }
     );
-    this.cutscene.start();
 
     this.hexMap = new HexMap( rawTiles.map(triple => {
       return new HexGridTile(triple[0], triple[1], triple[2])
@@ -155,6 +94,82 @@ export class BattleScene {
   }
 
   draw(p: p5)  {
+    if (this.resourcesLoaded && !this.cutscene) {
+      this.cutscene = new Cutscene(
+        {
+          actions: [
+            new SplashScreen({
+              id: "splash",
+              screenImage: this.testPortrait
+            }),
+            new DialogueBox({
+              id: "welcome",
+              name: "Crazy Pete's",
+              text: "Welcome to Crazy Pete's!",
+              portrait: this.testPortrait,
+              screenDimensions: [this.width, this.height]
+            }),
+            new DialogueBox({
+              id: "blah",
+              name: "Crazy Pete's",
+              text: "Blah blah blah blah blahdy blahski!",
+              portrait: this.testPortrait,
+              screenDimensions: [this.width, this.height]
+            }),
+            new DialogueBox({
+              id: "look at this book",
+              name: "Crazy Pete's",
+              text: "Are you even listening? Look at this book!",
+              portrait: this.testPortrait,
+              screenDimensions: [this.width, this.height]
+            }),
+            new DialogueBox({
+              id: "purchase Offer",
+              name: "Crazy Pete's",
+              text: "Please buy my book!",
+              portrait: this.testPortrait,
+              answers: ["Okay fine!", "No way!"],
+              screenDimensions: [this.width, this.height]
+            }),
+            new DialogueBox({
+              id: "reconsider",
+              name: "Crazy Pete's",
+              text: "I implore you to reconsider...",
+              animationDuration: 100,
+              portrait: this.testPortrait,
+              screenDimensions: [this.width, this.height]
+            }),
+            new DialogueBox({
+              id: "sold",
+              name: "Crazy Pete's",
+              text: "Thank you, come again!",
+              animationDuration: 100,
+              portrait: this.testPortrait,
+              screenDimensions: [this.width, this.height]
+            })
+          ],
+          decisionTriggers: [
+            new DecisionTrigger({
+              source_dialog_id: "purchase Offer",
+              source_dialog_answer: 1,
+              destination_dialog_id: "reconsider"
+            }),
+            new DecisionTrigger({
+              source_dialog_id: "purchase Offer",
+              source_dialog_answer: 0,
+              destination_dialog_id: "sold"
+            }),
+            new DecisionTrigger({
+              source_dialog_id: "reconsider",
+              destination_dialog_id: "purchase Offer"
+            })
+          ],
+          screenDimensions: [p.width, p.height]
+        }
+      );
+      this.cutscene.start();
+    }
+
     p.colorMode("hsb", 360, 100, 100, 255)
     p.background(50, 10, 20);
 

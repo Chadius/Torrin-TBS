@@ -3,6 +3,7 @@ import {WINDOW_SPACING2, WINDOW_SPACING4} from "../ui/constants";
 import {Rectangle} from "../ui/rectangle";
 import {RectArea} from "../ui/rectArea";
 import {TextBox} from "../ui/textBox";
+import {ImageUI} from "../ui/imageUI";
 
 type RequiredOptions = {
   id: string;
@@ -16,13 +17,6 @@ type Options = {
   answers: string[];
   screenDimensions: [number, number];
 }
-
-type ButtonRectangle = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-};
 
 export class DialogueBox {
   id: string;
@@ -46,6 +40,8 @@ export class DialogueBox {
   answerTextRectangles: TextBox[];
   speakerTextBox: TextBox;
   speakerNameTextBox: TextBox;
+
+  speakerImage: ImageUI;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     this.id = options.id;
@@ -154,34 +150,34 @@ export class DialogueBox {
         height: speakerBoxHeight - margin
       })
     });
+
+    if (this.speakerPortrait) {
+      console.log(this.speakerPortrait.height);
+      this.speakerImage = new ImageUI({
+        graphic: this.speakerPortrait,
+        area: new RectArea({
+          left: dialogueBoxLeft,
+          // top: speakerBoxTop - this.speakerPortrait.height,
+          top: speakerBoxTop - this.speakerPortrait.height,
+          width: this.speakerPortrait.width,
+          height: this.speakerPortrait.height,
+        })
+      })
+    }
   }
 
   draw(p: p5) {
-    const margin: number = WINDOW_SPACING2;
-
-    const dialogueBoxTop = p.height * 0.7;
-    const dialogueBoxLeft = margin;
-
     p.push();
 
     this.textBox.draw(p);
     this.speakerTextBox.draw(p);
-
-    const speakerBoxTop = dialogueBoxTop - (2.5 * margin);
 
     if (this.speakerName) {
       this.speakerNameBox.draw(p);
       this.speakerNameTextBox.draw(p);
     }
 
-    // draw a portrait above the box
-    if (this.speakerPortrait) {
-      p.image(
-        this.speakerPortrait,
-        dialogueBoxLeft,
-        speakerBoxTop - this.speakerPortrait.height
-      );
-    }
+    this.speakerImage.draw(p);
 
     this.answerRectangles.forEach((answer) => {
       answer.draw(p);
