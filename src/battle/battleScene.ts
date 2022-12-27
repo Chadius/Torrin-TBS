@@ -183,6 +183,13 @@ export class BattleScene {
     }
   }
 
+  mouseMoved(mouseX: number, mouseY: number) {
+    if (this.cutscene && this.cutscene.isInProgress()) {
+      this.cutscene.mouseMoved(mouseX, mouseY);
+      return;
+    }
+  }
+
   mouseClicked(mouseX: number, mouseY: number) {
     if (this.cutscene && this.cutscene.isInProgress()) {
       this.cutscene.mouseClicked(mouseX, mouseY);

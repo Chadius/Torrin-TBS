@@ -17,6 +17,10 @@ export const sketch = (p: p5) => {
   p.mouseClicked = () => {
     battleScene.mouseClicked(p.mouseX, p.mouseY);
   }
+
+  p.mouseMoved = () => {
+    battleScene.mouseMoved(p.mouseX, p.mouseY);
+  }
 }
 
 export const myp5 = new p5(sketch, document.body);

@@ -2,7 +2,14 @@ import {DialogueBox} from "./dialogueBox";
 import p5 from "p5";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
-import {WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
+import {
+  HORIZ_ALIGN_CENTER,
+  VERT_ALIGN_CENTER,
+  WINDOW_SPACING1,
+  WINDOW_SPACING2,
+  WINDOW_SPACING4
+} from "../ui/constants";
+import {Button, ButtonStatus} from "../ui/button";
 import {Label} from "../ui/label";
 import {RectArea} from "../ui/rectArea";
 
@@ -17,10 +24,12 @@ type Options = {
 export class Cutscene {
   dialogueActions: CutsceneAction[];
   decisionTriggers: DecisionTrigger[];
-  screenDimensions: {width: number, height: number};
+  screenDimensions: { width: number, height: number };
 
   dialogueActionIndex: number | undefined;
   currentAction: CutsceneAction | undefined;
+
+  fastForwardButton: Button;
   fastForwardPreviousTimeTick: number | undefined;
 
   constructor(options: Partial<Options>) {
@@ -32,7 +41,67 @@ export class Cutscene {
     };
 
     this.dialogueActionIndex = undefined;
+
+    this.setUpFastforwardButton();
+  }
+
+  private setUpFastforwardButton() {
     this.fastForwardPreviousTimeTick = undefined;
+
+    const fastForwardButtonLocation = this.getFastForwardButtonLocation();
+    const buttonActivateBackgroundColor: [number, number, number] = [200, 10, 50];
+    const buttonDeactivateBackgroundColor: [number, number, number] = [200, 5, 30];
+    const buttonTextColor: [number, number, number] = [0, 0, 0];
+
+    const buttonArea = new RectArea({
+      left: fastForwardButtonLocation.left,
+      top: fastForwardButtonLocation.top,
+      width: fastForwardButtonLocation.width,
+      height: fastForwardButtonLocation.height
+    });
+
+    this.fastForwardButton = new Button({
+      activeLabel: new Label({
+        text: "Stop FF",
+        fillColor: buttonDeactivateBackgroundColor,
+        area: buttonArea,
+        textSize: WINDOW_SPACING4,
+        fontColor: buttonTextColor,
+        padding: WINDOW_SPACING1,
+        horizAlign: HORIZ_ALIGN_CENTER,
+        vertAlign: VERT_ALIGN_CENTER,
+      }),
+      readyLabel: new Label({
+        text: "Fast-forward",
+        fillColor: buttonActivateBackgroundColor,
+        area: buttonArea,
+        textSize: WINDOW_SPACING4,
+        fontColor: buttonTextColor,
+        padding: WINDOW_SPACING1,
+        horizAlign: HORIZ_ALIGN_CENTER,
+        vertAlign: VERT_ALIGN_CENTER,
+      }),
+      hoverLabel: new Label({
+        text: "Click to FF",
+        fillColor: buttonActivateBackgroundColor,
+        area: buttonArea,
+        textSize: WINDOW_SPACING4,
+        fontColor: buttonTextColor,
+        padding: WINDOW_SPACING1,
+        horizAlign: HORIZ_ALIGN_CENTER,
+        vertAlign: VERT_ALIGN_CENTER,
+      }),
+      initialStatus: ButtonStatus.READY,
+      onClickHandler(mouseX: number, mouseY: number, button: Button, caller: Cutscene): {} {
+        caller.toggleFastForwardMode();
+        if (caller.isFastForward()) {
+          button.setStatus(ButtonStatus.ACTIVE);
+        } else {
+          button.setStatus(ButtonStatus.READY);
+        }
+        return;
+      }
+    })
   }
 
   isInProgress(): boolean {
@@ -48,49 +117,19 @@ export class Cutscene {
       this.currentAction.draw(p);
     }
 
-    this.drawFastForwardButton(p);
+    if (this.canFastForward()) {
+      this.fastForwardButton.draw(p);
+    }
   }
 
-  private drawFastForwardButton(p: p5): void {
-    if (!this.canFastForward()) {
+  mouseMoved(mouseX: number, mouseY: number) {
+    if (this.fastForwardButton.mouseMoved(mouseX, mouseY, this) === true) {
       return;
     }
-
-    const fastForwardButtonLocation = this.getFastForwardButtonLocation();
-    const buttonActivateBackgroundColor: [number, number, number] = [200, 10, 50];
-    const buttonDeactivateBackgroundColor: [number, number, number] = [200, 5, 30];
-    const buttonTextColor: [number, number, number] = [0, 0, 0];
-    let buttonText: string;
-
-    p.push();
-    if (this.isFastForward()) {
-      p.fill(buttonDeactivateBackgroundColor);
-      buttonText = "Stop FF";
-    } else {
-      p.fill(buttonActivateBackgroundColor);
-      buttonText = "Fast-forward";
-    }
-
-    p.rect(fastForwardButtonLocation.left, fastForwardButtonLocation.top, fastForwardButtonLocation.width, fastForwardButtonLocation.height);
-
-    const margin = WINDOW_SPACING1;
-    p.textSize(WINDOW_SPACING4);
-    p.fill(buttonTextColor);
-    p.text(
-      buttonText,
-      fastForwardButtonLocation.left + margin,
-      fastForwardButtonLocation.top + margin,
-      fastForwardButtonLocation.width - margin - margin,
-      fastForwardButtonLocation.height - margin
-    );
-
-    p.pop();
-    return;
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
-    if (this.didUserClickOnFastForwardButton(mouseX, mouseY)) {
-      this.toggleFastForwardMode();
+    if (this.fastForwardButton.mouseClicked(mouseX, mouseY, this) === true) {
       return;
     }
 
@@ -118,7 +157,7 @@ export class Cutscene {
     }
   }
 
-  getNextAction(): {nextAction: CutsceneAction, actionIndex: number} {
+  getNextAction(): { nextAction: CutsceneAction, actionIndex: number } {
     const trigger: DecisionTrigger = this.getTriggeredAction();
     let nextAction: CutsceneAction;
     let currentActionIndex: number = this.dialogueActionIndex;
@@ -159,11 +198,11 @@ export class Cutscene {
     const selectedAnswer = this.currentAction instanceof DialogueBox ? this.currentAction.answerSelected : undefined;
 
     return this.decisionTriggers.find((action) =>
-      action.source_dialog_id === this.currentAction.id
-      && (
-        !action.doesThisRequireAMatchingAnswer()
-        || action.source_dialog_answer === selectedAnswer
-      )
+        action.source_dialog_id === this.currentAction.id
+        && (
+          !action.doesThisRequireAMatchingAnswer()
+          || action.source_dialog_answer === selectedAnswer
+        )
     );
   }
 
@@ -192,17 +231,6 @@ export class Cutscene {
     return this.fastForwardPreviousTimeTick !== undefined;
   }
 
-  private didUserClickOnFastForwardButton(mouseX: number, mouseY: number): boolean {
-    const fastForwardButtonDimensions = this.getFastForwardButtonLocation();
-
-    return (
-      mouseX >= fastForwardButtonDimensions.left
-      && mouseX < fastForwardButtonDimensions.left + fastForwardButtonDimensions.width
-      && mouseY >= fastForwardButtonDimensions.top
-      && mouseY < fastForwardButtonDimensions.top + fastForwardButtonDimensions.height
-    );
-  }
-
   private getFastForwardButtonLocation() {
     return {
       left: this.screenDimensions.width * 0.8,
@@ -215,9 +243,11 @@ export class Cutscene {
   private toggleFastForwardMode(): void {
     if (this.isFastForward()) {
       this.deactivateFastForwardMode();
+      this.fastForwardButton.setStatus(ButtonStatus.READY);
       return;
     }
     this.activateFastForwardMode();
+    this.fastForwardButton.setStatus(ButtonStatus.ACTIVE);
   }
 
   private activateFastForwardMode(): void {
@@ -229,8 +259,9 @@ export class Cutscene {
   }
 
   update(): void {
-    if(!this.canFastForward()) {
+    if (!this.canFastForward()) {
       this.deactivateFastForwardMode();
+      this.fastForwardButton.setStatus(ButtonStatus.READY);
       return;
     }
 
@@ -245,8 +276,10 @@ export class Cutscene {
         this.gotoNextAction();
         this.startAction();
         this.activateFastForwardMode();
+        this.fastForwardButton.setStatus(ButtonStatus.ACTIVE);
       } else {
         this.deactivateFastForwardMode();
+        this.fastForwardButton.setStatus(ButtonStatus.READY);
       }
       return;
     }
@@ -257,7 +290,7 @@ export class Cutscene {
       return false;
     }
 
-    if(!(this.currentAction instanceof DialogueBox)) {
+    if (!(this.currentAction instanceof DialogueBox)) {
       return true;
     }
 
