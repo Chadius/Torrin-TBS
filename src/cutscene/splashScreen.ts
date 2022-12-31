@@ -1,4 +1,6 @@
 import p5 from "p5";
+import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
+import {CutsceneAction} from "./cutsceneAction";
 
 type RequiredOptions = {
   id: string;
@@ -7,20 +9,44 @@ type RequiredOptions = {
 type Options = {
   animationDuration: number;
   screenImage: p5.Image;
+  screenImageResourceKey: string;
 }
 
-export class SplashScreen {
+export class SplashScreen implements CutsceneAction{
   id: string;
   startTime: number;
   dialogFinished: boolean;
   animationDuration: number;
   screenImage: p5.Image;
+  screenImageResourceKey: string;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     this.id = options.id;
     this.screenImage = options.screenImage;
+    this.screenImageResourceKey = options.screenImageResourceKey;
     this.animationDuration = options.animationDuration || 0;
     this.dialogFinished = false;
+  }
+
+  getId(): string {
+    return this.id;
+  }
+
+  getResourceLocators(): ResourceLocator[] {
+    return [
+      {
+        type: ResourceType.IMAGE,
+        key: this.screenImageResourceKey
+      }
+    ]
+  }
+
+  setImageResource(image: p5.Image) {
+    this.setScreenImage(image);
+  }
+
+  setScreenImage(screen: p5.Image) {
+    this.screenImage = screen;
   }
 
   start(): void {

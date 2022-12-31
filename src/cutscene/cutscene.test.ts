@@ -2,6 +2,8 @@ import {DialogueBox} from "./dialogueBox";
 import {SplashScreen} from "./splashScreen";
 import {Cutscene} from "./cutscene";
 import {DecisionTrigger} from "./DecisionTrigger";
+import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
+import {stubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 
 describe('Cutscene', () => {
   const splash1 = new SplashScreen({id: "splash1"})
@@ -122,10 +124,10 @@ describe('Cutscene', () => {
       });
 
       purchasePrompt.start();
-      expect(purchasePrompt.getCurrentAction().id).toBe("buy my stuff");
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
       purchasePrompt.mouseClicked(0, 800);
 
-      expect(purchasePrompt.getCurrentAction().id).toBe("test passes");
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("test passes");
     });
 
     it('should ignore Answer based DecisionTriggers if a different answer is selected', () => {
@@ -159,10 +161,10 @@ describe('Cutscene', () => {
       });
 
       purchasePrompt.start();
-      expect(purchasePrompt.getCurrentAction().id).toBe("buy my stuff");
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
       purchasePrompt.mouseClicked(0, 800);
 
-      expect(purchasePrompt.getCurrentAction().id).toBe("test passed");
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("test passed");
     });
 
     it('should always use a DecisionTrigger if no answer is given', () => {
@@ -194,10 +196,10 @@ describe('Cutscene', () => {
       });
 
       purchasePrompt.start();
-      expect(purchasePrompt.getCurrentAction().id).toBe("act serious");
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("act serious");
       purchasePrompt.mouseClicked(100, 100);
 
-      expect(purchasePrompt.getCurrentAction().id).toBe("test passes");
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("test passes");
     });
   });
 
@@ -309,23 +311,73 @@ describe('Cutscene', () => {
 
       dinnerDate.start();
       jest.spyOn(Date, 'now').mockImplementation(() => 0);
-      expect(dinnerDate.getCurrentAction().id).toBe("waiterGreets");
+      expect(dinnerDate.getCurrentAction().getId()).toBe("waiterGreets");
       dinnerDate.mouseClicked(900, 100);
 
       jest.spyOn(Date, 'now').mockImplementation(() => 101);
       dinnerDate.update();
-      expect(dinnerDate.getCurrentAction().id).toBe("waiterHandsMenu");
+      expect(dinnerDate.getCurrentAction().getId()).toBe("waiterHandsMenu");
 
       jest.spyOn(Date, 'now').mockImplementation(() => 202);
       dinnerDate.update();
-      expect(dinnerDate.getCurrentAction().id).toBe("waiterAsks");
+      expect(dinnerDate.getCurrentAction().getId()).toBe("waiterAsks");
 
       jest.spyOn(Date, 'now').mockImplementation(() => 303);
       dinnerDate.update();
-      expect(dinnerDate.getCurrentAction().id).toBe("waiterAsks");
+      expect(dinnerDate.getCurrentAction().getId()).toBe("waiterAsks");
 
       expect(dinnerDate.isFastForward()).toBeFalsy();
       expect(dinnerDate.canFastForward()).toBeFalsy();
     });
+  });
+
+  it('can start after loading if no actions require loading', () => {
+    const dinnerDate = new Cutscene({
+      actions: [
+        splash1,
+        frontDoorGreeting
+      ]
+    });
+
+    dinnerDate.loadResources();
+    expect(dinnerDate.hasLoaded()).toBeTruthy();
+    const error = dinnerDate.start();
+    expect(error).toBeUndefined();
+    expect(dinnerDate.isInProgress()).toBeTruthy();
+  });
+
+  it('can load required resources and indicate if it is ready to load', () => {
+    const restaurantEntrance = new SplashScreen({
+      id: "splash1",
+      screenImageResourceKey: "restaurant_entrance"
+    })
+
+    const handler = new ResourceHandler({
+      imageLoader: new stubImmediateLoader(),
+      allResources: [
+        {
+          type: ResourceType.IMAGE,
+          path: "path/to/image",
+          key: "restaurant_entrance",
+        }
+      ]
+    });
+
+    const dinnerDate = new Cutscene({
+      actions: [
+        restaurantEntrance
+      ],
+      resourceHandler: handler,
+    });
+
+    dinnerDate.loadResources();
+
+    dinnerDate.setResources();
+    expect(restaurantEntrance.screenImage).toBeTruthy();
+
+    expect(dinnerDate.hasLoaded()).toBeTruthy();
+    const error = dinnerDate.start();
+    expect(error).toBeUndefined();
+    expect(dinnerDate.isInProgress()).toBeTruthy();
   });
 });

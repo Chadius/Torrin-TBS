@@ -2,16 +2,11 @@ import {DialogueBox} from "./dialogueBox";
 import p5 from "p5";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
-import {
-  HORIZ_ALIGN_CENTER,
-  VERT_ALIGN_CENTER,
-  WINDOW_SPACING1,
-  WINDOW_SPACING2,
-  WINDOW_SPACING4
-} from "../ui/constants";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
 import {Button, ButtonStatus} from "../ui/button";
 import {Label} from "../ui/label";
 import {RectArea} from "../ui/rectArea";
+import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
@@ -19,6 +14,7 @@ type Options = {
   actions: CutsceneAction[];
   decisionTriggers: DecisionTrigger[];
   screenDimensions: [number, number];
+  resourceHandler: ResourceHandler;
 }
 
 export class Cutscene {
@@ -32,6 +28,10 @@ export class Cutscene {
   fastForwardButton: Button;
   fastForwardPreviousTimeTick: number | undefined;
 
+  resourceHandler: ResourceHandler;
+  allResourceLocators: ResourceLocator[];
+  allResourceKeys: string[];
+
   constructor(options: Partial<Options>) {
     this.dialogueActions = options.actions ? [...options.actions] : [];
     this.decisionTriggers = options.decisionTriggers ? [...options.decisionTriggers] : [];
@@ -42,7 +42,24 @@ export class Cutscene {
 
     this.dialogueActionIndex = undefined;
 
+    this.resourceHandler = options.resourceHandler;
+    this.collectResourceLocatorsAndKeys();
+
     this.setUpFastforwardButton();
+  }
+
+  private collectResourceLocatorsAndKeys() {
+    const onlyUnique = (value: ResourceLocator, index: number, self: ResourceLocator[]) => {
+      return self.findIndex(res => res.type == value.type && res.key == value.key) === index;
+    }
+
+    const resourceLocators = this.dialogueActions.map(action => action.getResourceLocators())
+      .flat()
+      .filter(x => x && x.key)
+      .filter(onlyUnique)
+    ;
+    this.allResourceLocators = resourceLocators;
+    this.allResourceKeys = this.allResourceLocators.map(res => res.key)
   }
 
   private setUpFastforwardButton() {
@@ -104,6 +121,13 @@ export class Cutscene {
     })
   }
 
+  hasLoaded(): boolean {
+    if (!this.doesResourceHandlerExist()) {
+      return true;
+    }
+    return this.resourceHandler.areAllResourcesLoaded(this.allResourceKeys);
+  }
+
   isInProgress(): boolean {
     return (this.dialogueActionIndex !== undefined && this.currentAction !== undefined)
   }
@@ -146,9 +170,64 @@ export class Cutscene {
     }
   }
 
-  start(): void {
+  loadResources() {
+    if(!this.doesResourceHandlerExist()) {
+      return;
+    }
+
+    this.resourceHandler.loadResources(this.allResourceKeys);
+  }
+
+  private doesResourceHandlerExist(): boolean {
+    if (!this.resourceHandler) {
+      return false;
+    }
+    if (!(this.allResourceLocators && this.allResourceLocators.length > 0)) {
+      return false;
+    }
+    return true;
+  }
+
+  setResources() {
+    if(!this.doesResourceHandlerExist()) {
+      return;
+    }
+
+    if (!this.resourceHandler.areAllResourcesLoaded(this.allResourceKeys) ) {
+      return;
+    }
+
+    const cutscene = this;
+
+    this.dialogueActions.forEach(action => {
+      action.getResourceLocators().forEach(locator => {
+        if(!locator.key) {
+          return;
+        }
+
+        if (locator.type === ResourceType.IMAGE) {
+          const foundImage: p5.Image = cutscene.resourceHandler.getResource(
+            locator.key
+          ) as p5.Image;
+
+          if (foundImage) {
+            action.setImageResource(
+              foundImage
+            )
+          }
+        }
+      });
+    });
+  }
+
+  start(): Error {
+    if(!this.hasLoaded()) {
+      return new Error("cutscene has not finished loading");
+    }
+
     this.gotoNextAction();
     this.startAction();
+    return undefined;
   }
 
   startAction(): void {
@@ -198,7 +277,7 @@ export class Cutscene {
     const selectedAnswer = this.currentAction instanceof DialogueBox ? this.currentAction.answerSelected : undefined;
 
     return this.decisionTriggers.find((action) =>
-        action.source_dialog_id === this.currentAction.id
+        action.source_dialog_id === this.currentAction.getId()
         && (
           !action.doesThisRequireAMatchingAnswer()
           || action.source_dialog_answer === selectedAnswer
@@ -217,13 +296,13 @@ export class Cutscene {
 
   private findDialogueByID(target_id: string): CutsceneAction | undefined {
     return this.dialogueActions.find((dialog) =>
-      dialog.id === target_id
+      dialog.getId() === target_id
     );
   }
 
   private findDialogueIndexByID(target_id: string): number {
     return this.dialogueActions.findIndex((dialog) =>
-      dialog.id === target_id
+      dialog.getId() === target_id
     );
   }
 

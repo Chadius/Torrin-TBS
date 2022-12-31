@@ -9,6 +9,8 @@ import {
 import {RectArea} from "../ui/rectArea";
 import {ImageUI} from "../ui/imageUI";
 import {Label} from "../ui/label";
+import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
+import {CutsceneAction} from "./cutsceneAction";
 
 type RequiredOptions = {
   id: string;
@@ -18,17 +20,19 @@ type Options = {
   name: string;
   text: string;
   portrait: p5.Image;
+  portraitResourceKey: string;
   animationDuration: number;
   answers: string[];
   screenDimensions: [number, number];
 }
 
-export class DialogueBox {
+export class DialogueBox implements CutsceneAction {
   id: string;
   speakerName: string;
   speakerText: string;
   animationDuration: number;
   speakerPortrait: p5.Image;
+  speakerPortraitResourceKey: string;
   answers: string[];
   screenDimensions: [number, number];
 
@@ -42,12 +46,17 @@ export class DialogueBox {
   speakerNameLabel: Label;
   answerLabels: Label[];
 
+  margin: number = WINDOW_SPACING2;
+  dialogueBoxTop: number;
+  dialogueBoxLeft: number;
+
   constructor(options: RequiredOptions & Partial<Options>) {
     this.id = options.id;
     this.speakerName = options.name;
     this.speakerText = options.text;
     this.animationDuration = options.animationDuration;
     this.speakerPortrait = options.portrait;
+    this.speakerPortraitResourceKey = options.portraitResourceKey;
     this.answers = options.answers || [];
     this.screenDimensions = options.screenDimensions || [0, 0];
 
@@ -57,21 +66,25 @@ export class DialogueBox {
     this.createUIObjects();
   }
 
+  getId(): string {
+    return this.id;
+  }
+
   createUIObjects() {
-    const margin: number = WINDOW_SPACING2;
+    this.margin = WINDOW_SPACING2;
 
     const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
     const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
-    const dialogueBoxTop = this.screenDimensions[1] * 0.7;
+    this.dialogueBoxTop = this.screenDimensions[1] * 0.7;
     const dialogueBoxHeight = this.screenDimensions[1] * 0.3;
-    const dialogueBoxLeft = margin;
+    this.dialogueBoxLeft = this.margin;
 
     this.speakerTextLabel = new Label({
-      padding: [margin * 2, margin, 0, margin],
+      padding: [this.margin * 2, this.margin, 0, this.margin],
       area: new RectArea({
-        left: dialogueBoxLeft,
-        top: dialogueBoxTop - margin,
-        width: this.screenDimensions[0] - margin - margin,
+        left: this.dialogueBoxLeft,
+        top: this.dialogueBoxTop - this.margin,
+        width: this.screenDimensions[0] - this.margin - this.margin,
         height: dialogueBoxHeight
       }),
       fillColor: dialogueBoxBackgroundColor,
@@ -81,13 +94,13 @@ export class DialogueBox {
     });
 
     const speakerBackgroundColor: [number, number, number] = dialogueBoxBackgroundColor;
-    const speakerBoxTop = dialogueBoxTop - (2.5 * margin);
-    const speakerBoxHeight = margin * 3;
-    const speakerBoxLeft = margin * 0.5;
+    const speakerBoxTop = this.dialogueBoxTop - (2.5 * this.margin);
+    const speakerBoxHeight = this.margin * 3;
+    const speakerBoxLeft = this.margin * 0.5;
 
     const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
     this.speakerNameLabel = new Label({
-      padding: [margin, 0, 0, margin * 0.5],
+      padding: [this.margin, 0, 0, this.margin * 0.5],
       area: new RectArea({
         left: speakerBoxLeft,
         top: speakerBoxTop,
@@ -105,7 +118,7 @@ export class DialogueBox {
     const answerButtonPositions: RectArea[] = this.getAnswerButtonPositions();
     this.answerLabels = answerButtonPositions.map((buttonRect, answerIndex) =>
       new Label({
-        padding: [buttonRect.height *0.1, buttonRect.width*0.1],
+        padding: [buttonRect.height * 0.1, buttonRect.width * 0.1],
         area: new RectArea({
           left: buttonRect.left,
           top: buttonRect.top,
@@ -121,17 +134,41 @@ export class DialogueBox {
       })
     );
 
-    if (this.speakerPortrait) {
+    this.setSpeakerUI();
+  }
+
+   setSpeakerUI() {
+     const speakerBoxTop = this.dialogueBoxTop - (2.5 * this.margin);
+
+     if (this.speakerPortrait) {
       this.speakerImage = new ImageUI({
         graphic: this.speakerPortrait,
         area: new RectArea({
-          left: dialogueBoxLeft,
+          left: this.dialogueBoxLeft,
           top: speakerBoxTop - this.speakerPortrait.height,
           width: this.speakerPortrait.width,
           height: this.speakerPortrait.height,
         })
       })
     }
+  }
+
+  getResourceLocators(): ResourceLocator[] {
+    return [
+      {
+        type: ResourceType.IMAGE,
+        key: this.speakerPortraitResourceKey
+      }
+    ]
+  }
+
+  setImageResource(image: p5.Image) {
+    this.setPortrait(image);
+  }
+
+  setPortrait(portrait: p5.Image) {
+    this.speakerPortrait = portrait;
+    this.setSpeakerUI();
   }
 
   draw(p: p5) {

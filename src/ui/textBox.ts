@@ -1,7 +1,5 @@
 import {RectArea} from "./rectArea";
-//import p5 from "p5";
 import * as p5 from "p5";
-import { LEFT, p5InstanceExtensions } from "p5";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE} from "./constants";
 
 type RequiredOptions = {
