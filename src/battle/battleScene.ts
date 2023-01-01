@@ -2,14 +2,21 @@ import p5 from "p5";
 import {HexGridTerrainTypes, HexGridTile, Integer} from "../hexMap/hexGrid";
 import {HexMap} from "../hexMap/hexMap";
 import {Cutscene} from "../cutscene/cutscene";
-import {DialogueBox} from "../cutscene/dialogueBox";
+import {DialogueBox} from "../cutscene/dialogue/dialogueBox";
 import {SplashScreen} from "../cutscene/splashScreen";
 import {DecisionTrigger} from "../cutscene/DecisionTrigger";
-import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
+import {ResourceHandler} from "../resource/resourceHandler";
+import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
 
-export type PositiveNumber = number & {_brand: 'PositiveNumber'}
-function assertsPositiveNumber(value: number): asserts value is PositiveNumber {
-  if(value < 0) throw new Error('Value must be a positive number');
+type RequiredOptions = {
+  p: p5;
+  width: PositiveNumber;
+  height: PositiveNumber;
+};
+
+type Options = {
+  resourceHandler: ResourceHandler;
+  cutscene: Cutscene;
 }
 
 export class BattleScene {
@@ -17,18 +24,15 @@ export class BattleScene {
   height: PositiveNumber;
   hexMap: HexMap;
   cutscene: Cutscene;
-
   resourceHandler: ResourceHandler;
-  resourcesLoaded: boolean;
-  testPortrait: p5.Image;
 
-  constructor(p: p5, w: number, h: number) {
-    assertsPositiveNumber(w);
-    assertsPositiveNumber(h);
-    this.width = w;
-    this.height = h;
+  constructor(options: RequiredOptions & Partial<Options>) {
+    assertsPositiveNumber(options.width);
+    this.width = options.width;
+    assertsPositiveNumber(options.height);
+    this.height = options.height;
 
-    this.resourcesLoaded = false;
+    this.resourceHandler = options.resourceHandler;
 
     type Tile = [number, number, HexGridTerrainTypes];
     const rawTiles: Tile[] = [
@@ -61,23 +65,13 @@ export class BattleScene {
       [ 4,  1, HexGridTerrainTypes.stone],
     ];
 
-    this.resourceHandler = new ResourceHandler({
-      p: p,
-      allResources: [
-        {
-          type: ResourceType.IMAGE,
-          path: "assets/testPortrait0001.png",
-          key: "crazy pete face",
-        }
-      ]
-    });
-
     this.cutscene = new Cutscene(
       {
         actions: [
           new SplashScreen({
             id: "splash",
             screenImageResourceKey: "crazy pete face",
+            screenDimensions: [this.width, this.height]
           }),
           new DialogueBox({
             id: "welcome",
@@ -141,7 +135,7 @@ export class BattleScene {
             destination_dialog_id: "purchase Offer"
           })
         ],
-        screenDimensions: [p.width, p.height],
+        screenDimensions: [this.width, this.height],
         resourceHandler: this.resourceHandler,
       }
     );

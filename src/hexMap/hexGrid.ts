@@ -1,11 +1,9 @@
 import * as p5 from "p5";
 import {BlendColor, drawHexShape} from "./hexDrawingUtils";
+import {assertsInteger} from "../utils/math";
 
 export type Integer = number & {_brand: 'Integer'}
 export type HexCoordinate = {q: Integer, r: Integer}
-function assertsInteger(value: number): asserts value is Integer {
-  if(Number.isInteger(value) !== true) throw new Error('Value must be an integer');
-}
 
 export enum HexGridTerrainTypes {
   grass = 1,

@@ -1,6 +1,8 @@
 import p5 from "p5";
 import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {CutsceneAction} from "./cutsceneAction";
+import {ImageUI} from "../ui/imageUI";
+import {RectArea} from "../ui/rectArea";
 
 type RequiredOptions = {
   id: string;
@@ -10,6 +12,7 @@ type Options = {
   animationDuration: number;
   screenImage: p5.Image;
   screenImageResourceKey: string;
+  screenDimensions: [number, number];
 }
 
 export class SplashScreen implements CutsceneAction{
@@ -17,15 +20,16 @@ export class SplashScreen implements CutsceneAction{
   startTime: number;
   dialogFinished: boolean;
   animationDuration: number;
-  screenImage: p5.Image;
   screenImageResourceKey: string;
+  screenImage: ImageUI;
+  screenDimensions: [number, number];
 
   constructor(options: RequiredOptions & Partial<Options>) {
     this.id = options.id;
-    this.screenImage = options.screenImage;
     this.screenImageResourceKey = options.screenImageResourceKey;
     this.animationDuration = options.animationDuration || 0;
     this.dialogFinished = false;
+    this.screenDimensions = options.screenDimensions || [0, 0];
   }
 
   getId(): string {
@@ -46,7 +50,15 @@ export class SplashScreen implements CutsceneAction{
   }
 
   setScreenImage(screen: p5.Image) {
-    this.screenImage = screen;
+    this.screenImage = new ImageUI({
+      graphic: screen,
+      area: new RectArea({
+        left: (this.screenDimensions[0] - screen.width)/2,
+        top: (this.screenDimensions[1] - screen.height)/2,
+        width: screen.width,
+        height:screen.height,
+      })
+    });
   }
 
   start(): void {
@@ -72,16 +84,8 @@ export class SplashScreen implements CutsceneAction{
   }
 
   draw(p: p5): void {
-    p.push();
-
     if (this.screenImage) {
-      p.image(
-        this.screenImage,
-        (p.width - this.screenImage.width)/2,
-        (p.height - this.screenImage.height)/2,
-      );
+      this.screenImage.draw(p);
     }
-
-    p.pop();
   }
 }

@@ -1,4 +1,4 @@
-import {DialogueBox} from "./dialogueBox";
+import {DialogueBox} from "./dialogue/dialogueBox";
 import p5 from "p5";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";

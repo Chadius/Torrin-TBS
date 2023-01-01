@@ -1,4 +1,4 @@
-import {DialogueBox} from "./dialogueBox";
+import {DialogueBox} from "./dialogue/dialogueBox";
 import {SplashScreen} from "./splashScreen";
 import {Cutscene} from "./cutscene";
 import {DecisionTrigger} from "./DecisionTrigger";
