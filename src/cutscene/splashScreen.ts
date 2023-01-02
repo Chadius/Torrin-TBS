@@ -62,6 +62,7 @@ export class SplashScreen implements CutsceneAction{
   }
 
   start(): void {
+    this.dialogFinished = false;
     this.startTime = Date.now();
   }
 

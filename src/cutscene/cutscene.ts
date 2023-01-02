@@ -45,7 +45,7 @@ export class Cutscene {
     this.resourceHandler = options.resourceHandler;
     this.collectResourceLocatorsAndKeys();
 
-    this.setUpFastforwardButton();
+    this.setUpFastForwardButton();
   }
 
   private collectResourceLocatorsAndKeys() {
@@ -53,16 +53,14 @@ export class Cutscene {
       return self.findIndex(res => res.type == value.type && res.key == value.key) === index;
     }
 
-    const resourceLocators = this.dialogueActions.map(action => action.getResourceLocators())
+    this.allResourceLocators = this.dialogueActions.map(action => action.getResourceLocators())
       .flat()
       .filter(x => x && x.key)
-      .filter(onlyUnique)
-    ;
-    this.allResourceLocators = resourceLocators;
+      .filter(onlyUnique);
     this.allResourceKeys = this.allResourceLocators.map(res => res.key)
   }
 
-  private setUpFastforwardButton() {
+  private setUpFastForwardButton() {
     this.fastForwardPreviousTimeTick = undefined;
 
     const fastForwardButtonLocation = this.getFastForwardButtonLocation();
@@ -182,10 +180,7 @@ export class Cutscene {
     if (!this.resourceHandler) {
       return false;
     }
-    if (!(this.allResourceLocators && this.allResourceLocators.length > 0)) {
-      return false;
-    }
-    return true;
+    return this.allResourceLocators && this.allResourceLocators.length > 0;
   }
 
   setResources() {

@@ -201,6 +201,63 @@ describe('Cutscene', () => {
 
       expect(purchasePrompt.getCurrentAction().getId()).toBe("test passes");
     });
+
+    it('when returning to an older dialogue box, should not persist previous answer upon mouse click', () => {
+      const purchasePrompt = new Cutscene({
+        actions: [
+          new DialogueBox({
+            id: "buy my stuff",
+            name: "Sales Clerk",
+            text: "Would you like to buy this sword?",
+            answers: ["Yes", "No"],
+            screenDimensions: [1000, 800]
+          }),
+          new DialogueBox({
+            id: "reconsider",
+            name: "Sales Clerk",
+            text: "I implore you to reconsider...",
+            screenDimensions: [1000, 800]
+          }),
+          new DialogueBox({
+            id: "test failed",
+            name: "No",
+            text: "The cutscene should not have gotten here",
+          }),
+          new DialogueBox({
+            id: "test passes",
+            name: "Clerk",
+            text: "Thank you for your business",
+          }),
+        ],
+        decisionTriggers: [
+          new DecisionTrigger({
+            source_dialog_id: "buy my stuff",
+            source_dialog_answer: 0,
+            destination_dialog_id: "test passes",
+          }),
+          new DecisionTrigger({
+            source_dialog_id: "buy my stuff",
+            source_dialog_answer: 1,
+            destination_dialog_id: "reconsider",
+          }),
+          new DecisionTrigger({
+            source_dialog_id: "reconsider",
+            destination_dialog_id: "buy my stuff"
+          })
+        ]
+      });
+
+      purchasePrompt.start();
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
+      purchasePrompt.mouseClicked(900, 800);
+
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("reconsider");
+      purchasePrompt.mouseClicked(0, 0);
+
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
+      purchasePrompt.mouseClicked(0, 0);
+      expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
+    });
   });
 
   describe('fast-forward mode', () => {

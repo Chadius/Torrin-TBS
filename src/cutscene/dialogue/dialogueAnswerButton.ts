@@ -1,14 +1,7 @@
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
-import {
-  HORIZ_ALIGN_CENTER,
-  HORIZ_ALIGN_LEFT,
-  VERT_ALIGN_BASELINE, VERT_ALIGN_CENTER,
-  WINDOW_SPACING2,
-  WINDOW_SPACING4
-} from "../../ui/constants";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import p5 from "p5";
-import {ImageUI} from "../../ui/imageUI";
 
 type Options = {
   answer: string;

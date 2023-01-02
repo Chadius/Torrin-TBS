@@ -101,15 +101,16 @@ export class DialogueBox implements CutsceneAction {
   draw(p: p5) {
     p.push();
 
-    this.textBox.draw(p);
-    this.speakerNameBox.draw(p);
-    this.speakerImage.draw(p);
+    this.textBox?.draw(p);
+    this.speakerNameBox?.draw(p);
+    this.speakerImage?.draw(p);
     this.answerButtons.forEach((answer) => answer.draw(p));
 
     p.pop();
   }
 
   start(): void {
+    this.dialogFinished = false;
     this.startTime = Date.now();
   }
 
