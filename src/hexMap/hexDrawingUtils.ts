@@ -1,5 +1,16 @@
 import * as p5 from "p5";
 import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
+import {HexGridTerrainTypes} from "./hexGrid";
+
+type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
+
+export const hexGridColorByTerrainType: HexGridTerrainToColor = {
+  [HexGridTerrainTypes.grass]: [117, 50, 33],
+  [HexGridTerrainTypes.sand]: [57, 50, 45],
+  [HexGridTerrainTypes.stone]: [355, 10, 13],
+  [HexGridTerrainTypes.water]: [209, 46, 40],
+  [HexGridTerrainTypes.floor]: [41, 15, 40],
+};
 
 export type BlendColor = [number,number,number,number];
 
