@@ -1,3 +1,6 @@
+import * as p5 from "p5";
+import {HORIZ_ALIGN_CENTER, HORIZ_ALIGN_LEFT, VERT_ALIGN_CENTER} from "./constants";
+
 const notFound = [NaN, false, undefined, null];
 
 export enum HorizontalAnchor {
@@ -93,6 +96,11 @@ type Margins = {
   margin: number | [number, number] | [number, number, number] | [number, number, number, number];
 }
 
+type Alignment = {
+  horizAlign: p5.HORIZ_ALIGN;
+  vertAlign: p5.VERT_ALIGN;
+}
+
 type RectTop = PositionTop
   | (ScreenHeight & ScreenPercentTop)
   | AnchorTop
@@ -122,7 +130,7 @@ type RectWidth = PositionWidth
   | RectWidthLeftPercentRight
   | RectWidthLeftColumnEnd
   | Margins
-export type RectArguments = RectTop & RectLeft & RectHeight & RectWidth
+export type RectArguments = RectTop & RectLeft & RectHeight & RectWidth & Partial<Alignment>
 
 export class RectArea {
   top: number;
@@ -136,6 +144,9 @@ export class RectArea {
 
     this.setRectHeight(params);
     this.setRectWidth(params);
+
+    this.alignVertically(params as Alignment);
+    this.alignHorizontally(params as Alignment);
   }
 
   setRectTop(params: RectTop) {
@@ -384,5 +395,33 @@ export class RectArea {
   }
   getCenterX(): number {
     return this.left + (this.width / 2);
+  }
+
+  private alignHorizontally(params: Alignment) {
+    if (!params) {
+      return;
+    }
+
+    switch(params.horizAlign) {
+      case HORIZ_ALIGN_CENTER:
+        this.left -= this.getWidth() / 2;
+        break;
+      default:
+        break;
+    }
+  }
+
+  private alignVertically(params: Alignment) {
+    if (!params) {
+      return;
+    }
+
+    switch(params.vertAlign) {
+      case VERT_ALIGN_CENTER:
+        this.top -= this.getHeight() / 2;
+        break;
+      default:
+        break;
+    }
   }
 }

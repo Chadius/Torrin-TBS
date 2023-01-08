@@ -14,6 +14,7 @@ import {RectArea} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {HexGridTerrainTypes} from "../hexMap/hexGridTerrainType";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 
 type RequiredOptions = {
   p: p5;
@@ -203,10 +204,12 @@ export class BattleScene {
       this.torrinMapIcon = new ImageUI({
         graphic: image,
         area: new RectArea({
-          left: xyCoords[0] + SCREEN_WIDTH / 2 - (image.width / 2),
-          top: xyCoords[1] + SCREEN_HEIGHT / 2 - (image.height / 2),
+          left: xyCoords[0] + SCREEN_WIDTH / 2,
+          top: xyCoords[1] + SCREEN_HEIGHT / 2,
           width: image.width,
           height: image.height,
+          horizAlign: HORIZ_ALIGN_CENTER,
+          vertAlign: VERT_ALIGN_CENTER
         })
       })
     }

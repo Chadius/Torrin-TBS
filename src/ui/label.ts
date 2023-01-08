@@ -1,4 +1,4 @@
-import {RectArea, RectArguments} from "./rectArea";
+import {RectArea} from "./rectArea";
 import {TextBox, TextBoxArguments} from "./textBox";
 import {Rectangle, RectangleArguments} from "./rectangle";
 import p5 from "p5";

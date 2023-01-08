@@ -24,7 +24,6 @@ export class TextBox {
   horizAlign: p5.HORIZ_ALIGN;
   vertAlign: p5.VERT_ALIGN;
 
-
   constructor(options: TextBoxArguments) {
     this.text = options.text;
     this.textSize = options.textSize;

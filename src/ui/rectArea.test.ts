@@ -1,5 +1,12 @@
 import {HorizontalAnchor, RectArea, VerticalAnchor} from "./rectArea";
-import {WINDOW_SPACING05, WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4} from "./constants";
+import {
+  HORIZ_ALIGN_CENTER,
+  VERT_ALIGN_CENTER,
+  WINDOW_SPACING05,
+  WINDOW_SPACING1,
+  WINDOW_SPACING2,
+  WINDOW_SPACING4
+} from "./constants";
 
 describe('RectArea', () => {
   describe('RectArea created from Position arguments', () => {
@@ -300,6 +307,25 @@ describe('RectArea', () => {
       expect(rect.left).toBe(baseRect.left);
       expect(rect.height).toBe(baseRect.height);
       expect(rect.width).toBe(baseRect.width);
+    });
+  });
+  describe('RectArea can align width and height', () => {
+    it('can make a new Rectangle with top, left, width and height', () => {
+      const rect = new RectArea({
+        top: 0,
+        left: 10,
+        height: 30,
+        width: 20,
+        horizAlign: HORIZ_ALIGN_CENTER,
+        vertAlign: VERT_ALIGN_CENTER
+      });
+
+      expect(rect.getTop()).toBe(-15);
+      expect(rect.getLeft()).toBe(0);
+      expect(rect.getRight()).toBe(20);
+      expect(rect.getBottom()).toBe(15);
+      expect(rect.getHeight()).toBe(30);
+      expect(rect.getWidth()).toBe(20);
     });
   });
   describe('RectArea getters', () => {
