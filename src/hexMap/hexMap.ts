@@ -8,6 +8,7 @@ import {
   PulseBlendColor,
   pulseBlendColorToBlendColor
 } from "./hexDrawingUtils";
+import {HexGridTerrainTypes} from "./hexGridTerrainType";
 
 export class HexMap {
   tiles: HexGridTile[];
@@ -128,5 +129,23 @@ export class HexMap {
 
   stopHighlightingTiles(): void {
     this.highlightedColoredTiles = [];
+  }
+
+  private getTileAtLocation(hexCoordinate: HexCoordinate): HexGridTile | undefined {
+    return this.tiles.find((tile) =>
+      tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
+    );
+  }
+
+  getTileTerrainTypeAtLocation(hexCoordinate: HexCoordinate): HexGridTerrainTypes | undefined {
+    const tile = this.getTileAtLocation(hexCoordinate);
+    if (tile === undefined) {
+      return undefined;
+    }
+    return tile.terrainType;
+  }
+
+  areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {
+    return this.getTileAtLocation(hexCoordinate) !== undefined;
   }
 }

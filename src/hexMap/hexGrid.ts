@@ -1,24 +1,15 @@
 import * as p5 from "p5";
 import {BlendColor, hexGridColorByTerrainType, drawHexShape} from "./hexDrawingUtils";
 import {assertsInteger} from "../utils/math";
+import {HexGridTerrainTypes} from "./hexGridTerrainType";
 
 export type Integer = number & {_brand: 'Integer'}
 export type HexCoordinate = {q: Integer, r: Integer}
 
-export enum HexGridTerrainTypes {
-  grass = 1,
-  sand,
-  stone,
-  water,
-  floor,
-}
-
-type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
-
 export class HexGridTile {
   q: number;
   r: number;
-  appearance: HexGridTerrainTypes;
+  terrainType: HexGridTerrainTypes;
 
   constructor(qcoord: number, rcoord: number, appearance: HexGridTerrainTypes) {
     assertsInteger(rcoord);
@@ -26,7 +17,7 @@ export class HexGridTile {
 
     this.r = rcoord;
     this.q = qcoord;
-    this.appearance = appearance;
+    this.terrainType = appearance;
   }
 
   draw(p: p5, blendColor?: BlendColor): void  {
@@ -38,7 +29,7 @@ export class HexGridTile {
 
     p.push();
 
-    const appearanceFillColor = hexGridColorByTerrainType[this.appearance];
+    const appearanceFillColor = hexGridColorByTerrainType[this.terrainType];
     let fillColor;
 
     if (blendColor) {

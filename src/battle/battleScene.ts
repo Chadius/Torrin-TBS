@@ -1,5 +1,5 @@
 import p5 from "p5";
-import {HexGridTerrainTypes, HexGridTile, Integer} from "../hexMap/hexGrid";
+import {HexGridTile, Integer} from "../hexMap/hexGrid";
 import {HexMap} from "../hexMap/hexMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {DialogueBox} from "../cutscene/dialogue/dialogueBox";
@@ -7,6 +7,12 @@ import {SplashScreen} from "../cutscene/splashScreen";
 import {DecisionTrigger} from "../cutscene/DecisionTrigger";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
+import {SquaddieID} from "../squaddie/id";
+import {SquaddieResource} from "../squaddie/resource";
+import {ImageUI} from "../ui/imageUI";
+import {RectArea} from "../ui/rectArea";
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
+import {HexGridTerrainTypes} from "../hexMap/hexGridTerrainType";
 
 type RequiredOptions = {
   p: p5;
@@ -25,6 +31,9 @@ export class BattleScene {
   hexMap: HexMap;
   cutscene: Cutscene;
   resourceHandler: ResourceHandler;
+
+  torrinSquaddieId: SquaddieID;
+  torrinMapIcon: ImageUI;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     assertsPositiveNumber(options.width);
@@ -141,6 +150,15 @@ export class BattleScene {
     );
     this.cutscene.loadResources();
 
+    this.torrinSquaddieId = new SquaddieID({
+      id: "0000",
+      name: "Torrin",
+      resources: new SquaddieResource({
+        mapIcon: "map icon young torrin"
+      })
+    });
+    this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
+
     this.hexMap = new HexMap( rawTiles.map(triple => {
       return new HexGridTile(triple[0], triple[1], triple[2])
     }));
@@ -173,11 +191,34 @@ export class BattleScene {
       this.cutscene.start();
     }
 
+    if(
+      this.resourceHandler.areAllResourcesLoaded([this.torrinSquaddieId.resources.mapIcon])
+      && !this.torrinMapIcon
+    ) {
+      let image: p5.Image = this.resourceHandler.getResource(this.torrinSquaddieId.resources.mapIcon) as p5.Image;
+
+      this.torrinMapIcon = new ImageUI({
+        graphic: image,
+        area: new RectArea({
+          percentLeft: 50,
+          percentTop: 50,
+          screenWidth: SCREEN_WIDTH,
+          screenHeight: SCREEN_HEIGHT,
+          width: image.width,
+          height: image.height,
+        })
+      })
+    }
+
     p.colorMode("hsb", 360, 100, 100, 255)
     p.background(50, 10, 20);
 
     if (this.hexMap) {
       this.hexMap.draw(p);
+    }
+
+    if(this.torrinMapIcon) {
+      this.torrinMapIcon.draw(p);
     }
 
     if (this.cutscene && this.cutscene.isInProgress()) {

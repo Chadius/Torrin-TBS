@@ -1,6 +1,6 @@
 import * as p5 from "p5";
 import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
-import {HexGridTerrainTypes} from "./hexGrid";
+import {HexGridTerrainTypes} from "./hexGridTerrainType";
 
 type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
 
@@ -36,7 +36,7 @@ export function pulseBlendColorToBlendColor(pulse: PulseBlendColor): BlendColor 
   ] as BlendColor;
 }
 
-export function drawHexShape(p: p5, xPos: any, yPos: number) {
+export function drawHexShape(p: p5, xPos: number, yPos: number) {
   xPos *= HEX_TILE_WIDTH;
   yPos *= HEX_TILE_WIDTH;
 
