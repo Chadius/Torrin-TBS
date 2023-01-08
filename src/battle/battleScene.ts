@@ -13,6 +13,7 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {HexGridTerrainTypes} from "../hexMap/hexGridTerrainType";
+import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 
 type RequiredOptions = {
   p: p5;
@@ -197,13 +198,13 @@ export class BattleScene {
     ) {
       let image: p5.Image = this.resourceHandler.getResource(this.torrinSquaddieId.resources.mapIcon) as p5.Image;
 
+      const xyCoords = convertMapCoordinatesToWorldCoordinates(0,0);
+
       this.torrinMapIcon = new ImageUI({
         graphic: image,
         area: new RectArea({
-          percentLeft: 50,
-          percentTop: 50,
-          screenWidth: SCREEN_WIDTH,
-          screenHeight: SCREEN_HEIGHT,
+          left: xyCoords[0] + SCREEN_WIDTH / 2 - (image.width / 2),
+          top: xyCoords[1] + SCREEN_HEIGHT / 2 - (image.height / 2),
           width: image.width,
           height: image.height,
         })

@@ -9,6 +9,7 @@ import {
   pulseBlendColorToBlendColor
 } from "./hexDrawingUtils";
 import {HexGridTerrainTypes} from "./hexGridTerrainType";
+import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
 
 export class HexMap {
   tiles: HexGridTile[];
@@ -62,7 +63,7 @@ export class HexMap {
   mouseClicked(mouseX: number, mouseY: number) {
     const worldX = mouseX - SCREEN_WIDTH / 2;
     const worldY = mouseY - SCREEN_HEIGHT / 2;
-    const tileCoordinates = this.convertWorldCoordinatesToMapCoordinates(worldX, worldY);
+    const tileCoordinates = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
 
     if (
       this.tiles.some((tile) => tile.q == tileCoordinates[0] && tile.r == tileCoordinates[1])
@@ -74,19 +75,6 @@ export class HexMap {
     } else {
       this.outlineTileCoordinates = undefined;
     }
-  }
-
-  convertWorldCoordinatesToMapCoordinates(worldX: number, worldY: number): [number, number] {
-    const xScaled = worldX / HEX_TILE_WIDTH;
-    const yScaled = worldY / HEX_TILE_WIDTH;
-
-    // q = 2 * yScaled / sqrt(3)
-    const q = yScaled * 1.154;
-
-    // r = x - (y / sqrt(3))
-    const r = xScaled - (yScaled / 1.732);
-
-    return [Math.round(q), Math.round(r)];
   }
 
   drawOutlinedTile(p: p5): void {
