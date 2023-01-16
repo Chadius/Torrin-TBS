@@ -5,11 +5,11 @@ import {HexGridTerrainTypes} from "./hexGridTerrainType";
 type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
 
 export const hexGridColorByTerrainType: HexGridTerrainToColor = {
-  [HexGridTerrainTypes.grass]: [117, 50, 33],
-  [HexGridTerrainTypes.sand]: [57, 50, 45],
-  [HexGridTerrainTypes.stone]: [355, 10, 13],
-  [HexGridTerrainTypes.water]: [209, 46, 40],
-  [HexGridTerrainTypes.floor]: [41, 15, 40],
+  [HexGridTerrainTypes.singleMovement]: [117, 50, 33],
+  [HexGridTerrainTypes.doubleMovement]: [57, 50, 45],
+  [HexGridTerrainTypes.tripleMovement]: [355, 10, 13],
+  [HexGridTerrainTypes.pit]: [209, 46, 40],
+  [HexGridTerrainTypes.wall]: [41, 15, 40],
 };
 
 export type BlendColor = [number,number,number,number];

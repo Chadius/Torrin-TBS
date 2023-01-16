@@ -1,0 +1,3 @@
+interface CostReportable {
+  getTotalCost(): number;
+}

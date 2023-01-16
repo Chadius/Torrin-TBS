@@ -7,12 +7,12 @@ describe('hexMap', () => {
   describe('mouseClicks on the map',  () => {
     it('should select tiles in a hex pattern', function () {
       const gridTiles: HexGridTile[] = [
-        new HexGridTile(0, 0, HexGridTerrainTypes.water),
-        new HexGridTile(0, 1, HexGridTerrainTypes.water),
-        new HexGridTile(0, 2, HexGridTerrainTypes.water),
-        new HexGridTile(0, -1, HexGridTerrainTypes.water),
-        new HexGridTile(1, 0, HexGridTerrainTypes.water),
-        new HexGridTile(-1, 0, HexGridTerrainTypes.water),
+        new HexGridTile(0, 0, HexGridTerrainTypes.pit),
+        new HexGridTile(0, 1, HexGridTerrainTypes.pit),
+        new HexGridTile(0, 2, HexGridTerrainTypes.pit),
+        new HexGridTile(0, -1, HexGridTerrainTypes.pit),
+        new HexGridTile(1, 0, HexGridTerrainTypes.pit),
+        new HexGridTile(-1, 0, HexGridTerrainTypes.pit),
       ];
 
       const hexGrid = new HexMap(gridTiles);
@@ -41,21 +41,21 @@ describe('hexMap', () => {
   });
   it('can note which tiles are at which locations', () => {
     const gridTiles: HexGridTile[] = [
-      new HexGridTile(0, 0, HexGridTerrainTypes.water),
-      new HexGridTile(0, 1, HexGridTerrainTypes.sand),
-      new HexGridTile(0, 2, HexGridTerrainTypes.floor),
-      new HexGridTile(0, -1, HexGridTerrainTypes.grass),
-      new HexGridTile(1, 0, HexGridTerrainTypes.stone),
-      new HexGridTile(-1, 0, HexGridTerrainTypes.water),
+      new HexGridTile(0, 0, HexGridTerrainTypes.pit),
+      new HexGridTile(0, 1, HexGridTerrainTypes.doubleMovement),
+      new HexGridTile(0, 2, HexGridTerrainTypes.wall),
+      new HexGridTile(0, -1, HexGridTerrainTypes.singleMovement),
+      new HexGridTile(1, 0, HexGridTerrainTypes.tripleMovement),
+      new HexGridTile(-1, 0, HexGridTerrainTypes.pit),
     ];
 
     const hexGrid = new HexMap(gridTiles);
-    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: 0 as Integer})).toBe(HexGridTerrainTypes.water);
-    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: 1 as Integer})).toBe(HexGridTerrainTypes.sand);
-    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: 2 as Integer})).toBe(HexGridTerrainTypes.floor);
-    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: -1 as Integer})).toBe(HexGridTerrainTypes.grass);
-    expect(hexGrid.getTileTerrainTypeAtLocation({q: 1 as Integer, r: 0 as Integer})).toBe(HexGridTerrainTypes.stone);
-    expect(hexGrid.getTileTerrainTypeAtLocation({q: -1 as Integer, r: 0 as Integer})).toBe(HexGridTerrainTypes.water);
+    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: 0 as Integer})).toBe(HexGridTerrainTypes.pit);
+    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: 1 as Integer})).toBe(HexGridTerrainTypes.doubleMovement);
+    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: 2 as Integer})).toBe(HexGridTerrainTypes.wall);
+    expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: -1 as Integer})).toBe(HexGridTerrainTypes.singleMovement);
+    expect(hexGrid.getTileTerrainTypeAtLocation({q: 1 as Integer, r: 0 as Integer})).toBe(HexGridTerrainTypes.tripleMovement);
+    expect(hexGrid.getTileTerrainTypeAtLocation({q: -1 as Integer, r: 0 as Integer})).toBe(HexGridTerrainTypes.pit);
 
     expect(hexGrid.getTileTerrainTypeAtLocation({q: 3 as Integer, r: 3 as Integer})).toBeUndefined();
 

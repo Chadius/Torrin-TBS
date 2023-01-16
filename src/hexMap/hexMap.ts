@@ -1,6 +1,6 @@
 import * as p5 from "p5";
 import {HexCoordinate, HexGridTile, Integer} from "./hexGrid";
-import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
   BlendColor,
   calculatePulseValueOverTime,

@@ -47,33 +47,33 @@ export class BattleScene {
 
     type Tile = [number, number, HexGridTerrainTypes];
     const rawTiles: Tile[] = [
-      [0, -1, HexGridTerrainTypes.water],
-      [0,  0, HexGridTerrainTypes.water],
-      [0,  1, HexGridTerrainTypes.water],
-      [0,  2, HexGridTerrainTypes.water],
-      [0,  3, HexGridTerrainTypes.water],
+      [0, -1, HexGridTerrainTypes.pit],
+      [0,  0, HexGridTerrainTypes.pit],
+      [0,  1, HexGridTerrainTypes.pit],
+      [0,  2, HexGridTerrainTypes.pit],
+      [0,  3, HexGridTerrainTypes.pit],
 
-      [ 1, -1, HexGridTerrainTypes.floor],
-      [ 1,  0, HexGridTerrainTypes.floor],
-      [ 1,  1, HexGridTerrainTypes.floor],
-      [ 1,  2, HexGridTerrainTypes.floor],
+      [ 1, -1, HexGridTerrainTypes.wall],
+      [ 1,  0, HexGridTerrainTypes.wall],
+      [ 1,  1, HexGridTerrainTypes.wall],
+      [ 1,  2, HexGridTerrainTypes.wall],
 
-      [ 2, -2, HexGridTerrainTypes.grass],
-      [ 2, -1, HexGridTerrainTypes.grass],
-      [ 2,  0, HexGridTerrainTypes.grass],
-      [ 2,  1, HexGridTerrainTypes.grass],
-      [ 2,  2, HexGridTerrainTypes.grass],
+      [ 2, -2, HexGridTerrainTypes.singleMovement],
+      [ 2, -1, HexGridTerrainTypes.singleMovement],
+      [ 2,  0, HexGridTerrainTypes.singleMovement],
+      [ 2,  1, HexGridTerrainTypes.singleMovement],
+      [ 2,  2, HexGridTerrainTypes.singleMovement],
 
-      [ 3, -2, HexGridTerrainTypes.sand],
-      [ 3, -1, HexGridTerrainTypes.sand],
-      [ 3,  0, HexGridTerrainTypes.sand],
-      [ 3,  1, HexGridTerrainTypes.sand],
+      [ 3, -2, HexGridTerrainTypes.doubleMovement],
+      [ 3, -1, HexGridTerrainTypes.doubleMovement],
+      [ 3,  0, HexGridTerrainTypes.doubleMovement],
+      [ 3,  1, HexGridTerrainTypes.doubleMovement],
 
-      [ 4, -3, HexGridTerrainTypes.stone],
-      [ 4, -2, HexGridTerrainTypes.stone],
-      [ 4, -1, HexGridTerrainTypes.stone],
-      [ 4,  0, HexGridTerrainTypes.stone],
-      [ 4,  1, HexGridTerrainTypes.stone],
+      [ 4, -3, HexGridTerrainTypes.tripleMovement],
+      [ 4, -2, HexGridTerrainTypes.tripleMovement],
+      [ 4, -1, HexGridTerrainTypes.tripleMovement],
+      [ 4,  0, HexGridTerrainTypes.tripleMovement],
+      [ 4,  1, HexGridTerrainTypes.tripleMovement],
     ];
 
     this.cutscene = new Cutscene(
