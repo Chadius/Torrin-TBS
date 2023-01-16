@@ -11,13 +11,20 @@ import {
 import {HexGridTerrainTypes} from "./hexGridTerrainType";
 import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
 
+export type HexMapOptions = {
+  tiles: HexGridTile[];
+}
+
 export class HexMap {
   tiles: HexGridTile[];
   outlineTileCoordinates: HexCoordinate | undefined;
   highlightedColoredTiles: HexCoordinate[];
   highlightedColor: PulseBlendColor;
 
-  constructor(tiles: HexGridTile[]) {
+  constructor(options: HexMapOptions) {
+    const {
+      tiles
+    } = options;
     const tileCoords = tiles.map((tile, index) => {
       return {
         i: index,

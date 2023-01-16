@@ -9,13 +9,13 @@ describe('pathfinder', () => {
   let map: HexMap;
   let torrinSquaddie: SquaddieID;
   beforeEach(() => {
-    map = new HexMap(
-      [
-        new HexGridTile(0, -1, HexGridTerrainTypes.singleMovement),
-        new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-        new HexGridTile(0, 1, HexGridTerrainTypes.doubleMovement),
+    map = new HexMap({
+      tiles: [
+        new HexGridTile(0 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
+        new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+        new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.doubleMovement),
       ]
-    );
+    });
 
     torrinSquaddie = new SquaddieID({
       name: "Torrin",
@@ -104,17 +104,17 @@ describe('pathfinder', () => {
   });
 
   const validateTilesAreFound = (tilesToTest: HexCoordinate[], tilesFound: HexCoordinate[], tilesNotFound: HexCoordinate[]) => {
-    const tilesByKey: {[key: string]: boolean} = {};
+    const tilesByKey: { [key: string]: boolean } = {};
     tilesFound.forEach((tile) => {
       const key = `${tile.q},${tile.r}`;
-      if(tilesByKey[key]) {
+      if (tilesByKey[key]) {
         throw new Error(`Tiles Found has repeating tile (${tile.q}, ${tile.r})`)
       }
       tilesByKey[key] = true;
     });
     tilesNotFound.forEach((tile) => {
       const key = `${tile.q},${tile.r}`;
-      if(tilesByKey[key]) {
+      if (tilesByKey[key]) {
         throw new Error(`Tiles Not Found has repeating tile (${tile.q}, ${tile.r})`)
       }
       tilesByKey[key] = true;
@@ -140,13 +140,13 @@ describe('pathfinder', () => {
   };
 
   const sortTiles = (a: TileFoundDescription, b: TileFoundDescription) => {
-    if(a.q < b.q) {
+    if (a.q < b.q) {
       return -1;
     } else if (a.q > b.q) {
       return 1;
     }
 
-    if(a.r < a.r) {
+    if (a.r < a.r) {
       return -1;
     } else if (a.r > b.r) {
       return 1;
@@ -157,17 +157,17 @@ describe('pathfinder', () => {
 
   describe('pathfinding with a single move', () => {
     it('shows all of the tiles that can be reached from a single move', () => {
-      map = new HexMap(
-        [
-          new HexGridTile(0, -1, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(1, 0, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(2, 0, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(0, 1, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(-1, 0, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(-2, 0, HexGridTerrainTypes.singleMovement),
+      map = new HexMap({
+        tiles: [
+          new HexGridTile(0 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(1 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(2 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(-1 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(-2 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
         ]
-      );
+      });
 
       const pathfinder = new Pathfinder({
         map: map
@@ -195,12 +195,14 @@ describe('pathfinder', () => {
     });
 
     it('can factor a minimum distance to movement', () => {
-      const lineMap = new HexMap([
-        new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-        new HexGridTile(0, 1, HexGridTerrainTypes.singleMovement),
-        new HexGridTile(0, 2, HexGridTerrainTypes.singleMovement),
-        new HexGridTile(0, 3, HexGridTerrainTypes.singleMovement),
-      ]);
+      const lineMap = new HexMap({
+        tiles: [
+          new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 3 as Integer, HexGridTerrainTypes.singleMovement),
+        ]
+      });
 
       const pathfinder = new Pathfinder({
         map: lineMap
@@ -229,15 +231,15 @@ describe('pathfinder', () => {
     });
 
     it('factors movement costs for rough terrain', () => {
-      map = new HexMap(
-        [
-          new HexGridTile(0, -2, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(0, -1, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(0, 1, HexGridTerrainTypes.doubleMovement),
-          new HexGridTile(0, 2, HexGridTerrainTypes.singleMovement),
+      map = new HexMap({
+        tiles: [
+          new HexGridTile(0 as Integer, -2 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.doubleMovement),
+          new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.singleMovement),
         ]
-      );
+      });
 
       const pathfinder = new Pathfinder({
         map: map
@@ -270,14 +272,14 @@ describe('pathfinder', () => {
       let wallTile: TileFoundDescription[];
 
       beforeEach(() => {
-        map = new HexMap(
-          [
-            new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 2, HexGridTerrainTypes.wall),
-            new HexGridTile(0, 3, HexGridTerrainTypes.singleMovement),
+        map = new HexMap({
+          tiles: [
+            new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.wall),
+            new HexGridTile(0 as Integer, 3 as Integer, HexGridTerrainTypes.singleMovement),
           ]
-        );
+        });
 
         wallTile = [
           {q: 0 as Integer, r: 2 as Integer,},
@@ -341,14 +343,14 @@ describe('pathfinder', () => {
       let map: HexMap;
       let pathfinder: Pathfinder;
       beforeEach(() => {
-        map = new HexMap(
-          [
-            new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 2, HexGridTerrainTypes.pit),
-            new HexGridTile(0, 3, HexGridTerrainTypes.singleMovement),
+        map = new HexMap({
+          tiles: [
+            new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.pit),
+            new HexGridTile(0 as Integer, 3 as Integer, HexGridTerrainTypes.singleMovement),
           ]
-        );
+        });
         pathfinder = new Pathfinder({
           map: map
         });
@@ -429,13 +431,13 @@ describe('pathfinder', () => {
     });
 
     it('cannot stop on an already occupied tile', () => {
-      const map = new HexMap(
-        [
-          new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(0, 1, HexGridTerrainTypes.singleMovement),
-          new HexGridTile(0, 2, HexGridTerrainTypes.singleMovement),
+      const map = new HexMap({
+        tiles: [
+          new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+          new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.singleMovement),
         ]
-      );
+      });
 
       const pathfinder = new Pathfinder({
         map: map
@@ -449,7 +451,7 @@ describe('pathfinder', () => {
         }),
       });
 
-      pathfinder.addSquaddie(teammate, {q:0 as Integer, r:1 as Integer});
+      pathfinder.addSquaddie(teammate, {q: 0 as Integer, r: 1 as Integer});
 
       const allMovableTiles = pathfinder.getAllReachableTiles({
         movement: {
@@ -479,23 +481,23 @@ describe('pathfinder', () => {
       let tilesNearbyCenter: TileFoundDescription[];
 
       beforeEach(() => {
-        map = new HexMap(
-          [
-            new HexGridTile(-1, -1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(-1, 0, HexGridTerrainTypes.singleMovement),
+        map = new HexMap({
+          tiles: [
+            new HexGridTile(-1 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(-1 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(0, -1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 2, HexGridTerrainTypes.wall),
-            new HexGridTile(0, 3, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.wall),
+            new HexGridTile(0 as Integer, 3 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(1, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(1, 1, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(1 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(1 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(2, 0, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(2 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
           ]
-        );
+        });
 
         pathfinder = new Pathfinder({
           map: map
@@ -611,30 +613,30 @@ describe('pathfinder', () => {
       let justTheCenter: TileFoundDescription[];
 
       beforeEach(() => {
-        bigMap = new HexMap(
-          [
-            new HexGridTile(-1, -1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(-1, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(-1, 1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(-1, 2, HexGridTerrainTypes.singleMovement),
+        bigMap = new HexMap({
+          tiles: [
+            new HexGridTile(-1 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(-1 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(-1 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(-1 as Integer, 2 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(0, -2, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, -1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 1, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 2, HexGridTerrainTypes.wall),
-            new HexGridTile(0, 3, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, -2 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.wall),
+            new HexGridTile(0 as Integer, 3 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(1, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(1, 1, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(1 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(1 as Integer, 1 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(2, 0, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(2 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(3, 0, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(3 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
 
-            new HexGridTile(4, 0, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(4 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
           ]
-        );
+        });
 
         pathfinder = new Pathfinder({
           map: bigMap
@@ -737,13 +739,13 @@ describe('pathfinder', () => {
       let justTheCenter: TileFoundDescription[];
 
       beforeEach(() => {
-        map = new HexMap(
-          [
-            new HexGridTile(0, 0, HexGridTerrainTypes.singleMovement),
-            new HexGridTile(0, 1, HexGridTerrainTypes.wall),
-            new HexGridTile(0, 2, HexGridTerrainTypes.singleMovement),
+        map = new HexMap({
+          tiles: [
+            new HexGridTile(0 as Integer, 0 as Integer, HexGridTerrainTypes.singleMovement),
+            new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.wall),
+            new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.singleMovement),
           ]
-        );
+        });
 
         pathfinder = new Pathfinder({
           map: map

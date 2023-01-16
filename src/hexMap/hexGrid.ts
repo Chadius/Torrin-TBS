@@ -7,14 +7,11 @@ export type Integer = number & {_brand: 'Integer'}
 export type HexCoordinate = {q: Integer, r: Integer}
 
 export class HexGridTile {
-  q: number;
-  r: number;
+  q: Integer;
+  r: Integer;
   terrainType: HexGridTerrainTypes;
 
-  constructor(qcoord: number, rcoord: number, appearance: HexGridTerrainTypes) {
-    assertsInteger(rcoord);
-    assertsInteger(qcoord);
-
+  constructor(qcoord: Integer, rcoord: Integer, appearance: HexGridTerrainTypes) {
     this.r = rcoord;
     this.q = qcoord;
     this.terrainType = appearance;

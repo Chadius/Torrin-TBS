@@ -48,32 +48,32 @@ export class BattleScene {
     type Tile = [number, number, HexGridTerrainTypes];
     const rawTiles: Tile[] = [
       [0, -1, HexGridTerrainTypes.pit],
-      [0,  0, HexGridTerrainTypes.pit],
-      [0,  1, HexGridTerrainTypes.pit],
-      [0,  2, HexGridTerrainTypes.pit],
-      [0,  3, HexGridTerrainTypes.pit],
+      [0, 0, HexGridTerrainTypes.pit],
+      [0, 1, HexGridTerrainTypes.pit],
+      [0, 2, HexGridTerrainTypes.pit],
+      [0, 3, HexGridTerrainTypes.pit],
 
-      [ 1, -1, HexGridTerrainTypes.wall],
-      [ 1,  0, HexGridTerrainTypes.wall],
-      [ 1,  1, HexGridTerrainTypes.wall],
-      [ 1,  2, HexGridTerrainTypes.wall],
+      [1, -1, HexGridTerrainTypes.wall],
+      [1, 0, HexGridTerrainTypes.wall],
+      [1, 1, HexGridTerrainTypes.wall],
+      [1, 2, HexGridTerrainTypes.wall],
 
-      [ 2, -2, HexGridTerrainTypes.singleMovement],
-      [ 2, -1, HexGridTerrainTypes.singleMovement],
-      [ 2,  0, HexGridTerrainTypes.singleMovement],
-      [ 2,  1, HexGridTerrainTypes.singleMovement],
-      [ 2,  2, HexGridTerrainTypes.singleMovement],
+      [2, -2, HexGridTerrainTypes.singleMovement],
+      [2, -1, HexGridTerrainTypes.singleMovement],
+      [2, 0, HexGridTerrainTypes.singleMovement],
+      [2, 1, HexGridTerrainTypes.singleMovement],
+      [2, 2, HexGridTerrainTypes.singleMovement],
 
-      [ 3, -2, HexGridTerrainTypes.doubleMovement],
-      [ 3, -1, HexGridTerrainTypes.doubleMovement],
-      [ 3,  0, HexGridTerrainTypes.doubleMovement],
-      [ 3,  1, HexGridTerrainTypes.doubleMovement],
+      [3, -2, HexGridTerrainTypes.doubleMovement],
+      [3, -1, HexGridTerrainTypes.doubleMovement],
+      [3, 0, HexGridTerrainTypes.doubleMovement],
+      [3, 1, HexGridTerrainTypes.doubleMovement],
 
-      [ 4, -3, HexGridTerrainTypes.tripleMovement],
-      [ 4, -2, HexGridTerrainTypes.tripleMovement],
-      [ 4, -1, HexGridTerrainTypes.tripleMovement],
-      [ 4,  0, HexGridTerrainTypes.tripleMovement],
-      [ 4,  1, HexGridTerrainTypes.tripleMovement],
+      [4, -3, HexGridTerrainTypes.tripleMovement],
+      [4, -2, HexGridTerrainTypes.tripleMovement],
+      [4, -1, HexGridTerrainTypes.tripleMovement],
+      [4, 0, HexGridTerrainTypes.tripleMovement],
+      [4, 1, HexGridTerrainTypes.tripleMovement],
     ];
 
     this.cutscene = new Cutscene(
@@ -161,9 +161,15 @@ export class BattleScene {
     });
     this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
 
-    this.hexMap = new HexMap( rawTiles.map(triple => {
-      return new HexGridTile(triple[0], triple[1], triple[2])
-    }));
+    this.hexMap = new HexMap({
+      tiles: rawTiles.map(triple => {
+        return new HexGridTile(
+          triple[0] as Integer,
+          triple[1] as Integer,
+          triple[2]
+        )
+      })
+    });
 
     this.hexMap.highlightTiles(
       [
@@ -187,19 +193,19 @@ export class BattleScene {
     );
   }
 
-  draw(p: p5)  {
-    if(this.cutscene.hasLoaded() && !this.cutscene.isInProgress()) {
+  draw(p: p5) {
+    if (this.cutscene.hasLoaded() && !this.cutscene.isInProgress()) {
       this.cutscene.setResources();
       this.cutscene.start();
     }
 
-    if(
+    if (
       this.resourceHandler.areAllResourcesLoaded([this.torrinSquaddieId.resources.mapIcon])
       && !this.torrinMapIcon
     ) {
       let image: p5.Image = this.resourceHandler.getResource(this.torrinSquaddieId.resources.mapIcon) as p5.Image;
 
-      const xyCoords = convertMapCoordinatesToWorldCoordinates(0,0);
+      const xyCoords = convertMapCoordinatesToWorldCoordinates(0, 0);
 
       this.torrinMapIcon = new ImageUI({
         graphic: image,
@@ -221,7 +227,7 @@ export class BattleScene {
       this.hexMap.draw(p);
     }
 
-    if(this.torrinMapIcon) {
+    if (this.torrinMapIcon) {
       this.torrinMapIcon.draw(p);
     }
 
