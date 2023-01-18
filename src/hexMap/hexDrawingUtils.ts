@@ -7,7 +7,7 @@ type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
 export const hexGridColorByTerrainType: HexGridTerrainToColor = {
   [HexGridTerrainTypes.singleMovement]: [117, 50, 33],
   [HexGridTerrainTypes.doubleMovement]: [57, 50, 45],
-  [HexGridTerrainTypes.tripleMovement]: [355, 10, 13],
+  [HexGridTerrainTypes.doubleMovement]: [355, 10, 13],
   [HexGridTerrainTypes.pit]: [209, 46, 40],
   [HexGridTerrainTypes.wall]: [41, 15, 40],
 };

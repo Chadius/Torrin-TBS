@@ -45,7 +45,7 @@ describe('hexMap', () => {
       new HexGridTile(0 as Integer, 1 as Integer, HexGridTerrainTypes.doubleMovement),
       new HexGridTile(0 as Integer, 2 as Integer, HexGridTerrainTypes.wall),
       new HexGridTile(0 as Integer, -1 as Integer, HexGridTerrainTypes.singleMovement),
-      new HexGridTile(1 as Integer, 0 as Integer, HexGridTerrainTypes.tripleMovement),
+      new HexGridTile(1 as Integer, 0 as Integer, HexGridTerrainTypes.doubleMovement),
       new HexGridTile(-1 as Integer, 0 as Integer, HexGridTerrainTypes.pit),
     ];
 
@@ -63,7 +63,7 @@ describe('hexMap', () => {
     expect(hexGrid.getTileTerrainTypeAtLocation({
       q: 1 as Integer,
       r: 0 as Integer
-    })).toBe(HexGridTerrainTypes.tripleMovement);
+    })).toBe(HexGridTerrainTypes.doubleMovement);
     expect(hexGrid.getTileTerrainTypeAtLocation({q: -1 as Integer, r: 0 as Integer})).toBe(HexGridTerrainTypes.pit);
 
     expect(hexGrid.getTileTerrainTypeAtLocation({q: 3 as Integer, r: 3 as Integer})).toBeUndefined();

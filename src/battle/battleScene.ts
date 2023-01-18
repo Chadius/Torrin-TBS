@@ -69,11 +69,11 @@ export class BattleScene {
       [3, 0, HexGridTerrainTypes.doubleMovement],
       [3, 1, HexGridTerrainTypes.doubleMovement],
 
-      [4, -3, HexGridTerrainTypes.tripleMovement],
-      [4, -2, HexGridTerrainTypes.tripleMovement],
-      [4, -1, HexGridTerrainTypes.tripleMovement],
-      [4, 0, HexGridTerrainTypes.tripleMovement],
-      [4, 1, HexGridTerrainTypes.tripleMovement],
+      [4, -3, HexGridTerrainTypes.doubleMovement],
+      [4, -2, HexGridTerrainTypes.doubleMovement],
+      [4, -1, HexGridTerrainTypes.doubleMovement],
+      [4, 0, HexGridTerrainTypes.doubleMovement],
+      [4, 1, HexGridTerrainTypes.doubleMovement],
     ];
 
     this.cutscene = new Cutscene(
