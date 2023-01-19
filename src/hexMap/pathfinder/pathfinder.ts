@@ -3,7 +3,7 @@ import {SquaddieID} from "../../squaddie/id";
 import {HexCoordinate, Integer} from "../hexGrid";
 import {HexMapLocationInfo} from "../HexMapLocationInfo";
 import {PriorityQueue} from "../../utils/priorityQueue";
-import {HexGridTerrainTypes, MovingCostByTerrainType} from "../hexGridTerrainType";
+import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
 
 type RequiredOptions = {
   map: HexMap;
@@ -182,7 +182,7 @@ export class Pathfinder {
   }
 
   private squaddieCanStopMovingOnTile(mapInfo: HexMapLocationInfo) {
-    return ![HexGridTerrainTypes.wall, HexGridTerrainTypes.pit].includes(
+    return ![HexGridMovementCost.wall, HexGridMovementCost.pit].includes(
         mapInfo.tileTerrainType
       )
       && mapInfo.squaddieId === undefined;
@@ -235,11 +235,11 @@ export class Pathfinder {
     return neighboringLocations.filter((neighbor) => {
       const mapInfo = this.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
 
-      if (!searchParams.movement.passThroughWalls && mapInfo.tileTerrainType === HexGridTerrainTypes.wall) {
+      if (!searchParams.movement.passThroughWalls && mapInfo.tileTerrainType === HexGridMovementCost.wall) {
         return false;
       }
 
-      if (!searchParams.movement.crossOverPits && mapInfo.tileTerrainType === HexGridTerrainTypes.pit) {
+      if (!searchParams.movement.crossOverPits && mapInfo.tileTerrainType === HexGridMovementCost.pit) {
         return false;
       }
 

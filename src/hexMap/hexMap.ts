@@ -8,7 +8,7 @@ import {
   PulseBlendColor,
   pulseBlendColorToBlendColor
 } from "./hexDrawingUtils";
-import {ConvertStringToMovementCost, HexGridTerrainTypes} from "./hexGridTerrainType";
+import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
 
 export type HexMapOptions = {
@@ -24,7 +24,7 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
 
     while(costStringIndex < costString.length) {
       let stringToConvert = costString.slice(costStringIndex, costStringIndex + 2);
-      let movementCostType = ConvertStringToMovementCost(stringToConvert);
+      let movementCostType = convertStringToMovementCost(stringToConvert);
       newTiles.push(new HexGridTile(
         q_index as Integer,
         r_index as Integer,
@@ -155,7 +155,7 @@ export class HexMap {
     );
   }
 
-  getTileTerrainTypeAtLocation(hexCoordinate: HexCoordinate): HexGridTerrainTypes | undefined {
+  getTileTerrainTypeAtLocation(hexCoordinate: HexCoordinate): HexGridMovementCost | undefined {
     const tile = this.getTileAtLocation(hexCoordinate);
     if (tile === undefined) {
       return undefined;

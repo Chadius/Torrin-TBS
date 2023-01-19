@@ -12,7 +12,7 @@ import {SquaddieResource} from "../squaddie/resource";
 import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
-import {HexGridTerrainTypes} from "../hexMap/hexGridTerrainType";
+import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 
@@ -45,35 +45,35 @@ export class BattleScene {
 
     this.resourceHandler = options.resourceHandler;
 
-    type Tile = [number, number, HexGridTerrainTypes];
+    type Tile = [number, number, HexGridMovementCost];
     const rawTiles: Tile[] = [
-      [0, -1, HexGridTerrainTypes.pit],
-      [0, 0, HexGridTerrainTypes.pit],
-      [0, 1, HexGridTerrainTypes.pit],
-      [0, 2, HexGridTerrainTypes.pit],
-      [0, 3, HexGridTerrainTypes.pit],
+      [0, -1, HexGridMovementCost.pit],
+      [0, 0, HexGridMovementCost.pit],
+      [0, 1, HexGridMovementCost.pit],
+      [0, 2, HexGridMovementCost.pit],
+      [0, 3, HexGridMovementCost.pit],
 
-      [1, -1, HexGridTerrainTypes.wall],
-      [1, 0, HexGridTerrainTypes.wall],
-      [1, 1, HexGridTerrainTypes.wall],
-      [1, 2, HexGridTerrainTypes.wall],
+      [1, -1, HexGridMovementCost.wall],
+      [1, 0, HexGridMovementCost.wall],
+      [1, 1, HexGridMovementCost.wall],
+      [1, 2, HexGridMovementCost.wall],
 
-      [2, -2, HexGridTerrainTypes.singleMovement],
-      [2, -1, HexGridTerrainTypes.singleMovement],
-      [2, 0, HexGridTerrainTypes.singleMovement],
-      [2, 1, HexGridTerrainTypes.singleMovement],
-      [2, 2, HexGridTerrainTypes.singleMovement],
+      [2, -2, HexGridMovementCost.singleMovement],
+      [2, -1, HexGridMovementCost.singleMovement],
+      [2, 0, HexGridMovementCost.singleMovement],
+      [2, 1, HexGridMovementCost.singleMovement],
+      [2, 2, HexGridMovementCost.singleMovement],
 
-      [3, -2, HexGridTerrainTypes.doubleMovement],
-      [3, -1, HexGridTerrainTypes.doubleMovement],
-      [3, 0, HexGridTerrainTypes.doubleMovement],
-      [3, 1, HexGridTerrainTypes.doubleMovement],
+      [3, -2, HexGridMovementCost.doubleMovement],
+      [3, -1, HexGridMovementCost.doubleMovement],
+      [3, 0, HexGridMovementCost.doubleMovement],
+      [3, 1, HexGridMovementCost.doubleMovement],
 
-      [4, -3, HexGridTerrainTypes.doubleMovement],
-      [4, -2, HexGridTerrainTypes.doubleMovement],
-      [4, -1, HexGridTerrainTypes.doubleMovement],
-      [4, 0, HexGridTerrainTypes.doubleMovement],
-      [4, 1, HexGridTerrainTypes.doubleMovement],
+      [4, -3, HexGridMovementCost.doubleMovement],
+      [4, -2, HexGridMovementCost.doubleMovement],
+      [4, -1, HexGridMovementCost.doubleMovement],
+      [4, 0, HexGridMovementCost.doubleMovement],
+      [4, 1, HexGridMovementCost.doubleMovement],
     ];
 
     this.cutscene = new Cutscene(

@@ -1,9 +1,9 @@
 import {Integer} from "./hexGrid";
-import {HexGridTerrainTypes} from "./hexGridTerrainType";
+import {HexGridMovementCost} from "./hexGridMovementCost";
 
 export type HexMapLocationInfo = {
   q: Integer;
   r: Integer;
   squaddieId: string;
-  tileTerrainType: HexGridTerrainTypes;
+  tileTerrainType: HexGridMovementCost;
 }

@@ -1,15 +1,15 @@
 import * as p5 from "p5";
 import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
-import {HexGridTerrainTypes} from "./hexGridTerrainType";
+import {HexGridMovementCost} from "./hexGridMovementCost";
 
-type HexGridTerrainToColor = Record<HexGridTerrainTypes, number[]>
+type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
 
 export const hexGridColorByTerrainType: HexGridTerrainToColor = {
-  [HexGridTerrainTypes.singleMovement]: [117, 50, 33],
-  [HexGridTerrainTypes.doubleMovement]: [57, 50, 45],
-  [HexGridTerrainTypes.doubleMovement]: [355, 10, 13],
-  [HexGridTerrainTypes.pit]: [209, 46, 40],
-  [HexGridTerrainTypes.wall]: [41, 15, 40],
+  [HexGridMovementCost.singleMovement]: [117, 50, 33],
+  [HexGridMovementCost.doubleMovement]: [57, 50, 45],
+  [HexGridMovementCost.doubleMovement]: [355, 10, 13],
+  [HexGridMovementCost.pit]: [209, 46, 40],
+  [HexGridMovementCost.wall]: [41, 15, 40],
 };
 
 export type BlendColor = [number,number,number,number];

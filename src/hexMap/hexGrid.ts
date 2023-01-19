@@ -1,7 +1,7 @@
 import * as p5 from "p5";
 import {BlendColor, hexGridColorByTerrainType, drawHexShape} from "./hexDrawingUtils";
 import {assertsInteger} from "../utils/math";
-import {HexGridTerrainTypes} from "./hexGridTerrainType";
+import {HexGridMovementCost} from "./hexGridMovementCost";
 
 export type Integer = number & {_brand: 'Integer'}
 export type HexCoordinate = {q: Integer, r: Integer}
@@ -9,9 +9,9 @@ export type HexCoordinate = {q: Integer, r: Integer}
 export class HexGridTile {
   q: Integer;
   r: Integer;
-  terrainType: HexGridTerrainTypes;
+  terrainType: HexGridMovementCost;
 
-  constructor(qcoord: Integer, rcoord: Integer, appearance: HexGridTerrainTypes) {
+  constructor(qcoord: Integer, rcoord: Integer, appearance: HexGridMovementCost) {
     this.r = rcoord;
     this.q = qcoord;
     this.terrainType = appearance;
