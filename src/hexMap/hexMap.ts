@@ -8,11 +8,34 @@ import {
   PulseBlendColor,
   pulseBlendColorToBlendColor
 } from "./hexDrawingUtils";
-import {HexGridTerrainTypes} from "./hexGridTerrainType";
+import {ConvertStringToMovementCost, HexGridTerrainTypes} from "./hexGridTerrainType";
 import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
 
 export type HexMapOptions = {
-  tiles: HexGridTile[];
+  tiles?: HexGridTile[];
+  movementCost?: string[];
+}
+
+function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
+  const newTiles: HexGridTile[] = [];
+  movementCost.forEach((costString, q_index) => {
+    let r_index = 0 - Math.floor(q_index / 2);
+    let costStringIndex = costString.length % 2 === 0 ? 0 : 1;
+
+    while(costStringIndex < costString.length) {
+      let stringToConvert = costString.slice(costStringIndex, costStringIndex + 2);
+      let movementCostType = ConvertStringToMovementCost(stringToConvert);
+      newTiles.push(new HexGridTile(
+        q_index as Integer,
+        r_index as Integer,
+        movementCostType
+      ));
+
+      r_index += 1;
+      costStringIndex += 2;
+    }
+  });
+  return newTiles;
 }
 
 export class HexMap {
@@ -22,31 +45,31 @@ export class HexMap {
   highlightedColor: PulseBlendColor;
 
   constructor(options: HexMapOptions) {
-    const {
-      tiles
-    } = options;
-    const tileCoords = tiles.map((tile, index) => {
-      return {
-        i: index,
-        value: tile.q * 100 + tile.r
-      }}
-    );
+    let tiles: HexGridTile[] = options.tiles;
+    let movementCost: string[] = options.movementCost;
 
-    tileCoords.sort((a, b) => {
-      if (a.value < b.value) {
+    if(tiles === undefined) {
+      tiles = convertMovementCostToTiles(movementCost);
+    }
+
+    const tilesSortedByRThenQ = [...tiles].sort((a, b) => {
+      if (a.r < b.r) {
         return -1;
       }
-      if (a.value > b.value) {
+      if (a.r > b.r) {
+        return 1;
+      }
+
+      if (a.q < b.q) {
+        return -1;
+      }
+      if (a.q > b.q) {
         return 1;
       }
       return 0;
     })
 
-    this.tiles = tileCoords.map((v) => tiles[v.i])
-    this.outlineTileCoordinates = {
-      q: tiles[0].q as Integer,
-      r: tiles[0].r as Integer
-    }
+    this.tiles = tilesSortedByRThenQ;
     this.highlightedColoredTiles = [];
   }
 
