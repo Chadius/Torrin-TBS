@@ -45,37 +45,6 @@ export class BattleScene {
 
     this.resourceHandler = options.resourceHandler;
 
-    type Tile = [number, number, HexGridMovementCost];
-    const rawTiles: Tile[] = [
-      [0, -1, HexGridMovementCost.pit],
-      [0, 0, HexGridMovementCost.pit],
-      [0, 1, HexGridMovementCost.pit],
-      [0, 2, HexGridMovementCost.pit],
-      [0, 3, HexGridMovementCost.pit],
-
-      [1, -1, HexGridMovementCost.wall],
-      [1, 0, HexGridMovementCost.wall],
-      [1, 1, HexGridMovementCost.wall],
-      [1, 2, HexGridMovementCost.wall],
-
-      [2, -2, HexGridMovementCost.singleMovement],
-      [2, -1, HexGridMovementCost.singleMovement],
-      [2, 0, HexGridMovementCost.singleMovement],
-      [2, 1, HexGridMovementCost.singleMovement],
-      [2, 2, HexGridMovementCost.singleMovement],
-
-      [3, -2, HexGridMovementCost.doubleMovement],
-      [3, -1, HexGridMovementCost.doubleMovement],
-      [3, 0, HexGridMovementCost.doubleMovement],
-      [3, 1, HexGridMovementCost.doubleMovement],
-
-      [4, -3, HexGridMovementCost.doubleMovement],
-      [4, -2, HexGridMovementCost.doubleMovement],
-      [4, -1, HexGridMovementCost.doubleMovement],
-      [4, 0, HexGridMovementCost.doubleMovement],
-      [4, 1, HexGridMovementCost.doubleMovement],
-    ];
-
     this.cutscene = new Cutscene(
       {
         actions: [
@@ -162,13 +131,13 @@ export class BattleScene {
     this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
 
     this.hexMap = new HexMap({
-      tiles: rawTiles.map(triple => {
-        return new HexGridTile(
-          triple[0] as Integer,
-          triple[1] as Integer,
-          triple[2]
-        )
-      })
+      movementCost: [
+        "- - - - - ",
+        " x x x x x ",
+        "1 1 1 1 1 ",
+        " 2 2 2 2 2 ",
+        "2 2 2 2 2 ",
+      ]
     });
 
     this.hexMap.highlightTiles(

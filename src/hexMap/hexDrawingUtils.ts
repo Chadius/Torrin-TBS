@@ -5,11 +5,10 @@ import {HexGridMovementCost} from "./hexGridMovementCost";
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
 
 export const hexGridColorByTerrainType: HexGridTerrainToColor = {
-  [HexGridMovementCost.singleMovement]: [117, 50, 33],
+  [HexGridMovementCost.singleMovement]: [41, 15, 40],
   [HexGridMovementCost.doubleMovement]: [57, 50, 45],
-  [HexGridMovementCost.doubleMovement]: [355, 10, 13],
   [HexGridMovementCost.pit]: [209, 46, 40],
-  [HexGridMovementCost.wall]: [41, 15, 40],
+  [HexGridMovementCost.wall]: [355, 10, 13],
 };
 
 export type BlendColor = [number,number,number,number];

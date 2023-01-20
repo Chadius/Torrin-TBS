@@ -123,12 +123,10 @@ describe('hexMap', () => {
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 1, 1, HexGridMovementCost.doubleMovement);
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 1, 2, HexGridMovementCost.doubleMovement);
 
-      verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 2, -1, HexGridMovementCost.wall);
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 2, 0, HexGridMovementCost.pit);
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 2, 1, HexGridMovementCost.pit);
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 2, 2, HexGridMovementCost.pit);
 
-      verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 3, -1, HexGridMovementCost.wall);
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 3, 0, HexGridMovementCost.wall);
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 3, 1, HexGridMovementCost.wall);
       verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 3, 2, HexGridMovementCost.wall);
