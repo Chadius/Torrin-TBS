@@ -397,7 +397,12 @@ export class RectArea {
     return this.left + (this.width / 2);
   }
 
-  private alignHorizontally(params: Alignment) {
+  align(params: Alignment) {
+    this.alignHorizontally(params);
+    this.alignVertically(params);
+  }
+
+  alignHorizontally(params: Alignment) {
     if (!params) {
       return;
     }
@@ -411,7 +416,7 @@ export class RectArea {
     }
   }
 
-  private alignVertically(params: Alignment) {
+  alignVertically(params: Alignment) {
     if (!params) {
       return;
     }

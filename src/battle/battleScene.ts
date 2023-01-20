@@ -1,5 +1,5 @@
 import p5 from "p5";
-import {HexGridTile, Integer} from "../hexMap/hexGrid";
+import {HexCoordinate, Integer} from "../hexMap/hexGrid";
 import {HexMap} from "../hexMap/hexMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {DialogueBox} from "../cutscene/dialogue/dialogueBox";
@@ -10,10 +10,12 @@ import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
 import {SquaddieID} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
 import {ImageUI} from "../ui/imageUI";
-import {RectArea} from "../ui/rectArea";
+import {HorizontalAnchor, RectArea, VerticalAnchor} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
-import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
-import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
+import {
+  convertMapCoordinatesToWorldCoordinates,
+  convertWorldCoordinatesToMapCoordinates
+} from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 
 type RequiredOptions = {
@@ -36,6 +38,7 @@ export class BattleScene {
 
   torrinSquaddieId: SquaddieID;
   torrinMapIcon: ImageUI;
+  torrinMapLocation: HexCoordinate;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     assertsPositiveNumber(options.width);
@@ -174,6 +177,7 @@ export class BattleScene {
     ) {
       let image: p5.Image = this.resourceHandler.getResource(this.torrinSquaddieId.resources.mapIcon) as p5.Image;
 
+      this.torrinMapLocation = {q: 0 as Integer, r: 0 as Integer};
       const xyCoords = convertMapCoordinatesToWorldCoordinates(0, 0);
 
       this.torrinMapIcon = new ImageUI({
@@ -217,6 +221,20 @@ export class BattleScene {
     if (this.cutscene && this.cutscene.isInProgress()) {
       this.cutscene.mouseClicked(mouseX, mouseY);
       return;
+    }
+
+    const worldX = mouseX - SCREEN_WIDTH / 2;
+    const worldY = mouseY - SCREEN_HEIGHT / 2;
+    const clickedTileCoordinates: [number, number] = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
+    const clickedHexCoordinate: HexCoordinate = {q: clickedTileCoordinates[0] as Integer, r: clickedTileCoordinates[1] as Integer};
+    if (
+      this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
+    ) {
+      this.torrinMapLocation = clickedHexCoordinate;
+      const xyCoords = convertMapCoordinatesToWorldCoordinates(clickedHexCoordinate.q, clickedHexCoordinate.r);
+      this.torrinMapIcon.area.setRectLeft({left: xyCoords[0] + SCREEN_WIDTH / 2});
+      this.torrinMapIcon.area.setRectTop({top: xyCoords[1] + SCREEN_HEIGHT / 2});
+      this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
     }
 
     this.hexMap.stopHighlightingTiles();
