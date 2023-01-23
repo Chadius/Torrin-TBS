@@ -4,6 +4,7 @@ import {HexCoordinate, Integer} from "../hexGrid";
 import {HexMapLocationInfo} from "../HexMapLocationInfo";
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
+import {HexDirection, moveCoordinatesInOneDirection} from "../hexGridDirection";
 
 type RequiredOptions = {
   map: HexMap;
@@ -202,12 +203,12 @@ export class Pathfinder {
 
   private createNewPathCandidates(q: number, r: number): [number, number][] {
     return [
-      [q, r + 1],
-      [q, r - 1],
-      [q + 1, r],
-      [q - 1, r],
-      [q - 1, r - 1],
-      [q + 1, r + 1],
+      moveCoordinatesInOneDirection(q, r, HexDirection.RIGHT),
+      moveCoordinatesInOneDirection(q, r, HexDirection.LEFT),
+      moveCoordinatesInOneDirection(q, r, HexDirection.UP_LEFT),
+      moveCoordinatesInOneDirection(q, r, HexDirection.UP_RIGHT),
+      moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_LEFT),
+      moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_RIGHT),
     ];
   }
 

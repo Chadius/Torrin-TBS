@@ -17,6 +17,7 @@ import {
   convertWorldCoordinatesToMapCoordinates
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
+import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 
 type RequiredOptions = {
   p: p5;
@@ -39,6 +40,7 @@ export class BattleScene {
   torrinSquaddieId: SquaddieID;
   torrinMapIcon: ImageUI;
   torrinMapLocation: HexCoordinate;
+  pathfinder: Pathfinder;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     assertsPositiveNumber(options.width);
@@ -163,6 +165,10 @@ export class BattleScene {
         periodAlpha: 2000,
       },
     );
+
+    this.pathfinder = new Pathfinder({
+      map: this.hexMap
+    })
   }
 
   draw(p: p5) {
@@ -232,12 +238,34 @@ export class BattleScene {
     ) {
       this.torrinMapLocation = clickedHexCoordinate;
       const xyCoords = convertMapCoordinatesToWorldCoordinates(clickedHexCoordinate.q, clickedHexCoordinate.r);
+      console.log(clickedHexCoordinate);
       this.torrinMapIcon.area.setRectLeft({left: xyCoords[0] + SCREEN_WIDTH / 2});
       this.torrinMapIcon.area.setRectTop({top: xyCoords[1] + SCREEN_HEIGHT / 2});
       this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
+
+      const tilesInRange: HexCoordinate[] = this.pathfinder.getAllReachableTiles({
+        startLocation: this.torrinMapLocation,
+        movement: {
+          numberOfActions: 1,
+          movementPerAction: 3,
+          passThroughWalls: false,
+          crossOverPits: false,
+        },
+      });
+
+      this.hexMap.highlightTiles(
+        tilesInRange,
+        {
+          hue: 0,
+          saturation: 80,
+          brightness: 80,
+          lowAlpha: 80,
+          highAlpha: 90,
+          periodAlpha: 2000,
+        },
+      );
     }
 
-    this.hexMap.stopHighlightingTiles();
     this.hexMap.mouseClicked(mouseX, mouseY);
   }
 }

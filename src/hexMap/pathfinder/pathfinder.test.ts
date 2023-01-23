@@ -4,6 +4,7 @@ import {SquaddieID} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder, TileFoundDescription} from "./pathfinder";
 import {HexGridMovementCost} from "../hexGridMovementCost";
+import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
 
 describe('pathfinder', () => {
   let map: HexMap;
@@ -158,14 +159,10 @@ describe('pathfinder', () => {
   describe('pathfinding with a single move', () => {
     it('shows all of the tiles that can be reached from a single move', () => {
       map = new HexMap({
-        tiles: [
-          new HexGridTile(0 as Integer, -1 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(1 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(2 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(-1 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(-2 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
+        movementCost: [
+          "  1 1 1 ",
+          " 1 1 1 1 ",
+          "  1 1 1 ",
         ]
       });
 
@@ -173,22 +170,25 @@ describe('pathfinder', () => {
         map: map
       });
 
+      const origin: HexCoordinate = {q: 1 as Integer, r: 1 as Integer};
       const allMovableTiles = pathfinder.getAllReachableTiles({
         movement: {
           movementPerAction: 1,
           numberOfActions: 1,
         },
-        startLocation: {q: 0 as Integer, r: 0 as Integer}
+        startLocation: origin
       });
 
       validateTilesAreFound(
         allMovableTiles,
         [
-          {q: 0 as Integer, r: -1 as Integer,},
-          {q: 0 as Integer, r: 0 as Integer,},
-          {q: 0 as Integer, r: 1 as Integer,},
-          {q: -1 as Integer, r: 0 as Integer,},
-          {q: 1 as Integer, r: 0 as Integer,},
+          moveOneTileInDirection(origin, HexDirection.ORIGIN),
+          moveOneTileInDirection(origin, HexDirection.RIGHT),
+          moveOneTileInDirection(origin, HexDirection.LEFT),
+          moveOneTileInDirection(origin, HexDirection.UP_LEFT),
+          moveOneTileInDirection(origin, HexDirection.UP_RIGHT),
+          moveOneTileInDirection(origin, HexDirection.DOWN_LEFT),
+          moveOneTileInDirection(origin, HexDirection.DOWN_RIGHT),
         ],
         []
       );
@@ -196,11 +196,8 @@ describe('pathfinder', () => {
 
     it('can factor a minimum distance to movement', () => {
       const lineMap = new HexMap({
-        tiles: [
-          new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 2 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 3 as Integer, HexGridMovementCost.singleMovement),
+        movementCost: [
+          "1 1 1 1 "
         ]
       });
 
@@ -232,12 +229,8 @@ describe('pathfinder', () => {
 
     it('factors movement costs for rough terrain', () => {
       map = new HexMap({
-        tiles: [
-          new HexGridTile(0 as Integer, -2 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, -1 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.doubleMovement),
-          new HexGridTile(0 as Integer, 2 as Integer, HexGridMovementCost.singleMovement),
+        movementCost: [
+          "1 1 1 2 1 "
         ]
       });
 
@@ -250,19 +243,19 @@ describe('pathfinder', () => {
           movementPerAction: 2,
           numberOfActions: 1,
         },
-        startLocation: {q: 0 as Integer, r: 0 as Integer}
+        startLocation: {q: 0 as Integer, r: 1 as Integer}
       });
 
       validateTilesAreFound(
         allMovableTiles,
         [
-          {q: 0 as Integer, r: -2 as Integer,},
-          {q: 0 as Integer, r: -1 as Integer,},
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
+          {q: 0 as Integer, r: 2 as Integer,},
         ],
         [
-          {q: 0 as Integer, r: 2 as Integer,},
+          {q: 0 as Integer, r: 3 as Integer,},
+          {q: 0 as Integer, r: 4 as Integer,},
         ]
       );
     });
@@ -273,11 +266,8 @@ describe('pathfinder', () => {
 
       beforeEach(() => {
         map = new HexMap({
-          tiles: [
-            new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 2 as Integer, HexGridMovementCost.wall),
-            new HexGridTile(0 as Integer, 3 as Integer, HexGridMovementCost.singleMovement),
+          movementCost: [
+            "1 1 x 1 "
           ]
         });
 
@@ -344,11 +334,8 @@ describe('pathfinder', () => {
       let pathfinder: Pathfinder;
       beforeEach(() => {
         map = new HexMap({
-          tiles: [
-            new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 2 as Integer, HexGridMovementCost.pit),
-            new HexGridTile(0 as Integer, 3 as Integer, HexGridMovementCost.singleMovement),
+          movementCost: [
+            "1 1 - 1 "
           ]
         });
         pathfinder = new Pathfinder({
@@ -432,10 +419,8 @@ describe('pathfinder', () => {
 
     it('cannot stop on an already occupied tile', () => {
       const map = new HexMap({
-        tiles: [
-          new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-          new HexGridTile(0 as Integer, 2 as Integer, HexGridMovementCost.singleMovement),
+        movementCost: [
+          "1 1 1 "
         ]
       });
 
@@ -478,24 +463,15 @@ describe('pathfinder', () => {
       let pathfinder: Pathfinder;
       let justTheCenter: TileFoundDescription[];
       let tilesNotFoundBecauseSearchBlockedByWall: TileFoundDescription[];
-      let tilesNearbyCenter: TileFoundDescription[];
+      let tilesWithin2HexesOfOrigin: TileFoundDescription[];
 
       beforeEach(() => {
         map = new HexMap({
-          tiles: [
-            new HexGridTile(-1 as Integer, -1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(-1 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(0 as Integer, -1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 2 as Integer, HexGridMovementCost.wall),
-            new HexGridTile(0 as Integer, 3 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(1 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(1 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(2 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
+          movementCost: [
+            '1 1 ',
+            ' 1 1 1 x 1 ',
+            '  x 1 1 ',
+            '   1 ',
           ]
         });
 
@@ -504,26 +480,24 @@ describe('pathfinder', () => {
         });
 
         justTheCenter = [
-          {q: 0 as Integer, r: 0 as Integer}
+          {q: 1 as Integer, r: 1 as Integer}
         ];
 
         tilesNotFoundBecauseSearchBlockedByWall = [
-          {q: 0 as Integer, r: 2 as Integer,},
-          {q: 0 as Integer, r: 3 as Integer,},
+          {q: 1 as Integer, r: 3 as Integer,},
+          {q: 1 as Integer, r: 4 as Integer,},
         ];
 
-        tilesNearbyCenter = [
-          {q: -1 as Integer, r: -1 as Integer,},
-          {q: -1 as Integer, r: 0 as Integer,},
+        tilesWithin2HexesOfOrigin = [
+          moveOneTileInDirection(justTheCenter[0], HexDirection.ORIGIN),
+          moveOneTileInDirection(justTheCenter[0], HexDirection.RIGHT),
+          moveOneTileInDirection(justTheCenter[0], HexDirection.LEFT),
+          moveOneTileInDirection(justTheCenter[0], HexDirection.UP_LEFT),
+          moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_RIGHT),
 
-          {q: 0 as Integer, r: -1 as Integer,},
-          {q: 0 as Integer, r: 0 as Integer,},
-          {q: 0 as Integer, r: 1 as Integer,},
-
-          {q: 1 as Integer, r: 0 as Integer,},
-          {q: 1 as Integer, r: 1 as Integer,},
-
-          {q: 2 as Integer, r: 0 as Integer,},
+          {q: 0 as Integer, r: 0 as Integer},
+          {q: 2 as Integer, r: 2 as Integer},
+          {q: 3 as Integer, r: 0 as Integer},
         ];
       });
 
@@ -536,11 +510,11 @@ describe('pathfinder', () => {
         validateTilesAreFound(
           centerTileOnly,
           [
-            {q: 0 as Integer, r: 0 as Integer,},
+            {q: 1 as Integer, r: 1 as Integer,},
           ],
           [
-            {q: 1 as Integer, r: 0 as Integer,},
-            {q: 0 as Integer, r: 1 as Integer,},
+            {q: 2 as Integer, r: 1 as Integer,},
+            {q: 1 as Integer, r: 2 as Integer,},
           ]
         );
       });
@@ -554,21 +528,15 @@ describe('pathfinder', () => {
         validateTilesAreFound(
           centerAndAdjacentTiles,
           [
-            {q: -1 as Integer, r: -1 as Integer,},
-            {q: -1 as Integer, r: 0 as Integer,},
-
-            {q: 0 as Integer, r: -1 as Integer,},
-            {q: 0 as Integer, r: 0 as Integer,},
-            {q: 0 as Integer, r: 1 as Integer,},
-
-            {q: 1 as Integer, r: 0 as Integer,},
-            {q: 1 as Integer, r: 1 as Integer,},
+            moveOneTileInDirection(justTheCenter[0], HexDirection.ORIGIN),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.RIGHT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.LEFT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.UP_LEFT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_RIGHT),
           ],
           [
-            {q: 0 as Integer, r: 2 as Integer,},
-            {q: 0 as Integer, r: 3 as Integer,},
-
-            {q: 2 as Integer, r: 0 as Integer,},
+            moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_LEFT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.UP_RIGHT),
           ]
         );
       });
@@ -581,7 +549,7 @@ describe('pathfinder', () => {
         });
         validateTilesAreFound(
           centerAndAdjacentTiles,
-          tilesNearbyCenter,
+          tilesWithin2HexesOfOrigin,
           tilesNotFoundBecauseSearchBlockedByWall
         );
       });
@@ -589,7 +557,7 @@ describe('pathfinder', () => {
       it('can spread from multiple tiles', () => {
         const movementRangeTiles: TileFoundDescription[] = [
           ...justTheCenter,
-          {q: 1 as Integer, r: 0 as Integer}
+          {q: 1 as Integer, r: 2 as Integer}
         ];
 
         const meleeAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
@@ -599,12 +567,18 @@ describe('pathfinder', () => {
         });
         validateTilesAreFound(
           meleeAttackTiles,
-          tilesNearbyCenter,
+          [
+            moveOneTileInDirection(movementRangeTiles[0], HexDirection.ORIGIN),
+            moveOneTileInDirection(movementRangeTiles[0], HexDirection.RIGHT),
+            moveOneTileInDirection(movementRangeTiles[0], HexDirection.LEFT),
+            moveOneTileInDirection(movementRangeTiles[0], HexDirection.UP_LEFT),
+            moveOneTileInDirection(movementRangeTiles[0], HexDirection.DOWN_RIGHT),
+
+            moveOneTileInDirection(movementRangeTiles[1], HexDirection.DOWN_RIGHT),
+          ],
           tilesNotFoundBecauseSearchBlockedByWall
         );
       });
-
-
     });
 
     describe('spread with minimum range', () => {
@@ -614,27 +588,13 @@ describe('pathfinder', () => {
 
       beforeEach(() => {
         bigMap = new HexMap({
-          tiles: [
-            new HexGridTile(-1 as Integer, -1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(-1 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(-1 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(-1 as Integer, 2 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(0 as Integer, -2 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, -1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(0 as Integer, 2 as Integer, HexGridMovementCost.wall),
-            new HexGridTile(0 as Integer, 3 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(1 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-            new HexGridTile(1 as Integer, 1 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(2 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(3 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
-
-            new HexGridTile(4 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
+          movementCost: [
+            '1 1 1 1 ',
+            ' 1 1 1 1 x 1 ',
+            '  1 1 ',
+            '   1 ',
+            '    1 ',
+            '     1 ',
           ]
         });
 
@@ -643,7 +603,7 @@ describe('pathfinder', () => {
         });
 
         justTheCenter = [
-          {q: 0 as Integer, r: 0 as Integer}
+          {q: 1 as Integer, r: 1 as Integer}
         ];
       });
 
@@ -662,29 +622,24 @@ describe('pathfinder', () => {
         validateTilesAreFound(
           indirectAttackTiles,
           [
-            {q: -1 as Integer, r: 1 as Integer,},
-            {q: -1 as Integer, r: 2 as Integer,},
-
-            {q: 0 as Integer, r: -2 as Integer,},
-
-            {q: 2 as Integer, r: 0 as Integer,},
-
+            {q: 0 as Integer, r: 0 as Integer,},
+            {q: 0 as Integer, r: 3 as Integer,},
+            {q: 1 as Integer, r: 3 as Integer,},
             {q: 3 as Integer, r: 0 as Integer,},
+            {q: 4 as Integer, r: 0 as Integer,},
           ],
           [
-            {q: -1 as Integer, r: -1 as Integer,},
-            {q: -1 as Integer, r: 0 as Integer,},
+            moveOneTileInDirection(justTheCenter[0], HexDirection.ORIGIN),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.LEFT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.RIGHT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.UP_LEFT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.UP_RIGHT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_RIGHT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_LEFT),
 
-            {q: 0 as Integer, r: -1 as Integer,},
-            {q: 0 as Integer, r: 0 as Integer,},
-            {q: 0 as Integer, r: 1 as Integer,},
-            {q: 0 as Integer, r: 2 as Integer,},
-            {q: 0 as Integer, r: 3 as Integer,},
+            {q: 1 as Integer, r: 5 as Integer,},
 
-            {q: 1 as Integer, r: 0 as Integer,},
-            {q: 1 as Integer, r: 1 as Integer,},
-
-            {q: 4 as Integer, r: 0 as Integer,},
+            {q: 5 as Integer, r: 0 as Integer,},
           ]
         );
       });
@@ -692,7 +647,7 @@ describe('pathfinder', () => {
       it('multiple tiles are combined', () => {
         const movementRangeTiles: TileFoundDescription[] = [
           ...justTheCenter,
-          {q: 0 as Integer, r: 1 as Integer}
+          {q: 1 as Integer, r: 2 as Integer}
         ];
 
         const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
@@ -704,30 +659,23 @@ describe('pathfinder', () => {
         validateTilesAreFound(
           indirectAttackTiles,
           [
-            {q: -1 as Integer, r: -1 as Integer,},
-            {q: -1 as Integer, r: 1 as Integer,},
-            {q: -1 as Integer, r: 2 as Integer,},
-
-            {q: 0 as Integer, r: -2 as Integer,},
-            {q: 0 as Integer, r: -1 as Integer,},
+            {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 3 as Integer,},
-
-            {q: 1 as Integer, r: 0 as Integer,},
-
+            {q: 1 as Integer, r: 3 as Integer,},
             {q: 2 as Integer, r: 0 as Integer,},
-
             {q: 3 as Integer, r: 0 as Integer,},
+            {q: 4 as Integer, r: 0 as Integer,},
+            moveOneTileInDirection(justTheCenter[0], HexDirection.LEFT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.UP_LEFT),
           ],
           [
-            {q: -1 as Integer, r: 0 as Integer,},
+            moveOneTileInDirection(justTheCenter[0], HexDirection.ORIGIN),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.RIGHT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.UP_RIGHT),
+            moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_RIGHT),
 
-            {q: 0 as Integer, r: 0 as Integer,},
-            {q: 0 as Integer, r: 1 as Integer,},
-            {q: 0 as Integer, r: 2 as Integer,},
-
-            {q: 1 as Integer, r: 1 as Integer,},
-
-            {q: 4 as Integer, r: 0 as Integer,},
+            {q: 1 as Integer, r: 5 as Integer,},
+            {q: 5 as Integer, r: 0 as Integer,},
           ]
         );
       });

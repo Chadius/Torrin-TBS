@@ -1,6 +1,5 @@
 import * as p5 from "p5";
 import {BlendColor, hexGridColorByTerrainType, drawHexShape} from "./hexDrawingUtils";
-import {assertsInteger} from "../utils/math";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 
 export type Integer = number & {_brand: 'Integer'}

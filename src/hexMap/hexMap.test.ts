@@ -5,7 +5,7 @@ import {HexGridMovementCost} from "./hexGridMovementCost";
 
 describe('hexMap', () => {
   describe('mouseClicks on the map', () => {
-    it('should select tiles in a hex pattern', function () {
+    it('should select tiles in a hex pattern according to where the mouse clicked', function () {
       const gridTiles: HexGridTile[] = [
         new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.pit),
         new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.pit),
