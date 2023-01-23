@@ -5,20 +5,11 @@ import {HexMapLocationInfo} from "../HexMapLocationInfo";
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
 import {HexDirection, moveCoordinatesInOneDirection} from "../hexGridDirection";
+import {SearchParams} from "./searchParams";
+import {SquaddieMovement} from "../../squaddie/movement";
 
 type RequiredOptions = {
   map: HexMap;
-}
-
-export type SearchParams = {
-  startLocation?: HexCoordinate;
-  movement: {
-    numberOfActions?: number;
-    movementPerAction?: number;
-    passThroughWalls?: boolean;
-    crossOverPits?: boolean;
-    minimumDistanceMoved?: number;
-  },
 }
 
 export type TileFoundDescription = HexCoordinate;
@@ -193,8 +184,8 @@ export class Pathfinder {
     const startPath = new SearchPath();
     startPath.add(
       {
-        q: searchParams.startLocation.q,
-        r: searchParams.startLocation.r
+        q: searchParams.getStartLocation().q,
+        r: searchParams.getStartLocation().r
       },
       0
     );
@@ -236,20 +227,20 @@ export class Pathfinder {
     return neighboringLocations.filter((neighbor) => {
       const mapInfo = this.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
 
-      if (!searchParams.movement.passThroughWalls && mapInfo.tileTerrainType === HexGridMovementCost.wall) {
+      if (!searchParams.getPassThroughWalls() && mapInfo.tileTerrainType === HexGridMovementCost.wall) {
         return false;
       }
 
-      if (!searchParams.movement.crossOverPits && mapInfo.tileTerrainType === HexGridMovementCost.pit) {
+      if (!searchParams.getCrossOverPits() && mapInfo.tileTerrainType === HexGridMovementCost.pit) {
         return false;
       }
 
-      if (searchParams.movement.movementPerAction === undefined) {
+      if (searchParams.getMovementPerAction() === undefined) {
         return true;
       }
 
       let movementCost = MovingCostByTerrainType[mapInfo.tileTerrainType];
-      return head.getTotalCost() + movementCost <= searchParams.movement.movementPerAction;
+      return head.getTotalCost() + movementCost <= searchParams.getMovementPerAction();
     });
   }
 
@@ -293,16 +284,19 @@ export class Pathfinder {
     const inRangeTilesByLocation: {[locationKey: string]: TileFoundDescription} = {};
 
     sourceTiles.forEach((sourceTile) => {
-      const reachableTiles = this.getAllReachableTiles({
-        startLocation: sourceTile,
-        movement: {
+      const reachableTiles = this.getAllReachableTiles(
+        new SearchParams({
+          startLocation: sourceTile,
           numberOfActions: 1,
-          movementPerAction: maximumDistance,
           minimumDistanceMoved: minimumDistance,
-          passThroughWalls,
-          crossOverPits: true
-        },
-      });
+          squaddieMovement: new SquaddieMovement(
+          {
+            movementPerAction: maximumDistance,
+            passThroughWalls,
+            crossOverPits: true
+          })
+        })
+      );
 
       reachableTiles.forEach((reachableTile) => {
         let locationKey: string = this.getObjectKeyForLocation(reachableTile.q, reachableTile.r);
@@ -314,9 +308,9 @@ export class Pathfinder {
   }
 
   private isPathAtLeastMinimumDistance(head: SearchPath, searchParams: SearchParams): boolean {
-    if (searchParams.movement.minimumDistanceMoved === undefined || searchParams.movement.minimumDistanceMoved <= 0) {
+    if (searchParams.getMinimumDistanceMoved() === undefined || searchParams.getMinimumDistanceMoved() <= 0) {
       return true;
     }
-    return head.getTotalCost() >= searchParams.movement.minimumDistanceMoved;
+    return head.getTotalCost() >= searchParams.getMinimumDistanceMoved();
   }
 }

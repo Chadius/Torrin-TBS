@@ -5,6 +5,8 @@ import {SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder, TileFoundDescription} from "./pathfinder";
 import {HexGridMovementCost} from "../hexGridMovementCost";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
+import {SquaddieMovement} from "../../squaddie/movement";
+import {SearchParams} from "./searchParams";
 
 describe('pathfinder', () => {
   let map: HexMap;
@@ -171,13 +173,15 @@ describe('pathfinder', () => {
       });
 
       const origin: HexCoordinate = {q: 1 as Integer, r: 1 as Integer};
-      const allMovableTiles = pathfinder.getAllReachableTiles({
-        movement: {
+      const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
-          numberOfActions: 1,
-        },
+          passThroughWalls: false,
+          crossOverPits: false
+        }),
+        numberOfActions: 1,
         startLocation: origin
-      });
+      }));
 
       validateTilesAreFound(
         allMovableTiles,
@@ -205,14 +209,16 @@ describe('pathfinder', () => {
         map: lineMap
       });
 
-      const allMovableTiles = pathfinder.getAllReachableTiles({
-        movement: {
+      const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
           movementPerAction: 3,
-          numberOfActions: 1,
-          minimumDistanceMoved: 2,
-        },
+          passThroughWalls: false,
+          crossOverPits: false
+        }),
+        numberOfActions: 1,
+        minimumDistanceMoved: 2,
         startLocation: {q: 0 as Integer, r: 0 as Integer}
-      });
+      }));
 
       validateTilesAreFound(
         allMovableTiles,
@@ -238,13 +244,15 @@ describe('pathfinder', () => {
         map: map
       });
 
-      const allMovableTiles = pathfinder.getAllReachableTiles({
-        movement: {
+      const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
           movementPerAction: 2,
-          numberOfActions: 1,
-        },
+          passThroughWalls: false,
+          crossOverPits: false
+        }),
+        numberOfActions: 1,
         startLocation: {q: 0 as Integer, r: 1 as Integer}
-      });
+      }));
 
       validateTilesAreFound(
         allMovableTiles,
@@ -281,14 +289,15 @@ describe('pathfinder', () => {
           map: map
         });
 
-        const allMovableTiles = pathfinder.getAllReachableTiles({
-          movement: {
+        const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          squaddieMovement: new SquaddieMovement({
             movementPerAction: 2,
-            numberOfActions: 1,
             passThroughWalls: false,
-          },
+            crossOverPits: false
+          }),
+          numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
-        });
+        }));
 
         validateTilesAreFound(
           allMovableTiles,
@@ -308,14 +317,15 @@ describe('pathfinder', () => {
           map: map
         });
 
-        const allMovableTiles = pathfinder.getAllReachableTiles({
-          movement: {
+        const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
-            numberOfActions: 1,
             passThroughWalls: true,
-          },
+            crossOverPits: false
+          }),
+          numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
-        });
+        }));
 
         validateTilesAreFound(
           allMovableTiles,
@@ -344,14 +354,15 @@ describe('pathfinder', () => {
       });
 
       it('will not cross pits if specified', () => {
-        const allMovableTiles = pathfinder.getAllReachableTiles({
-          movement: {
+        const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
-            numberOfActions: 1,
-            crossOverPits: false,
-          },
+            passThroughWalls: false,
+            crossOverPits: false
+          }),
+          numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
-        });
+        }));
 
         validateTilesAreFound(
           allMovableTiles,
@@ -367,14 +378,15 @@ describe('pathfinder', () => {
       });
 
       it('can cross pits', () => {
-        const allMovableTiles = pathfinder.getAllReachableTiles({
-          movement: {
+        const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
-            numberOfActions: 1,
-            crossOverPits: true,
-          },
+            passThroughWalls: false,
+            crossOverPits: true
+          }),
+          numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
-        });
+        }));
 
         validateTilesAreFound(
           allMovableTiles,
@@ -394,14 +406,15 @@ describe('pathfinder', () => {
           map: map
         });
 
-        const allMovableTiles = pathfinder.getAllReachableTiles({
-          movement: {
+        const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          squaddieMovement: new SquaddieMovement({
             movementPerAction: 2,
-            numberOfActions: 1,
-            crossOverPits: true,
-          },
+            passThroughWalls: false,
+            crossOverPits: true
+          }),
+          numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
-        });
+        }));
 
         validateTilesAreFound(
           allMovableTiles,
@@ -438,13 +451,15 @@ describe('pathfinder', () => {
 
       pathfinder.addSquaddie(teammate, {q: 0 as Integer, r: 1 as Integer});
 
-      const allMovableTiles = pathfinder.getAllReachableTiles({
-        movement: {
+      const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
           movementPerAction: 3,
-          numberOfActions: 1,
-        },
+          passThroughWalls: false,
+          crossOverPits: false
+        }),
+        numberOfActions: 1,
         startLocation: {q: 0 as Integer, r: 0 as Integer}
-      });
+      }));
 
       validateTilesAreFound(
         allMovableTiles,
@@ -740,5 +755,41 @@ describe('pathfinder', () => {
         );
       });
     });
+
+    it('can use SquaddieMovement to find reachable tiles', () => {
+      map = new HexMap({
+        movementCost: [
+          "1 1 1 2 1 "
+        ]
+      });
+
+      const pathfinder = new Pathfinder({
+        map: map
+      });
+
+      const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          squaddieMovement: new SquaddieMovement({
+            movementPerAction: 2,
+            passThroughWalls: false,
+            crossOverPits: false,
+          }),
+          numberOfActions: 1,
+          startLocation: {q: 0 as Integer, r: 1 as Integer}
+      }));
+
+      validateTilesAreFound(
+        allMovableTiles,
+        [
+          {q: 0 as Integer, r: 0 as Integer,},
+          {q: 0 as Integer, r: 1 as Integer,},
+          {q: 0 as Integer, r: 2 as Integer,},
+        ],
+        [
+          {q: 0 as Integer, r: 3 as Integer,},
+          {q: 0 as Integer, r: 4 as Integer,},
+        ]
+      );
+    });
+
   });
 });
