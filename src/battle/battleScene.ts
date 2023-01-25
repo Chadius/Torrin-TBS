@@ -17,6 +17,7 @@ import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
+import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
 
 type RequiredOptions = {
   p: p5;
@@ -58,7 +59,7 @@ export class BattleScene {
       })
     });
     this.torrinSquaddieMovement = new SquaddieMovement({
-      movementPerAction: 3,
+      movementPerAction: 1,
       passThroughWalls: true,
       crossOverPits: false,
     })
@@ -66,35 +67,14 @@ export class BattleScene {
 
     this.hexMap = new HexMap({
       movementCost: [
-        "1 1 1 1 1 ",
-        " - - 1 - - ",
-        "x x x x x ",
-        " 1 1 1 1 1 ",
-        "2 2 2 2 2 ",
-        " 2 2 2 2 2 ",
+        "1 1 1 1 1 1 1 1 1 ",
+        " 1 1 1 1 1 1 1 1 1 ",
+        "  1 1 1 1 1 1 1 1 1 ",
+        "   1 1 1 1 1 1 1 1 1 ",
+        "    1 1 1 1 1 1 1 1 1 ",
+        "     1 1 1 1 1 1 1 1 1 ",
       ]
     });
-
-    this.hexMap.highlightTiles(
-      [
-        {
-          q: 0 as Integer,
-          r: 0 as Integer,
-        },
-        {
-          q: 2 as Integer,
-          r: 0 as Integer,
-        }
-      ],
-      {
-        hue: 0,
-        saturation: 80,
-        brightness: 80,
-        lowAlpha: 80,
-        highAlpha: 90,
-        periodAlpha: 2000,
-      },
-    );
 
     this.pathfinder = new Pathfinder({
       map: this.hexMap
@@ -176,23 +156,28 @@ export class BattleScene {
       this.torrinMapIcon.area.setRectTop({top: xyCoords[1] + SCREEN_HEIGHT / 2});
       this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 
-      const tilesInRange: HexCoordinate[] = this.pathfinder.getAllReachableTiles(new SearchParams({
+      const movementTiles: HexCoordinate[] = this.pathfinder.getAllReachableTiles(new SearchParams({
         startLocation: this.torrinMapLocation,
         squaddieMovement: this.torrinSquaddieMovement,
         numberOfActions: 1,
       }));
 
-      this.hexMap.highlightTiles(
-        tilesInRange,
+      const attackTiles: HexCoordinate[] = this.pathfinder.getTilesInRange({
+        maximumDistance: 1,
+        passThroughWalls: false,
+        sourceTiles: movementTiles
+      });
+
+      this.hexMap.highlightTiles([
         {
-          hue: 0,
-          saturation: 80,
-          brightness: 80,
-          lowAlpha: 80,
-          highAlpha: 90,
-          periodAlpha: 2000,
+          tiles: movementTiles,
+          pulseColor: HighlightPulseBlueColor,
         },
-      );
+        {
+          tiles: attackTiles,
+          pulseColor: HighlightPulseRedColor,
+        }
+      ]);
     }
 
     this.hexMap.mouseClicked(mouseX, mouseY);

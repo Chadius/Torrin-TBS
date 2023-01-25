@@ -6,7 +6,7 @@ import {
   calculatePulseValueOverTime,
   drawHexShape,
   PulseBlendColor,
-  pulseBlendColorToBlendColor
+  pulseBlendColorToBlendColor,
 } from "./hexDrawingUtils";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
@@ -44,11 +44,15 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
   return newTiles;
 }
 
+export type HighlightTileDescription = {
+  tiles: HexCoordinate[],
+  pulseColor: PulseBlendColor
+};
+
 export class HexMap {
   tiles: HexGridTile[];
   outlineTileCoordinates: HexCoordinate | undefined;
-  highlightedColoredTiles: HexCoordinate[];
-  highlightedColor: PulseBlendColor;
+  highlightedTiles: {[coordinateKey: string]: PulseBlendColor};
 
   constructor(options: HexMapOptions) {
     let tiles: HexGridTile[] = options.tiles;
@@ -76,20 +80,17 @@ export class HexMap {
     })
 
     this.tiles = tilesSortedByRThenQ;
-    this.highlightedColoredTiles = [];
+    this.highlightedTiles = {};
   }
 
   draw(p: p5): void {
-    const currentHighlightedColor: BlendColor = pulseBlendColorToBlendColor(this.highlightedColor);
-
     this.tiles.forEach(
       (tile) => {
-        if (
-          this.highlightedColoredTiles.some((sameTile) => sameTile.q == tile.q && sameTile.r == tile.r)
-        ) {
-          tile.draw(p, currentHighlightedColor);
+        const key = `${tile.q},${tile.r}`;
+        if (this.highlightedTiles[key]) {
+          tile.draw(p, pulseBlendColorToBlendColor(this.highlightedTiles[key]));
         } else {
-          tile.draw(p)
+          tile.draw(p);
         }
       }
     );
@@ -137,22 +138,19 @@ export class HexMap {
   }
 
   highlightTiles(
-    highlightedTiles: HexCoordinate[],
-    color: {
-      hue: number,
-      saturation: number,
-      brightness: number,
-      lowAlpha: number,
-      highAlpha: number,
-      periodAlpha: number,
-    }
+    highlightTileDescriptions: HighlightTileDescription[]
   ): void {
-    this.highlightedColoredTiles = [...highlightedTiles];
-    this.highlightedColor = color;
+    this.highlightedTiles = {};
+    highlightTileDescriptions.reverse().forEach((tileDesc) => {
+      tileDesc.tiles.forEach((tile) => {
+        const key = `${tile.q},${tile.r}`;
+        this.highlightedTiles[key] = tileDesc.pulseColor;
+      })
+    });
   }
 
   stopHighlightingTiles(): void {
-    this.highlightedColoredTiles = [];
+    this.highlightedTiles = {};
   }
 
   private getTileAtLocation(hexCoordinate: HexCoordinate): HexGridTile | undefined {
