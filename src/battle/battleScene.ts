@@ -18,6 +18,7 @@ import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
+import {SquaddieAction} from "../squaddie/action";
 
 type RequiredOptions = {
   p: p5;
@@ -39,6 +40,7 @@ export class BattleScene {
 
   torrinSquaddieId: SquaddieID;
   torrinSquaddieMovement: SquaddieMovement;
+  torrinSquaddieActions: SquaddieAction[];
   torrinMapIcon: ImageUI;
   torrinMapLocation: HexCoordinate;
   pathfinder: Pathfinder;
@@ -59,10 +61,18 @@ export class BattleScene {
       })
     });
     this.torrinSquaddieMovement = new SquaddieMovement({
-      movementPerAction: 1,
+      movementPerAction: 2,
       passThroughWalls: true,
       crossOverPits: false,
     })
+    this.torrinSquaddieActions = [
+      new SquaddieAction({
+        name: "water saber",
+        id: "torrin_water_saber",
+        minimumRange: 0 as Integer,
+        maximumRange: 2 as Integer,
+      })
+    ];
     this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
 
     this.hexMap = new HexMap({
@@ -162,8 +172,9 @@ export class BattleScene {
         numberOfActions: 1,
       }));
 
-      const attackTiles: HexCoordinate[] = this.pathfinder.getTilesInRange({
-        maximumDistance: 1,
+      const actionTiles: HexCoordinate[] = this.pathfinder.getTilesInRange({
+        minimumDistance: this.torrinSquaddieActions[0].minimumRange,
+        maximumDistance: this.torrinSquaddieActions[0].maximumRange,
         passThroughWalls: false,
         sourceTiles: movementTiles
       });
@@ -174,7 +185,7 @@ export class BattleScene {
           pulseColor: HighlightPulseBlueColor,
         },
         {
-          tiles: attackTiles,
+          tiles: actionTiles,
           pulseColor: HighlightPulseRedColor,
         }
       ]);

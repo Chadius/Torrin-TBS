@@ -26,7 +26,7 @@ export const HighlightPulseRedColor: PulseBlendColor = {
   hue: 0,
   saturation: 80,
   brightness: 80,
-  lowAlpha: 80,
+  lowAlpha: 70,
   highAlpha: 90,
   periodAlpha: 2000,
 }
