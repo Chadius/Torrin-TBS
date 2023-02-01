@@ -84,7 +84,8 @@ export class ResourceHandler {
       options.p
     );
     this.imageLoader.setCallbacks(
-      this.imageSuccessCallback
+      this.imageSuccessCallback,
+      (key, handler, p1) => { console.log(`Failed to load ${key}`); }
     )
 
     const resourceList = options.allResources || [];

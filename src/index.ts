@@ -25,6 +25,16 @@ export const sketch = (p: p5) => {
               type: ResourceType.IMAGE,
               path: "assets/map-icon-young-torrin.png",
               key: "map icon young torrin",
+            },
+            {
+              type: ResourceType.IMAGE,
+              path: "assets/map-icon-move-1-action.png",
+              key: "map icon move 1 action"
+            },
+            {
+              type: ResourceType.IMAGE,
+              path: "assets/map-icon-attack-1-action.png",
+              key: "map icon attack 1 action"
             }
           ]
         })

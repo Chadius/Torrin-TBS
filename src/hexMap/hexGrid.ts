@@ -1,6 +1,9 @@
 import * as p5 from "p5";
 import {BlendColor, hexGridColorByTerrainType, drawHexShape} from "./hexDrawingUtils";
 import {HexGridMovementCost} from "./hexGridMovementCost";
+import {ResourceHandler} from "../resource/resourceHandler";
+import {convertMapCoordinatesToWorldCoordinates} from "./convertCoordinates";
+import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 
 export type Integer = number & {_brand: 'Integer'}
 export type HexCoordinate = {q: Integer, r: Integer}
@@ -16,7 +19,13 @@ export class HexGridTile {
     this.terrainType = appearance;
   }
 
-  draw(p: p5, blendColor?: BlendColor): void  {
+  // TODO: use parameterized options
+  draw(
+    p: p5,
+    blendColor?: BlendColor,
+    resourceHandler?: ResourceHandler,
+    overlayImageResourceKey?: string
+  ): void  {
     // blendColor is an optional fill/blend color, an array of 4 numbers:
     // - Hue (0-360)
     // - Saturation (0-100)
@@ -58,6 +67,28 @@ export class HexGridTile {
     let yPos = this.q * 0.866
 
     drawHexShape(p, xPos, yPos);
+
+    if (resourceHandler) {
+      const imageOrError: p5.Image | Error = resourceHandler.getResource(overlayImageResourceKey);
+
+      if (imageOrError instanceof p5.Image) {
+        p.pop();
+
+        let [xPos, yPos] = convertMapCoordinatesToWorldCoordinates(this.q, this.r);
+        xPos += SCREEN_WIDTH / 2;
+        yPos += SCREEN_HEIGHT / 2;
+        p.push();
+        p.translate(xPos, yPos);
+
+        p.image(
+          imageOrError,
+          - imageOrError.width / 2,
+          - imageOrError.height / 2,
+        );
+
+        p.pop();
+      }
+    }
     p.pop();
   }
 }

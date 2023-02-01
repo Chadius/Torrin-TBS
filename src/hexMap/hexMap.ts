@@ -10,10 +10,12 @@ import {
 } from "./hexDrawingUtils";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
+import {ResourceHandler} from "../resource/resourceHandler";
 
 export type HexMapOptions = {
   tiles?: HexGridTile[];
   movementCost?: string[];
+  resourceHandler?: ResourceHandler;
 }
 
 function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
@@ -46,13 +48,18 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
 
 export type HighlightTileDescription = {
   tiles: HexCoordinate[],
-  pulseColor: PulseBlendColor
+  pulseColor: PulseBlendColor,
+  name: string,
 };
 
 export class HexMap {
   tiles: HexGridTile[];
   outlineTileCoordinates: HexCoordinate | undefined;
-  highlightedTiles: {[coordinateKey: string]: PulseBlendColor};
+  highlightedTiles: {[coordinateKey: string]: {
+    pulseColor: PulseBlendColor,
+    name: string
+  }};
+  resourceHandler: ResourceHandler;
 
   constructor(options: HexMapOptions) {
     let tiles: HexGridTile[] = options.tiles;
@@ -81,6 +88,8 @@ export class HexMap {
 
     this.tiles = tilesSortedByRThenQ;
     this.highlightedTiles = {};
+
+    this.resourceHandler = options.resourceHandler;
   }
 
   draw(p: p5): void {
@@ -88,7 +97,12 @@ export class HexMap {
       (tile) => {
         const key = `${tile.q},${tile.r}`;
         if (this.highlightedTiles[key]) {
-          tile.draw(p, pulseBlendColorToBlendColor(this.highlightedTiles[key]));
+          tile.draw(
+            p,
+            pulseBlendColorToBlendColor(this.highlightedTiles[key].pulseColor),
+            this.resourceHandler,
+            this.highlightedTiles[key].name
+          );
         } else {
           tile.draw(p);
         }
@@ -144,7 +158,10 @@ export class HexMap {
     highlightTileDescriptions.reverse().forEach((tileDesc) => {
       tileDesc.tiles.forEach((tile) => {
         const key = `${tile.q},${tile.r}`;
-        this.highlightedTiles[key] = tileDesc.pulseColor;
+        this.highlightedTiles[key] = {
+          pulseColor: tileDesc.pulseColor,
+          name: tileDesc.name
+        };
       })
     });
   }

@@ -2,7 +2,7 @@ import p5 from "p5";
 import {HexCoordinate, Integer} from "../hexMap/hexGrid";
 import {HexMap} from "../hexMap/hexMap";
 import {Cutscene} from "../cutscene/cutscene";
-import {ResourceHandler} from "../resource/resourceHandler";
+import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
 import {SquaddieID} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
@@ -52,7 +52,11 @@ export class BattleScene {
     this.height = options.height;
 
     this.resourceHandler = options.resourceHandler;
+    this.prepareSquaddies();
+    this.prepareMap();
+  }
 
+  private prepareSquaddies() {
     this.torrinSquaddieId = new SquaddieID({
       id: "0000",
       name: "Torrin",
@@ -74,7 +78,9 @@ export class BattleScene {
       })
     ];
     this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
+  }
 
+  private prepareMap() {
     this.hexMap = new HexMap({
       movementCost: [
         "1 1 1 1 1 1 1 1 1 ",
@@ -83,8 +89,14 @@ export class BattleScene {
         "   1 1 1 1 1 1 1 1 1 ",
         "    1 1 1 1 1 1 1 1 1 ",
         "     1 1 1 1 1 1 1 1 1 ",
-      ]
+      ],
+      resourceHandler: this.resourceHandler,
     });
+
+    this.resourceHandler.loadResources([
+      "map icon move 1 action",
+      "map icon attack 1 action"
+    ]);
 
     this.pathfinder = new Pathfinder({
       map: this.hexMap
@@ -98,7 +110,10 @@ export class BattleScene {
     }
 
     if (
-      this.resourceHandler.areAllResourcesLoaded([this.torrinSquaddieId.resources.mapIcon])
+      this.resourceHandler.areAllResourcesLoaded([
+        this.torrinSquaddieId.resources.mapIcon,
+        "map icon move 1 action",
+      ])
       && !this.torrinMapIcon
     ) {
       let image: p5.Image = this.resourceHandler.getResource(this.torrinSquaddieId.resources.mapIcon) as p5.Image;
@@ -161,7 +176,7 @@ export class BattleScene {
     ) {
       this.torrinMapLocation = clickedHexCoordinate;
       const xyCoords = convertMapCoordinatesToWorldCoordinates(clickedHexCoordinate.q, clickedHexCoordinate.r);
-      console.log(clickedHexCoordinate);
+
       this.torrinMapIcon.area.setRectLeft({left: xyCoords[0] + SCREEN_WIDTH / 2});
       this.torrinMapIcon.area.setRectTop({top: xyCoords[1] + SCREEN_HEIGHT / 2});
       this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
@@ -183,10 +198,12 @@ export class BattleScene {
         {
           tiles: movementTiles,
           pulseColor: HighlightPulseBlueColor,
+          name: "map icon move 1 action",
         },
         {
           tiles: actionTiles,
           pulseColor: HighlightPulseRedColor,
+          name: "map icon attack 1 action"
         }
       ]);
     }
