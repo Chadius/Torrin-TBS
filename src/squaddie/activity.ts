@@ -6,19 +6,21 @@ type RequiredOptions = {
   id: string;
 }
 
-export type ActionRange = {
+export type ActivityRange = {
   minimumRange: Integer | undefined;
   maximumRange: Integer | undefined;
 }
 
-type Options = ActionRange & {
+type Options = ActivityRange & {
+  actionsToSpend: Integer;
 }
 
-export class SquaddieAction {
+export class SquaddieActivity {
   name: string;
   id: string;
   minimumRange: Integer;
   maximumRange: Integer;
+  actionsToSpend: Integer;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     this.name = options.name;
@@ -32,5 +34,13 @@ export class SquaddieAction {
     }
     this.minimumRange = options.minimumRange;
     this.maximumRange = options.maximumRange;
+
+    if (options.actionsToSpend) {
+      assertsInteger(options.actionsToSpend);
+      this.actionsToSpend = options.actionsToSpend;
+    }
+    else {
+      this.actionsToSpend = 1 as Integer;
+    }
   }
 }

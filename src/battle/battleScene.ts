@@ -18,7 +18,8 @@ import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
-import {SquaddieAction} from "../squaddie/action";
+import {SquaddieActivity} from "../squaddie/activity";
+import {SquaddieTurn} from "../squaddie/turn";
 
 type RequiredOptions = {
   p: p5;
@@ -40,10 +41,12 @@ export class BattleScene {
 
   torrinSquaddieId: SquaddieID;
   torrinSquaddieMovement: SquaddieMovement;
-  torrinSquaddieActions: SquaddieAction[];
+  torrinSquaddieActivity: SquaddieActivity[];
   torrinMapIcon: ImageUI;
+
   torrinMapLocation: HexCoordinate;
   pathfinder: Pathfinder;
+  turnBySquaddieId: {[key: string]: SquaddieTurn}
 
   constructor(options: RequiredOptions & Partial<Options>) {
     assertsPositiveNumber(options.width);
@@ -57,6 +60,8 @@ export class BattleScene {
   }
 
   private prepareSquaddies() {
+    this.turnBySquaddieId = {};
+
     this.torrinSquaddieId = new SquaddieID({
       id: "0000",
       name: "Torrin",
@@ -69,8 +74,8 @@ export class BattleScene {
       passThroughWalls: true,
       crossOverPits: false,
     })
-    this.torrinSquaddieActions = [
-      new SquaddieAction({
+    this.torrinSquaddieActivity = [
+      new SquaddieActivity({
         name: "water saber",
         id: "torrin_water_saber",
         minimumRange: 0 as Integer,
@@ -78,6 +83,7 @@ export class BattleScene {
       })
     ];
     this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
+    this.turnBySquaddieId[this.torrinSquaddieId.id] = new SquaddieTurn();
   }
 
   private prepareMap() {
@@ -148,6 +154,12 @@ export class BattleScene {
     if (this.cutscene && this.cutscene.isInProgress()) {
       this.cutscene.update();
       this.cutscene.draw(p);
+    } else {
+      p.fill("#dedede");
+      p.stroke("#1f1f1f");
+      for (let i = 0; i < this.turnBySquaddieId[this.torrinSquaddieId.id].getRemainingActions(); i++) {
+        p.circle(50 + (i * 55), SCREEN_HEIGHT - 70, 50);
+      }
     }
   }
 
@@ -188,8 +200,8 @@ export class BattleScene {
       }));
 
       const actionTiles: HexCoordinate[] = this.pathfinder.getTilesInRange({
-        minimumDistance: this.torrinSquaddieActions[0].minimumRange,
-        maximumDistance: this.torrinSquaddieActions[0].maximumRange,
+        minimumDistance: this.torrinSquaddieActivity[0].minimumRange,
+        maximumDistance: this.torrinSquaddieActivity[0].maximumRange,
         passThroughWalls: false,
         sourceTiles: movementTiles
       });
