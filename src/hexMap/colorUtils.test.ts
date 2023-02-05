@@ -1,4 +1,4 @@
-import {BlendColor, PulseBlendColor, pulseBlendColorToBlendColor} from "./hexDrawingUtils";
+import {BlendColor, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
 
 describe('PulseBlendColor to BlendColor', () => {
   test('Should return blended color', () => {

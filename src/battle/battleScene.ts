@@ -2,7 +2,7 @@ import p5 from "p5";
 import {HexCoordinate, Integer} from "../hexMap/hexGrid";
 import {HexMap} from "../hexMap/hexMap";
 import {Cutscene} from "../cutscene/cutscene";
-import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
+import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
 import {SquaddieID} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
@@ -17,9 +17,10 @@ import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
-import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
+import {drawHexMap, HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieTurn} from "../squaddie/turn";
+import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 
 type RequiredOptions = {
   p: p5;
@@ -67,12 +68,17 @@ export class BattleScene {
       name: "Torrin",
       resources: new SquaddieResource({
         mapIcon: "map icon young torrin"
-      })
+      }),
+      traits: new TraitStatusStorage({
+        [Trait.HUMANOID]: true,
+        [Trait.MONSU]: true,
+      }).filterCategory(TraitCategory.CREATURE)
     });
     this.torrinSquaddieMovement = new SquaddieMovement({
       movementPerAction: 2,
-      passThroughWalls: true,
-      crossOverPits: false,
+      traits: new TraitStatusStorage({
+        [Trait.PASS_THROUGH_WALLS]: true,
+      }).filterCategory(TraitCategory.MOVEMENT)
     })
     this.torrinSquaddieActivity = [
       new SquaddieActivity({
@@ -80,6 +86,7 @@ export class BattleScene {
         id: "torrin_water_saber",
         minimumRange: 0 as Integer,
         maximumRange: 2 as Integer,
+        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
       })
     ];
     this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
@@ -144,7 +151,7 @@ export class BattleScene {
     p.background(50, 10, 20);
 
     if (this.hexMap) {
-      this.hexMap.draw(p);
+      drawHexMap(p, this.hexMap);
     }
 
     if (this.torrinMapIcon) {

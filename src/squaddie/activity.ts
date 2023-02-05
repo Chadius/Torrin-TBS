@@ -1,9 +1,11 @@
 import {Integer} from "../hexMap/hexGrid";
 import {assertsInteger} from "../utils/math";
+import {TraitStatusStorage} from "../trait/traitStatusStorage";
 
 type RequiredOptions = {
   name: string;
   id: string;
+  traits: TraitStatusStorage;
 }
 
 export type ActivityRange = {
@@ -21,6 +23,7 @@ export class SquaddieActivity {
   minimumRange: Integer;
   maximumRange: Integer;
   actionsToSpend: Integer;
+  traits: TraitStatusStorage;
 
   constructor(options: RequiredOptions & Partial<Options>) {
     this.name = options.name;
@@ -42,5 +45,7 @@ export class SquaddieActivity {
     else {
       this.actionsToSpend = 1 as Integer;
     }
+
+    this.traits = options.traits;
   }
 }

@@ -1,6 +1,7 @@
 import {Integer} from "../hexMap/hexGrid";
 import {SquaddieActivity} from "./activity";
 import {ACTIVITY_PERFORM_FAILURE_REASON, SquaddieTurn} from "./turn";
+import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 
 describe('Squaddie turn and resources', () => {
   describe('actions', () => {
@@ -12,6 +13,7 @@ describe('Squaddie turn and resources', () => {
         id: "activitySpends2Actions",
         name: "Power Attack",
         actionsToSpend: 2 as Integer,
+        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
       })
     })
 
@@ -23,6 +25,7 @@ describe('Squaddie turn and resources', () => {
         new SquaddieActivity({
           id: "strike",
           name: "longsword",
+          traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
         })
       );
       expect(turn.getRemainingActions()).toBe(2 as Integer);

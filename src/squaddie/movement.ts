@@ -1,7 +1,8 @@
+import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
+
 export type SquaddieMovementRequiredOptions = {
   movementPerAction: number;
-  passThroughWalls: boolean;
-  crossOverPits: boolean;
+  traits: TraitStatusStorage;
 }
 
 export class SquaddieMovement {
@@ -11,7 +12,7 @@ export class SquaddieMovement {
 
   constructor(options: SquaddieMovementRequiredOptions) {
     this.movementPerAction = options.movementPerAction;
-    this.passThroughWalls = options.passThroughWalls;
-    this.crossOverPits = options.crossOverPits;
+    this.passThroughWalls = options.traits.getStatus(Trait.PASS_THROUGH_WALLS);
+    this.crossOverPits = options.traits.getStatus(Trait.CROSS_OVER_PITS);
   }
 }

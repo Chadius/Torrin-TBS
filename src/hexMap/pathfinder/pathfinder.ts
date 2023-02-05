@@ -7,6 +7,7 @@ import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCo
 import {HexDirection, moveCoordinatesInOneDirection} from "../hexGridDirection";
 import {SearchParams} from "./searchParams";
 import {SquaddieMovement} from "../../squaddie/movement";
+import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 type RequiredOptions = {
   map: HexMap;
@@ -292,8 +293,10 @@ export class Pathfinder {
           squaddieMovement: new SquaddieMovement(
           {
             movementPerAction: maximumDistance,
-            passThroughWalls,
-            crossOverPits: true
+            traits: new TraitStatusStorage({
+              [Trait.PASS_THROUGH_WALLS]: passThroughWalls,
+              [Trait.CROSS_OVER_PITS]: true,
+            }).filterCategory(TraitCategory.MOVEMENT)
           })
         })
       );

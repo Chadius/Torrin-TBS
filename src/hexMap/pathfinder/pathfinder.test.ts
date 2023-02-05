@@ -7,6 +7,7 @@ import {HexGridMovementCost} from "../hexGridMovementCost";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SearchParams} from "./searchParams";
+import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 describe('pathfinder', () => {
   let map: HexMap;
@@ -25,7 +26,8 @@ describe('pathfinder', () => {
       id: "000",
       resources: new SquaddieResource({
         mapIcon: "map_icon_torrin"
-      })
+      }),
+      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
     });
   });
 
@@ -55,7 +57,8 @@ describe('pathfinder', () => {
       id: "001",
       resources: new SquaddieResource({
         mapIcon: "map_icon_sir_camil"
-      })
+      }),
+      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
     });
 
     error = pathfinder.addSquaddie(sirCamilSquaddie, {q: 0 as Integer, r: 1 as Integer});
@@ -176,8 +179,7 @@ describe('pathfinder', () => {
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
-          passThroughWalls: false,
-          crossOverPits: false
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
         }),
         numberOfActions: 1,
         startLocation: origin
@@ -212,8 +214,7 @@ describe('pathfinder', () => {
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 3,
-          passThroughWalls: false,
-          crossOverPits: false
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
         }),
         numberOfActions: 1,
         minimumDistanceMoved: 2,
@@ -247,8 +248,7 @@ describe('pathfinder', () => {
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 2,
-          passThroughWalls: false,
-          crossOverPits: false
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
         }),
         numberOfActions: 1,
         startLocation: {q: 0 as Integer, r: 1 as Integer}
@@ -292,8 +292,7 @@ describe('pathfinder', () => {
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 2,
-            passThroughWalls: false,
-            crossOverPits: false
+            traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
           }),
           numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
@@ -320,8 +319,7 @@ describe('pathfinder', () => {
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
-            passThroughWalls: true,
-            crossOverPits: false
+            traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
           }),
           numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
@@ -357,8 +355,7 @@ describe('pathfinder', () => {
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
-            passThroughWalls: false,
-            crossOverPits: false
+            traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
           }),
           numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
@@ -381,8 +378,7 @@ describe('pathfinder', () => {
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
-            passThroughWalls: false,
-            crossOverPits: true
+            traits: new TraitStatusStorage({[Trait.CROSS_OVER_PITS]: true,}).filterCategory(TraitCategory.MOVEMENT)
           }),
           numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
@@ -409,8 +405,7 @@ describe('pathfinder', () => {
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 2,
-            passThroughWalls: false,
-            crossOverPits: true
+            traits: new TraitStatusStorage({[Trait.CROSS_OVER_PITS]: true,}).filterCategory(TraitCategory.MOVEMENT)
           }),
           numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 0 as Integer}
@@ -447,6 +442,7 @@ describe('pathfinder', () => {
         resources: new SquaddieResource({
           mapIcon: "map_icon_teammate"
         }),
+        traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
       });
 
       pathfinder.addSquaddie(teammate, {q: 0 as Integer, r: 1 as Integer});
@@ -454,8 +450,7 @@ describe('pathfinder', () => {
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 3,
-          passThroughWalls: false,
-          crossOverPits: false
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
         }),
         numberOfActions: 1,
         startLocation: {q: 0 as Integer, r: 0 as Integer}
@@ -770,8 +765,7 @@ describe('pathfinder', () => {
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 2,
-            passThroughWalls: false,
-            crossOverPits: false,
+            traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
           }),
           numberOfActions: 1,
           startLocation: {q: 0 as Integer, r: 1 as Integer}

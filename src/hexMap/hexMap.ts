@@ -1,16 +1,9 @@
-import * as p5 from "p5";
 import {HexCoordinate, HexGridTile, Integer} from "./hexGrid";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
-import {
-  BlendColor,
-  calculatePulseValueOverTime,
-  drawHexShape,
-  PulseBlendColor,
-  pulseBlendColorToBlendColor,
-} from "./hexDrawingUtils";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
 import {ResourceHandler} from "../resource/resourceHandler";
+import {PulseBlendColor} from "./colorUtils";
 
 export type HexMapOptions = {
   tiles?: HexGridTile[];
@@ -92,25 +85,6 @@ export class HexMap {
     this.resourceHandler = options.resourceHandler;
   }
 
-  draw(p: p5): void {
-    this.tiles.forEach(
-      (tile) => {
-        const key = `${tile.q},${tile.r}`;
-        if (this.highlightedTiles[key]) {
-          tile.draw(
-            p,
-            pulseBlendColorToBlendColor(this.highlightedTiles[key].pulseColor),
-            this.resourceHandler,
-            this.highlightedTiles[key].name
-          );
-        } else {
-          tile.draw(p);
-        }
-      }
-    );
-    this.drawOutlinedTile(p);
-  }
-
   mouseClicked(mouseX: number, mouseY: number) {
     const worldX = mouseX - SCREEN_WIDTH / 2;
     const worldY = mouseY - SCREEN_HEIGHT / 2;
@@ -126,29 +100,6 @@ export class HexMap {
     } else {
       this.outlineTileCoordinates = undefined;
     }
-  }
-
-  drawOutlinedTile(p: p5): void {
-    if (this.outlineTileCoordinates === undefined) {
-      return;
-    }
-
-    p.push();
-
-    const strokeColor = [
-      0,
-      10,
-      calculatePulseValueOverTime(50, 100, 2000)
-    ];
-
-    p.stroke(strokeColor);
-    p.strokeWeight(2);
-    p.noFill();
-
-    let xPos = this.outlineTileCoordinates.r + this.outlineTileCoordinates.q * 0.5
-    let yPos = this.outlineTileCoordinates.q * 0.866
-    drawHexShape(p, xPos, yPos);
-    p.pop();
   }
 
   highlightTiles(
