@@ -42,7 +42,7 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
 export type HighlightTileDescription = {
   tiles: HexCoordinate[],
   pulseColor: PulseBlendColor,
-  name: string,
+  overlayImageResourceName?: string,
 };
 
 export class HexMap {
@@ -111,7 +111,7 @@ export class HexMap {
         const key = `${tile.q},${tile.r}`;
         this.highlightedTiles[key] = {
           pulseColor: tileDesc.pulseColor,
-          name: tileDesc.name
+          name: tileDesc.overlayImageResourceName
         };
       })
     });

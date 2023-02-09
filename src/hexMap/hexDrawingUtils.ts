@@ -97,7 +97,7 @@ export function drawHexTile(options: HexTileDrawOptions): void {
 
   drawHexShape(p, xPos, yPos);
 
-  if (resourceHandler) {
+  if (overlayImageResourceKey && resourceHandler) {
     const imageOrError: p5.Image | Error = resourceHandler.getResource(overlayImageResourceKey);
 
     if (imageOrError instanceof p5.Image) {

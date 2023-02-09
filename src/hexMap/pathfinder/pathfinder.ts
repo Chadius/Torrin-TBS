@@ -13,7 +13,47 @@ type RequiredOptions = {
   map: HexMap;
 }
 
-export type TileFoundDescription = HexCoordinate;
+export type TileFoundDescription = HexCoordinate & {
+  numberOfActions: Integer;
+};
+
+const compareTiles = (a: TileFoundDescription, b: TileFoundDescription) => {
+  if (a.q < b.q) {
+    return -1;
+  } else if (a.q > b.q) {
+    return 1;
+  }
+
+  if (a.r < a.r) {
+    return -1;
+  } else if (a.r > b.r) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export const sortTileDescriptionByNumberOfMovementActions = (
+  tilesToOrganize: TileFoundDescription[]
+): {[x: Integer]: TileFoundDescription[]} => {
+  const sortedTiles: {[numberOfActions: Integer]: TileFoundDescription[]} = tilesToOrganize.reduce(
+    (accumulator: {[numberOfActions: Integer]: TileFoundDescription[]}, currentValue: TileFoundDescription) => {
+      accumulator[currentValue.numberOfActions] = [];
+      return accumulator;
+    },
+    {}
+  )
+
+  tilesToOrganize.forEach((tile) => {
+    sortedTiles[tile.numberOfActions].push(tile);
+  })
+
+  Object.entries(sortedTiles).forEach(([numberOfActions, tileList]) => {
+    tileList.sort(compareTiles)
+  })
+
+  return sortedTiles;
+}
 
 class SearchPath implements CostReportable {
   tilesTraveled: TileFoundDescription[];
@@ -130,12 +170,56 @@ export class Pathfinder {
     const tilesSearchCanStopAt: TileFoundDescription[] = [];
     const tileLocationsAlreadyVisited: {[loc: string]: boolean} = {};
     const tileLocationsAlreadyConsideredForQueue: {[loc: string]: boolean} = {};
-    const pq = new PriorityQueue();
+    const tilesToSearch = new PriorityQueue();
 
-    this.beginPriorityQueueForSearch(searchParams, pq);
+    this.addNewStartLocationToSearchQueue(
+      searchParams.getStartLocation().q,
+      searchParams.getStartLocation().r,
+      0 as Integer,
+      tilesToSearch,
+    );
 
-    while(!pq.isEmpty()) {
-      let head: SearchPath = pq.dequeue() as SearchPath;
+    let numberOfMovementActions: number = 0;
+
+    while (
+      this.hasRemainingMovementActions(searchParams, numberOfMovementActions)
+    ) {
+      const endpointTiles: TileFoundDescription[] = this.getAllReachableTilesWithin1Movement(
+        tilesToSearch,
+        searchParams,
+        tilesSearchCanStopAt,
+        tileLocationsAlreadyVisited,
+        tileLocationsAlreadyConsideredForQueue,
+        numberOfMovementActions
+      );
+      numberOfMovementActions ++;
+      endpointTiles.forEach((tile) => this.addNewStartLocationToSearchQueue(
+        tile.q,
+        tile.r,
+        numberOfMovementActions as Integer,
+        tilesToSearch,
+      ))
+    }
+    return tilesSearchCanStopAt;
+  }
+
+  private hasRemainingMovementActions(searchParams: SearchParams, numberOfMovementActions: number) {
+    return searchParams.numberOfActions === undefined
+      || numberOfMovementActions < searchParams.numberOfActions;
+  }
+
+  private getAllReachableTilesWithin1Movement(
+    tilesToSearch: PriorityQueue,
+    searchParams: SearchParams,
+    tilesSearchCanStopAt: TileFoundDescription[],
+    tileLocationsAlreadyVisited: { [p: string]: boolean },
+    tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean },
+    numberOfMovementActions: number,
+  ): TileFoundDescription[] {
+    const endpointTiles: TileFoundDescription[] = [];
+
+    while (!tilesToSearch.isEmpty()) {
+      let head: SearchPath = tilesToSearch.dequeue() as SearchPath;
       const mapInfo = this.getMapInformationForLocation(head.getMostRecentTileLocation());
 
       this.markLocationAsStoppable(mapInfo, head, searchParams, tilesSearchCanStopAt);
@@ -143,9 +227,23 @@ export class Pathfinder {
       this.markLocationAsVisited(mostRecentTileLocation, tileLocationsAlreadyVisited);
       let neighboringLocations = this.createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r);
       neighboringLocations = this.selectValidPathCandidates(neighboringLocations, tileLocationsAlreadyConsideredForQueue, tileLocationsAlreadyVisited, searchParams, head);
-      this.createNewPathsUsingNeighbors(neighboringLocations, tileLocationsAlreadyConsideredForQueue, pq, head);
+      if (neighboringLocations.length === 0) {
+        endpointTiles.push({
+          q: mostRecentTileLocation.q,
+          r: mostRecentTileLocation.r,
+          numberOfActions: mostRecentTileLocation.numberOfActions,
+        })
+      }
+      this.createNewPathsUsingNeighbors(
+        neighboringLocations,
+        tileLocationsAlreadyConsideredForQueue,
+        tilesToSearch,
+        head,
+        numberOfMovementActions
+      );
     }
-    return tilesSearchCanStopAt;
+
+    return endpointTiles;
   }
 
   private markLocationAsVisited(mostRecentTileLocation: TileFoundDescription, tileLocationsAlreadyVisited: { [p: string]: boolean }) {
@@ -153,25 +251,58 @@ export class Pathfinder {
     tileLocationsAlreadyVisited[mostRecentTileLocationKey] = true;
   }
 
-  private markLocationAsStoppable(mapInfo: HexMapLocationInfo, head: SearchPath, searchParams: SearchParams, tilesSearchCanStopAt: TileFoundDescription[]) {
+  private markLocationAsStoppable(
+    mapInfo: HexMapLocationInfo,
+    head: SearchPath,
+    searchParams: SearchParams,
+    tilesSearchCanStopAt: TileFoundDescription[]
+  ) {
     if (
       this.squaddieCanStopMovingOnTile(mapInfo)
       && this.isPathAtLeastMinimumDistance(head, searchParams)
+      && !(tilesSearchCanStopAt.find((tile) => tile.q === head.getMostRecentTileLocation().q && tile.r === head.getMostRecentTileLocation().r))
     ) {
-      tilesSearchCanStopAt.push(head.getMostRecentTileLocation());
+      tilesSearchCanStopAt.push({
+        q: head.getMostRecentTileLocation().q,
+        r: head.getMostRecentTileLocation().r,
+        numberOfActions: head.getMostRecentTileLocation().numberOfActions,
+      });
     }
   }
 
-  private selectValidPathCandidates(neighboringLocations: [number, number][], tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean }, tileLocationsAlreadyVisited: { [p: string]: boolean }, searchParams: SearchParams, head: SearchPath) {
+  private selectValidPathCandidates(
+    neighboringLocations: [number, number][],
+    tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean },
+    tileLocationsAlreadyVisited: { [p: string]: boolean },
+    searchParams: SearchParams,
+    head: SearchPath
+  ): [number, number][] {
     neighboringLocations = this.filterNeighborsNotEnqueued(neighboringLocations, tileLocationsAlreadyConsideredForQueue);
     neighboringLocations = this.filterNeighborsNotVisited(neighboringLocations, tileLocationsAlreadyVisited);
     neighboringLocations = this.filterNeighborsOnMap(neighboringLocations);
     return this.filterNeighborsWithinMovementPerAction(neighboringLocations, searchParams, head);
   }
 
-  private createNewPathsUsingNeighbors(neighboringLocations: [number, number][], tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean }, pq: PriorityQueue, head: SearchPath) {
+  private createNewPathsUsingNeighbors(
+    neighboringLocations: [number, number][],
+    tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean },
+    pq: PriorityQueue,
+    head: SearchPath,
+    numberOfMovementActions: number,
+  ): SearchPath[] {
+    const newPaths: SearchPath[] = [];
+
     neighboringLocations.forEach((neighbor) => this.setNeighborAsConsideredForQueue(neighbor, tileLocationsAlreadyConsideredForQueue));
-    neighboringLocations.forEach((neighbor) => this.addNeighborNewPath(neighbor, pq, head));
+    neighboringLocations.forEach((neighbor) => {
+      const newPath = this.addNeighborNewPath(
+        neighbor,
+        pq,
+        head,
+        numberOfMovementActions + 1,
+      );
+      newPaths.push(newPath);
+    });
+    return newPaths;
   }
 
   private squaddieCanStopMovingOnTile(mapInfo: HexMapLocationInfo) {
@@ -181,16 +312,17 @@ export class Pathfinder {
       && mapInfo.squaddieId === undefined;
   }
 
-  private beginPriorityQueueForSearch(searchParams: SearchParams, pq: PriorityQueue) {
+  private addNewStartLocationToSearchQueue(q: Integer, r: Integer, numberOfActions: Integer, tilesToSearch: PriorityQueue): void {
     const startPath = new SearchPath();
     startPath.add(
       {
-        q: searchParams.getStartLocation().q,
-        r: searchParams.getStartLocation().r
+        q,
+        r,
+        numberOfActions,
       },
       0
     );
-    pq.enqueue(startPath);
+    tilesToSearch.enqueue(startPath);
   }
 
   private createNewPathCandidates(q: number, r: number): [number, number][] {
@@ -224,7 +356,11 @@ export class Pathfinder {
     });
   }
 
-  private filterNeighborsWithinMovementPerAction(neighboringLocations: [number, number][], searchParams: SearchParams, head: SearchPath): [number, number][] {
+  private filterNeighborsWithinMovementPerAction(
+    neighboringLocations: [number, number][],
+    searchParams: SearchParams,
+    head: SearchPath
+  ): [number, number][] {
     return neighboringLocations.filter((neighbor) => {
       const mapInfo = this.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
 
@@ -249,7 +385,12 @@ export class Pathfinder {
     return `${q},${r}`;
   }
 
-  private addNeighborNewPath(neighbor: [number, number], pq: PriorityQueue, head: SearchPath) {
+  private addNeighborNewPath(
+    neighbor: [number, number],
+    pq: PriorityQueue,
+    head: SearchPath,
+    numberOfMovementActions: number,
+  ): SearchPath {
     const mapInfo = this.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
 
     let movementCost = MovingCostByTerrainType[mapInfo.tileTerrainType];
@@ -258,11 +399,14 @@ export class Pathfinder {
     neighborPath.add(
       {
         q:neighbor[0] as Integer,
-        r:neighbor[1] as Integer
+        r:neighbor[1] as Integer,
+        numberOfActions: numberOfMovementActions as Integer,
       },
       movementCost
     );
     pq.enqueue(neighborPath);
+
+    return neighborPath;
   }
 
   private setNeighborAsConsideredForQueue(neighbor: [number, number], tileLocationsAlreadyConsideredForQueue: {[loc: string]: boolean}) {

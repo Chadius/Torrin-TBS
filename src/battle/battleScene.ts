@@ -14,7 +14,11 @@ import {
   convertWorldCoordinatesToMapCoordinates
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
-import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
+import {
+  Pathfinder,
+  sortTileDescriptionByNumberOfMovementActions,
+  TileFoundDescription
+} from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
 import {drawHexMap, HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
@@ -102,12 +106,17 @@ export class BattleScene {
         "   1 1 1 1 1 1 1 1 1 ",
         "    1 1 1 1 1 1 1 1 1 ",
         "     1 1 1 1 1 1 1 1 1 ",
+        "      1 1 1 1 1 1 1 1 1 ",
+        "       1 1 1 1 1 1 1 1 1 ",
+        "        1 1 1 1 1 1 1 1 1 ",
       ],
       resourceHandler: this.resourceHandler,
     });
 
     this.resourceHandler.loadResources([
       "map icon move 1 action",
+      "map icon move 2 actions",
+      "map icon move 3 actions",
       "map icon attack 1 action"
     ]);
 
@@ -126,6 +135,8 @@ export class BattleScene {
       this.resourceHandler.areAllResourcesLoaded([
         this.torrinSquaddieId.resources.mapIcon,
         "map icon move 1 action",
+        "map icon move 2 actions",
+        "map icon move 3 actions",
       ])
       && !this.torrinMapIcon
     ) {
@@ -200,13 +211,13 @@ export class BattleScene {
       this.torrinMapIcon.area.setRectTop({top: xyCoords[1] + SCREEN_HEIGHT / 2});
       this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 
-      const movementTiles: HexCoordinate[] = this.pathfinder.getAllReachableTiles(new SearchParams({
+      const movementTiles: TileFoundDescription[] = this.pathfinder.getAllReachableTiles(new SearchParams({
         startLocation: this.torrinMapLocation,
         squaddieMovement: this.torrinSquaddieMovement,
-        numberOfActions: 1,
+        numberOfActions: 3,
       }));
-
-      const actionTiles: HexCoordinate[] = this.pathfinder.getTilesInRange({
+      const movementTilesByNumberOfActions: {[numberOfActions: Integer]: TileFoundDescription[]} = sortTileDescriptionByNumberOfMovementActions(movementTiles);
+      const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange({
         minimumDistance: this.torrinSquaddieActivity[0].minimumRange,
         maximumDistance: this.torrinSquaddieActivity[0].maximumRange,
         passThroughWalls: false,
@@ -215,15 +226,29 @@ export class BattleScene {
 
       this.hexMap.highlightTiles([
         {
-          tiles: movementTiles,
+          tiles: movementTilesByNumberOfActions[0 as Integer],
           pulseColor: HighlightPulseBlueColor,
-          name: "map icon move 1 action",
+        },
+        {
+          tiles: movementTilesByNumberOfActions[1 as Integer],
+          pulseColor: HighlightPulseBlueColor,
+          overlayImageResourceName: "map icon move 1 action",
+        },
+        {
+          tiles: movementTilesByNumberOfActions[2 as Integer],
+          pulseColor: HighlightPulseBlueColor,
+          overlayImageResourceName: "map icon move 2 actions",
+        },
+        {
+          tiles: movementTilesByNumberOfActions[3 as Integer],
+          pulseColor: HighlightPulseBlueColor,
+          overlayImageResourceName: "map icon move 3 actions",
         },
         {
           tiles: actionTiles,
           pulseColor: HighlightPulseRedColor,
-          name: "map icon attack 1 action"
-        }
+          overlayImageResourceName: "map icon attack 1 action",
+        },
       ]);
     }
 
