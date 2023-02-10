@@ -1,7 +1,10 @@
 import {HexCoordinate, HexGridTile, Integer} from "./hexGrid";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
-import {convertWorldCoordinatesToMapCoordinates} from "./convertCoordinates";
+import {
+  convertScreenCoordinatesToWorldCoordinates,
+  convertWorldCoordinatesToMapCoordinates
+} from "./convertCoordinates";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {PulseBlendColor} from "./colorUtils";
 
@@ -85,9 +88,8 @@ export class HexMap {
     this.resourceHandler = options.resourceHandler;
   }
 
-  mouseClicked(mouseX: number, mouseY: number) {
-    const worldX = mouseX - SCREEN_WIDTH / 2;
-    const worldY = mouseY - SCREEN_HEIGHT / 2;
+  mouseClicked(mouseX: number, mouseY: number, cameraX: number, cameraY: number) {
+    const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(mouseX, mouseY, cameraX, cameraY);
     const tileCoordinates = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
 
     if (

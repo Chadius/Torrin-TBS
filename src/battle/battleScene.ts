@@ -10,8 +10,8 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
-  convertMapCoordinatesToWorldCoordinates,
-  convertWorldCoordinatesToMapCoordinates
+  convertMapCoordinatesToWorldCoordinates, convertScreenCoordinatesToWorldCoordinates,
+  convertWorldCoordinatesToMapCoordinates, convertWorldCoordinatesToScreenCoordinates
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {
@@ -25,6 +25,7 @@ import {drawHexMap, HighlightPulseBlueColor, HighlightPulseRedColor} from "../he
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {BattleCamera} from "./battleCamera";
 
 type RequiredOptions = {
   p: p5;
@@ -53,12 +54,15 @@ export class BattleScene {
   pathfinder: Pathfinder;
   turnBySquaddieId: {[key: string]: SquaddieTurn}
 
+  camera: BattleCamera;
+
   constructor(options: RequiredOptions & Partial<Options>) {
     assertsPositiveNumber(options.width);
     this.width = options.width;
     assertsPositiveNumber(options.height);
     this.height = options.height;
 
+    this.camera = new BattleCamera(0, 100);
     this.resourceHandler = options.resourceHandler;
     this.prepareSquaddies();
     this.prepareMap();
@@ -143,13 +147,17 @@ export class BattleScene {
       let image: p5.Image = this.resourceHandler.getResource(this.torrinSquaddieId.resources.mapIcon) as p5.Image;
 
       this.torrinMapLocation = {q: 0 as Integer, r: 0 as Integer};
-      const xyCoords = convertMapCoordinatesToWorldCoordinates(0, 0);
+      const xyWorldCoords = convertMapCoordinatesToWorldCoordinates(0, 0);
+      const xyCoords = convertWorldCoordinatesToScreenCoordinates(
+        xyWorldCoords[0], xyWorldCoords[1],
+        ...this.camera.getCoordinates()
+      )
 
       this.torrinMapIcon = new ImageUI({
         graphic: image,
         area: new RectArea({
-          left: xyCoords[0] + SCREEN_WIDTH / 2,
-          top: xyCoords[1] + SCREEN_HEIGHT / 2,
+          left: xyCoords[0],
+          top: xyCoords[1],
           width: image.width,
           height: image.height,
           horizAlign: HORIZ_ALIGN_CENTER,
@@ -162,10 +170,19 @@ export class BattleScene {
     p.background(50, 10, 20);
 
     if (this.hexMap) {
-      drawHexMap(p, this.hexMap);
+      drawHexMap(p, this.hexMap, ...this.camera.getCoordinates());
     }
 
     if (this.torrinMapIcon) {
+      const xyWorldCoords = convertMapCoordinatesToWorldCoordinates(this.torrinMapLocation.q, this.torrinMapLocation.r);
+      const xyCoords = convertWorldCoordinatesToScreenCoordinates(
+        xyWorldCoords[0], xyWorldCoords[1],
+        ...this.camera.getCoordinates()
+      );
+      this.torrinMapIcon.area.setRectLeft({left: xyCoords[0]});
+      this.torrinMapIcon.area.setRectTop({top: xyCoords[1]});
+      this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
+
       this.torrinMapIcon.draw(p);
     }
 
@@ -173,6 +190,8 @@ export class BattleScene {
       this.cutscene.update();
       this.cutscene.draw(p);
     } else {
+      this.camera.moveCamera();
+
       p.fill("#dedede");
       p.stroke("#1f1f1f");
       for (let i = 0; i < this.turnBySquaddieId[this.torrinSquaddieId.id].getRemainingActions(); i++) {
@@ -186,6 +205,46 @@ export class BattleScene {
       this.cutscene.mouseMoved(mouseX, mouseY);
       return;
     }
+
+    if(mouseX < SCREEN_WIDTH * 0.10) {
+      this.camera.setXVelocity(-1);
+      if(mouseX < SCREEN_WIDTH * 0.04) {
+        this.camera.setXVelocity(-5);
+      }
+      if(mouseX < SCREEN_WIDTH * 0.02) {
+        this.camera.setXVelocity(-10);
+      }
+    } else if(mouseX > SCREEN_WIDTH * 0.90) {
+      this.camera.setXVelocity(1);
+      if(mouseX > SCREEN_WIDTH * 0.96) {
+        this.camera.setXVelocity(5);
+      }
+      if(mouseX > SCREEN_WIDTH * 0.98) {
+        this.camera.setXVelocity(10);
+      }
+    } else {
+      this.camera.setXVelocity(0);
+    }
+
+    if(mouseY < SCREEN_HEIGHT * 0.10) {
+      this.camera.setYVelocity(-1);
+      if(mouseY < SCREEN_HEIGHT * 0.04) {
+        this.camera.setYVelocity(-5);
+      }
+      if(mouseY < SCREEN_HEIGHT * 0.02) {
+        this.camera.setYVelocity(-10);
+      }
+    } else if(mouseY > SCREEN_HEIGHT * 0.90) {
+      this.camera.setYVelocity(1);
+      if(mouseY > SCREEN_HEIGHT * 0.96) {
+        this.camera.setYVelocity(5);
+      }
+      if(mouseY > SCREEN_HEIGHT * 0.98) {
+        this.camera.setYVelocity(10);
+      }
+    } else {
+      this.camera.setYVelocity(0);
+    }
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
@@ -194,8 +253,7 @@ export class BattleScene {
       return;
     }
 
-    const worldX = mouseX - SCREEN_WIDTH / 2;
-    const worldY = mouseY - SCREEN_HEIGHT / 2;
+    const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(mouseX, mouseY, ...this.camera.getCoordinates())
     const clickedTileCoordinates: [number, number] = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
     const clickedHexCoordinate: HexCoordinate = {
       q: clickedTileCoordinates[0] as Integer,
@@ -205,10 +263,11 @@ export class BattleScene {
       this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
     ) {
       this.torrinMapLocation = clickedHexCoordinate;
-      const xyCoords = convertMapCoordinatesToWorldCoordinates(clickedHexCoordinate.q, clickedHexCoordinate.r);
+      const xyWorldCoords = convertMapCoordinatesToWorldCoordinates(clickedHexCoordinate.q, clickedHexCoordinate.r);
+      const xyCoords = convertWorldCoordinatesToScreenCoordinates(xyWorldCoords[0], xyWorldCoords[1], ...this.camera.getCoordinates())
 
-      this.torrinMapIcon.area.setRectLeft({left: xyCoords[0] + SCREEN_WIDTH / 2});
-      this.torrinMapIcon.area.setRectTop({top: xyCoords[1] + SCREEN_HEIGHT / 2});
+      this.torrinMapIcon.area.setRectLeft({left: xyCoords[0]});
+      this.torrinMapIcon.area.setRectTop({top: xyCoords[1]});
       this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 
       const movementTiles: TileFoundDescription[] = this.pathfinder.getAllReachableTiles(new SearchParams({
@@ -252,6 +311,6 @@ export class BattleScene {
       ]);
     }
 
-    this.hexMap.mouseClicked(mouseX, mouseY);
+    this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());
   }
 }

@@ -17,25 +17,25 @@ describe('hexMap', () => {
 
       const hexGrid = new HexMap({tiles: gridTiles});
 
-      hexGrid.mouseClicked(-100, -100);
+      hexGrid.mouseClicked(-100, -100, 0, 0);
       expect(hexGrid.outlineTileCoordinates).toBe(undefined);
 
-      hexGrid.mouseClicked(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+      hexGrid.mouseClicked(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,0,0);
       expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 0});
 
-      hexGrid.mouseClicked(SCREEN_WIDTH / 2 + HEX_TILE_WIDTH, SCREEN_HEIGHT / 2);
+      hexGrid.mouseClicked(SCREEN_WIDTH / 2 + HEX_TILE_WIDTH, SCREEN_HEIGHT / 2,0,0);
       expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 1});
 
-      hexGrid.mouseClicked(SCREEN_WIDTH / 2 + (2 * HEX_TILE_WIDTH), SCREEN_HEIGHT / 2);
+      hexGrid.mouseClicked(SCREEN_WIDTH / 2 + (2 * HEX_TILE_WIDTH), SCREEN_HEIGHT / 2,0,0);
       expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: 2});
 
-      hexGrid.mouseClicked(SCREEN_WIDTH / 2 - HEX_TILE_WIDTH, SCREEN_HEIGHT / 2);
+      hexGrid.mouseClicked(SCREEN_WIDTH / 2 - HEX_TILE_WIDTH, SCREEN_HEIGHT / 2,0,0);
       expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 0, r: -1});
 
-      hexGrid.mouseClicked(SCREEN_WIDTH / 2 + (HEX_TILE_WIDTH / 2), SCREEN_HEIGHT / 2 + (HEX_TILE_WIDTH / 2));
+      hexGrid.mouseClicked(SCREEN_WIDTH / 2 + (HEX_TILE_WIDTH / 2), SCREEN_HEIGHT / 2 + (HEX_TILE_WIDTH / 2),0,0);
       expect(hexGrid.outlineTileCoordinates).toMatchObject({q: 1, r: 0});
 
-      hexGrid.mouseClicked(SCREEN_WIDTH / 2 - (HEX_TILE_WIDTH / 2), SCREEN_HEIGHT / 2 - (HEX_TILE_WIDTH / 2));
+      hexGrid.mouseClicked(SCREEN_WIDTH / 2 - (HEX_TILE_WIDTH / 2), SCREEN_HEIGHT / 2 - (HEX_TILE_WIDTH / 2),0,0);
       expect(hexGrid.outlineTileCoordinates).toMatchObject({q: -1, r: -0});
     });
   });

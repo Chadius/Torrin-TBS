@@ -2,7 +2,11 @@ import * as p5 from "p5";
 import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ResourceHandler} from "../resource/resourceHandler";
-import {convertMapCoordinatesToWorldCoordinates} from "./convertCoordinates";
+import {
+  convertMapCoordinatesToWorldCoordinates,
+  convertWorldCoordinatesToMapCoordinates,
+  convertWorldCoordinatesToScreenCoordinates
+} from "./convertCoordinates";
 import {HexCoordinate, Integer} from "./hexGrid";
 import {HexMap} from "./hexMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
@@ -39,6 +43,8 @@ type HexTileDrawOptions = {
   q: Integer;
   r: Integer;
   terrainType: HexGridMovementCost;
+  cameraX: number;
+  cameraY: number;
   pulseColor?: PulseBlendColor;
   resourceHandler?: ResourceHandler;
   overlayImageResourceKey?: string;
@@ -49,6 +55,8 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     p,
     q,
     r,
+    cameraX,
+    cameraY,
     terrainType,
     pulseColor,
     resourceHandler,
@@ -92,10 +100,10 @@ export function drawHexTile(options: HexTileDrawOptions): void {
   // https://www.redblobgames.com/grids/hexagons/
   // r applies the vector (1, 0)
   // q applies the vector (1/2, sqrt(3)/2)
-  let xPos = r + q * 0.5
-  let yPos = q * 0.866
+  let worldX = r + q * 0.5
+  let worldY = q * 0.866
 
-  drawHexShape(p, xPos, yPos);
+  drawHexShape(p, worldX, worldY, cameraX, cameraY);
 
   if (overlayImageResourceKey && resourceHandler) {
     const imageOrError: p5.Image | Error = resourceHandler.getResource(overlayImageResourceKey);
@@ -103,11 +111,10 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     if (imageOrError instanceof p5.Image) {
       p.pop();
 
-      let [xPos, yPos] = convertMapCoordinatesToWorldCoordinates(q, r);
-      xPos += SCREEN_WIDTH / 2;
-      yPos += SCREEN_HEIGHT / 2;
+      let [imageWorldX, imageWorldY] = convertMapCoordinatesToWorldCoordinates(q, r);
+      let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(imageWorldX, imageWorldY, cameraX, cameraY)
       p.push();
-      p.translate(xPos, yPos);
+      p.translate(screenDrawX, screenDrawY);
 
       p.image(
         imageOrError,
@@ -121,15 +128,14 @@ export function drawHexTile(options: HexTileDrawOptions): void {
   p.pop();
 }
 
-export function drawHexShape(p: p5, xPos: number, yPos: number) {
-  xPos *= HEX_TILE_WIDTH;
-  yPos *= HEX_TILE_WIDTH;
+export function drawHexShape(p: p5, worldX: number, worldY: number, cameraX: number, cameraY: number) {
+  worldX *= HEX_TILE_WIDTH;
+  worldY *= HEX_TILE_WIDTH;
 
-  xPos += SCREEN_WIDTH / 2;
-  yPos += SCREEN_HEIGHT / 2;
+  let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(worldX, worldY, cameraX, cameraY)
 
   p.push();
-  p.translate(xPos, yPos);
+  p.translate(screenDrawX, screenDrawY);
 
   let angle = Math.PI / 3;
   p.beginShape();
@@ -146,7 +152,9 @@ export function drawHexShape(p: p5, xPos: number, yPos: number) {
 
 export function drawOutlinedTile(
   p: p5,
-  outlineTileCoordinates: HexCoordinate
+  outlineTileCoordinates: HexCoordinate,
+  cameraX: number,
+  cameraY: number,
 ): void {
   p.push();
 
@@ -162,11 +170,11 @@ export function drawOutlinedTile(
 
   let xPos = outlineTileCoordinates.r + outlineTileCoordinates.q * 0.5
   let yPos = outlineTileCoordinates.q * 0.866
-  drawHexShape(p, xPos, yPos);
+  drawHexShape(p, xPos, yPos, cameraX, cameraY);
   p.pop();
 }
 
-export function drawHexMap(p: p5, map: HexMap): void {
+export function drawHexMap(p: p5, map: HexMap, cameraX: number, cameraY: number): void {
   map.tiles.forEach(
     (tile) => {
       const key = `${tile.q},${tile.r}`;
@@ -175,6 +183,8 @@ export function drawHexMap(p: p5, map: HexMap): void {
           p: p,
           q: tile.q,
           r: tile.r,
+          cameraX,
+          cameraY,
           terrainType: tile.terrainType,
           pulseColor: map.highlightedTiles[key].pulseColor,
           resourceHandler: map.resourceHandler,
@@ -186,12 +196,14 @@ export function drawHexMap(p: p5, map: HexMap): void {
           q: tile.q,
           r: tile.r,
           terrainType: tile.terrainType,
+          cameraX,
+          cameraY,
         });
       }
     }
   );
 
   if (map.outlineTileCoordinates !== undefined) {
-    drawOutlinedTile(p, map.outlineTileCoordinates);
+    drawOutlinedTile(p, map.outlineTileCoordinates, cameraX, cameraY);
   }
 }
