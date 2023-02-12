@@ -10,8 +10,9 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
-  convertMapCoordinatesToWorldCoordinates, convertScreenCoordinatesToWorldCoordinates,
-  convertWorldCoordinatesToMapCoordinates, convertWorldCoordinatesToScreenCoordinates
+  convertMapCoordinatesToScreenCoordinates,
+  convertScreenCoordinatesToWorldCoordinates,
+  convertWorldCoordinatesToMapCoordinates,
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {
@@ -45,12 +46,17 @@ export class BattleScene {
   cutscene: Cutscene;
   resourceHandler: ResourceHandler;
 
-  torrinSquaddieId: SquaddieID;
-  torrinSquaddieMovement: SquaddieMovement;
-  torrinSquaddieActivity: SquaddieActivity[];
-  torrinMapIcon: ImageUI;
+  squaddiesByID: {
+    [id: string]: {
+      squaddieID: SquaddieID,
+      movement: SquaddieMovement,
+      activities: SquaddieActivity[],
+      mapLocation: HexCoordinate,
+      mapIcon?: ImageUI,
+      squaddieTurn: SquaddieTurn,
+    }
+  }
 
-  torrinMapLocation: HexCoordinate;
   pathfinder: Pathfinder;
   turnBySquaddieId: {[key: string]: SquaddieTurn}
 
@@ -70,35 +76,46 @@ export class BattleScene {
 
   private prepareSquaddies() {
     this.turnBySquaddieId = {};
+    this.squaddiesByID = {
+      "0000": {
+        squaddieID:  new SquaddieID({
+          id: "0000",
+          name: "Torrin",
+          resources: new SquaddieResource({
+            mapIconResourceKey: "map icon young torrin"
+          }),
+          traits: new TraitStatusStorage({
+            [Trait.HUMANOID]: true,
+            [Trait.MONSU]: true,
+          }).filterCategory(TraitCategory.CREATURE)
+        }),
+        movement: new SquaddieMovement({
+          movementPerAction: 2,
+          traits: new TraitStatusStorage({
+            [Trait.PASS_THROUGH_WALLS]: true,
+          }).filterCategory(TraitCategory.MOVEMENT)
+        }),
+        activities: [
+          new SquaddieActivity({
+            name: "water saber",
+            id: "torrin_water_saber",
+            minimumRange: 0 as Integer,
+            maximumRange: 2 as Integer,
+            traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+          })
+        ],
+        mapLocation: {q: 0 as Integer, r: 0 as Integer},
+        squaddieTurn: new SquaddieTurn()
+      }
+    }
 
-    this.torrinSquaddieId = new SquaddieID({
-      id: "0000",
-      name: "Torrin",
-      resources: new SquaddieResource({
-        mapIcon: "map icon young torrin"
-      }),
-      traits: new TraitStatusStorage({
-        [Trait.HUMANOID]: true,
-        [Trait.MONSU]: true,
-      }).filterCategory(TraitCategory.CREATURE)
+    Object.entries(this.squaddiesByID).forEach(([_, squaddieInfo]) => {
+      this.resourceHandler.loadResource(squaddieInfo.squaddieID.resources.mapIconResourceKey);
     });
-    this.torrinSquaddieMovement = new SquaddieMovement({
-      movementPerAction: 2,
-      traits: new TraitStatusStorage({
-        [Trait.PASS_THROUGH_WALLS]: true,
-      }).filterCategory(TraitCategory.MOVEMENT)
-    })
-    this.torrinSquaddieActivity = [
-      new SquaddieActivity({
-        name: "water saber",
-        id: "torrin_water_saber",
-        minimumRange: 0 as Integer,
-        maximumRange: 2 as Integer,
-        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-      })
-    ];
-    this.resourceHandler.loadResource(this.torrinSquaddieId.resources.mapIcon);
-    this.turnBySquaddieId[this.torrinSquaddieId.id] = new SquaddieTurn();
+
+    Object.entries(this.squaddiesByID).forEach(([id, _]) => {
+      this.turnBySquaddieId[id] = new SquaddieTurn();
+    });
   }
 
   private prepareMap() {
@@ -135,36 +152,7 @@ export class BattleScene {
       this.cutscene.start();
     }
 
-    if (
-      this.resourceHandler.areAllResourcesLoaded([
-        this.torrinSquaddieId.resources.mapIcon,
-        "map icon move 1 action",
-        "map icon move 2 actions",
-        "map icon move 3 actions",
-      ])
-      && !this.torrinMapIcon
-    ) {
-      let image: p5.Image = this.resourceHandler.getResource(this.torrinSquaddieId.resources.mapIcon) as p5.Image;
-
-      this.torrinMapLocation = {q: 0 as Integer, r: 0 as Integer};
-      const xyWorldCoords = convertMapCoordinatesToWorldCoordinates(0, 0);
-      const xyCoords = convertWorldCoordinatesToScreenCoordinates(
-        xyWorldCoords[0], xyWorldCoords[1],
-        ...this.camera.getCoordinates()
-      )
-
-      this.torrinMapIcon = new ImageUI({
-        graphic: image,
-        area: new RectArea({
-          left: xyCoords[0],
-          top: xyCoords[1],
-          width: image.width,
-          height: image.height,
-          horizAlign: HORIZ_ALIGN_CENTER,
-          vertAlign: VERT_ALIGN_CENTER
-        })
-      })
-    }
+    this.loadAndInitializeSuqaddieResources();
 
     p.colorMode("hsb", 360, 100, 100, 255)
     p.background(50, 10, 20);
@@ -173,18 +161,7 @@ export class BattleScene {
       drawHexMap(p, this.hexMap, ...this.camera.getCoordinates());
     }
 
-    if (this.torrinMapIcon) {
-      const xyWorldCoords = convertMapCoordinatesToWorldCoordinates(this.torrinMapLocation.q, this.torrinMapLocation.r);
-      const xyCoords = convertWorldCoordinatesToScreenCoordinates(
-        xyWorldCoords[0], xyWorldCoords[1],
-        ...this.camera.getCoordinates()
-      );
-      this.torrinMapIcon.area.setRectLeft({left: xyCoords[0]});
-      this.torrinMapIcon.area.setRectTop({top: xyCoords[1]});
-      this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
-
-      this.torrinMapIcon.draw(p);
-    }
+    this.drawSquaddieMapIcons(p);
 
     if (this.cutscene && this.cutscene.isInProgress()) {
       this.cutscene.update();
@@ -194,10 +171,65 @@ export class BattleScene {
 
       p.fill("#dedede");
       p.stroke("#1f1f1f");
-      for (let i = 0; i < this.turnBySquaddieId[this.torrinSquaddieId.id].getRemainingActions(); i++) {
+      for (let i = 0; i < this.turnBySquaddieId["0000"].getRemainingActions(); i++) {
         p.circle(50 + (i * 55), SCREEN_HEIGHT - 70, 50);
       }
     }
+  }
+
+  private loadAndInitializeSuqaddieResources() {
+    const allSquaddieIconsHaveBeenInitialized = Object.entries(this.squaddiesByID)
+      .every(([_, squaddieInfo]) => squaddieInfo.mapIcon);
+    if (allSquaddieIconsHaveBeenInitialized) {
+      return;
+    }
+
+    const squaddieResourceKeys = Object.entries(this.squaddiesByID)
+      .map(([_, squaddieInfo]) => squaddieInfo.squaddieID.resources.mapIconResourceKey);
+
+    if (
+      this.resourceHandler.areAllResourcesLoaded([
+        ...squaddieResourceKeys,
+        "map icon move 1 action",
+        "map icon move 2 actions",
+        "map icon move 3 actions",
+      ])
+    ) {
+      Object.entries(this.squaddiesByID)
+        .forEach(([_, squaddieInfo]) => {
+          let image: p5.Image = this.resourceHandler.getResource(
+            squaddieInfo.squaddieID.resources.mapIconResourceKey) as p5.Image;
+
+          const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+            squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...this.camera.getCoordinates())
+
+          squaddieInfo.mapIcon = new ImageUI({
+            graphic: image,
+            area: new RectArea({
+              left: xyCoords[0],
+              top: xyCoords[1],
+              width: image.width,
+              height: image.height,
+              horizAlign: HORIZ_ALIGN_CENTER,
+              vertAlign: VERT_ALIGN_CENTER
+            })
+          })
+        });
+    }
+  }
+
+  private drawSquaddieMapIcons(p: p5) {
+    Object.entries(this.squaddiesByID)
+      .forEach(([_, squaddieInfo]) => {
+        if (!squaddieInfo.mapIcon) {
+          return;
+        }
+        const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+          squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...this.camera.getCoordinates())
+        this.setImageToLocation(squaddieInfo, xyCoords);
+
+        squaddieInfo.mapIcon.draw(p);
+      });
   }
 
   mouseMoved(mouseX: number, mouseY: number) {
@@ -262,23 +294,23 @@ export class BattleScene {
     if (
       this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
     ) {
-      this.torrinMapLocation = clickedHexCoordinate;
-      const xyWorldCoords = convertMapCoordinatesToWorldCoordinates(clickedHexCoordinate.q, clickedHexCoordinate.r);
-      const xyCoords = convertWorldCoordinatesToScreenCoordinates(xyWorldCoords[0], xyWorldCoords[1], ...this.camera.getCoordinates())
+      const torrinSquaddieInfo = this.squaddiesByID["0000"];
 
-      this.torrinMapIcon.area.setRectLeft({left: xyCoords[0]});
-      this.torrinMapIcon.area.setRectTop({top: xyCoords[1]});
-      this.torrinMapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
+      torrinSquaddieInfo.mapLocation = clickedHexCoordinate;
+
+      const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+        clickedTileCoordinates[0], clickedTileCoordinates[1], ...this.camera.getCoordinates());
+      this.setImageToLocation(torrinSquaddieInfo, xyCoords);
 
       const movementTiles: TileFoundDescription[] = this.pathfinder.getAllReachableTiles(new SearchParams({
-        startLocation: this.torrinMapLocation,
-        squaddieMovement: this.torrinSquaddieMovement,
+        startLocation: torrinSquaddieInfo.mapLocation,
+        squaddieMovement: torrinSquaddieInfo.movement,
         numberOfActions: 3,
       }));
       const movementTilesByNumberOfActions: {[numberOfActions: Integer]: TileFoundDescription[]} = sortTileDescriptionByNumberOfMovementActions(movementTiles);
       const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange({
-        minimumDistance: this.torrinSquaddieActivity[0].minimumRange,
-        maximumDistance: this.torrinSquaddieActivity[0].maximumRange,
+        minimumDistance: torrinSquaddieInfo.activities[0].minimumRange,
+        maximumDistance: torrinSquaddieInfo.activities[0].maximumRange,
         passThroughWalls: false,
         sourceTiles: movementTiles
       });
@@ -312,5 +344,11 @@ export class BattleScene {
     }
 
     this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());
+  }
+
+  private setImageToLocation(torrinSquaddieInfo: { squaddieID: SquaddieID; movement: SquaddieMovement; activities: SquaddieActivity[]; mapLocation: HexCoordinate; mapIcon?: ImageUI; squaddieTurn: SquaddieTurn }, xyCoords: [number, number]) {
+    torrinSquaddieInfo.mapIcon.area.setRectLeft({left: xyCoords[0]});
+    torrinSquaddieInfo.mapIcon.area.setRectTop({top: xyCoords[1]});
+    torrinSquaddieInfo.mapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
   }
 }

@@ -1,4 +1,5 @@
 import {
+  convertMapCoordinatesToScreenCoordinates,
   convertMapCoordinatesToWorldCoordinates, convertScreenCoordinatesToWorldCoordinates,
   convertWorldCoordinatesToMapCoordinates,
   convertWorldCoordinatesToScreenCoordinates
@@ -71,5 +72,24 @@ describe('convertCoordinates', () => {
       .toStrictEqual([0, 1]);
     expect(convertScreenCoordinatesToWorldCoordinates(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1))
       .toStrictEqual([0, 1]);
+  });
+
+  it('converts map coordinates to screen coordinates', () => {
+    expect(convertMapCoordinatesToScreenCoordinates(0, 0, 0, 0))
+      .toStrictEqual([SCREEN_WIDTH/2, SCREEN_HEIGHT/2]);
+
+    expect(convertMapCoordinatesToScreenCoordinates(0, 1, 0, 0))
+      .toStrictEqual([SCREEN_WIDTH/2 + HEX_TILE_WIDTH, SCREEN_HEIGHT/2]);
+
+    expect(convertMapCoordinatesToScreenCoordinates(1, 0, 0, 0))
+      .toStrictEqual([
+        SCREEN_WIDTH/2 + HEX_TILE_WIDTH / 2,
+        SCREEN_HEIGHT/2 + (HEX_TILE_WIDTH * Math.sqrt(3) / 2)
+      ]);
+
+    expect(convertMapCoordinatesToScreenCoordinates(0, 0, 1, 0))
+      .toStrictEqual([SCREEN_WIDTH/2 - 1, SCREEN_HEIGHT/2]);
+    expect(convertMapCoordinatesToScreenCoordinates(0, 0, 0, 1))
+      .toStrictEqual([SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 1]);
   });
 });

@@ -25,7 +25,7 @@ describe('pathfinder', () => {
       name: "Torrin",
       id: "000",
       resources: new SquaddieResource({
-        mapIcon: "map_icon_torrin"
+        mapIconResourceKey: "map_icon_torrin"
       }),
       traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
     });
@@ -56,7 +56,7 @@ describe('pathfinder', () => {
       name: "Sir Camil",
       id: "001",
       resources: new SquaddieResource({
-        mapIcon: "map_icon_sir_camil"
+        mapIconResourceKey: "map_icon_sir_camil"
       }),
       traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
     });
@@ -446,7 +446,7 @@ describe('pathfinder', () => {
         name: "teammate",
         id: "teammate",
         resources: new SquaddieResource({
-          mapIcon: "map_icon_teammate"
+          mapIconResourceKey: "map_icon_teammate"
         }),
         traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
       });

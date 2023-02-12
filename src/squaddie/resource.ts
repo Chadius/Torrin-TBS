@@ -1,11 +1,11 @@
 type RequiredOptions = {
-  mapIcon: string;
+  mapIconResourceKey: string;
 };
 
 export class SquaddieResource {
-  mapIcon: string;
+  mapIconResourceKey: string;
 
   constructor(options: RequiredOptions) {
-    this.mapIcon = options.mapIcon;
+    this.mapIconResourceKey = options.mapIconResourceKey;
   }
 };

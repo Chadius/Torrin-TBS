@@ -42,3 +42,13 @@ export const convertScreenCoordinatesToWorldCoordinates = (
 
   return [worldX, worldY]
 }
+
+export const convertMapCoordinatesToScreenCoordinates = (
+  q: number,
+  r: number,
+  cameraX: number,
+  cameraY: number
+):  [number, number] => {
+  const worldCoordinates = convertMapCoordinatesToWorldCoordinates(q, r)
+  return convertWorldCoordinatesToScreenCoordinates(...worldCoordinates, cameraX, cameraY)
+}

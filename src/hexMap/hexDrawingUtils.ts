@@ -124,8 +124,9 @@ export function drawHexTile(options: HexTileDrawOptions): void {
 
       p.pop();
     }
+  } else {
+    p.pop();
   }
-  p.pop();
 }
 
 export function drawHexShape(p: p5, worldX: number, worldY: number, cameraX: number, cameraY: number) {
