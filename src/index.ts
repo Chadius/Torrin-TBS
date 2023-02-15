@@ -28,6 +28,16 @@ export const sketch = (p: p5) => {
             },
             {
               type: ResourceType.IMAGE,
+              path: "assets/map-icon-sir-camil.png",
+              key: "map icon sir camil",
+            },
+            {
+              type: ResourceType.IMAGE,
+              path: "assets/map-icon-demon-slither.png",
+              key: "map icon demon slither",
+            },
+            {
+              type: ResourceType.IMAGE,
               path: "assets/map-icon-move-1-action.png",
               key: "map icon move 1 action"
             },
