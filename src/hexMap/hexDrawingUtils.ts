@@ -1,10 +1,9 @@
 import * as p5 from "p5";
-import {HEX_TILE_RADIUS, HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
+import {HEX_TILE_RADIUS, HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {
   convertMapCoordinatesToWorldCoordinates,
-  convertWorldCoordinatesToMapCoordinates,
   convertWorldCoordinatesToScreenCoordinates
 } from "./convertCoordinates";
 import {HexCoordinate, Integer} from "./hexGrid";

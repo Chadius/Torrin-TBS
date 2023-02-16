@@ -10,9 +10,9 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
-  convertMapCoordinatesToScreenCoordinates,
+  convertMapCoordinatesToScreenCoordinates, convertMapCoordinatesToWorldCoordinates,
   convertScreenCoordinatesToWorldCoordinates,
-  convertWorldCoordinatesToMapCoordinates,
+  convertWorldCoordinatesToMapCoordinates, convertWorldCoordinatesToScreenCoordinates,
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {
@@ -40,6 +40,11 @@ type Options = {
   cutscene: Cutscene;
 }
 
+enum AnimationMode {
+  IDLE = "IDLE",
+  MOVING_UNIT = "MOVING_UNIT"
+}
+
 export class BattleScene {
   width: PositiveNumber;
   height: PositiveNumber;
@@ -56,9 +61,14 @@ export class BattleScene {
   }
 
   pathfinder: Pathfinder;
-  turnBySquaddieId: {[key: string]: SquaddieTurn}
+  turnBySquaddieId: { [key: string]: SquaddieTurn }
 
   camera: BattleCamera;
+  animationMode: AnimationMode;
+  squaddieMovePath?: HexCoordinate;
+  animationTimer: number;
+  squaddieAnimationWorldCoordinatesStart?: [number, number];
+  squaddieAnimationWorldCoordinatesEnd?: [number, number];
 
   constructor(options: RequiredOptions & Partial<Options>) {
     assertsPositiveNumber(options.width);
@@ -70,6 +80,11 @@ export class BattleScene {
     this.resourceHandler = options.resourceHandler;
     this.prepareSquaddies();
     this.prepareMap();
+    this.animationMode = AnimationMode.IDLE;
+    this.animationTimer = 0;
+    this.squaddieMovePath = undefined;
+    this.squaddieAnimationWorldCoordinatesStart = undefined;
+    this.squaddieAnimationWorldCoordinatesEnd = undefined;
   }
 
   private prepareSquaddies() {
@@ -77,7 +92,7 @@ export class BattleScene {
 
     this.squaddieStaticInfoBySquaddieTypeID = {
       "player_young_torrin": {
-        squaddieID:  new SquaddieID({
+        squaddieID: new SquaddieID({
           id: "player_young_torrin",
           name: "Torrin",
           resources: new SquaddieResource({
@@ -105,7 +120,7 @@ export class BattleScene {
         ],
       },
       "player_sir_camil": {
-        squaddieID:  new SquaddieID({
+        squaddieID: new SquaddieID({
           id: "player_sir_camil",
           name: "Sir Camil",
           resources: new SquaddieResource({
@@ -117,8 +132,7 @@ export class BattleScene {
         }),
         movement: new SquaddieMovement({
           movementPerAction: 2,
-          traits: new TraitStatusStorage({
-          }).filterCategory(TraitCategory.MOVEMENT)
+          traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
         }),
         activities: [
           new SquaddieActivity({
@@ -143,8 +157,7 @@ export class BattleScene {
         }),
         movement: new SquaddieMovement({
           movementPerAction: 1,
-          traits: new TraitStatusStorage({
-          }).filterCategory(TraitCategory.MOVEMENT)
+          traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
         }),
         activities: [
           new SquaddieActivity({
@@ -288,95 +301,50 @@ export class BattleScene {
 
   private drawSquaddieMapIcons(p: p5) {
     Object.entries(this.squaddieDynamicInfoByID)
-      .forEach(([_, squaddieDynamicInfo]) => {
+      .forEach(([id, squaddieDynamicInfo]) => {
         if (!squaddieDynamicInfo.mapIcon) {
           return;
         }
-        const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-          squaddieDynamicInfo.mapLocation.q, squaddieDynamicInfo.mapLocation.r, ...this.camera.getCoordinates())
-        this.setImageToLocation(squaddieDynamicInfo, xyCoords);
 
-        squaddieDynamicInfo.mapIcon.draw(p);
+        if(this.animationMode === AnimationMode.MOVING_UNIT && id === "player_young_torrin") {
+          this.moveSquaddie(p, squaddieDynamicInfo);
+        } else {
+          const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+            squaddieDynamicInfo.mapLocation.q, squaddieDynamicInfo.mapLocation.r, ...this.camera.getCoordinates())
+          this.setImageToLocation(squaddieDynamicInfo, xyCoords);
+
+          squaddieDynamicInfo.mapIcon.draw(p);
+        }
       });
   }
 
-  mouseMoved(mouseX: number, mouseY: number) {
-    if (this.cutscene && this.cutscene.isInProgress()) {
-      this.cutscene.mouseMoved(mouseX, mouseY);
+  private moveSquaddie(p: p5, squaddieDynamicInfo: BattleSquaddieDynamic) {
+    if (this.animationMode !== AnimationMode.MOVING_UNIT) {
       return;
     }
 
-    if(mouseX < SCREEN_WIDTH * 0.10) {
-      this.camera.setXVelocity(-1);
-      if(mouseX < SCREEN_WIDTH * 0.04) {
-        this.camera.setXVelocity(-5);
-      }
-      if(mouseX < SCREEN_WIDTH * 0.02) {
-        this.camera.setXVelocity(-10);
-      }
-    } else if(mouseX > SCREEN_WIDTH * 0.90) {
-      this.camera.setXVelocity(1);
-      if(mouseX > SCREEN_WIDTH * 0.96) {
-        this.camera.setXVelocity(5);
-      }
-      if(mouseX > SCREEN_WIDTH * 0.98) {
-        this.camera.setXVelocity(10);
-      }
-    } else {
-      this.camera.setXVelocity(0);
-    }
-
-    if(mouseY < SCREEN_HEIGHT * 0.10) {
-      this.camera.setYVelocity(-1);
-      if(mouseY < SCREEN_HEIGHT * 0.04) {
-        this.camera.setYVelocity(-5);
-      }
-      if(mouseY < SCREEN_HEIGHT * 0.02) {
-        this.camera.setYVelocity(-10);
-      }
-    } else if(mouseY > SCREEN_HEIGHT * 0.90) {
-      this.camera.setYVelocity(1);
-      if(mouseY > SCREEN_HEIGHT * 0.96) {
-        this.camera.setYVelocity(5);
-      }
-      if(mouseY > SCREEN_HEIGHT * 0.98) {
-        this.camera.setYVelocity(10);
-      }
-    } else {
-      this.camera.setYVelocity(0);
-    }
-  }
-
-  mouseClicked(mouseX: number, mouseY: number) {
-    if (this.cutscene && this.cutscene.isInProgress()) {
-      this.cutscene.mouseClicked(mouseX, mouseY);
+    if (!this.squaddieMovePath) {
       return;
     }
 
-    const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(mouseX, mouseY, ...this.camera.getCoordinates())
-    const clickedTileCoordinates: [number, number] = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
-    const clickedHexCoordinate: HexCoordinate = {
-      q: clickedTileCoordinates[0] as Integer,
-      r: clickedTileCoordinates[1] as Integer
-    };
-    if (
-      this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
-    ) {
-      const torrinSquaddieDynamicInfo = this.squaddieDynamicInfoByID["player_young_torrin"];
-      const squaddieStaticInfo = this.squaddieStaticInfoBySquaddieTypeID[torrinSquaddieDynamicInfo.staticSquaddieId];
+    const squaddieStaticInfo = this.squaddieStaticInfoBySquaddieTypeID[squaddieDynamicInfo.staticSquaddieId];
 
-      torrinSquaddieDynamicInfo.mapLocation = clickedHexCoordinate;
+    squaddieDynamicInfo.mapIcon.draw(p);
 
+    const timePassed = Date.now() - this.animationTimer;
+    const timeToMove = 1000.0;
+    if (timePassed > timeToMove) {
+      squaddieDynamicInfo.mapLocation = this.squaddieMovePath;
       const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        clickedTileCoordinates[0], clickedTileCoordinates[1], ...this.camera.getCoordinates());
-      this.setImageToLocation(torrinSquaddieDynamicInfo, xyCoords);
+        this.squaddieMovePath.q, this.squaddieMovePath.r, ...this.camera.getCoordinates());
+      this.setImageToLocation(squaddieDynamicInfo, xyCoords);
 
       const movementTiles: TileFoundDescription[] = this.pathfinder.getAllReachableTiles(new SearchParams({
-        startLocation: torrinSquaddieDynamicInfo.mapLocation,
+        startLocation: squaddieDynamicInfo.mapLocation,
         squaddieMovement: squaddieStaticInfo.movement,
         numberOfActions: 3,
       }));
-      const movementTilesByNumberOfActions: {[numberOfActions: Integer]: TileFoundDescription[]} = sortTileDescriptionByNumberOfMovementActions(movementTiles);
+      const movementTilesByNumberOfActions: { [numberOfActions: Integer]: TileFoundDescription[] } = sortTileDescriptionByNumberOfMovementActions(movementTiles);
       const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange({
         minimumDistance: squaddieStaticInfo.activities[0].minimumRange,
         maximumDistance: squaddieStaticInfo.activities[0].maximumRange,
@@ -410,9 +378,106 @@ export class BattleScene {
           overlayImageResourceName: "map icon attack 1 action",
         },
       ]);
+      this.animationMode = AnimationMode.IDLE;
+    } else {
+      const lerpQ: number = (
+        this.squaddieAnimationWorldCoordinatesEnd[0]
+        - this.squaddieAnimationWorldCoordinatesStart[0]
+      ) * timePassed / timeToMove + this.squaddieAnimationWorldCoordinatesStart[0];
+      const lerpR: number = (
+        this.squaddieAnimationWorldCoordinatesEnd[1]
+        - this.squaddieAnimationWorldCoordinatesStart[1]
+      ) * timePassed / timeToMove + this.squaddieAnimationWorldCoordinatesStart[1];
+
+      const xyCoords: [number, number] = convertWorldCoordinatesToScreenCoordinates(
+        lerpQ, lerpR, ...this.camera.getCoordinates())
+      this.setImageToLocation(squaddieDynamicInfo, xyCoords);
+      squaddieDynamicInfo.mapIcon.draw(p);
+      return;
+    }
+  }
+
+  mouseMoved(mouseX: number, mouseY: number) {
+    if (this.cutscene && this.cutscene.isInProgress()) {
+      this.cutscene.mouseMoved(mouseX, mouseY);
+      return;
     }
 
-    this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());
+    if (mouseX < SCREEN_WIDTH * 0.10) {
+      this.camera.setXVelocity(-1);
+      if (mouseX < SCREEN_WIDTH * 0.04) {
+        this.camera.setXVelocity(-5);
+      }
+      if (mouseX < SCREEN_WIDTH * 0.02) {
+        this.camera.setXVelocity(-10);
+      }
+    } else if (mouseX > SCREEN_WIDTH * 0.90) {
+      this.camera.setXVelocity(1);
+      if (mouseX > SCREEN_WIDTH * 0.96) {
+        this.camera.setXVelocity(5);
+      }
+      if (mouseX > SCREEN_WIDTH * 0.98) {
+        this.camera.setXVelocity(10);
+      }
+    } else {
+      this.camera.setXVelocity(0);
+    }
+
+    if (mouseY < SCREEN_HEIGHT * 0.10) {
+      this.camera.setYVelocity(-1);
+      if (mouseY < SCREEN_HEIGHT * 0.04) {
+        this.camera.setYVelocity(-5);
+      }
+      if (mouseY < SCREEN_HEIGHT * 0.02) {
+        this.camera.setYVelocity(-10);
+      }
+    } else if (mouseY > SCREEN_HEIGHT * 0.90) {
+      this.camera.setYVelocity(1);
+      if (mouseY > SCREEN_HEIGHT * 0.96) {
+        this.camera.setYVelocity(5);
+      }
+      if (mouseY > SCREEN_HEIGHT * 0.98) {
+        this.camera.setYVelocity(10);
+      }
+    } else {
+      this.camera.setYVelocity(0);
+    }
+  }
+
+  mouseClicked(mouseX: number, mouseY: number) {
+    if (this.cutscene && this.cutscene.isInProgress()) {
+      this.cutscene.mouseClicked(mouseX, mouseY);
+      return;
+    }
+
+    if (this.animationMode === AnimationMode.IDLE) {
+      const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(mouseX, mouseY, ...this.camera.getCoordinates())
+      const clickedTileCoordinates: [number, number] = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
+      const clickedHexCoordinate: HexCoordinate = {
+        q: clickedTileCoordinates[0] as Integer,
+        r: clickedTileCoordinates[1] as Integer
+      };
+      if (
+        this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
+      ) {
+        const squaddieToMove = this.squaddieDynamicInfoByID["player_young_torrin"];
+
+        this.squaddieMovePath = clickedHexCoordinate;
+        this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
+          squaddieToMove.mapLocation.q,
+          squaddieToMove.mapLocation.r,
+        );
+        this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
+          this.squaddieMovePath.q,
+          this.squaddieMovePath.r,
+        );
+
+        this.animationTimer = Date.now();
+        this.animationMode = AnimationMode.MOVING_UNIT;
+      }
+
+      this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());
+    }
   }
 
   private setImageToLocation(
