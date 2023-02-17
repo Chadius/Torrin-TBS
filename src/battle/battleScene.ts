@@ -28,6 +28,7 @@ import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleCamera} from "./battleCamera";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
 
 type RequiredOptions = {
   p: p5;
@@ -343,7 +344,7 @@ export class BattleScene {
         startLocation: squaddieDynamicInfo.mapLocation,
         squaddieMovement: squaddieStaticInfo.movement,
         numberOfActions: 3,
-      }));
+      })).AllReachableTiles;
       const movementTilesByNumberOfActions: { [numberOfActions: Integer]: TileFoundDescription[] } = sortTileDescriptionByNumberOfMovementActions(movementTiles);
       const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange({
         minimumDistance: squaddieStaticInfo.activities[0].minimumRange,
@@ -380,17 +381,25 @@ export class BattleScene {
       ]);
       this.animationMode = AnimationMode.IDLE;
     } else {
-      const lerpQ: number = (
-        this.squaddieAnimationWorldCoordinatesEnd[0]
-        - this.squaddieAnimationWorldCoordinatesStart[0]
-      ) * timePassed / timeToMove + this.squaddieAnimationWorldCoordinatesStart[0];
-      const lerpR: number = (
-        this.squaddieAnimationWorldCoordinatesEnd[1]
-        - this.squaddieAnimationWorldCoordinatesStart[1]
-      ) * timePassed / timeToMove + this.squaddieAnimationWorldCoordinatesStart[1];
+      const squaddieToMove = this.squaddieDynamicInfoByID["player_young_torrin"];
 
-      const xyCoords: [number, number] = convertWorldCoordinatesToScreenCoordinates(
-        lerpQ, lerpR, ...this.camera.getCoordinates())
+      const xyCoords: [number, number] = lerpSquaddieBetweenPath(
+        [
+          {
+            q: squaddieToMove.mapLocation.q,
+            r: squaddieToMove.mapLocation.r,
+            numberOfActions: 0 as Integer,
+          },
+          {
+            q: this.squaddieMovePath.q,
+            r: this.squaddieMovePath.r,
+            numberOfActions: 1 as Integer,
+          }
+        ],
+        timePassed,
+        timeToMove,
+        ...this.camera.getCoordinates()
+      )
       this.setImageToLocation(squaddieDynamicInfo, xyCoords);
       squaddieDynamicInfo.mapIcon.draw(p);
       return;

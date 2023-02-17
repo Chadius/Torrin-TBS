@@ -83,6 +83,10 @@ class SearchPath implements CostReportable {
   }
 }
 
+class SearchResults {
+  AllReachableTiles: TileFoundDescription[];
+};
+
 export class Pathfinder {
   map: HexMap;
   squaddiesById: {
@@ -166,17 +170,20 @@ export class Pathfinder {
     }
   }
 
-  getAllReachableTiles(searchParams: SearchParams): TileFoundDescription[] {
+  getAllReachableTiles(searchParams: SearchParams): SearchResults {
     const tilesSearchCanStopAt: TileFoundDescription[] = [];
     const tileLocationsAlreadyVisited: {[loc: string]: boolean} = {};
     const tileLocationsAlreadyConsideredForQueue: {[loc: string]: boolean} = {};
-    const tilesToSearch = new PriorityQueue();
+    const searchPathQueue = new PriorityQueue();
+    const results: SearchResults = {
+      AllReachableTiles: []
+    }
 
     this.addNewStartLocationToSearchQueue(
       searchParams.getStartLocation().q,
       searchParams.getStartLocation().r,
       0 as Integer,
-      tilesToSearch,
+      searchPathQueue,
     );
 
     let numberOfMovementActions: number = 0;
@@ -185,7 +192,7 @@ export class Pathfinder {
       this.hasRemainingMovementActions(searchParams, numberOfMovementActions)
     ) {
       const endpointTiles: TileFoundDescription[] = this.getAllReachableTilesWithin1Movement(
-        tilesToSearch,
+        searchPathQueue,
         searchParams,
         tilesSearchCanStopAt,
         tileLocationsAlreadyVisited,
@@ -197,10 +204,11 @@ export class Pathfinder {
         tile.q,
         tile.r,
         numberOfMovementActions as Integer,
-        tilesToSearch,
+        searchPathQueue,
       ))
     }
-    return tilesSearchCanStopAt;
+    results.AllReachableTiles = tilesSearchCanStopAt;
+    return results;
   }
 
   private hasRemainingMovementActions(searchParams: SearchParams, numberOfMovementActions: number) {
@@ -429,7 +437,7 @@ export class Pathfinder {
     const inRangeTilesByLocation: {[locationKey: string]: TileFoundDescription} = {};
 
     sourceTiles.forEach((sourceTile) => {
-      const reachableTiles = this.getAllReachableTiles(
+      const reachableTiles: SearchResults = this.getAllReachableTiles(
         new SearchParams({
           startLocation: sourceTile,
           numberOfActions: 1,
@@ -445,7 +453,7 @@ export class Pathfinder {
         })
       );
 
-      reachableTiles.forEach((reachableTile) => {
+      reachableTiles.AllReachableTiles.forEach((reachableTile) => {
         let locationKey: string = this.getObjectKeyForLocation(reachableTile.q, reachableTile.r);
         inRangeTilesByLocation[locationKey] = reachableTile;
       });

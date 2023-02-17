@@ -189,7 +189,7 @@ describe('pathfinder', () => {
         }),
         numberOfActions: 1,
         startLocation: origin
-      }));
+      })).AllReachableTiles;
 
       validateTilesAreFound(
         allMovableTiles,
@@ -228,7 +228,7 @@ describe('pathfinder', () => {
       }));
 
       validateTilesAreFound(
-        allMovableTiles,
+        allMovableTiles.AllReachableTiles,
         [
           {q: 0 as Integer, r: 2 as Integer,},
           {q: 0 as Integer, r: 3 as Integer,},
@@ -261,7 +261,7 @@ describe('pathfinder', () => {
       }));
 
       validateTilesAreFound(
-        allMovableTiles,
+        allMovableTiles.AllReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
@@ -305,7 +305,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles,
+          allMovableTiles.AllReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -332,7 +332,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles,
+          allMovableTiles.AllReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -368,7 +368,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles,
+          allMovableTiles.AllReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -391,7 +391,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles,
+          allMovableTiles.AllReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -418,7 +418,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles,
+          allMovableTiles.AllReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -463,7 +463,7 @@ describe('pathfinder', () => {
       }));
 
       validateTilesAreFound(
-        allMovableTiles,
+        allMovableTiles.AllReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 2 as Integer,},
@@ -778,7 +778,7 @@ describe('pathfinder', () => {
       }));
 
       validateTilesAreFound(
-        allMovableTiles,
+        allMovableTiles.AllReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
@@ -817,7 +817,7 @@ describe('pathfinder', () => {
         startLocation: {q: 0 as Integer, r: 0 as Integer}
       }));
       validateTilesAreFound(
-        allMovableTiles,
+        allMovableTiles.AllReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
@@ -828,9 +828,9 @@ describe('pathfinder', () => {
         ]
       );
 
-      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles)
-      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles)
-      validateTileHasExpectedNumberOfActions(0, 2, 2, allMovableTiles)
+      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles.AllReachableTiles)
+      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles.AllReachableTiles)
+      validateTileHasExpectedNumberOfActions(0, 2, 2, allMovableTiles.AllReachableTiles)
     });
 
     it('discards excess movement between actions', () => {
@@ -850,7 +850,7 @@ describe('pathfinder', () => {
         startLocation: {q: 0 as Integer, r: 0 as Integer}
       }));
       validateTilesAreFound(
-        allMovableTiles,
+        allMovableTiles.AllReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
@@ -861,10 +861,10 @@ describe('pathfinder', () => {
         ]
       );
 
-      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles)
-      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles)
-      validateTileHasExpectedNumberOfActions(0, 2, 1, allMovableTiles)
-      validateTileHasExpectedNumberOfActions(0, 3, 2, allMovableTiles)
+      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles.AllReachableTiles)
+      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles.AllReachableTiles)
+      validateTileHasExpectedNumberOfActions(0, 2, 1, allMovableTiles.AllReachableTiles)
+      validateTileHasExpectedNumberOfActions(0, 3, 2, allMovableTiles.AllReachableTiles)
     });
 
     it('can reformat tiles found descriptions based on the number of movement actions', () => {
