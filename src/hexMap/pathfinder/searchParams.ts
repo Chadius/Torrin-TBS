@@ -3,41 +3,65 @@ import {SquaddieMovement} from "../../squaddie/movement";
 
 type Options = {
   startLocation?: HexCoordinate;
+  stopLocation?: HexCoordinate;
   squaddieMovement?: SquaddieMovement;
   numberOfActions?: number;
   minimumDistanceMoved?: number;
 };
 
 export class SearchParams {
-  startLocation?: HexCoordinate;
-  squaddieMovement?: SquaddieMovement;
-  numberOfActions?: number;
-  minimumDistanceMoved?: number;
+  setup: {
+    startLocation?: HexCoordinate;
+  }
+  movement: {
+    minimumDistanceMoved?: number;
+    movementPerAction: number;
+    passThroughWalls: boolean;
+    crossOverPits: boolean;
+  }
+
+  stopConditions: {
+    numberOfActions?: number;
+    stopLocation?: HexCoordinate;
+  }
 
   constructor(options: Options) {
-    this.startLocation = options.startLocation;
-    this.squaddieMovement = options.squaddieMovement;
-    this.minimumDistanceMoved = options.minimumDistanceMoved;
-    this.numberOfActions = options.numberOfActions;
+    this.setup = {
+      startLocation: options.startLocation,
+    };
+    this.movement = {
+      minimumDistanceMoved: options.minimumDistanceMoved,
+      movementPerAction: options.squaddieMovement ? options.squaddieMovement.movementPerAction : 0,
+      passThroughWalls: options.squaddieMovement ? options.squaddieMovement.passThroughWalls : false,
+      crossOverPits: options.squaddieMovement ? options.squaddieMovement.crossOverPits : false,
+    }
+    this.stopConditions = {
+      numberOfActions: options.numberOfActions,
+      stopLocation: options.stopLocation,
+    }
   }
 
   getStartLocation(): HexCoordinate {
-    return this.startLocation;
+    return this.setup.startLocation;
   }
 
   getMinimumDistanceMoved(): number {
-    return this.minimumDistanceMoved;
+    return this.movement.minimumDistanceMoved;
   }
 
   getPassThroughWalls(): boolean | undefined {
-    return this.squaddieMovement.passThroughWalls;
+    return this.movement.passThroughWalls;
   }
 
   getCrossOverPits(): boolean | undefined {
-    return this.squaddieMovement.crossOverPits;
+    return this.movement.crossOverPits;
   }
 
   getMovementPerAction(): number | undefined {
-    return this.squaddieMovement.movementPerAction;
+    return this.movement.movementPerAction;
+  }
+
+  getNumberOfActions(): number | undefined {
+    return this.stopConditions.numberOfActions;
   }
 }

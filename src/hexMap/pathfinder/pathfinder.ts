@@ -48,7 +48,7 @@ export const sortTileDescriptionByNumberOfMovementActions = (
     sortedTiles[tile.numberOfActions].push(tile);
   })
 
-  Object.entries(sortedTiles).forEach(([numberOfActions, tileList]) => {
+  Object.entries(sortedTiles).forEach(([_, tileList]) => {
     tileList.sort(compareTiles)
   })
 
@@ -171,6 +171,10 @@ export class Pathfinder {
   }
 
   getAllReachableTiles(searchParams: SearchParams): SearchResults {
+    return this.searchMapForPaths(searchParams);
+  }
+
+  private searchMapForPaths(searchParams: SearchParams): SearchResults {
     const tilesSearchCanStopAt: TileFoundDescription[] = [];
     const tileLocationsAlreadyVisited: {[loc: string]: boolean} = {};
     const tileLocationsAlreadyConsideredForQueue: {[loc: string]: boolean} = {};
@@ -212,8 +216,8 @@ export class Pathfinder {
   }
 
   private hasRemainingMovementActions(searchParams: SearchParams, numberOfMovementActions: number) {
-    return searchParams.numberOfActions === undefined
-      || numberOfMovementActions < searchParams.numberOfActions;
+    return searchParams.getNumberOfActions() === undefined
+      || numberOfMovementActions < searchParams.getNumberOfActions();
   }
 
   private getAllReachableTilesWithin1Movement(
