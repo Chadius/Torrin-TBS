@@ -30,6 +30,18 @@ export const moveOneTileInDirection = (origin: HexCoordinate, direction: HexDire
   }
 }
 
+export const CreateNewPathCandidates = (q: number, r: number): [number, number][] => {
+  return [
+    moveCoordinatesInOneDirection(q, r, HexDirection.RIGHT),
+    moveCoordinatesInOneDirection(q, r, HexDirection.LEFT),
+    moveCoordinatesInOneDirection(q, r, HexDirection.UP_LEFT),
+    moveCoordinatesInOneDirection(q, r, HexDirection.UP_RIGHT),
+    moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_LEFT),
+    moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_RIGHT),
+  ];
+}
+
+
 export const moveCoordinatesInOneDirection = (origin_q: number, origin_r: number, direction: HexDirection): [number, number] => {
   switch (direction) {
     case HexDirection.RIGHT:

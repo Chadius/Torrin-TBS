@@ -47,7 +47,7 @@ export type HighlightTileDescription = {
   overlayImageResourceName?: string,
 };
 
-export class HexMap {
+export class TerrainTileMap {
   tiles: HexGridTile[];
   outlineTileCoordinates: HexCoordinate | undefined;
   highlightedTiles: {[coordinateKey: string]: {

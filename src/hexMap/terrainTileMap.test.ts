@@ -1,4 +1,4 @@
-import {HexMap} from "./hexMap";
+import {TerrainTileMap} from "./terrainTileMap";
 import {HexGridTile, Integer} from "./hexGrid";
 import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
@@ -15,7 +15,7 @@ describe('hexMap', () => {
         new HexGridTile(-1 as Integer, 0 as Integer, HexGridMovementCost.pit),
       ];
 
-      const hexGrid = new HexMap({tiles: gridTiles});
+      const hexGrid = new TerrainTileMap({tiles: gridTiles});
 
       hexGrid.mouseClicked(-100, -100, 0, 0);
       expect(hexGrid.outlineTileCoordinates).toBe(undefined);
@@ -49,7 +49,7 @@ describe('hexMap', () => {
       new HexGridTile(-1 as Integer, 0 as Integer, HexGridMovementCost.pit),
     ];
 
-    const hexGrid = new HexMap({tiles: gridTiles});
+    const hexGrid = new TerrainTileMap({tiles: gridTiles});
     expect(hexGrid.getTileTerrainTypeAtLocation({q: 0 as Integer, r: 0 as Integer})).toBe(HexGridMovementCost.pit);
     expect(hexGrid.getTileTerrainTypeAtLocation({
       q: 0 as Integer,
@@ -78,7 +78,7 @@ describe('hexMap', () => {
     expect(hexGrid.areCoordinatesOnMap({q: 3 as Integer, r: 3 as Integer})).toBeFalsy();
   });
   describe('can create maps using text strings', () => {
-    const verifyTileAtLocationIsExpectedMovementCost = (map: HexMap, q: number, r: number, expectedMovementCost: HexGridMovementCost): void => {
+    const verifyTileAtLocationIsExpectedMovementCost = (map: TerrainTileMap, q: number, r: number, expectedMovementCost: HexGridMovementCost): void => {
       const actualMovementCost = map.getTileTerrainTypeAtLocation({q: q as Integer, r: r as Integer});
       try {
         expect(actualMovementCost).toBe(expectedMovementCost);
@@ -88,7 +88,7 @@ describe('hexMap', () => {
     }
 
     it('a single row', () => {
-      const mapFromSingleLine = new HexMap({
+      const mapFromSingleLine = new TerrainTileMap({
         movementCost: [
           "1 2 - x 1122--xxOO"
         ]
@@ -106,7 +106,7 @@ describe('hexMap', () => {
     });
 
     it('multiple rows use offsets to place the 0 tile', () => {
-      const mapFromMultipleLines = new HexMap({
+      const mapFromMultipleLines = new TerrainTileMap({
         movementCost: [
           "1 1 1 ",
           " 2 2 2 ",

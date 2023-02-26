@@ -1,6 +1,6 @@
 import p5 from "p5";
 import {HexCoordinate, Integer} from "../hexMap/hexGrid";
-import {HexMap} from "../hexMap/hexMap";
+import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
@@ -29,6 +29,7 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
+import {MissionMap} from "../missionMap/missionMap";
 
 type RequiredOptions = {
   p: p5;
@@ -49,7 +50,7 @@ enum AnimationMode {
 export class BattleScene {
   width: PositiveNumber;
   height: PositiveNumber;
-  hexMap: HexMap;
+  hexMap: TerrainTileMap;
   cutscene: Cutscene;
   resourceHandler: ResourceHandler;
 
@@ -62,6 +63,7 @@ export class BattleScene {
   }
 
   pathfinder: Pathfinder;
+  missionMap: MissionMap;
   turnBySquaddieId: { [key: string]: SquaddieTurn }
 
   camera: BattleCamera;
@@ -200,7 +202,7 @@ export class BattleScene {
   }
 
   private prepareMap() {
-    this.hexMap = new HexMap({
+    this.hexMap = new TerrainTileMap({
       movementCost: [
         "1 1 1 1 1 1 1 1 1 ",
         " 1 1 1 1 1 1 1 1 1 ",
@@ -222,9 +224,10 @@ export class BattleScene {
       "map icon attack 1 action"
     ]);
 
-    this.pathfinder = new Pathfinder({
-      map: this.hexMap
+    this.missionMap = new MissionMap({
+      terrainTileMap: this.hexMap
     })
+    this.pathfinder = new Pathfinder();
   }
 
   draw(p: p5) {
@@ -342,6 +345,7 @@ export class BattleScene {
 
       const reachableTileSearchResults: SearchResults = this.pathfinder.getAllReachableTiles(
         new SearchParams({
+          missionMap: this.missionMap,
           startLocation: squaddieDynamicInfo.mapLocation,
           squaddieMovement: squaddieStaticInfo.movement,
           numberOfActions: 3,
@@ -352,6 +356,7 @@ export class BattleScene {
       const movementTilesByNumberOfActions: {[numberOfActions: number]: [{q: Integer, r: Integer}?]} = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
       const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange({
+        missionMap: this.missionMap,
         minimumDistance: squaddieStaticInfo.activities[0].minimumRange,
         maximumDistance: squaddieStaticInfo.activities[0].maximumRange,
         passThroughWalls: false,

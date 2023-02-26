@@ -1,5 +1,6 @@
 import {HexCoordinate} from "../hexGrid";
 import {SquaddieMovement} from "../../squaddie/movement";
+import {MissionMap} from "../../missionMap/missionMap";
 
 type Options = {
   startLocation?: HexCoordinate;
@@ -7,11 +8,13 @@ type Options = {
   squaddieMovement?: SquaddieMovement;
   numberOfActions?: number;
   minimumDistanceMoved?: number;
+  missionMap: MissionMap;
 };
 
 export class SearchParams {
   setup: {
     startLocation?: HexCoordinate;
+    missionMap: MissionMap;
   }
   movement: {
     minimumDistanceMoved?: number;
@@ -28,6 +31,7 @@ export class SearchParams {
   constructor(options: Options) {
     this.setup = {
       startLocation: options.startLocation,
+      missionMap: options.missionMap,
     };
     this.movement = {
       minimumDistanceMoved: options.minimumDistanceMoved,

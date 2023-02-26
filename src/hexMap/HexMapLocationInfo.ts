@@ -7,3 +7,10 @@ export type HexMapLocationInfo = {
   squaddieId: string;
   tileTerrainType: HexGridMovementCost;
 }
+
+export const SquaddieCanStopMovingOnTile = (mapInfo: HexMapLocationInfo): boolean => {
+  return ![HexGridMovementCost.wall, HexGridMovementCost.pit].includes(
+      mapInfo.tileTerrainType
+    )
+    && mapInfo.squaddieId === undefined;
+}

@@ -7,7 +7,7 @@ import {
   convertWorldCoordinatesToScreenCoordinates
 } from "./convertCoordinates";
 import {HexCoordinate, Integer} from "./hexGrid";
-import {HexMap} from "./hexMap";
+import {TerrainTileMap} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
 
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
@@ -174,7 +174,7 @@ export function drawOutlinedTile(
   p.pop();
 }
 
-export function drawHexMap(p: p5, map: HexMap, cameraX: number, cameraY: number): void {
+export function drawHexMap(p: p5, map: TerrainTileMap, cameraX: number, cameraY: number): void {
   map.tiles.forEach(
     (tile) => {
       const key = `${tile.q},${tile.r}`;

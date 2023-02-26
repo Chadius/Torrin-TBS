@@ -1,100 +1,19 @@
-import {HexMap} from "../hexMap";
-import {SquaddieID} from "../../squaddie/id";
-import {HexCoordinate, HexCoordinateToKey, Integer} from "../hexGrid";
-import {HexMapLocationInfo} from "../HexMapLocationInfo";
+import {HexCoordinate, Integer} from "../hexGrid";
+import {HexMapLocationInfo, SquaddieCanStopMovingOnTile} from "../HexMapLocationInfo";
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
-import {HexDirection, moveCoordinatesInOneDirection} from "../hexGridDirection";
+import {CreateNewPathCandidates, HexDirection, moveCoordinatesInOneDirection} from "../hexGridDirection";
 import {SearchParams} from "./searchParams";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
-
-type RequiredOptions = {
-  map: HexMap;
-}
+import {MissionMap} from "../../missionMap/missionMap";
 
 export class Pathfinder {
-  map: HexMap;
-  squaddiesById: {
-    [id: string]: {
-      q: Integer;
-      r: Integer;
-      squaddieID: SquaddieID;
-    };
-  }
 
-  squaddiesByLocation: {
-    [coordinate: string]: {
-      q: Integer;
-      r: Integer;
-      id: string;
-    }
-  }
-  constructor(options: RequiredOptions) {
-    this.map = options.map;
-    this.squaddiesById = {};
-    this.squaddiesByLocation = {};
-  }
-
-  addSquaddie(squaddieID: SquaddieID, hexCoordinate: HexCoordinate): Error | undefined {
-    const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
-    if(this.squaddiesByLocation[coordinateKey]) {
-      return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, already occupied by ${this.squaddiesByLocation[coordinateKey].id}`);
-    }
-    if(!this.map.areCoordinatesOnMap(hexCoordinate)) {
-      return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, not on map`);
-    }
-
-    this.squaddiesByLocation[coordinateKey] = {
-      q: hexCoordinate.q,
-      r: hexCoordinate.r,
-      id: squaddieID.id,
-    }
-    this.squaddiesById[squaddieID.id] = {
-      q: hexCoordinate.q,
-      r: hexCoordinate.r,
-      squaddieID: squaddieID
-    };
-
-    return undefined;
-  }
-
-  getSquaddieLocationById(id: string): HexCoordinate {
-    const locationInfo = this.squaddiesById[id];
-    if (!locationInfo) {
-      return {
-        q: undefined,
-        r: undefined
-      };
-    }
-
-    return {
-      q: locationInfo.q,
-      r: locationInfo.r
-    }
-  }
-
-  getMapInformationForLocation(hexCoordinate: HexCoordinate): HexMapLocationInfo {
-    const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
-
-    const squaddieAtLocation = this.squaddiesByLocation[coordinateKey];
-    const squaddieId = squaddieAtLocation ? squaddieAtLocation.id : undefined;
-
-    const tileTerrainType = this.map.getTileTerrainTypeAtLocation(hexCoordinate);
-    const q = tileTerrainType ? hexCoordinate.q : undefined;
-    const r = tileTerrainType ? hexCoordinate.r : undefined;
-
-    return {
-      q,
-      r,
-      squaddieId,
-      tileTerrainType
-    }
-  }
-
+  constructor() {}
   findPathToStopLocation(searchParams: SearchParams): SearchResults | Error {
     if (searchParams.getStopLocation() === undefined) {
       return new Error ("no stop location was given");
@@ -106,12 +25,19 @@ export class Pathfinder {
     return this.searchMapForPaths(searchParams);
   }
 
-  getTilesInRange(param: { maximumDistance: number; minimumDistance?: number; passThroughWalls: boolean; sourceTiles: TileFoundDescription[] }): TileFoundDescription[] {
+  getTilesInRange(param: {
+    maximumDistance: number;
+    minimumDistance?: number;
+    passThroughWalls: boolean;
+    sourceTiles: TileFoundDescription[],
+    missionMap: MissionMap,
+  }): TileFoundDescription[] {
     const {
       maximumDistance,
       minimumDistance,
       passThroughWalls,
-      sourceTiles
+      sourceTiles,
+      missionMap,
     } = param;
 
     if (maximumDistance < 1) {
@@ -124,6 +50,7 @@ export class Pathfinder {
       const reachableTiles: SearchResults = this.getAllReachableTiles(
         new SearchParams({
           startLocation: sourceTile,
+          missionMap: missionMap,
           numberOfActions: 1,
           minimumDistanceMoved: minimumDistance,
           squaddieMovement: new SquaddieMovement(
@@ -177,6 +104,7 @@ export class Pathfinder {
         tileLocationsAlreadyVisited,
         tileLocationsAlreadyConsideredForQueue,
         results,
+        searchParams.setup.missionMap
       );
 
       const continueToNextMovementAction: boolean = !this.hasFoundStopLocation(searchParams, results);
@@ -208,6 +136,7 @@ export class Pathfinder {
     tileLocationsAlreadyVisited: { [p: string]: boolean },
     tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean },
     searchResults: SearchResults,
+    missionMap: MissionMap,
   ): TileFoundDescription[] {
     const endpointTiles: TileFoundDescription[] = [];
 
@@ -219,7 +148,7 @@ export class Pathfinder {
       && !arrivedAtTheStopLocation
     ) {
       let head: SearchPath = searchPathQueue.dequeue() as SearchPath;
-      const mapInfo = this.getMapInformationForLocation(head.getMostRecentTileLocation());
+      const mapInfo = missionMap.getMapInformationForLocation(head.getMostRecentTileLocation());
 
       this.markLocationAsStoppable(mapInfo, head, searchParams, tilesSearchCanStopAt, searchResults);
       let mostRecentTileLocation = head.getMostRecentTileLocation();
@@ -235,7 +164,14 @@ export class Pathfinder {
       }
 
       let neighboringLocations = this.createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r);
-      neighboringLocations = this.selectValidPathCandidates(neighboringLocations, tileLocationsAlreadyConsideredForQueue, tileLocationsAlreadyVisited, searchParams, head);
+      neighboringLocations = this.selectValidPathCandidates(
+        neighboringLocations,
+        tileLocationsAlreadyConsideredForQueue,
+        tileLocationsAlreadyVisited,
+        searchParams,
+        head,
+        missionMap
+      );
       if (neighboringLocations.length === 0 && this.canStopOnThisTile(mapInfo, head, searchParams)) {
         endpointTiles.push({
           q: mostRecentTileLocation.q,
@@ -248,6 +184,7 @@ export class Pathfinder {
         tileLocationsAlreadyConsideredForQueue,
         searchPathQueue,
         head,
+        missionMap,
       );
 
       areThereMorePathsToSearch = !searchPathQueue.isEmpty();
@@ -292,12 +229,13 @@ export class Pathfinder {
     tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean },
     tileLocationsAlreadyVisited: { [p: string]: boolean },
     searchParams: SearchParams,
-    head: SearchPath
+    head: SearchPath,
+    missionMap: MissionMap,
   ): [number, number][] {
     neighboringLocations = this.filterNeighborsNotEnqueued(neighboringLocations, tileLocationsAlreadyConsideredForQueue);
     neighboringLocations = this.filterNeighborsNotVisited(neighboringLocations, tileLocationsAlreadyVisited);
-    neighboringLocations = this.filterNeighborsOnMap(neighboringLocations);
-    return this.filterNeighborsWithinMovementPerAction(neighboringLocations, searchParams, head);
+    neighboringLocations = this.filterNeighborsOnMap(missionMap, neighboringLocations);
+    return this.filterNeighborsWithinMovementPerAction(neighboringLocations, searchParams, head, missionMap);
   }
 
   private createNewPathsUsingNeighbors(
@@ -305,6 +243,7 @@ export class Pathfinder {
     tileLocationsAlreadyConsideredForQueue: { [p: string]: boolean },
     pq: PriorityQueue,
     head: SearchPath,
+    missionMap: MissionMap,
   ): SearchPath[] {
     const newPaths: SearchPath[] = [];
 
@@ -314,6 +253,7 @@ export class Pathfinder {
         neighbor,
         pq,
         head,
+        missionMap,
       );
       newPaths.push(newPath);
     });
@@ -321,21 +261,11 @@ export class Pathfinder {
   }
 
   private squaddieCanStopMovingOnTile(mapInfo: HexMapLocationInfo) {
-    return ![HexGridMovementCost.wall, HexGridMovementCost.pit].includes(
-        mapInfo.tileTerrainType
-      )
-      && mapInfo.squaddieId === undefined;
+    return SquaddieCanStopMovingOnTile(mapInfo);
   }
 
   private createNewPathCandidates(q: number, r: number): [number, number][] {
-    return [
-      moveCoordinatesInOneDirection(q, r, HexDirection.RIGHT),
-      moveCoordinatesInOneDirection(q, r, HexDirection.LEFT),
-      moveCoordinatesInOneDirection(q, r, HexDirection.UP_LEFT),
-      moveCoordinatesInOneDirection(q, r, HexDirection.UP_RIGHT),
-      moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_LEFT),
-      moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_RIGHT),
-    ];
+    return CreateNewPathCandidates(q, r)
   }
 
   private filterNeighborsNotVisited(neighboringLocations: [number, number][], tileLocationsAlreadyVisited: {[loc: string]: boolean}): [number, number][] {
@@ -352,19 +282,20 @@ export class Pathfinder {
     });
   }
 
-  private filterNeighborsOnMap(neighboringLocations: [number, number][]): [number, number][] {
+  private filterNeighborsOnMap(missionMap: MissionMap, neighboringLocations: [number, number][]): [number, number][] {
     return neighboringLocations.filter((neighbor) => {
-      return this.map.areCoordinatesOnMap({q: neighbor[0] as Integer, r: neighbor[1] as Integer})
+      return missionMap.areCoordinatesOnMap({q: neighbor[0] as Integer, r: neighbor[1] as Integer})
     });
   }
 
   private filterNeighborsWithinMovementPerAction(
     neighboringLocations: [number, number][],
     searchParams: SearchParams,
-    head: SearchPath
+    head: SearchPath,
+    missionMap: MissionMap,
   ): [number, number][] {
     return neighboringLocations.filter((neighbor) => {
-      const mapInfo = this.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
+      const mapInfo = missionMap.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
 
       if (!searchParams.getPassThroughWalls() && mapInfo.tileTerrainType === HexGridMovementCost.wall) {
         return false;
@@ -391,8 +322,9 @@ export class Pathfinder {
     neighbor: [number, number],
     pq: PriorityQueue,
     head: SearchPath,
+    missionMap: MissionMap,
   ): SearchPath {
-    const mapInfo = this.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
+    const mapInfo = missionMap.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
 
     let movementCost = MovingCostByTerrainType[mapInfo.tileTerrainType];
 

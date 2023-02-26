@@ -1,4 +1,4 @@
-import {HexMap} from "../hexMap";
+import {TerrainTileMap} from "../terrainTileMap";
 import {HexCoordinate, HexGridTile, Integer} from "../hexGrid";
 import {SquaddieID} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
@@ -13,12 +13,13 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
+import {MissionMap} from "../../missionMap/missionMap";
 
 describe('pathfinder', () => {
-  let map: HexMap;
+  let map: TerrainTileMap;
   let torrinSquaddie: SquaddieID;
   beforeEach(() => {
-    map = new HexMap({
+    map = new TerrainTileMap({
       tiles: [
         new HexGridTile(0 as Integer, -1 as Integer, HexGridMovementCost.singleMovement),
         new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
@@ -34,84 +35,6 @@ describe('pathfinder', () => {
       }),
       traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
     });
-  });
-
-  it('can add a squaddie and report its location', () => {
-    const pathfinder = new Pathfinder({
-      map: map
-    })
-
-    pathfinder.addSquaddie(torrinSquaddie, {q: 0 as Integer, r: 1 as Integer});
-
-    const squaddieMapCoordinate: HexCoordinate = pathfinder.getSquaddieLocationById(torrinSquaddie.id);
-    expect(squaddieMapCoordinate.q).toBe(0);
-    expect(squaddieMapCoordinate.r).toBe(1);
-  });
-
-  it('cannot add a squaddie to a location that is already occupied or off map', () => {
-    const pathfinder = new Pathfinder({
-      map: map
-    })
-
-    let error: Error;
-    error = pathfinder.addSquaddie(torrinSquaddie, {q: 0 as Integer, r: 1 as Integer});
-    expect(error).toBeUndefined();
-
-    const sirCamilSquaddie = new SquaddieID({
-      name: "Sir Camil",
-      id: "001",
-      resources: new SquaddieResource({
-        mapIconResourceKey: "map_icon_sir_camil"
-      }),
-      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
-    });
-
-    error = pathfinder.addSquaddie(sirCamilSquaddie, {q: 0 as Integer, r: 1 as Integer});
-    expect(error.message.includes("already occupied")).toBeTruthy();
-
-    error = pathfinder.addSquaddie(sirCamilSquaddie, {q: 2 as Integer, r: 1 as Integer});
-    expect(error.message.includes("not on map")).toBeTruthy();
-
-    error = pathfinder.addSquaddie(sirCamilSquaddie, {q: 0 as Integer, r: -1 as Integer});
-    expect(error).toBeUndefined();
-  });
-
-  it('can see what is at a given location', () => {
-    const pathfinder = new Pathfinder({
-      map: map
-    })
-
-    pathfinder.addSquaddie(torrinSquaddie, {q: 0 as Integer, r: 1 as Integer});
-
-    let mapInformation = pathfinder.getMapInformationForLocation({q: 0 as Integer, r: 1 as Integer});
-    expect(mapInformation.q).toBe(0);
-    expect(mapInformation.r).toBe(1);
-    expect(mapInformation.squaddieId).toBe(torrinSquaddie.id);
-    expect(mapInformation.tileTerrainType).toBe(HexGridMovementCost.doubleMovement);
-
-    mapInformation = pathfinder.getMapInformationForLocation({q: 0 as Integer, r: -1 as Integer});
-    expect(mapInformation.q).toBe(0);
-    expect(mapInformation.r).toBe(-1);
-    expect(mapInformation.squaddieId).toBeUndefined();
-    expect(mapInformation.tileTerrainType).toBe(HexGridMovementCost.singleMovement);
-
-    mapInformation = pathfinder.getMapInformationForLocation({q: 0 as Integer, r: -5 as Integer});
-    expect(mapInformation.q).toBeUndefined();
-    expect(mapInformation.r).toBeUndefined();
-    expect(mapInformation.squaddieId).toBeUndefined();
-    expect(mapInformation.tileTerrainType).toBeUndefined();
-  });
-
-  it('returns unknown location for squaddies that does not exist', () => {
-    const pathfinder = new Pathfinder({
-      map: map
-    })
-
-    pathfinder.addSquaddie(torrinSquaddie, {q: 0 as Integer, r: 1 as Integer});
-
-    const squaddieMapCoordinate: HexCoordinate = pathfinder.getSquaddieLocationById("id does not exist");
-    expect(squaddieMapCoordinate.q).toBeUndefined();
-    expect(squaddieMapCoordinate.r).toBeUndefined();
   });
 
   const validateTilesAreFound = (tilesToTest: HexCoordinate[], tilesFound: HexCoordinate[], tilesNotFound: HexCoordinate[]) => {
@@ -177,20 +100,21 @@ describe('pathfinder', () => {
 
   describe('pathfinding with a single move', () => {
     it('shows all of the tiles that can be reached from a single move', () => {
-      map = new HexMap({
+      map = new TerrainTileMap({
         movementCost: [
           "  1 1 1 ",
           " 1 1 1 1 ",
           "  1 1 1 ",
         ]
       });
-
-      const pathfinder = new Pathfinder({
-        map: map
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: map
+      })
+      const pathfinder = new Pathfinder();
 
       const origin: HexCoordinate = {q: 1 as Integer, r: 1 as Integer};
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -215,17 +139,18 @@ describe('pathfinder', () => {
     });
 
     it('can factor a minimum distance to movement', () => {
-      const lineMap = new HexMap({
+      const lineMap = new TerrainTileMap({
         movementCost: [
           "1 1 1 1 "
         ]
       });
-
-      const pathfinder = new Pathfinder({
-        map: lineMap
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: lineMap
+      })
+      const pathfinder = new Pathfinder();
 
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 3,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -249,17 +174,18 @@ describe('pathfinder', () => {
     });
 
     it('factors movement costs for rough terrain', () => {
-      map = new HexMap({
+      map = new TerrainTileMap({
         movementCost: [
           "1 1 1 2 1 "
         ]
       });
-
-      const pathfinder = new Pathfinder({
-        map: map
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: map
+      })
+      const pathfinder = new Pathfinder();
 
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 2,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -283,11 +209,11 @@ describe('pathfinder', () => {
     });
 
     describe('wall movement', () => {
-      let map: HexMap;
+      let map: TerrainTileMap;
       let wallTile: TileFoundDescription[];
 
       beforeEach(() => {
-        map = new HexMap({
+        map = new TerrainTileMap({
           movementCost: [
             "1 1 x 1 "
           ]
@@ -299,11 +225,13 @@ describe('pathfinder', () => {
       });
 
       it('will not search walls if movement cannot pass through walls', () => {
-        const pathfinder = new Pathfinder({
-          map: map
-        });
+        const missionMap = new MissionMap({
+          terrainTileMap: map
+        })
+        const pathfinder = new Pathfinder();
 
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          missionMap: missionMap,
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 2,
             traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -326,11 +254,13 @@ describe('pathfinder', () => {
       });
 
       it('will search through walls if movement can pass through walls', () => {
-        const pathfinder = new Pathfinder({
-          map: map
-        });
+        const missionMap = new MissionMap({
+          terrainTileMap: map
+        })
+        const pathfinder = new Pathfinder();
 
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          missionMap: missionMap,
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
             traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
@@ -352,21 +282,24 @@ describe('pathfinder', () => {
     });
 
     describe('crossing pits', () => {
-      let map: HexMap;
+      let map: TerrainTileMap;
       let pathfinder: Pathfinder;
+      let missionMap: MissionMap;
       beforeEach(() => {
-        map = new HexMap({
+        map = new TerrainTileMap({
           movementCost: [
             "1 1 - 1 "
           ]
         });
-        pathfinder = new Pathfinder({
-          map: map
-        });
+        missionMap = new MissionMap({
+          terrainTileMap: map
+        })
+        pathfinder = new Pathfinder();
       });
 
       it('will not cross pits if specified', () => {
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          missionMap: missionMap,
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
             traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -390,6 +323,7 @@ describe('pathfinder', () => {
 
       it('can cross pits', () => {
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          missionMap: missionMap,
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 3,
             traits: new TraitStatusStorage({[Trait.CROSS_OVER_PITS]: true,}).filterCategory(TraitCategory.MOVEMENT)
@@ -412,11 +346,13 @@ describe('pathfinder', () => {
       });
 
       it('will not cross pits if movement is limited', () => {
-        const pathfinder = new Pathfinder({
-          map: map
-        });
+        const missionMap = new MissionMap({
+          terrainTileMap: map
+        })
+        const pathfinder = new Pathfinder();
 
         const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+          missionMap: missionMap,
           squaddieMovement: new SquaddieMovement({
             movementPerAction: 2,
             traits: new TraitStatusStorage({[Trait.CROSS_OVER_PITS]: true,}).filterCategory(TraitCategory.MOVEMENT)
@@ -440,15 +376,16 @@ describe('pathfinder', () => {
     });
 
     it('cannot stop on an already occupied tile', () => {
-      const map = new HexMap({
+      const map = new TerrainTileMap({
         movementCost: [
           "1 1 1 "
         ]
       });
 
-      const pathfinder = new Pathfinder({
-        map: map
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: map
+      })
+      const pathfinder = new Pathfinder();
 
       const teammate = new SquaddieID({
         name: "teammate",
@@ -459,9 +396,10 @@ describe('pathfinder', () => {
         traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
       });
 
-      pathfinder.addSquaddie(teammate, {q: 0 as Integer, r: 1 as Integer});
+      missionMap.addSquaddie(teammate, {q: 0 as Integer, r: 1 as Integer});
 
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 3,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -483,14 +421,15 @@ describe('pathfinder', () => {
     });
 
     describe('tiles within range of single tile', () => {
-      let map: HexMap;
+      let map: TerrainTileMap;
       let pathfinder: Pathfinder;
       let justTheCenter: HexCoordinate[];
       let tilesNotFoundBecauseSearchBlockedByWall: HexCoordinate[];
       let tilesWithin2HexesOfOrigin: HexCoordinate[];
+      let missionMap: MissionMap;
 
       beforeEach(() => {
-        map = new HexMap({
+        map = new TerrainTileMap({
           movementCost: [
             '1 1 ',
             ' 1 1 1 x 1 ',
@@ -499,9 +438,10 @@ describe('pathfinder', () => {
           ]
         });
 
-        pathfinder = new Pathfinder({
-          map: map
-        });
+        missionMap = new MissionMap({
+          terrainTileMap: map
+        })
+        pathfinder = new Pathfinder();
 
         justTheCenter = [
           {q: 1 as Integer, r: 1 as Integer}
@@ -527,6 +467,7 @@ describe('pathfinder', () => {
 
       it('can only includes itself with radius 0', () => {
         const centerTileOnly: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: justTheCenter.map((hex) => {
             return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
           }),
@@ -547,6 +488,7 @@ describe('pathfinder', () => {
 
       it('Radius 1 should get all within 1 movement', () => {
         const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: justTheCenter.map((hex) => {
             return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
           }),
@@ -571,6 +513,7 @@ describe('pathfinder', () => {
 
       it('can find tiles within 2 tiles of the center, besides walls', () => {
         const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: justTheCenter.map((hex) => {
             return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
           }),
@@ -593,6 +536,7 @@ describe('pathfinder', () => {
         ];
 
         const meleeAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: movementRangeTiles,
           maximumDistance: 1,
           passThroughWalls: true,
@@ -614,12 +558,13 @@ describe('pathfinder', () => {
     });
 
     describe('spread with minimum range', () => {
-      let bigMap: HexMap;
+      let bigMap: TerrainTileMap;
       let pathfinder: Pathfinder;
       let justTheCenter: TileFoundDescription[];
+      let missionMap: MissionMap;
 
       beforeEach(() => {
-        bigMap = new HexMap({
+        bigMap = new TerrainTileMap({
           movementCost: [
             '1 1 1 1 ',
             ' 1 1 1 1 x 1 ',
@@ -630,9 +575,10 @@ describe('pathfinder', () => {
           ]
         });
 
-        pathfinder = new Pathfinder({
-          map: bigMap
-        });
+        missionMap = new MissionMap({
+          terrainTileMap: bigMap
+        })
+        pathfinder = new Pathfinder();
 
         justTheCenter = [
           {q: 1 as Integer, r: 1 as Integer, movementCost: 0}
@@ -645,6 +591,7 @@ describe('pathfinder', () => {
         ];
 
         const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: movementRangeTiles,
           minimumDistance: 2,
           maximumDistance: 3,
@@ -685,6 +632,7 @@ describe('pathfinder', () => {
         ];
 
         const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: movementRangeTiles,
           minimumDistance: 2,
           maximumDistance: 3,
@@ -716,12 +664,13 @@ describe('pathfinder', () => {
     });
 
     describe('spread within range with walls', () => {
-      let map: HexMap;
+      let map: TerrainTileMap;
       let pathfinder: Pathfinder;
       let justTheCenter: TileFoundDescription[];
+      let missionMap: MissionMap;
 
       beforeEach(() => {
-        map = new HexMap({
+        map = new TerrainTileMap({
           tiles: [
             new HexGridTile(0 as Integer, 0 as Integer, HexGridMovementCost.singleMovement),
             new HexGridTile(0 as Integer, 1 as Integer, HexGridMovementCost.wall),
@@ -729,9 +678,10 @@ describe('pathfinder', () => {
           ]
         });
 
-        pathfinder = new Pathfinder({
-          map: map
+        missionMap = new MissionMap({
+          terrainTileMap: map
         });
+        pathfinder = new Pathfinder();
 
         justTheCenter = [
           {q: 0 as Integer, r: 0 as Integer, movementCost: 0}
@@ -740,6 +690,7 @@ describe('pathfinder', () => {
 
       it('can be blocked by walls', () => {
         const blockedByWall: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: justTheCenter,
           maximumDistance: 2,
           passThroughWalls: false,
@@ -758,6 +709,7 @@ describe('pathfinder', () => {
 
       it('can target through walls', () => {
         const skipPastWalls: TileFoundDescription[] = pathfinder.getTilesInRange({
+          missionMap: missionMap,
           sourceTiles: justTheCenter,
           maximumDistance: 2,
           passThroughWalls: true,
@@ -776,17 +728,19 @@ describe('pathfinder', () => {
     });
 
     it('can use SquaddieMovement to find reachable tiles', () => {
-      map = new HexMap({
+      map = new TerrainTileMap({
         movementCost: [
           "1 1 1 2 1 "
         ]
       });
 
-      const pathfinder = new Pathfinder({
-        map: map
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: map
+      })
+      const pathfinder = new Pathfinder();
 
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 2,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -812,10 +766,10 @@ describe('pathfinder', () => {
   });
 
   describe('move with multiple movement actions', () => {
-    let map: HexMap;
+    let map: TerrainTileMap;
 
     beforeEach(() => {
-      map = new HexMap({
+      map = new TerrainTileMap({
         movementCost: [
           "1 1 1 1 "
         ]
@@ -823,10 +777,12 @@ describe('pathfinder', () => {
     });
 
     it('can report on how many movement actions it took', () => {
-      const pathfinder = new Pathfinder({
-        map: map
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: map
+      })
+      const pathfinder = new Pathfinder();
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -852,14 +808,16 @@ describe('pathfinder', () => {
     });
 
     it('discards excess movement between actions', () => {
-      const pathfinder = new Pathfinder({
-        map: new HexMap({
+      const missionMap = new MissionMap({
+        terrainTileMap: new TerrainTileMap({
           movementCost: [
             "1 1 1 2 "
           ]
         })
-      });
+      })
+      const pathfinder = new Pathfinder();
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 2,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -886,10 +844,10 @@ describe('pathfinder', () => {
   });
 
   describe('reaching a destination', () => {
-    let smallMap: HexMap;
+    let smallMap: TerrainTileMap;
 
     beforeEach(() => {
-      smallMap = new HexMap({
+      smallMap = new TerrainTileMap({
         movementCost: [
           "1 1 "
         ]
@@ -897,11 +855,13 @@ describe('pathfinder', () => {
     });
 
     it('gets results for a simple map', () => {
-      const pathfinder = new Pathfinder({
-        map: smallMap
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: smallMap
+      })
+      const pathfinder = new Pathfinder();
 
       const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -946,11 +906,13 @@ describe('pathfinder', () => {
     });
 
     it('throws an error if no stopLocation is provided', () => {
-      const pathfinder = new Pathfinder({
-        map: smallMap
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: smallMap
+      })
+      const pathfinder = new Pathfinder();
 
       const somePathOrError = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -964,11 +926,13 @@ describe('pathfinder', () => {
     });
 
     it('throws an error if results object has no stop location', () => {
-      const pathfinder = new Pathfinder({
-        map: smallMap
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: smallMap
+      })
+      const pathfinder = new Pathfinder();
 
       const allTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -988,11 +952,13 @@ describe('pathfinder', () => {
     });
 
     it('returns undefined if there is no closest route to a given location', () => {
-      const pathfinder = new Pathfinder({
-        map: smallMap
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: smallMap
+      })
+      const pathfinder = new Pathfinder();
 
       const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -1015,11 +981,13 @@ describe('pathfinder', () => {
     });
 
     it('can stop on the tile it starts on', () => {
-      const pathfinder = new Pathfinder({
-        map: smallMap
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: smallMap
+      })
+      const pathfinder = new Pathfinder();
 
       const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 1,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
@@ -1059,7 +1027,7 @@ describe('pathfinder', () => {
     });
 
     it('chooses the route with the fewest number of tiles if all tiles have the same movement cost', () => {
-      const mapWithMultipleRoutes = new HexMap({
+      const mapWithMultipleRoutes = new TerrainTileMap({
         movementCost: [
           "1 x x ",
           " 1 x x ",
@@ -1067,11 +1035,13 @@ describe('pathfinder', () => {
         ]
       });
 
-      const pathfinder = new Pathfinder({
-        map: mapWithMultipleRoutes
-      });
+      const missionMap = new MissionMap({
+        terrainTileMap: mapWithMultipleRoutes
+      })
+      const pathfinder = new Pathfinder();
 
       const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
         squaddieMovement: new SquaddieMovement({
           movementPerAction: 2,
           traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
