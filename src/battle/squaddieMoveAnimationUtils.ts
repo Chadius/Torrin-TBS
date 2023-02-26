@@ -2,7 +2,7 @@ import {
   convertMapCoordinatesToWorldCoordinates,
   convertWorldCoordinatesToScreenCoordinates
 } from "../hexMap/convertCoordinates";
-import {TileFoundDescription} from "../hexMap/pathfinder/pathfinder";
+import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 
 export const lerpSquaddieBetweenPath = (
   movementPathInfo: TileFoundDescription[],

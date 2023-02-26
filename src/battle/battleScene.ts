@@ -12,13 +12,11 @@ import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
   convertMapCoordinatesToScreenCoordinates, convertMapCoordinatesToWorldCoordinates,
   convertScreenCoordinatesToWorldCoordinates,
-  convertWorldCoordinatesToMapCoordinates, convertWorldCoordinatesToScreenCoordinates,
+  convertWorldCoordinatesToMapCoordinates,
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {
-  Pathfinder,
-  sortTileDescriptionByNumberOfMovementActions,
-  TileFoundDescription
+  Pathfinder
 } from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
@@ -29,6 +27,8 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStor
 import {BattleCamera} from "./battleCamera";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
+import {SearchResults} from "../hexMap/pathfinder/searchResults";
+import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 
 type RequiredOptions = {
   p: p5;
@@ -340,12 +340,17 @@ export class BattleScene {
         this.squaddieMovePath.q, this.squaddieMovePath.r, ...this.camera.getCoordinates());
       this.setImageToLocation(squaddieDynamicInfo, xyCoords);
 
-      const movementTiles: TileFoundDescription[] = this.pathfinder.getAllReachableTiles(new SearchParams({
-        startLocation: squaddieDynamicInfo.mapLocation,
-        squaddieMovement: squaddieStaticInfo.movement,
-        numberOfActions: 3,
-      })).AllReachableTiles;
-      const movementTilesByNumberOfActions: { [numberOfActions: Integer]: TileFoundDescription[] } = sortTileDescriptionByNumberOfMovementActions(movementTiles);
+      const reachableTileSearchResults: SearchResults = this.pathfinder.getAllReachableTiles(
+        new SearchParams({
+          startLocation: squaddieDynamicInfo.mapLocation,
+          squaddieMovement: squaddieStaticInfo.movement,
+          numberOfActions: 3,
+        })
+      );
+
+      const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
+      const movementTilesByNumberOfActions: {[numberOfActions: number]: [{q: Integer, r: Integer}?]} = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
+
       const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange({
         minimumDistance: squaddieStaticInfo.activities[0].minimumRange,
         maximumDistance: squaddieStaticInfo.activities[0].maximumRange,
@@ -353,32 +358,51 @@ export class BattleScene {
         sourceTiles: movementTiles
       });
 
-      this.hexMap.highlightTiles([
-        {
-          tiles: movementTilesByNumberOfActions[0 as Integer],
-          pulseColor: HighlightPulseBlueColor,
-        },
-        {
-          tiles: movementTilesByNumberOfActions[1 as Integer],
-          pulseColor: HighlightPulseBlueColor,
-          overlayImageResourceName: "map icon move 1 action",
-        },
-        {
-          tiles: movementTilesByNumberOfActions[2 as Integer],
-          pulseColor: HighlightPulseBlueColor,
-          overlayImageResourceName: "map icon move 2 actions",
-        },
-        {
-          tiles: movementTilesByNumberOfActions[3 as Integer],
-          pulseColor: HighlightPulseBlueColor,
-          overlayImageResourceName: "map icon move 3 actions",
-        },
-        {
-          tiles: actionTiles,
-          pulseColor: HighlightPulseRedColor,
-          overlayImageResourceName: "map icon attack 1 action",
-        },
-      ]);
+      const highlightTileDescriptions = [];
+      if (movementTilesByNumberOfActions[0]) {
+        highlightTileDescriptions.push(
+          {
+            tiles: movementTilesByNumberOfActions[0],
+            pulseColor: HighlightPulseBlueColor,
+          }
+        )
+      }
+      if (movementTilesByNumberOfActions[1]) {
+        highlightTileDescriptions.push(
+          {
+            tiles: movementTilesByNumberOfActions[1],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: "map icon move 1 action",
+          }
+        )
+      }
+      if (movementTilesByNumberOfActions[2]) {
+        highlightTileDescriptions.push(
+          {
+            tiles: movementTilesByNumberOfActions[2],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: "map icon move 2 actions",
+          }
+        )
+      }
+      if (movementTilesByNumberOfActions[3]) {
+        highlightTileDescriptions.push(
+          {
+            tiles: movementTilesByNumberOfActions[3],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: "map icon move 3 actions",
+          }
+        )
+      }
+      if (actionTiles) {
+        highlightTileDescriptions.push({
+            tiles: actionTiles,
+            pulseColor: HighlightPulseRedColor,
+            overlayImageResourceName: "map icon attack 1 action",
+          },
+        )
+      }
+      this.hexMap.highlightTiles(highlightTileDescriptions);
       this.animationMode = AnimationMode.IDLE;
     } else {
       const squaddieToMove = this.squaddieDynamicInfoByID["player_young_torrin"];
@@ -388,12 +412,12 @@ export class BattleScene {
           {
             q: squaddieToMove.mapLocation.q,
             r: squaddieToMove.mapLocation.r,
-            numberOfActions: 0 as Integer,
+            movementCost: 0,
           },
           {
             q: this.squaddieMovePath.q,
             r: this.squaddieMovePath.r,
-            numberOfActions: 1 as Integer,
+            movementCost: 0,
           }
         ],
         timePassed,

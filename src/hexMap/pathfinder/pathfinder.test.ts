@@ -2,12 +2,17 @@ import {HexMap} from "../hexMap";
 import {HexCoordinate, HexGridTile, Integer} from "../hexGrid";
 import {SquaddieID} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
-import {Pathfinder, sortTileDescriptionByNumberOfMovementActions, TileFoundDescription} from "./pathfinder";
+import {
+  Pathfinder
+} from "./pathfinder";
 import {HexGridMovementCost} from "../hexGridMovementCost";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SearchParams} from "./searchParams";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SearchResults} from "./searchResults";
+import {SearchPath} from "./searchPath";
+import {TileFoundDescription} from "./tileFoundDescription";
 
 describe('pathfinder', () => {
   let map: HexMap;
@@ -145,10 +150,13 @@ describe('pathfinder', () => {
     });
   };
 
-  const validateTileHasExpectedNumberOfActions = (q: number, r: number, expectedActions: number, tilesFound: TileFoundDescription[]) => {
-    const tileAtCoordinate = tilesFound.find((t) => t.q === q as Integer && t.r === r as Integer);
+  const validateTileHasExpectedNumberOfActions = (q: number, r: number, expectedActions: number, searchResults: SearchResults) => {
+    const searchPath: SearchPath = searchResults.getLowestCostRoute(q as Integer, r as Integer);
+    expect(searchPath).not.toBeUndefined();
+    const tilesFoundByNumberOfActions: TileFoundDescription[][] = searchPath.getTilesTraveledByNumberOfMovementActions();
+    expect(tilesFoundByNumberOfActions[expectedActions]).not.toBeUndefined();
+    const tileAtCoordinate = tilesFoundByNumberOfActions[expectedActions].find((t) => t.q === q as Integer && t.r === r as Integer);
     expect(tileAtCoordinate).not.toBeUndefined();
-    expect(tileAtCoordinate.numberOfActions).toBe(expectedActions as Integer);
   }
 
   const sortTiles = (a: TileFoundDescription, b: TileFoundDescription) => {
@@ -189,7 +197,7 @@ describe('pathfinder', () => {
         }),
         numberOfActions: 1,
         startLocation: origin
-      })).AllReachableTiles;
+      })).allReachableTiles;
 
       validateTilesAreFound(
         allMovableTiles,
@@ -228,7 +236,7 @@ describe('pathfinder', () => {
       }));
 
       validateTilesAreFound(
-        allMovableTiles.AllReachableTiles,
+        allMovableTiles.allReachableTiles,
         [
           {q: 0 as Integer, r: 2 as Integer,},
           {q: 0 as Integer, r: 3 as Integer,},
@@ -261,7 +269,7 @@ describe('pathfinder', () => {
       }));
 
       validateTilesAreFound(
-        allMovableTiles.AllReachableTiles,
+        allMovableTiles.allReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
@@ -286,7 +294,7 @@ describe('pathfinder', () => {
         });
 
         wallTile = [
-          {q: 0 as Integer, r: 2 as Integer, numberOfActions: 0 as Integer},
+          {q: 0 as Integer, r: 2 as Integer, movementCost: 0},
         ];
       });
 
@@ -305,7 +313,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles.AllReachableTiles,
+          allMovableTiles.allReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -332,7 +340,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles.AllReachableTiles,
+          allMovableTiles.allReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -368,7 +376,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles.AllReachableTiles,
+          allMovableTiles.allReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -391,7 +399,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles.AllReachableTiles,
+          allMovableTiles.allReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -418,7 +426,7 @@ describe('pathfinder', () => {
         }));
 
         validateTilesAreFound(
-          allMovableTiles.AllReachableTiles,
+          allMovableTiles.allReachableTiles,
           [
             {q: 0 as Integer, r: 0 as Integer,},
             {q: 0 as Integer, r: 1 as Integer,},
@@ -463,7 +471,7 @@ describe('pathfinder', () => {
       }));
 
       validateTilesAreFound(
-        allMovableTiles.AllReachableTiles,
+        allMovableTiles.allReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 2 as Integer,},
@@ -519,7 +527,9 @@ describe('pathfinder', () => {
 
       it('can only includes itself with radius 0', () => {
         const centerTileOnly: TileFoundDescription[] = pathfinder.getTilesInRange({
-          sourceTiles: justTheCenter.map((hex) => {return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer}}),
+          sourceTiles: justTheCenter.map((hex) => {
+            return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
+          }),
           maximumDistance: 0,
           passThroughWalls: true,
         });
@@ -537,7 +547,9 @@ describe('pathfinder', () => {
 
       it('Radius 1 should get all within 1 movement', () => {
         const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
-          sourceTiles: justTheCenter.map((hex) => {return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer}}),
+          sourceTiles: justTheCenter.map((hex) => {
+            return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
+          }),
           maximumDistance: 1,
           passThroughWalls: true,
         });
@@ -559,7 +571,9 @@ describe('pathfinder', () => {
 
       it('can find tiles within 2 tiles of the center, besides walls', () => {
         const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
-          sourceTiles: justTheCenter.map((hex) => {return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer}}),
+          sourceTiles: justTheCenter.map((hex) => {
+            return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
+          }),
           maximumDistance: 2,
           passThroughWalls: true,
         });
@@ -572,8 +586,10 @@ describe('pathfinder', () => {
 
       it('can spread from multiple tiles', () => {
         const movementRangeTiles: TileFoundDescription[] = [
-          ...justTheCenter.map((hex) => {return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer}}),
-          {q: 1 as Integer, r: 2 as Integer, numberOfActions: 0 as Integer}
+          ...justTheCenter.map((hex) => {
+            return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
+          }),
+          {q: 1 as Integer, r: 2 as Integer, numberOfActions: 0 as Integer, movementCost: 0}
         ];
 
         const meleeAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
@@ -619,7 +635,7 @@ describe('pathfinder', () => {
         });
 
         justTheCenter = [
-          {q: 1 as Integer, r: 1 as Integer, numberOfActions: 0 as Integer}
+          {q: 1 as Integer, r: 1 as Integer, movementCost: 0}
         ];
       });
 
@@ -662,8 +678,10 @@ describe('pathfinder', () => {
 
       it('multiple tiles are combined', () => {
         const movementRangeTiles: TileFoundDescription[] = [
-          ...justTheCenter.map((hex) => {return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer}}),
-          {q: 1 as Integer, r: 2 as Integer, numberOfActions: 0 as Integer}
+          ...justTheCenter.map((hex) => {
+            return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
+          }),
+          {q: 1 as Integer, r: 2 as Integer, numberOfActions: 0 as Integer, movementCost: 0}
         ];
 
         const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
@@ -716,7 +734,7 @@ describe('pathfinder', () => {
         });
 
         justTheCenter = [
-          {q: 0 as Integer, r: 0 as Integer, numberOfActions: 0 as Integer}
+          {q: 0 as Integer, r: 0 as Integer, movementCost: 0}
         ];
       });
 
@@ -769,16 +787,16 @@ describe('pathfinder', () => {
       });
 
       const allMovableTiles = pathfinder.getAllReachableTiles(new SearchParams({
-          squaddieMovement: new SquaddieMovement({
-            movementPerAction: 2,
-            traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
-          }),
-          numberOfActions: 1,
-          startLocation: {q: 0 as Integer, r: 1 as Integer}
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 2,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        numberOfActions: 1,
+        startLocation: {q: 0 as Integer, r: 1 as Integer}
       }));
 
       validateTilesAreFound(
-        allMovableTiles.AllReachableTiles,
+        allMovableTiles.allReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
@@ -817,7 +835,7 @@ describe('pathfinder', () => {
         startLocation: {q: 0 as Integer, r: 0 as Integer}
       }));
       validateTilesAreFound(
-        allMovableTiles.AllReachableTiles,
+        allMovableTiles.allReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
@@ -828,9 +846,9 @@ describe('pathfinder', () => {
         ]
       );
 
-      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles.AllReachableTiles)
-      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles.AllReachableTiles)
-      validateTileHasExpectedNumberOfActions(0, 2, 2, allMovableTiles.AllReachableTiles)
+      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles)
+      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles)
+      validateTileHasExpectedNumberOfActions(0, 2, 2, allMovableTiles)
     });
 
     it('discards excess movement between actions', () => {
@@ -850,57 +868,303 @@ describe('pathfinder', () => {
         startLocation: {q: 0 as Integer, r: 0 as Integer}
       }));
       validateTilesAreFound(
-        allMovableTiles.AllReachableTiles,
+        allMovableTiles.allReachableTiles,
         [
           {q: 0 as Integer, r: 0 as Integer,},
           {q: 0 as Integer, r: 1 as Integer,},
           {q: 0 as Integer, r: 2 as Integer,},
           {q: 0 as Integer, r: 3 as Integer,},
         ],
-        [
-        ]
+        []
       );
 
-      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles.AllReachableTiles)
-      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles.AllReachableTiles)
-      validateTileHasExpectedNumberOfActions(0, 2, 1, allMovableTiles.AllReachableTiles)
-      validateTileHasExpectedNumberOfActions(0, 3, 2, allMovableTiles.AllReachableTiles)
+      validateTileHasExpectedNumberOfActions(0, 0, 0, allMovableTiles)
+      validateTileHasExpectedNumberOfActions(0, 1, 1, allMovableTiles)
+      validateTileHasExpectedNumberOfActions(0, 2, 1, allMovableTiles)
+      validateTileHasExpectedNumberOfActions(0, 3, 2, allMovableTiles)
+    });
+  });
+
+  describe('reaching a destination', () => {
+    let smallMap: HexMap;
+
+    beforeEach(() => {
+      smallMap = new HexMap({
+        movementCost: [
+          "1 1 "
+        ]
+      });
     });
 
-    it('can reformat tiles found descriptions based on the number of movement actions', () => {
-      const tilesToOrganize: TileFoundDescription[] = [
-        {numberOfActions: 1 as Integer, q: 1 as Integer, r: 0 as Integer},
-        {numberOfActions: 0 as Integer, q: 0 as Integer, r: 0 as Integer},
-        {numberOfActions: 2 as Integer, q: 2 as Integer, r: 1 as Integer},
-        {numberOfActions: 1 as Integer, q: 0 as Integer, r: 1 as Integer},
-        {numberOfActions: 1 as Integer, q: 2 as Integer, r: 0 as Integer},
-        {numberOfActions: 2 as Integer, q: 3 as Integer, r: 0 as Integer},
-        {numberOfActions: 3 as Integer, q: 3 as Integer, r: 3 as Integer},
-        {numberOfActions: 1 as Integer, q: 0 as Integer, r: 2 as Integer},
-      ];
+    it('gets results for a simple map', () => {
+      const pathfinder = new Pathfinder({
+        map: smallMap
+      });
 
-      const expectedTileSort: {[x: Integer]: TileFoundDescription[]} = {
-        [0 as Integer]: [
-          {numberOfActions: 0 as Integer, q: 0 as Integer, r: 0 as Integer},
-        ],
-        [1 as Integer]: [
-          {numberOfActions: 1 as Integer, q: 0 as Integer, r: 1 as Integer},
-          {numberOfActions: 1 as Integer, q: 0 as Integer, r: 2 as Integer},
-          {numberOfActions: 1 as Integer, q: 1 as Integer, r: 0 as Integer},
-          {numberOfActions: 1 as Integer, q: 2 as Integer, r: 0 as Integer},
-        ],
-        [2 as Integer]: [
-          {numberOfActions: 2 as Integer, q: 2 as Integer, r: 1 as Integer},
-          {numberOfActions: 2 as Integer, q: 3 as Integer, r: 0 as Integer},
-        ],
-        [3 as Integer]: [
-          {numberOfActions: 3 as Integer, q: 3 as Integer, r: 3 as Integer},
-        ],
-      };
+      const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 1,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        numberOfActions: 1,
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+        stopLocation: {q: 0 as Integer, r: 1 as Integer}
+      }));
 
-      const actualTileSort =
-        sortTileDescriptionByNumberOfMovementActions(tilesToOrganize);
-      expect(actualTileSort).toStrictEqual(expectedTileSort);
+      let routeFound: SearchPath;
+      if (
+        allMovableTiles instanceof SearchResults
+      ) {
+        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        if (routeOrError instanceof SearchPath) {
+          routeFound = routeOrError;
+        }
+      }
+
+      expect(routeFound.getTotalCost()).toEqual(1);
+      expect(routeFound.getDestination()).toStrictEqual({
+        q: 0 as Integer,
+        r: 1 as Integer,
+      });
+      expect(routeFound.getMostRecentTileLocation()).toStrictEqual({
+        q: 0 as Integer,
+        r: 1 as Integer,
+        movementCost: 1,
+      });
+      expect(routeFound.getTilesTraveled()).toStrictEqual([
+        {
+          q: 0 as Integer,
+          r: 0 as Integer,
+          movementCost: 0,
+        },
+        {
+          q: 0 as Integer,
+          r: 1 as Integer,
+          movementCost: 1,
+        }
+      ])
     });
+
+    it('throws an error if no stopLocation is provided', () => {
+      const pathfinder = new Pathfinder({
+        map: smallMap
+      });
+
+      const somePathOrError = pathfinder.findPathToStopLocation(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 1,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        numberOfActions: 1,
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+      }));
+
+      expect(somePathOrError).toEqual(expect.any(Error));
+      expect((somePathOrError as Error).message.includes("no stop location was given")).toBeTruthy();
+    });
+
+    it('throws an error if results object has no stop location', () => {
+      const pathfinder = new Pathfinder({
+        map: smallMap
+      });
+
+      const allTiles = pathfinder.getAllReachableTiles(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 1,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        numberOfActions: 1,
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+      }));
+
+      let somePathOrError;
+      if (
+        allTiles instanceof SearchResults
+      ) {
+        somePathOrError = allTiles.getRouteToStopLocation();
+      }
+      expect(somePathOrError).toEqual(expect.any(Error));
+      expect((somePathOrError as Error).message.includes("no stop location was given")).toBeTruthy();
+    });
+
+    it('returns undefined if there is no closest route to a given location', () => {
+      const pathfinder = new Pathfinder({
+        map: smallMap
+      });
+
+      const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 1,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        numberOfActions: 1,
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+        stopLocation: {q: 9000 as Integer, r: 2 as Integer}
+      }));
+
+      let routeFound: SearchPath;
+      if (
+        allMovableTiles instanceof SearchResults
+      ) {
+        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        if (routeOrError instanceof SearchPath) {
+          routeFound = routeOrError;
+        }
+      }
+      expect(routeFound).toBeUndefined();
+    });
+
+    it('can stop on the tile it starts on', () => {
+      const pathfinder = new Pathfinder({
+        map: smallMap
+      });
+
+      const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 1,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        numberOfActions: 1,
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+        stopLocation: {q: 0 as Integer, r: 0 as Integer}
+      }));
+
+      let routeFound: SearchPath;
+      if (
+        allMovableTiles instanceof SearchResults
+      ) {
+        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        if (routeOrError instanceof SearchPath) {
+          routeFound = routeOrError;
+        }
+      }
+
+      expect(routeFound.getTotalCost()).toEqual(0);
+      expect(routeFound.getDestination()).toStrictEqual({
+        q: 0 as Integer,
+        r: 0 as Integer,
+      });
+      expect(routeFound.getMostRecentTileLocation()).toStrictEqual({
+        q: 0 as Integer,
+        r: 0 as Integer,
+        movementCost: 0,
+      });
+      expect(routeFound.getTilesTraveled()).toStrictEqual([
+        {
+          q: 0 as Integer,
+          r: 0 as Integer,
+          movementCost: 0,
+        },
+      ]);
+    });
+
+    it('chooses the route with the fewest number of tiles if all tiles have the same movement cost', () => {
+      const mapWithMultipleRoutes = new HexMap({
+        movementCost: [
+          "1 x x ",
+          " 1 x x ",
+          "  1 1 1 ",
+        ]
+      });
+
+      const pathfinder = new Pathfinder({
+        map: mapWithMultipleRoutes
+      });
+
+      const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 2,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+        stopLocation: {q: 2 as Integer, r: 2 as Integer}
+      }));
+
+      let routeFound: SearchPath;
+      if (
+        allMovableTiles instanceof SearchResults
+      ) {
+        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        if (routeOrError instanceof SearchPath) {
+          routeFound = routeOrError;
+        }
+      }
+
+      expect(routeFound.getTotalCost()).toEqual(4);
+      expect(routeFound.getDestination()).toStrictEqual({
+        q: 2 as Integer,
+        r: 2 as Integer,
+      });
+      expect(routeFound.getMostRecentTileLocation()).toStrictEqual({
+        q: 2 as Integer,
+        r: 2 as Integer,
+        movementCost: 4,
+      });
+
+      expect(routeFound.getTilesTraveled()).toStrictEqual([
+        {
+          q: 0 as Integer,
+          r: 0 as Integer,
+          movementCost: 0,
+        },
+        {
+          q: 1 as Integer,
+          r: 0 as Integer,
+          movementCost: 1,
+        },
+        {
+          q: 2 as Integer,
+          r: 0 as Integer,
+          movementCost: 2,
+        },
+        {
+          q: 2 as Integer,
+          r: 1 as Integer,
+          movementCost: 3,
+        },
+        {
+          q: 2 as Integer,
+          r: 2 as Integer,
+          movementCost: 4,
+        },
+      ]);
+
+      expect(routeFound.getTilesTraveledByNumberOfMovementActions()).toStrictEqual([
+        [
+          {
+            q: 0 as Integer,
+            r: 0 as Integer,
+            movementCost: 0,
+          },
+        ],
+        [
+          {
+            q: 1 as Integer,
+            r: 0 as Integer,
+            movementCost: 1,
+          },
+          {
+            q: 2 as Integer,
+            r: 0 as Integer,
+            movementCost: 2,
+          },
+        ],
+        [
+          {
+            q: 2 as Integer,
+            r: 1 as Integer,
+            movementCost: 3,
+          },
+          {
+            q: 2 as Integer,
+            r: 2 as Integer,
+            movementCost: 4,
+          },
+        ]
+      ]);
+    });
+    //it('chooses the route with the lowest movement cost', () => {});
+    //it('will stop if it is out of movement actions', () => {});
+    //it('gets as close as it can if the destination is blocked', () => {});
   });
 });

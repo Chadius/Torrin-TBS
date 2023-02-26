@@ -1,5 +1,4 @@
 import {HexCoordinate, HexGridTile, Integer} from "./hexGrid";
-import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {
   convertScreenCoordinatesToWorldCoordinates,

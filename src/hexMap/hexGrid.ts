@@ -3,6 +3,10 @@ import {HexGridMovementCost} from "./hexGridMovementCost";
 export type Integer = number & {_brand: 'Integer'}
 export type HexCoordinate = {q: Integer, r: Integer}
 
+export const HexCoordinateToKey = (coordinate: HexCoordinate): string => {
+  return `${coordinate.q},${coordinate.r}`;
+}
+
 export class HexGridTile {
   q: Integer;
   r: Integer;

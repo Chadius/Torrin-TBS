@@ -1,7 +1,7 @@
-import {TileFoundDescription} from "../hexMap/pathfinder/pathfinder";
 import {lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
 import {Integer} from "../hexMap/hexGrid";
 import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
+import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 
 describe('lerpSquaddieBetweenPath', () => {
   it('lerp between two points on a map', () => {
@@ -9,12 +9,12 @@ describe('lerpSquaddieBetweenPath', () => {
       {
         q: 0 as Integer,
         r: 0 as Integer,
-        numberOfActions: 0 as Integer,
+        movementCost: 0,
       },
       {
         q: 0 as Integer,
         r: 1 as Integer,
-        numberOfActions: 1 as Integer,
+        movementCost: 0,
       }
     ]
 

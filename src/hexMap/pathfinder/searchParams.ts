@@ -64,4 +64,8 @@ export class SearchParams {
   getNumberOfActions(): number | undefined {
     return this.stopConditions.numberOfActions;
   }
+
+  getStopLocation(): HexCoordinate | undefined {
+    return this.stopConditions.stopLocation;
+  }
 }
