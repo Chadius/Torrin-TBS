@@ -30,6 +30,7 @@ import {lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
+import {SearchPath} from "../hexMap/pathfinder/searchPath";
 
 type RequiredOptions = {
   p: p5;
@@ -68,7 +69,7 @@ export class BattleScene {
 
   camera: BattleCamera;
   animationMode: AnimationMode;
-  squaddieMovePath?: HexCoordinate;
+  squaddieMovePath?: SearchPath;
   animationTimer: number;
   squaddieAnimationWorldCoordinatesStart?: [number, number];
   squaddieAnimationWorldCoordinatesEnd?: [number, number];
@@ -337,10 +338,13 @@ export class BattleScene {
 
     const timePassed = Date.now() - this.animationTimer;
     const timeToMove = 1000.0;
-    if (timePassed > timeToMove) {
-      squaddieDynamicInfo.mapLocation = this.squaddieMovePath;
+    if (timePassed > timeToMove || this.squaddieMovePath.getTilesTraveled().length === 0) {
+      squaddieDynamicInfo.mapLocation = this.squaddieMovePath.getDestination();
       const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        this.squaddieMovePath.q, this.squaddieMovePath.r, ...this.camera.getCoordinates());
+        this.squaddieMovePath.getDestination().q,
+        this.squaddieMovePath.getDestination().r,
+        ...this.camera.getCoordinates()
+      );
       this.setImageToLocation(squaddieDynamicInfo, xyCoords);
 
       const reachableTileSearchResults: SearchResults = this.pathfinder.getAllReachableTiles(
@@ -410,23 +414,34 @@ export class BattleScene {
       this.hexMap.highlightTiles(highlightTileDescriptions);
       this.animationMode = AnimationMode.IDLE;
     } else {
-      const squaddieToMove = this.squaddieDynamicInfoByID["player_young_torrin"];
+      const currentStepIndex: number = Math.trunc(this.squaddieMovePath.getTilesTraveled().length * timePassed / timeToMove);
+      const startTile: TileFoundDescription = this.squaddieMovePath.getTilesTraveled()[currentStepIndex];
+      if (!startTile) {
+        squaddieDynamicInfo.mapIcon.draw(p);
+        return;
+      }
 
+      let endTile: TileFoundDescription = this.squaddieMovePath.getTilesTraveled()[currentStepIndex + 1];
+      if (!endTile) {
+        endTile = startTile;
+      }
+      const timePerStep: number = timeToMove / this.squaddieMovePath.getTilesTraveled().length;
+      const timeAtStepStart: number = currentStepIndex * timePerStep;
       const xyCoords: [number, number] = lerpSquaddieBetweenPath(
         [
           {
-            q: squaddieToMove.mapLocation.q,
-            r: squaddieToMove.mapLocation.r,
+            q: startTile.q,
+            r: startTile.r,
             movementCost: 0,
           },
           {
-            q: this.squaddieMovePath.q,
-            r: this.squaddieMovePath.r,
+            q: endTile.q,
+            r: endTile.r,
             movementCost: 0,
           }
         ],
-        timePassed,
-        timeToMove,
+        timePassed - timeAtStepStart,
+        timePerStep,
         ...this.camera.getCoordinates()
       )
       this.setImageToLocation(squaddieDynamicInfo, xyCoords);
@@ -499,15 +514,54 @@ export class BattleScene {
         this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
       ) {
         const squaddieToMove = this.squaddieDynamicInfoByID["player_young_torrin"];
+        const squaddieToMoveStatic = this.squaddieStaticInfoBySquaddieTypeID["player_young_torrin"];
 
-        this.squaddieMovePath = clickedHexCoordinate;
+        const searchPathResultsOrError: SearchResults | Error = this.pathfinder.findPathToStopLocation(new SearchParams ({
+          missionMap: this.missionMap,
+          squaddieMovement: squaddieToMoveStatic.movement,
+          numberOfActions: 3,
+          startLocation: {
+            q: squaddieToMove.mapLocation.q,
+            r: squaddieToMove.mapLocation.r,
+          },
+          stopLocation: {
+            q: clickedHexCoordinate.q,
+            r: clickedHexCoordinate.r
+          },
+        }));
+        let foundRoute: SearchPath | Error = undefined;
+        if (searchPathResultsOrError instanceof SearchResults) {
+          foundRoute = searchPathResultsOrError.getRouteToStopLocation();
+        }
+
+        if(foundRoute instanceof SearchPath) {
+          this.squaddieMovePath = foundRoute;
+        } else {
+          this.squaddieMovePath = new SearchPath();
+          this.squaddieMovePath.add({
+            q: squaddieToMove.mapLocation.q,
+            r: squaddieToMove.mapLocation.r,
+            movementCost: 0,
+          },
+            0
+          );
+          this.squaddieMovePath.add(
+          {
+            q: clickedHexCoordinate.q,
+            r: clickedHexCoordinate.r,
+            movementCost: 0,
+          },
+            0
+          );
+        }
+
         this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
           squaddieToMove.mapLocation.q,
           squaddieToMove.mapLocation.r,
         );
         this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
-          this.squaddieMovePath.q,
-          this.squaddieMovePath.r,
+          this.squaddieMovePath.getDestination().q,
+          this.squaddieMovePath.getDestination().r,
         );
 
         this.animationTimer = Date.now();

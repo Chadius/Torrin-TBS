@@ -17,11 +17,11 @@ export const lerpSquaddieBetweenPath = (
   const lerpX: number = (
     endpoint[0]
     - startpoint[0]
-  ) * timePassed / totalTravelTime + startpoint[0];
+  ) * (timePassed / totalTravelTime) + startpoint[0];
   const lerpY: number = (
     endpoint[1]
     - startpoint[1]
-  ) * timePassed / totalTravelTime + startpoint[1];
+  ) * (timePassed / totalTravelTime) + startpoint[1];
 
   const xyCoords: [number, number] = convertWorldCoordinatesToScreenCoordinates(
     lerpX, lerpY, cameraX, cameraY)
