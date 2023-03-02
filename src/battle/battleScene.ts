@@ -26,7 +26,7 @@ import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleCamera} from "./battleCamera";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
+import {getSquaddiePositionAlongPath, lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
@@ -414,37 +414,14 @@ export class BattleScene {
       this.hexMap.highlightTiles(highlightTileDescriptions);
       this.animationMode = AnimationMode.IDLE;
     } else {
-      const currentStepIndex: number = Math.trunc(this.squaddieMovePath.getTilesTraveled().length * timePassed / timeToMove);
-      const startTile: TileFoundDescription = this.squaddieMovePath.getTilesTraveled()[currentStepIndex];
-      if (!startTile) {
-        squaddieDynamicInfo.mapIcon.draw(p);
-        return;
-      }
-
-      let endTile: TileFoundDescription = this.squaddieMovePath.getTilesTraveled()[currentStepIndex + 1];
-      if (!endTile) {
-        endTile = startTile;
-      }
-      const timePerStep: number = timeToMove / this.squaddieMovePath.getTilesTraveled().length;
-      const timeAtStepStart: number = currentStepIndex * timePerStep;
-      const xyCoords: [number, number] = lerpSquaddieBetweenPath(
-        [
-          {
-            q: startTile.q,
-            r: startTile.r,
-            movementCost: 0,
-          },
-          {
-            q: endTile.q,
-            r: endTile.r,
-            movementCost: 0,
-          }
-        ],
-        timePassed - timeAtStepStart,
-        timePerStep,
-        ...this.camera.getCoordinates()
+      const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
+        this.squaddieMovePath.getTilesTraveled(),
+        timePassed,
+        timeToMove,
+        this.camera,
       )
-      this.setImageToLocation(squaddieDynamicInfo, xyCoords);
+
+      this.setImageToLocation(squaddieDynamicInfo, squaddieDrawCoordinates);
       squaddieDynamicInfo.mapIcon.draw(p);
       return;
     }
