@@ -190,10 +190,12 @@ export class Pathfinder {
     });
 
     let numberOfMovementActions: number = 1;
+    let foundAllReachableTiles: boolean = false;
 
     while (
       this.hasRemainingMovementActions(searchParams, numberOfMovementActions)
       && !this.hasFoundStopLocation(searchParams, workingSearchState)
+      && !foundAllReachableTiles
     ) {
       const endpointTiles: TileFoundDescription[] = this.addLegalSearchPaths(
         searchParams,
@@ -201,12 +203,15 @@ export class Pathfinder {
         searchParams.setup.missionMap
       );
 
-      const continueToNextMovementAction: boolean = !this.hasFoundStopLocation(searchParams, workingSearchState);
+      const continueToNextMovementAction: boolean = endpointTiles.length > 0
+        && !this.hasFoundStopLocation(searchParams, workingSearchState);
 
       if (continueToNextMovementAction) {
         numberOfMovementActions ++;
         endpointTiles.forEach(tile => workingSearchState.extendPathWithNewMovementAction(tile))
       }
+
+      foundAllReachableTiles = endpointTiles.length > 0;
     }
     workingSearchState.setAllReachableTiles();
     return workingSearchState.results;

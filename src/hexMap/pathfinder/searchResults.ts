@@ -58,4 +58,33 @@ export class SearchResults {
 
     return reachables;
   }
+
+  getClosestTilesToDestination(): {coordinate: HexCoordinate, searchPath: SearchPath, distance: number}[] {
+    return Object.values(this.lowestCostRoutes).map((searchPath: SearchPath) => {
+      const coordinate: HexCoordinate = {
+        q:searchPath.getMostRecentTileLocation().q,
+        r:searchPath.getMostRecentTileLocation().r,
+      };
+      const distance: number = Math.abs(coordinate.q - this.stopLocation.q)
+        + Math.abs(coordinate.r - this.stopLocation.r);
+
+      return {
+        coordinate,
+        searchPath,
+        distance,
+      }
+    }).sort((a, b) => {
+      if (a.distance < b.distance) {
+        return -1;
+      }
+      if (a.distance > b.distance) {
+        return 1;
+      }
+      return 0;
+    });
+    // TODO map at all searchPaths
+    //// TODO get coordinate
+    //// TODO get Manhattan distance from destination
+    //// MAP!
+  }
 }

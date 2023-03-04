@@ -1133,8 +1133,159 @@ describe('pathfinder', () => {
         ]
       ]);
     });
-    //it('chooses the route with the lowest movement cost', () => {});
-    //it('will stop if it is out of movement actions', () => {});
-    //it('gets as close as it can if the destination is blocked', () => {});
+
+    it('chooses the route with the lowest movement cost', () => {
+      const mapWithExpensiveRouteToTheRight = new TerrainTileMap({
+        movementCost: [
+          "1 2 2 2 1 ",
+          " 1 1 1 1 1 ",
+        ]
+      });
+
+      const missionMap = new MissionMap({
+        terrainTileMap: mapWithExpensiveRouteToTheRight
+      })
+      const pathfinder = new Pathfinder();
+
+      const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 10,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+        stopLocation: {q: 0 as Integer, r: 4 as Integer}
+      }));
+
+      let routeFound: SearchPath;
+      if (
+        allMovableTiles instanceof SearchResults
+      ) {
+        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        if (routeOrError instanceof SearchPath) {
+          routeFound = routeOrError;
+        }
+      }
+
+      expect(routeFound.getTotalCost()).toEqual(5);
+      expect(routeFound.getTilesTraveled()).toStrictEqual([
+        {
+          q: 0 as Integer,
+          r: 0 as Integer,
+          movementCost: 0,
+        },
+        {
+          q: 1 as Integer,
+          r: 0 as Integer,
+          movementCost: 1,
+        },
+        {
+          q: 1 as Integer,
+          r: 1 as Integer,
+          movementCost: 2,
+        },
+        {
+          q: 1 as Integer,
+          r: 2 as Integer,
+          movementCost: 3,
+        },
+        {
+          q: 1 as Integer,
+          r: 3 as Integer,
+          movementCost: 4,
+        },
+        {
+          q: 0 as Integer,
+          r: 4 as Integer,
+          movementCost: 5,
+        },
+      ]);
+    });
+
+    it('will stop if it is out of movement actions', () => {
+      const mapWithLongPath = new TerrainTileMap({
+        movementCost: [
+          "1 1 1 1 1 ",
+        ]
+      });
+
+      const missionMap = new MissionMap({
+        terrainTileMap: mapWithLongPath
+      })
+      const pathfinder = new Pathfinder();
+
+      const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 1,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        numberOfActions: 2,
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+        stopLocation: {q: 0 as Integer, r: 4 as Integer}
+      }));
+
+      let routeFound: SearchPath;
+      if (
+        allMovableTiles instanceof SearchResults
+      ) {
+        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        if (routeOrError instanceof SearchPath) {
+          routeFound = routeOrError;
+        }
+      }
+      expect(routeFound).toBeUndefined();
+    });
+
+    it('gets as close as it can if the destination is blocked', () => {
+      const mapWithAPit = new TerrainTileMap({
+        movementCost: [
+          "1 1 1 - 1 ",
+        ]
+      });
+
+      const missionMap = new MissionMap({
+        terrainTileMap: mapWithAPit
+      })
+      const pathfinder = new Pathfinder();
+
+      const allMovableTiles = pathfinder.findPathToStopLocation(new SearchParams({
+        missionMap: missionMap,
+        squaddieMovement: new SquaddieMovement({
+          movementPerAction: 10,
+          traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        }),
+        startLocation: {q: 0 as Integer, r: 0 as Integer},
+        stopLocation: {q: 0 as Integer, r: 4 as Integer}
+      }));
+
+      let closestTilesToDestination: {coordinate: HexCoordinate, searchPath: SearchPath, distance: number}[] = [];
+      let routeFound: SearchPath;
+      if (
+        allMovableTiles instanceof SearchResults
+      ) {
+        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        if (routeOrError instanceof SearchPath) {
+          routeFound = routeOrError;
+        }
+
+        closestTilesToDestination = allMovableTiles.getClosestTilesToDestination();
+      }
+      expect(routeFound).toBeUndefined();
+
+      expect(closestTilesToDestination).toHaveLength(3);
+      expect(closestTilesToDestination[0]).toEqual(expect.objectContaining({
+        coordinate: {q: 0 as Integer, r: 2 as Integer},
+        distance: 2,
+      }));
+      expect(closestTilesToDestination[1]).toEqual(expect.objectContaining({
+        coordinate: {q: 0 as Integer, r: 1 as Integer},
+        distance: 3,
+      }));
+      expect(closestTilesToDestination[2]).toEqual(expect.objectContaining({
+        coordinate: {q: 0 as Integer, r: 0 as Integer},
+        distance: 4,
+      }));
+     });
   });
 });
