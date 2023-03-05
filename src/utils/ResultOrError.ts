@@ -8,7 +8,7 @@ type ResultOrErrorResult<U> = {
     result: U;
 };
 
-export type ResultOrError<T, U> = NonNullable<ResultOrErrorError<T> | ResultOrErrorResult<U>>;
+export type ResultOrError<T, U> = NonNullable<ResultOrErrorResult<T> | ResultOrErrorError<U>>;
 
 export type UnwrapResultOrError = <T, U>(e: ResultOrError<T, U>) => NonNullable<T | U>;
 
@@ -34,11 +34,11 @@ export const unwrapResultOrError: UnwrapResultOrError = <T, U>({
     );
 };
 
-export const isError = <T, U>(e: ResultOrError<T, U>): e is ResultOrErrorError<T> => {
+export const isError = <T, U>(e: ResultOrError<T, U>): e is ResultOrErrorError<U> => {
     return e.error !== undefined;
 };
 
-export const isResult = <T, U>(e: ResultOrError<T, U>): e is ResultOrErrorResult<U> => {
+export const isResult = <T, U>(e: ResultOrError<T, U>): e is ResultOrErrorResult<T> => {
     return e.result !== undefined;
 };
 

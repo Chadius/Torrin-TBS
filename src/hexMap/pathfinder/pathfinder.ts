@@ -10,6 +10,7 @@ import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
+import {isError, unwrapResultOrError} from "../../utils/ResultOrError";
 
 class SearchState {
   tilesSearchCanStopAt: TileFoundDescription[];
@@ -112,7 +113,12 @@ class SearchState {
   }
 
   hasFoundStopLocation(): boolean {
-    return this.results.getRouteToStopLocation() !== undefined;
+    const routeOrError = this.results.getRouteToStopLocation();
+    if (isError(routeOrError)) {
+      return false;
+    }
+    const routeToStopLocation: SearchPath = unwrapResultOrError(routeOrError);
+    return routeToStopLocation !== null;
   }
 
   setLowestCostRoute(searchPath: SearchPath) {

@@ -31,6 +31,7 @@ import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
 import {SearchPath} from "../hexMap/pathfinder/searchPath";
+import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 
 type RequiredOptions = {
   p: p5;
@@ -518,7 +519,10 @@ export class BattleScene {
         }));
         let foundRoute: SearchPath | Error = undefined;
         if (searchPathResultsOrError instanceof SearchResults) {
-          foundRoute = searchPathResultsOrError.getRouteToStopLocation();
+          let routeOrError = searchPathResultsOrError.getRouteToStopLocation();
+          if (isResult(routeOrError)) {
+            foundRoute = unwrapResultOrError(routeOrError);
+          }
         }
 
         if(foundRoute instanceof SearchPath) {

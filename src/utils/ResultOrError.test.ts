@@ -2,11 +2,11 @@ import {isError, isResult, makeError, makeResult, ResultOrError, unwrapResultOrE
 
 describe('ResultOrError', () => {
    it('Returns a Result', () => {
-      const returnResult = (): ResultOrError<Error, string> => {
+      const returnResult = (): ResultOrError<string, Error> => {
          return makeResult("Hi this is a successful result");
       }
 
-      const resultOrError: ResultOrError<Error, string> = returnResult();
+      const resultOrError: ResultOrError<string, Error> = returnResult();
 
       expect(isError(resultOrError)).toBeFalsy();
       expect(isResult(resultOrError)).toBeTruthy();
@@ -16,11 +16,11 @@ describe('ResultOrError', () => {
    });
 
    it('Returns a Error', () => {
-      const returnError = (): ResultOrError<Error, string> => {
+      const returnError = (): ResultOrError<string, Error> => {
          return makeError(new Error("Hi this is an error"));
       }
 
-      const resultOrError: ResultOrError<Error, string> = returnError();
+      const resultOrError: ResultOrError<string, Error> = returnError();
 
       expect(isError(resultOrError)).toBeTruthy();
       expect(isResult(resultOrError)).toBeFalsy();
