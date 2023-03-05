@@ -93,7 +93,7 @@ class SearchState {
     return nextPath;
   }
 
-  addNeighborSearchPathToQueue(tileInfo: TileFoundDescription, head: SearchPath) {
+  addNeighborSearchPathToQueue(tileInfo: TileFoundDescription, head: SearchPath): SearchPath {
     const neighborPath = new SearchPath(head);
     neighborPath.add(
       {
@@ -104,6 +104,7 @@ class SearchState {
       tileInfo.movementCost
     );
     this.searchPathQueue.enqueue(neighborPath);
+    return neighborPath;
   }
 
   setAllReachableTiles() {
@@ -190,28 +191,30 @@ export class Pathfinder {
     });
 
     let numberOfMovementActions: number = 1;
-    let foundAllReachableTiles: boolean = false;
+    let morePathsAdded: boolean = true;
 
     while (
       this.hasRemainingMovementActions(searchParams, numberOfMovementActions)
       && !this.hasFoundStopLocation(searchParams, workingSearchState)
-      && !foundAllReachableTiles
+      && morePathsAdded
     ) {
-      const endpointTiles: TileFoundDescription[] = this.addLegalSearchPaths(
+      const {
+        newAddedSearchPaths,
+        movementEndsOnTheseTiles
+      } = this.addLegalSearchPaths(
         searchParams,
         workingSearchState,
         searchParams.setup.missionMap
       );
 
-      const continueToNextMovementAction: boolean = endpointTiles.length > 0
+      morePathsAdded = newAddedSearchPaths.length > 0;
+      const continueToNextMovementAction: boolean = movementEndsOnTheseTiles.length > 0
         && !this.hasFoundStopLocation(searchParams, workingSearchState);
 
       if (continueToNextMovementAction) {
         numberOfMovementActions ++;
-        endpointTiles.forEach(tile => workingSearchState.extendPathWithNewMovementAction(tile))
+        movementEndsOnTheseTiles.forEach(tile => workingSearchState.extendPathWithNewMovementAction(tile))
       }
-
-      foundAllReachableTiles = endpointTiles.length > 0;
     }
     workingSearchState.setAllReachableTiles();
     return workingSearchState.results;
@@ -226,8 +229,12 @@ export class Pathfinder {
     searchParams: SearchParams,
     workingSearchState: SearchState,
     missionMap: MissionMap,
-  ): TileFoundDescription[] {
-    const endpointTiles: TileFoundDescription[] = [];
+  ): {
+    newAddedSearchPaths: SearchPath[],
+    movementEndsOnTheseTiles: TileFoundDescription[]
+  } {
+    const newAddedSearchPaths: SearchPath[] = [];
+    const movementEndsOnTheseTiles: TileFoundDescription[] = [];
 
     let arrivedAtTheStopLocation: boolean = false;
 
@@ -260,21 +267,25 @@ export class Pathfinder {
         workingSearchState,
       );
       if (neighboringLocations.length === 0 && this.canStopOnThisTile(mapInfo, head, searchParams)) {
-        endpointTiles.push({
+        movementEndsOnTheseTiles.push({
           q: mostRecentTileLocation.q,
           r: mostRecentTileLocation.r,
           movementCost: mostRecentTileLocation.movementCost,
         })
       }
-      this.createNewPathsUsingNeighbors(
-        neighboringLocations,
-        head,
-        missionMap,
-        workingSearchState,
+        newAddedSearchPaths.push(...this.createNewPathsUsingNeighbors(
+          neighboringLocations,
+          head,
+          missionMap,
+          workingSearchState,
+        )
       );
     }
 
-    return endpointTiles;
+    return {
+      newAddedSearchPaths,
+      movementEndsOnTheseTiles,
+    }
   }
 
   private markLocationAsStoppable(
@@ -315,7 +326,8 @@ export class Pathfinder {
     head: SearchPath,
     missionMap: MissionMap,
     workingSearchState: SearchState,
-  ) {
+  ): SearchPath[] {
+    const newPaths: SearchPath[] = [];
     neighboringLocations.forEach((neighbor) =>
       workingSearchState.markLocationAsConsideredForQueue({
         q: neighbor[0] as Integer,
@@ -324,13 +336,15 @@ export class Pathfinder {
       })
     );
     neighboringLocations.forEach((neighbor) => {
-      this.addNeighborNewPath(
+      const newPath: SearchPath = this.addNeighborNewPath(
         neighbor,
         head,
         missionMap,
         workingSearchState,
       );
+      newPaths.push(newPath);
     });
+    return newPaths;
   }
 
   private squaddieCanStopMovingOnTile(mapInfo: HexMapLocationInfo) {
@@ -402,12 +416,12 @@ export class Pathfinder {
     head: SearchPath,
     missionMap: MissionMap,
     workingSearchState: SearchState,
-  ) {
+  ): SearchPath {
     const mapInfo = missionMap.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
 
     let movementCost = MovingCostByTerrainType[mapInfo.tileTerrainType];
 
-    workingSearchState.addNeighborSearchPathToQueue(
+    const newPath: SearchPath = workingSearchState.addNeighborSearchPathToQueue(
       {
         q:neighbor[0] as Integer,
         r:neighbor[1] as Integer,
@@ -415,6 +429,7 @@ export class Pathfinder {
       },
       head,
     );
+    return newPath;
   }
 
   private isPathAtLeastMinimumDistance(head: SearchPath, searchParams: SearchParams): boolean {
