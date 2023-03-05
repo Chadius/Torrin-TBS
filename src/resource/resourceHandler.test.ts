@@ -1,5 +1,6 @@
 import {ResourceHandler, ResourceType} from "./resourceHandler";
 import {stubImmediateLoader} from "./resourceHandlerTestUtils";
+import {isError, isResult, unwrapResultOrError} from "../utils/ResultOrError";
 
 describe('Resource Handler', () => {
   it('can load an individual resource', () => {
@@ -17,7 +18,10 @@ describe('Resource Handler', () => {
     expect(error).toBeUndefined();
 
     const someImage = loader.getResource("some_image_key");
-    expect(someImage).toBe("stubImage for some_image_key");
+    expect(isResult(someImage)).toBeTruthy();
+
+    const imageData = unwrapResultOrError(someImage);
+    expect(imageData).toBe("stubImage for some_image_key");
   });
   it('can load a list of resources', () => {
     const loader = new ResourceHandler({
@@ -39,10 +43,16 @@ describe('Resource Handler', () => {
     expect(errors).toHaveLength(0);
 
     const image1 = loader.getResource("key1");
-    expect(image1).toBe("stubImage for key1");
+    expect(isResult(image1)).toBeTruthy();
+
+    const image1Data = unwrapResultOrError(image1);
+    expect(image1Data).toBe("stubImage for key1");
 
     const image2 = loader.getResource("key2");
-    expect(image2).toBe("stubImage for key2");
+    expect(isResult(image2)).toBeTruthy();
+
+    const image2Data = unwrapResultOrError(image2);
+    expect(image2Data).toBe("stubImage for key2");
   });
   it('returns an error if resource key is unknown', () => {
     const loader = new ResourceHandler({
@@ -74,8 +84,11 @@ describe('Resource Handler', () => {
       ]
     });
     const someImageOrError = loader.getResource("some_image_key");
-    expect(someImageOrError).toEqual(expect.any(Error));
-    expect((someImageOrError as Error).message.includes("resource was not loaded with key: some_image_key")).toBeTruthy();
+    expect(isError(someImageOrError)).toBeTruthy();
+
+    const errorFound = unwrapResultOrError(someImageOrError);
+    expect(errorFound).toEqual(expect.any(Error));
+    expect((errorFound as Error).message.includes("resource was not loaded with key: some_image_key")).toBeTruthy();
   });
 
   it('indicates when all resources have been loaded', ()=>{
@@ -133,7 +146,10 @@ describe('Resource Handler', () => {
     loader.deleteResource("some_image_key");
 
     const someImageOrError = loader.getResource("some_image_key");
-    expect(someImageOrError).toEqual(expect.any(Error));
+    expect(isError(someImageOrError)).toBeTruthy();
+
+    const errorFound = unwrapResultOrError(someImageOrError);
+    expect(errorFound).toEqual(expect.any(Error));
   });
   it('can forget a list of resource keys', () => {
     const loader = new ResourceHandler({
@@ -158,9 +174,15 @@ describe('Resource Handler', () => {
     loader.deleteResources(["image1"]);
 
     const someImageOrError = loader.getResource("image1");
-    expect(someImageOrError).toEqual(expect.any(Error));
+    expect(isError(someImageOrError)).toBeTruthy();
+
+    const errorFound = unwrapResultOrError(someImageOrError);
+    expect(errorFound).toEqual(expect.any(Error));
 
     const image2 = loader.getResource("image2");
-    expect(image2).toBe("stubImage for image2");
+    expect(isResult(image2)).toBeTruthy();
+
+    const image2Data = unwrapResultOrError(image2);
+    expect(image2Data).toBe("stubImage for image2");
   });
 });

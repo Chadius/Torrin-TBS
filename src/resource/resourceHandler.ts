@@ -1,4 +1,5 @@
 import p5 from "p5";
+import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 
 export enum ResourceType {
   IMAGE,
@@ -123,14 +124,14 @@ export class ResourceHandler {
     return undefined;
   }
 
-  getResource(resourceKey: string): p5.Image | Error {
+  getResource(resourceKey: string): ResultOrError<p5.Image, Error> {
     const resourceType = this.resourcesByKey[resourceKey].type;
 
     if (resourceType === ResourceType.IMAGE) {
       if (!this.imagesByKey[resourceKey]) {
-        return new Error(`resource was not loaded with key: ${resourceKey}`);
+        return makeError(new Error(`resource was not loaded with key: ${resourceKey}`));
       }
-      return this.imagesByKey[resourceKey].image;
+      return makeResult(this.imagesByKey[resourceKey].image);
     }
 
     return undefined;

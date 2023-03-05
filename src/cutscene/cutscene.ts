@@ -7,6 +7,7 @@ import {Button, ButtonStatus} from "../ui/button";
 import {Label} from "../ui/label";
 import {RectArea} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
+import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
@@ -201,13 +202,12 @@ export class Cutscene {
         }
 
         if (locator.type === ResourceType.IMAGE) {
-          const foundImage: p5.Image = cutscene.resourceHandler.getResource(
-            locator.key
-          ) as p5.Image;
-
-          if (foundImage) {
+          let foundImage: p5.Image;
+          const foundResourceResultOrError = cutscene.resourceHandler.getResource(locator.key);
+          if(isResult(foundResourceResultOrError)) {
+            foundImage = unwrapResultOrError(foundResourceResultOrError);
             action.setImageResource(
-              foundImage
+                foundImage
             )
           }
         }

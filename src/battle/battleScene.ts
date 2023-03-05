@@ -10,14 +10,13 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
-  convertMapCoordinatesToScreenCoordinates, convertMapCoordinatesToWorldCoordinates,
+  convertMapCoordinatesToScreenCoordinates,
+  convertMapCoordinatesToWorldCoordinates,
   convertScreenCoordinatesToWorldCoordinates,
   convertWorldCoordinatesToMapCoordinates,
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
-import {
-  Pathfinder
-} from "../hexMap/pathfinder/pathfinder";
+import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
 import {drawHexMap, HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
@@ -26,7 +25,7 @@ import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleCamera} from "./battleCamera";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {getSquaddiePositionAlongPath, lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
+import {getSquaddiePositionAlongPath} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
@@ -284,8 +283,11 @@ export class BattleScene {
       Object.entries(this.squaddieDynamicInfoByID)
         .forEach(([_, dynaicSquaddieInfo]) => {
           const staticInfo = this.squaddieStaticInfoBySquaddieTypeID[dynaicSquaddieInfo.staticSquaddieId];
-          let image: p5.Image = this.resourceHandler.getResource(
-            staticInfo.squaddieID.resources.mapIconResourceKey) as p5.Image;
+          let image: p5.Image;
+          const foundResourceResultOrError = this.resourceHandler.getResource(staticInfo.squaddieID.resources.mapIconResourceKey);
+          if(isResult(foundResourceResultOrError)) {
+            image = unwrapResultOrError(foundResourceResultOrError);
+          }
 
           const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
             dynaicSquaddieInfo.mapLocation.q, dynaicSquaddieInfo.mapLocation.r, ...this.camera.getCoordinates())
@@ -517,7 +519,7 @@ export class BattleScene {
             r: clickedHexCoordinate.r
           },
         }));
-        let foundRoute: SearchPath | Error = undefined;
+        let foundRoute: SearchPath = undefined;
         if (
             isResult(searchPathResultsOrError)
         ) {
@@ -525,40 +527,39 @@ export class BattleScene {
           if (isResult(routeOrError)) {
             foundRoute = unwrapResultOrError(routeOrError);
           }
-        }
+          if (foundRoute !== null) {
+            this.squaddieMovePath = foundRoute;
+          } else {
+            this.squaddieMovePath = new SearchPath();
+            this.squaddieMovePath.add({
+                  q: squaddieToMove.mapLocation.q,
+                  r: squaddieToMove.mapLocation.r,
+                  movementCost: 0,
+                },
+                0
+            );
+            this.squaddieMovePath.add(
+                {
+                  q: clickedHexCoordinate.q,
+                  r: clickedHexCoordinate.r,
+                  movementCost: 0,
+                },
+                0
+            );
+          }
 
-        if(foundRoute instanceof SearchPath) {
-          this.squaddieMovePath = foundRoute;
-        } else {
-          this.squaddieMovePath = new SearchPath();
-          this.squaddieMovePath.add({
-            q: squaddieToMove.mapLocation.q,
-            r: squaddieToMove.mapLocation.r,
-            movementCost: 0,
-          },
-            0
+          this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
+              squaddieToMove.mapLocation.q,
+              squaddieToMove.mapLocation.r,
           );
-          this.squaddieMovePath.add(
-          {
-            q: clickedHexCoordinate.q,
-            r: clickedHexCoordinate.r,
-            movementCost: 0,
-          },
-            0
+          this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
+              this.squaddieMovePath.getDestination().q,
+              this.squaddieMovePath.getDestination().r,
           );
+
+          this.animationTimer = Date.now();
+          this.animationMode = AnimationMode.MOVING_UNIT;
         }
-
-        this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
-          squaddieToMove.mapLocation.q,
-          squaddieToMove.mapLocation.r,
-        );
-        this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
-          this.squaddieMovePath.getDestination().q,
-          this.squaddieMovePath.getDestination().r,
-        );
-
-        this.animationTimer = Date.now();
-        this.animationMode = AnimationMode.MOVING_UNIT;
       }
 
       this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());
