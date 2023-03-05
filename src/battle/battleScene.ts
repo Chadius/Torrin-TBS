@@ -472,6 +472,16 @@ export class BattleScene {
     } else {
       this.camera.setYVelocity(0);
     }
+
+    if (
+        mouseX < 0
+        || mouseX > SCREEN_WIDTH
+        || mouseY < 0
+        || mouseY > SCREEN_HEIGHT
+    ) {
+      this.camera.setXVelocity(0);
+      this.camera.setYVelocity(0);
+    }
   }
 
   mouseClicked(mouseX: number, mouseY: number) {
