@@ -874,9 +874,9 @@ describe('pathfinder', () => {
 
       let routeFound: SearchPath;
       if (
-        allMovableTiles instanceof SearchResults
+        isResult(allMovableTiles)
       ) {
-        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        let routeOrError = unwrapResultOrError(allMovableTiles).getRouteToStopLocation();
         if (isResult(routeOrError)) {
           routeFound = unwrapResultOrError(routeOrError);
         }
@@ -922,8 +922,13 @@ describe('pathfinder', () => {
         startLocation: {q: 0 as Integer, r: 0 as Integer},
       }));
 
-      expect(somePathOrError).toEqual(expect.any(Error));
-      expect((somePathOrError as Error).message.includes("no stop location was given")).toBeTruthy();
+      let errorFound: Error;
+      if (isError(somePathOrError)) {
+        errorFound = unwrapResultOrError(somePathOrError);
+      }
+
+      expect(errorFound).toEqual(expect.any(Error));
+      expect((errorFound as Error).message.includes("no stop location was given")).toBeTruthy();
     });
 
     it('throws an error if results object has no stop location', () => {
@@ -975,9 +980,9 @@ describe('pathfinder', () => {
 
       let routeFound: SearchPath;
       if (
-        allMovableTiles instanceof SearchResults
+          isResult(allMovableTiles)
       ) {
-        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        let routeOrError = unwrapResultOrError(allMovableTiles).getRouteToStopLocation();
         if (isResult(routeOrError)) {
           routeFound = unwrapResultOrError(routeOrError);
         }
@@ -1004,9 +1009,9 @@ describe('pathfinder', () => {
 
       let routeFound: SearchPath;
       if (
-        allMovableTiles instanceof SearchResults
+          isResult(allMovableTiles)
       ) {
-        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        let routeOrError = unwrapResultOrError(allMovableTiles).getRouteToStopLocation();
         if (isResult(routeOrError)) {
           routeFound = unwrapResultOrError(routeOrError);
         }
@@ -1057,9 +1062,9 @@ describe('pathfinder', () => {
 
       let routeFound: SearchPath;
       if (
-        allMovableTiles instanceof SearchResults
+          isResult(allMovableTiles)
       ) {
-        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        let routeOrError = unwrapResultOrError(allMovableTiles).getRouteToStopLocation();
         if (isResult(routeOrError)) {
           routeFound = unwrapResultOrError(routeOrError);
         }
@@ -1164,9 +1169,9 @@ describe('pathfinder', () => {
 
       let routeFound: SearchPath;
       if (
-        allMovableTiles instanceof SearchResults
+          isResult(allMovableTiles)
       ) {
-        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        let routeOrError = unwrapResultOrError(allMovableTiles).getRouteToStopLocation();
         if (isResult(routeOrError)) {
           routeFound = unwrapResultOrError(routeOrError);
         }
@@ -1232,9 +1237,9 @@ describe('pathfinder', () => {
 
       let routeFound: SearchPath;
       if (
-        allMovableTiles instanceof SearchResults
+          isResult(allMovableTiles)
       ) {
-        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        let routeOrError = unwrapResultOrError(allMovableTiles).getRouteToStopLocation();
         if (isResult(routeOrError)) {
           routeFound = unwrapResultOrError(routeOrError);
         }
@@ -1267,14 +1272,14 @@ describe('pathfinder', () => {
       let closestTilesToDestination: {coordinate: HexCoordinate, searchPath: SearchPath, distance: number}[] = [];
       let routeFound: SearchPath;
       if (
-        allMovableTiles instanceof SearchResults
+          isResult(allMovableTiles)
       ) {
-        let routeOrError = allMovableTiles.getRouteToStopLocation();
+        let routeOrError = unwrapResultOrError(allMovableTiles).getRouteToStopLocation();
         if (isResult(routeOrError)) {
           routeFound = unwrapResultOrError(routeOrError);
         }
 
-        closestTilesToDestination = allMovableTiles.getClosestTilesToDestination();
+        closestTilesToDestination = unwrapResultOrError(allMovableTiles).getClosestTilesToDestination();
       }
       expect(routeFound).toBeNull();
 

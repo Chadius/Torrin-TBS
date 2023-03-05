@@ -504,7 +504,7 @@ export class BattleScene {
         const squaddieToMove = this.squaddieDynamicInfoByID["player_young_torrin"];
         const squaddieToMoveStatic = this.squaddieStaticInfoBySquaddieTypeID["player_young_torrin"];
 
-        const searchPathResultsOrError: SearchResults | Error = this.pathfinder.findPathToStopLocation(new SearchParams ({
+        const searchPathResultsOrError = this.pathfinder.findPathToStopLocation(new SearchParams ({
           missionMap: this.missionMap,
           squaddieMovement: squaddieToMoveStatic.movement,
           numberOfActions: 3,
@@ -518,8 +518,10 @@ export class BattleScene {
           },
         }));
         let foundRoute: SearchPath | Error = undefined;
-        if (searchPathResultsOrError instanceof SearchResults) {
-          let routeOrError = searchPathResultsOrError.getRouteToStopLocation();
+        if (
+            isResult(searchPathResultsOrError)
+        ) {
+          let routeOrError = unwrapResultOrError(searchPathResultsOrError).getRouteToStopLocation();
           if (isResult(routeOrError)) {
             foundRoute = unwrapResultOrError(routeOrError);
           }

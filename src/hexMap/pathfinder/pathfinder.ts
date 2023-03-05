@@ -10,7 +10,7 @@ import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
-import {isError, unwrapResultOrError} from "../../utils/ResultOrError";
+import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 
 class SearchState {
   tilesSearchCanStopAt: TileFoundDescription[];
@@ -129,11 +129,11 @@ class SearchState {
 export class Pathfinder {
 
   constructor() {}
-  findPathToStopLocation(searchParams: SearchParams): SearchResults | Error {
+  findPathToStopLocation(searchParams: SearchParams): ResultOrError<SearchResults, Error> {
     if (searchParams.getStopLocation() === undefined) {
-      return new Error ("no stop location was given");
+      return makeError(new Error ("no stop location was given"));
     }
-    return this.searchMapForPaths(searchParams);
+    return makeResult(this.searchMapForPaths(searchParams));
   }
 
   getAllReachableTiles(searchParams: SearchParams): SearchResults {

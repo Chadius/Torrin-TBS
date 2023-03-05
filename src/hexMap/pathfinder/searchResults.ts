@@ -84,9 +84,5 @@ export class SearchResults {
       }
       return 0;
     });
-    // TODO map at all searchPaths
-    //// TODO get coordinate
-    //// TODO get Manhattan distance from destination
-    //// MAP!
   }
 }
