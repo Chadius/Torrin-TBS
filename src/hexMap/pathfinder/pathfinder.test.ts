@@ -1,6 +1,6 @@
 import {TerrainTileMap} from "../terrainTileMap";
 import {HexCoordinate, HexGridTile, Integer} from "../hexGrid";
-import {SquaddieID} from "../../squaddie/id";
+import {SquaddieAffiliation, SquaddieID} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
 import {
   Pathfinder
@@ -34,7 +34,8 @@ describe('pathfinder', () => {
       resources: new SquaddieResource({
         mapIconResourceKey: "map_icon_torrin"
       }),
-      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
+      affiliation: SquaddieAffiliation.PLAYER,
     });
   });
 
@@ -394,7 +395,8 @@ describe('pathfinder', () => {
         resources: new SquaddieResource({
           mapIconResourceKey: "map_icon_teammate"
         }),
-        traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+        traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
+        affiliation: SquaddieAffiliation.PLAYER,
       });
 
       missionMap.addSquaddie(teammate, {q: 0 as Integer, r: 1 as Integer});

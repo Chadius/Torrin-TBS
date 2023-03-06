@@ -4,7 +4,7 @@ import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
-import {SquaddieID} from "../squaddie/id";
+import {SquaddieAffiliation, SquaddieID} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
 import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
@@ -105,7 +105,8 @@ export class BattleScene {
           traits: new TraitStatusStorage({
             [Trait.HUMANOID]: true,
             [Trait.MONSU]: true,
-          }).filterCategory(TraitCategory.CREATURE)
+          }).filterCategory(TraitCategory.CREATURE),
+          affiliation: SquaddieAffiliation.PLAYER,
         }),
         movement: new SquaddieMovement({
           movementPerAction: 2,
@@ -132,7 +133,8 @@ export class BattleScene {
           }),
           traits: new TraitStatusStorage({
             [Trait.HUMANOID]: true,
-          }).filterCategory(TraitCategory.CREATURE)
+          }).filterCategory(TraitCategory.CREATURE),
+          affiliation: SquaddieAffiliation.PLAYER,
         }),
         movement: new SquaddieMovement({
           movementPerAction: 2,
@@ -157,7 +159,8 @@ export class BattleScene {
           }),
           traits: new TraitStatusStorage({
             [Trait.DEMON]: true,
-          }).filterCategory(TraitCategory.CREATURE)
+          }).filterCategory(TraitCategory.CREATURE),
+          affiliation: SquaddieAffiliation.PLAYER,
         }),
         movement: new SquaddieMovement({
           movementPerAction: 1,

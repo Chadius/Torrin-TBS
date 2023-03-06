@@ -1,5 +1,5 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {SquaddieID} from "../squaddie/id";
+import {SquaddieAffiliation, SquaddieID} from "../squaddie/id";
 import {HexCoordinate, HexGridTile, Integer} from "../hexMap/hexGrid";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {SquaddieResource} from "../squaddie/resource";
@@ -24,7 +24,8 @@ describe('Mission Map', () => {
       resources: new SquaddieResource({
         mapIconResourceKey: "map_icon_torrin"
       }),
-      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
+      affiliation: SquaddieAffiliation.PLAYER,
     });
   });
 
@@ -55,7 +56,8 @@ describe('Mission Map', () => {
       resources: new SquaddieResource({
         mapIconResourceKey: "map_icon_sir_camil"
       }),
-      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+      traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
+      affiliation: SquaddieAffiliation.PLAYER,
     });
 
     error = missionMap.addSquaddie(sirCamilSquaddie, {q: 0 as Integer, r: 1 as Integer});
