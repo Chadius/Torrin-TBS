@@ -523,10 +523,9 @@ export class BattleScene {
         if (
             isResult(searchPathResultsOrError)
         ) {
-          let routeOrError = unwrapResultOrError(searchPathResultsOrError).getRouteToStopLocation();
-          if (isResult(routeOrError)) {
-            foundRoute = unwrapResultOrError(routeOrError);
-          }
+          const closestTilesToDestination = unwrapResultOrError(searchPathResultsOrError).getClosestTilesToDestination();
+          foundRoute = closestTilesToDestination ? closestTilesToDestination[0].searchPath : null;
+
           if (foundRoute !== null) {
             this.squaddieMovePath = foundRoute;
           } else {
