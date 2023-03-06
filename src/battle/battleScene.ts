@@ -228,6 +228,10 @@ export class BattleScene {
     this.missionMap = new MissionMap({
       terrainTileMap: this.hexMap
     })
+    Object.entries(this.squaddieDynamicInfoByID).forEach(([staticSquaddieId, info]) => {
+      const staticSquaddieInfo: BattleSquaddieStatic = this.squaddieStaticInfoBySquaddieTypeID[info.staticSquaddieId];
+      this.missionMap.addSquaddie(staticSquaddieInfo.squaddieID, info.mapLocation);
+    })
     this.pathfinder = new Pathfinder();
   }
 
