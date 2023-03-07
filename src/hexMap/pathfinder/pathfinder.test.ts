@@ -617,14 +617,18 @@ describe('pathfinder', () => {
             });
 
             it('can only includes itself with radius 0', () => {
-                const centerTileOnly: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: justTheCenter.map((hex) => {
+                const centerTileOnly: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                        squaddieMovement: new SquaddieMovement({
+                            movementPerAction: 1,
+                            traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
+                        })
+                    }),
+                    0,
+                    justTheCenter.map((hex) => {
                         return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
                     }),
-                    maximumDistance: 0,
-                    passThroughWalls: true,
-                });
+                );
                 validateTilesAreFound(
                     centerTileOnly,
                     [
@@ -638,14 +642,18 @@ describe('pathfinder', () => {
             });
 
             it('Radius 1 should get all within 1 movement', () => {
-                const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: justTheCenter.map((hex) => {
+                const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                        squaddieMovement: new SquaddieMovement({
+                            movementPerAction: 1,
+                            traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
+                        }),
+                    }),
+                    1,
+                    justTheCenter.map((hex) => {
                         return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
                     }),
-                    maximumDistance: 1,
-                    passThroughWalls: true,
-                });
+                );
                 validateTilesAreFound(
                     centerAndAdjacentTiles,
                     [
@@ -663,14 +671,18 @@ describe('pathfinder', () => {
             });
 
             it('can find tiles within 2 tiles of the center, besides walls', () => {
-                const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: justTheCenter.map((hex) => {
-                        return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
+                const centerAndAdjacentTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                        squaddieMovement: new SquaddieMovement({
+                            movementPerAction: 1,
+                            traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
+                        }),
                     }),
-                    maximumDistance: 2,
-                    passThroughWalls: true,
-                });
+                    2,
+                    justTheCenter.map((hex) => {
+                        return {q: hex.q, r: hex.r, numberOfActions: 0 as Integer, movementCost: 0}
+                    })
+                );
                 validateTilesAreFound(
                     centerAndAdjacentTiles,
                     tilesWithin2HexesOfOrigin,
@@ -686,12 +698,16 @@ describe('pathfinder', () => {
                     {q: 1 as Integer, r: 2 as Integer, numberOfActions: 0 as Integer, movementCost: 0}
                 ];
 
-                const meleeAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: movementRangeTiles,
-                    maximumDistance: 1,
-                    passThroughWalls: true,
-                });
+                const meleeAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                        squaddieMovement: new SquaddieMovement({
+                            movementPerAction: 1,
+                            traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
+                        }),
+                    }),
+                    1,
+                    movementRangeTiles,
+                );
                 validateTilesAreFound(
                     meleeAttackTiles,
                     [
@@ -739,13 +755,13 @@ describe('pathfinder', () => {
                     ...justTheCenter,
                 ];
 
-                const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: movementRangeTiles,
-                    minimumDistance: 2,
-                    maximumDistance: 3,
-                    passThroughWalls: false,
-                });
+                const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                        minimumDistanceMoved: 2,
+                    }),
+                    3,
+                    movementRangeTiles,
+                );
 
                 validateTilesAreFound(
                     indirectAttackTiles,
@@ -780,13 +796,13 @@ describe('pathfinder', () => {
                     {q: 1 as Integer, r: 2 as Integer, numberOfActions: 0 as Integer, movementCost: 0}
                 ];
 
-                const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: movementRangeTiles,
-                    minimumDistance: 2,
-                    maximumDistance: 3,
-                    passThroughWalls: false,
-                });
+                const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                        minimumDistanceMoved: 2,
+                    }),
+                    3,
+                    movementRangeTiles,
+                );
                 validateTilesAreFound(
                     indirectAttackTiles,
                     [
@@ -834,12 +850,12 @@ describe('pathfinder', () => {
             });
 
             it('can be blocked by walls', () => {
-                const blockedByWall: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: justTheCenter,
-                    maximumDistance: 2,
-                    passThroughWalls: false,
-                });
+                const blockedByWall: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                    }),
+                    2,
+                    justTheCenter,
+                );
                 validateTilesAreFound(
                     blockedByWall,
                     [
@@ -853,12 +869,16 @@ describe('pathfinder', () => {
             });
 
             it('can target through walls', () => {
-                const skipPastWalls: TileFoundDescription[] = pathfinder.getTilesInRange({
-                    missionMap: missionMap,
-                    sourceTiles: justTheCenter,
-                    maximumDistance: 2,
-                    passThroughWalls: true,
-                });
+                const skipPastWalls: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                        missionMap: missionMap,
+                        squaddieMovement: new SquaddieMovement({
+                            movementPerAction: 3,
+                            traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
+                        }),
+                    }),
+                    2,
+                    justTheCenter,
+                );
                 validateTilesAreFound(
                     skipPastWalls,
                     [

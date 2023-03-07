@@ -142,44 +142,29 @@ export class Pathfinder {
     return this.searchMapForPaths(searchParams);
   }
 
-  getTilesInRange(param: {
-    maximumDistance: number;
-    minimumDistance?: number;
-    passThroughWalls: boolean;
-    sourceTiles: TileFoundDescription[],
-    missionMap: MissionMap,
-  }): TileFoundDescription[] {
-    const {
-      maximumDistance,
-      minimumDistance,
-      passThroughWalls,
-      sourceTiles,
-      missionMap,
-    } = param;
-
+  getTilesInRange(searchParams: SearchParams, maximumDistance: number, sourceTiles: HexCoordinate[]): TileFoundDescription[] {
     if (maximumDistance < 1) {
-      return [...sourceTiles];
+      return sourceTiles.map((tile) => {return {...tile, movementCost: 0}})
     }
 
     const inRangeTilesByLocation: {[locationKey: string]: TileFoundDescription} = {};
 
     sourceTiles.forEach((sourceTile) => {
-      const reachableTiles: SearchResults = this.getAllReachableTiles(
-        new SearchParams({
-          startLocation: sourceTile,
-          missionMap: missionMap,
-          numberOfActions: 1,
-          minimumDistanceMoved: minimumDistance,
-          squaddieMovement: new SquaddieMovement(
-            {
-              movementPerAction: maximumDistance,
-              traits: new TraitStatusStorage({
-                [Trait.PASS_THROUGH_WALLS]: passThroughWalls,
-                [Trait.CROSS_OVER_PITS]: true,
-              }).filterCategory(TraitCategory.MOVEMENT)
-            })
-        })
-      );
+      const searchParamsWithNewStartLocation = new SearchParams({
+        ...searchParams.getSearchParamsOptions(),
+        numberOfActions: 1,
+        squaddieMovement: new SquaddieMovement(
+          {
+            movementPerAction: maximumDistance,
+            traits: new TraitStatusStorage({
+              [Trait.PASS_THROUGH_WALLS]: searchParams.getSearchParamsOptions().squaddieMovement.passThroughWalls,
+              [Trait.CROSS_OVER_PITS]: true,
+            }).filterCategory(TraitCategory.MOVEMENT)
+          }),
+        startLocation: sourceTile
+      })
+
+      const reachableTiles: SearchResults = this.getAllReachableTiles(searchParamsWithNewStartLocation);
 
       reachableTiles.allReachableTiles.forEach((reachableTile) => {
         let locationKey: string = HexCoordinateToKey(reachableTile);

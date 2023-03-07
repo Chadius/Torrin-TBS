@@ -2,6 +2,7 @@ import {HexCoordinate} from "../hexGrid";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 export type SearchParamsOptions = {
   startLocation?: HexCoordinate;
@@ -82,5 +83,23 @@ export class SearchParams {
   }
   getSquaddieAffiliation(): SquaddieAffiliation {
     return this.setup.affiliation;
+  }
+
+  getSearchParamsOptions(): SearchParamsOptions {
+    return {
+      minimumDistanceMoved: this.movement.minimumDistanceMoved,
+      missionMap: this.setup.missionMap,
+      numberOfActions: this.stopConditions.numberOfActions,
+      squaddieAffiliation: this.setup.affiliation,
+      squaddieMovement: new SquaddieMovement({
+        movementPerAction: this.movement.movementPerAction,
+        traits: new TraitStatusStorage({
+          [Trait.PASS_THROUGH_WALLS] : this.movement.passThroughWalls,
+          [Trait.CROSS_OVER_PITS] : this.movement.crossOverPits,
+        })
+      }),
+      startLocation: this.setup.startLocation,
+      stopLocation: this.stopConditions.stopLocation,
+    }
   }
 }
