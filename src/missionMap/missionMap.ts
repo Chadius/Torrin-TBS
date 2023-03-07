@@ -70,13 +70,13 @@ export class MissionMap {
     }
   }
 
-  getSquaddieAtLocation(hexCoordinate: HexCoordinate): {
-    q: Integer;
-    r: Integer;
-    id: string;
-  } {
+  getSquaddieAtLocation(hexCoordinate: HexCoordinate): SquaddieID {
     const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
-    return this.squaddiesByLocation[coordinateKey];
+    const moreInfo = this.squaddiesByLocation[coordinateKey];
+    if (!moreInfo) {
+      return undefined;
+    }
+    return this.squaddiesById[moreInfo.id]?.squaddieID;
   }
 
   getTerrainTileTypeAtLocation(hexCoordinate: HexCoordinate): HexGridMovementCost {
@@ -101,5 +101,26 @@ export class MissionMap {
       squaddieId,
       tileTerrainType
     }
+  }
+
+  updateSquaddiePosition(id: string, mapLocation: HexCoordinate): Error | undefined {
+  //   const coordinateKey: string = HexCoordinateToKey(mapLocation);
+  //   const alreadyOccupiedSquaddie: SquaddieID = this.getSquaddieAtLocation(mapLocation);
+  //   if (alreadyOccupiedSquaddie && alreadyOccupiedSquaddie.id !== id) {
+  //     return new Error(`cannot update squaddie position to ${coordinateKey}, already occupied by ${this.squaddiesByLocation[coordinateKey].id}`);
+  //   }
+  //
+    const squaddieToMoveInfo = this.squaddiesById[id];
+    if(!squaddieToMoveInfo) {
+      return new Error(`updateSquaddieLocation: no squaddie with id ${id}`);
+    }
+
+    const squaddieToMoveCoordinateKey = HexCoordinateToKey({
+      q: squaddieToMoveInfo.q,
+      r: squaddieToMoveInfo.r,
+    });
+    delete this.squaddiesByLocation[squaddieToMoveCoordinateKey];
+
+    return this.addSquaddie(squaddieToMoveInfo.squaddieID, mapLocation);
   }
 }

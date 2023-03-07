@@ -11,6 +11,8 @@ import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
+import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {SquaddieID} from "../../squaddie/id";
 
 class SearchState {
   tilesSearchCanStopAt: TileFoundDescription[];
@@ -324,6 +326,7 @@ export class Pathfinder {
     neighboringLocations = this.filterNeighborsNotEnqueued(neighboringLocations, workingSearchState);
     neighboringLocations = this.filterNeighborsNotVisited(neighboringLocations, workingSearchState);
     neighboringLocations = this.filterNeighborsOnMap(missionMap, neighboringLocations);
+    neighboringLocations = this.filterNeighborsCheckingAffiliation(neighboringLocations, missionMap, searchParams);
     return this.filterNeighborsWithinMovementPerAction(neighboringLocations, searchParams, head, missionMap);
   }
 
@@ -414,6 +417,31 @@ export class Pathfinder {
 
       let movementCost = MovingCostByTerrainType[mapInfo.tileTerrainType];
       return head.getMovementCostSinceStartOfAction() + movementCost <= searchParams.getMovementPerAction();
+    });
+  }
+
+  private filterNeighborsCheckingAffiliation(
+      neighboringLocations: [number, number][],
+      missionMap: MissionMap,
+      searchParams: SearchParams
+  ): [number, number][] {
+    if (!searchParams.hasSquaddieAffiliation()) {
+      return neighboringLocations;
+    }
+
+    const searcherAffiliation: SquaddieAffiliation = searchParams.getSquaddieAffiliation();
+    const friendlyAffiliations: {[friendlyAffiliation in SquaddieAffiliation]? : boolean} = FriendlyAffiliationsByAffiliation[searcherAffiliation];
+    return neighboringLocations.filter((neighbor) => {
+      const squaddieAtLocation: SquaddieID = missionMap.getSquaddieAtLocation({
+        q: neighbor[0] as Integer,
+        r: neighbor[1] as Integer,
+      });
+
+      if(!squaddieAtLocation) {
+        return true;
+      }
+
+      return friendlyAffiliations[squaddieAtLocation.affiliation];
     });
   }
 

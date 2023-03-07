@@ -4,7 +4,7 @@ import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
-import {SquaddieAffiliation, SquaddieID} from "../squaddie/id";
+import {SquaddieID} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
 import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
@@ -31,6 +31,7 @@ import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
 import {SearchPath} from "../hexMap/pathfinder/searchPath";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 type RequiredOptions = {
   p: p5;
@@ -160,7 +161,7 @@ export class BattleScene {
           traits: new TraitStatusStorage({
             [Trait.DEMON]: true,
           }).filterCategory(TraitCategory.CREATURE),
-          affiliation: SquaddieAffiliation.PLAYER,
+          affiliation: SquaddieAffiliation.ENEMY,
         }),
         movement: new SquaddieMovement({
           movementPerAction: 1,
@@ -356,16 +357,17 @@ export class BattleScene {
         ...this.camera.getCoordinates()
       );
       this.setImageToLocation(squaddieDynamicInfo, xyCoords);
+      this.missionMap.updateSquaddiePosition(squaddieStaticInfo.squaddieID.id, squaddieDynamicInfo.mapLocation);
 
       const reachableTileSearchResults: SearchResults = this.pathfinder.getAllReachableTiles(
         new SearchParams({
           missionMap: this.missionMap,
           startLocation: squaddieDynamicInfo.mapLocation,
           squaddieMovement: squaddieStaticInfo.movement,
+          squaddieAffiliation: squaddieStaticInfo.squaddieID.affiliation,
           numberOfActions: 3,
         })
       );
-
       const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
       const movementTilesByNumberOfActions: {[numberOfActions: number]: [{q: Integer, r: Integer}?]} = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
@@ -525,6 +527,7 @@ export class BattleScene {
             q: clickedHexCoordinate.q,
             r: clickedHexCoordinate.r
           },
+          squaddieAffiliation: squaddieToMoveStatic.squaddieID.affiliation
         }));
         let foundRoute: SearchPath = undefined;
         if (

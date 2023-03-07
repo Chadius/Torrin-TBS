@@ -1,13 +1,6 @@
 import {SquaddieResource} from "./resource";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
-
-export enum SquaddieAffiliation {
-  UNKNOWN = "UNKNOWN",
-  PLAYER = "PLAYER",
-  ENEMY = "ENEMY",
-  ALLY = "ALLY",
-  "NONE" = "NONE",
-}
+import {SquaddieAffiliation} from "./squaddieAffiliation";
 
 type RequiredOptions = {
   name: string;
