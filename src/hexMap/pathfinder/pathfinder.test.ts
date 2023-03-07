@@ -1,5 +1,5 @@
 import {TerrainTileMap} from "../terrainTileMap";
-import {HexCoordinate, HexGridTile, Integer} from "../hexGrid";
+import {HexCoordinate, Integer} from "../hexGrid";
 import {SquaddieID} from "../../squaddie/id";
 import {NullSquaddieResource, SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder} from "./pathfinder";
@@ -11,7 +11,7 @@ import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
-import {isError, isResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
+import {getResultOrThrowError, isError, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
 describe('pathfinder', () => {
@@ -43,8 +43,8 @@ describe('pathfinder', () => {
     });
 
     const createMapAndPathfinder = (movementCost: string[]) => {
-        const terrainTileMap: TerrainTileMap = new TerrainTileMap({ movementCost });
-        const missionMap: MissionMap = new MissionMap({ terrainTileMap })
+        const terrainTileMap: TerrainTileMap = new TerrainTileMap({movementCost});
+        const missionMap: MissionMap = new MissionMap({terrainTileMap})
         const pathfinder: Pathfinder = new Pathfinder();
         return {
             missionMap,
@@ -967,14 +967,8 @@ describe('pathfinder', () => {
             }));
 
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
-            }
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
 
             expect(routeFound.getTotalCost()).toEqual(1);
             expect(routeFound.getDestination()).toStrictEqual({
@@ -1064,14 +1058,8 @@ describe('pathfinder', () => {
             }));
 
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
-            }
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
             expect(routeFound).toBeNull();
         });
 
@@ -1090,14 +1078,8 @@ describe('pathfinder', () => {
             }));
 
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
-            }
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
 
             expect(routeFound.getTotalCost()).toEqual(0);
             expect(routeFound.getDestination()).toStrictEqual({
@@ -1136,14 +1118,8 @@ describe('pathfinder', () => {
             }));
 
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
-            }
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
 
             expect(routeFound.getTotalCost()).toEqual(4);
             expect(routeFound.getDestination()).toStrictEqual({
@@ -1236,14 +1212,8 @@ describe('pathfinder', () => {
             }));
 
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
-            }
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
 
             expect(routeFound.getTotalCost()).toEqual(5);
             expect(routeFound.getTilesTraveled()).toStrictEqual([
@@ -1297,14 +1267,8 @@ describe('pathfinder', () => {
             }));
 
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
-            }
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
             expect(routeFound).toBeNull();
         });
 
@@ -1325,16 +1289,10 @@ describe('pathfinder', () => {
 
             let closestTilesToDestination: { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] = [];
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
 
-                closestTilesToDestination = unwrapResultOrError(searchResults).getClosestTilesToDestination();
-            }
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
+            closestTilesToDestination = getResultOrThrowError(searchResults).getClosestTilesToDestination();
             expect(routeFound).toBeNull();
 
             expect(closestTilesToDestination).toHaveLength(3);
@@ -1381,15 +1339,8 @@ describe('pathfinder', () => {
             }));
 
             let routeFound: SearchPath;
-            if (
-                isResult(searchResults)
-            ) {
-                let routeOrError = unwrapResultOrError(searchResults).getRouteToStopLocation();
-                if (isResult(routeOrError)) {
-                    routeFound = unwrapResultOrError(routeOrError);
-                }
-            }
-
+            let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+            routeFound = getResultOrThrowError(routeOrError);
             const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
             expect(tilesTraveled).toHaveLength(4);
             expect(tilesTraveled[0]).toEqual(expect.objectContaining({

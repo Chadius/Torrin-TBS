@@ -9,7 +9,7 @@ import {
 import {HexCoordinate, Integer} from "./hexGrid";
 import {TerrainTileMap} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
-import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
+import {getResultOrThrowError, isResult, unwrapResultOrError} from "../utils/ResultOrError";
 
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
 
@@ -110,9 +110,7 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     const imageOrError = resourceHandler.getResource(overlayImageResourceKey);
     if(isResult(imageOrError)) {
       image = unwrapResultOrError(imageOrError);
-    }
 
-    if (image instanceof p5.Image) {
       p.pop();
 
       let [imageWorldX, imageWorldY] = convertMapCoordinatesToWorldCoordinates(q, r);

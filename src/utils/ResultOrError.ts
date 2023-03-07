@@ -13,9 +13,9 @@ export type ResultOrError<T, U> = NonNullable<ResultOrErrorResult<T> | ResultOrE
 export type UnwrapResultOrError = <T, U>(e: ResultOrError<T, U>) => NonNullable<T | U>;
 
 export const unwrapResultOrError: UnwrapResultOrError = <T, U>({
-                                                     error,
-                                                     result,
-                                                 }: ResultOrError<T, U>) => {
+                                                                   error,
+                                                                   result,
+                                                               }: ResultOrError<T, U>) => {
     if (result !== undefined && error !== undefined) {
         throw new Error(
             `Received both left and right values at runtime when opening an Either\nLeft: ${JSON.stringify(
@@ -30,7 +30,7 @@ export const unwrapResultOrError: UnwrapResultOrError = <T, U>({
         return result as NonNullable<U>;
     }
     throw new Error(
-        `Received no left or right values at runtime when opening Either`
+        `Received no result or error values at runtime when opening ResultOrError`
     );
 };
 
@@ -42,6 +42,28 @@ export const isResult = <T, U>(e: ResultOrError<T, U>): e is ResultOrErrorResult
     return e.result !== undefined;
 };
 
-export const makeError = <T>(value: T): ResultOrErrorError<T> => ({ error: value });
+export const makeError = <T>(value: T): ResultOrErrorError<T> => ({error: value});
 
-export const makeResult = <U>(value: U): ResultOrErrorResult<U> => ({ result: value });
+export const makeResult = <U>(value: U): ResultOrErrorResult<U> => ({result: value});
+
+export const gub: () => void = () => {}
+
+export const getResultOrThrowError: <T, U>({
+                                               result,
+                                               error,
+                                           }: ResultOrError<T, U>) => NonNullable<T> =
+    <T, U>({
+        error,
+        result,
+    }: ResultOrError<T, U>) => {
+
+    if (error !== undefined) {
+        throw error;
+    }
+    if (result !== undefined) {
+        return result as NonNullable<T>;
+    }
+    throw new Error(
+        `Received no result or error values at runtime when opening ResultOrError`
+    );
+}
