@@ -8,6 +8,56 @@ Welcome to the Fell Desert, a land of magic, wonder and hope. A young woman made
 A 2D Turn-Based strategy game with a laser-focus on helping players of all skill levels become comfortable.
 
 ## Gameplay features
+### Key Skills
+#### Easy to Learn
+##### Hex Map movement
+You can move left, right, and diagonally up left, up right, down left, down right.
+
+This means you can surround someone in 6 directions. This leads to fewer bottlenecks but maps are not in 4 directions.
+##### Easy Undo
+The player can undo any actions made during their phase of combat.
+
+Random rolls are fixed.
+
+##### 3 action turns
+Each turn you get 3 actions. If you want to move 3 times, go for it. If you want to attack 3 times, attack (but beware of the accumulative penalty.)
+
+Some activities cost multiple actions, like spells.
+
+Reactions can be set up in advance or weaker unlimited versions.
+
+##### Choose your favorite teammates
+10 teammates (with a forced leader) lets you choose your strategy.
+
+#### Hard to Master
+##### Use your third action effectively
+Attack penalties should be so bad on the third attack that it's inefficient to make the attack.
+Experts will spend time to prepare, control or debuff their foes.
+##### Debuffing enemies to set up finishing blows
+Flanking a foe reduces their defenses, making it easier to hit.
+Blinding a foe gives a chance to miss attacks.
+
+The idea is to prepare powerful attacks. You don't want it to miss, so to maximize the chance to land you want to ruin their defenses and weaken their resistances.
+
+##### Crowd Control to rob actions
+Controller powers can force opponents to waste actions moving into position, or forcing extra misses on their foes.
+A stun effect, for example, will make an enemy lose an action.
+A trip effect causes someone to stand up. This could provoke an attack of opportunity.
+Enticing a minion to approach, weakening a chokepoint.
+
+##### Team composition and synergy
+Combining the right team and abilities allow the player to exceed mathematical ranges and defeat foes.
+- Tank takes point to lure enemies while the Striker picks off the greatest threats.
+- Buffer keeps a Striker alive and the Controller keeps enemies away.
+- Intel discovers a hidden path to bypass the enemy stronghold and gather treasure.
+
+Success will involve people arguing over the "best" team for each situation.
+
+##### Resource management
+A supply on consumable items restore after every mission. You can improve the stock by stealing or finding treasure during missions.
+Extra challenges can be used to unlock rare abilities, giving unique advantages.
+Maybe they can learn abilities learned by other characters.
+
 ### Magical Desert Fantasy
 Setting takes place in a desert. Sand, stone temples, water oases and wind swept towns.
 
