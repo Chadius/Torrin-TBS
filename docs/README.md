@@ -103,3 +103,90 @@ He teams up with Torrin and encourages her to practice herself.
 The Desert kingdom of Nabata kept a peace between dragons and humans while the rest of the continent of Elibe waged war.
 
 Presentation uses busts of up to 4 characters with limited conversation (2 lines of 25 characters.)
+
+# Tone and Pitch
+
+## Theatrical, not Cinematic
+In a stage play, you can embrace more absurdist tendencies.
+- Characters are willing to wink at the audience, or turn to them to express their current emotion
+- Tone can sometimes shift. A haunted train could have a delightful restaurant where someone remarks on the absurdity
+- The audience is taken on an entertaining trip, rather than witnessing an epic tale
+
+## Abstracted, not Realistic
+Due to constraints, I can't chance photo realism.
+For the art style I want more animation and keeping it loose.
+I'm not a fan of realism anyway.
+
+- Portraits to represent characters rather than elaborate 3D models
+- Art focuses on expression, not on accuracy
+
+## Community over Loneliness
+A sense of belonging. Finding your tribe. Teammates come from different origins and philosophies, but together they find a Home.
+- Lone Wolf mentality always backfires, no second opinion leads to risk and personal errors.
+- Rejecting help leads to unneeded stress.
+- Helping other people builds karma.
+
+## Similar works?
+### Fire Emblem 2003 (Game Boy Advance)
+This game and the previous game showcase the desert oasis, Nabata. 
+Humans and Dragons coexist, ignoring the war between the two creatures that rage outside.
+One of the Great Human Heroes came to Nabata and raised a great sandstorm to protect them from outside invaders.
+
+Another wizard came and befriended the hero. Both studied magical arts, became fast friends and great residents of Nabata. 
+Even the wizard found love.
+
+But when someone kidnapped his wife and children, the wizard tapped into ancient, uncontrollable magic to fight the kidnappers.
+He won at the cost of his soul. He was no more than a vessel to evil, and used the souls of the fallen to create facsimiles of humans.
+His goal: use his children to break the barrier between Elibe and the Dragon Realm, and let the Dragons raze the world.
+
+- Setting takes place in a magical realm between humans and fantastic creatures
+- Desert land infused with magical secrets
+- Oasis protected by a storm by a former hero.
+- Wizard falls in love and is corrupted when he tries to save his family
+
+### The Daevabad Trilogy
+City of Brass
+Kingdom of Copper
+Empire of Gold
+
+S.A. Chakraborty. 2017
+
+(I only read the last 2 books)
+
+Nahri is a quick witten con artist who discovers she has links to the magical kingdom of Daevabad. Her song calls an efreet
+who whisks her off her feet, brings her to a nation full of djinn, and helps her discover her watery marid roots.
+She can heal, she can manipulate the lake. She's also disruptive to the status quo, and she forms an odd friendship with the prince.
+
+Her mother, her real mother, is still alive. The marids once ruled Daevabad through religious zealotry and were slaughtered by the current ruler's ancestors.
+Her mother's grief and revenge boil into a plot to kill the leaders and take over, even if she has to turn blind to her efreet sponsors
+who prod her into one atrocity after another.
+
+Nahri realizes she could just go home. But abandoning her heritage is like tearing off part of her identity. So she braves danger,
+forges uneasy alliances, and thinks quickly to save herself and her second home.
+
+- Water aligned main character
+- Underestimated mundane life
+- Sins of the ancestors lead to more pain down the road
+
+
+### Castlevania: Symphony of the Night
+Konami, 1997. (Sony Playstation 1 and Sega Saturn)
+
+The lord of vampires, the prince of darkness: Dracula himself! Fell in love with a human named Lisa. They bore a son named Alucard.
+For a moment, the vampire lord felt at peace. But when Lisa was burned at the stake for being a witch he renewed his war against 
+humanity. Alucard fought alongside the vampire hunting clan, the Belmonts, to defeat his father. Then he went to sleep, to bury his cursed timeline.
+
+A few centuries later he awoke from his slumber, drawn to Castlevania. He soon learned that the current Belmont, Richter, had gone mad.
+He raised the castle in an effort to raise Dracula. He beat him once five years ago, and wanted the thrill of battle again- even
+if the evils of the world would rise again and claim the land. Alucard eventually earned the trust of Richter's friend Maria
+and learned of a sinister plot.
+
+Alucard reached the castle summit and saw through the illusion - the dark wizard Shaft had mind controlled Richter and played him
+as a puppet, perverting his holy powers to raise the castle and summon the dark lord. Alucard traveled through an inverted castle
+to kill the wizard and fight his father once again, reminding him of the love he once felt. Dracula retreated, thanking his son
+and destroying the castle.
+
+- Tortured hero struggling with the essence of evil
+- Bad guy learns to love and have a family
+- A fallen hero, seeking redemption
+
