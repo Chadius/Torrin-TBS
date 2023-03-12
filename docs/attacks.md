@@ -7,6 +7,52 @@ From whacking people with a sword to shooting lightning bolts, there are many wa
 - Most attacks names are named after the weapon ("longsword", "scimitar", "spear".)
 - Melee Techniques have the words "blow" or "strike" in them ("Tripping strike", "Intimidating blow")
 - Ranged techniques will have the words "shot" or "aim" ("Sniper aim", "Multishot")
+- Reaction techniques will mention "trap" or "opportunity" ("Trip trap", "Backstab opportunity")
+
+## Attribute Targets
+Attacks tend to aim at either your armor or the 3 attributes. 
+
+### Armor
+This indicates how easy it is to hit you.
+
+- Your legendary fencing technique catches their arm.
+- It's Elementary, my friend. The gap in their armor is... here!
+- The spell ignores the armor and surges into your target.
+
+### Body
+Physical might, agility and health.
+
+With a high body you can
+- hold people down
+- smash through weak barriers
+- quickly take careful aim
+- spit up potent, bile acid
+
+### Mind
+Esoteric Knowledge and Sharp perception and intuition.
+
+With a strong mind you can
+- Conjure balls of flame
+- Build complicated traps to ensnare your foes
+- Analyze enemy weaknesses and use magic over physical effect.
+
+### Soul
+Intuition, lucky, and beliefs.
+
+A strong soul can:
+- Bless your allies with the power of the gods
+- Terrify your enemies with a stare
+- Alter fate to trigger an attack reroll
+
+### Resistances and Weaknesses
+Some targets can resist attacks based on the damage source.
+
+When facing a heavily resistant enemy there are ways to bypass them. 
+- Some attacks can combine damage to bypass resistance.
+- Some attacks can force minimum damage if they hit.
+
+Weaknesses deal extra damage when hit, so attackers can exploit them.
+- Some attacks can force a weakness in their type for 1 round as a potent debuff.
 
 ## How many actions?
 A basic attack should take 1 action. The player can choose between how many attacks they want to do in a single turn.
@@ -24,6 +70,7 @@ Some activities are meant to supplement attacks and do not deal damage on their 
 
 Examples
 - Arcane Imbuement (Followup to casting a spell. Next strike deals bonus damage based on the spell's level.)
+- Lucky Reroll (Followup to critically missing an attack. Passively force a reroll.)
 
 ### 1 action
 These cover basic attacks. They usually just deal damage, although some can deal critical debuffs and controls in special circumstances.
@@ -63,6 +110,7 @@ Examples
 - Opportunity Strike (If any unfriendlies move through your basic strike range, you get to attack them once with a penalty.)
 - Hunted Opportunity (Target one squaddie. If they move or cast while in your range, attack.)
 - Snare trap (Target a space. If any unfriendlies move into that space, you react and can slow them down if they fail their body save.)
+- Counterstrike Opportunity (If an unfriendly attack critically misses, you get a free basic attack.)
 
 ## MAB/MAP: Multiple Attack Bonus/Penalty
 Stealing this from Pathfinder 2e.
