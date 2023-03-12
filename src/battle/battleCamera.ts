@@ -1,31 +1,32 @@
 export class BattleCamera {
-  xCoord: number;
-  yCoord: number;
+    xCoord: number;
+    yCoord: number;
 
-  xVelocity: number;
-  yVelocity: number;
-  constructor(xCoord: number = 0, yCoord: number = 0) {
-    this.xCoord = xCoord;
-    this.yCoord = yCoord;
+    xVelocity: number;
+    yVelocity: number;
 
-    this.xVelocity = 0;
-    this.yVelocity = 0;
-  }
+    constructor(xCoord: number = 0, yCoord: number = 0) {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
 
-  setXVelocity(vel: number) {
-    this.xVelocity = vel;
-  }
+        this.xVelocity = 0;
+        this.yVelocity = 0;
+    }
 
-  setYVelocity(vel: number) {
-    this.yVelocity = vel;
-  }
+    setXVelocity(vel: number) {
+        this.xVelocity = vel;
+    }
 
-  getCoordinates(): [number, number] {
-    return [this.xCoord, this.yCoord];
-  }
+    setYVelocity(vel: number) {
+        this.yVelocity = vel;
+    }
 
-  moveCamera() {
-    this.xCoord += this.xVelocity;
-    this.yCoord += this.yVelocity;
-  }
+    getCoordinates(): [number, number] {
+        return [this.xCoord, this.yCoord];
+    }
+
+    moveCamera() {
+        this.xCoord += this.xVelocity;
+        this.yCoord += this.yVelocity;
+    }
 }

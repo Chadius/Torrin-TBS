@@ -28,17 +28,17 @@ export class BattleSquaddieRepository {
             throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddieID}', no static squaddie '${dynamicSquaddie.staticSquaddieId}' exists`);
         }
 
-        if(this.squaddieDynamicInfoByDyanmicID[dynamicSquaddieID]) {
+        if (this.squaddieDynamicInfoByDyanmicID[dynamicSquaddieID]) {
             throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddieID}', again, it already exists`);
         }
 
         this.squaddieDynamicInfoByDyanmicID[dynamicSquaddieID] = dynamicSquaddie;
     }
 
-    getSquaddieByDynamicID(dynamicSquaddieID: string): ResultOrError<{staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic}, Error>  {
+    getSquaddieByDynamicID(dynamicSquaddieID: string): ResultOrError<{ staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic }, Error> {
         const dynamicSquaddie: BattleSquaddieDynamic = this.squaddieDynamicInfoByDyanmicID[dynamicSquaddieID];
-        if(!dynamicSquaddie) {
-            return makeError(new Error (`cannot getDynamicSquaddieByID for '${dynamicSquaddieID}', does not exist`));
+        if (!dynamicSquaddie) {
+            return makeError(new Error(`cannot getDynamicSquaddieByID for '${dynamicSquaddieID}', does not exist`));
         }
 
         const staticSquaddie: BattleSquaddieStatic = this.squaddieStaticInfoByID[dynamicSquaddie.staticSquaddieId];
@@ -49,7 +49,7 @@ export class BattleSquaddieRepository {
         });
     }
 
-    getStaticSquaddieIterator(): {staticSquaddieId: string, staticSquaddie: BattleSquaddieStatic}[] {
+    getStaticSquaddieIterator(): { staticSquaddieId: string, staticSquaddie: BattleSquaddieStatic }[] {
         return Object.entries(this.squaddieStaticInfoByID).map(([staticSquaddieId, staticSquaddie]) => {
             return {
                 staticSquaddie,
@@ -58,7 +58,7 @@ export class BattleSquaddieRepository {
         });
     }
 
-    getDynamicSquaddieIterator(): {dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic}[] {
+    getDynamicSquaddieIterator(): { dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic }[] {
         return Object.entries(this.squaddieDynamicInfoByDyanmicID).map(([dynamicSquaddieId, dynamicSquaddie]) => {
             return {
                 dynamicSquaddie,

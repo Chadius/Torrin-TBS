@@ -334,24 +334,24 @@ export class BattleScene {
     private drawSquaddieMapIcons(p: p5) {
         this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
             const {dynamicSquaddie, dynamicSquaddieId} = info;
-                if (!dynamicSquaddie.mapIcon) {
-                    return;
-                }
+            if (!dynamicSquaddie.mapIcon) {
+                return;
+            }
 
-                if (this.animationMode === AnimationMode.MOVING_UNIT && dynamicSquaddieId === "player_young_torrin") {
-                    const {
-                        staticSquaddie
-                    } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
+            if (this.animationMode === AnimationMode.MOVING_UNIT && dynamicSquaddieId === "player_young_torrin") {
+                const {
+                    staticSquaddie
+                } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
 
-                    this.moveSquaddie(p, dynamicSquaddie, staticSquaddie);
-                } else {
-                    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                        dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
-                    this.setImageToLocation(dynamicSquaddie, xyCoords);
+                this.moveSquaddie(p, dynamicSquaddie, staticSquaddie);
+            } else {
+                const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+                    dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
+                this.setImageToLocation(dynamicSquaddie, xyCoords);
 
-                    dynamicSquaddie.mapIcon.draw(p);
-                }
-            });
+                dynamicSquaddie.mapIcon.draw(p);
+            }
+        });
     }
 
     private moveSquaddie(p: p5, squaddieDynamicInfo: BattleSquaddieDynamic, squaddieStaticInfo: BattleSquaddieStatic) {

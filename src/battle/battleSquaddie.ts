@@ -6,14 +6,14 @@ import {ImageUI} from "../ui/imageUI";
 import {SquaddieTurn} from "../squaddie/turn";
 
 export type BattleSquaddieStatic = {
-  squaddieID: SquaddieID,
-  movement: SquaddieMovement,
-  activities: SquaddieActivity[],
+    squaddieID: SquaddieID,
+    movement: SquaddieMovement,
+    activities: SquaddieActivity[],
 }
 
 export type BattleSquaddieDynamic = {
-  staticSquaddieId: string,
-  mapLocation: HexCoordinate,
-  squaddieTurn: SquaddieTurn,
-  mapIcon?: ImageUI,
+    staticSquaddieId: string,
+    mapLocation: HexCoordinate,
+    squaddieTurn: SquaddieTurn,
+    mapIcon?: ImageUI,
 }

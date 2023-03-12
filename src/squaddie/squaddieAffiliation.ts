@@ -7,18 +7,18 @@ export enum SquaddieAffiliation {
 }
 
 export const FriendlyAffiliationsByAffiliation
-    : {[first in SquaddieAffiliation]: {[second in SquaddieAffiliation]?: boolean }} = {
-  UNKNOWN: {},
-  PLAYER: {
-    PLAYER: true,
-    ALLY: true,
-  },
-  ENEMY: {
-    ENEMY: true,
-  },
-  ALLY: {
-    PLAYER: true,
-    ALLY: true,
-  },
-  NONE: {},
+    : { [first in SquaddieAffiliation]: { [second in SquaddieAffiliation]?: boolean } } = {
+    UNKNOWN: {},
+    PLAYER: {
+        PLAYER: true,
+        ALLY: true,
+    },
+    ENEMY: {
+        ENEMY: true,
+    },
+    ALLY: {
+        PLAYER: true,
+        ALLY: true,
+    },
+    NONE: {},
 }

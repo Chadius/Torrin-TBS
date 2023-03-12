@@ -79,8 +79,12 @@ describe('BattleSquaddieRepository', () => {
             );
         }
 
-        expect(() => {shouldThrowError()}).toThrow(Error);
-        expect(() => {shouldThrowError()}).toThrow("cannot addStaticSquaddie 'player_young_torrin', is already added");
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(Error);
+        expect(() => {
+            shouldThrowError()
+        }).toThrow("cannot addStaticSquaddie 'player_young_torrin', is already added");
     });
 
     it("return error if you add dynamic squaddie for static squaddie that doesn't exist", () => {
@@ -95,8 +99,12 @@ describe('BattleSquaddieRepository', () => {
             );
         }
 
-        expect(() => {shouldThrowError()}).toThrow(Error);
-        expect(() => {shouldThrowError()}).toThrow("cannot addDynamicSquaddie 'ID does not matter', no static squaddie 'unknown_static_squaddie' exists");
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(Error);
+        expect(() => {
+            shouldThrowError()
+        }).toThrow("cannot addDynamicSquaddie 'ID does not matter', no static squaddie 'unknown_static_squaddie' exists");
     });
 
     it("return error if you add dynamic squaddie for dynamic squaddie that already exists", () => {
@@ -112,8 +120,12 @@ describe('BattleSquaddieRepository', () => {
             );
         }
 
-        expect(() => {shouldThrowError()}).toThrow(Error);
-        expect(() => {shouldThrowError()}).toThrow("cannot addDynamicSquaddie 'player_young_torrin_0', again, it already exists");
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(Error);
+        expect(() => {
+            shouldThrowError()
+        }).toThrow("cannot addDynamicSquaddie 'player_young_torrin_0', again, it already exists");
     });
 
     it("getDynamicSquaddieByID should return error if dynamic squaddie doesn't exist", () => {
@@ -131,9 +143,12 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddieBase
         )
 
-        const entities: {staticSquaddieId: string, staticSquaddie: BattleSquaddieStatic}[] = squaddieRepo.getStaticSquaddieIterator();
+        const entities: { staticSquaddieId: string, staticSquaddie: BattleSquaddieStatic }[] = squaddieRepo.getStaticSquaddieIterator();
 
-        expect(entities).toStrictEqual([{staticSquaddieId: staticSquaddieBase.squaddieID.id, staticSquaddie: staticSquaddieBase}]);
+        expect(entities).toStrictEqual([{
+            staticSquaddieId: staticSquaddieBase.squaddieID.id,
+            staticSquaddie: staticSquaddieBase
+        }]);
     });
 
     it('should get an iterator across all dynamic ids', () => {
@@ -142,7 +157,10 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddieBase
         )
 
-        const entities: {dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic}[] = squaddieRepo.getDynamicSquaddieIterator();
-        expect(entities).toStrictEqual([{dynamicSquaddieId: "player_young_torrin_0", dynamicSquaddie: dynamicSquaddieBase}]);
+        const entities: { dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic }[] = squaddieRepo.getDynamicSquaddieIterator();
+        expect(entities).toStrictEqual([{
+            dynamicSquaddieId: "player_young_torrin_0",
+            dynamicSquaddie: dynamicSquaddieBase
+        }]);
     });
 });

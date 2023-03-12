@@ -46,24 +46,22 @@ export const makeError = <T>(value: T): ResultOrErrorError<T> => ({error: value}
 
 export const makeResult = <U>(value: U): ResultOrErrorResult<U> => ({result: value});
 
-export const gub: () => void = () => {}
-
 export const getResultOrThrowError: <T, U>({
                                                result,
                                                error,
                                            }: ResultOrError<T, U>) => NonNullable<T> =
     <T, U>({
-        error,
-        result,
-    }: ResultOrError<T, U>) => {
+               error,
+               result,
+           }: ResultOrError<T, U>) => {
 
-    if (error !== undefined) {
-        throw error;
+        if (error !== undefined) {
+            throw error;
+        }
+        if (result !== undefined) {
+            return result as NonNullable<T>;
+        }
+        throw new Error(
+            `Received no result or error values at runtime when opening ResultOrError`
+        );
     }
-    if (result !== undefined) {
-        return result as NonNullable<T>;
-    }
-    throw new Error(
-        `Received no result or error values at runtime when opening ResultOrError`
-    );
-}

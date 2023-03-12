@@ -1,20 +1,20 @@
 import {HexGridMovementCost} from "./hexGridMovementCost";
 
-export type Integer = number & {_brand: 'Integer'}
-export type HexCoordinate = {q: Integer, r: Integer}
+export type Integer = number & { _brand: 'Integer' }
+export type HexCoordinate = { q: Integer, r: Integer }
 
 export const HexCoordinateToKey = (coordinate: HexCoordinate): string => {
-  return `${coordinate.q},${coordinate.r}`;
+    return `${coordinate.q},${coordinate.r}`;
 }
 
 export class HexGridTile {
-  q: Integer;
-  r: Integer;
-  terrainType: HexGridMovementCost;
+    q: Integer;
+    r: Integer;
+    terrainType: HexGridMovementCost;
 
-  constructor(qcoord: Integer, rcoord: Integer, appearance: HexGridMovementCost) {
-    this.r = rcoord;
-    this.q = qcoord;
-    this.terrainType = appearance;
-  }
+    constructor(qcoord: Integer, rcoord: Integer, appearance: HexGridMovementCost) {
+        this.r = rcoord;
+        this.q = qcoord;
+        this.terrainType = appearance;
+    }
 }
