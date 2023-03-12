@@ -30,8 +30,9 @@ import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
 import {SearchPath} from "../hexMap/pathfinder/searchPath";
-import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
+import {getResultOrThrowError, isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 
 type RequiredOptions = {
     p: p5;
@@ -56,13 +57,7 @@ export class BattleScene {
     cutscene: Cutscene;
     resourceHandler: ResourceHandler;
 
-    squaddieDynamicInfoByID: {
-        [id: string]: BattleSquaddieDynamic;
-    }
-
-    squaddieStaticInfoBySquaddieTypeID: {
-        [id: string]: BattleSquaddieStatic;
-    }
+    squaddieRepo: BattleSquaddieRepository;
 
     pathfinder: Pathfinder;
     missionMap: MissionMap;
@@ -95,114 +90,119 @@ export class BattleScene {
     private prepareSquaddies() {
         this.turnBySquaddieId = {};
 
-        this.squaddieStaticInfoBySquaddieTypeID = {
-            "player_young_torrin": {
-                squaddieID: new SquaddieID({
-                    id: "player_young_torrin",
-                    name: "Torrin",
-                    resources: new SquaddieResource({
-                        mapIconResourceKey: "map icon young torrin"
-                    }),
-                    traits: new TraitStatusStorage({
-                        [Trait.HUMANOID]: true,
-                        [Trait.MONSU]: true,
-                    }).filterCategory(TraitCategory.CREATURE),
-                    affiliation: SquaddieAffiliation.PLAYER,
+        this.squaddieRepo = new BattleSquaddieRepository();
+        this.squaddieRepo.addStaticSquaddie({
+            squaddieID: new SquaddieID({
+                id: "player_young_torrin",
+                name: "Torrin",
+                resources: new SquaddieResource({
+                    mapIconResourceKey: "map icon young torrin"
                 }),
-                movement: new SquaddieMovement({
-                    movementPerAction: 2,
-                    traits: new TraitStatusStorage({
-                        [Trait.PASS_THROUGH_WALLS]: true,
-                    }).filterCategory(TraitCategory.MOVEMENT)
+                traits: new TraitStatusStorage({
+                    [Trait.HUMANOID]: true,
+                    [Trait.MONSU]: true,
+                }).filterCategory(TraitCategory.CREATURE),
+                affiliation: SquaddieAffiliation.PLAYER,
+            }),
+            movement: new SquaddieMovement({
+                movementPerAction: 2,
+                traits: new TraitStatusStorage({
+                    [Trait.PASS_THROUGH_WALLS]: true,
+                }).filterCategory(TraitCategory.MOVEMENT)
+            }),
+            activities: [
+                new SquaddieActivity({
+                    name: "water saber",
+                    id: "torrin_water_saber",
+                    minimumRange: 0 as Integer,
+                    maximumRange: 2 as Integer,
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                })
+            ],
+        });
+        this.squaddieRepo.addStaticSquaddie({
+            squaddieID: new SquaddieID({
+                id: "player_sir_camil",
+                name: "Sir Camil",
+                resources: new SquaddieResource({
+                    mapIconResourceKey: "map icon sir camil"
                 }),
-                activities: [
-                    new SquaddieActivity({
-                        name: "water saber",
-                        id: "torrin_water_saber",
-                        minimumRange: 0 as Integer,
-                        maximumRange: 2 as Integer,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-                    })
-                ],
-            },
-            "player_sir_camil": {
-                squaddieID: new SquaddieID({
-                    id: "player_sir_camil",
-                    name: "Sir Camil",
-                    resources: new SquaddieResource({
-                        mapIconResourceKey: "map icon sir camil"
-                    }),
-                    traits: new TraitStatusStorage({
-                        [Trait.HUMANOID]: true,
-                    }).filterCategory(TraitCategory.CREATURE),
-                    affiliation: SquaddieAffiliation.PLAYER,
+                traits: new TraitStatusStorage({
+                    [Trait.HUMANOID]: true,
+                }).filterCategory(TraitCategory.CREATURE),
+                affiliation: SquaddieAffiliation.PLAYER,
+            }),
+            movement: new SquaddieMovement({
+                movementPerAction: 2,
+                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+            }),
+            activities: [
+                new SquaddieActivity({
+                    name: "longsword",
+                    id: "sir_camil_longsword",
+                    minimumRange: 0 as Integer,
+                    maximumRange: 1 as Integer,
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                })
+            ],
+        });
+        this.squaddieRepo.addStaticSquaddie({
+            squaddieID: new SquaddieID({
+                id: "enemy_demon_slither",
+                name: "Demon Slither",
+                resources: new SquaddieResource({
+                    mapIconResourceKey: "map icon demon slither"
                 }),
-                movement: new SquaddieMovement({
-                    movementPerAction: 2,
-                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-                }),
-                activities: [
-                    new SquaddieActivity({
-                        name: "longsword",
-                        id: "sir_camil_longsword",
-                        minimumRange: 0 as Integer,
-                        maximumRange: 1 as Integer,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-                    })
-                ],
-            },
-            "enemy_demon_slither": {
-                squaddieID: new SquaddieID({
-                    id: "enemy_demon_slither",
-                    name: "Demon Slither",
-                    resources: new SquaddieResource({
-                        mapIconResourceKey: "map icon demon slither"
-                    }),
-                    traits: new TraitStatusStorage({
-                        [Trait.DEMON]: true,
-                    }).filterCategory(TraitCategory.CREATURE),
-                    affiliation: SquaddieAffiliation.ENEMY,
-                }),
-                movement: new SquaddieMovement({
-                    movementPerAction: 1,
-                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-                }),
-                activities: [
-                    new SquaddieActivity({
-                        name: "Bite",
-                        id: "demon_slither_bite",
-                        minimumRange: 0 as Integer,
-                        maximumRange: 1 as Integer,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-                    })
-                ],
-            },
-        }
-
-        this.squaddieDynamicInfoByID = {
-            "player_young_torrin": {
-                staticSquaddieId: "player_young_torrin",
-                mapLocation: {q: 0 as Integer, r: 0 as Integer},
-                squaddieTurn: new SquaddieTurn()
-            },
-            "player_sir_camil": {
-                staticSquaddieId: "player_sir_camil",
-                mapLocation: {q: 1 as Integer, r: 1 as Integer},
-                squaddieTurn: new SquaddieTurn()
-            },
-            "enemy_demon_slither_0": {
-                staticSquaddieId: "enemy_demon_slither",
-                mapLocation: {q: 1 as Integer, r: 2 as Integer},
-                squaddieTurn: new SquaddieTurn()
-            }
-        }
-
-        Object.entries(this.squaddieStaticInfoBySquaddieTypeID).forEach(([_, squaddieInfo]) => {
-            this.resourceHandler.loadResource(squaddieInfo.squaddieID.resources.mapIconResourceKey);
+                traits: new TraitStatusStorage({
+                    [Trait.DEMON]: true,
+                }).filterCategory(TraitCategory.CREATURE),
+                affiliation: SquaddieAffiliation.ENEMY,
+            }),
+            movement: new SquaddieMovement({
+                movementPerAction: 1,
+                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+            }),
+            activities: [
+                new SquaddieActivity({
+                    name: "Bite",
+                    id: "demon_slither_bite",
+                    minimumRange: 0 as Integer,
+                    maximumRange: 1 as Integer,
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                })
+            ],
         });
 
-        Object.entries(this.squaddieDynamicInfoByID).forEach(([id, _]) => {
-            this.turnBySquaddieId[id] = new SquaddieTurn();
+        this.squaddieRepo.addDynamicSquaddie("player_young_torrin", {
+            staticSquaddieId: "player_young_torrin",
+            mapLocation: {q: 0 as Integer, r: 0 as Integer},
+            squaddieTurn: new SquaddieTurn()
+        })
+        this.squaddieRepo.addDynamicSquaddie("player_sir_camil", {
+            staticSquaddieId: "player_sir_camil",
+            mapLocation: {q: 1 as Integer, r: 1 as Integer},
+            squaddieTurn: new SquaddieTurn()
+        })
+        this.squaddieRepo.addDynamicSquaddie("enemy_demon_slither_0", {
+            staticSquaddieId: "enemy_demon_slither",
+            mapLocation: {q: 1 as Integer, r: 2 as Integer},
+            squaddieTurn: new SquaddieTurn()
+        })
+
+        this.squaddieRepo.getStaticSquaddieIterator().forEach((info) => {
+            const {
+                staticSquaddie,
+            } = info;
+
+            this.resourceHandler.loadResource(staticSquaddie.squaddieID.resources.mapIconResourceKey);
+        })
+
+        this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+            const {
+                dynamicSquaddieId
+            } = info;
+
+            this.turnBySquaddieId[dynamicSquaddieId] = new SquaddieTurn();
         });
     }
 
@@ -232,10 +232,20 @@ export class BattleScene {
         this.missionMap = new MissionMap({
             terrainTileMap: this.hexMap
         })
-        Object.entries(this.squaddieDynamicInfoByID).forEach(([staticSquaddieId, info]) => {
-            const staticSquaddieInfo: BattleSquaddieStatic = this.squaddieStaticInfoBySquaddieTypeID[info.staticSquaddieId];
-            this.missionMap.addSquaddie(staticSquaddieInfo.squaddieID, info.mapLocation);
+
+        this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+            const {
+                dynamicSquaddie,
+                dynamicSquaddieId
+            } = info;
+
+            const {
+                staticSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
+
+            this.missionMap.addSquaddie(staticSquaddie.squaddieID, dynamicSquaddie.mapLocation);
         })
+
         this.pathfinder = new Pathfinder();
     }
 
@@ -271,14 +281,19 @@ export class BattleScene {
     }
 
     private loadAndInitializeSquaddieResources() {
-        const allSquaddieIconsHaveBeenInitialized = Object.entries(this.squaddieDynamicInfoByID)
-            .every(([_, squaddieInfo]) => squaddieInfo.mapIcon);
+        const allSquaddieIconsHaveBeenInitialized = this.squaddieRepo.getDynamicSquaddieIterator().every((info) => {
+            const {dynamicSquaddie} = info;
+            return dynamicSquaddie.mapIcon;
+        });
+
         if (allSquaddieIconsHaveBeenInitialized) {
             return;
         }
 
-        const squaddieResourceKeys = Object.entries(this.squaddieStaticInfoBySquaddieTypeID)
-            .map(([_, squaddieInfo]) => squaddieInfo.squaddieID.resources.mapIconResourceKey);
+        const squaddieResourceKeys = this.squaddieRepo.getStaticSquaddieIterator().map((info) => {
+            const {staticSquaddie} = info;
+            return staticSquaddie.squaddieID.resources.mapIconResourceKey;
+        });
 
         if (
             this.resourceHandler.areAllResourcesLoaded([
@@ -288,53 +303,58 @@ export class BattleScene {
                 "map icon move 3 actions",
             ])
         ) {
-            Object.entries(this.squaddieDynamicInfoByID)
-                .forEach(([_, dynaicSquaddieInfo]) => {
-                    const staticInfo = this.squaddieStaticInfoBySquaddieTypeID[dynaicSquaddieInfo.staticSquaddieId];
-                    let image: p5.Image;
-                    const foundResourceResultOrError = this.resourceHandler.getResource(staticInfo.squaddieID.resources.mapIconResourceKey);
-                    if (isResult(foundResourceResultOrError)) {
-                        image = unwrapResultOrError(foundResourceResultOrError);
-                    }
+            this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+                const {dynamicSquaddie, dynamicSquaddieId} = info;
+                const {staticSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
 
-                    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                        dynaicSquaddieInfo.mapLocation.q, dynaicSquaddieInfo.mapLocation.r, ...this.camera.getCoordinates())
+                let image: p5.Image;
+                const foundResourceResultOrError = this.resourceHandler.getResource(staticSquaddie.squaddieID.resources.mapIconResourceKey);
+                if (isResult(foundResourceResultOrError)) {
+                    image = unwrapResultOrError(foundResourceResultOrError);
+                }
 
-                    dynaicSquaddieInfo.mapIcon = new ImageUI({
-                        graphic: image,
-                        area: new RectArea({
-                            left: xyCoords[0],
-                            top: xyCoords[1],
-                            width: image.width,
-                            height: image.height,
-                            horizAlign: HORIZ_ALIGN_CENTER,
-                            vertAlign: VERT_ALIGN_CENTER
-                        })
+                const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+                    dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
+
+                dynamicSquaddie.mapIcon = new ImageUI({
+                    graphic: image,
+                    area: new RectArea({
+                        left: xyCoords[0],
+                        top: xyCoords[1],
+                        width: image.width,
+                        height: image.height,
+                        horizAlign: HORIZ_ALIGN_CENTER,
+                        vertAlign: VERT_ALIGN_CENTER
                     })
-                });
+                })
+            });
         }
     }
 
     private drawSquaddieMapIcons(p: p5) {
-        Object.entries(this.squaddieDynamicInfoByID)
-            .forEach(([id, squaddieDynamicInfo]) => {
-                if (!squaddieDynamicInfo.mapIcon) {
+        this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+            const {dynamicSquaddie, dynamicSquaddieId} = info;
+                if (!dynamicSquaddie.mapIcon) {
                     return;
                 }
 
-                if (this.animationMode === AnimationMode.MOVING_UNIT && id === "player_young_torrin") {
-                    this.moveSquaddie(p, squaddieDynamicInfo);
+                if (this.animationMode === AnimationMode.MOVING_UNIT && dynamicSquaddieId === "player_young_torrin") {
+                    const {
+                        staticSquaddie
+                    } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
+
+                    this.moveSquaddie(p, dynamicSquaddie, staticSquaddie);
                 } else {
                     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                        squaddieDynamicInfo.mapLocation.q, squaddieDynamicInfo.mapLocation.r, ...this.camera.getCoordinates())
-                    this.setImageToLocation(squaddieDynamicInfo, xyCoords);
+                        dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
+                    this.setImageToLocation(dynamicSquaddie, xyCoords);
 
-                    squaddieDynamicInfo.mapIcon.draw(p);
+                    dynamicSquaddie.mapIcon.draw(p);
                 }
             });
     }
 
-    private moveSquaddie(p: p5, squaddieDynamicInfo: BattleSquaddieDynamic) {
+    private moveSquaddie(p: p5, squaddieDynamicInfo: BattleSquaddieDynamic, squaddieStaticInfo: BattleSquaddieStatic) {
         if (this.animationMode !== AnimationMode.MOVING_UNIT) {
             return;
         }
@@ -342,8 +362,6 @@ export class BattleScene {
         if (!this.squaddieMovePath) {
             return;
         }
-
-        const squaddieStaticInfo = this.squaddieStaticInfoBySquaddieTypeID[squaddieDynamicInfo.staticSquaddieId];
 
         squaddieDynamicInfo.mapIcon.draw(p);
 
@@ -512,8 +530,10 @@ export class BattleScene {
             if (
                 this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
             ) {
-                const squaddieToMove = this.squaddieDynamicInfoByID["player_young_torrin"];
-                const squaddieToMoveStatic = this.squaddieStaticInfoBySquaddieTypeID["player_young_torrin"];
+                const {
+                    dynamicSquaddie: squaddieToMove,
+                    staticSquaddie: squaddieToMoveStatic,
+                } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID("player_young_torrin"))
 
                 const searchPathResultsOrError = this.pathfinder.findPathToStopLocation(new SearchParams({
                     missionMap: this.missionMap,
