@@ -33,6 +33,7 @@ import {SearchPath} from "../hexMap/pathfinder/searchPath";
 import {getResultOrThrowError, isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
+import {areAllResourcesLoaded, loadMapIconResources, loadMapTileResources} from "./battleResourceLoading";
 
 type RequiredOptions = {
     p: p5;
@@ -189,13 +190,10 @@ export class BattleScene {
             squaddieTurn: new SquaddieTurn()
         })
 
-        this.squaddieRepo.getStaticSquaddieIterator().forEach((info) => {
-            const {
-                staticSquaddie,
-            } = info;
-
-            this.resourceHandler.loadResource(staticSquaddie.squaddieID.resources.mapIconResourceKey);
-        })
+        loadMapIconResources(
+            this.resourceHandler,
+            this.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie)
+        )
 
         this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
             const {
@@ -222,12 +220,7 @@ export class BattleScene {
             resourceHandler: this.resourceHandler,
         });
 
-        this.resourceHandler.loadResources([
-            "map icon move 1 action",
-            "map icon move 2 actions",
-            "map icon move 3 actions",
-            "map icon attack 1 action"
-        ]);
+        loadMapTileResources(this.resourceHandler);
 
         this.missionMap = new MissionMap({
             terrainTileMap: this.hexMap
@@ -290,28 +283,19 @@ export class BattleScene {
             return;
         }
 
-        const squaddieResourceKeys = this.squaddieRepo.getStaticSquaddieIterator().map((info) => {
-            const {staticSquaddie} = info;
-            return staticSquaddie.squaddieID.resources.mapIconResourceKey;
-        });
-
         if (
-            this.resourceHandler.areAllResourcesLoaded([
-                ...squaddieResourceKeys,
-                "map icon move 1 action",
-                "map icon move 2 actions",
-                "map icon move 3 actions",
-            ])
+            areAllResourcesLoaded(
+                this.resourceHandler,
+                this.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie)
+            )
         ) {
             this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
                 const {staticSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
 
-                let image: p5.Image;
-                const foundResourceResultOrError = this.resourceHandler.getResource(staticSquaddie.squaddieID.resources.mapIconResourceKey);
-                if (isResult(foundResourceResultOrError)) {
-                    image = unwrapResultOrError(foundResourceResultOrError);
-                }
+                let image: p5.Image = getResultOrThrowError(
+                    this.resourceHandler.getResource(staticSquaddie.squaddieID.resources.mapIconResourceKey)
+                );
 
                 const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
                     dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
