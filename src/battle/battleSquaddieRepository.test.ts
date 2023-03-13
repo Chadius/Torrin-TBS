@@ -1,10 +1,9 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieID} from "../squaddie/id";
-import {SquaddieResource} from "../squaddie/resource";
-import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {NullSquaddieResource} from "../squaddie/resource";
+import {NullTraitStatusStorage, Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../squaddie/movement";
-import {SquaddieActivity} from "../squaddie/activity";
 import {Integer} from "../hexMap/hexGrid";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
@@ -21,13 +20,8 @@ describe('BattleSquaddieRepository', () => {
             squaddieID: new SquaddieID({
                 id: "player_young_torrin",
                 name: "Torrin",
-                resources: new SquaddieResource({
-                    mapIconResourceKey: "map icon young torrin"
-                }),
-                traits: new TraitStatusStorage({
-                    [Trait.HUMANOID]: true,
-                    [Trait.MONSU]: true,
-                }).filterCategory(TraitCategory.CREATURE),
+                resources: NullSquaddieResource(),
+                traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             movement: new SquaddieMovement({
@@ -36,15 +30,7 @@ describe('BattleSquaddieRepository', () => {
                     [Trait.PASS_THROUGH_WALLS]: true,
                 }).filterCategory(TraitCategory.MOVEMENT)
             }),
-            activities: [
-                new SquaddieActivity({
-                    name: "water saber",
-                    id: "torrin_water_saber",
-                    minimumRange: 0 as Integer,
-                    maximumRange: 2 as Integer,
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-                })
-            ],
+            activities: [],
         };
         dynamicSquaddieBase = {
             staticSquaddieId: "player_young_torrin",
@@ -57,7 +43,7 @@ describe('BattleSquaddieRepository', () => {
         );
     });
 
-    it('retrieves squaddie info by static id', () => {
+    it('retrieves squaddie info by dynamic id', () => {
         squaddieRepo.addDynamicSquaddie(
             "player_young_torrin_0",
             dynamicSquaddieBase
@@ -65,11 +51,13 @@ describe('BattleSquaddieRepository', () => {
 
         const {
             staticSquaddie,
-            dynamicSquaddie
+            dynamicSquaddie,
+            dynamicSquaddieId,
         } = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_young_torrin_0"))
 
         expect(staticSquaddie).toStrictEqual(staticSquaddie);
         expect(dynamicSquaddie).toStrictEqual(dynamicSquaddie);
+        expect(dynamicSquaddieId).toStrictEqual("player_young_torrin_0");
     });
 
     it('should throw error if you add already existing static squaddie', () => {
@@ -162,5 +150,48 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddieId: "player_young_torrin_0",
             dynamicSquaddie: dynamicSquaddieBase
         }]);
+    });
+
+    it('can get dynamic and static squaddie info based on static id and location', () => {
+        squaddieRepo.addDynamicSquaddie(
+            "player_young_torrin_0",
+            dynamicSquaddieBase
+        )
+
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+            dynamicSquaddieId,
+        } = getResultOrThrowError(squaddieRepo.getSquaddieByStaticIDAndLocation(
+            staticSquaddieBase.squaddieID.id,
+            {
+                q: dynamicSquaddieBase.mapLocation.q,
+                r: dynamicSquaddieBase.mapLocation.r,
+            }
+        ));
+
+        expect(staticSquaddie).toStrictEqual(staticSquaddie);
+        expect(dynamicSquaddie).toStrictEqual(dynamicSquaddie);
+        expect(dynamicSquaddieId).toStrictEqual("player_young_torrin_0");
+    });
+
+    it('should return an error if there is no squaddie at the given location', () => {
+        squaddieRepo.addDynamicSquaddie(
+            "player_young_torrin_0",
+            dynamicSquaddieBase
+        )
+
+        const resultOrError = squaddieRepo.getSquaddieByStaticIDAndLocation(
+            staticSquaddieBase.squaddieID.id,
+            {
+                q: dynamicSquaddieBase.mapLocation.q + 1 as Integer,
+                r: dynamicSquaddieBase.mapLocation.r,
+            }
+        )
+
+        expect(isError(resultOrError)).toBeTruthy();
+
+        const expectedError = unwrapResultOrError(resultOrError);
+        expect((expectedError as Error).message).toBe("cannot find squaddie at location (1, 0)");
     });
 });

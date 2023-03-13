@@ -12,8 +12,7 @@ import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates,
-    convertScreenCoordinatesToWorldCoordinates,
-    convertWorldCoordinatesToMapCoordinates,
+    convertScreenCoordinatesToMapCoordinates,
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
@@ -25,15 +24,17 @@ import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleCamera} from "./battleCamera";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {getSquaddiePositionAlongPath} from "./squaddieMoveAnimationUtils";
+import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
 import {SearchPath} from "../hexMap/pathfinder/searchPath";
-import {getResultOrThrowError, isResult, unwrapResultOrError} from "../utils/ResultOrError";
+import {getResultOrThrowError} from "../utils/ResultOrError";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {areAllResourcesLoaded, loadMapIconResources, loadMapTileResources} from "./battleResourceLoading";
+import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
+import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 
 type RequiredOptions = {
     p: p5;
@@ -71,6 +72,8 @@ export class BattleScene {
     squaddieAnimationWorldCoordinatesStart?: [number, number];
     squaddieAnimationWorldCoordinatesEnd?: [number, number];
 
+    battleSquaddieUIInput: BattleSquaddieUIInput;
+
     constructor(options: RequiredOptions & Partial<Options>) {
         assertsPositiveNumber(options.width);
         this.width = options.width;
@@ -86,6 +89,12 @@ export class BattleScene {
         this.squaddieMovePath = undefined;
         this.squaddieAnimationWorldCoordinatesStart = undefined;
         this.squaddieAnimationWorldCoordinatesEnd = undefined;
+
+        this.battleSquaddieUIInput = {
+            selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
+            missionMap: this.missionMap,
+            squaddieRepository: this.squaddieRepo,
+        };
     }
 
     private prepareSquaddies() {
@@ -322,12 +331,9 @@ export class BattleScene {
                 return;
             }
 
-            if (this.animationMode === AnimationMode.MOVING_UNIT && dynamicSquaddieId === "player_young_torrin") {
-                const {
-                    staticSquaddie
-                } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
-
-                this.moveSquaddie(p, dynamicSquaddie, staticSquaddie);
+            if (this.animationMode === AnimationMode.MOVING_UNIT && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
+                this.moveSquaddie(p);
+                this.updateBattleSquaddieUIDraw();
             } else {
                 const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
                     dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
@@ -338,106 +344,15 @@ export class BattleScene {
         });
     }
 
-    private moveSquaddie(p: p5, squaddieDynamicInfo: BattleSquaddieDynamic, squaddieStaticInfo: BattleSquaddieStatic) {
-        if (this.animationMode !== AnimationMode.MOVING_UNIT) {
-            return;
-        }
-
-        if (!this.squaddieMovePath) {
-            return;
-        }
-
-        squaddieDynamicInfo.mapIcon.draw(p);
-
-        const timePassed = Date.now() - this.animationTimer;
-        const timeToMove = 1000.0;
-        if (timePassed > timeToMove || this.squaddieMovePath.getTilesTraveled().length === 0) {
-            squaddieDynamicInfo.mapLocation = this.squaddieMovePath.getDestination();
-            const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                this.squaddieMovePath.getDestination().q,
-                this.squaddieMovePath.getDestination().r,
-                ...this.camera.getCoordinates()
-            );
-            this.setImageToLocation(squaddieDynamicInfo, xyCoords);
-            this.missionMap.updateSquaddiePosition(squaddieStaticInfo.squaddieID.id, squaddieDynamicInfo.mapLocation);
-
-            const reachableTileSearchResults: SearchResults = this.pathfinder.getAllReachableTiles(
-                new SearchParams({
-                    missionMap: this.missionMap,
-                    startLocation: squaddieDynamicInfo.mapLocation,
-                    squaddieMovement: squaddieStaticInfo.movement,
-                    squaddieAffiliation: squaddieStaticInfo.squaddieID.affiliation,
-                    numberOfActions: 3,
-                })
-            );
-            const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
-            const movementTilesByNumberOfActions: { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
-
-            const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange(new SearchParams({
-                    missionMap: this.missionMap,
-                    minimumDistanceMoved: squaddieStaticInfo.activities[0].minimumRange,
-                }),
-                squaddieStaticInfo.activities[0].maximumRange,
-                movementTiles
-            );
-
-            const highlightTileDescriptions = [];
-            if (movementTilesByNumberOfActions[0]) {
-                highlightTileDescriptions.push(
-                    {
-                        tiles: movementTilesByNumberOfActions[0],
-                        pulseColor: HighlightPulseBlueColor,
-                    }
-                )
-            }
-            if (movementTilesByNumberOfActions[1]) {
-                highlightTileDescriptions.push(
-                    {
-                        tiles: movementTilesByNumberOfActions[1],
-                        pulseColor: HighlightPulseBlueColor,
-                        overlayImageResourceName: "map icon move 1 action",
-                    }
-                )
-            }
-            if (movementTilesByNumberOfActions[2]) {
-                highlightTileDescriptions.push(
-                    {
-                        tiles: movementTilesByNumberOfActions[2],
-                        pulseColor: HighlightPulseBlueColor,
-                        overlayImageResourceName: "map icon move 2 actions",
-                    }
-                )
-            }
-            if (movementTilesByNumberOfActions[3]) {
-                highlightTileDescriptions.push(
-                    {
-                        tiles: movementTilesByNumberOfActions[3],
-                        pulseColor: HighlightPulseBlueColor,
-                        overlayImageResourceName: "map icon move 3 actions",
-                    }
-                )
-            }
-            if (actionTiles) {
-                highlightTileDescriptions.push({
-                        tiles: actionTiles,
-                        pulseColor: HighlightPulseRedColor,
-                        overlayImageResourceName: "map icon attack 1 action",
-                    },
-                )
-            }
-            this.hexMap.highlightTiles(highlightTileDescriptions);
-            this.animationMode = AnimationMode.IDLE;
-        } else {
-            const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
-                this.squaddieMovePath.getTilesTraveled(),
-                timePassed,
-                timeToMove,
-                this.camera,
-            )
-
-            this.setImageToLocation(squaddieDynamicInfo, squaddieDrawCoordinates);
-            squaddieDynamicInfo.mapIcon.draw(p);
-            return;
+    private updateBattleSquaddieUIDraw() {
+        switch (this.battleSquaddieUIInput.selectionState) {
+            case BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED:
+                break;
+            case BattleSquaddieUISelectionState.SELECTED_SQUADDIE:
+                break;
+            case BattleSquaddieUISelectionState.MOVING_SQUADDIE:
+                this.updateBattleSquaddieUIMovingSquaddie();
+                break;
         }
     }
 
@@ -504,79 +419,283 @@ export class BattleScene {
             return;
         }
 
-        if (this.animationMode === AnimationMode.IDLE) {
-            const [worldX, worldY] = convertScreenCoordinatesToWorldCoordinates(mouseX, mouseY, ...this.camera.getCoordinates())
-            const clickedTileCoordinates: [number, number] = convertWorldCoordinatesToMapCoordinates(worldX, worldY);
-            const clickedHexCoordinate: HexCoordinate = {
-                q: clickedTileCoordinates[0] as Integer,
-                r: clickedTileCoordinates[1] as Integer
-            };
-            if (
-                this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
-            ) {
-                const {
-                    dynamicSquaddie: squaddieToMove,
-                    staticSquaddie: squaddieToMoveStatic,
-                } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID("player_young_torrin"))
+        this.updateBattleSquaddieUIMouseClicked(mouseX, mouseY);
+        this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());
+    }
 
-                const searchPathResultsOrError = this.pathfinder.findPathToStopLocation(new SearchParams({
+    updateBattleSquaddieUIMouseClicked(mouseX: number, mouseY: number) {
+        const clickedTileCoordinates: [number, number] = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...this.camera.getCoordinates());
+        const clickedHexCoordinate: HexCoordinate = {
+            q: clickedTileCoordinates[0] as Integer,
+            r: clickedTileCoordinates[1] as Integer
+        };
+
+        if (
+            !this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
+        ) {
+            return;
+        }
+
+        switch (this.battleSquaddieUIInput.selectionState) {
+            case BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED:
+                this.updateBattleSquaddieUINoSquaddieSelected(clickedHexCoordinate);
+                break;
+            case BattleSquaddieUISelectionState.SELECTED_SQUADDIE:
+                this.updateBattleSquaddieUISelectedSquaddie(clickedHexCoordinate);
+                break;
+            case BattleSquaddieUISelectionState.MOVING_SQUADDIE:
+                this.updateBattleSquaddieUIMovingSquaddie(clickedHexCoordinate);
+                break;
+        }
+    }
+
+    private updateBattleSquaddieUINoSquaddieSelected(clickedHexCoordinate: HexCoordinate) {
+        const newSelectionState: BattleSquaddieUISelectionState = calculateNewBattleSquaddieUISelectionState(
+            {
+                tileClickedOn: clickedHexCoordinate,
+                selectionState: this.battleSquaddieUIInput.selectionState,
+                missionMap: this.missionMap,
+                squaddieRepository: this.squaddieRepo,
+            }
+        );
+
+        if (newSelectionState !== BattleSquaddieUISelectionState.SELECTED_SQUADDIE) {
+            return;
+        }
+
+        const squaddieID: SquaddieID = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        if (!squaddieID) {
+            return;
+        }
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+            dynamicSquaddieId,
+        } = getResultOrThrowError(this.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
+
+        this.highlightSquaddieReach(dynamicSquaddie, staticSquaddie);
+        this.battleSquaddieUIInput.selectedSquaddieDynamicID = dynamicSquaddieId;
+        this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+    }
+
+    private updateBattleSquaddieUISelectedSquaddie(clickedHexCoordinate: HexCoordinate) {
+        if (
+            !this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
+        ) {
+            return;
+        }
+
+        this.hexMap.highlightTiles([]);
+        const squaddieID: SquaddieID = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        if (squaddieID) {
+            const {
+                staticSquaddie,
+                dynamicSquaddie,
+                dynamicSquaddieId,
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
+
+            this.highlightSquaddieReach(dynamicSquaddie, staticSquaddie);
+            this.battleSquaddieUIInput.selectedSquaddieDynamicID = dynamicSquaddieId;
+            this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+            return;
+        }
+
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+            dynamicSquaddieId,
+        } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(this.battleSquaddieUIInput.selectedSquaddieDynamicID));
+
+        const newSelectionState: BattleSquaddieUISelectionState = calculateNewBattleSquaddieUISelectionState(
+            {
+                tileClickedOn: clickedHexCoordinate,
+                selectionState: this.battleSquaddieUIInput.selectionState,
+                missionMap: this.missionMap,
+                squaddieRepository: this.squaddieRepo,
+                selectedSquaddieDynamicID: dynamicSquaddieId
+            }
+        );
+
+        if (newSelectionState === BattleSquaddieUISelectionState.MOVING_SQUADDIE) {
+            const searchResults: SearchResults = getResultOrThrowError(
+                this.pathfinder.findPathToStopLocation(new SearchParams({
                     missionMap: this.missionMap,
-                    squaddieMovement: squaddieToMoveStatic.movement,
-                    numberOfActions: 3,
+                    squaddieMovement: staticSquaddie.movement,
+                    numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
                     startLocation: {
-                        q: squaddieToMove.mapLocation.q,
-                        r: squaddieToMove.mapLocation.r,
+                        q: dynamicSquaddie.mapLocation.q,
+                        r: dynamicSquaddie.mapLocation.r,
                     },
                     stopLocation: {
                         q: clickedHexCoordinate.q,
                         r: clickedHexCoordinate.r
                     },
-                    squaddieAffiliation: squaddieToMoveStatic.squaddieID.affiliation
-                }));
-                let foundRoute: SearchPath = undefined;
-                if (
-                    isResult(searchPathResultsOrError)
-                ) {
-                    const closestTilesToDestination = unwrapResultOrError(searchPathResultsOrError).getClosestTilesToDestination();
-                    foundRoute = closestTilesToDestination ? closestTilesToDestination[0].searchPath : null;
+                    squaddieAffiliation: staticSquaddie.squaddieID.affiliation
+                }))
+            );
 
-                    if (foundRoute !== null) {
-                        this.squaddieMovePath = foundRoute;
-                    } else {
-                        this.squaddieMovePath = new SearchPath();
-                        this.squaddieMovePath.add({
-                                q: squaddieToMove.mapLocation.q,
-                                r: squaddieToMove.mapLocation.r,
-                                movementCost: 0,
-                            },
-                            0
-                        );
-                        this.squaddieMovePath.add(
-                            {
-                                q: clickedHexCoordinate.q,
-                                r: clickedHexCoordinate.r,
-                                movementCost: 0,
-                            },
-                            0
-                        );
-                    }
-
-                    this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
-                        squaddieToMove.mapLocation.q,
-                        squaddieToMove.mapLocation.r,
-                    );
-                    this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
-                        this.squaddieMovePath.getDestination().q,
-                        this.squaddieMovePath.getDestination().r,
-                    );
-
-                    this.animationTimer = Date.now();
-                    this.animationMode = AnimationMode.MOVING_UNIT;
-                }
+            const closestRoute = getResultOrThrowError(searchResults.getRouteToStopLocation());
+            if (closestRoute == null) {
+                this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+                return;
             }
 
-            this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());
+            this.squaddieMovePath = closestRoute;
+            this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
+                dynamicSquaddie.mapLocation.q,
+                dynamicSquaddie.mapLocation.r,
+            );
+            this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
+                this.squaddieMovePath.getDestination().q,
+                this.squaddieMovePath.getDestination().r,
+            );
+            this.animationTimer = Date.now();
+            this.animationMode = AnimationMode.MOVING_UNIT;
+
+            this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.MOVING_SQUADDIE;
+            return;
         }
+    }
+
+    private updateBattleSquaddieUIMovingSquaddie(clickedHexCoordinate?: HexCoordinate) {
+        const newSelectionState: BattleSquaddieUISelectionState = calculateNewBattleSquaddieUISelectionState(
+            {
+                tileClickedOn: clickedHexCoordinate,
+                selectionState: this.battleSquaddieUIInput.selectionState,
+                missionMap: this.missionMap,
+                squaddieRepository: this.squaddieRepo,
+                selectedSquaddieDynamicID: this.battleSquaddieUIInput.selectedSquaddieDynamicID,
+                finishedAnimating: this.hasMovementAnimationFinished()
+            }
+        );
+
+        if (newSelectionState === BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED) {
+            this.battleSquaddieUIInput.selectionState = newSelectionState;
+            this.battleSquaddieUIInput.selectedSquaddieDynamicID = "";
+            return;
+        }
+    }
+
+    private hasMovementAnimationFinished() {
+        const timePassed = Date.now() - this.animationTimer;
+        const timeToMove = TIME_TO_MOVE;
+        return (
+            timePassed > timeToMove
+            || !this.squaddieMovePath
+            || this.squaddieMovePath.getTilesTraveled().length === 0
+        );
+    }
+
+    private moveSquaddie(p: p5) {
+        if (this.animationMode !== AnimationMode.MOVING_UNIT) {
+            return;
+        }
+
+        if (!this.squaddieMovePath) {
+            return;
+        }
+
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+        } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(
+            this.battleSquaddieUIInput.selectedSquaddieDynamicID
+        ));
+
+        dynamicSquaddie.mapIcon.draw(p);
+
+        const timePassed = Date.now() - this.animationTimer;
+        const timeToMove = TIME_TO_MOVE;
+        if (this.hasMovementAnimationFinished()) {
+            dynamicSquaddie.mapLocation = this.squaddieMovePath.getDestination();
+            const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+                this.squaddieMovePath.getDestination().q,
+                this.squaddieMovePath.getDestination().r,
+                ...this.camera.getCoordinates()
+            );
+            this.setImageToLocation(dynamicSquaddie, xyCoords);
+            this.missionMap.updateSquaddiePosition(staticSquaddie.squaddieID.id, dynamicSquaddie.mapLocation);
+            this.animationMode = AnimationMode.IDLE;
+        } else {
+            const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
+                this.squaddieMovePath.getTilesTraveled(),
+                timePassed,
+                timeToMove,
+                this.camera,
+            )
+
+            this.setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
+            dynamicSquaddie.mapIcon.draw(p);
+            return;
+        }
+    }
+
+    private highlightSquaddieReach(dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
+        const reachableTileSearchResults: SearchResults = this.pathfinder.getAllReachableTiles(
+            new SearchParams({
+                missionMap: this.missionMap,
+                startLocation: dynamicSquaddie.mapLocation,
+                squaddieMovement: staticSquaddie.movement,
+                squaddieAffiliation: staticSquaddie.squaddieID.affiliation,
+                numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+            })
+        );
+        const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
+        const movementTilesByNumberOfActions: { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
+
+        const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange(new SearchParams({
+                missionMap: this.missionMap,
+                minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
+            }),
+            staticSquaddie.activities[0].maximumRange,
+            movementTiles
+        );
+
+        const highlightTileDescriptions = [];
+        if (movementTilesByNumberOfActions[0]) {
+            highlightTileDescriptions.push(
+                {
+                    tiles: movementTilesByNumberOfActions[0],
+                    pulseColor: HighlightPulseBlueColor,
+                }
+            )
+        }
+        if (movementTilesByNumberOfActions[1]) {
+            highlightTileDescriptions.push(
+                {
+                    tiles: movementTilesByNumberOfActions[1],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: "map icon move 1 action",
+                }
+            )
+        }
+        if (movementTilesByNumberOfActions[2]) {
+            highlightTileDescriptions.push(
+                {
+                    tiles: movementTilesByNumberOfActions[2],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: "map icon move 2 actions",
+                }
+            )
+        }
+        if (movementTilesByNumberOfActions[3]) {
+            highlightTileDescriptions.push(
+                {
+                    tiles: movementTilesByNumberOfActions[3],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: "map icon move 3 actions",
+                }
+            )
+        }
+        if (actionTiles) {
+            highlightTileDescriptions.push({
+                    tiles: actionTiles,
+                    pulseColor: HighlightPulseRedColor,
+                    overlayImageResourceName: "map icon attack 1 action",
+                },
+            )
+        }
+        this.hexMap.highlightTiles(highlightTileDescriptions);
     }
 
     private setImageToLocation(

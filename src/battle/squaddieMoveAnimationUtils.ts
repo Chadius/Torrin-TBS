@@ -6,6 +6,8 @@ import {
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {BattleCamera} from "./battleCamera";
 
+export const TIME_TO_MOVE = 1000.0;
+
 export const getSquaddiePositionAlongPath = (
     tilesTraveled: TileFoundDescription[],
     timePassed: number,
