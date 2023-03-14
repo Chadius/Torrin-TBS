@@ -67,17 +67,17 @@ export class TerrainTileMap {
         }
 
         const tilesSortedByRThenQ = [...tiles].sort((a, b) => {
-            if (a.r < b.r) {
-                return -1;
-            }
-            if (a.r > b.r) {
-                return 1;
-            }
-
             if (a.q < b.q) {
                 return -1;
             }
             if (a.q > b.q) {
+                return 1;
+            }
+
+            if (a.r < b.r) {
+                return -1;
+            }
+            if (a.r > b.r) {
                 return 1;
             }
             return 0;
@@ -140,5 +140,25 @@ export class TerrainTileMap {
 
     areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {
         return this.getTileAtLocation(hexCoordinate) !== undefined;
+    }
+
+    getDimensions(): {widthOfWidestRow: number, numberOfRows: number} {
+        let rowIndecies: {[row in number]: boolean} = {};
+        this.tiles.forEach((tile) => {
+            rowIndecies[tile.q] = true;
+        });
+        let numberOfRows: number = Object.keys(rowIndecies).length;
+
+        let widthOfWidestRow: number = 0;
+        this.tiles.forEach((tile) => {
+            if (tile.r + 1 > widthOfWidestRow) {
+                widthOfWidestRow = tile.r + 1;
+            }
+        });
+
+        return {
+            widthOfWidestRow,
+            numberOfRows
+        }
     }
 }

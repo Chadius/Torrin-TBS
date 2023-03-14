@@ -84,6 +84,10 @@ export class BattleScene {
         this.resourceHandler = options.resourceHandler;
         this.prepareSquaddies();
         this.prepareMap();
+
+        const mapDimensions = this.hexMap.getDimensions()
+        this.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
+
         this.animationMode = AnimationMode.IDLE;
         this.animationTimer = 0;
         this.squaddieMovePath = undefined;
@@ -216,15 +220,24 @@ export class BattleScene {
     private prepareMap() {
         this.hexMap = new TerrainTileMap({
             movementCost: [
-                "1 1 1 1 1 1 1 1 1 ",
-                " 1 1 1 1 1 1 1 1 1 ",
-                "  1 1 1 1 1 1 1 1 1 ",
-                "   1 1 1 1 1 1 1 1 1 ",
-                "    1 1 1 1 1 1 1 1 1 ",
-                "     1 1 1 1 1 1 1 1 1 ",
-                "      1 1 1 1 1 1 1 1 1 ",
-                "       1 1 1 1 1 1 1 1 1 ",
-                "        1 1 1 1 1 1 1 1 1 ",
+                "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                " 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "    1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "     1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "       1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "        1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "         1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "          1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "           1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "             1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "              1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "               1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "                1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "                 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
             ],
             resourceHandler: this.resourceHandler,
         });
@@ -273,6 +286,7 @@ export class BattleScene {
             this.cutscene.draw(p);
         } else {
             this.camera.moveCamera();
+            this.camera.constrainCamera();
 
             p.fill("#dedede");
             p.stroke("#1f1f1f");

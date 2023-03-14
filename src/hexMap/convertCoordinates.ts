@@ -1,6 +1,6 @@
 import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 
-export const convertWorldCoordinatesToMapCoordinates = (worldX: number, worldY: number): [number, number] => {
+export const convertWorldCoordinatesToMapCoordinates = (worldX: number, worldY: number, round: boolean = true): [number, number] => {
     const xScaled = worldX / HEX_TILE_WIDTH;
     const yScaled = worldY / HEX_TILE_WIDTH;
 
@@ -10,7 +10,10 @@ export const convertWorldCoordinatesToMapCoordinates = (worldX: number, worldY: 
     // r = x - (y / sqrt(3))
     const r = xScaled - (yScaled / 1.732);
 
-    return [Math.round(q), Math.round(r)];
+    if (round) {
+        return [Math.round(q), Math.round(r)];
+    }
+    return [q, r];
 }
 
 export const convertMapCoordinatesToWorldCoordinates = (q: number, r: number): [number, number] => {

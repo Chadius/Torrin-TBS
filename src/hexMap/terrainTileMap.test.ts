@@ -132,4 +132,16 @@ describe('hexMap', () => {
             verifyTileAtLocationIsExpectedMovementCost(mapFromMultipleLines, 3, 2, HexGridMovementCost.wall);
         });
     });
+    it('can calculate the bounding box dimension of a map', () => {
+        const bigMap: TerrainTileMap = new TerrainTileMap({
+            movementCost: [
+                "1 1 1 1 1 ",
+                " 1 1 1 1 1 ",
+                "  1 1 1 1 1 ",
+                "   1 1 1 1 ",
+            ]
+        });
+
+        expect(bigMap.getDimensions()).toStrictEqual({widthOfWidestRow: 5, numberOfRows: 4});
+    });
 });
