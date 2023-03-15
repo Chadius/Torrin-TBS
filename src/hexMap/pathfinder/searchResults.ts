@@ -1,7 +1,7 @@
 import {HexCoordinate, HexCoordinateToKey, Integer} from "../hexGrid";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
-import {makeError, makeResult, ResultOrError} from "../../utils/ResultOrError";
+import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 
 export type SearchResultOptions = {
     stopLocation?: HexCoordinate;
@@ -24,6 +24,26 @@ export class SearchResults {
         }
         const lowestCostRoute = this.lowestCostRoutes[HexCoordinateToKey(this.stopLocation)];
         return makeResult(lowestCostRoute || null);
+    }
+
+    getRouteToStopLocationSortedByNumberOfMovementActions(): ResultOrError<TileFoundDescription[][], Error> {
+        const routeFoundOrError = this.getRouteToStopLocation();
+        if (isError(routeFoundOrError)) {
+            return routeFoundOrError;
+        }
+        const routeFound = unwrapResultOrError(routeFoundOrError);
+
+        return makeResult(
+            routeFound
+                .getTilesTraveledByNumberOfMovementActions().map((multipleTiles) =>
+                multipleTiles.filter(tile => {
+                    return routeFound.getTilesTraveled().find(closeTile => (
+                        closeTile.r === tile.r
+                        && closeTile.q === tile.q
+                    ))
+                })
+            )
+        );
     }
 
     setAllReachableTiles(tilesSearchCanStopAt: TileFoundDescription[]) {

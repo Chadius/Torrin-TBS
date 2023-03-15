@@ -142,8 +142,8 @@ export class TerrainTileMap {
         return this.getTileAtLocation(hexCoordinate) !== undefined;
     }
 
-    getDimensions(): {widthOfWidestRow: number, numberOfRows: number} {
-        let rowIndecies: {[row in number]: boolean} = {};
+    getDimensions(): { widthOfWidestRow: number, numberOfRows: number } {
+        let rowIndecies: { [row in number]: boolean } = {};
         this.tiles.forEach((tile) => {
             rowIndecies[tile.q] = true;
         });

@@ -1,6 +1,6 @@
 import p5 from "p5";
 import {HexCoordinate, Integer} from "../hexMap/hexGrid";
-import {TerrainTileMap} from "../hexMap/terrainTileMap";
+import {HighlightTileDescription, TerrainTileMap} from "../hexMap/terrainTileMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
@@ -548,7 +548,7 @@ export class BattleScene {
                 }))
             );
 
-            const closestRoute = getResultOrThrowError(searchResults.getRouteToStopLocation());
+            const closestRoute: SearchPath = getResultOrThrowError(searchResults.getRouteToStopLocation());
             if (closestRoute == null) {
                 this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
                 return;
@@ -566,9 +566,47 @@ export class BattleScene {
             this.animationTimer = Date.now();
             this.animationMode = AnimationMode.MOVING_UNIT;
 
+            let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
+
+            const routeTilesByDistance = this.getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions);
+            this.hexMap.highlightTiles(routeTilesByDistance);
+
             this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.MOVING_SQUADDIE;
             return;
         }
+    }
+
+    private getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions: HexCoordinate[][]) {
+        const routeTilesByDistance: HighlightTileDescription[] =
+            routeSortedByNumberOfMovementActions.map((tiles, numberOfMovementActions) => {
+                let overlayImageResourceName: string;
+                switch (numberOfMovementActions) {
+                    case 0:
+                        break;
+                    case 1:
+                        overlayImageResourceName = "map icon move 1 action";
+                        break;
+                    case 2:
+                        overlayImageResourceName = "map icon move 2 actions";
+                        break;
+                    default:
+                        overlayImageResourceName = "map icon move 3 actions";
+                        break;
+                }
+
+                if (overlayImageResourceName) {
+                    return {
+                        tiles,
+                        pulseColor: HighlightPulseBlueColor,
+                        overlayImageResourceName,
+                    }
+                }
+                return {
+                    tiles,
+                    pulseColor: HighlightPulseBlueColor,
+                }
+            });
+        return routeTilesByDistance;
     }
 
     private updateBattleSquaddieUIMovingSquaddie(clickedHexCoordinate?: HexCoordinate) {
@@ -616,8 +654,6 @@ export class BattleScene {
             this.battleSquaddieUIInput.selectedSquaddieDynamicID
         ));
 
-        dynamicSquaddie.mapIcon.draw(p);
-
         const timePassed = Date.now() - this.animationTimer;
         const timeToMove = TIME_TO_MOVE;
         if (this.hasMovementAnimationFinished()) {
@@ -639,9 +675,8 @@ export class BattleScene {
             )
 
             this.setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
-            dynamicSquaddie.mapIcon.draw(p);
-            return;
         }
+        dynamicSquaddie.mapIcon.draw(p);
     }
 
     private highlightSquaddieReach(dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
@@ -665,42 +700,10 @@ export class BattleScene {
             movementTiles
         );
 
-        const highlightTileDescriptions = [];
-        if (movementTilesByNumberOfActions[0]) {
-            highlightTileDescriptions.push(
-                {
-                    tiles: movementTilesByNumberOfActions[0],
-                    pulseColor: HighlightPulseBlueColor,
-                }
-            )
-        }
-        if (movementTilesByNumberOfActions[1]) {
-            highlightTileDescriptions.push(
-                {
-                    tiles: movementTilesByNumberOfActions[1],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: "map icon move 1 action",
-                }
-            )
-        }
-        if (movementTilesByNumberOfActions[2]) {
-            highlightTileDescriptions.push(
-                {
-                    tiles: movementTilesByNumberOfActions[2],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: "map icon move 2 actions",
-                }
-            )
-        }
-        if (movementTilesByNumberOfActions[3]) {
-            highlightTileDescriptions.push(
-                {
-                    tiles: movementTilesByNumberOfActions[3],
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: "map icon move 3 actions",
-                }
-            )
-        }
+        const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] = Object.values(movementTilesByNumberOfActions);
+        tilesTraveledByNumberOfMovementActions.unshift([]);
+        const highlightTileDescriptions = this.getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
+
         if (actionTiles) {
             highlightTileDescriptions.push({
                     tiles: actionTiles,

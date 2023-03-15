@@ -1,5 +1,5 @@
 import {assertsInteger, assertsPositiveNumber} from "../utils/math";
-import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToMapCoordinates

@@ -23,7 +23,7 @@ describe('BattleCamera', () => {
 
         camera.constrainCamera();
 
-        expect(camera.getCoordinates()[1]).toBeLessThanOrEqual((numberOfRowsThatCanFitOnScreen + 5) * HEX_TILE_WIDTH - SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 10 )
+        expect(camera.getCoordinates()[1]).toBeLessThanOrEqual((numberOfRowsThatCanFitOnScreen + 5) * HEX_TILE_WIDTH - SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 10)
         expect(camera.getVelocity()[1]).toBe(0);
     });
 
@@ -39,7 +39,7 @@ describe('BattleCamera', () => {
             0,
         )[1];
 
-        expect(camera.getCoordinates()[1]).toBe(bottomOfLastRow / 2 )
+        expect(camera.getCoordinates()[1]).toBe(bottomOfLastRow / 2)
         expect(camera.getVelocity()[1]).toBe(0);
     });
 

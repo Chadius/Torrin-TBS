@@ -1389,5 +1389,49 @@ describe('pathfinder', () => {
                 movementCost: 3,
             }));
         });
+
+        it('can filter closest route by number of movement actions involved', () => {
+            const {
+                missionMap,
+                pathfinder,
+            } = createMapAndPathfinder([
+                "1 1 1 ",
+                " 1 1 x ",
+                "  1 1 1 ",
+            ]);
+
+            const searchResults: SearchResults = getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
+                missionMap: missionMap,
+                squaddieMovement: squaddieMovementOneMovementPerAction,
+                numberOfActions: 3,
+                startLocation: {q: 1 as Integer, r: 1 as Integer},
+                stopLocation: {q: 2 as Integer, r: 2 as Integer}
+            })));
+
+            let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
+            expect(routeSortedByNumberOfMovementActions).toStrictEqual([
+                [
+                    {
+                        q: 1 as Integer,
+                        r: 1 as Integer,
+                        movementCost: 0 as Integer,
+                    },
+                ],
+                [
+                    {
+                        q: 2 as Integer,
+                        r: 1 as Integer,
+                        movementCost: 1 as Integer,
+                    }
+                ],
+                [
+                    {
+                        q: 2 as Integer,
+                        r: 2 as Integer,
+                        movementCost: 2 as Integer,
+                    }
+                ]
+            ])
+        });
     });
 });
