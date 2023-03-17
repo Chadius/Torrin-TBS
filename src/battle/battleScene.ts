@@ -35,6 +35,7 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {areAllResourcesLoaded, loadMapIconResources, loadMapTileResources} from "./battleResourceLoading";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
+import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 
 type RequiredOptions = {
     p: p5;
@@ -49,7 +50,7 @@ type Options = {
 
 enum AnimationMode {
     IDLE = "IDLE",
-    MOVING_UNIT = "MOVING_UNIT"
+    MOVING_SQUADDIE = "MOVING_SQUADDIE"
 }
 
 export class BattleScene {
@@ -73,6 +74,7 @@ export class BattleScene {
     squaddieAnimationWorldCoordinatesEnd?: [number, number];
 
     battleSquaddieUIInput: BattleSquaddieUIInput;
+    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
 
     constructor(options: RequiredOptions & Partial<Options>) {
         assertsPositiveNumber(options.width);
@@ -99,6 +101,11 @@ export class BattleScene {
             missionMap: this.missionMap,
             squaddieRepository: this.squaddieRepo,
         };
+        this.battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD({
+            missionMap: this.missionMap,
+            squaddieRepository: this.squaddieRepo,
+        });
+        this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
     }
 
     private prepareSquaddies() {
@@ -288,11 +295,7 @@ export class BattleScene {
             this.camera.moveCamera();
             this.camera.constrainCamera();
 
-            p.fill("#dedede");
-            p.stroke("#1f1f1f");
-            for (let i = 0; i < this.turnBySquaddieId["player_young_torrin"].getRemainingActions(); i++) {
-                p.circle(50 + (i * 55), SCREEN_HEIGHT - 70, 50);
-            }
+            this.battleSquaddieSelectedHUD.draw(p);
         }
     }
 
@@ -345,7 +348,7 @@ export class BattleScene {
                 return;
             }
 
-            if (this.animationMode === AnimationMode.MOVING_UNIT && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
+            if (this.animationMode === AnimationMode.MOVING_SQUADDIE && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
                 this.moveSquaddie(p);
                 this.updateBattleSquaddieUIDraw();
             } else {
@@ -447,15 +450,16 @@ export class BattleScene {
         if (
             !this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
         ) {
+            this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
 
         switch (this.battleSquaddieUIInput.selectionState) {
             case BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED:
-                this.updateBattleSquaddieUINoSquaddieSelected(clickedHexCoordinate);
+                this.updateBattleSquaddieUINoSquaddieSelected(clickedHexCoordinate, mouseX, mouseY);
                 break;
             case BattleSquaddieUISelectionState.SELECTED_SQUADDIE:
-                this.updateBattleSquaddieUISelectedSquaddie(clickedHexCoordinate);
+                this.updateBattleSquaddieUISelectedSquaddie(clickedHexCoordinate, mouseX, mouseY);
                 break;
             case BattleSquaddieUISelectionState.MOVING_SQUADDIE:
                 this.updateBattleSquaddieUIMovingSquaddie(clickedHexCoordinate);
@@ -463,7 +467,7 @@ export class BattleScene {
         }
     }
 
-    private updateBattleSquaddieUINoSquaddieSelected(clickedHexCoordinate: HexCoordinate) {
+    private updateBattleSquaddieUINoSquaddieSelected(clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         const newSelectionState: BattleSquaddieUISelectionState = calculateNewBattleSquaddieUISelectionState(
             {
                 tileClickedOn: clickedHexCoordinate,
@@ -474,11 +478,13 @@ export class BattleScene {
         );
 
         if (newSelectionState !== BattleSquaddieUISelectionState.SELECTED_SQUADDIE) {
+            this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
 
         const squaddieID: SquaddieID = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
         if (!squaddieID) {
+            this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
         const {
@@ -490,16 +496,19 @@ export class BattleScene {
         this.highlightSquaddieReach(dynamicSquaddie, staticSquaddie);
         this.battleSquaddieUIInput.selectedSquaddieDynamicID = dynamicSquaddieId;
         this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+
+        this.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }
 
-    private updateBattleSquaddieUISelectedSquaddie(clickedHexCoordinate: HexCoordinate) {
+    private updateBattleSquaddieUISelectedSquaddie(clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         if (
             !this.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
         ) {
+            this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
 
-        this.hexMap.highlightTiles([]);
+
         const squaddieID: SquaddieID = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
         if (squaddieID) {
             const {
@@ -508,9 +517,11 @@ export class BattleScene {
                 dynamicSquaddieId,
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
 
+            this.hexMap.stopHighlightingTiles();
             this.highlightSquaddieReach(dynamicSquaddie, staticSquaddie);
             this.battleSquaddieUIInput.selectedSquaddieDynamicID = dynamicSquaddieId;
             this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+            this.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
             return;
         }
 
@@ -564,14 +575,19 @@ export class BattleScene {
                 this.squaddieMovePath.getDestination().r,
             );
             this.animationTimer = Date.now();
-            this.animationMode = AnimationMode.MOVING_UNIT;
+            this.animationMode = AnimationMode.MOVING_SQUADDIE;
 
             let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
 
             const routeTilesByDistance = this.getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions);
+            this.hexMap.stopHighlightingTiles();
             this.hexMap.highlightTiles(routeTilesByDistance);
 
             this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.MOVING_SQUADDIE;
+            if (this.squaddieTurnEnded()) {
+                this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
+                this.hexMap.stopHighlightingTiles();
+            }
             return;
         }
     }
@@ -639,7 +655,7 @@ export class BattleScene {
     }
 
     private moveSquaddie(p: p5) {
-        if (this.animationMode !== AnimationMode.MOVING_UNIT) {
+        if (this.animationMode !== AnimationMode.MOVING_SQUADDIE) {
             return;
         }
 
@@ -722,5 +738,9 @@ export class BattleScene {
         dynamicSquaddieInfo.mapIcon.area.setRectLeft({left: xyCoords[0]});
         dynamicSquaddieInfo.mapIcon.area.setRectTop({top: xyCoords[1]});
         dynamicSquaddieInfo.mapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
+    }
+
+    private squaddieTurnEnded(): boolean {
+        return true;
     }
 }
