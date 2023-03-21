@@ -7,5 +7,7 @@ He often calls Torrin "the little Firecracker," which always confuses her until 
 
 He focuses more on control. Using powers like the flash fire, he can stun enemies and not knock them down or knock them off guard.
 
+## Class
+Elementalist with Smooth Talker
 
-
+Birnam focuses on the controlling aspects of flame, but he's always ready to crack a joke at his foes's expense.
