@@ -9,6 +9,7 @@ export type SearchParamsOptions = {
     stopLocation?: HexCoordinate;
     squaddieMovement?: SquaddieMovement;
     squaddieAffiliation?: SquaddieAffiliation;
+    canStopOnSquaddies?: boolean;
     numberOfActions?: number;
     minimumDistanceMoved?: number;
     missionMap: MissionMap;
@@ -25,8 +26,8 @@ export class SearchParams {
         movementPerAction: number;
         passThroughWalls: boolean;
         crossOverPits: boolean;
+        canStopOnSquaddies: boolean;
     }
-
     stopConditions: {
         numberOfActions?: number;
         stopLocation?: HexCoordinate;
@@ -43,6 +44,7 @@ export class SearchParams {
             movementPerAction: options.squaddieMovement ? options.squaddieMovement.movementPerAction : 0,
             passThroughWalls: options.squaddieMovement ? options.squaddieMovement.passThroughWalls : false,
             crossOverPits: options.squaddieMovement ? options.squaddieMovement.crossOverPits : false,
+            canStopOnSquaddies: options.canStopOnSquaddies,
         }
         this.stopConditions = {
             numberOfActions: options.numberOfActions,
@@ -86,8 +88,13 @@ export class SearchParams {
         return this.setup.affiliation;
     }
 
+    getCanStopOnSquaddies(): boolean {
+        return (this.movement.canStopOnSquaddies === true)
+    }
+
     getSearchParamsOptions(): SearchParamsOptions {
         return {
+            canStopOnSquaddies: this.movement.canStopOnSquaddies,
             minimumDistanceMoved: this.movement.minimumDistanceMoved,
             missionMap: this.setup.missionMap,
             numberOfActions: this.stopConditions.numberOfActions,

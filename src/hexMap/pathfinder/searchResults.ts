@@ -64,6 +64,10 @@ export class SearchResults {
         return this.lowestCostRoutes[locationKey];
     }
 
+    getReachableTiles: () => TileFoundDescription[] = () => {
+        return [...this.allReachableTiles]
+    }
+
     getReachableTilesByNumberOfMovementActions(): { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } {
         const reachables: { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } = {};
         Object.entries(this.lowestCostRoutes).forEach(([_, path]) => {

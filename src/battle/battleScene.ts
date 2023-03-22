@@ -709,6 +709,7 @@ export class BattleScene {
         const movementTilesByNumberOfActions: { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
         const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange(new SearchParams({
+                canStopOnSquaddies: true,
                 missionMap: this.missionMap,
                 minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
             }),

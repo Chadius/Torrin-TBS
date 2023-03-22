@@ -1,6 +1,6 @@
 import {TerrainTileMap} from "../terrainTileMap";
 import {HexCoordinate, Integer} from "../hexGrid";
-import {SquaddieID} from "../../squaddie/id";
+import {NewDummySquaddieID, SquaddieID} from "../../squaddie/id";
 import {NullSquaddieResource, SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder} from "./pathfinder";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
@@ -890,6 +890,58 @@ describe('pathfinder', () => {
                     ]
                 );
             });
+        });
+
+        it('should stop on squaddies if allowed', () => {
+            const {
+                missionMap,
+                pathfinder,
+            } = createMapAndPathfinder([
+                "1 1 1 1 1 1 ",
+            ]);
+
+            missionMap.addSquaddie(
+                NewDummySquaddieID("player", SquaddieAffiliation.PLAYER),
+                {q: 0 as Integer, r: 0 as Integer}
+            );
+            missionMap.addSquaddie(
+                NewDummySquaddieID("enemy", SquaddieAffiliation.ENEMY),
+                {q: 0 as Integer, r: 1 as Integer}
+            );
+            missionMap.addSquaddie(
+                NewDummySquaddieID("ally", SquaddieAffiliation.ALLY),
+                {q: 0 as Integer, r: 2 as Integer}
+            );
+            missionMap.addSquaddie(
+                NewDummySquaddieID("none", SquaddieAffiliation.NONE),
+                {q: 0 as Integer, r: 3 as Integer}
+            );
+
+            const allTilesOnMap: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+                canStopOnSquaddies: true,
+                minimumDistanceMoved: 0,
+                missionMap,
+                numberOfActions: 1,
+                squaddieMovement: new SquaddieMovement({
+                    movementPerAction: 10,
+                    traits: NullTraitStatusStorage(),
+                }),
+                startLocation: {q: 0 as Integer, r: 0 as Integer},
+                stopLocation: undefined
+            }))
+
+            validateTilesAreFound(
+                allTilesOnMap.getReachableTiles(),
+                [
+                    {q: 0 as Integer, r: 0 as Integer,},
+                    {q: 0 as Integer, r: 1 as Integer,},
+                    {q: 0 as Integer, r: 2 as Integer,},
+                    {q: 0 as Integer, r: 3 as Integer,},
+                    {q: 0 as Integer, r: 4 as Integer,},
+                    {q: 0 as Integer, r: 5 as Integer,},
+                ],
+                []
+            );
         });
     });
 

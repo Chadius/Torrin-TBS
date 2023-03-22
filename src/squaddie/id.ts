@@ -1,5 +1,5 @@
-import {SquaddieResource} from "./resource";
-import {TraitStatusStorage} from "../trait/traitStatusStorage";
+import {NullSquaddieResource, SquaddieResource} from "./resource";
+import {NullTraitStatusStorage, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 
 type RequiredOptions = {
@@ -8,6 +8,16 @@ type RequiredOptions = {
     resources: SquaddieResource;
     traits: TraitStatusStorage;
     affiliation: SquaddieAffiliation;
+}
+
+export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieID = (id: string, affiliation: SquaddieAffiliation) => {
+    return new SquaddieID({
+        id,
+        name: id,
+        resources: NullSquaddieResource(),
+        traits: NullTraitStatusStorage(),
+        affiliation
+    });
 }
 
 export class SquaddieID {

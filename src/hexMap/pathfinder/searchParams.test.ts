@@ -13,6 +13,7 @@ describe('searchParams', () => {
         })
 
         const originalParams: SearchParams = new SearchParams({
+            canStopOnSquaddies: true,
             startLocation: {q: 5 as Integer, r: 7 as Integer},
             stopLocation: {q: 11 as Integer, r: 13 as Integer},
             squaddieMovement: new SquaddieMovement({

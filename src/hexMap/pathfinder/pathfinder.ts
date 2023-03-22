@@ -1,5 +1,5 @@
 import {HexCoordinate, HexCoordinateToKey, Integer} from "../hexGrid";
-import {HexMapLocationInfo, SquaddieCanStopMovingOnTile} from "../HexMapLocationInfo";
+import {HexMapLocationInfo} from "../HexMapLocationInfo";
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
 import {CreateNewPathCandidates} from "../hexGridDirection";
@@ -303,7 +303,7 @@ export class Pathfinder {
     }
 
     private canStopOnThisTile(mapInfo: HexMapLocationInfo, head: SearchPath, searchParams: SearchParams) {
-        return this.squaddieCanStopMovingOnTile(mapInfo)
+        return this.squaddieCanStopMovingOnTile(mapInfo, searchParams)
             && this.isPathAtLeastMinimumDistance(head, searchParams);
     }
 
@@ -347,8 +347,14 @@ export class Pathfinder {
         return newPaths;
     }
 
-    private squaddieCanStopMovingOnTile(mapInfo: HexMapLocationInfo) {
-        return SquaddieCanStopMovingOnTile(mapInfo);
+    private squaddieCanStopMovingOnTile(mapInfo: HexMapLocationInfo, searchParams: SearchParams) {
+        const squaddieIsBlocking: boolean = !(searchParams.getCanStopOnSquaddies() || mapInfo.squaddieId === undefined);
+        return !(
+            [HexGridMovementCost.wall, HexGridMovementCost.pit].includes(
+                mapInfo.tileTerrainType
+            )
+            || squaddieIsBlocking
+        )
     }
 
     private createNewPathCandidates(q: number, r: number): [number, number][] {
