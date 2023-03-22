@@ -1,10 +1,10 @@
-import {HexCoordinate, Integer} from "./hexGrid";
+import {HexCoordinate} from "./hexGrid";
 import {HexDirection, moveCoordinatesInOneDirection, moveOneTileInDirection} from "./hexGridDirection";
 
 describe('Move Hex Coordinate in one direction', () => {
     let origin: HexCoordinate;
     beforeEach(() => {
-        origin = {q: 0 as Integer, r: 0 as Integer};
+        origin = {q: 0, r: 0};
     });
 
     it('Can stay at origin', () => {

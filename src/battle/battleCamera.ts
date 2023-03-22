@@ -1,4 +1,4 @@
-import {assertsInteger, assertsPositiveNumber} from "../utils/math";
+import {assertsInteger, assertsNonNegativeNumber} from "../utils/mathAssert";
 import {
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToMapCoordinates
@@ -115,10 +115,10 @@ export class BattleCamera {
     }
 
     setMapDimensionBoundaries(widthOfWidestRow: number, numberOfRows: number) {
-        assertsPositiveNumber(widthOfWidestRow);
+        assertsNonNegativeNumber(widthOfWidestRow);
         assertsInteger(widthOfWidestRow);
 
-        assertsPositiveNumber(numberOfRows);
+        assertsNonNegativeNumber(numberOfRows);
         assertsInteger(numberOfRows);
 
         this.mapDimensionBoundaries = {

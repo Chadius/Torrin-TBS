@@ -1,4 +1,3 @@
-import {Integer} from "../hexMap/hexGrid";
 import {SquaddieActivity} from "./activity";
 
 export enum ACTIVITY_PERFORM_FAILURE_REASON {
@@ -7,18 +6,18 @@ export enum ACTIVITY_PERFORM_FAILURE_REASON {
 }
 
 export class SquaddieTurn {
-    remainingNumberOfActions: Integer;
+    remainingNumberOfActions: number;
 
     constructor() {
-        this.remainingNumberOfActions = 3 as Integer
+        this.remainingNumberOfActions = 3;
     }
 
-    getRemainingActions(): Integer {
+    getRemainingActions(): number {
         return this.remainingNumberOfActions;
     }
 
     spendActionsOnActivity(activity: SquaddieActivity) {
-        this.remainingNumberOfActions = (this.remainingNumberOfActions - activity.actionsToSpend) as Integer;
+        this.remainingNumberOfActions = (this.remainingNumberOfActions - activity.actionsToSpend);
     }
 
     canPerformActivity(activity: SquaddieActivity): { canPerform: boolean, reason: ACTIVITY_PERFORM_FAILURE_REASON } {
@@ -40,6 +39,6 @@ export class SquaddieTurn {
     }
 
     private refreshActions() {
-        this.remainingNumberOfActions = 3 as Integer;
+        this.remainingNumberOfActions = 3;
     }
 }

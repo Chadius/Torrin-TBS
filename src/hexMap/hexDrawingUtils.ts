@@ -6,7 +6,7 @@ import {
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToScreenCoordinates
 } from "./convertCoordinates";
-import {HexCoordinate, Integer} from "./hexGrid";
+import {HexCoordinate} from "./hexGrid";
 import {TerrainTileMap} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
@@ -40,8 +40,8 @@ export const HighlightPulseBlueColor: PulseBlendColor = {
 
 type HexTileDrawOptions = {
     p: p5;
-    q: Integer;
-    r: Integer;
+    q: number;
+    r: number;
     terrainType: HexGridMovementCost;
     cameraX: number;
     cameraY: number;

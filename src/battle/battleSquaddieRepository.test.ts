@@ -4,7 +4,6 @@ import {NullSquaddieResource} from "../squaddie/resource";
 import {NullTraitStatusStorage, Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../squaddie/movement";
-import {Integer} from "../hexMap/hexGrid";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
@@ -34,7 +33,7 @@ describe('BattleSquaddieRepository', () => {
         };
         dynamicSquaddieBase = {
             staticSquaddieId: "player_young_torrin",
-            mapLocation: {q: 0 as Integer, r: 0 as Integer},
+            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn()
         };
 
@@ -75,13 +74,13 @@ describe('BattleSquaddieRepository', () => {
         }).toThrow("cannot addStaticSquaddie 'player_young_torrin', is already added");
     });
 
-    it("return error if you add dynamic squaddie for static squaddie that doesn't exist", () => {
+    it("should throw error if you add dynamic squaddie for static squaddie that doesn't exist", () => {
         const shouldThrowError = () => {
             squaddieRepo.addDynamicSquaddie(
                 "ID does not matter",
                 {
                     staticSquaddieId: "unknown_static_squaddie",
-                    mapLocation: {q: 0 as Integer, r: 0 as Integer},
+                    mapLocation: {q: 0, r: 0},
                     squaddieTurn: new SquaddieTurn()
                 }
             );
@@ -95,7 +94,7 @@ describe('BattleSquaddieRepository', () => {
         }).toThrow("cannot addDynamicSquaddie 'ID does not matter', no static squaddie 'unknown_static_squaddie' exists");
     });
 
-    it("return error if you add dynamic squaddie for dynamic squaddie that already exists", () => {
+    it("should throw error if you add dynamic squaddie for dynamic squaddie that already exists", () => {
         squaddieRepo.addDynamicSquaddie(
             "player_young_torrin_0",
             dynamicSquaddieBase
@@ -115,6 +114,26 @@ describe('BattleSquaddieRepository', () => {
             shouldThrowError()
         }).toThrow("cannot addDynamicSquaddie 'player_young_torrin_0', again, it already exists");
     });
+
+    it('should throw an error if dynamic squaddie is invalid', () => {
+        const shouldThrowError = () => {
+            squaddieRepo.addDynamicSquaddie(
+                "dynamic squaddie id",
+                dynamicSquaddieBase = {
+                    staticSquaddieId: "",
+                    mapLocation: {q: 0, r: 0},
+                    squaddieTurn: new SquaddieTurn()
+                }
+            );
+        }
+
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(Error);
+        expect(() => {
+            shouldThrowError()
+        }).toThrow("Dynamic Squaddie has no Static Squaddie Id");
+    })
 
     it("getDynamicSquaddieByID should return error if dynamic squaddie doesn't exist", () => {
         const resultOrError = squaddieRepo.getSquaddieByDynamicID("player_young_torrin_0")
@@ -184,7 +203,7 @@ describe('BattleSquaddieRepository', () => {
         const resultOrError = squaddieRepo.getSquaddieByStaticIDAndLocation(
             staticSquaddieBase.squaddieID.id,
             {
-                q: dynamicSquaddieBase.mapLocation.q + 1 as Integer,
+                q: dynamicSquaddieBase.mapLocation.q + 1,
                 r: dynamicSquaddieBase.mapLocation.r,
             }
         )

@@ -1,18 +1,20 @@
-import {HexCoordinate, Integer} from "../hexGrid";
+import {HexCoordinate} from "../hexGrid";
 import {TileFoundDescription} from "./tileFoundDescription";
+import {assertsInteger} from "../../utils/mathAssert";
 
 export class SearchPath implements CostReportable {
     tilesTraveled: TileFoundDescription[];
     tilesTraveledByNumberOfMovementActions: TileFoundDescription[][];
     totalMovementCost: number;
     movementCostSinceStartOfAction: number;
-    currentNumberOfMoveActions: Integer;
+    currentNumberOfMoveActions: number;
     destination?: HexCoordinate;
 
     constructor(original?: SearchPath) {
         this.tilesTraveled = original ? [...original.tilesTraveled] : [];
         this.tilesTraveledByNumberOfMovementActions = original ? [...original.tilesTraveledByNumberOfMovementActions] : [];
-        this.currentNumberOfMoveActions = original ? original.currentNumberOfMoveActions : 0 as Integer;
+        this.currentNumberOfMoveActions = original ? original.currentNumberOfMoveActions : 0;
+        assertsInteger(this.currentNumberOfMoveActions)
 
         this.totalMovementCost = original ? original.totalMovementCost : 0;
         this.movementCostSinceStartOfAction = original ? original.movementCostSinceStartOfAction : 0;

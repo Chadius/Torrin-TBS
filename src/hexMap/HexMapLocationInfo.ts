@@ -1,9 +1,8 @@
-import {Integer} from "./hexGrid";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 
 export type HexMapLocationInfo = {
-    q: Integer;
-    r: Integer;
+    q: number;
+    r: number;
     squaddieId: string;
     tileTerrainType: HexGridMovementCost;
 }

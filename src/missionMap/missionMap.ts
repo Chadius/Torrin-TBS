@@ -1,5 +1,5 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {HexCoordinate, HexCoordinateToKey, Integer} from "../hexMap/hexGrid";
+import {HexCoordinate, HexCoordinateToKey} from "../hexMap/hexGrid";
 import {SquaddieID} from "../squaddie/id";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {HexMapLocationInfo} from "../hexMap/HexMapLocationInfo";
@@ -12,16 +12,16 @@ export class MissionMap {
     terrainTileMap: TerrainTileMap;
     squaddiesById: {
         [id: string]: {
-            q: Integer;
-            r: Integer;
+            q: number;
+            r: number;
             squaddieID: SquaddieID;
         };
     }
 
     squaddiesByLocation: {
         [coordinate: string]: {
-            q: Integer;
-            r: Integer;
+            q: number;
+            r: number;
             id: string;
         }
     }
@@ -104,12 +104,6 @@ export class MissionMap {
     }
 
     updateSquaddiePosition(id: string, mapLocation: HexCoordinate): Error | undefined {
-        //   const coordinateKey: string = HexCoordinateToKey(mapLocation);
-        //   const alreadyOccupiedSquaddie: SquaddieID = this.getSquaddieAtLocation(mapLocation);
-        //   if (alreadyOccupiedSquaddie && alreadyOccupiedSquaddie.id !== id) {
-        //     return new Error(`cannot update squaddie position to ${coordinateKey}, already occupied by ${this.squaddiesByLocation[coordinateKey].id}`);
-        //   }
-        //
         const squaddieToMoveInfo = this.squaddiesById[id];
         if (!squaddieToMoveInfo) {
             return new Error(`updateSquaddieLocation: no squaddie with id ${id}`);

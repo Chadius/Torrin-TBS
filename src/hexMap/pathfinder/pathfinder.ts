@@ -1,4 +1,4 @@
-import {HexCoordinate, HexCoordinateToKey, Integer} from "../hexGrid";
+import {HexCoordinate, HexCoordinateToKey} from "../hexGrid";
 import {HexMapLocationInfo} from "../HexMapLocationInfo";
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
@@ -330,8 +330,8 @@ export class Pathfinder {
         const newPaths: SearchPath[] = [];
         neighboringLocations.forEach((neighbor) =>
             workingSearchState.markLocationAsConsideredForQueue({
-                q: neighbor[0] as Integer,
-                r: neighbor[1] as Integer,
+                q: neighbor[0],
+                r: neighbor[1],
                 movementCost: 0,
             })
         );
@@ -367,8 +367,8 @@ export class Pathfinder {
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
             return workingSearchState.hasAlreadyMarkedLocationAsVisited({
-                q: neighbor[0] as Integer,
-                r: neighbor[1] as Integer,
+                q: neighbor[0],
+                r: neighbor[1],
             });
         });
     }
@@ -379,15 +379,15 @@ export class Pathfinder {
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
             return workingSearchState.hasAlreadyMarkedLocationAsEnqueued({
-                q: neighbor[0] as Integer,
-                r: neighbor[1] as Integer,
+                q: neighbor[0],
+                r: neighbor[1],
             });
         });
     }
 
     private filterNeighborsOnMap(missionMap: MissionMap, neighboringLocations: [number, number][]): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
-            return missionMap.areCoordinatesOnMap({q: neighbor[0] as Integer, r: neighbor[1] as Integer})
+            return missionMap.areCoordinatesOnMap({q: neighbor[0], r: neighbor[1]})
         });
     }
 
@@ -399,8 +399,8 @@ export class Pathfinder {
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
             const mapInfo = missionMap.getMapInformationForLocation({
-                q: neighbor[0] as Integer,
-                r: neighbor[1] as Integer
+                q: neighbor[0],
+                r: neighbor[1]
             });
 
             if (!searchParams.getPassThroughWalls() && mapInfo.tileTerrainType === HexGridMovementCost.wall) {
@@ -433,8 +433,8 @@ export class Pathfinder {
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
         return neighboringLocations.filter((neighbor) => {
             const squaddieAtLocation: SquaddieID = missionMap.getSquaddieAtLocation({
-                q: neighbor[0] as Integer,
-                r: neighbor[1] as Integer,
+                q: neighbor[0],
+                r: neighbor[1],
             });
 
             if (!squaddieAtLocation) {
@@ -451,19 +451,18 @@ export class Pathfinder {
         missionMap: MissionMap,
         workingSearchState: SearchState,
     ): SearchPath {
-        const mapInfo = missionMap.getMapInformationForLocation({q: neighbor[0] as Integer, r: neighbor[1] as Integer});
+        const mapInfo = missionMap.getMapInformationForLocation({q: neighbor[0], r: neighbor[1]});
 
         let movementCost = MovingCostByTerrainType[mapInfo.tileTerrainType];
 
-        const newPath: SearchPath = workingSearchState.addNeighborSearchPathToQueue(
+        return workingSearchState.addNeighborSearchPathToQueue(
             {
-                q: neighbor[0] as Integer,
-                r: neighbor[1] as Integer,
+                q: neighbor[0],
+                r: neighbor[1],
                 movementCost: movementCost
             },
             head,
         );
-        return newPath;
     }
 
     private isPathAtLeastMinimumDistance(head: SearchPath, searchParams: SearchParams): boolean {

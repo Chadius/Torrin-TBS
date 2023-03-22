@@ -6,7 +6,6 @@ import {SquaddieID} from "../squaddie/id";
 import {NullSquaddieResource} from "../squaddie/resource";
 import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {Integer} from "../hexMap/hexGrid";
 import {SquaddieTurn} from "../squaddie/turn";
 import {SquaddieMovement} from "../squaddie/movement";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
@@ -39,7 +38,7 @@ describe('BattleSquaddieUIService', () => {
 
         playerDynamicSquaddie = {
             staticSquaddieId: "torrin",
-            mapLocation: {q: 0 as Integer, r: 0 as Integer},
+            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
         };
         squaddieRepository.addDynamicSquaddie("torrin_0", playerDynamicSquaddie);
@@ -76,13 +75,13 @@ describe('BattleSquaddieUIService', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER
             }),
-            {q: 0 as Integer, r: 0 as Integer}
+            {q: 0, r: 0}
         )
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0 as Integer, r: 0 as Integer},
+                    tileClickedOn: {q: 0, r: 0},
                     selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
                     missionMap,
                     squaddieRepository,
@@ -111,20 +110,20 @@ describe('BattleSquaddieUIService', () => {
         squaddieRepository.addStaticSquaddie(enemySquaddieStatic);
         const enemySquaddieDynamic: BattleSquaddieDynamic = {
             staticSquaddieId: "enemy",
-            mapLocation: {q: 0 as Integer, r: 0 as Integer},
+            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
         }
         squaddieRepository.addDynamicSquaddie("enemy_0", enemySquaddieDynamic)
 
         missionMap.addSquaddie(
             enemySquaddieStatic.squaddieID,
-            {q: 0 as Integer, r: 0 as Integer}
+            {q: 0, r: 0}
         )
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0 as Integer, r: 1 as Integer},
+                    tileClickedOn: {q: 0, r: 1},
                     selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
                     missionMap,
                     selectedSquaddieDynamicID: "enemy_0",
@@ -145,13 +144,13 @@ describe('BattleSquaddieUIService', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER
             }),
-            {q: 0 as Integer, r: 0 as Integer}
+            {q: 0, r: 0}
         )
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0 as Integer, r: 0 as Integer},
+                    tileClickedOn: {q: 0, r: 0},
                     selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
                     missionMap,
                     squaddieRepository,
@@ -171,13 +170,13 @@ describe('BattleSquaddieUIService', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            {q: 0 as Integer, r: 0 as Integer}
+            {q: 0, r: 0}
         )
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0 as Integer, r: 1 as Integer},
+                    tileClickedOn: {q: 0, r: 1},
                     selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
                     missionMap,
                     selectedSquaddieDynamicID: "torrin_0",
@@ -198,13 +197,13 @@ describe('BattleSquaddieUIService', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            {q: 0 as Integer, r: 0 as Integer}
+            {q: 0, r: 0}
         )
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0 as Integer, r: 1 as Integer},
+                    tileClickedOn: {q: 0, r: 1},
                     selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
                     missionMap,
                     selectedSquaddieDynamicID: "torrin_0",

@@ -1,4 +1,4 @@
-import {HexCoordinate, HexGridTile, Integer} from "./hexGrid";
+import {HexCoordinate, HexGridTile} from "./hexGrid";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {
     convertScreenCoordinatesToWorldCoordinates,
@@ -29,8 +29,8 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
             let stringToConvert = costString.slice(costStringIndex, costStringIndex + 2);
             let movementCostType = convertStringToMovementCost(stringToConvert);
             newTiles.push(new HexGridTile(
-                q_index as Integer,
-                r_index as Integer,
+                q_index,
+                r_index,
                 movementCostType
             ));
 
@@ -97,8 +97,8 @@ export class TerrainTileMap {
             this.tiles.some((tile) => tile.q == tileCoordinates[0] && tile.r == tileCoordinates[1])
         ) {
             this.outlineTileCoordinates = {
-                q: tileCoordinates[0] as Integer,
-                r: tileCoordinates[1] as Integer,
+                q: tileCoordinates[0],
+                r: tileCoordinates[1],
             }
         } else {
             this.outlineTileCoordinates = undefined;

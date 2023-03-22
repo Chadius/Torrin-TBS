@@ -1,4 +1,4 @@
-import {HexCoordinate, HexCoordinateToKey, Integer} from "../hexGrid";
+import {HexCoordinate, HexCoordinateToKey} from "../hexGrid";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
@@ -59,7 +59,7 @@ export class SearchResults {
         this.lowestCostRoutes[locationKey] = searchPath;
     }
 
-    getLowestCostRoute(q: Integer, r: Integer): SearchPath {
+    getLowestCostRoute(q: number, r: number): SearchPath {
         const locationKey: string = HexCoordinateToKey({q, r});
         return this.lowestCostRoutes[locationKey];
     }
@@ -68,8 +68,8 @@ export class SearchResults {
         return [...this.allReachableTiles]
     }
 
-    getReachableTilesByNumberOfMovementActions(): { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } {
-        const reachables: { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } = {};
+    getReachableTilesByNumberOfMovementActions(): { [numberOfActions: number]: [{ q: number, r: number }?] } {
+        const reachables: { [numberOfActions: number]: [{ q: number, r: number }?] } = {};
         Object.entries(this.lowestCostRoutes).forEach(([_, path]) => {
             const numberOfActions: number = path.getNumberOfMovementActions();
             if (!reachables[numberOfActions]) {

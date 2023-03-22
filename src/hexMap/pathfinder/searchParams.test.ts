@@ -1,5 +1,4 @@
 import {SearchParams, SearchParamsOptions} from "./searchParams";
-import {Integer} from "../hexGrid";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -14,8 +13,8 @@ describe('searchParams', () => {
 
         const originalParams: SearchParams = new SearchParams({
             canStopOnSquaddies: true,
-            startLocation: {q: 5 as Integer, r: 7 as Integer},
-            stopLocation: {q: 11 as Integer, r: 13 as Integer},
+            startLocation: {q: 5, r: 7},
+            stopLocation: {q: 11, r: 13},
             squaddieMovement: new SquaddieMovement({
                 movementPerAction: 17,
                 traits: new TraitStatusStorage({

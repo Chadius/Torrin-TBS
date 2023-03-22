@@ -1,9 +1,9 @@
 import p5 from "p5";
-import {HexCoordinate, Integer} from "../hexMap/hexGrid";
+import {HexCoordinate} from "../hexMap/hexGrid";
 import {HighlightTileDescription, TerrainTileMap} from "../hexMap/terrainTileMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {ResourceHandler} from "../resource/resourceHandler";
-import {assertsPositiveNumber, PositiveNumber} from "../utils/math";
+import {assertsNonNegativeNumber, NonNegativeNumber} from "../utils/mathAssert";
 import {SquaddieID} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
 import {ImageUI} from "../ui/imageUI";
@@ -22,7 +22,7 @@ import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleCamera} from "./battleCamera";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {assertBattleSquaddieDynamic, BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
@@ -39,8 +39,8 @@ import {ScreenDimensions} from "../utils/graphicsConfig";
 
 type RequiredOptions = {
     p: p5;
-    width: PositiveNumber;
-    height: PositiveNumber;
+    width: NonNegativeNumber;
+    height: NonNegativeNumber;
 };
 
 type Options = {
@@ -54,8 +54,8 @@ enum AnimationMode {
 }
 
 export class BattleScene {
-    width: PositiveNumber;
-    height: PositiveNumber;
+    width: NonNegativeNumber;
+    height: NonNegativeNumber;
     hexMap: TerrainTileMap;
     cutscene: Cutscene;
     resourceHandler: ResourceHandler;
@@ -77,9 +77,9 @@ export class BattleScene {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
 
     constructor(options: RequiredOptions & Partial<Options>) {
-        assertsPositiveNumber(options.width);
+        assertsNonNegativeNumber(options.width);
         this.width = options.width;
-        assertsPositiveNumber(options.height);
+        assertsNonNegativeNumber(options.height);
         this.height = options.height;
 
         this.camera = new BattleCamera(0, 100);
@@ -135,8 +135,8 @@ export class BattleScene {
                 new SquaddieActivity({
                     name: "water saber",
                     id: "torrin_water_saber",
-                    minimumRange: 0 as Integer,
-                    maximumRange: 2 as Integer,
+                    minimumRange: 0,
+                    maximumRange: 2,
                     traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
                 })
             ],
@@ -161,8 +161,8 @@ export class BattleScene {
                 new SquaddieActivity({
                     name: "longsword",
                     id: "sir_camil_longsword",
-                    minimumRange: 0 as Integer,
-                    maximumRange: 1 as Integer,
+                    minimumRange: 0,
+                    maximumRange: 1,
                     traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
                 })
             ],
@@ -187,8 +187,8 @@ export class BattleScene {
                 new SquaddieActivity({
                     name: "Bite",
                     id: "demon_slither_bite",
-                    minimumRange: 0 as Integer,
-                    maximumRange: 1 as Integer,
+                    minimumRange: 0,
+                    maximumRange: 1,
                     traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
                 })
             ],
@@ -196,17 +196,17 @@ export class BattleScene {
 
         this.squaddieRepo.addDynamicSquaddie("player_young_torrin", {
             staticSquaddieId: "player_young_torrin",
-            mapLocation: {q: 0 as Integer, r: 0 as Integer},
+            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn()
         })
         this.squaddieRepo.addDynamicSquaddie("player_sir_camil", {
             staticSquaddieId: "player_sir_camil",
-            mapLocation: {q: 1 as Integer, r: 1 as Integer},
+            mapLocation: {q: 1, r: 1},
             squaddieTurn: new SquaddieTurn()
         })
         this.squaddieRepo.addDynamicSquaddie("enemy_demon_slither_0", {
             staticSquaddieId: "enemy_demon_slither",
-            mapLocation: {q: 1 as Integer, r: 2 as Integer},
+            mapLocation: {q: 1, r: 2},
             squaddieTurn: new SquaddieTurn()
         })
 
@@ -443,8 +443,8 @@ export class BattleScene {
     updateBattleSquaddieUIMouseClicked(mouseX: number, mouseY: number) {
         const clickedTileCoordinates: [number, number] = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...this.camera.getCoordinates());
         const clickedHexCoordinate: HexCoordinate = {
-            q: clickedTileCoordinates[0] as Integer,
-            r: clickedTileCoordinates[1] as Integer
+            q: clickedTileCoordinates[0],
+            r: clickedTileCoordinates[1]
         };
 
         if (
@@ -706,7 +706,7 @@ export class BattleScene {
             })
         );
         const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
-        const movementTilesByNumberOfActions: { [numberOfActions: number]: [{ q: Integer, r: Integer }?] } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
+        const movementTilesByNumberOfActions: { [numberOfActions: number]: [{ q: number, r: number }?] } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
         const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange(new SearchParams({
                 canStopOnSquaddies: true,
@@ -736,6 +736,7 @@ export class BattleScene {
         dynamicSquaddieInfo: BattleSquaddieDynamic,
         xyCoords: [number, number]
     ) {
+        assertBattleSquaddieDynamic(dynamicSquaddieInfo);
         dynamicSquaddieInfo.mapIcon.area.setRectLeft({left: xyCoords[0]});
         dynamicSquaddieInfo.mapIcon.area.setRectTop({top: xyCoords[1]});
         dynamicSquaddieInfo.mapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});

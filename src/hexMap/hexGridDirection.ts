@@ -1,4 +1,4 @@
-import {HexCoordinate, Integer} from "./hexGrid";
+import {HexCoordinate} from "./hexGrid";
 
 export enum HexDirection {
     ORIGIN,
@@ -13,17 +13,17 @@ export enum HexDirection {
 export const moveOneTileInDirection = (origin: HexCoordinate, direction: HexDirection): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
-            return {q: origin.q, r: origin.r + 1 as Integer}
+            return {q: origin.q, r: origin.r + 1}
         case HexDirection.LEFT:
-            return {q: origin.q, r: origin.r - 1 as Integer}
+            return {q: origin.q, r: origin.r - 1}
         case HexDirection.UP_RIGHT:
-            return {q: origin.q - 1 as Integer, r: origin.r + 1 as Integer}
+            return {q: origin.q - 1, r: origin.r + 1}
         case HexDirection.UP_LEFT:
-            return {q: origin.q - 1 as Integer, r: origin.r}
+            return {q: origin.q - 1, r: origin.r}
         case HexDirection.DOWN_RIGHT:
-            return {q: origin.q + 1 as Integer, r: origin.r}
+            return {q: origin.q + 1, r: origin.r}
         case HexDirection.DOWN_LEFT:
-            return {q: origin.q + 1 as Integer, r: origin.r - 1 as Integer}
+            return {q: origin.q + 1, r: origin.r - 1}
         case HexDirection.ORIGIN:
         default:
             return origin;

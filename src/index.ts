@@ -1,7 +1,7 @@
 import p5 from 'p5';
 import {BattleScene} from './battle/battleScene'
 import {ResourceHandler, ResourceType} from "./resource/resourceHandler";
-import {PositiveNumber} from "./utils/math";
+import {NonNegativeNumber} from "./utils/mathAssert";
 import {ScreenDimensions} from "./utils/graphicsConfig";
 
 let battleScene: BattleScene;
@@ -11,8 +11,8 @@ export const sketch = (p: p5) => {
         p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
         battleScene = new BattleScene({
             p: p,
-            width: ScreenDimensions.SCREEN_WIDTH as PositiveNumber,
-            height: ScreenDimensions.SCREEN_HEIGHT as PositiveNumber,
+            width: ScreenDimensions.SCREEN_WIDTH as NonNegativeNumber,
+            height: ScreenDimensions.SCREEN_HEIGHT as NonNegativeNumber,
             resourceHandler: new ResourceHandler({
                 p: p,
                 allResources: [

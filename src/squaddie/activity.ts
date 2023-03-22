@@ -1,5 +1,4 @@
-import {Integer} from "../hexMap/hexGrid";
-import {assertsInteger} from "../utils/math";
+import {assertsInteger} from "../utils/mathAssert";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
 
 type RequiredOptions = {
@@ -9,32 +8,36 @@ type RequiredOptions = {
 }
 
 export type ActivityRange = {
-    minimumRange: Integer | undefined;
-    maximumRange: Integer | undefined;
+    minimumRange: number | undefined;
+    maximumRange: number | undefined;
 }
 
 type Options = ActivityRange & {
-    actionsToSpend: Integer;
+    actionsToSpend: number;
 }
 
 export class SquaddieActivity {
     name: string;
     id: string;
-    minimumRange: Integer;
-    maximumRange: Integer;
-    actionsToSpend: Integer;
+    minimumRange: number;
+    maximumRange: number;
+    actionsToSpend: number;
     traits: TraitStatusStorage;
 
     constructor(options: RequiredOptions & Partial<Options>) {
         this.name = options.name;
         this.id = options.id;
 
-        if (this.minimumRange !== undefined) {
-            assertsInteger(this.minimumRange);
+        if (options.minimumRange !== undefined) {
+            assertsInteger(options.minimumRange);
         }
-        if (this.maximumRange !== undefined) {
-            assertsInteger(this.maximumRange);
+        if (options.maximumRange !== undefined) {
+            assertsInteger(options.maximumRange);
         }
+        if (options.actionsToSpend !== undefined) {
+            assertsInteger(options.actionsToSpend);
+        }
+
         this.minimumRange = options.minimumRange;
         this.maximumRange = options.maximumRange;
 
@@ -42,7 +45,7 @@ export class SquaddieActivity {
             assertsInteger(options.actionsToSpend);
             this.actionsToSpend = options.actionsToSpend;
         } else {
-            this.actionsToSpend = 1 as Integer;
+            this.actionsToSpend = 1;
         }
 
         this.traits = options.traits;

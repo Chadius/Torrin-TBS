@@ -1,4 +1,4 @@
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {assertBattleSquaddieDynamic, BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {HexCoordinate} from "../hexMap/hexGrid";
 
@@ -25,6 +25,7 @@ export class BattleSquaddieRepository {
     }
 
     addDynamicSquaddie(dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic) {
+        assertBattleSquaddieDynamic(dynamicSquaddie);
         if (!this.squaddieStaticInfoByID[dynamicSquaddie.staticSquaddieId]) {
             throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddieId}', no static squaddie '${dynamicSquaddie.staticSquaddieId}' exists`);
         }
