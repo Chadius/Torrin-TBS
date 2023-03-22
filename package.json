@@ -5,8 +5,8 @@
   "private": "true",
   "source": "src/index.html",
   "scripts": {
-    "start": "rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
-    "test": "jest"
+    "start": "ENV=production rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
+    "test": "ENV=development jest"
   },
   "author": "",
   "license": "ISC",

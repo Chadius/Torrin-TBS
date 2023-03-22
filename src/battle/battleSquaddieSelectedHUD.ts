@@ -2,9 +2,9 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {MissionMap} from "../missionMap/missionMap";
 import p5 from "p5";
 import {RectArea} from "../ui/rectArea";
-import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {Rectangle} from "../ui/rectangle";
 import {getResultOrThrowError} from "../utils/ResultOrError";
+import {ScreenDimensions} from "../utils/graphicsConfig";
 
 export type BattleSquaddieSelectedHUDOptions = {
     squaddieRepository: BattleSquaddieRepository;
@@ -30,11 +30,11 @@ export class BattleSquaddieSelectedHUD {
     mouseClickedSquaddieSelected(dynamicID: string, mouseX: number, mouseY: number) {
         this.selectedSquaddieDynamicID = dynamicID;
 
-        const windowTop: number = (mouseY < (SCREEN_HEIGHT * 0.8)) ? SCREEN_HEIGHT * 0.8 : 10;
-        const windowHeight: number = (SCREEN_HEIGHT * 0.2) - 10;
+        const windowTop: number = (mouseY < (ScreenDimensions.SCREEN_HEIGHT * 0.8)) ? ScreenDimensions.SCREEN_HEIGHT * 0.8 : 10;
+        const windowHeight: number = (ScreenDimensions.SCREEN_HEIGHT * 0.2) - 10;
         const windowDimensions = new RectArea({
             left: 10,
-            right: SCREEN_WIDTH - 10,
+            right: ScreenDimensions.SCREEN_WIDTH - 10,
             top: windowTop,
             height: windowHeight
         });

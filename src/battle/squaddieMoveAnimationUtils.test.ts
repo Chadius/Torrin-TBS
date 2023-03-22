@@ -1,9 +1,10 @@
 import {getSquaddiePositionAlongPath, lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
 import {Integer} from "../hexMap/hexGrid";
-import {HEX_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
+import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {BattleCamera} from "./battleCamera";
 import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
+import {ScreenDimensions} from "../utils/graphicsConfig";
 
 describe('lerpSquaddieBetweenPath', () => {
     it('lerp between two points on a map', () => {
@@ -27,7 +28,7 @@ describe('lerpSquaddieBetweenPath', () => {
             0,
             0,
         )
-        expect(startLocation).toStrictEqual([SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2]);
+        expect(startLocation).toStrictEqual([ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT / 2]);
 
         const midLocation = lerpSquaddieBetweenPath(
             movementPathInfo,
@@ -36,7 +37,7 @@ describe('lerpSquaddieBetweenPath', () => {
             0,
             0,
         )
-        expect(midLocation).toStrictEqual([SCREEN_WIDTH / 2 + HEX_TILE_WIDTH / 2, SCREEN_HEIGHT / 2]);
+        expect(midLocation).toStrictEqual([ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT / 2]);
 
         const endLocation = lerpSquaddieBetweenPath(
             movementPathInfo,
@@ -45,7 +46,7 @@ describe('lerpSquaddieBetweenPath', () => {
             0,
             0,
         )
-        expect(endLocation).toStrictEqual([SCREEN_WIDTH / 2 + HEX_TILE_WIDTH, SCREEN_HEIGHT / 2]);
+        expect(endLocation).toStrictEqual([ScreenDimensions.SCREEN_WIDTH / 2 + HEX_TILE_WIDTH, ScreenDimensions.SCREEN_HEIGHT / 2]);
     })
 })
 

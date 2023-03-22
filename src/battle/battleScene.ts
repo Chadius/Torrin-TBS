@@ -8,7 +8,6 @@ import {SquaddieID} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
 import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
-import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates,
@@ -36,6 +35,7 @@ import {areAllResourcesLoaded, loadMapIconResources, loadMapTileResources} from 
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
+import {ScreenDimensions} from "../utils/graphicsConfig";
 
 type RequiredOptions = {
     p: p5;
@@ -170,7 +170,7 @@ export class BattleScene {
         this.squaddieRepo.addStaticSquaddie({
             squaddieID: new SquaddieID({
                 id: "enemy_demon_slither",
-                name: "Demon Slither",
+                name: "Slither Demon",
                 resources: new SquaddieResource({
                     mapIconResourceKey: "map icon demon slither"
                 }),
@@ -379,40 +379,40 @@ export class BattleScene {
             return;
         }
 
-        if (mouseX < SCREEN_WIDTH * 0.10) {
+        if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.10) {
             this.camera.setXVelocity(-1);
-            if (mouseX < SCREEN_WIDTH * 0.04) {
+            if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.04) {
                 this.camera.setXVelocity(-5);
             }
-            if (mouseX < SCREEN_WIDTH * 0.02) {
+            if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.02) {
                 this.camera.setXVelocity(-10);
             }
-        } else if (mouseX > SCREEN_WIDTH * 0.90) {
+        } else if (mouseX > ScreenDimensions.SCREEN_WIDTH * 0.90) {
             this.camera.setXVelocity(1);
-            if (mouseX > SCREEN_WIDTH * 0.96) {
+            if (mouseX > ScreenDimensions.SCREEN_WIDTH * 0.96) {
                 this.camera.setXVelocity(5);
             }
-            if (mouseX > SCREEN_WIDTH * 0.98) {
+            if (mouseX > ScreenDimensions.SCREEN_WIDTH * 0.98) {
                 this.camera.setXVelocity(10);
             }
         } else {
             this.camera.setXVelocity(0);
         }
 
-        if (mouseY < SCREEN_HEIGHT * 0.10) {
+        if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.10) {
             this.camera.setYVelocity(-1);
-            if (mouseY < SCREEN_HEIGHT * 0.04) {
+            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.04) {
                 this.camera.setYVelocity(-5);
             }
-            if (mouseY < SCREEN_HEIGHT * 0.02) {
+            if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.02) {
                 this.camera.setYVelocity(-10);
             }
-        } else if (mouseY > SCREEN_HEIGHT * 0.90) {
+        } else if (mouseY > ScreenDimensions.SCREEN_HEIGHT * 0.90) {
             this.camera.setYVelocity(1);
-            if (mouseY > SCREEN_HEIGHT * 0.96) {
+            if (mouseY > ScreenDimensions.SCREEN_HEIGHT * 0.96) {
                 this.camera.setYVelocity(5);
             }
-            if (mouseY > SCREEN_HEIGHT * 0.98) {
+            if (mouseY > ScreenDimensions.SCREEN_HEIGHT * 0.98) {
                 this.camera.setYVelocity(10);
             }
         } else {
@@ -421,9 +421,9 @@ export class BattleScene {
 
         if (
             mouseX < 0
-            || mouseX > SCREEN_WIDTH
+            || mouseX > ScreenDimensions.SCREEN_WIDTH
             || mouseY < 0
-            || mouseY > SCREEN_HEIGHT
+            || mouseY > ScreenDimensions.SCREEN_HEIGHT
         ) {
             this.camera.setXVelocity(0);
             this.camera.setYVelocity(0);

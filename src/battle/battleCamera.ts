@@ -1,9 +1,9 @@
 import {assertsInteger, assertsPositiveNumber} from "../utils/math";
-import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../graphicsConstants";
 import {
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToMapCoordinates
 } from "../hexMap/convertCoordinates";
+import {ScreenDimensions} from "../utils/graphicsConfig";
 
 export class BattleCamera {
     xCoord: number;
@@ -52,12 +52,12 @@ export class BattleCamera {
     }
 
     constrainCameraVertically() {
-        const verticalCameraBuffer = SCREEN_HEIGHT / 10;
+        const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10;
 
         if (!this.mapDimensionBoundaries) {
             const topOfFirstRow: number = 0;
-            if (this.yCoord < topOfFirstRow - verticalCameraBuffer + SCREEN_HEIGHT / 2) {
-                this.yCoord = topOfFirstRow - verticalCameraBuffer + SCREEN_HEIGHT / 2;
+            if (this.yCoord < topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2) {
+                this.yCoord = topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2;
                 this.setYVelocity(0);
                 return;
             }
@@ -69,21 +69,21 @@ export class BattleCamera {
             0,
         )[1];
 
-        if (bottomOfLastRow < SCREEN_HEIGHT) {
+        if (bottomOfLastRow < ScreenDimensions.SCREEN_HEIGHT) {
             this.yCoord = bottomOfLastRow / 2;
             this.setYVelocity(0);
             return;
         }
 
         const topOfFirstRow: number = 0;
-        if (this.yCoord < topOfFirstRow - verticalCameraBuffer + SCREEN_HEIGHT / 2) {
-            this.yCoord = topOfFirstRow - verticalCameraBuffer + SCREEN_HEIGHT / 2;
+        if (this.yCoord < topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2) {
+            this.yCoord = topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2;
             this.setYVelocity(0);
             return;
         }
 
-        if (this.yCoord > bottomOfLastRow + verticalCameraBuffer - SCREEN_HEIGHT / 2) {
-            this.yCoord = bottomOfLastRow + verticalCameraBuffer - SCREEN_HEIGHT / 2;
+        if (this.yCoord > bottomOfLastRow + verticalCameraBuffer - ScreenDimensions.SCREEN_HEIGHT / 2) {
+            this.yCoord = bottomOfLastRow + verticalCameraBuffer - ScreenDimensions.SCREEN_HEIGHT / 2;
             this.setYVelocity(0);
             return;
         }
@@ -97,7 +97,7 @@ export class BattleCamera {
         const currentMapCoordinateCameraIsPointingAt: [number, number] = convertWorldCoordinatesToMapCoordinates(
             ...this.getCoordinates(), false
         );
-        const horizontalCameraBuffer = SCREEN_WIDTH / 10;
+        const horizontalCameraBuffer = ScreenDimensions.SCREEN_WIDTH / 10;
 
         const worldLocationOfLeftSide: [number, number] = convertMapCoordinatesToWorldCoordinates(currentMapCoordinateCameraIsPointingAt[0], 0);
         if (this.xCoord < worldLocationOfLeftSide[0] + horizontalCameraBuffer) {
