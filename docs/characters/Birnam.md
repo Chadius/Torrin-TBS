@@ -7,6 +7,36 @@ He often calls Torrin "the little Firecracker," which always confuses her until 
 
 He focuses more on control. Using powers like the flash fire, he can stun enemies and not knock them down or knock them off guard.
 
+# Character Brainstorming
+
+## Masks
+### Physical
+#### External
+#### Internal
+### Mental
+#### External
+#### Internal
+### Spiritual
+#### External
+#### Internal
+### Core
+## Tarot Cards
+### 20. Judgement
+https://www.biddytarot.com/tarot-card-meanings/major-arcana/judgement/
+Judgement, Rebirth, Inner Calling, Resolution
+
+### 4. The Emperor
+https://www.biddytarot.com/tarot-card-meanings/major-arcana/emperor/
+Authority, Establishment, Structure, Father figure
+
+### 5. The Hierophant
+https://www.biddytarot.com/tarot-card-meanings/major-arcana/hierophant/
+Spiritual Wisdom, Religious Beliefs, Conformity, Tradition, Institutions
+
+## Seven deadly sins flaw
+### 3. Good Works vs Greed
+
+# Gameplay
 ## Class
 Elementalist with Smooth Talker
 
