@@ -5,6 +5,7 @@ import {RectArea} from "../ui/rectArea";
 import {Rectangle} from "../ui/rectangle";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ScreenDimensions} from "../utils/graphicsConfig";
+import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 
 export type BattleSquaddieSelectedHUDOptions = {
     squaddieRepository: BattleSquaddieRepository;
@@ -38,11 +39,15 @@ export class BattleSquaddieSelectedHUD {
             top: windowTop,
             height: windowHeight
         });
+
+        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicID))
+        const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieID.affiliation];
+
         this.background = new Rectangle({
             area: windowDimensions,
-            fillColor: [100, 10, 30],
-            strokeColor: [100, 10, 6],
-            strokeWeight: 8,
+            fillColor: [squaddieAffiliationHue, 10, 30],
+            strokeColor: [squaddieAffiliationHue, 10, 6],
+            strokeWeight: 4,
         });
     }
 
@@ -66,20 +71,51 @@ export class BattleSquaddieSelectedHUD {
         const textLeft: number = this.background.area.getLeft() + 10;
         const textTop: number = this.background.area.getTop() + 30;
 
-
         p.textSize(24);
+        p.fill("#efefef");
+
         p.text(staticSquaddie.squaddieID.name, textLeft, textTop);
 
-        const actionIconGap: number = 5;
-        const mainActionIconWidth: number = 50;
-        const actionIconCenter: number = this.background.area.getTop() + 40 + mainActionIconWidth;
-        const actionIconLeft: number = this.background.area.getLeft() + mainActionIconWidth;
+        const mainActionIconWidth: number = 25;
+        const actionIconLeft: number = this.background.area.getLeft() + 20;
 
         p.fill("#dedede");
         p.stroke("#1f1f1f");
-        for (let i = 0; i < numberOfGeneralActions; i++) {
-            p.circle(actionIconLeft + (i * (mainActionIconWidth + actionIconGap)), actionIconCenter, mainActionIconWidth);
-        }
+        const actionBackground: RectArea = new RectArea({
+            left: actionIconLeft,
+            height: mainActionIconWidth * 3,
+            width: 40,
+            top: this.background.area.getTop() + 45,
+        })
+        p.fill("#1f1f1f");
+        p.stroke("#1f1f1f");
+        p.strokeWeight(2);
+        p.rect(actionBackground.getLeft(), actionBackground.getTop(), actionBackground.getWidth(), actionBackground.getHeight());
+
+        p.fill("#dedede");
+        p.rect(
+            actionBackground.getLeft(),
+            actionBackground.getBottom() - mainActionIconWidth * numberOfGeneralActions,
+            actionBackground.getWidth(),
+            mainActionIconWidth * numberOfGeneralActions);
+
+        const actionLineMarking: RectArea = new RectArea({
+            left: actionBackground.getLeft(),
+            width: 0,
+            top: actionBackground.getTop(),
+            height: actionBackground.getHeight(),
+        });
+
+        [1, 2].filter(i => numberOfGeneralActions >= i).forEach(i => {
+            const verticalDistance: number = i * actionBackground.getHeight() / 3;
+            p.line(
+                actionBackground.getLeft(),
+                actionLineMarking.getBottom() - verticalDistance,
+                actionBackground.getRight(),
+                actionLineMarking.getBottom() - verticalDistance,
+            )
+        });
+
         p.pop();
     }
 }

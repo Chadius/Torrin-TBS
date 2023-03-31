@@ -22,7 +22,7 @@ import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleCamera} from "./battleCamera";
-import {assertBattleSquaddieDynamic, BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
@@ -36,6 +36,7 @@ import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSqu
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../utils/graphicsConfig";
+import {drawSquaddieMapIconAtMapLocation, setImageToLocation} from "./drawSquaddie";
 
 type RequiredOptions = {
     p: p5;
@@ -48,7 +49,7 @@ type Options = {
     cutscene: Cutscene;
 }
 
-enum AnimationMode {
+export enum AnimationMode {
     IDLE = "IDLE",
     MOVING_SQUADDIE = "MOVING_SQUADDIE"
 }
@@ -342,23 +343,19 @@ export class BattleScene {
     }
 
     private drawSquaddieMapIcons(p: p5) {
-        this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
-            const {dynamicSquaddie, dynamicSquaddieId} = info;
-            if (!dynamicSquaddie.mapIcon) {
-                return;
-            }
-
-            if (this.animationMode === AnimationMode.MOVING_SQUADDIE && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
-                this.moveSquaddie(p);
-                this.updateBattleSquaddieUIDraw();
-            } else {
-                const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                    dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
-                this.setImageToLocation(dynamicSquaddie, xyCoords);
-
-                dynamicSquaddie.mapIcon.draw(p);
-            }
-        });
+        this.squaddieRepo.getDynamicSquaddieIterator()
+            .filter((info) =>
+                info.dynamicSquaddie.mapIcon
+            )
+            .forEach((info) => {
+                const {dynamicSquaddie, dynamicSquaddieId} = info;
+                if (this.animationMode === AnimationMode.MOVING_SQUADDIE && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
+                    this.moveSquaddie(p);
+                    this.updateBattleSquaddieUIDraw();
+                } else {
+                    drawSquaddieMapIconAtMapLocation(p, this.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, this.camera);
+                }
+            });
     }
 
     private updateBattleSquaddieUIDraw() {
@@ -646,9 +643,8 @@ export class BattleScene {
 
     private hasMovementAnimationFinished() {
         const timePassed = Date.now() - this.animationTimer;
-        const timeToMove = TIME_TO_MOVE;
         return (
-            timePassed > timeToMove
+            timePassed > TIME_TO_MOVE
             || !this.squaddieMovePath
             || this.squaddieMovePath.getTilesTraveled().length === 0
         );
@@ -671,7 +667,6 @@ export class BattleScene {
         ));
 
         const timePassed = Date.now() - this.animationTimer;
-        const timeToMove = TIME_TO_MOVE;
         if (this.hasMovementAnimationFinished()) {
             dynamicSquaddie.mapLocation = this.squaddieMovePath.getDestination();
             const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
@@ -679,18 +674,18 @@ export class BattleScene {
                 this.squaddieMovePath.getDestination().r,
                 ...this.camera.getCoordinates()
             );
-            this.setImageToLocation(dynamicSquaddie, xyCoords);
+            setImageToLocation(dynamicSquaddie, xyCoords);
             this.missionMap.updateSquaddiePosition(staticSquaddie.squaddieID.id, dynamicSquaddie.mapLocation);
             this.animationMode = AnimationMode.IDLE;
         } else {
             const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
                 this.squaddieMovePath.getTilesTraveled(),
                 timePassed,
-                timeToMove,
+                TIME_TO_MOVE,
                 this.camera,
             )
 
-            this.setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
+            setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
         }
         dynamicSquaddie.mapIcon.draw(p);
     }
@@ -706,7 +701,9 @@ export class BattleScene {
             })
         );
         const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
-        const movementTilesByNumberOfActions: { [numberOfActions: number]: [{ q: number, r: number }?] } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
+        const movementTilesByNumberOfActions: {
+            [numberOfActions: number]: [{ q: number, r: number }?]
+        } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
         const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange(new SearchParams({
                 canStopOnSquaddies: true,
@@ -730,16 +727,6 @@ export class BattleScene {
             )
         }
         this.hexMap.highlightTiles(highlightTileDescriptions);
-    }
-
-    private setImageToLocation(
-        dynamicSquaddieInfo: BattleSquaddieDynamic,
-        xyCoords: [number, number]
-    ) {
-        assertBattleSquaddieDynamic(dynamicSquaddieInfo);
-        dynamicSquaddieInfo.mapIcon.area.setRectLeft({left: xyCoords[0]});
-        dynamicSquaddieInfo.mapIcon.area.setRectTop({top: xyCoords[1]});
-        dynamicSquaddieInfo.mapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
     }
 
     private squaddieTurnEnded(): boolean {
