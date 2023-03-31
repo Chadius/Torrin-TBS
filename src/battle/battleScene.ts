@@ -36,6 +36,8 @@ import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSqu
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../utils/graphicsConfig";
+import {HEX_TILE_WIDTH, HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
+import {Rectangle} from "../ui/rectangle";
 
 type RequiredOptions = {
     p: p5;
@@ -355,10 +357,48 @@ export class BattleScene {
                 const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
                     dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
                 this.setImageToLocation(dynamicSquaddie, xyCoords);
-
+                const {staticSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+                this.drawSquaddieActions(p, staticSquaddie, dynamicSquaddie);
                 dynamicSquaddie.mapIcon.draw(p);
             }
         });
+    }
+
+    private drawSquaddieActions(p: p5, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) {
+        const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+            dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
+
+        const squaddieAffilationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieID.affiliation];
+
+        const actionDrawingArea: RectArea = new RectArea({
+            left: xyCoords[0] - (HEX_TILE_WIDTH * 0.40),
+            top: xyCoords[1] - (HEX_TILE_WIDTH * 0.25),
+            width: HEX_TILE_WIDTH * 0.15,
+            height: HEX_TILE_WIDTH * 0.45,
+        });
+
+        const background: Rectangle = new Rectangle({
+            area: actionDrawingArea,
+            fillColor: [squaddieAffilationHue, 10, 5],
+            strokeWeight: 0,
+        })
+
+        background.draw(p);
+
+        const heightFromRemainingActions = actionDrawingArea.getHeight();  // TODO multiply height diff by number of actions
+        const numberOfActionsArea: RectArea = new RectArea({
+            top: actionDrawingArea.getBottom() - heightFromRemainingActions,
+            bottom: actionDrawingArea.getBottom(),
+            left: actionDrawingArea.getLeft(),
+            width: actionDrawingArea.getWidth(),
+        });
+
+        const numberOfActionsRect: Rectangle = new Rectangle({
+            area: numberOfActionsArea,
+            fillColor: [squaddieAffilationHue, 50, 85], // TODO tint based on team affiliation
+        })
+
+        numberOfActionsRect.draw(p);
     }
 
     private updateBattleSquaddieUIDraw() {
