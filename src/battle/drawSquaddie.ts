@@ -10,7 +10,7 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
-function tintSquaddieMapIconTurnComplete(staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) {
+export const tintSquaddieMapIconTurnComplete = (staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) => {
     const squaddieAffilationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieID.affiliation];
     dynamicSquaddie.mapIcon.setTint(squaddieAffilationHue, 50, 50, 192);
 }

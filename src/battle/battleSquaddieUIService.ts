@@ -42,6 +42,7 @@ export const calculateNewBattleSquaddieUISelectionState: (state: BattleSquaddieU
                     startLocation: dynamicSquaddie.mapLocation,
                     stopLocation: state.tileClickedOn,
                     squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                    numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
                 }))
             );
             const closestRoute = getResultOrThrowError(searchResults.getRouteToStopLocation());

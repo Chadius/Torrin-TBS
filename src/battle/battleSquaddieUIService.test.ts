@@ -213,16 +213,4 @@ describe('BattleSquaddieUIService', () => {
             )
         ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
     });
-
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
-    // it('should ', () => {});
 });

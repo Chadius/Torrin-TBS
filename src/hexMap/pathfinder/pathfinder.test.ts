@@ -1359,7 +1359,11 @@ describe('pathfinder', () => {
                 stopLocation: {q: 0, r: 4}
             }));
 
-            let closestTilesToDestination: { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] = [];
+            let closestTilesToDestination: {
+                coordinate: HexCoordinate,
+                searchPath: SearchPath,
+                distance: number
+            }[] = [];
             let routeFound: SearchPath;
 
             let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();

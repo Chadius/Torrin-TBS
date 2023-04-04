@@ -43,6 +43,11 @@ describe('Squaddie turn and resources', () => {
             turn.spendActionsOnActivity(activitySpends2Actions);
             turn.beginNewRound();
             expect(turn.getRemainingActions()).toBe(3);
-        })
+        });
+        it('can spend arbitrary number of actions', () => {
+            turn.beginNewRound();
+            turn.spendNumberActions(1);
+            expect(turn.getRemainingActions()).toBe(2);
+        });
     });
 });

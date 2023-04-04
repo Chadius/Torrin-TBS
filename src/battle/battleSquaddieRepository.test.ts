@@ -150,7 +150,10 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddieBase
         )
 
-        const entities: { staticSquaddieId: string, staticSquaddie: BattleSquaddieStatic }[] = squaddieRepo.getStaticSquaddieIterator();
+        const entities: {
+            staticSquaddieId: string,
+            staticSquaddie: BattleSquaddieStatic
+        }[] = squaddieRepo.getStaticSquaddieIterator();
 
         expect(entities).toStrictEqual([{
             staticSquaddieId: staticSquaddieBase.squaddieID.id,
@@ -164,7 +167,10 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddieBase
         )
 
-        const entities: { dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic }[] = squaddieRepo.getDynamicSquaddieIterator();
+        const entities: {
+            dynamicSquaddieId: string,
+            dynamicSquaddie: BattleSquaddieDynamic
+        }[] = squaddieRepo.getDynamicSquaddieIterator();
         expect(entities).toStrictEqual([{
             dynamicSquaddieId: "player_young_torrin_0",
             dynamicSquaddie: dynamicSquaddieBase

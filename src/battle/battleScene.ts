@@ -36,7 +36,7 @@ import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSqu
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../utils/graphicsConfig";
-import {drawSquaddieMapIconAtMapLocation, setImageToLocation} from "./drawSquaddie";
+import {drawSquaddieMapIconAtMapLocation, setImageToLocation, tintSquaddieMapIconTurnComplete} from "./drawSquaddie";
 
 type RequiredOptions = {
     p: p5;
@@ -505,7 +505,6 @@ export class BattleScene {
             return;
         }
 
-
         const squaddieID: SquaddieID = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
         if (squaddieID) {
             const {
@@ -668,13 +667,8 @@ export class BattleScene {
 
         const timePassed = Date.now() - this.animationTimer;
         if (this.hasMovementAnimationFinished()) {
-            dynamicSquaddie.mapLocation = this.squaddieMovePath.getDestination();
-            const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                this.squaddieMovePath.getDestination().q,
-                this.squaddieMovePath.getDestination().r,
-                ...this.camera.getCoordinates()
-            );
-            setImageToLocation(dynamicSquaddie, xyCoords);
+            this.updateSquaddieMoveLocation(dynamicSquaddie);
+            this.spendSquaddieActionsForMovement(dynamicSquaddie, staticSquaddie);
             this.missionMap.updateSquaddiePosition(staticSquaddie.squaddieID.id, dynamicSquaddie.mapLocation);
             this.animationMode = AnimationMode.IDLE;
         } else {
@@ -688,6 +682,23 @@ export class BattleScene {
             setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
         }
         dynamicSquaddie.mapIcon.draw(p);
+    }
+
+    private spendSquaddieActionsForMovement(dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
+        dynamicSquaddie.squaddieTurn.spendNumberActions(this.squaddieMovePath.getNumberOfMovementActions());
+        if (dynamicSquaddie.squaddieTurn.getRemainingActions() <= 0) {
+            tintSquaddieMapIconTurnComplete(staticSquaddie, dynamicSquaddie)
+        }
+    }
+
+    private updateSquaddieMoveLocation(dynamicSquaddie: BattleSquaddieDynamic) {
+        dynamicSquaddie.mapLocation = this.squaddieMovePath.getDestination();
+        const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+            this.squaddieMovePath.getDestination().q,
+            this.squaddieMovePath.getDestination().r,
+            ...this.camera.getCoordinates()
+        );
+        setImageToLocation(dynamicSquaddie, xyCoords);
     }
 
     private highlightSquaddieReach(dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {

@@ -20,6 +20,10 @@ export class SquaddieTurn {
         this.remainingNumberOfActions = (this.remainingNumberOfActions - activity.actionsToSpend);
     }
 
+    spendNumberActions(numberOfActions: number) {
+        this.remainingNumberOfActions = (this.remainingNumberOfActions - numberOfActions);
+    }
+
     canPerformActivity(activity: SquaddieActivity): { canPerform: boolean, reason: ACTIVITY_PERFORM_FAILURE_REASON } {
         if (this.remainingNumberOfActions < activity.actionsToSpend) {
             return {
