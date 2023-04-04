@@ -79,6 +79,14 @@ Role: Intel
 
 Class bonuses: +1 Body, +1 Vision, +1 Movement
 
+## Strategist
+Strategists understand how to anticipate the enemy and tell if attacking right now is a good idea or not.
+Role: Intel
+
+- can interrupt its turn
+- Can preroll and save the roll for its next action
+- Force weakness on enemy based on the type of defense (Armor, Body, Mind, Soul)
+
 ## Summoner
 Conjure a linked ally who can distract enemies while you buff.
 
