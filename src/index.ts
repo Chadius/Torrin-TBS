@@ -55,6 +55,26 @@ export const sketch = (p: p5) => {
                         type: ResourceType.IMAGE,
                         path: "assets/map-icon-attack-1-action.png",
                         key: "map icon attack 1 action"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-crusaders.png",
+                        key: "affiliate icon crusaders"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-infiltrators.png",
+                        key: "affiliate icon infiltrators"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-western.png",
+                        key: "affiliate icon western"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-none.png",
+                        key: "affiliate icon none"
                     }
                 ]
             })

@@ -6,22 +6,29 @@ import {Rectangle} from "../ui/rectangle";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ScreenDimensions} from "../utils/graphicsConfig";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
+import {ResourceHandler} from "../resource/resourceHandler";
+import {ImageUI} from "../ui/imageUI";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 export type BattleSquaddieSelectedHUDOptions = {
     squaddieRepository: BattleSquaddieRepository;
     missionMap: MissionMap;
+    resourceHandler: ResourceHandler;
 }
 
 export class BattleSquaddieSelectedHUD {
     selectedSquaddieDynamicID: string;
     squaddieRepository: BattleSquaddieRepository;
     missionMap: MissionMap;
+    resourceHandler: ResourceHandler;
 
     background: Rectangle;
+    affiliateIcon?: ImageUI;
 
     constructor(options: BattleSquaddieSelectedHUDOptions) {
         this.squaddieRepository = options.squaddieRepository;
         this.missionMap = options.missionMap;
+        this.resourceHandler = options.resourceHandler;
     }
 
     mouseClickedNoSquaddieSelected() {
@@ -49,6 +56,40 @@ export class BattleSquaddieSelectedHUD {
             strokeColor: [squaddieAffiliationHue, 10, 6],
             strokeWeight: 4,
         });
+
+        let affiliateIconImage: p5.Image;
+        switch(staticSquaddie.squaddieID.affiliation) {
+            case SquaddieAffiliation.PLAYER:
+                affiliateIconImage = getResultOrThrowError(this.resourceHandler.getResource("affiliate icon crusaders"))
+                break;
+            case SquaddieAffiliation.ENEMY:
+                affiliateIconImage = getResultOrThrowError(this.resourceHandler.getResource("affiliate icon infiltrators"))
+                break;
+            case SquaddieAffiliation.ALLY:
+                affiliateIconImage = getResultOrThrowError(this.resourceHandler.getResource("affiliate icon western"))
+                break;
+            case SquaddieAffiliation.NONE:
+                affiliateIconImage = getResultOrThrowError(this.resourceHandler.getResource("affiliate icon none"))
+                break;
+            default:
+                affiliateIconImage = null;
+                break;
+        }
+        if (affiliateIconImage) {
+            this.affiliateIcon = new ImageUI({
+                graphic: affiliateIconImage,
+                area: new RectArea({
+                    left: this.background.area.getLeft() + 20,
+                    top: this.background.area.getTop() + 10,
+                    width: 32,
+                    height: 32,
+                })
+            })
+        } else {
+            this.affiliateIcon = null;
+        }
+
+
     }
 
     draw(p: p5) {
@@ -56,25 +97,38 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
         this.background.draw(p);
+        this.drawSquaddieID(p);
         this.drawNumberOfActions(p);
     }
 
-    private drawNumberOfActions(p: p5) {
+    private drawSquaddieID(p: p5) {
         const {
-            staticSquaddie,
-            dynamicSquaddie
+            staticSquaddie
         } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicID));
-        const numberOfGeneralActions: number = dynamicSquaddie.squaddieTurn.getRemainingActions();
+
+        if (this.affiliateIcon) {
+            this.affiliateIcon.draw(p);
+        }
 
         p.push();
-
-        const textLeft: number = this.background.area.getLeft() + 10;
+        const textLeft: number = this.background.area.getLeft() + 60;
         const textTop: number = this.background.area.getTop() + 30;
 
         p.textSize(24);
         p.fill("#efefef");
 
         p.text(staticSquaddie.squaddieID.name, textLeft, textTop);
+
+        p.pop();
+    }
+
+    private drawNumberOfActions(p: p5) {
+        const {
+            dynamicSquaddie
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicID));
+        const numberOfGeneralActions: number = dynamicSquaddie.squaddieTurn.getRemainingActions();
+
+        p.push();
 
         const mainActionIconWidth: number = 25;
         const actionIconLeft: number = this.background.area.getLeft() + 20;

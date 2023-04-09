@@ -105,6 +105,7 @@ export class BattleScene {
         this.battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD({
             missionMap: this.missionMap,
             squaddieRepository: this.squaddieRepo,
+            resourceHandler: this.resourceHandler,
         });
         this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
     }

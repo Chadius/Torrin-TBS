@@ -31,6 +31,8 @@ export class ImageUI {
             this.graphic,
             this.area.getLeft(),
             this.area.getTop(),
+            this.area.getWidth(),
+            this.area.getHeight(),
         );
         if (this.tintColor) {
             p.noTint();
