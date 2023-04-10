@@ -1,6 +1,6 @@
 import {TerrainTileMap} from "../terrainTileMap";
 import {HexCoordinate} from "../hexGrid";
-import {NewDummySquaddieID, SquaddieID} from "../../squaddie/id";
+import {NewDummySquaddieID, SquaddieId} from "../../squaddie/id";
 import {NullSquaddieResource, SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder} from "./pathfinder";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
@@ -420,15 +420,15 @@ describe('pathfinder', () => {
 
             const validateAffiliatePassingStatus = (
                 pathfindingAffiliation: SquaddieAffiliation,
-                blockingAffilation: SquaddieAffiliation,
+                blockingAffiliation: SquaddieAffiliation,
                 canPassThrough: boolean
             ) => {
-                const blockingSquaddie = new SquaddieID({
+                const blockingSquaddie = new SquaddieId({
                     name: "blocker",
                     id: "blocker",
                     resources: new SquaddieResource({mapIconResourceKey: "map_icon_blocker"}),
                     traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
-                    affiliation: blockingAffilation,
+                    affiliation: blockingAffiliation,
                 });
                 missionMap.addSquaddie(blockingSquaddie, {q: 0, r: 1});
 
@@ -1363,7 +1363,7 @@ describe('pathfinder', () => {
                 coordinate: HexCoordinate,
                 searchPath: SearchPath,
                 distance: number
-            }[] = [];
+            }[];
             let routeFound: SearchPath;
 
             let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
@@ -1396,7 +1396,7 @@ describe('pathfinder', () => {
             ]);
 
             missionMap.addSquaddie(
-                new SquaddieID({
+                new SquaddieId({
                     name: "enemy",
                     id: "enemy",
                     resources: NullSquaddieResource(),

@@ -2,7 +2,7 @@ import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {MissionMap} from "../missionMap/missionMap";
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 import {BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
-import {SquaddieID} from "../squaddie/id";
+import {SquaddieId} from "../squaddie/id";
 import {NullSquaddieResource} from "../squaddie/resource";
 import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
@@ -19,7 +19,7 @@ describe('BattleSquaddieUIService', () => {
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
         playerStaticSquaddie = {
-            squaddieID: new SquaddieID({
+            squaddieId: new SquaddieId({
                 name: "torrin",
                 id: "torrin",
                 resources: NullSquaddieResource(),
@@ -36,18 +36,17 @@ describe('BattleSquaddieUIService', () => {
             playerStaticSquaddie
         );
 
-        playerDynamicSquaddie = {
+        playerDynamicSquaddie = new BattleSquaddieDynamic({
             staticSquaddieId: "torrin",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
-        };
+        });
         squaddieRepository.addDynamicSquaddie("torrin_0", playerDynamicSquaddie);
     });
 
     const createMissionMap: (movementCost: string[]) => MissionMap = (movementCost: string[]) => {
         const terrainTileMap: TerrainTileMap = new TerrainTileMap({movementCost});
-        const missionMap: MissionMap = new MissionMap({terrainTileMap})
-        return missionMap
+        return new MissionMap({terrainTileMap})
     }
 
     it('should start in NO_SQUADDIE_SELECTED mode', () => {
@@ -68,7 +67,7 @@ describe('BattleSquaddieUIService', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
         missionMap.addSquaddie(
-            new SquaddieID({
+            new SquaddieId({
                 name: "torrin",
                 id: "torrin",
                 resources: NullSquaddieResource(),
@@ -99,7 +98,7 @@ describe('BattleSquaddieUIService', () => {
                 movementPerAction: 1,
                 traits: NullTraitStatusStorage()
             }),
-            squaddieID: new SquaddieID({
+            squaddieId: new SquaddieId({
                 name: "enemy",
                 id: "enemy",
                 resources: NullSquaddieResource(),
@@ -108,15 +107,15 @@ describe('BattleSquaddieUIService', () => {
             })
         }
         squaddieRepository.addStaticSquaddie(enemySquaddieStatic);
-        const enemySquaddieDynamic: BattleSquaddieDynamic = {
+        const enemySquaddieDynamic: BattleSquaddieDynamic = new BattleSquaddieDynamic({
             staticSquaddieId: "enemy",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
-        }
+        });
         squaddieRepository.addDynamicSquaddie("enemy_0", enemySquaddieDynamic)
 
         missionMap.addSquaddie(
-            enemySquaddieStatic.squaddieID,
+            enemySquaddieStatic.squaddieId,
             {q: 0, r: 0}
         )
 
@@ -137,7 +136,7 @@ describe('BattleSquaddieUIService', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
         missionMap.addSquaddie(
-            new SquaddieID({
+            new SquaddieId({
                 name: "torrin",
                 id: "torrin",
                 resources: NullSquaddieResource(),
@@ -163,7 +162,7 @@ describe('BattleSquaddieUIService', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
         missionMap.addSquaddie(
-            new SquaddieID({
+            new SquaddieId({
                 name: "torrin",
                 id: "torrin",
                 resources: NullSquaddieResource(),
@@ -190,7 +189,7 @@ describe('BattleSquaddieUIService', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
         missionMap.addSquaddie(
-            new SquaddieID({
+            new SquaddieId({
                 name: "torrin",
                 id: "torrin",
                 resources: NullSquaddieResource(),

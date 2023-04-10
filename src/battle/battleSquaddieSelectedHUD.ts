@@ -48,7 +48,7 @@ export class BattleSquaddieSelectedHUD {
         });
 
         const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicID))
-        const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieID.affiliation];
+        const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
 
         this.background = new Rectangle({
             area: windowDimensions,
@@ -58,7 +58,7 @@ export class BattleSquaddieSelectedHUD {
         });
 
         let affiliateIconImage: p5.Image;
-        switch(staticSquaddie.squaddieID.affiliation) {
+        switch(staticSquaddie.squaddieId.affiliation) {
             case SquaddieAffiliation.PLAYER:
                 affiliateIconImage = getResultOrThrowError(this.resourceHandler.getResource("affiliate icon crusaders"))
                 break;
@@ -117,7 +117,7 @@ export class BattleSquaddieSelectedHUD {
         p.textSize(24);
         p.fill("#efefef");
 
-        p.text(staticSquaddie.squaddieID.name, textLeft, textTop);
+        p.text(staticSquaddie.squaddieId.name, textLeft, textTop);
 
         p.pop();
     }

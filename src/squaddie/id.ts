@@ -10,8 +10,8 @@ type RequiredOptions = {
     affiliation: SquaddieAffiliation;
 }
 
-export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieID = (id: string, affiliation: SquaddieAffiliation) => {
-    return new SquaddieID({
+export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation) => {
+    return new SquaddieId({
         id,
         name: id,
         resources: NullSquaddieResource(),
@@ -20,7 +20,7 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
     });
 }
 
-export class SquaddieID {
+export class SquaddieId {
     name: string;
     id: string;
     resources: SquaddieResource;

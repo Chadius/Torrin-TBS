@@ -45,4 +45,8 @@ export class SquaddieTurn {
     private refreshActions() {
         this.remainingNumberOfActions = 3;
     }
+
+    hasActionsRemaining(): boolean {
+        return this.remainingNumberOfActions > 0;
+    }
 }

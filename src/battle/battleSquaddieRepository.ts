@@ -1,4 +1,4 @@
-import {assertBattleSquaddieDynamic, BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {HexCoordinate} from "../hexMap/hexGrid";
 
@@ -7,34 +7,34 @@ export class BattleSquaddieRepository {
         [id: string]: BattleSquaddieStatic;
     }
 
-    squaddieDynamicInfoByDyanmicID: {
+    squaddieDynamicInfoByDynamicId: {
         [id: string]: BattleSquaddieDynamic;
     }
 
     constructor() {
-        this.squaddieDynamicInfoByDyanmicID = {};
+        this.squaddieDynamicInfoByDynamicId = {};
         this.squaddieStaticInfoByID = {};
     }
 
     addStaticSquaddie(staticSquaddie: BattleSquaddieStatic) {
-        if (this.squaddieStaticInfoByID[staticSquaddie.squaddieID.id]) {
-            throw new Error(`cannot addStaticSquaddie '${staticSquaddie.squaddieID.id}', is already added`);
+        if (this.squaddieStaticInfoByID[staticSquaddie.squaddieId.id]) {
+            throw new Error(`cannot addStaticSquaddie '${staticSquaddie.squaddieId.id}', is already added`);
         }
 
-        this.squaddieStaticInfoByID[staticSquaddie.squaddieID.id] = staticSquaddie;
+        this.squaddieStaticInfoByID[staticSquaddie.squaddieId.id] = staticSquaddie;
     }
 
     addDynamicSquaddie(dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic) {
-        assertBattleSquaddieDynamic(dynamicSquaddie);
+        dynamicSquaddie.assertBattleSquaddieDynamic();
         if (!this.squaddieStaticInfoByID[dynamicSquaddie.staticSquaddieId]) {
             throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddieId}', no static squaddie '${dynamicSquaddie.staticSquaddieId}' exists`);
         }
 
-        if (this.squaddieDynamicInfoByDyanmicID[dynamicSquaddieId]) {
+        if (this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId]) {
             throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddieId}', again, it already exists`);
         }
 
-        this.squaddieDynamicInfoByDyanmicID[dynamicSquaddieId] = dynamicSquaddie;
+        this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId] = dynamicSquaddie;
     }
 
     getSquaddieByDynamicID(dynamicSquaddieId: string): ResultOrError<{
@@ -42,7 +42,7 @@ export class BattleSquaddieRepository {
         dynamicSquaddie: BattleSquaddieDynamic,
         dynamicSquaddieId: string,
     }, Error> {
-        const dynamicSquaddie: BattleSquaddieDynamic = this.squaddieDynamicInfoByDyanmicID[dynamicSquaddieId];
+        const dynamicSquaddie: BattleSquaddieDynamic = this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId];
         if (!dynamicSquaddie) {
             return makeError(new Error(`cannot getDynamicSquaddieByID for '${dynamicSquaddieId}', does not exist`));
         }
@@ -66,7 +66,7 @@ export class BattleSquaddieRepository {
     }
 
     getDynamicSquaddieIterator(): { dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic }[] {
-        return Object.entries(this.squaddieDynamicInfoByDyanmicID).map(([dynamicSquaddieId, dynamicSquaddie]) => {
+        return Object.entries(this.squaddieDynamicInfoByDynamicId).map(([dynamicSquaddieId, dynamicSquaddie]) => {
             return {
                 dynamicSquaddie,
                 dynamicSquaddieId,

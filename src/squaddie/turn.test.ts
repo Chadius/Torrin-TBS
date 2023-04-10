@@ -49,5 +49,12 @@ describe('Squaddie turn and resources', () => {
             turn.spendNumberActions(1);
             expect(turn.getRemainingActions()).toBe(2);
         });
+        it('knows when it is out of actions', () => {
+            expect(turn.hasActionsRemaining()).toBeTruthy();
+            turn.spendNumberActions(3);
+            expect(turn.hasActionsRemaining()).toBeFalsy();
+            turn.beginNewRound();
+            expect(turn.hasActionsRemaining()).toBeTruthy();
+        });
     });
 });

@@ -1,5 +1,5 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {SquaddieID} from "../squaddie/id";
+import {SquaddieId} from "../squaddie/id";
 import {NullSquaddieResource} from "../squaddie/resource";
 import {NullTraitStatusStorage, Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
@@ -16,7 +16,7 @@ describe('BattleSquaddieRepository', () => {
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
         staticSquaddieBase = {
-            squaddieID: new SquaddieID({
+            squaddieId: new SquaddieId({
                 id: "player_young_torrin",
                 name: "Torrin",
                 resources: NullSquaddieResource(),
@@ -31,11 +31,11 @@ describe('BattleSquaddieRepository', () => {
             }),
             activities: [],
         };
-        dynamicSquaddieBase = {
+        dynamicSquaddieBase = new BattleSquaddieDynamic({
             staticSquaddieId: "player_young_torrin",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn()
-        };
+        });
 
         squaddieRepo.addStaticSquaddie(
             staticSquaddieBase
@@ -78,11 +78,11 @@ describe('BattleSquaddieRepository', () => {
         const shouldThrowError = () => {
             squaddieRepo.addDynamicSquaddie(
                 "ID does not matter",
-                {
+                new BattleSquaddieDynamic({
                     staticSquaddieId: "unknown_static_squaddie",
                     mapLocation: {q: 0, r: 0},
                     squaddieTurn: new SquaddieTurn()
-                }
+                })
             );
         }
 
@@ -119,11 +119,11 @@ describe('BattleSquaddieRepository', () => {
         const shouldThrowError = () => {
             squaddieRepo.addDynamicSquaddie(
                 "dynamic squaddie id",
-                dynamicSquaddieBase = {
+                dynamicSquaddieBase = new BattleSquaddieDynamic({
                     staticSquaddieId: "",
                     mapLocation: {q: 0, r: 0},
                     squaddieTurn: new SquaddieTurn()
-                }
+                })
             );
         }
 
@@ -156,7 +156,7 @@ describe('BattleSquaddieRepository', () => {
         }[] = squaddieRepo.getStaticSquaddieIterator();
 
         expect(entities).toStrictEqual([{
-            staticSquaddieId: staticSquaddieBase.squaddieID.id,
+            staticSquaddieId: staticSquaddieBase.squaddieId.id,
             staticSquaddie: staticSquaddieBase
         }]);
     });
@@ -188,7 +188,7 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddie,
             dynamicSquaddieId,
         } = getResultOrThrowError(squaddieRepo.getSquaddieByStaticIDAndLocation(
-            staticSquaddieBase.squaddieID.id,
+            staticSquaddieBase.squaddieId.id,
             {
                 q: dynamicSquaddieBase.mapLocation.q,
                 r: dynamicSquaddieBase.mapLocation.r,
@@ -207,7 +207,7 @@ describe('BattleSquaddieRepository', () => {
         )
 
         const resultOrError = squaddieRepo.getSquaddieByStaticIDAndLocation(
-            staticSquaddieBase.squaddieID.id,
+            staticSquaddieBase.squaddieId.id,
             {
                 q: dynamicSquaddieBase.mapLocation.q + 1,
                 r: dynamicSquaddieBase.mapLocation.r,

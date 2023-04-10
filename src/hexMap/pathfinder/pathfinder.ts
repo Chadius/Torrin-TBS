@@ -12,7 +12,7 @@ import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieID} from "../../squaddie/id";
+import {SquaddieId} from "../../squaddie/id";
 
 class SearchState {
     tilesSearchCanStopAt: TileFoundDescription[];
@@ -432,7 +432,7 @@ export class Pathfinder {
         const searcherAffiliation: SquaddieAffiliation = searchParams.getSquaddieAffiliation();
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
         return neighboringLocations.filter((neighbor) => {
-            const squaddieAtLocation: SquaddieID = missionMap.getSquaddieAtLocation({
+            const squaddieAtLocation: SquaddieId = missionMap.getSquaddieAtLocation({
                 q: neighbor[0],
                 r: neighbor[1],
             });

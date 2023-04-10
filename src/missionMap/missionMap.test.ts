@@ -1,5 +1,5 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {SquaddieID} from "../squaddie/id";
+import {SquaddieId} from "../squaddie/id";
 import {HexCoordinate, HexGridTile} from "../hexMap/hexGrid";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {SquaddieResource} from "../squaddie/resource";
@@ -9,7 +9,7 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 describe('Mission Map', () => {
     let map: TerrainTileMap;
-    let torrinSquaddie: SquaddieID;
+    let torrinSquaddie: SquaddieId;
     beforeEach(() => {
         map = new TerrainTileMap({
             tiles: [
@@ -19,7 +19,7 @@ describe('Mission Map', () => {
             ]
         });
 
-        torrinSquaddie = new SquaddieID({
+        torrinSquaddie = new SquaddieId({
             name: "Torrin",
             id: "000",
             resources: new SquaddieResource({
@@ -51,7 +51,7 @@ describe('Mission Map', () => {
         error = missionMap.addSquaddie(torrinSquaddie, {q: 0, r: 1});
         expect(error).toBeUndefined();
 
-        const sirCamilSquaddie = new SquaddieID({
+        const sirCamilSquaddie = new SquaddieId({
             name: "Sir Camil",
             id: "001",
             resources: new SquaddieResource({
@@ -158,7 +158,7 @@ describe('Mission Map', () => {
     });
 
     it('should throw an error if occupied by another', () => {
-        const sirCamilSquaddie = new SquaddieID({
+        const sirCamilSquaddie = new SquaddieId({
             name: "Sir Camil",
             id: "001",
             resources: new SquaddieResource({

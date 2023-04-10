@@ -4,7 +4,7 @@ import {HighlightTileDescription, TerrainTileMap} from "../hexMap/terrainTileMap
 import {Cutscene} from "../cutscene/cutscene";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsNonNegativeNumber, NonNegativeNumber} from "../utils/mathAssert";
-import {SquaddieID} from "../squaddie/id";
+import {SquaddieId} from "../squaddie/id";
 import {SquaddieResource} from "../squaddie/resource";
 import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
@@ -115,7 +115,7 @@ export class BattleScene {
 
         this.squaddieRepo = new BattleSquaddieRepository();
         this.squaddieRepo.addStaticSquaddie({
-            squaddieID: new SquaddieID({
+            squaddieId: new SquaddieId({
                 id: "player_young_torrin",
                 name: "Torrin",
                 resources: new SquaddieResource({
@@ -144,7 +144,7 @@ export class BattleScene {
             ],
         });
         this.squaddieRepo.addStaticSquaddie({
-            squaddieID: new SquaddieID({
+            squaddieId: new SquaddieId({
                 id: "player_sir_camil",
                 name: "Sir Camil",
                 resources: new SquaddieResource({
@@ -170,7 +170,7 @@ export class BattleScene {
             ],
         });
         this.squaddieRepo.addStaticSquaddie({
-            squaddieID: new SquaddieID({
+            squaddieId: new SquaddieId({
                 id: "enemy_demon_slither",
                 name: "Slither Demon",
                 resources: new SquaddieResource({
@@ -196,21 +196,21 @@ export class BattleScene {
             ],
         });
 
-        this.squaddieRepo.addDynamicSquaddie("player_young_torrin", {
+        this.squaddieRepo.addDynamicSquaddie("player_young_torrin", new BattleSquaddieDynamic({
             staticSquaddieId: "player_young_torrin",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn()
-        })
-        this.squaddieRepo.addDynamicSquaddie("player_sir_camil", {
+        }))
+        this.squaddieRepo.addDynamicSquaddie("player_sir_camil", new BattleSquaddieDynamic({
             staticSquaddieId: "player_sir_camil",
             mapLocation: {q: 1, r: 1},
             squaddieTurn: new SquaddieTurn()
-        })
-        this.squaddieRepo.addDynamicSquaddie("enemy_demon_slither_0", {
+        }))
+        this.squaddieRepo.addDynamicSquaddie("enemy_demon_slither_0", new BattleSquaddieDynamic({
             staticSquaddieId: "enemy_demon_slither",
             mapLocation: {q: 1, r: 2},
             squaddieTurn: new SquaddieTurn()
-        })
+        }))
 
         loadMapIconResources(
             this.resourceHandler,
@@ -267,7 +267,7 @@ export class BattleScene {
                 staticSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
 
-            this.missionMap.addSquaddie(staticSquaddie.squaddieID, dynamicSquaddie.mapLocation);
+            this.missionMap.addSquaddie(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
         })
 
         this.pathfinder = new Pathfinder();
@@ -322,7 +322,7 @@ export class BattleScene {
                 const {staticSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
 
                 let image: p5.Image = getResultOrThrowError(
-                    this.resourceHandler.getResource(staticSquaddie.squaddieID.resources.mapIconResourceKey)
+                    this.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)
                 );
 
                 const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
@@ -480,7 +480,7 @@ export class BattleScene {
             return;
         }
 
-        const squaddieID: SquaddieID = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        const squaddieID: SquaddieId = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
         if (!squaddieID) {
             this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
@@ -506,7 +506,7 @@ export class BattleScene {
             return;
         }
 
-        const squaddieID: SquaddieID = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        const squaddieID: SquaddieId = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
         if (squaddieID) {
             const {
                 staticSquaddie,
@@ -552,7 +552,7 @@ export class BattleScene {
                         q: clickedHexCoordinate.q,
                         r: clickedHexCoordinate.r
                     },
-                    squaddieAffiliation: staticSquaddie.squaddieID.affiliation
+                    squaddieAffiliation: staticSquaddie.squaddieId.affiliation
                 }))
             );
 
@@ -670,7 +670,7 @@ export class BattleScene {
         if (this.hasMovementAnimationFinished()) {
             this.updateSquaddieMoveLocation(dynamicSquaddie);
             this.spendSquaddieActionsForMovement(dynamicSquaddie, staticSquaddie);
-            this.missionMap.updateSquaddiePosition(staticSquaddie.squaddieID.id, dynamicSquaddie.mapLocation);
+            this.missionMap.updateSquaddiePosition(staticSquaddie.squaddieId.id, dynamicSquaddie.mapLocation);
             this.animationMode = AnimationMode.IDLE;
         } else {
             const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
@@ -708,7 +708,7 @@ export class BattleScene {
                 missionMap: this.missionMap,
                 startLocation: dynamicSquaddie.mapLocation,
                 squaddieMovement: staticSquaddie.movement,
-                squaddieAffiliation: staticSquaddie.squaddieID.affiliation,
+                squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
                 numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
             })
         );

@@ -30,7 +30,7 @@ export const calculateNewBattleSquaddieUISelectionState: (state: BattleSquaddieU
                 dynamicSquaddie,
                 staticSquaddie
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.selectedSquaddieDynamicID));
-            if (staticSquaddie.squaddieID.affiliation !== SquaddieAffiliation.PLAYER) {
+            if (staticSquaddie.squaddieId.affiliation !== SquaddieAffiliation.PLAYER) {
                 return BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED;
             }
 

@@ -1,6 +1,6 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {HexCoordinate, HexCoordinateToKey} from "../hexMap/hexGrid";
-import {SquaddieID} from "../squaddie/id";
+import {SquaddieId} from "../squaddie/id";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {HexMapLocationInfo} from "../hexMap/HexMapLocationInfo";
 
@@ -14,7 +14,7 @@ export class MissionMap {
         [id: string]: {
             q: number;
             r: number;
-            squaddieID: SquaddieID;
+            squaddieID: SquaddieId;
         };
     }
 
@@ -32,7 +32,7 @@ export class MissionMap {
         this.squaddiesByLocation = {};
     }
 
-    addSquaddie(squaddieID: SquaddieID, hexCoordinate: HexCoordinate): Error | undefined {
+    addSquaddie(squaddieID: SquaddieId, hexCoordinate: HexCoordinate): Error | undefined {
         const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
         if (this.squaddiesByLocation[coordinateKey]) {
             return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, already occupied by ${this.squaddiesByLocation[coordinateKey].id}`);
@@ -70,7 +70,7 @@ export class MissionMap {
         }
     }
 
-    getSquaddieAtLocation(hexCoordinate: HexCoordinate): SquaddieID {
+    getSquaddieAtLocation(hexCoordinate: HexCoordinate): SquaddieId {
         const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
         const moreInfo = this.squaddiesByLocation[coordinateKey];
         if (!moreInfo) {

@@ -2,7 +2,7 @@ import {BattleSquaddieStatic} from "./battleSquaddie";
 import {ResourceHandler} from "../resource/resourceHandler";
 
 export const loadMapIconResources = (resourceHandler: ResourceHandler, staticSquaddies: BattleSquaddieStatic []) => {
-    staticSquaddies.forEach(staticSquaddie => resourceHandler.loadResource(staticSquaddie.squaddieID.resources.mapIconResourceKey));
+    staticSquaddies.forEach(staticSquaddie => resourceHandler.loadResource(staticSquaddie.squaddieId.resources.mapIconResourceKey));
     resourceHandler.loadResources([
         "affiliate icon crusaders",
         "affiliate icon infiltrators",
@@ -22,7 +22,7 @@ export const loadMapTileResources = (resourceHandler: ResourceHandler) => {
 
 export const areAllResourcesLoaded: (resourceHandler: ResourceHandler, staticSquaddies: BattleSquaddieStatic[]) => Boolean
     = (resourceHandler: ResourceHandler, staticSquaddies: BattleSquaddieStatic []) => {
-    const squaddieResourceKeys = staticSquaddies.map(info => info.squaddieID.resources.mapIconResourceKey)
+    const squaddieResourceKeys = staticSquaddies.map(info => info.squaddieId.resources.mapIconResourceKey)
 
     return resourceHandler.areAllResourcesLoaded([
         ...squaddieResourceKeys,
