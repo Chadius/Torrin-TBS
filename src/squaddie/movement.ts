@@ -1,4 +1,4 @@
-import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {NullTraitStatusStorage, Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
 
 export type SquaddieMovementRequiredOptions = {
     movementPerAction: number;
@@ -15,4 +15,11 @@ export class SquaddieMovement {
         this.passThroughWalls = options.traits.getStatus(Trait.PASS_THROUGH_WALLS);
         this.crossOverPits = options.traits.getStatus(Trait.CROSS_OVER_PITS);
     }
+}
+
+export const NullSquaddieMovement = () => {
+    return new SquaddieMovement({
+        movementPerAction: 2,
+        traits: NullTraitStatusStorage()
+    })
 }

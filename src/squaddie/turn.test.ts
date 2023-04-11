@@ -56,5 +56,9 @@ describe('Squaddie turn and resources', () => {
             turn.beginNewRound();
             expect(turn.hasActionsRemaining()).toBeTruthy();
         });
+        it('can end its turn', () => {
+            turn.endTurn();
+            expect(turn.hasActionsRemaining()).toBeFalsy();
+        });
     });
 });

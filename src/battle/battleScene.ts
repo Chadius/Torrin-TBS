@@ -37,6 +37,8 @@ import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIServ
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../utils/graphicsConfig";
 import {drawSquaddieMapIconAtMapLocation, setImageToLocation, tintSquaddieMapIconTurnComplete} from "./drawSquaddie";
+import {BattlePhaseTracker} from "./battlePhaseTracker";
+import {BattleSquaddieTeam} from "./battleSquaddieTeam";
 
 type RequiredOptions = {
     p: p5;
@@ -76,6 +78,8 @@ export class BattleScene {
 
     battleSquaddieUIInput: BattleSquaddieUIInput;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
+
+    battlePhaseTracker: BattlePhaseTracker;
 
     constructor(options: RequiredOptions & Partial<Options>) {
         assertsNonNegativeNumber(options.width);
@@ -211,6 +215,20 @@ export class BattleScene {
             mapLocation: {q: 1, r: 2},
             squaddieTurn: new SquaddieTurn()
         }))
+        this.battlePhaseTracker = new BattlePhaseTracker();
+        this.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
+            affiliation: SquaddieAffiliation.PLAYER,
+            name: "Crusaders",
+            squaddieRepo: this.squaddieRepo,
+            dynamicSquaddieIds: ["player_young_torrin", "player_sir_camil"],
+        }));
+        this.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
+            affiliation: SquaddieAffiliation.ENEMY,
+            name: "Infiltrators",
+            squaddieRepo: this.squaddieRepo,
+            dynamicSquaddieIds: ["enemy_demon_slither_0"],
+        }));
+        this.battlePhaseTracker.advanceToNextPhase();
 
         loadMapIconResources(
             this.resourceHandler,
@@ -672,6 +690,10 @@ export class BattleScene {
             this.spendSquaddieActionsForMovement(dynamicSquaddie, staticSquaddie);
             this.missionMap.updateSquaddiePosition(staticSquaddie.squaddieId.id, dynamicSquaddie.mapLocation);
             this.animationMode = AnimationMode.IDLE;
+
+            if (!this.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
+                this.battlePhaseTracker.advanceToNextPhase();
+            }
         } else {
             const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
                 this.squaddieMovePath.getTilesTraveled(),

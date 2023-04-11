@@ -58,7 +58,7 @@ export class BattleSquaddieSelectedHUD {
         });
 
         let affiliateIconImage: p5.Image;
-        switch(staticSquaddie.squaddieId.affiliation) {
+        switch (staticSquaddie.squaddieId.affiliation) {
             case SquaddieAffiliation.PLAYER:
                 affiliateIconImage = getResultOrThrowError(this.resourceHandler.getResource("affiliate icon crusaders"))
                 break;

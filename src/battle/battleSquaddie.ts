@@ -49,5 +49,17 @@ export class BattleSquaddieDynamic {
         assertsInteger(this.mapLocation.q);
         assertsInteger(this.mapLocation.r);
     }
+
+    canStillActThisRound(): boolean {
+        return this.squaddieTurn.hasActionsRemaining();
+    }
+
+    beginNewRound() {
+        return this.squaddieTurn.beginNewRound();
+    }
+
+    endTurn() {
+        return this.squaddieTurn.endTurn();
+    }
 }
 

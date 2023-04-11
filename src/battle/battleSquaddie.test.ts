@@ -36,4 +36,19 @@ describe('BattleSquaddie', () => {
             shouldThrowError()
         }).toThrow("Dynamic Squaddie has no Static Squaddie Id");
     });
+    describe('squaddie can act', () => {
+        it('knows the squaddie can act at the start of the round', () => {
+            const newTurnSquaddie: BattleSquaddieDynamic = new BattleSquaddieDynamic({
+                staticSquaddieId: "static squaddie",
+                mapLocation: {q: 0, r: 1},
+                squaddieTurn: new SquaddieTurn(),
+            });
+
+            expect(newTurnSquaddie.canStillActThisRound()).toBeTruthy();
+            newTurnSquaddie.squaddieTurn.spendNumberActions(3);
+            expect(newTurnSquaddie.canStillActThisRound()).toBeFalsy();
+            newTurnSquaddie.beginNewRound();
+            expect(newTurnSquaddie.canStillActThisRound()).toBeTruthy();
+        })
+    });
 });

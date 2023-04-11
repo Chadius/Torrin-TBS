@@ -49,4 +49,8 @@ export class SquaddieTurn {
     hasActionsRemaining(): boolean {
         return this.remainingNumberOfActions > 0;
     }
+
+    endTurn() {
+        this.remainingNumberOfActions = 0;
+    }
 }
