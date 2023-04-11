@@ -1,11 +1,17 @@
-import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
+import {
+    BattleSquaddieUIInput,
+    BattleSquaddieUIInputOptions,
+    BattleSquaddieUISelectionState
+} from "./battleSquaddieUIInput";
 import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
-export const calculateNewBattleSquaddieUISelectionState: (state: BattleSquaddieUIInput) => BattleSquaddieUISelectionState = (state: BattleSquaddieUIInput) => {
+export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSquaddieUIInputOptions) => BattleSquaddieUISelectionState =
+    (stateOptions: BattleSquaddieUIInputOptions) => {
+    const state: BattleSquaddieUIInput = new BattleSquaddieUIInput(stateOptions);
     switch (state.selectionState) {
         case BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED:
             if (

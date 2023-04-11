@@ -1,9 +1,9 @@
 import {getSquaddiePositionAlongPath, lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
-import {HEX_TILE_WIDTH} from "../graphicsConstants";
-import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
-import {BattleCamera} from "./battleCamera";
-import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {HEX_TILE_WIDTH} from "../../graphicsConstants";
+import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
+import {BattleCamera} from "../battleCamera";
+import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
+import {ScreenDimensions} from "../../utils/graphicsConfig";
 
 describe('lerpSquaddieBetweenPath', () => {
     it('lerp between two points on a map', () => {
