@@ -9,10 +9,8 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {AnimationMode} from "../animationMode";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
-import {HexMapLocationInfo} from "../../hexMap/HexMapLocationInfo";
 import {HexCoordinate} from "../../hexMap/hexGrid";
 
 export const tintSquaddieMapIconTurnComplete = (staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) => {

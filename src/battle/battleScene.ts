@@ -10,7 +10,6 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {
     convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
     convertScreenCoordinatesToMapCoordinates,
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
@@ -44,7 +43,6 @@ import {
 } from "./animation/drawSquaddie";
 import {BattlePhaseTracker} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
-import {AnimationMode} from "./animationMode";
 import {getHighlightedTileDescriptionByNumberOfMovementActions, highlightSquaddieReach} from "./animation/mapHighlight";
 import {spendSquaddieActions, updateSquaddieLocation} from "./squaddieMovementLogic";
 
@@ -72,11 +70,8 @@ export class BattleScene {
     missionMap: MissionMap;
 
     camera: BattleCamera;
-    animationMode: AnimationMode;
     squaddieMovePath?: SearchPath;
     animationTimer: number;
-    squaddieAnimationWorldCoordinatesStart?: [number, number];
-    squaddieAnimationWorldCoordinatesEnd?: [number, number];
 
     battleSquaddieUIInput: BattleSquaddieUIInput;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
@@ -97,11 +92,8 @@ export class BattleScene {
         const mapDimensions = this.hexMap.getDimensions()
         this.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
 
-        this.animationMode = AnimationMode.IDLE;
         this.animationTimer = 0;
         this.squaddieMovePath = undefined;
-        this.squaddieAnimationWorldCoordinatesStart = undefined;
-        this.squaddieAnimationWorldCoordinatesEnd = undefined;
 
         this.battleSquaddieUIInput = new BattleSquaddieUIInput({
             selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
@@ -360,7 +352,7 @@ export class BattleScene {
             )
             .forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
-                if (this.animationMode === AnimationMode.MOVING_SQUADDIE && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
+                if (this.battleSquaddieUIInput.selectionState === BattleSquaddieUISelectionState.MOVING_SQUADDIE && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
                     this.moveSquaddie(p);
                     this.updateBattleSquaddieUIDraw();
                 } else {
@@ -560,17 +552,7 @@ export class BattleScene {
             }
 
             this.squaddieMovePath = closestRoute;
-            this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
-                dynamicSquaddie.mapLocation.q,
-                dynamicSquaddie.mapLocation.r,
-            );
-            this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
-                this.squaddieMovePath.getDestination().q,
-                this.squaddieMovePath.getDestination().r,
-            );
             this.animationTimer = Date.now();
-            this.animationMode = AnimationMode.MOVING_SQUADDIE;
-
             let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
 
             const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions);
@@ -615,7 +597,7 @@ export class BattleScene {
     }
 
     private moveSquaddie(p: p5) {
-        if (this.animationMode !== AnimationMode.MOVING_SQUADDIE) {
+        if (this.battleSquaddieUIInput.selectionState !== BattleSquaddieUISelectionState.MOVING_SQUADDIE) {
             return;
         }
 
@@ -635,7 +617,6 @@ export class BattleScene {
             updateSquaddieIconLocation(dynamicSquaddie, this.squaddieMovePath.getDestination(), this.camera);
             spendSquaddieActions(dynamicSquaddie, this.squaddieMovePath.getNumberOfMovementActions());
             tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
-            this.animationMode = AnimationMode.IDLE;
 
             if (!this.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
                 this.battlePhaseTracker.advanceToNextPhase();
