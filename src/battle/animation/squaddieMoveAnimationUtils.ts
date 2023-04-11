@@ -2,9 +2,9 @@ import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToScreenCoordinates
-} from "../hexMap/convertCoordinates";
-import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
-import {BattleCamera} from "./battleCamera";
+} from "../../hexMap/convertCoordinates";
+import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
+import {BattleCamera} from "../battleCamera";
 
 export const TIME_TO_MOVE = 1000.0;
 

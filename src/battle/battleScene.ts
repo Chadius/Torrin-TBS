@@ -1,6 +1,6 @@
 import p5 from "p5";
 import {HexCoordinate} from "../hexMap/hexGrid";
-import {HighlightTileDescription, TerrainTileMap} from "../hexMap/terrainTileMap";
+import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {Cutscene} from "../cutscene/cutscene";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {assertsNonNegativeNumber, NonNegativeNumber} from "../utils/mathAssert";
@@ -10,20 +10,18 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {
     convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates,
     convertScreenCoordinatesToMapCoordinates,
 } from "../hexMap/convertCoordinates";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
 import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
-import {drawHexMap, HighlightPulseBlueColor, HighlightPulseRedColor} from "../hexMap/hexDrawingUtils";
+import {drawHexMap} from "../hexMap/hexDrawingUtils";
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieTurn} from "../squaddie/turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleCamera} from "./battleCamera";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
 import {MissionMap} from "../missionMap/missionMap";
@@ -36,9 +34,17 @@ import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "./battleSqu
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../utils/graphicsConfig";
-import {drawSquaddieMapIconAtMapLocation, setImageToLocation, tintSquaddieMapIconTurnComplete} from "./drawSquaddie";
+import {
+    drawSquaddieMapIconAtMapLocation,
+    hasMovementAnimationFinished,
+    moveSquaddieAlongPath,
+    tintSquaddieIfTurnIsComplete,
+    updateSquaddieIconLocation,
+} from "./animation/drawSquaddie";
 import {BattlePhaseTracker} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
+import {getHighlightedTileDescriptionByNumberOfMovementActions, highlightSquaddieReach} from "./animation/mapHighlight";
+import {spendSquaddieActions, updateSquaddieLocation} from "./squaddieMovementLogic";
 
 type RequiredOptions = {
     p: p5;
@@ -49,11 +55,6 @@ type RequiredOptions = {
 type Options = {
     resourceHandler: ResourceHandler;
     cutscene: Cutscene;
-}
-
-export enum AnimationMode {
-    IDLE = "IDLE",
-    MOVING_SQUADDIE = "MOVING_SQUADDIE"
 }
 
 export class BattleScene {
@@ -67,14 +68,10 @@ export class BattleScene {
 
     pathfinder: Pathfinder;
     missionMap: MissionMap;
-    turnBySquaddieId: { [key: string]: SquaddieTurn }
 
     camera: BattleCamera;
-    animationMode: AnimationMode;
     squaddieMovePath?: SearchPath;
     animationTimer: number;
-    squaddieAnimationWorldCoordinatesStart?: [number, number];
-    squaddieAnimationWorldCoordinatesEnd?: [number, number];
 
     battleSquaddieUIInput: BattleSquaddieUIInput;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
@@ -95,17 +92,14 @@ export class BattleScene {
         const mapDimensions = this.hexMap.getDimensions()
         this.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
 
-        this.animationMode = AnimationMode.IDLE;
         this.animationTimer = 0;
         this.squaddieMovePath = undefined;
-        this.squaddieAnimationWorldCoordinatesStart = undefined;
-        this.squaddieAnimationWorldCoordinatesEnd = undefined;
 
-        this.battleSquaddieUIInput = {
+        this.battleSquaddieUIInput = new BattleSquaddieUIInput({
             selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
             missionMap: this.missionMap,
             squaddieRepository: this.squaddieRepo,
-        };
+        });
         this.battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD({
             missionMap: this.missionMap,
             squaddieRepository: this.squaddieRepo,
@@ -115,8 +109,6 @@ export class BattleScene {
     }
 
     private prepareSquaddies() {
-        this.turnBySquaddieId = {};
-
         this.squaddieRepo = new BattleSquaddieRepository();
         this.squaddieRepo.addStaticSquaddie({
             squaddieId: new SquaddieId({
@@ -234,14 +226,6 @@ export class BattleScene {
             this.resourceHandler,
             this.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie)
         )
-
-        this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
-            const {
-                dynamicSquaddieId
-            } = info;
-
-            this.turnBySquaddieId[dynamicSquaddieId] = new SquaddieTurn();
-        });
     }
 
     private prepareMap() {
@@ -368,7 +352,7 @@ export class BattleScene {
             )
             .forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
-                if (this.animationMode === AnimationMode.MOVING_SQUADDIE && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
+                if (this.battleSquaddieUIInput.selectionState === BattleSquaddieUISelectionState.MOVING_SQUADDIE && dynamicSquaddieId === this.battleSquaddieUIInput.selectedSquaddieDynamicID) {
                     this.moveSquaddie(p);
                     this.updateBattleSquaddieUIDraw();
                 } else {
@@ -509,10 +493,8 @@ export class BattleScene {
             dynamicSquaddieId,
         } = getResultOrThrowError(this.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
 
-        this.highlightSquaddieReach(dynamicSquaddie, staticSquaddie);
-        this.battleSquaddieUIInput.selectedSquaddieDynamicID = dynamicSquaddieId;
-        this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
-
+        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, this.pathfinder, this.missionMap, this.hexMap);
+        this.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddieId);
         this.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }
 
@@ -526,18 +508,7 @@ export class BattleScene {
 
         const squaddieID: SquaddieId = this.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
         if (squaddieID) {
-            const {
-                staticSquaddie,
-                dynamicSquaddie,
-                dynamicSquaddieId,
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
-
-            this.hexMap.stopHighlightingTiles();
-            this.highlightSquaddieReach(dynamicSquaddie, staticSquaddie);
-            this.battleSquaddieUIInput.selectedSquaddieDynamicID = dynamicSquaddieId;
-            this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
-            this.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
-            return;
+            this.focusOnSelectedSquaddie(squaddieID, clickedHexCoordinate, mouseX, mouseY);
         }
 
         const {
@@ -557,87 +528,59 @@ export class BattleScene {
         );
 
         if (newSelectionState === BattleSquaddieUISelectionState.MOVING_SQUADDIE) {
-            const searchResults: SearchResults = getResultOrThrowError(
-                this.pathfinder.findPathToStopLocation(new SearchParams({
-                    missionMap: this.missionMap,
-                    squaddieMovement: staticSquaddie.movement,
-                    numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
-                    startLocation: {
-                        q: dynamicSquaddie.mapLocation.q,
-                        r: dynamicSquaddie.mapLocation.r,
-                    },
-                    stopLocation: {
-                        q: clickedHexCoordinate.q,
-                        r: clickedHexCoordinate.r
-                    },
-                    squaddieAffiliation: staticSquaddie.squaddieId.affiliation
-                }))
-            );
-
-            const closestRoute: SearchPath = getResultOrThrowError(searchResults.getRouteToStopLocation());
-            if (closestRoute == null) {
-                this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
-                return;
-            }
-
-            this.squaddieMovePath = closestRoute;
-            this.squaddieAnimationWorldCoordinatesStart = convertMapCoordinatesToWorldCoordinates(
-                dynamicSquaddie.mapLocation.q,
-                dynamicSquaddie.mapLocation.r,
-            );
-            this.squaddieAnimationWorldCoordinatesEnd = convertMapCoordinatesToWorldCoordinates(
-                this.squaddieMovePath.getDestination().q,
-                this.squaddieMovePath.getDestination().r,
-            );
-            this.animationTimer = Date.now();
-            this.animationMode = AnimationMode.MOVING_SQUADDIE;
-
-            let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
-
-            const routeTilesByDistance = this.getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions);
-            this.hexMap.stopHighlightingTiles();
-            this.hexMap.highlightTiles(routeTilesByDistance);
-
-            this.battleSquaddieUIInput.selectionState = BattleSquaddieUISelectionState.MOVING_SQUADDIE;
-            if (this.squaddieTurnEnded()) {
-                this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
-                this.hexMap.stopHighlightingTiles();
-            }
-            return;
+            this.createSearchPath(staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
         }
     }
 
-    private getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions: HexCoordinate[][]) {
-        const routeTilesByDistance: HighlightTileDescription[] =
-            routeSortedByNumberOfMovementActions.map((tiles, numberOfMovementActions) => {
-                let overlayImageResourceName: string;
-                switch (numberOfMovementActions) {
-                    case 0:
-                        break;
-                    case 1:
-                        overlayImageResourceName = "map icon move 1 action";
-                        break;
-                    case 2:
-                        overlayImageResourceName = "map icon move 2 actions";
-                        break;
-                    default:
-                        overlayImageResourceName = "map icon move 3 actions";
-                        break;
-                }
+    private createSearchPath(staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
+        const searchResults: SearchResults = getResultOrThrowError(
+            this.pathfinder.findPathToStopLocation(new SearchParams({
+                missionMap: this.missionMap,
+                squaddieMovement: staticSquaddie.movement,
+                numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+                startLocation: {
+                    q: dynamicSquaddie.mapLocation.q,
+                    r: dynamicSquaddie.mapLocation.r,
+                },
+                stopLocation: {
+                    q: clickedHexCoordinate.q,
+                    r: clickedHexCoordinate.r
+                },
+                squaddieAffiliation: staticSquaddie.squaddieId.affiliation
+            }))
+        );
 
-                if (overlayImageResourceName) {
-                    return {
-                        tiles,
-                        pulseColor: HighlightPulseBlueColor,
-                        overlayImageResourceName,
-                    }
-                }
-                return {
-                    tiles,
-                    pulseColor: HighlightPulseBlueColor,
-                }
-            });
-        return routeTilesByDistance;
+        const closestRoute: SearchPath = getResultOrThrowError(searchResults.getRouteToStopLocation());
+
+        const noDirectRouteToDestination = closestRoute === null;
+        if (noDirectRouteToDestination) {
+            this.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
+            return;
+        }
+
+        this.squaddieMovePath = closestRoute;
+        this.animationTimer = Date.now();
+        let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
+
+        const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions);
+        this.hexMap.stopHighlightingTiles();
+        this.hexMap.highlightTiles(routeTilesByDistance);
+
+        this.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
+        this.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
+    }
+
+    private focusOnSelectedSquaddie(squaddieID: SquaddieId, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+            dynamicSquaddieId,
+        } = getResultOrThrowError(this.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
+
+        this.hexMap.stopHighlightingTiles();
+        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, this.pathfinder, this.missionMap, this.hexMap);
+        this.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddieId);
+        this.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }
 
     private updateBattleSquaddieUIMovingSquaddie(clickedHexCoordinate?: HexCoordinate) {
@@ -648,28 +591,18 @@ export class BattleScene {
                 missionMap: this.missionMap,
                 squaddieRepository: this.squaddieRepo,
                 selectedSquaddieDynamicID: this.battleSquaddieUIInput.selectedSquaddieDynamicID,
-                finishedAnimating: this.hasMovementAnimationFinished()
+                finishedAnimating: hasMovementAnimationFinished(this.animationTimer, this.squaddieMovePath),
             }
         );
 
         if (newSelectionState === BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED) {
-            this.battleSquaddieUIInput.selectionState = newSelectionState;
-            this.battleSquaddieUIInput.selectedSquaddieDynamicID = "";
-            return;
+            this.battleSquaddieUIInput.changeSelectionState(newSelectionState);
+            this.hexMap.stopHighlightingTiles();
         }
     }
 
-    private hasMovementAnimationFinished() {
-        const timePassed = Date.now() - this.animationTimer;
-        return (
-            timePassed > TIME_TO_MOVE
-            || !this.squaddieMovePath
-            || this.squaddieMovePath.getTilesTraveled().length === 0
-        );
-    }
-
     private moveSquaddie(p: p5) {
-        if (this.animationMode !== AnimationMode.MOVING_SQUADDIE) {
+        if (this.battleSquaddieUIInput.selectionState !== BattleSquaddieUISelectionState.MOVING_SQUADDIE) {
             return;
         }
 
@@ -684,86 +617,18 @@ export class BattleScene {
             this.battleSquaddieUIInput.selectedSquaddieDynamicID
         ));
 
-        const timePassed = Date.now() - this.animationTimer;
-        if (this.hasMovementAnimationFinished()) {
-            this.updateSquaddieMoveLocation(dynamicSquaddie);
-            this.spendSquaddieActionsForMovement(dynamicSquaddie, staticSquaddie);
-            this.missionMap.updateSquaddiePosition(staticSquaddie.squaddieId.id, dynamicSquaddie.mapLocation);
-            this.animationMode = AnimationMode.IDLE;
+        if (hasMovementAnimationFinished(this.animationTimer, this.squaddieMovePath)) {
+            updateSquaddieLocation(dynamicSquaddie, staticSquaddie, this.squaddieMovePath.getDestination(), this.missionMap);
+            updateSquaddieIconLocation(dynamicSquaddie, this.squaddieMovePath.getDestination(), this.camera);
+            spendSquaddieActions(dynamicSquaddie, this.squaddieMovePath.getNumberOfMovementActions());
+            tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
 
             if (!this.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
                 this.battlePhaseTracker.advanceToNextPhase();
             }
         } else {
-            const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
-                this.squaddieMovePath.getTilesTraveled(),
-                timePassed,
-                TIME_TO_MOVE,
-                this.camera,
-            )
-
-            setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
+            moveSquaddieAlongPath(dynamicSquaddie, this.animationTimer, this.squaddieMovePath, this.camera);
         }
         dynamicSquaddie.mapIcon.draw(p);
-    }
-
-    private spendSquaddieActionsForMovement(dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
-        dynamicSquaddie.squaddieTurn.spendNumberActions(this.squaddieMovePath.getNumberOfMovementActions());
-        if (dynamicSquaddie.squaddieTurn.getRemainingActions() <= 0) {
-            tintSquaddieMapIconTurnComplete(staticSquaddie, dynamicSquaddie)
-        }
-    }
-
-    private updateSquaddieMoveLocation(dynamicSquaddie: BattleSquaddieDynamic) {
-        dynamicSquaddie.mapLocation = this.squaddieMovePath.getDestination();
-        const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-            this.squaddieMovePath.getDestination().q,
-            this.squaddieMovePath.getDestination().r,
-            ...this.camera.getCoordinates()
-        );
-        setImageToLocation(dynamicSquaddie, xyCoords);
-    }
-
-    private highlightSquaddieReach(dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
-        const reachableTileSearchResults: SearchResults = this.pathfinder.getAllReachableTiles(
-            new SearchParams({
-                missionMap: this.missionMap,
-                startLocation: dynamicSquaddie.mapLocation,
-                squaddieMovement: staticSquaddie.movement,
-                squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
-                numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
-            })
-        );
-        const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
-        const movementTilesByNumberOfActions: {
-            [numberOfActions: number]: [{ q: number, r: number }?]
-        } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
-
-        const actionTiles: TileFoundDescription[] = this.pathfinder.getTilesInRange(new SearchParams({
-                canStopOnSquaddies: true,
-                missionMap: this.missionMap,
-                minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
-            }),
-            staticSquaddie.activities[0].maximumRange,
-            movementTiles
-        );
-
-        const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] = Object.values(movementTilesByNumberOfActions);
-        tilesTraveledByNumberOfMovementActions.unshift([]);
-        const highlightTileDescriptions = this.getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
-
-        if (actionTiles) {
-            highlightTileDescriptions.push({
-                    tiles: actionTiles,
-                    pulseColor: HighlightPulseRedColor,
-                    overlayImageResourceName: "map icon attack 1 action",
-                },
-            )
-        }
-        this.hexMap.highlightTiles(highlightTileDescriptions);
-    }
-
-    private squaddieTurnEnded(): boolean {
-        return true;
     }
 }

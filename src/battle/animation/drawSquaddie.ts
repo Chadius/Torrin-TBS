@@ -1,14 +1,17 @@
 import p5 from "p5";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
-import {HEX_TILE_WIDTH, HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
-import {RectArea} from "../ui/rectArea";
-import {Rectangle} from "../ui/rectangle";
-import {BattleCamera} from "./battleCamera";
-import {getResultOrThrowError} from "../utils/ResultOrError";
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
+import {HEX_TILE_WIDTH, HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
+import {RectArea} from "../../ui/rectArea";
+import {Rectangle} from "../../ui/rectangle";
+import {BattleCamera} from "../battleCamera";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
+import {HexCoordinate} from "../../hexMap/hexGrid";
 
 export const tintSquaddieMapIconTurnComplete = (staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
@@ -71,4 +74,37 @@ export const drawSquaddieActions = (p: p5, staticSquaddie: BattleSquaddieStatic,
     })
 
     numberOfActionsRect.draw(p);
+}
+
+export const tintSquaddieIfTurnIsComplete = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) => {
+    if (dynamicSquaddie.squaddieTurn.getRemainingActions() <= 0) {
+        tintSquaddieMapIconTurnComplete(staticSquaddie, dynamicSquaddie)
+    }
+}
+
+export const updateSquaddieIconLocation = (dynamicSquaddie: BattleSquaddieDynamic, destination: HexCoordinate, camera: BattleCamera) => {
+    const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+        destination.q,
+        destination.r,
+        ...camera.getCoordinates()
+    );
+    setImageToLocation(dynamicSquaddie, xyCoords);
+}
+
+export const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath?: SearchPath) => {
+    const timePassed = Date.now() - timeMovementStarted;
+    const movementAnimationNeeded = squaddieMovePath && squaddieMovePath.getTilesTraveled().length > 0;
+    return !(movementAnimationNeeded && timePassed < TIME_TO_MOVE);
+}
+
+export const moveSquaddieAlongPath = (dynamicSquaddie: BattleSquaddieDynamic, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
+    const timePassed = Date.now() - timeMovementStarted;
+    const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
+        squaddieMovePath.getTilesTraveled(),
+        timePassed,
+        TIME_TO_MOVE,
+        camera,
+    )
+
+    setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
 }
