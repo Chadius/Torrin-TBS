@@ -5,6 +5,7 @@ import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../battleCutscenePlayer";
 import {BattleSquaddieSelector} from "../BattleSquaddieSelector";
 import {BattleSquaddieMover} from "../battleSquaddieMover";
+import {BattleMapDisplay} from "../battleMapDisplay";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -21,6 +22,7 @@ type OrchestratorOptions = {
     cutscenePlayer: BattleCutscenePlayer,
     squaddieSelector: BattleSquaddieSelector,
     squaddieMover: BattleSquaddieMover,
+    mapDisplay: BattleMapDisplay,
 }
 
 export class Orchestrator {
@@ -31,6 +33,7 @@ export class Orchestrator {
     cutscenePlayer: BattleCutscenePlayer;
     squaddieSelector: BattleSquaddieSelector;
     squaddieMover: BattleSquaddieMover;
+    mapDisplay: BattleMapDisplay;
 
     constructor(options: OrchestratorOptions) {
         this.mode = BattleOrchestratorMode.UNKNOWN;
@@ -39,6 +42,7 @@ export class Orchestrator {
         this.cutscenePlayer = options.cutscenePlayer;
         this.squaddieSelector = options.squaddieSelector;
         this.squaddieMover = options.squaddieMover;
+        this.mapDisplay = options.mapDisplay;
     }
 
     public getCurrentComponent(): OrchestratorComponent {
@@ -63,21 +67,37 @@ export class Orchestrator {
     }
 
     public update(state: OrchestratorState) {
+        const modesToDisplayMap = [
+            BattleOrchestratorMode.CUTSCENE_PLAYER,
+            BattleOrchestratorMode.SQUADDIE_SELECTOR,
+            BattleOrchestratorMode.SQUADDIE_MOVER,
+        ];
+
+        if (modesToDisplayMap.includes(this.mode)) {
+            this.displayBattleMap(state);
+        }
+
         switch(this.mode) {
             case BattleOrchestratorMode.UNKNOWN:
-                return this.updateUnknown(state);
+                this.updateUnknown(state);
+                break;
             case BattleOrchestratorMode.LOADING_MISSION:
-                return this.updateLoadingMission(state);
+                this.updateLoadingMission(state);
+                break;
             case BattleOrchestratorMode.LOADING_RESOURCES:
-                return this.updateLoadingResources(state);
+                this.updateLoadingResources(state);
+                break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                return this.updateCutscenePlayer(state);
+                this.updateCutscenePlayer(state);
+                break;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
-                return this.updateSquaddieSelector(state);
+                this.updateSquaddieSelector(state);
+                break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
-                return this.updateSquaddieMover(state);
+                this.updateSquaddieMover(state);
+                break;
             default:
-                return;
+                break;
         }
     }
 
@@ -117,6 +137,12 @@ export class Orchestrator {
         this.squaddieMover.update(state);
         if (this.squaddieMover.hasCompleted()) {
             this.mode = BattleOrchestratorMode.SQUADDIE_SELECTOR;
+        }
+    }
+
+    private displayBattleMap(state: OrchestratorState) {
+        if (state.displayMap === true) {
+            this.mapDisplay.update(state);
         }
     }
 }

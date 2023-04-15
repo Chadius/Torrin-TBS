@@ -1,5 +1,11 @@
+export type OrchestratorStateOptions = {
+    displayMap: boolean;
+}
+
 export class OrchestratorState {
-    
-    constructor() {
+    displayMap: boolean;
+
+    constructor(options: Partial<OrchestratorStateOptions> = {}) {
+        this.displayMap = options.displayMap || false;
     }
 }

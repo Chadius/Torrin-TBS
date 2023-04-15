@@ -5,6 +5,7 @@ import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../battleCutscenePlayer";
 import {BattleSquaddieSelector} from "../BattleSquaddieSelector";
 import {BattleSquaddieMover} from "../battleSquaddieMover";
+import {BattleMapDisplay} from "../battleMapDisplay";
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -24,6 +25,7 @@ describe('Battle Orchestrator', () => {
     let mockBattleCutscenePlayer: BattleCutscenePlayer;
     let mockSquaddieSelector: BattleSquaddieSelector;
     let mockSquaddieMover: BattleSquaddieMover;
+    let mockMapDisplay: BattleMapDisplay;
 
     let nullState: OrchestratorState;
 
@@ -55,6 +57,12 @@ describe('Battle Orchestrator', () => {
             mouseEventHappened: jest.fn(),
             hasCompleted: jest.fn().mockReturnValue(true),
         };
+        mockMapDisplay = {
+            update: jest.fn(),
+            mouseEventHappened: jest.fn(),
+            hasCompleted: jest.fn().mockReturnValue(true),
+            draw: jest.fn(),
+        };
     });
 
     const createOrchestrator:(overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
@@ -65,6 +73,7 @@ describe('Battle Orchestrator', () => {
                 cutscenePlayer: mockBattleCutscenePlayer,
                 squaddieSelector: mockSquaddieSelector,
                 squaddieMover: mockSquaddieMover,
+                mapDisplay: mockMapDisplay,
             },
             ...overrides
         })
@@ -130,7 +139,6 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator.getCurrentComponent()).toBe(mockBattleResourceLoader);
     });
 
-    // it('will call the battle drawing system if the state says so', () => {});
 
     it('after loading the resources it goes to the cutscene playing mode', () => {
         orchestrator = createOrchestrator({
@@ -142,6 +150,29 @@ describe('Battle Orchestrator', () => {
         orchestrator.update(nullState);
         expect(mockBattleCutscenePlayer.update).toBeCalledTimes(1);
         expect(mockBattleCutscenePlayer.hasCompleted).toBeCalledTimes(1);
+    });
+
+    it('will call the battle map display system if not loading', () => {
+        const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
+            displayMap: true,
+        });
+
+        const loadingOrchestratorShouldNotDraw: Orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.LOADING_RESOURCES
+        });
+        loadingOrchestratorShouldNotDraw.update(stateWantsToDisplayTheMap);
+        expect(mockMapDisplay.update).not.toBeCalled();
+
+        const squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator = createOrchestrator({
+            squaddieSelector: {
+                update: jest.fn(),
+                mouseEventHappened: jest.fn(),
+                hasCompleted: jest.fn().mockReturnValue(false),
+            },
+            initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+        });
+        squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap);
+        expect(mockMapDisplay.update).toBeCalledTimes(1);
     });
 
     it('will transition from cutscene playing to squaddie selector mode', () => {
