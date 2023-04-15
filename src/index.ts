@@ -1,18 +1,25 @@
 import p5 from 'p5';
-import {BattleScene} from './battle/battleScene'
 import {ResourceHandler, ResourceType} from "./resource/resourceHandler";
-import {NonNegativeNumber} from "./utils/mathAssert";
 import {ScreenDimensions} from "./utils/graphicsConfig";
+import {Orchestrator} from "./battle/orchestrator/orchestrator";
+import {OrchestratorState} from "./battle/orchestrator/orchestratorState";
+import {BattleSquaddieRepository} from "./battle/battleSquaddieRepository";
+import {BattlePhaseTracker} from "./battle/battlePhaseTracker";
+import {BattleCamera} from "./battle/battleCamera";
+import {BattleMissionLoader} from "./battle/battleMissionLoader";
+import {BattleCutscenePlayer} from "./battle/battleCutscenePlayer";
+import {BattleSquaddieSelector} from "./battle/BattleSquaddieSelector";
+import {BattleSquaddieMover} from "./battle/battleSquaddieMover";
+import {BattleMapDisplay} from "./battle/battleMapDisplay";
 
-let battleScene: BattleScene;
+let battleOrchestrator: Orchestrator;
+let battleOrchestratorState: OrchestratorState;
 
 export const sketch = (p: p5) => {
     p.setup = () => {
         p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
-        battleScene = new BattleScene({
-            p: p,
-            width: ScreenDimensions.SCREEN_WIDTH as NonNegativeNumber,
-            height: ScreenDimensions.SCREEN_HEIGHT as NonNegativeNumber,
+
+        battleOrchestratorState = new OrchestratorState({
             resourceHandler: new ResourceHandler({
                 p: p,
                 allResources: [
@@ -76,21 +83,32 @@ export const sketch = (p: p5) => {
                         path: "assets/affiliate-icon-none.png",
                         key: "affiliate icon none"
                     }
-                ]
-            })
+                ],
+            }),
+            squaddieRepo: new BattleSquaddieRepository(),
+            battlePhaseTracker: new BattlePhaseTracker(),
+            camera: new BattleCamera(0, 100),
+        });
+
+        battleOrchestrator = new Orchestrator({
+            missionLoader: new BattleMissionLoader(),
+            cutscenePlayer: new BattleCutscenePlayer(),
+            squaddieSelector: new BattleSquaddieSelector(),
+            squaddieMover: new BattleSquaddieMover(),
+            mapDisplay: new BattleMapDisplay(),
         });
     }
 
     p.draw = () => {
-        battleScene.draw(p);
+        battleOrchestrator.update(battleOrchestratorState, p);
     }
 
     p.mouseClicked = () => {
-        battleScene.mouseClicked(p.mouseX, p.mouseY);
+        battleOrchestrator.mouseClicked(battleOrchestratorState, p.mouseX, p.mouseY);
     }
 
     p.mouseMoved = () => {
-        battleScene.mouseMoved(p.mouseX, p.mouseY);
+        battleOrchestrator.mouseMoved(battleOrchestratorState, p.mouseX, p.mouseY);
     }
 }
 

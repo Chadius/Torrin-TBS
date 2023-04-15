@@ -37,7 +37,6 @@ export class BattleSquaddieTeam {
     hasAnActingSquaddie(): boolean {
         return this.dynamicSquaddieIds.some(dynamicSquaddieId => {
             const {dynamicSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-            console.log(dynamicSquaddieId + " " + dynamicSquaddie.canStillActThisRound());
             return dynamicSquaddie.canStillActThisRound();
         })
     }
