@@ -14,7 +14,7 @@ import {spendSquaddieActions, updateSquaddieLocation} from "./squaddieMovementLo
 
 export class BattleSquaddieMover implements OrchestratorComponent{
     hasCompleted(state: OrchestratorState): boolean {
-        return state.battleSquaddieUIInput.getSelectionState() === BattleSquaddieUISelectionState.MOVING_SQUADDIE;
+        return state.battleSquaddieUIInput.getSelectionState() !== BattleSquaddieUISelectionState.MOVING_SQUADDIE;
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
