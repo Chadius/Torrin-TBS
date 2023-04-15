@@ -5,11 +5,11 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     constructor() {
     }
 
-    hasCompleted(): boolean {
+    hasCompleted(state: OrchestratorState): boolean {
         return false;
     }
 
-    mouseEventHappened(event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
     }
 
     update(state: OrchestratorState): void {

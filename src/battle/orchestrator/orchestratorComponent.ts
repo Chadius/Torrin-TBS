@@ -1,13 +1,20 @@
 import {OrchestratorState} from "./orchestratorState";
+import p5 from "p5";
+
+export enum OrchestratorComponentMouseEventType {
+    UNKNOWN,
+    CLICKED,
+    MOVED,
+}
 
 export type OrchestratorComponentMouseEvent = {
-    eventType: "CLICKED" | "MOVED";
+    eventType: OrchestratorComponentMouseEventType;
     mouseX: number;
     mouseY: number;
 }
 
 export interface OrchestratorComponent {
-    update(state: OrchestratorState): void;
-    mouseEventHappened(event: OrchestratorComponentMouseEvent): void;
-    hasCompleted(): boolean;
+    update(state: OrchestratorState, p?: p5): void;
+    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void;
+    hasCompleted(state: OrchestratorState): boolean;
 }

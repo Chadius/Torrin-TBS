@@ -1,6 +1,8 @@
 import {BattleSquaddieStatic} from "./battleSquaddie";
 import {ResourceHandler} from "../resource/resourceHandler";
 
+// TODO Mark this file for deletion
+
 export const loadMapIconResources = (resourceHandler: ResourceHandler, staticSquaddies: BattleSquaddieStatic []) => {
     staticSquaddies.forEach(staticSquaddie => resourceHandler.loadResource(staticSquaddie.squaddieId.resources.mapIconResourceKey));
     resourceHandler.loadResources([

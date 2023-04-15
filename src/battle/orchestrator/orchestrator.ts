@@ -1,6 +1,5 @@
 import {BattleMissionLoader} from "../battleMissionLoader";
 import {OrchestratorComponent} from "./orchestratorComponent";
-import {BattleResourceLoader} from "../battleResourceLoader";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../battleCutscenePlayer";
 import {BattleSquaddieSelector} from "../BattleSquaddieSelector";
@@ -10,7 +9,6 @@ import {BattleMapDisplay} from "../battleMapDisplay";
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
     LOADING_MISSION = "LOADING_MISSION",
-    LOADING_RESOURCES = "LOADING_RESOURCES",
     CUTSCENE_PLAYER = "CUTSCENE_PLAYER",
     SQUADDIE_SELECTOR = "SQUADDIE_SELECTOR",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
@@ -18,7 +16,6 @@ export enum BattleOrchestratorMode {
 
 type OrchestratorOptions = {
     missionLoader: BattleMissionLoader,
-    resourceLoader: BattleResourceLoader,
     cutscenePlayer: BattleCutscenePlayer,
     squaddieSelector: BattleSquaddieSelector,
     squaddieMover: BattleSquaddieMover,
@@ -29,7 +26,6 @@ export class Orchestrator {
     mode: BattleOrchestratorMode;
 
     missionLoader: BattleMissionLoader;
-    resourceLoader: BattleResourceLoader;
     cutscenePlayer: BattleCutscenePlayer;
     squaddieSelector: BattleSquaddieSelector;
     squaddieMover: BattleSquaddieMover;
@@ -38,7 +34,6 @@ export class Orchestrator {
     constructor(options: OrchestratorOptions) {
         this.mode = BattleOrchestratorMode.UNKNOWN;
         this.missionLoader = options.missionLoader;
-        this.resourceLoader = options.resourceLoader;
         this.cutscenePlayer = options.cutscenePlayer;
         this.squaddieSelector = options.squaddieSelector;
         this.squaddieMover = options.squaddieMover;
@@ -49,8 +44,6 @@ export class Orchestrator {
         switch (this.mode) {
             case BattleOrchestratorMode.LOADING_MISSION:
                 return this.missionLoader;
-            case BattleOrchestratorMode.LOADING_RESOURCES:
-                return this.resourceLoader;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
                 return this.cutscenePlayer;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
@@ -84,9 +77,6 @@ export class Orchestrator {
             case BattleOrchestratorMode.LOADING_MISSION:
                 this.updateLoadingMission(state);
                 break;
-            case BattleOrchestratorMode.LOADING_RESOURCES:
-                this.updateLoadingResources(state);
-                break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
                 this.updateCutscenePlayer(state);
                 break;
@@ -101,41 +91,34 @@ export class Orchestrator {
         }
     }
 
-    private updateUnknown(state: OrchestratorState) {
+    private updateUnknown(_: OrchestratorState) {
         this.mode = BattleOrchestratorMode.LOADING_MISSION;
     }
 
     private updateLoadingMission(state: OrchestratorState) {
         this.missionLoader.update(state);
-        if (this.missionLoader.hasCompleted()) {
-            this.mode = BattleOrchestratorMode.LOADING_RESOURCES;
-        }
-    }
-
-    private updateLoadingResources(state: OrchestratorState) {
-        this.resourceLoader.update(state);
-        if (this.resourceLoader.hasCompleted()) {
+        if (this.missionLoader.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER;
         }
     }
 
     private updateCutscenePlayer(state: OrchestratorState) {
         this.cutscenePlayer.update(state);
-        if (this.cutscenePlayer.hasCompleted()) {
+        if (this.cutscenePlayer.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.SQUADDIE_SELECTOR;
         }
     }
 
     private updateSquaddieSelector(state: OrchestratorState) {
         this.squaddieSelector.update(state);
-        if (this.squaddieSelector.hasCompleted()) {
+        if (this.squaddieSelector.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.SQUADDIE_MOVER;
         }
     }
 
     private updateSquaddieMover(state: OrchestratorState) {
         this.squaddieMover.update(state);
-        if (this.squaddieMover.hasCompleted()) {
+        if (this.squaddieMover.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.SQUADDIE_SELECTOR;
         }
     }

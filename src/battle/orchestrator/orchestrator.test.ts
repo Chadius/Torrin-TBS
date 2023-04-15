@@ -1,6 +1,5 @@
 import {BattleOrchestratorMode, Orchestrator} from "./orchestrator";
 import {BattleMissionLoader} from "../battleMissionLoader";
-import {BattleResourceLoader} from "../battleResourceLoader";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../battleCutscenePlayer";
 import {BattleSquaddieSelector} from "../BattleSquaddieSelector";
@@ -10,7 +9,6 @@ import {BattleMapDisplay} from "../battleMapDisplay";
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
         missionLoader: BattleMissionLoader;
-        resourceLoader: BattleResourceLoader;
         cutscenePlayer: BattleCutscenePlayer;
         squaddieSelector: BattleSquaddieSelector;
         squaddieMover: BattleSquaddieMover;
@@ -21,7 +19,6 @@ describe('Battle Orchestrator', () => {
     let orchestrator: Orchestrator;
 
     let mockBattleMissionLoader: BattleMissionLoader;
-    let mockBattleResourceLoader: BattleResourceLoader;
     let mockBattleCutscenePlayer: BattleCutscenePlayer;
     let mockSquaddieSelector: BattleSquaddieSelector;
     let mockSquaddieMover: BattleSquaddieMover;
@@ -32,44 +29,37 @@ describe('Battle Orchestrator', () => {
     beforeEach(() => {
         nullState = new OrchestratorState();
 
-        mockBattleMissionLoader = {
-            update: jest.fn(),
-            mouseEventHappened: jest.fn(),
-            hasCompleted: jest.fn().mockReturnValue(true),
-        };
-        mockBattleResourceLoader = {
-            update: jest.fn(),
-            mouseEventHappened: jest.fn(),
-            hasCompleted: jest.fn().mockReturnValue(true),
-        };
-        mockBattleCutscenePlayer = {
-            update: jest.fn(),
-            mouseEventHappened: jest.fn(),
-            hasCompleted: jest.fn().mockReturnValue(true),
-        };
-        mockSquaddieSelector = {
-            update: jest.fn(),
-            mouseEventHappened: jest.fn(),
-            hasCompleted: jest.fn().mockReturnValue(true),
-        };
-        mockSquaddieMover = {
-            update: jest.fn(),
-            mouseEventHappened: jest.fn(),
-            hasCompleted: jest.fn().mockReturnValue(true),
-        };
-        mockMapDisplay = {
-            update: jest.fn(),
-            mouseEventHappened: jest.fn(),
-            hasCompleted: jest.fn().mockReturnValue(true),
-            draw: jest.fn(),
-        };
+        mockBattleMissionLoader = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
+        mockBattleMissionLoader.update = jest.fn();
+        mockBattleMissionLoader.mouseEventHappened = jest.fn();
+        mockBattleMissionLoader.hasCompleted = jest.fn().mockReturnValue(true);
+
+        mockBattleCutscenePlayer = new (<new () => BattleCutscenePlayer>BattleCutscenePlayer)() as jest.Mocked<BattleCutscenePlayer>;
+        mockBattleCutscenePlayer.update = jest.fn();
+        mockBattleCutscenePlayer.mouseEventHappened = jest.fn();
+        mockBattleCutscenePlayer.hasCompleted = jest.fn().mockReturnValue(true);
+
+        mockSquaddieSelector = new (<new () => BattleSquaddieSelector>BattleSquaddieSelector)() as jest.Mocked<BattleSquaddieSelector>;
+        mockSquaddieSelector.update = jest.fn();
+        mockSquaddieSelector.mouseEventHappened = jest.fn();
+        mockSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
+
+        mockSquaddieMover = new (<new () => BattleSquaddieMover>BattleSquaddieMover)() as jest.Mocked<BattleSquaddieMover>;
+        mockSquaddieMover.update = jest.fn();
+        mockSquaddieMover.mouseEventHappened = jest.fn();
+        mockSquaddieMover.hasCompleted = jest.fn().mockReturnValue(true);
+
+        mockMapDisplay = new (<new () => BattleMapDisplay>BattleMapDisplay)() as jest.Mocked<BattleMapDisplay>;
+        mockMapDisplay.update = jest.fn();
+        mockMapDisplay.mouseEventHappened = jest.fn();
+        mockMapDisplay.hasCompleted = jest.fn().mockReturnValue(true);
+        mockMapDisplay.draw = jest.fn();
     });
 
     const createOrchestrator:(overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
         const orchestrator: Orchestrator = new Orchestrator({
             ...{
                 missionLoader: mockBattleMissionLoader,
-                resourceLoader: mockBattleResourceLoader,
                 cutscenePlayer: mockBattleCutscenePlayer,
                 squaddieSelector: mockSquaddieSelector,
                 squaddieMover: mockSquaddieMover,
@@ -82,12 +72,7 @@ describe('Battle Orchestrator', () => {
             case BattleOrchestratorMode.LOADING_MISSION:
                 orchestrator.update(nullState);
                 break;
-            case BattleOrchestratorMode.LOADING_RESOURCES:
-                orchestrator.update(nullState);
-                orchestrator.update(nullState);
-                break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                orchestrator.update(nullState);
                 orchestrator.update(nullState);
                 orchestrator.update(nullState);
                 break;
@@ -95,10 +80,8 @@ describe('Battle Orchestrator', () => {
                 orchestrator.update(nullState);
                 orchestrator.update(nullState);
                 orchestrator.update(nullState);
-                orchestrator.update(nullState);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
-                orchestrator.update(nullState);
                 orchestrator.update(nullState);
                 orchestrator.update(nullState);
                 orchestrator.update(nullState);
@@ -118,12 +101,11 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator.getCurrentComponent()).toBe(mockBattleMissionLoader);
     });
 
-    it('waits for mission to complete loading before moving on to loading resources', () => {
-        const needsTwoUpdatesToFinishLoading = {
-            hasCompleted: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true),
-            update: jest.fn(),
-            mouseEventHappened: jest.fn(),
-        };
+    it('waits for mission to complete loading before moving on to cutscene player', () => {
+        const needsTwoUpdatesToFinishLoading = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
+        needsTwoUpdatesToFinishLoading.update = jest.fn();
+        needsTwoUpdatesToFinishLoading.mouseEventHappened = jest.fn();
+        needsTwoUpdatesToFinishLoading.hasCompleted = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
 
         orchestrator = createOrchestrator({
             missionLoader: needsTwoUpdatesToFinishLoading,
@@ -135,21 +117,8 @@ describe('Battle Orchestrator', () => {
         orchestrator.update(nullState);
         expect(needsTwoUpdatesToFinishLoading.update).toBeCalledTimes(2);
         expect(needsTwoUpdatesToFinishLoading.hasCompleted).toBeCalledTimes(2);
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.LOADING_RESOURCES);
-        expect(orchestrator.getCurrentComponent()).toBe(mockBattleResourceLoader);
-    });
-
-
-    it('after loading the resources it goes to the cutscene playing mode', () => {
-        orchestrator = createOrchestrator({
-            initialMode: BattleOrchestratorMode.LOADING_RESOURCES,
-        });
-        orchestrator.update(nullState);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
         expect(orchestrator.getCurrentComponent()).toBe(mockBattleCutscenePlayer);
-        orchestrator.update(nullState);
-        expect(mockBattleCutscenePlayer.update).toBeCalledTimes(1);
-        expect(mockBattleCutscenePlayer.hasCompleted).toBeCalledTimes(1);
     });
 
     it('will call the battle map display system if not loading', () => {
@@ -158,7 +127,7 @@ describe('Battle Orchestrator', () => {
         });
 
         const loadingOrchestratorShouldNotDraw: Orchestrator = createOrchestrator({
-            initialMode: BattleOrchestratorMode.LOADING_RESOURCES
+            initialMode: BattleOrchestratorMode.LOADING_MISSION
         });
         loadingOrchestratorShouldNotDraw.update(stateWantsToDisplayTheMap);
         expect(mockMapDisplay.update).not.toBeCalled();
