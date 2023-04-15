@@ -104,7 +104,6 @@ export class ResourceHandler {
         const errors = resourceKeys.map((key) => {
             return this.loadResource(key);
         })
-
         return errors.filter(x => x);
     }
 

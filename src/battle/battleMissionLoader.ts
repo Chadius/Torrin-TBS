@@ -60,25 +60,13 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 "                1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
                 "                 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
             ],
+            resourceHandler: state.resourceHandler,
         });
 
         state.resourceHandler.loadResources(mapMovementAndAttackIcons);
 
         state.missionMap = new MissionMap({
             terrainTileMap: state.hexMap
-        })
-
-        state.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
-            const {
-                dynamicSquaddie,
-                dynamicSquaddieId
-            } = info;
-
-            const {
-                staticSquaddie
-            } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
-
-            state.missionMap.addSquaddie(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
         })
 
         state.pathfinder = new Pathfinder();
@@ -210,6 +198,19 @@ export class BattleMissionLoader implements OrchestratorComponent {
         const staticSquaddies: BattleSquaddieStatic[] = state.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie);
         this.staticSquaddieResourceKeys = staticSquaddies.map(staticSquaddie => staticSquaddie.squaddieId.resources.mapIconResourceKey);
         state.resourceHandler.loadResources(this.staticSquaddieResourceKeys);
+
+        state.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+            const {
+                dynamicSquaddie,
+                dynamicSquaddieId
+            } = info;
+
+            const {
+                staticSquaddie
+            } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
+
+            state.missionMap.addSquaddie(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
+        })
     }
 
     update(state: OrchestratorState) {

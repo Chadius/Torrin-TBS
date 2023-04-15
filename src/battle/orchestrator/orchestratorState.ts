@@ -6,6 +6,10 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePhaseTracker} from "../battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
 import {Cutscene} from "../../cutscene/cutscene";
+import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
+import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {HexCoordinate} from "../../hexMap/hexGrid";
 
 export type OrchestratorStateOptions = {
     displayMap: boolean;
@@ -17,6 +21,11 @@ export type OrchestratorStateOptions = {
     battlePhaseTracker: BattlePhaseTracker;
     camera: BattleCamera;
     currentCutscene: Cutscene;
+    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
+    battleSquaddieUIInput: BattleSquaddieUIInput;
+    animationTimer: number;
+    squaddieMovePath: SearchPath;
+    clickedHexCoordinate: HexCoordinate;
 }
 
 export class OrchestratorState {
@@ -29,6 +38,11 @@ export class OrchestratorState {
     battlePhaseTracker: BattlePhaseTracker;
     camera: BattleCamera;
     currentCutscene: Cutscene;
+    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
+    battleSquaddieUIInput: BattleSquaddieUIInput;
+    animationTimer: number;
+    squaddieMovePath?: SearchPath;
+    clickedHexCoordinate?: HexCoordinate;
 
     constructor(options: Partial<OrchestratorStateOptions> = {}) {
         this.displayMap = options.displayMap || false;
@@ -40,5 +54,19 @@ export class OrchestratorState {
         this.battlePhaseTracker = options.battlePhaseTracker || new BattlePhaseTracker();
         this.camera = options.camera || new BattleCamera();
         this.currentCutscene = options.currentCutscene;
+        this.animationTimer = options.animationTimer || 0;
+        this.squaddieMovePath = options.squaddieMovePath || undefined;
+        this.clickedHexCoordinate = options.clickedHexCoordinate || undefined;
+
+        this.battleSquaddieUIInput = options.battleSquaddieUIInput || new BattleSquaddieUIInput({
+            selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
+            missionMap: this.missionMap,
+            squaddieRepository: this.squaddieRepo,
+        });
+        this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD({
+            missionMap: this.missionMap,
+            squaddieRepository: this.squaddieRepo,
+            resourceHandler: this.resourceHandler,
+        });
     }
 }

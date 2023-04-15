@@ -46,4 +46,8 @@ export class BattleSquaddieUIInput {
             this.selectedSquaddieDynamicID = dynamicSquaddieId;
         }
     }
+
+    getSelectionState () {
+        return this.selectionState;
+    }
 }

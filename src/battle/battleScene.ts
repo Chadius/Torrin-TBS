@@ -86,11 +86,11 @@ export class BattleScene {
 
         this.camera = new BattleCamera(0, 100);
         this.resourceHandler = options.resourceHandler;
-        // this.prepareSquaddies();
-        // this.prepareMap();
+        this.prepareSquaddies();
+        this.prepareMap();
 
-        // const mapDimensions = this.hexMap.getDimensions()
-        // this.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
+        const mapDimensions = this.hexMap.getDimensions()
+        this.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
 
         this.animationTimer = 0;
         this.squaddieMovePath = undefined;
@@ -109,179 +109,179 @@ export class BattleScene {
     }
 
     private prepareSquaddies() {
-        // this.squaddieRepo = new BattleSquaddieRepository();
-        // this.squaddieRepo.addStaticSquaddie({
-        //     squaddieId: new SquaddieId({
-        //         id: "player_young_torrin",
-        //         name: "Torrin",
-        //         resources: new SquaddieResource({
-        //             mapIconResourceKey: "map icon young torrin"
-        //         }),
-        //         traits: new TraitStatusStorage({
-        //             [Trait.HUMANOID]: true,
-        //             [Trait.MONSU]: true,
-        //         }).filterCategory(TraitCategory.CREATURE),
-        //         affiliation: SquaddieAffiliation.PLAYER,
-        //     }),
-        //     movement: new SquaddieMovement({
-        //         movementPerAction: 2,
-        //         traits: new TraitStatusStorage({
-        //             [Trait.PASS_THROUGH_WALLS]: true,
-        //         }).filterCategory(TraitCategory.MOVEMENT)
-        //     }),
-        //     activities: [
-        //         new SquaddieActivity({
-        //             name: "water saber",
-        //             id: "torrin_water_saber",
-        //             minimumRange: 0,
-        //             maximumRange: 2,
-        //             traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-        //         })
-        //     ],
-        // });
-        // this.squaddieRepo.addStaticSquaddie({
-        //     squaddieId: new SquaddieId({
-        //         id: "player_sir_camil",
-        //         name: "Sir Camil",
-        //         resources: new SquaddieResource({
-        //             mapIconResourceKey: "map icon sir camil"
-        //         }),
-        //         traits: new TraitStatusStorage({
-        //             [Trait.HUMANOID]: true,
-        //         }).filterCategory(TraitCategory.CREATURE),
-        //         affiliation: SquaddieAffiliation.PLAYER,
-        //     }),
-        //     movement: new SquaddieMovement({
-        //         movementPerAction: 2,
-        //         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-        //     }),
-        //     activities: [
-        //         new SquaddieActivity({
-        //             name: "longsword",
-        //             id: "sir_camil_longsword",
-        //             minimumRange: 0,
-        //             maximumRange: 1,
-        //             traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-        //         })
-        //     ],
-        // });
-        // this.squaddieRepo.addStaticSquaddie({
-        //     squaddieId: new SquaddieId({
-        //         id: "enemy_demon_slither",
-        //         name: "Slither Demon",
-        //         resources: new SquaddieResource({
-        //             mapIconResourceKey: "map icon demon slither"
-        //         }),
-        //         traits: new TraitStatusStorage({
-        //             [Trait.DEMON]: true,
-        //         }).filterCategory(TraitCategory.CREATURE),
-        //         affiliation: SquaddieAffiliation.ENEMY,
-        //     }),
-        //     movement: new SquaddieMovement({
-        //         movementPerAction: 1,
-        //         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-        //     }),
-        //     activities: [
-        //         new SquaddieActivity({
-        //             name: "Bite",
-        //             id: "demon_slither_bite",
-        //             minimumRange: 0,
-        //             maximumRange: 1,
-        //             traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-        //         })
-        //     ],
-        // });
-        //
-        // this.squaddieRepo.addDynamicSquaddie("player_young_torrin", new BattleSquaddieDynamic({
-        //     staticSquaddieId: "player_young_torrin",
-        //     mapLocation: {q: 0, r: 0},
-        //     squaddieTurn: new SquaddieTurn()
-        // }))
-        // this.squaddieRepo.addDynamicSquaddie("player_sir_camil", new BattleSquaddieDynamic({
-        //     staticSquaddieId: "player_sir_camil",
-        //     mapLocation: {q: 1, r: 1},
-        //     squaddieTurn: new SquaddieTurn()
-        // }))
-        // this.squaddieRepo.addDynamicSquaddie("enemy_demon_slither_0", new BattleSquaddieDynamic({
-        //     staticSquaddieId: "enemy_demon_slither",
-        //     mapLocation: {q: 1, r: 2},
-        //     squaddieTurn: new SquaddieTurn()
-        // }))
-        // this.battlePhaseTracker = new BattlePhaseTracker();
-        // this.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
-        //     affiliation: SquaddieAffiliation.PLAYER,
-        //     name: "Crusaders",
-        //     squaddieRepo: this.squaddieRepo,
-        //     dynamicSquaddieIds: ["player_young_torrin", "player_sir_camil"],
-        // }));
-        // this.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
-        //     affiliation: SquaddieAffiliation.ENEMY,
-        //     name: "Infiltrators",
-        //     squaddieRepo: this.squaddieRepo,
-        //     dynamicSquaddieIds: ["enemy_demon_slither_0"],
-        // }));
-        // this.battlePhaseTracker.advanceToNextPhase();
-        //
-        // loadMapIconResources(
-        //     this.resourceHandler,
-        //     this.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie)
-        // )
+        this.squaddieRepo = new BattleSquaddieRepository();
+        this.squaddieRepo.addStaticSquaddie({
+            squaddieId: new SquaddieId({
+                id: "player_young_torrin",
+                name: "Torrin",
+                resources: new SquaddieResource({
+                    mapIconResourceKey: "map icon young torrin"
+                }),
+                traits: new TraitStatusStorage({
+                    [Trait.HUMANOID]: true,
+                    [Trait.MONSU]: true,
+                }).filterCategory(TraitCategory.CREATURE),
+                affiliation: SquaddieAffiliation.PLAYER,
+            }),
+            movement: new SquaddieMovement({
+                movementPerAction: 2,
+                traits: new TraitStatusStorage({
+                    [Trait.PASS_THROUGH_WALLS]: true,
+                }).filterCategory(TraitCategory.MOVEMENT)
+            }),
+            activities: [
+                new SquaddieActivity({
+                    name: "water saber",
+                    id: "torrin_water_saber",
+                    minimumRange: 0,
+                    maximumRange: 2,
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                })
+            ],
+        });
+        this.squaddieRepo.addStaticSquaddie({
+            squaddieId: new SquaddieId({
+                id: "player_sir_camil",
+                name: "Sir Camil",
+                resources: new SquaddieResource({
+                    mapIconResourceKey: "map icon sir camil"
+                }),
+                traits: new TraitStatusStorage({
+                    [Trait.HUMANOID]: true,
+                }).filterCategory(TraitCategory.CREATURE),
+                affiliation: SquaddieAffiliation.PLAYER,
+            }),
+            movement: new SquaddieMovement({
+                movementPerAction: 2,
+                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+            }),
+            activities: [
+                new SquaddieActivity({
+                    name: "longsword",
+                    id: "sir_camil_longsword",
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                })
+            ],
+        });
+        this.squaddieRepo.addStaticSquaddie({
+            squaddieId: new SquaddieId({
+                id: "enemy_demon_slither",
+                name: "Slither Demon",
+                resources: new SquaddieResource({
+                    mapIconResourceKey: "map icon demon slither"
+                }),
+                traits: new TraitStatusStorage({
+                    [Trait.DEMON]: true,
+                }).filterCategory(TraitCategory.CREATURE),
+                affiliation: SquaddieAffiliation.ENEMY,
+            }),
+            movement: new SquaddieMovement({
+                movementPerAction: 1,
+                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+            }),
+            activities: [
+                new SquaddieActivity({
+                    name: "Bite",
+                    id: "demon_slither_bite",
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                })
+            ],
+        });
+
+        this.squaddieRepo.addDynamicSquaddie("player_young_torrin", new BattleSquaddieDynamic({
+            staticSquaddieId: "player_young_torrin",
+            mapLocation: {q: 0, r: 0},
+            squaddieTurn: new SquaddieTurn()
+        }))
+        this.squaddieRepo.addDynamicSquaddie("player_sir_camil", new BattleSquaddieDynamic({
+            staticSquaddieId: "player_sir_camil",
+            mapLocation: {q: 1, r: 1},
+            squaddieTurn: new SquaddieTurn()
+        }))
+        this.squaddieRepo.addDynamicSquaddie("enemy_demon_slither_0", new BattleSquaddieDynamic({
+            staticSquaddieId: "enemy_demon_slither",
+            mapLocation: {q: 1, r: 2},
+            squaddieTurn: new SquaddieTurn()
+        }))
+        this.battlePhaseTracker = new BattlePhaseTracker();
+        this.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
+            affiliation: SquaddieAffiliation.PLAYER,
+            name: "Crusaders",
+            squaddieRepo: this.squaddieRepo,
+            dynamicSquaddieIds: ["player_young_torrin", "player_sir_camil"],
+        }));
+        this.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
+            affiliation: SquaddieAffiliation.ENEMY,
+            name: "Infiltrators",
+            squaddieRepo: this.squaddieRepo,
+            dynamicSquaddieIds: ["enemy_demon_slither_0"],
+        }));
+        this.battlePhaseTracker.advanceToNextPhase();
+
+        loadMapIconResources(
+            this.resourceHandler,
+            this.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie)
+        )
     }
 
     private prepareMap() {
-        // this.hexMap = new TerrainTileMap({
-        //     movementCost: [
-        //         "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         " 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "    1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "     1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "       1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "        1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "         1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "          1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "           1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "             1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "              1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "               1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "                1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //         "                 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-        //     ],
-        //     resourceHandler: this.resourceHandler,
-        // });
-        //
-        // loadMapTileResources(this.resourceHandler);
-        //
-        // this.missionMap = new MissionMap({
-        //     terrainTileMap: this.hexMap
-        // })
-        //
-        // this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
-        //     const {
-        //         dynamicSquaddie,
-        //         dynamicSquaddieId
-        //     } = info;
-        //
-        //     const {
-        //         staticSquaddie
-        //     } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
-        //
-        //     this.missionMap.addSquaddie(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
-        // })
-        //
-        // this.pathfinder = new Pathfinder();
+        this.hexMap = new TerrainTileMap({
+            movementCost: [
+                "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                " 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "    1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "     1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "       1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "        1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "         1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "          1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "           1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "             1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "              1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "               1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "                1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "                 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+            ],
+            resourceHandler: this.resourceHandler,
+        });
+
+        loadMapTileResources(this.resourceHandler);
+
+        this.missionMap = new MissionMap({
+            terrainTileMap: this.hexMap
+        })
+
+        this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+            const {
+                dynamicSquaddie,
+                dynamicSquaddieId
+            } = info;
+
+            const {
+                staticSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
+
+            this.missionMap.addSquaddie(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
+        })
+
+        this.pathfinder = new Pathfinder();
     }
 
     draw(p: p5) {
-        // if (this.cutscene && this.cutscene.hasLoaded() && !this.cutscene.isInProgress()) {
-        //     this.cutscene.setResources();
-        //     this.cutscene.start();
-        // }
+        if (this.cutscene && this.cutscene.hasLoaded() && !this.cutscene.isInProgress()) {
+            this.cutscene.setResources();
+            this.cutscene.start();
+        }
 
-        // this.loadAndInitializeSquaddieResources();
+        this.loadAndInitializeSquaddieResources();
 
         p.colorMode("hsb", 360, 100, 100, 255)
         p.background(50, 10, 20);
@@ -293,8 +293,8 @@ export class BattleScene {
         this.drawSquaddieMapIcons(p);
 
         if (this.cutscene && this.cutscene.isInProgress()) {
-            // this.cutscene.update();
-            // this.cutscene.draw(p);
+            this.cutscene.update();
+            this.cutscene.draw(p);
         } else {
             this.camera.moveCamera();
             this.camera.constrainCamera();
@@ -304,45 +304,45 @@ export class BattleScene {
     }
 
     private loadAndInitializeSquaddieResources() {
-        // const allSquaddieIconsHaveBeenInitialized = this.squaddieRepo.getDynamicSquaddieIterator().every((info) => {
-        //     const {dynamicSquaddie} = info;
-        //     return dynamicSquaddie.mapIcon;
-        // });
-        //
-        // if (allSquaddieIconsHaveBeenInitialized) {
-        //     return;
-        // }
-        //
-        // if (
-        //     areAllResourcesLoaded(
-        //         this.resourceHandler,
-        //         this.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie)
-        //     )
-        // ) {
-        //     this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
-        //         const {dynamicSquaddie, dynamicSquaddieId} = info;
-        //         const {staticSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-        //
-        //         let image: p5.Image = getResultOrThrowError(
-        //             this.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)
-        //         );
-        //
-        //         const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        //             dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
-        //
-        //         dynamicSquaddie.mapIcon = new ImageUI({
-        //             graphic: image,
-        //             area: new RectArea({
-        //                 left: xyCoords[0],
-        //                 top: xyCoords[1],
-        //                 width: image.width,
-        //                 height: image.height,
-        //                 horizAlign: HORIZ_ALIGN_CENTER,
-        //                 vertAlign: VERT_ALIGN_CENTER
-        //             })
-        //         })
-        //     });
-        // }
+        const allSquaddieIconsHaveBeenInitialized = this.squaddieRepo.getDynamicSquaddieIterator().every((info) => {
+            const {dynamicSquaddie} = info;
+            return dynamicSquaddie.mapIcon;
+        });
+
+        if (allSquaddieIconsHaveBeenInitialized) {
+            return;
+        }
+
+        if (
+            areAllResourcesLoaded(
+                this.resourceHandler,
+                this.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie)
+            )
+        ) {
+            this.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+                const {dynamicSquaddie, dynamicSquaddieId} = info;
+                const {staticSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+
+                let image: p5.Image = getResultOrThrowError(
+                    this.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)
+                );
+
+                const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+                    dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...this.camera.getCoordinates())
+
+                dynamicSquaddie.mapIcon = new ImageUI({
+                    graphic: image,
+                    area: new RectArea({
+                        left: xyCoords[0],
+                        top: xyCoords[1],
+                        width: image.width,
+                        height: image.height,
+                        horizAlign: HORIZ_ALIGN_CENTER,
+                        vertAlign: VERT_ALIGN_CENTER
+                    })
+                })
+            });
+        }
     }
 
     private drawSquaddieMapIcons(p: p5) {
@@ -374,10 +374,10 @@ export class BattleScene {
     }
 
     mouseMoved(mouseX: number, mouseY: number) {
-        // if (this.cutscene && this.cutscene.isInProgress()) {
-        //     this.cutscene.mouseMoved(mouseX, mouseY);
-        //     return;
-        // }
+        if (this.cutscene && this.cutscene.isInProgress()) {
+            this.cutscene.mouseMoved(mouseX, mouseY);
+            return;
+        }
 
         if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.10) {
             this.camera.setXVelocity(-1);
@@ -431,10 +431,10 @@ export class BattleScene {
     }
 
     mouseClicked(mouseX: number, mouseY: number) {
-        // if (this.cutscene && this.cutscene.isInProgress()) {
-        //     this.cutscene.mouseClicked(mouseX, mouseY);
-        //     return;
-        // }
+        if (this.cutscene && this.cutscene.isInProgress()) {
+            this.cutscene.mouseClicked(mouseX, mouseY);
+            return;
+        }
 
         this.updateBattleSquaddieUIMouseClicked(mouseX, mouseY);
         this.hexMap.mouseClicked(mouseX, mouseY, ...this.camera.getCoordinates());

@@ -1,10 +1,11 @@
 import {BattleMissionLoader} from "../battleMissionLoader";
-import {OrchestratorComponent} from "./orchestratorComponent";
+import {OrchestratorComponent, OrchestratorComponentMouseEventType} from "./orchestratorComponent";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../battleCutscenePlayer";
 import {BattleSquaddieSelector} from "../BattleSquaddieSelector";
 import {BattleSquaddieMover} from "../battleSquaddieMover";
 import {BattleMapDisplay} from "../battleMapDisplay";
+import p5 from "p5";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -59,7 +60,7 @@ export class Orchestrator {
         return this.mode;
     }
 
-    public update(state: OrchestratorState) {
+    public update(state: OrchestratorState, p?: p5) {
         const modesToDisplayMap = [
             BattleOrchestratorMode.CUTSCENE_PLAYER,
             BattleOrchestratorMode.SQUADDIE_SELECTOR,
@@ -67,7 +68,7 @@ export class Orchestrator {
         ];
 
         if (modesToDisplayMap.includes(this.mode)) {
-            this.displayBattleMap(state);
+            this.displayBattleMap(state, p);
         }
 
         switch(this.mode) {
@@ -78,17 +79,39 @@ export class Orchestrator {
                 this.updateLoadingMission(state);
                 break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                this.updateCutscenePlayer(state);
+                this.updateCutscenePlayer(state, p);
                 break;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
-                this.updateSquaddieSelector(state);
+                this.updateSquaddieSelector(state, p);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
-                this.updateSquaddieMover(state);
+                this.updateSquaddieMover(state, p);
                 break;
             default:
                 break;
         }
+    }
+
+    public mouseClicked(state: OrchestratorState, mouseX: number, mouseY: number) {
+        this.getCurrentComponent().mouseEventHappened(
+            state,
+            {
+             eventType: OrchestratorComponentMouseEventType.CLICKED,
+             mouseX,
+             mouseY,
+            }
+        )
+    }
+
+    public mouseMoved(state: OrchestratorState, mouseX: number, mouseY: number) {
+        this.getCurrentComponent().mouseEventHappened(
+            state,
+            {
+             eventType: OrchestratorComponentMouseEventType.MOVED,
+             mouseX,
+             mouseY,
+            }
+        )
     }
 
     private updateUnknown(_: OrchestratorState) {
@@ -99,33 +122,34 @@ export class Orchestrator {
         this.missionLoader.update(state);
         if (this.missionLoader.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER;
+            state.displayMap = true;
         }
     }
 
-    private updateCutscenePlayer(state: OrchestratorState) {
-        this.cutscenePlayer.update(state);
+    private updateCutscenePlayer(state: OrchestratorState, p: p5) {
+        this.cutscenePlayer.update(state, p);
         if (this.cutscenePlayer.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.SQUADDIE_SELECTOR;
         }
     }
 
-    private updateSquaddieSelector(state: OrchestratorState) {
-        this.squaddieSelector.update(state);
+    private updateSquaddieSelector(state: OrchestratorState, p: p5) {
+        this.squaddieSelector.update(state, p);
         if (this.squaddieSelector.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.SQUADDIE_MOVER;
         }
     }
 
-    private updateSquaddieMover(state: OrchestratorState) {
-        this.squaddieMover.update(state);
+    private updateSquaddieMover(state: OrchestratorState, p: p5) {
+        this.squaddieMover.update(state, p);
         if (this.squaddieMover.hasCompleted(state)) {
             this.mode = BattleOrchestratorMode.SQUADDIE_SELECTOR;
         }
     }
 
-    private displayBattleMap(state: OrchestratorState) {
+    private displayBattleMap(state: OrchestratorState, p: p5) {
         if (state.displayMap === true) {
-            this.mapDisplay.update(state);
+            this.mapDisplay.update(state, p);
         }
     }
 }

@@ -133,11 +133,7 @@ describe('Battle Orchestrator', () => {
         expect(mockMapDisplay.update).not.toBeCalled();
 
         const squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator = createOrchestrator({
-            squaddieSelector: {
-                update: jest.fn(),
-                mouseEventHappened: jest.fn(),
-                hasCompleted: jest.fn().mockReturnValue(false),
-            },
+            squaddieSelector: mockSquaddieSelector,
             initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
         });
         squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap);
