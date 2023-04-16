@@ -1,5 +1,4 @@
 import p5 from 'p5';
-import {BattleScene} from './battle/battleScene'
 import {ResourceHandler, ResourceType} from "./resource/resourceHandler";
 import {ScreenDimensions} from "./utils/graphicsConfig";
 import {Orchestrator} from "./battle/orchestrator/orchestrator";
@@ -12,8 +11,6 @@ import {BattleCutscenePlayer} from "./battle/battleCutscenePlayer";
 import {BattleSquaddieSelector} from "./battle/BattleSquaddieSelector";
 import {BattleSquaddieMover} from "./battle/battleSquaddieMover";
 import {BattleMapDisplay} from "./battle/battleMapDisplay";
-
-let battleScene: BattleScene;
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -100,95 +97,17 @@ export const sketch = (p: p5) => {
             squaddieMover: new BattleSquaddieMover(),
             mapDisplay: new BattleMapDisplay(),
         });
-
-        // TODO Delete
-        // battleScene = new BattleScene({
-        //     p: p,
-        //     width: ScreenDimensions.SCREEN_WIDTH as NonNegativeNumber,
-        //     height: ScreenDimensions.SCREEN_HEIGHT as NonNegativeNumber,
-        //     resourceHandler: new ResourceHandler({
-        //         p: p,
-        //         allResources: [
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/testPortrait0001.png",
-        //                 key: "crazy pete face",
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/map-icon-young-torrin.png",
-        //                 key: "map icon young torrin",
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/map-icon-sir-camil.png",
-        //                 key: "map icon sir camil",
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/map-icon-demon-slither.png",
-        //                 key: "map icon demon slither",
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/map-icon-move-1-action.png",
-        //                 key: "map icon move 1 action"
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/map-icon-move-2-actions.png",
-        //                 key: "map icon move 2 actions"
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/map-icon-move-3-actions.png",
-        //                 key: "map icon move 3 actions"
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/map-icon-attack-1-action.png",
-        //                 key: "map icon attack 1 action"
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/affiliate-icon-crusaders.png",
-        //                 key: "affiliate icon crusaders"
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/affiliate-icon-infiltrators.png",
-        //                 key: "affiliate icon infiltrators"
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/affiliate-icon-western.png",
-        //                 key: "affiliate icon western"
-        //             },
-        //             {
-        //                 type: ResourceType.IMAGE,
-        //                 path: "assets/affiliate-icon-none.png",
-        //                 key: "affiliate icon none"
-        //             }
-        //         ]
-        //     })
-        // });
     }
 
     p.draw = () => {
-        // TODO Delete
-        // battleScene.draw(p);
         battleOrchestrator.update(battleOrchestratorState, p);
     }
 
     p.mouseClicked = () => {
-        // TODO Delete
-        // battleScene.mouseClicked(p.mouseX, p.mouseY);
         battleOrchestrator.mouseClicked(battleOrchestratorState, p.mouseX, p.mouseY);
     }
 
     p.mouseMoved = () => {
-        // TODO Delete
-        // battleScene.mouseMoved(p.mouseX, p.mouseY);
         battleOrchestrator.mouseMoved(battleOrchestratorState, p.mouseX, p.mouseY);
     }
 }

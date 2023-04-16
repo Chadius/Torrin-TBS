@@ -136,8 +136,9 @@ describe('Battle Orchestrator', () => {
             squaddieSelector: mockSquaddieSelector,
             initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
         });
-        squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap);
         expect(mockMapDisplay.update).toBeCalledTimes(1);
+        squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap);
+        expect(mockMapDisplay.update).toBeCalledTimes(2);
     });
 
     it('will transition from cutscene playing to squaddie selector mode', () => {
