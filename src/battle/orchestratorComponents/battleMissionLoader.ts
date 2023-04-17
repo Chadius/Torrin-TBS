@@ -1,23 +1,23 @@
-import {OrchestratorComponent, OrchestratorComponentMouseEvent} from "./orchestrator/orchestratorComponent";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
-import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {MissionMap} from "../missionMap/missionMap";
-import {getResultOrThrowError} from "../utils/ResultOrError";
-import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
-import {SquaddieId} from "../squaddie/id";
-import {SquaddieResource} from "../squaddie/resource";
-import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {SquaddieMovement} from "../squaddie/movement";
-import {SquaddieActivity} from "../squaddie/activity";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {SquaddieTurn} from "../squaddie/turn";
-import {BattleSquaddieTeam} from "./battleSquaddieTeam";
+import {OrchestratorComponent, OrchestratorComponentMouseEvent} from "../orchestrator/orchestratorComponent";
+import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import {MissionMap} from "../../missionMap/missionMap";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {SquaddieId} from "../../squaddie/id";
+import {SquaddieResource} from "../../squaddie/resource";
+import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {SquaddieMovement} from "../../squaddie/movement";
+import {SquaddieActivity} from "../../squaddie/activity";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {SquaddieTurn} from "../../squaddie/turn";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import p5 from "p5";
-import {convertMapCoordinatesToScreenCoordinates} from "../hexMap/convertCoordinates";
-import {ImageUI} from "../ui/imageUI";
-import {RectArea} from "../ui/rectArea";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../ui/constants";
+import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
+import {ImageUI} from "../../ui/imageUI";
+import {RectArea} from "../../ui/rectArea";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",

@@ -2,8 +2,8 @@ import {
     OrchestratorComponent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "./orchestrator/orchestratorComponent";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
+} from "../orchestrator/orchestratorComponent";
+import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
 
 export class BattleCutscenePlayer implements OrchestratorComponent {

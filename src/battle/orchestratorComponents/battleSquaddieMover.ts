@@ -1,16 +1,16 @@
-import {OrchestratorComponent, OrchestratorComponentMouseEvent} from "./orchestrator/orchestratorComponent";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
-import {BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
-import {HexCoordinate} from "../hexMap/hexGrid";
-import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
+import {OrchestratorComponent, OrchestratorComponentMouseEvent} from "../orchestrator/orchestratorComponent";
+import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
+import {HexCoordinate} from "../../hexMap/hexGrid";
+import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
 import {
     hasMovementAnimationFinished, moveSquaddieAlongPath,
     tintSquaddieIfTurnIsComplete,
     updateSquaddieIconLocation
-} from "./animation/drawSquaddie";
+} from "../animation/drawSquaddie";
 import p5 from "p5";
-import {getResultOrThrowError} from "../utils/ResultOrError";
-import {spendSquaddieActions, updateSquaddieLocation} from "./squaddieMovementLogic";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {spendSquaddieActions, updateSquaddieLocation} from "../squaddieMovementLogic";
 
 export class BattleSquaddieMover implements OrchestratorComponent{
     hasCompleted(state: OrchestratorState): boolean {

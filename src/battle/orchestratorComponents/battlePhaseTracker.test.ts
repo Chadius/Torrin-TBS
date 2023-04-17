@@ -1,12 +1,12 @@
-import {BattleSquaddieTeam} from "./battleSquaddieTeam";
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {SquaddieId} from "../squaddie/id";
-import {NullSquaddieResource} from "../squaddie/resource";
-import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {NullSquaddieMovement} from "../squaddie/movement";
-import {SquaddieTurn} from "../squaddie/turn";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {SquaddieId} from "../../squaddie/id";
+import {NullSquaddieResource} from "../../squaddie/resource";
+import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {NullSquaddieMovement} from "../../squaddie/movement";
+import {SquaddieTurn} from "../../squaddie/turn";
 import {BattlePhaseTracker, BattlePhase} from "./battlePhaseTracker";
 
 describe('battlePhaseTracker', () => {

@@ -2,13 +2,13 @@ import {
     OrchestratorComponent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "./orchestrator/orchestratorComponent";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
+} from "../orchestrator/orchestratorComponent";
+import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
-import {drawHexMap} from "../hexMap/hexDrawingUtils";
-import {BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
-import {drawSquaddieMapIconAtMapLocation} from "./animation/drawSquaddie";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {drawHexMap} from "../../hexMap/hexDrawingUtils";
+import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
+import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
+import {ScreenDimensions} from "../../utils/graphicsConfig";
 
 export class BattleMapDisplay implements OrchestratorComponent{
     draw(state: OrchestratorState, p: p5): void {

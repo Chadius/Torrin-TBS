@@ -1,8 +1,8 @@
 import {BattleMissionLoader} from "./battleMissionLoader";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
-import {ResourceHandler} from "../resource/resourceHandler";
-import {stubImmediateLoader} from "../resource/resourceHandlerTestUtils";
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
+import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {ResourceHandler} from "../../resource/resourceHandler";
+import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 
 describe('BattleMissionLoader', () => {
     let initialState: OrchestratorState;

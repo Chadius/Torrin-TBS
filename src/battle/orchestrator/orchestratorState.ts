@@ -3,7 +3,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattlePhaseTracker} from "../battlePhaseTracker";
+import {BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
 import {Cutscene} from "../../cutscene/cutscene";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";

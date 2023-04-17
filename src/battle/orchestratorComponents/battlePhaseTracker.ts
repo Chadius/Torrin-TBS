@@ -1,5 +1,5 @@
-import {BattleSquaddieTeam} from "./battleSquaddieTeam";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
 export enum BattlePhase {
     UNKNOWN = "UNKNOWN",

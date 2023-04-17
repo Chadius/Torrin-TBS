@@ -2,20 +2,20 @@ import {
     OrchestratorComponent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "./orchestrator/orchestratorComponent";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
-import {convertScreenCoordinatesToMapCoordinates} from "../hexMap/convertCoordinates";
-import {HexCoordinate} from "../hexMap/hexGrid";
-import {BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
-import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
-import {SquaddieId} from "../squaddie/id";
-import {getResultOrThrowError} from "../utils/ResultOrError";
-import {getHighlightedTileDescriptionByNumberOfMovementActions, highlightSquaddieReach} from "./animation/mapHighlight";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {SearchResults} from "../hexMap/pathfinder/searchResults";
-import {SearchParams} from "../hexMap/pathfinder/searchParams";
-import {SearchPath} from "../hexMap/pathfinder/searchPath";
-import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
+} from "../orchestrator/orchestratorComponent";
+import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
+import {HexCoordinate} from "../../hexMap/hexGrid";
+import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
+import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
+import {SquaddieId} from "../../squaddie/id";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {getHighlightedTileDescriptionByNumberOfMovementActions, highlightSquaddieReach} from "../animation/mapHighlight";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {SearchResults} from "../../hexMap/pathfinder/searchResults";
+import {SearchParams} from "../../hexMap/pathfinder/searchParams";
+import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import p5 from "p5";
 
 export class BattleSquaddieSelector implements OrchestratorComponent {

@@ -1,10 +1,10 @@
-import {BattleMissionLoader} from "../battleMissionLoader";
+import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {OrchestratorComponent, OrchestratorComponentMouseEventType} from "./orchestratorComponent";
 import {OrchestratorState} from "./orchestratorState";
-import {BattleCutscenePlayer} from "../battleCutscenePlayer";
-import {BattleSquaddieSelector} from "../BattleSquaddieSelector";
-import {BattleSquaddieMover} from "../battleSquaddieMover";
-import {BattleMapDisplay} from "../battleMapDisplay";
+import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
+import {BattleSquaddieSelector} from "../orchestratorComponents/BattleSquaddieSelector";
+import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
+import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import p5 from "p5";
 
 export enum BattleOrchestratorMode {
