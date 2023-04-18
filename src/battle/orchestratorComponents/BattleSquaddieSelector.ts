@@ -10,7 +10,10 @@ import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
 import {SquaddieId} from "../../squaddie/id";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {getHighlightedTileDescriptionByNumberOfMovementActions, highlightSquaddieReach} from "../animation/mapHighlight";
+import {
+    getHighlightedTileDescriptionByNumberOfMovementActions,
+    highlightSquaddieReach
+} from "../animation/mapHighlight";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
@@ -27,7 +30,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
-        if(event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
+        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             this.updateBattleSquaddieUIMouseClicked(state, event.mouseX, event.mouseY);
             state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
         }
@@ -88,7 +91,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         state.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }
 
-    private updateBattleSquaddieUISelectedSquaddie(state: OrchestratorState,clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
+    private updateBattleSquaddieUISelectedSquaddie(state: OrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         if (
             !state.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
         ) {
@@ -173,5 +176,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         state.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }
 
-    update(state: OrchestratorState, p?: p5): void {}
+    update(state: OrchestratorState, p?: p5): void {
+    }
 }

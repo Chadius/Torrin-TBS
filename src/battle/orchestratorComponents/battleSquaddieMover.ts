@@ -4,7 +4,8 @@ import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {HexCoordinate} from "../../hexMap/hexGrid";
 import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
 import {
-    hasMovementAnimationFinished, moveSquaddieAlongPath,
+    hasMovementAnimationFinished,
+    moveSquaddieAlongPath,
     tintSquaddieIfTurnIsComplete,
     updateSquaddieIconLocation
 } from "../animation/drawSquaddie";
@@ -12,7 +13,7 @@ import p5 from "p5";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {spendSquaddieActions, updateSquaddieLocation} from "../squaddieMovementLogic";
 
-export class BattleSquaddieMover implements OrchestratorComponent{
+export class BattleSquaddieMover implements OrchestratorComponent {
     hasCompleted(state: OrchestratorState): boolean {
         return state.battleSquaddieUIInput.getSelectionState() !== BattleSquaddieUISelectionState.MOVING_SQUADDIE;
     }
@@ -62,10 +63,6 @@ export class BattleSquaddieMover implements OrchestratorComponent{
             updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);
             spendSquaddieActions(dynamicSquaddie, state.squaddieMovePath.getNumberOfMovementActions());
             tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
-
-            if (!state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
-                state.battlePhaseTracker.advanceToNextPhase();
-            }
         } else {
             moveSquaddieAlongPath(dynamicSquaddie, state.animationTimer, state.squaddieMovePath, state.camera);
         }

@@ -11,6 +11,7 @@ import {BattleCutscenePlayer} from "./battle/orchestratorComponents/battleCutsce
 import {BattleSquaddieSelector} from "./battle/orchestratorComponents/BattleSquaddieSelector";
 import {BattleSquaddieMover} from "./battle/orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "./battle/orchestratorComponents/battleMapDisplay";
+import {BattlePhaseController} from "./battle/orchestratorComponents/battlePhaseController";
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -82,7 +83,17 @@ export const sketch = (p: p5) => {
                         type: ResourceType.IMAGE,
                         path: "assets/affiliate-icon-none.png",
                         key: "affiliate icon none"
-                    }
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/phase-banner-player.png",
+                        key: "phase banner player",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/phase-banner-enemy.png",
+                        key: "phase banner enemy",
+                    },
                 ],
             }),
             squaddieRepo: new BattleSquaddieRepository(),
@@ -96,6 +107,7 @@ export const sketch = (p: p5) => {
             squaddieSelector: new BattleSquaddieSelector(),
             squaddieMover: new BattleSquaddieMover(),
             mapDisplay: new BattleMapDisplay(),
+            phaseController: new BattlePhaseController(),
         });
     }
 

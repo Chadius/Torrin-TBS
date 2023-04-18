@@ -24,7 +24,8 @@ describe('BattleMissionLoader', () => {
     });
 
     it('marks it as done when finished loading resources', () => {
-        const initializeSquaddieResources = jest.spyOn(BattleMissionLoader.prototype as any, 'initializeSquaddieResources').mockImplementation(() => {});
+        const initializeSquaddieResources = jest.spyOn(BattleMissionLoader.prototype as any, 'initializeSquaddieResources').mockImplementation(() => {
+        });
         const loader = new BattleMissionLoader();
         expect(loader.hasCompleted(initialState)).toBeFalsy();
         loader.update(initialState);

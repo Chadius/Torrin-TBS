@@ -7,7 +7,7 @@ import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullSquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {BattlePhaseTracker, BattlePhase} from "./battlePhaseTracker";
+import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
 
 describe('battlePhaseTracker', () => {
     let phaseTracker: BattlePhaseTracker;

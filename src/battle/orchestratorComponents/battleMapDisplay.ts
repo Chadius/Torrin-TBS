@@ -10,7 +10,7 @@ import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 
-export class BattleMapDisplay implements OrchestratorComponent{
+export class BattleMapDisplay implements OrchestratorComponent {
     draw(state: OrchestratorState, p: p5): void {
         p.colorMode("hsb", 360, 100, 100, 255)
         p.background(50, 10, 20);
@@ -90,7 +90,7 @@ export class BattleMapDisplay implements OrchestratorComponent{
             state.camera.setYVelocity(0);
         }
     }
-    
+
     update(state: OrchestratorState, p?: p5): void {
         this.draw(state, p);
     }

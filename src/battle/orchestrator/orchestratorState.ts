@@ -3,16 +3,19 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
+import {BattlePhase, BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
 import {Cutscene} from "../../cutscene/cutscene";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {HexCoordinate} from "../../hexMap/hexGrid";
+import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 
 export type OrchestratorStateOptions = {
     displayMap: boolean;
+    bannerDisplayAnimationStartTime: number;
+    bannerAffiliationToShow: BattlePhase;
     resourceHandler: ResourceHandler;
     missionMap: MissionMap;
     hexMap: TerrainTileMap;
@@ -26,6 +29,7 @@ export type OrchestratorStateOptions = {
     animationTimer: number;
     squaddieMovePath: SearchPath;
     clickedHexCoordinate: HexCoordinate;
+    battlePhaseState: BattlePhaseState;
 }
 
 export class OrchestratorState {
@@ -43,6 +47,7 @@ export class OrchestratorState {
     animationTimer: number;
     squaddieMovePath?: SearchPath;
     clickedHexCoordinate?: HexCoordinate;
+    battlePhaseState: BattlePhaseState;
 
     constructor(options: Partial<OrchestratorStateOptions> = {}) {
         this.displayMap = options.displayMap || false;
@@ -68,5 +73,8 @@ export class OrchestratorState {
             squaddieRepository: this.squaddieRepo,
             resourceHandler: this.resourceHandler,
         });
+        this.battlePhaseState = options.battlePhaseState || {
+            bannerPhaseToShow: BattlePhase.UNKNOWN,
+        };
     }
 }

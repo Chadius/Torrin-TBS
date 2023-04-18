@@ -32,6 +32,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
 
     affiliateIconResourceKeys: string[];
     staticSquaddieResourceKeys: string[];
+    bannerImageResourceKeys: string[];
 
     constructor() {
         this.startedLoading = false;
@@ -199,6 +200,12 @@ export class BattleMissionLoader implements OrchestratorComponent {
         this.staticSquaddieResourceKeys = staticSquaddies.map(staticSquaddie => staticSquaddie.squaddieId.resources.mapIconResourceKey);
         state.resourceHandler.loadResources(this.staticSquaddieResourceKeys);
 
+        this.bannerImageResourceKeys = [
+            "phase banner player",
+            "phase banner enemy",
+        ];
+        state.resourceHandler.loadResources(this.bannerImageResourceKeys);
+
         state.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
             const {
                 dynamicSquaddie,
@@ -223,6 +230,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
             ...mapMovementAndAttackIcons,
             ...this.affiliateIconResourceKeys,
             ...this.staticSquaddieResourceKeys,
+            ...this.bannerImageResourceKeys,
         ])) {
             this.initializeSquaddieResources(state);
             this.initializeCameraPosition(state);
@@ -256,7 +264,8 @@ export class BattleMissionLoader implements OrchestratorComponent {
         });
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent) {};
+    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent) {
+    };
 
     hasCompleted(state: OrchestratorState): boolean {
         return this.finishedPreparations;

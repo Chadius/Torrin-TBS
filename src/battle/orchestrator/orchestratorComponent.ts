@@ -15,6 +15,8 @@ export type OrchestratorComponentMouseEvent = {
 
 export interface OrchestratorComponent {
     update(state: OrchestratorState, p?: p5): void;
+
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void;
+
     hasCompleted(state: OrchestratorState): boolean;
 }

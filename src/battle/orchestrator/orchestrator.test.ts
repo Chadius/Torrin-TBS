@@ -5,6 +5,7 @@ import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlay
 import {BattleSquaddieSelector} from "../orchestratorComponents/BattleSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
+import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -12,6 +13,7 @@ describe('Battle Orchestrator', () => {
         cutscenePlayer: BattleCutscenePlayer;
         squaddieSelector: BattleSquaddieSelector;
         squaddieMover: BattleSquaddieMover;
+        phaseController: BattlePhaseController;
 
         initialMode: BattleOrchestratorMode;
     }
@@ -23,6 +25,7 @@ describe('Battle Orchestrator', () => {
     let mockSquaddieSelector: BattleSquaddieSelector;
     let mockSquaddieMover: BattleSquaddieMover;
     let mockMapDisplay: BattleMapDisplay;
+    let mockPhaseController: BattlePhaseController;
 
     let nullState: OrchestratorState;
 
@@ -54,9 +57,15 @@ describe('Battle Orchestrator', () => {
         mockMapDisplay.mouseEventHappened = jest.fn();
         mockMapDisplay.hasCompleted = jest.fn().mockReturnValue(true);
         mockMapDisplay.draw = jest.fn();
+
+        mockPhaseController = new (<new () => BattlePhaseController>BattlePhaseController)() as jest.Mocked<BattlePhaseController>;
+        mockPhaseController.update = jest.fn();
+        mockPhaseController.mouseEventHappened = jest.fn();
+        mockPhaseController.hasCompleted = jest.fn().mockReturnValue(true);
+        mockPhaseController.draw = jest.fn();
     });
 
-    const createOrchestrator:(overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
+    const createOrchestrator: (overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
         const orchestrator: Orchestrator = new Orchestrator({
             ...{
                 missionLoader: mockBattleMissionLoader,
@@ -64,28 +73,32 @@ describe('Battle Orchestrator', () => {
                 squaddieSelector: mockSquaddieSelector,
                 squaddieMover: mockSquaddieMover,
                 mapDisplay: mockMapDisplay,
+                phaseController: mockPhaseController,
             },
             ...overrides
         })
 
-        switch(overrides.initialMode) {
-            case BattleOrchestratorMode.LOADING_MISSION:
+        const updateOrchestrator = (times: number) => {
+            for (let i = 0; i < times; i++) {
                 orchestrator.update(nullState);
+            }
+        }
+
+        switch (overrides.initialMode) {
+            case BattleOrchestratorMode.LOADING_MISSION:
+                updateOrchestrator(1);
                 break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                orchestrator.update(nullState);
-                orchestrator.update(nullState);
+                updateOrchestrator(2);
+                break;
+            case BattleOrchestratorMode.PHASE_CONTROLLER:
+                updateOrchestrator(3);
                 break;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
-                orchestrator.update(nullState);
-                orchestrator.update(nullState);
-                orchestrator.update(nullState);
+                updateOrchestrator(4);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
-                orchestrator.update(nullState);
-                orchestrator.update(nullState);
-                orchestrator.update(nullState);
-                orchestrator.update(nullState);
+                updateOrchestrator(5);
                 break;
             default:
                 break;
@@ -136,14 +149,28 @@ describe('Battle Orchestrator', () => {
             squaddieSelector: mockSquaddieSelector,
             initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
         });
-        expect(mockMapDisplay.update).toBeCalledTimes(1);
+        const updateCallsAfterStateChange: number = (mockMapDisplay.update as jest.Mock).mock.calls.length;
+
+        expect(updateCallsAfterStateChange).toBeGreaterThan(0);
         squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap);
-        expect(mockMapDisplay.update).toBeCalledTimes(2);
+        expect(mockMapDisplay.update).toBeCalledTimes(updateCallsAfterStateChange + 1);
     });
 
-    it('will transition from cutscene playing to squaddie selector mode', () => {
+    it('will transition from cutscene playing to phase controller mode', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+        });
+        orchestrator.update(nullState);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
+        expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController);
+        orchestrator.update(nullState);
+        expect(mockPhaseController.update).toBeCalledTimes(1);
+        expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
+    });
+
+    it('will transition from phase controller to squaddie selector mode', () => {
+        orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
         orchestrator.update(nullState);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
@@ -165,7 +192,7 @@ describe('Battle Orchestrator', () => {
         expect(mockSquaddieMover.hasCompleted).toBeCalledTimes(1);
     });
 
-    it('will move from squaddie move mode to squaddie selector mode', () => {
+    it('will move from squaddie move mode to phase controller mode', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.SQUADDIE_MOVER,
         });
@@ -173,10 +200,10 @@ describe('Battle Orchestrator', () => {
         expect(mockSquaddieSelector.update).toBeCalledTimes(1);
         expect(mockSquaddieSelector.hasCompleted).toBeCalledTimes(1);
         orchestrator.update(nullState);
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
-        expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieSelector);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
+        expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController);
         orchestrator.update(nullState);
-        expect(mockSquaddieSelector.update).toBeCalledTimes(2);
-        expect(mockSquaddieSelector.hasCompleted).toBeCalledTimes(2);
+        expect(mockPhaseController.update).toBeCalledTimes(2);
+        expect(mockPhaseController.hasCompleted).toBeCalledTimes(2);
     });
 });

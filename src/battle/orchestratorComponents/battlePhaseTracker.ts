@@ -10,7 +10,7 @@ export enum BattlePhase {
 }
 
 const squaddieAffiliationToBattlePhase: (squaddieAffiliation: SquaddieAffiliation) => BattlePhase = (squaddieAffiliation: SquaddieAffiliation): BattlePhase => {
-    switch(squaddieAffiliation) {
+    switch (squaddieAffiliation) {
         case SquaddieAffiliation.PLAYER:
             return BattlePhase.PLAYER;
         case SquaddieAffiliation.ENEMY:
@@ -25,7 +25,7 @@ const squaddieAffiliationToBattlePhase: (squaddieAffiliation: SquaddieAffiliatio
 }
 
 const battlePhaseToSquaddieAffiliation: (phase: BattlePhase) => SquaddieAffiliation = (phase: BattlePhase): SquaddieAffiliation => {
-    switch(phase) {
+    switch (phase) {
         case BattlePhase.PLAYER:
             return SquaddieAffiliation.PLAYER;
         case BattlePhase.ENEMY:
@@ -40,8 +40,9 @@ const battlePhaseToSquaddieAffiliation: (phase: BattlePhase) => SquaddieAffiliat
 }
 
 export class BattlePhaseTracker {
-    teamsByAffiliation: {[affiliation in SquaddieAffiliation]? : BattleSquaddieTeam} = {};
+    teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam } = {};
     currentPhase: BattlePhase = BattlePhase.UNKNOWN;
+
     constructor() {
     }
 

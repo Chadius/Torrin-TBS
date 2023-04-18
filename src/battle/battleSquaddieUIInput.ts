@@ -21,7 +21,9 @@ type BattleSquaddieUIInputOptionalOptions = {
     finishedAnimating: boolean;
 }
 
-export type BattleSquaddieUIInputOptions = BattleSquaddieUIInputRequiredOptions & Partial<BattleSquaddieUIInputOptionalOptions>
+export type BattleSquaddieUIInputOptions =
+    BattleSquaddieUIInputRequiredOptions
+    & Partial<BattleSquaddieUIInputOptionalOptions>
 
 export class BattleSquaddieUIInput {
     selectedSquaddieDynamicID?: string;
@@ -47,7 +49,7 @@ export class BattleSquaddieUIInput {
         }
     }
 
-    getSelectionState () {
+    getSelectionState() {
         return this.selectionState;
     }
 }
