@@ -1,5 +1,7 @@
-import {BattleSquaddieDynamic} from "./battleSquaddie";
+import {BattleSquaddieDynamic, BattleSquaddieStatic, canPlayerControlSquaddieRightNow} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
+import {SquaddieId} from "../squaddie/id";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 describe('BattleSquaddie', () => {
     it('throws an error if non integer coordinates are used for dynamic placement', () => {
@@ -50,5 +52,41 @@ describe('BattleSquaddie', () => {
             newTurnSquaddie.beginNewRound();
             expect(newTurnSquaddie.canStillActThisRound()).toBeTruthy();
         })
+    });
+    describe('player control', () => {
+        let playerStaticSquaddie: BattleSquaddieStatic;
+        let newTurnDynamicSquaddie: BattleSquaddieDynamic;
+        beforeEach(() => {
+            playerStaticSquaddie = new BattleSquaddieStatic({
+                squaddieId: new SquaddieId({
+                    name: "player_static_squaddie",
+                    id: "static_squaddie",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            });
+            newTurnDynamicSquaddie = new BattleSquaddieDynamic({
+                staticSquaddieId: "static_squaddie",
+                mapLocation: {q: 0, r: 1},
+                squaddieTurn: new SquaddieTurn(),
+            });
+        });
+        it('knows the player can control the squaddie', () => {
+            expect(canPlayerControlSquaddieRightNow(playerStaticSquaddie, newTurnDynamicSquaddie)).toBeTruthy();
+        });
+        it('knows the player cannot control a squaddie without actions', () => {
+            newTurnDynamicSquaddie.endTurn();
+            expect(canPlayerControlSquaddieRightNow(playerStaticSquaddie, newTurnDynamicSquaddie)).toBeFalsy();
+        });
+        it('knows the player can only control Player Affiliated squaddies', () => {
+            const enemyStaticSquaddie: BattleSquaddieStatic = new BattleSquaddieStatic({
+                squaddieId: new SquaddieId({
+                    name: "enemy_static_squaddie",
+                    id: "static_squaddie",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            });
+
+            expect(canPlayerControlSquaddieRightNow(enemyStaticSquaddie, newTurnDynamicSquaddie)).toBeFalsy();
+        });
     });
 });
