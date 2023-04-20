@@ -43,7 +43,8 @@ export class BattlePhaseTracker {
     teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam } = {};
     currentPhase: BattlePhase = BattlePhase.UNKNOWN;
 
-    constructor() {
+    constructor(startingPhase: BattlePhase = BattlePhase.UNKNOWN) {
+        this.currentPhase = startingPhase;
     }
 
     addTeam(newSquaddieTeam: BattleSquaddieTeam) {

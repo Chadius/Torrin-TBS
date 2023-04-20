@@ -20,6 +20,7 @@ import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import p5 from "p5";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 
 export class BattleSquaddieSelector implements OrchestratorComponent {
     constructor() {
@@ -31,8 +32,11 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.updateBattleSquaddieUIMouseClicked(state, event.mouseX, event.mouseY);
-            state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
+            const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+            if (currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+                this.updateBattleSquaddieUIMouseClicked(state, event.mouseX, event.mouseY);
+                state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
+            }
         }
     }
 
