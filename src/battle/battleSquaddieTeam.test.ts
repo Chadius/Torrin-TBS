@@ -6,19 +6,23 @@ import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {NullSquaddieMovement} from "../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
-import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
 
 describe('Battle Squaddie Team', () => {
-    it('knows at least 1 squaddie can act', () => {
-        const squaddieRepo = new BattleSquaddieRepository();
-        const team: BattleSquaddieTeam = new BattleSquaddieTeam({
+    let squaddieRepo: BattleSquaddieRepository;
+    let twoPlayerTeam: BattleSquaddieTeam;
+    let playerStaticSquaddieBase: BattleSquaddieStatic;
+    let dynamicSquaddie0: BattleSquaddieDynamic;
+    let dynamicSquaddie1: BattleSquaddieDynamic;
+
+    beforeEach(() => {
+        squaddieRepo = new BattleSquaddieRepository();
+        twoPlayerTeam = new BattleSquaddieTeam({
             name: "awesome test team",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepo: squaddieRepo,
         });
-
-        const staticSquaddieBase = new BattleSquaddieStatic({
+        playerStaticSquaddieBase = new BattleSquaddieStatic({
             squaddieId: new SquaddieId({
                 id: "player_young_torrin",
                 name: "Torrin",
@@ -31,37 +35,48 @@ describe('Battle Squaddie Team', () => {
         });
 
         squaddieRepo.addStaticSquaddie(
-            staticSquaddieBase
+            playerStaticSquaddieBase
         );
 
-        squaddieRepo.addDynamicSquaddie(
-            "player_young_torrin_0",
+        dynamicSquaddie0 =
             new BattleSquaddieDynamic({
                 staticSquaddieId: "player_young_torrin",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()
-            })
-        );
+            });
 
         squaddieRepo.addDynamicSquaddie(
-            "player_young_torrin_1",
-            new BattleSquaddieDynamic({
-                staticSquaddieId: "player_young_torrin",
-                mapLocation: {q: 1, r: 0},
-                squaddieTurn: new SquaddieTurn()
-            })
+            "player_young_torrin_0",
+            dynamicSquaddie0
         );
 
-        team.addDynamicSquaddieIds(["player_young_torrin_0", "player_young_torrin_1"])
+        dynamicSquaddie1 = new BattleSquaddieDynamic({
+            staticSquaddieId: "player_young_torrin",
+            mapLocation: {q: 1, r: 0},
+            squaddieTurn: new SquaddieTurn()
+        });
+        squaddieRepo.addDynamicSquaddie(
+            "player_young_torrin_1",
+            dynamicSquaddie1
+        );
+        twoPlayerTeam.addDynamicSquaddieIds(["player_young_torrin_0", "player_young_torrin_1"])
+    });
+    it('knows at least 1 squaddie can act', () => {
+        expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
 
-        expect(team.hasAnActingSquaddie()).toBeTruthy();
-
-        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_young_torrin_0"));
         dynamicSquaddie0.endTurn();
-        expect(team.hasAnActingSquaddie()).toBeTruthy();
+        expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
 
-        const {dynamicSquaddie: dynamicSquaddie1} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_young_torrin_1"));
         dynamicSquaddie1.endTurn();
-        expect(team.hasAnActingSquaddie()).toBeFalsy();
+        expect(twoPlayerTeam.hasAnActingSquaddie()).toBeFalsy();
+    });
+    it('knows if the player can control at least 1 squaddie', () => {
+        expect(twoPlayerTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeTruthy();
+
+        dynamicSquaddie0.endTurn();
+        expect(twoPlayerTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeTruthy();
+
+        dynamicSquaddie1.endTurn();
+        expect(twoPlayerTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeFalsy();
     });
 });

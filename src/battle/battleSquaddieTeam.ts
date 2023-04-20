@@ -1,6 +1,7 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
+import {canPlayerControlSquaddieRightNow} from "./battleSquaddie";
 
 export type BattleSquaddieTeamOptions = {
     name: string;
@@ -46,5 +47,15 @@ export class BattleSquaddieTeam {
             ...this.dynamicSquaddieIds,
             ...dynamicSquaddieIds.filter(notEmptyString => notEmptyString),
         ]
+    }
+
+    canPlayerControlAnySquaddieOnThisTeamRightNow() {
+        return this.dynamicSquaddieIds.some(dynamicSquaddieId => {
+            const {
+                staticSquaddie,
+                dynamicSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            return canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie);
+        })
     }
 }
