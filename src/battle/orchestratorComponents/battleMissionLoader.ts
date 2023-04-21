@@ -281,7 +281,9 @@ export class BattleMissionLoader implements OrchestratorComponent {
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
-        return undefined;
+        return {
+            displayMap: true,
+        }
     }
 
     reset() {

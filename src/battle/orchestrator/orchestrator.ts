@@ -1,5 +1,5 @@
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
-import {OrchestratorComponent, OrchestratorComponentMouseEventType} from "./orchestratorComponent";
+import {OrchestratorChanges, OrchestratorComponent, OrchestratorComponentMouseEventType} from "./orchestratorComponent";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattleSquaddieSelector} from "../orchestratorComponents/BattleSquaddieSelector";
@@ -84,30 +84,34 @@ export class Orchestrator {
                 this.updateUnknown(state);
                 break;
             case BattleOrchestratorMode.LOADING_MISSION:
-                this.updateComponent(state, this.missionLoader, p, BattleOrchestratorMode.CUTSCENE_PLAYER, true);
+                this.updateComponent(state, this.missionLoader, p, BattleOrchestratorMode.CUTSCENE_PLAYER);
                 break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                this.updateComponent(state, this.cutscenePlayer, p, BattleOrchestratorMode.PHASE_CONTROLLER, true);
+                this.updateComponent(state, this.cutscenePlayer, p, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.PHASE_CONTROLLER:
-                this.updateComponent(state, this.phaseController, p, BattleOrchestratorMode.SQUADDIE_SELECTOR, true);
+                this.updateComponent(state, this.phaseController, p, BattleOrchestratorMode.SQUADDIE_SELECTOR);
                 break;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
-                this.updateComponent(state, this.squaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER, true);
+                this.updateComponent(state, this.squaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
-                this.updateComponent(state, this.squaddieMover, p, BattleOrchestratorMode.PHASE_CONTROLLER, true);
+                this.updateComponent(state, this.squaddieMover, p, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             default:
                 break;
         }
     }
 
-    public updateComponent(state: OrchestratorState, currentComponent: OrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode, defaultDisplayMap: boolean = true) {
+    public updateComponent(state: OrchestratorState, currentComponent: OrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode) {
         currentComponent.update(state, p);
         if (currentComponent.hasCompleted(state)) {
-            this.mode = defaultNextMode;
-            state.displayMap = defaultDisplayMap;
+            const orchestrationChanges: OrchestratorChanges = currentComponent.recommendStateChanges(state);
+            this.mode = orchestrationChanges.nextMode || defaultNextMode;
+
+            state.displayMap = orchestrationChanges.displayMap !== undefined
+                ? orchestrationChanges.displayMap
+                : true;
             currentComponent.reset();
         }
     }

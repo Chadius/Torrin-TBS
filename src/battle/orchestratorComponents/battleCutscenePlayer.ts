@@ -38,7 +38,9 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
-        return undefined;
+        return {
+            displayMap: true,
+        }
     }
 
     reset() {
