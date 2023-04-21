@@ -1,5 +1,6 @@
 import {OrchestratorState} from "./orchestratorState";
 import p5 from "p5";
+import {BattleOrchestratorMode} from "./orchestrator";
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -13,10 +14,19 @@ export type OrchestratorComponentMouseEvent = {
     mouseY: number;
 }
 
+export type OrchestratorChanges = {
+    displayMap?: boolean;
+    nextMode?: BattleOrchestratorMode;
+}
+
 export interface OrchestratorComponent {
     update(state: OrchestratorState, p?: p5): void;
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void;
 
     hasCompleted(state: OrchestratorState): boolean;
+
+    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined;
+
+    reset(): void;
 }

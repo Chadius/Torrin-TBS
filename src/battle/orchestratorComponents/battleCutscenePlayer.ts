@@ -1,4 +1,5 @@
 import {
+    OrchestratorChanges,
     OrchestratorComponent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -34,5 +35,12 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
             state.currentCutscene.update();
             state.currentCutscene.draw(p);
         }
+    }
+
+    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+        return undefined;
+    }
+
+    reset() {
     }
 }

@@ -1,4 +1,8 @@
-import {OrchestratorComponent, OrchestratorComponentMouseEvent} from "../orchestrator/orchestratorComponent";
+import {
+    OrchestratorChanges,
+    OrchestratorComponent,
+    OrchestratorComponentMouseEvent
+} from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
 import {BattlePhase} from "./battlePhaseTracker";
@@ -116,5 +120,16 @@ export class BattlePhaseController implements OrchestratorComponent {
             this.bannerImageUI.draw(p);
             this.affiliationImageUI.draw(p);
         }
+    }
+
+    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+        return undefined;
+    }
+
+    reset() {
+        this.bannerImage = undefined;
+        this.bannerImageUI = undefined;
+        this.affiliationImage = undefined;
+        this.affiliationImageUI = undefined;
     }
 }

@@ -1,4 +1,5 @@
 import {
+    OrchestratorChanges,
     OrchestratorComponent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -107,5 +108,13 @@ export class BattleMapDisplay implements OrchestratorComponent {
                     drawSquaddieMapIconAtMapLocation(p, state.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, state.camera);
                 }
             });
+    }
+
+    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+        return undefined;
+    }
+
+    reset() {
+
     }
 }

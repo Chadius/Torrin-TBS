@@ -11,6 +11,7 @@ import {NullSquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController} from "./battlePhaseController";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {ImageUI} from "../../ui/imageUI";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -170,5 +171,14 @@ describe('BattlePhaseController', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME * 0.75);
         battlePhaseController.update(state);
         expect(battlePhaseController.draw).toBeCalledTimes(2);
+    });
+
+    it('resets internal variables once completed', () => {
+        battlePhaseController = new BattlePhaseController();
+        battlePhaseController.affiliationImageUI = new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>;
+
+        expect(battlePhaseController.affiliationImageUI).toBeTruthy();
+        battlePhaseController.reset();
+        expect(battlePhaseController.affiliationImageUI).toBeFalsy();
     });
 });

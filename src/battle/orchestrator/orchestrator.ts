@@ -108,6 +108,7 @@ export class Orchestrator {
         if (currentComponent.hasCompleted(state)) {
             this.mode = defaultNextMode;
             state.displayMap = defaultDisplayMap;
+            currentComponent.reset();
         }
     }
 

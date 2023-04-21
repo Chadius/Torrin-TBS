@@ -1,4 +1,8 @@
-import {OrchestratorComponent, OrchestratorComponentMouseEvent} from "../orchestrator/orchestratorComponent";
+import {
+    OrchestratorChanges,
+    OrchestratorComponent,
+    OrchestratorComponentMouseEvent
+} from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {HexCoordinate} from "../../hexMap/hexGrid";
@@ -67,5 +71,13 @@ export class BattleSquaddieMover implements OrchestratorComponent {
             moveSquaddieAlongPath(dynamicSquaddie, state.animationTimer, state.squaddieMovePath, state.camera);
         }
         dynamicSquaddie.mapIcon.draw(p);
+    }
+
+    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+        return undefined;
+    }
+
+    reset() {
+
     }
 }

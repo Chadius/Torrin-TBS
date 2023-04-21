@@ -1,4 +1,5 @@
 import {
+    OrchestratorChanges,
     OrchestratorComponent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -181,5 +182,13 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     update(state: OrchestratorState, p?: p5): void {
+    }
+
+    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+        return undefined;
+    }
+
+    reset() {
+
     }
 }

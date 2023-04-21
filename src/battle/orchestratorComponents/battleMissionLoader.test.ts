@@ -37,4 +37,21 @@ describe('BattleMissionLoader', () => {
         expect(initializeSquaddieResources).toBeCalled();
         expect(loader.hasCompleted(initialState)).toBeTruthy();
     });
+
+    it('clears internal variables upon reset', () => {
+        const initializeSquaddieResources = jest.spyOn(BattleMissionLoader.prototype as any, 'initializeSquaddieResources').mockImplementation(() => {
+        });
+        const loader = new BattleMissionLoader();
+        loader.update(initialState);
+        loader.update(initialState);
+        loader.update(initialState);
+        expect(initializeSquaddieResources).toBeCalled();
+        expect(loader.hasCompleted(initialState)).toBeTruthy();
+        expect(loader.finishedPreparations).toBeTruthy();
+        expect(loader.startedLoading).toBeTruthy();
+
+        loader.reset();
+        expect(loader.startedLoading).toBeFalsy();
+        expect(loader.finishedPreparations).toBeFalsy();
+    });
 });

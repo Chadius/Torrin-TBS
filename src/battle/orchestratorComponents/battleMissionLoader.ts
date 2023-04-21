@@ -1,4 +1,8 @@
-import {OrchestratorComponent, OrchestratorComponentMouseEvent} from "../orchestrator/orchestratorComponent";
+import {
+    OrchestratorChanges,
+    OrchestratorComponent,
+    OrchestratorComponentMouseEvent
+} from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -274,5 +278,14 @@ export class BattleMissionLoader implements OrchestratorComponent {
     private initializeCameraPosition(state: OrchestratorState) {
         const mapDimensions = state.hexMap.getDimensions();
         state.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
+    }
+
+    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+        return undefined;
+    }
+
+    reset() {
+        this.startedLoading = false;
+        this.finishedPreparations = false;
     }
 }
