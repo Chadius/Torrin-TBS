@@ -206,4 +206,23 @@ describe('Battle Orchestrator', () => {
         expect(mockPhaseController.update).toBeCalledTimes(2);
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(2);
     });
+
+    it('will use the recommended next mode to switch', () => {
+        const battleLoaderRecommendsAMode = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
+        battleLoaderRecommendsAMode.update = jest.fn();
+        battleLoaderRecommendsAMode.mouseEventHappened = jest.fn();
+        battleLoaderRecommendsAMode.hasCompleted = jest.fn().mockReturnValue(true);
+        battleLoaderRecommendsAMode.recommendStateChanges = jest.fn().mockReturnValue({
+            nextMode: BattleOrchestratorMode.SQUADDIE_MOVER
+        });
+
+        const orchestratorJumpsToSquaddieMover = createOrchestrator({
+            missionLoader: battleLoaderRecommendsAMode,
+            initialMode: BattleOrchestratorMode.LOADING_MISSION
+        });
+
+        expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.LOADING_MISSION);
+        orchestratorJumpsToSquaddieMover.update(nullState);
+        expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
+    });
 });
