@@ -84,22 +84,30 @@ export class Orchestrator {
                 this.updateUnknown(state);
                 break;
             case BattleOrchestratorMode.LOADING_MISSION:
-                this.updateLoadingMission(state);
+                this.updateComponent(state, this.missionLoader, p, BattleOrchestratorMode.CUTSCENE_PLAYER, true);
                 break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                this.updateCutscenePlayer(state, p);
+                this.updateComponent(state, this.cutscenePlayer, p, BattleOrchestratorMode.PHASE_CONTROLLER, true);
                 break;
             case BattleOrchestratorMode.PHASE_CONTROLLER:
-                this.updatePhaseController(state, p);
+                this.updateComponent(state, this.phaseController, p, BattleOrchestratorMode.SQUADDIE_SELECTOR, true);
                 break;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
-                this.updateSquaddieSelector(state, p);
+                this.updateComponent(state, this.squaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER, true);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
-                this.updateSquaddieMover(state, p);
+                this.updateComponent(state, this.squaddieMover, p, BattleOrchestratorMode.PHASE_CONTROLLER, true);
                 break;
             default:
                 break;
+        }
+    }
+
+    public updateComponent(state: OrchestratorState, currentComponent: OrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode, defaultDisplayMap: boolean = true) {
+        currentComponent.update(state, p);
+        if (currentComponent.hasCompleted(state)) {
+            this.mode = defaultNextMode;
+            state.displayMap = defaultDisplayMap;
         }
     }
 
@@ -127,42 +135,6 @@ export class Orchestrator {
 
     private updateUnknown(_: OrchestratorState) {
         this.mode = BattleOrchestratorMode.LOADING_MISSION;
-    }
-
-    private updateLoadingMission(state: OrchestratorState) {
-        this.missionLoader.update(state);
-        if (this.missionLoader.hasCompleted(state)) {
-            this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER;
-            state.displayMap = true;
-        }
-    }
-
-    private updateCutscenePlayer(state: OrchestratorState, p: p5) {
-        this.cutscenePlayer.update(state, p);
-        if (this.cutscenePlayer.hasCompleted(state)) {
-            this.mode = BattleOrchestratorMode.PHASE_CONTROLLER;
-        }
-    }
-
-    private updateSquaddieSelector(state: OrchestratorState, p: p5) {
-        this.squaddieSelector.update(state, p);
-        if (this.squaddieSelector.hasCompleted(state)) {
-            this.mode = BattleOrchestratorMode.SQUADDIE_MOVER;
-        }
-    }
-
-    private updateSquaddieMover(state: OrchestratorState, p: p5) {
-        this.squaddieMover.update(state, p);
-        if (this.squaddieMover.hasCompleted(state)) {
-            this.mode = BattleOrchestratorMode.PHASE_CONTROLLER;
-        }
-    }
-
-    private updatePhaseController(state: OrchestratorState, p: p5) {
-        this.phaseController.update(state, p);
-        if (this.phaseController.hasCompleted(state)) {
-            this.mode = BattleOrchestratorMode.SQUADDIE_SELECTOR;
-        }
     }
 
     private displayBattleMap(state: OrchestratorState, p: p5) {
