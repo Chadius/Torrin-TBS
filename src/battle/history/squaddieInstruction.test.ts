@@ -1,4 +1,6 @@
-import {SquaddieEndTurnActivity, SquaddieInstruction, SquaddieMovementActivity} from "./squaddieInstruction";
+import {SquaddieInstruction} from "./squaddieInstruction";
+import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
+import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 
 describe('SquaddieInstruction', () => {
     it('can add a squaddie and location', () => {
