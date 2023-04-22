@@ -89,7 +89,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             staticSquaddie,
             dynamicSquaddie,
             dynamicSquaddieId,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.id, clickedHexCoordinate));
 
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap);
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddieId);
@@ -173,7 +173,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             staticSquaddie,
             dynamicSquaddie,
             dynamicSquaddieId,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIDAndLocation(squaddieID.id, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.id, clickedHexCoordinate));
 
         state.hexMap.stopHighlightingTiles();
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap);

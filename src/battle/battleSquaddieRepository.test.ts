@@ -187,7 +187,7 @@ describe('BattleSquaddieRepository', () => {
             staticSquaddie,
             dynamicSquaddie,
             dynamicSquaddieId,
-        } = getResultOrThrowError(squaddieRepo.getSquaddieByStaticIDAndLocation(
+        } = getResultOrThrowError(squaddieRepo.getSquaddieByStaticIdAndLocation(
             staticSquaddieBase.squaddieId.id,
             {
                 q: dynamicSquaddieBase.mapLocation.q,
@@ -206,7 +206,7 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddieBase
         )
 
-        const resultOrError = squaddieRepo.getSquaddieByStaticIDAndLocation(
+        const resultOrError = squaddieRepo.getSquaddieByStaticIdAndLocation(
             staticSquaddieBase.squaddieId.id,
             {
                 q: dynamicSquaddieBase.mapLocation.q + 1,

@@ -124,6 +124,10 @@ export class TerrainTileMap {
         this.highlightedTiles = {};
     }
 
+    stopOutlineTiles(): void {
+        this.outlineTileCoordinates = undefined;
+    }
+
     private getTileAtLocation(hexCoordinate: HexCoordinate): HexGridTile | undefined {
         return this.tiles.find((tile) =>
             tile.q === hexCoordinate.q && tile.r === hexCoordinate.r

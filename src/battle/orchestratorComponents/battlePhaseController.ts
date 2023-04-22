@@ -61,6 +61,8 @@ export class BattlePhaseController implements OrchestratorComponent {
     }
 
     setBannerImage(state: OrchestratorState, p?: p5) {
+        state.hexMap.stopOutlineTiles();
+
         if (!p) {
             return;
         }
