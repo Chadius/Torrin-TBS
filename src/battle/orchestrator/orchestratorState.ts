@@ -11,6 +11,12 @@ import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSq
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
+import {SquaddieInstruction} from "../history/squaddieInstruction";
+
+export type CurrentSquaddieAnimationState = {
+    instruction: SquaddieInstruction,
+    animationStartTime: number,
+};
 
 export type OrchestratorStateOptions = {
     displayMap: boolean;
@@ -30,6 +36,7 @@ export type OrchestratorStateOptions = {
     squaddieMovePath: SearchPath;
     clickedHexCoordinate: HexCoordinate;
     battlePhaseState: BattlePhaseState;
+    squaddieCurrentlyActing: CurrentSquaddieAnimationState;
 }
 
 export class OrchestratorState {
@@ -48,6 +55,7 @@ export class OrchestratorState {
     squaddieMovePath?: SearchPath;
     clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
+    squaddieCurrentlyActing: CurrentSquaddieAnimationState;
 
     constructor(options: Partial<OrchestratorStateOptions> = {}) {
         this.displayMap = options.displayMap || false;
@@ -76,5 +84,6 @@ export class OrchestratorState {
         this.battlePhaseState = options.battlePhaseState || {
             bannerPhaseToShow: BattlePhase.UNKNOWN,
         };
+        this.squaddieCurrentlyActing = options.squaddieCurrentlyActing || undefined;
     }
 }

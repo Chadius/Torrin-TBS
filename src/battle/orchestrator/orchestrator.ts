@@ -7,6 +7,7 @@ import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import p5 from "p5";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
+import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -15,12 +16,14 @@ export enum BattleOrchestratorMode {
     PHASE_CONTROLLER = "PHASE_CONTROLLER",
     SQUADDIE_SELECTOR = "SQUADDIE_SELECTOR",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
+    SQUADDIE_MAP_ACTIVITY = "SQUADDIE_MAP_ACTIVITY",
 }
 
 type OrchestratorOptions = {
     missionLoader: BattleMissionLoader,
     cutscenePlayer: BattleCutscenePlayer,
     squaddieSelector: BattleSquaddieSelector,
+    squaddieMapActivity: BattleSquaddieMapActivity,
     squaddieMover: BattleSquaddieMover,
     mapDisplay: BattleMapDisplay,
     phaseController: BattlePhaseController,
@@ -32,6 +35,7 @@ export class Orchestrator {
     missionLoader: BattleMissionLoader;
     cutscenePlayer: BattleCutscenePlayer;
     squaddieSelector: BattleSquaddieSelector;
+    squaddieMapActivity: BattleSquaddieMapActivity;
     squaddieMover: BattleSquaddieMover;
     mapDisplay: BattleMapDisplay;
     phaseController: BattlePhaseController;
@@ -41,6 +45,7 @@ export class Orchestrator {
         this.missionLoader = options.missionLoader;
         this.cutscenePlayer = options.cutscenePlayer;
         this.squaddieSelector = options.squaddieSelector;
+        this.squaddieMapActivity = options.squaddieMapActivity;
         this.squaddieMover = options.squaddieMover;
         this.mapDisplay = options.mapDisplay;
         this.phaseController = options.phaseController;
@@ -56,6 +61,8 @@ export class Orchestrator {
                 return this.phaseController;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
                 return this.squaddieSelector;
+            case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
+                return this.squaddieMapActivity;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 return this.squaddieMover;
             default:
@@ -68,14 +75,7 @@ export class Orchestrator {
     }
 
     public update(state: OrchestratorState, p?: p5) {
-        const modesToDisplayMap = [
-            BattleOrchestratorMode.CUTSCENE_PLAYER,
-            BattleOrchestratorMode.SQUADDIE_SELECTOR,
-            BattleOrchestratorMode.SQUADDIE_MOVER,
-            BattleOrchestratorMode.PHASE_CONTROLLER,
-        ];
-
-        if (modesToDisplayMap.includes(this.mode)) {
+        if (state.displayMap && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
             this.displayBattleMap(state, p);
         }
 
@@ -94,6 +94,9 @@ export class Orchestrator {
                 break;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
                 this.updateComponent(state, this.squaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER);
+                break;
+            case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
+                this.updateComponent(state, this.squaddieMapActivity, p, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 this.updateComponent(state, this.squaddieMover, p, BattleOrchestratorMode.PHASE_CONTROLLER);

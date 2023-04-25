@@ -12,6 +12,7 @@ import {BattleSquaddieSelector} from "./battle/orchestratorComponents/BattleSqua
 import {BattleSquaddieMover} from "./battle/orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "./battle/orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "./battle/orchestratorComponents/battlePhaseController";
+import {BattleSquaddieMapActivity} from "./battle/orchestratorComponents/battleSquaddieMapActivity";
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -105,6 +106,7 @@ export const sketch = (p: p5) => {
             missionLoader: new BattleMissionLoader(),
             cutscenePlayer: new BattleCutscenePlayer(),
             squaddieSelector: new BattleSquaddieSelector(),
+            squaddieMapActivity: new BattleSquaddieMapActivity(),
             squaddieMover: new BattleSquaddieMover(),
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
