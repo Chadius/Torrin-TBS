@@ -50,7 +50,7 @@ export class SquaddieInstruction {
         this.activities.push(movementActivity);
     }
 
-    getActivities(): any[] {
+    getActivities(): (SquaddieMovementActivity | SquaddieEndTurnActivity)[] {
         return [...this.activities];
     }
 

@@ -130,7 +130,7 @@ export class BattlePhaseController implements OrchestratorComponent {
         }
     }
 
-    reset() {
+    reset(state: OrchestratorState) {
         this.bannerImage = undefined;
         this.bannerImageUI = undefined;
         this.affiliationImage = undefined;

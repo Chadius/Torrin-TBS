@@ -22,13 +22,18 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import p5 from "p5";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
+import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {SquaddieInstruction} from "../history/squaddieInstruction";
 
 export class BattleSquaddieSelector implements OrchestratorComponent {
     constructor() {
     }
 
     hasCompleted(state: OrchestratorState): boolean {
-        return state.battleSquaddieUIInput.getSelectionState() === BattleSquaddieUISelectionState.MOVING_SQUADDIE;
+        return state.squaddieCurrentlyActing
+            && ![null, undefined].includes(state.squaddieCurrentlyActing.instruction)
+            && state.squaddieCurrentlyActing.animationStartTime !== undefined;
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
@@ -157,7 +162,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         }
 
         state.squaddieMovePath = closestRoute;
-        state.animationTimer = Date.now();
         let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
 
         const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions);
@@ -166,6 +170,35 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
         state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
+
+        this.addMovementInstruction(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
+    }
+
+    private addMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
+        if (!state.squaddieCurrentlyActing) {
+            const {dynamicSquaddieId} = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(staticSquaddie.squaddieId.id, {
+                q: dynamicSquaddie.mapLocation.q,
+                r: dynamicSquaddie.mapLocation.r,
+            }));
+
+            state.squaddieCurrentlyActing = {
+                instruction: new SquaddieInstruction({
+                    staticSquaddieId: staticSquaddie.squaddieId.id,
+                    dynamicSquaddieId,
+                    startingLocation: {
+                        q: dynamicSquaddie.mapLocation.q,
+                        r: dynamicSquaddie.mapLocation.r,
+                    },
+                }),
+                animationStartTime: Date.now(),
+            };
+        }
+
+        state.squaddieCurrentlyActing.instruction.addMovement(new SquaddieMovementActivity({
+            destination: destinationHexCoordinate,
+            numberOfActionsSpent: 1,
+        }));
+        state.squaddieCurrentlyActing.animationStartTime = Date.now();
     }
 
     private focusOnSelectedSquaddie(state: OrchestratorState, squaddieID: SquaddieId, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -185,12 +218,20 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+        let nextMode: BattleOrchestratorMode = undefined;
+        let newActivity = state.squaddieCurrentlyActing.instruction.getActivities().reverse()[0];
+
+        if (newActivity instanceof SquaddieMovementActivity) {
+            nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
+        }
+
         return {
             displayMap: true,
+            nextMode,
         }
     }
 
-    reset() {
+    reset(state: OrchestratorState) {
 
     }
 }

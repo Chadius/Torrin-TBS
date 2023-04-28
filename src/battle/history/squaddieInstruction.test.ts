@@ -54,8 +54,11 @@ describe('SquaddieInstruction', () => {
 
         const activitiesAfterOneMovement = instruction.getActivities();
         expect(activitiesAfterOneMovement).toHaveLength(1);
-        expect(activitiesAfterOneMovement[0].destination).toStrictEqual({q: 1, r: 2});
-        expect(activitiesAfterOneMovement[0].numberOfActionsSpent).toBe(2);
+
+        expect(activitiesAfterOneMovement[0]).toBeInstanceOf(SquaddieMovementActivity);
+        const moveActivity: SquaddieMovementActivity = activitiesAfterOneMovement[0] as SquaddieMovementActivity;
+        expect(moveActivity.destination).toStrictEqual({q: 1, r: 2});
+        expect(moveActivity.numberOfActionsSpent).toBe(2);
 
         instruction.addMovement(new SquaddieMovementActivity({
             destination: {q: 2, r: 2},

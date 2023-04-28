@@ -178,7 +178,7 @@ describe('BattlePhaseController', () => {
         battlePhaseController.affiliationImageUI = new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>;
 
         expect(battlePhaseController.affiliationImageUI).toBeTruthy();
-        battlePhaseController.reset();
+        battlePhaseController.reset(new OrchestratorState());
         expect(battlePhaseController.affiliationImageUI).toBeFalsy();
     });
 });

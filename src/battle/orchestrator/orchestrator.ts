@@ -115,7 +115,7 @@ export class Orchestrator {
             state.displayMap = orchestrationChanges.displayMap !== undefined
                 ? orchestrationChanges.displayMap
                 : true;
-            currentComponent.reset();
+            currentComponent.reset(state);
         }
     }
 

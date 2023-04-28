@@ -22,7 +22,7 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
         }
     }
 
-    reset(): void {
+    reset(state: OrchestratorState): void {
     }
 
     update(state: OrchestratorState, p?: p5): void {

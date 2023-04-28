@@ -7,6 +7,8 @@ import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
+import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -122,8 +124,20 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will call the battle map display system if not loading', () => {
+        const instruction: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "new static squaddie",
+            dynamicSquaddieId: "new dynamic squaddie",
+            startingLocation: {q: 0, r: 0}
+        });
+        instruction.addMovement(new SquaddieMovementActivity({
+            destination: {q: 1, r: 2},
+            numberOfActionsSpent: 2,
+        }));
         const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
             displayMap: true,
+            squaddieCurrentlyActing: {
+                instruction,
+            }
         });
 
         const loadingOrchestratorShouldNotDraw: Orchestrator = createOrchestrator({
@@ -160,6 +174,19 @@ describe('Battle Orchestrator', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
+        const instruction: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "new static squaddie",
+            dynamicSquaddieId: "new dynamic squaddie",
+            startingLocation: {q: 0, r: 0}
+        });
+        instruction.addMovement(new SquaddieMovementActivity({
+            destination: {q: 1, r: 2},
+            numberOfActionsSpent: 2,
+        }));
+        nullState.squaddieCurrentlyActing = {
+            instruction,
+        };
+
         orchestrator.update(nullState);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieSelector);
@@ -172,6 +199,18 @@ describe('Battle Orchestrator', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
         });
+        const instruction: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "new static squaddie",
+            dynamicSquaddieId: "new dynamic squaddie",
+            startingLocation: {q: 0, r: 0}
+        });
+        instruction.addMovement(new SquaddieMovementActivity({
+            destination: {q: 1, r: 2},
+            numberOfActionsSpent: 2,
+        }));
+        nullState.squaddieCurrentlyActing = {
+            instruction,
+        };
         orchestrator.update(nullState);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMover);

@@ -43,6 +43,6 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
         }
     }
 
-    reset() {
+    reset(state: OrchestratorState) {
     }
 }

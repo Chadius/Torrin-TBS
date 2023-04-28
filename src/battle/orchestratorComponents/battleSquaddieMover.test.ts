@@ -16,6 +16,8 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
+import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -79,13 +81,27 @@ describe('BattleSquaddieMover', () => {
                     missionMap: map,
                 }))
             ).getRouteToStopLocation());
+
+        const moveActivity: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "player_static_0",
+            dynamicSquaddieId: "player_dynamic_0",
+            startingLocation: {q: 0, r: 0},
+        });
+        moveActivity.addMovement(new SquaddieMovementActivity({
+            destination: {q: 1, r: 1},
+            numberOfActionsSpent: 1,
+        }));
+
         const state: OrchestratorState = new OrchestratorState({
             squaddieRepo,
             battleSquaddieUIInput: uiInput,
             pathfinder,
             squaddieMovePath: movePath,
-            animationTimer: 0,
             hexMap: map.terrainTileMap,
+            squaddieCurrentlyActing: {
+                instruction: moveActivity,
+                animationStartTime: 0,
+            }
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
         expect(mover.hasCompleted(state)).toBeFalsy();
@@ -93,5 +109,7 @@ describe('BattleSquaddieMover', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0 + TIME_TO_MOVE);
         mover.update(state);
         expect(mover.hasCompleted(state)).toBeTruthy();
+        mover.reset(state);
+        expect(state.squaddieCurrentlyActing.animationStartTime).toBeUndefined();
     });
 });

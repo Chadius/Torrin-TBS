@@ -40,7 +40,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
                 missionMap: state.missionMap,
                 squaddieRepository: state.squaddieRepo,
                 selectedSquaddieDynamicID: state.battleSquaddieUIInput.selectedSquaddieDynamicID,
-                finishedAnimating: hasMovementAnimationFinished(state.animationTimer, state.squaddieMovePath),
+                finishedAnimating: hasMovementAnimationFinished(state.squaddieCurrentlyActing.animationStartTime, state.squaddieMovePath),
             }
         );
 
@@ -62,13 +62,13 @@ export class BattleSquaddieMover implements OrchestratorComponent {
             state.battleSquaddieUIInput.selectedSquaddieDynamicID
         ));
 
-        if (hasMovementAnimationFinished(state.animationTimer, state.squaddieMovePath)) {
+        if (hasMovementAnimationFinished(state.squaddieCurrentlyActing.animationStartTime, state.squaddieMovePath)) {
             updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap);
             updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);
             spendSquaddieActions(dynamicSquaddie, state.squaddieMovePath.getNumberOfMovementActions());
             tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
         } else {
-            moveSquaddieAlongPath(dynamicSquaddie, state.animationTimer, state.squaddieMovePath, state.camera);
+            moveSquaddieAlongPath(dynamicSquaddie, state.squaddieCurrentlyActing.animationStartTime, state.squaddieMovePath, state.camera);
         }
         dynamicSquaddie.mapIcon.draw(p);
     }
@@ -79,7 +79,9 @@ export class BattleSquaddieMover implements OrchestratorComponent {
         }
     }
 
-    reset() {
-
+    reset(state: OrchestratorState) {
+        if (state && state.squaddieCurrentlyActing) {
+            state.squaddieCurrentlyActing.animationStartTime = undefined;
+        }
     }
 }

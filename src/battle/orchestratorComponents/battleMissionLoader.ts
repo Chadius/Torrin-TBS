@@ -286,7 +286,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         }
     }
 
-    reset() {
+    reset(state: OrchestratorState) {
         this.startedLoading = false;
         this.finishedPreparations = false;
     }

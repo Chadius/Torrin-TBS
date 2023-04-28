@@ -15,7 +15,7 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 
 export type CurrentSquaddieAnimationState = {
     instruction: SquaddieInstruction,
-    animationStartTime: number,
+    animationStartTime?: number,
 };
 
 export type OrchestratorStateOptions = {
@@ -32,7 +32,6 @@ export type OrchestratorStateOptions = {
     currentCutscene: Cutscene;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleSquaddieUIInput: BattleSquaddieUIInput;
-    animationTimer: number;
     squaddieMovePath: SearchPath;
     clickedHexCoordinate: HexCoordinate;
     battlePhaseState: BattlePhaseState;
@@ -51,7 +50,6 @@ export class OrchestratorState {
     currentCutscene: Cutscene;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleSquaddieUIInput: BattleSquaddieUIInput;
-    animationTimer: number;
     squaddieMovePath?: SearchPath;
     clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
@@ -62,12 +60,12 @@ export class OrchestratorState {
         this.resourceHandler = options.resourceHandler;
         this.hexMap = options.hexMap;
         this.displayMap = options.displayMap;
+        this.missionMap = options.missionMap;
         this.pathfinder = options.pathfinder;
         this.squaddieRepo = options.squaddieRepo;
         this.battlePhaseTracker = options.battlePhaseTracker || new BattlePhaseTracker();
         this.camera = options.camera || new BattleCamera();
         this.currentCutscene = options.currentCutscene;
-        this.animationTimer = options.animationTimer || 0;
         this.squaddieMovePath = options.squaddieMovePath || undefined;
         this.clickedHexCoordinate = options.clickedHexCoordinate || undefined;
 

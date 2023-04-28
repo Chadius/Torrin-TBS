@@ -28,5 +28,5 @@ export interface OrchestratorComponent {
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined;
 
-    reset(): void;
+    reset(state: OrchestratorState): void;
 }

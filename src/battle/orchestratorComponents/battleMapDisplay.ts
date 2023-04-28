@@ -114,7 +114,6 @@ export class BattleMapDisplay implements OrchestratorComponent {
         return undefined;
     }
 
-    reset() {
-
+    reset(state: OrchestratorState) {
     }
 }
