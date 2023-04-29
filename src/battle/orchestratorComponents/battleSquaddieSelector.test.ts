@@ -104,6 +104,28 @@ describe('BattleSquaddieSelector', () => {
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
     });
 
+    it('recommends squaddie map activity if the last action was end turn', () => {
+        const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "player_static_0",
+            dynamicSquaddieId: "player_dynamic_0",
+            startingLocation: {q: 0, r: 0},
+        });
+        endTurnActivity.endTurn();
+
+        const state: OrchestratorState = new OrchestratorState({
+            squaddieCurrentlyActing: {
+                instruction: endTurnActivity,
+                animationStartTime: 0,
+            }
+        });
+
+        selector.update(state);
+
+        expect(selector.hasCompleted(state)).toBeTruthy();
+        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+    });
+
     it('can make a movement activity by clicking on the field', () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({

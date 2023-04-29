@@ -25,6 +25,7 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 
 export class BattleSquaddieSelector implements OrchestratorComponent {
     constructor() {
@@ -223,6 +224,9 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         if (newActivity instanceof SquaddieMovementActivity) {
             nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
+        }
+        if (newActivity instanceof SquaddieEndTurnActivity) {
+            nextMode = BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY;
         }
 
         return {
