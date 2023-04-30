@@ -7,6 +7,7 @@ import {NullSquaddieMovement} from "../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
+import {ImageUI} from "../ui/imageUI";
 
 describe('Battle Squaddie Team', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -47,7 +48,8 @@ describe('Battle Squaddie Team', () => {
             new BattleSquaddieDynamic({
                 staticSquaddieId: "player_young_torrin",
                 mapLocation: {q: 0, r: 0},
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn(),
+                mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
             });
 
         squaddieRepo.addDynamicSquaddie(
@@ -58,7 +60,8 @@ describe('Battle Squaddie Team', () => {
         dynamicSquaddie1 = new BattleSquaddieDynamic({
             staticSquaddieId: "player_young_torrin",
             mapLocation: {q: 1, r: 0},
-            squaddieTurn: new SquaddieTurn()
+            squaddieTurn: new SquaddieTurn(),
+            mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });
         squaddieRepo.addDynamicSquaddie(
             "player_young_torrin_1",
@@ -134,5 +137,17 @@ describe('Battle Squaddie Team', () => {
         enemyDynamicSquaddie0.endTurn();
 
         expect(twoEnemyTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled()).toBe("enemy_slither_demon_1");
+    });
+    describe('begin new round', () => {
+        it('can restore actions to the team upon beginning a round', () => {
+            dynamicSquaddie0.endTurn();
+            dynamicSquaddie1.endTurn();
+            expect(twoPlayerTeam.hasAnActingSquaddie()).toBeFalsy();
+
+            twoPlayerTeam.beginNewRound();
+            expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
+            expect(dynamicSquaddie0.canStillActThisRound()).toBeTruthy();
+            expect(dynamicSquaddie1.canStillActThisRound()).toBeTruthy();
+        });
     });
 });

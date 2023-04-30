@@ -28,20 +28,18 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 
 export class BattleSquaddieSelector implements OrchestratorComponent {
+    gaveInstruction: boolean;
+
     constructor() {
+        this.gaveInstruction = false;
     }
 
     hasCompleted(state: OrchestratorState): boolean {
-        return this.gaveInstruction(state) || !this.atLeastOneSquaddieOnCurrentTeamCanAct(state);
+        return this.gaveInstruction || !this.atLeastOneSquaddieOnCurrentTeamCanAct(state);
     }
 
     private atLeastOneSquaddieOnCurrentTeamCanAct(state: OrchestratorState): boolean {
-        return state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()
-    }
-
-    private gaveInstruction(state: OrchestratorState): boolean {
-        return state.squaddieCurrentlyActing
-            && ![null, undefined].includes(state.squaddieCurrentlyActing.instruction);
+        return state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie();
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
@@ -205,6 +203,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             destination: destinationHexCoordinate,
             numberOfActionsSpent: 1,
         }));
+        this.gaveInstruction = true;
     }
 
     private focusOnSelectedSquaddie(state: OrchestratorState, squaddieID: SquaddieId, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -239,13 +238,14 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             state.squaddieCurrentlyActing = {
                 instruction: endTurnActivity,
             }
+            this.gaveInstruction = true;
         }
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode = undefined;
 
-        if (this.gaveInstruction(state)) {
+        if (this.gaveInstruction) {
             let newActivity = state.squaddieCurrentlyActing.instruction.getActivities().reverse()[0];
 
             if (newActivity instanceof SquaddieMovementActivity) {
@@ -254,7 +254,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             if (newActivity instanceof SquaddieEndTurnActivity) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY;
             }
-        } else if(!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
+        } else if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
             nextMode = BattleOrchestratorMode.PHASE_CONTROLLER;
         }
 
@@ -265,6 +265,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     reset(state: OrchestratorState) {
-
+        this.gaveInstruction = false;
     }
 }

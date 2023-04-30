@@ -2,6 +2,7 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {canPlayerControlSquaddieRightNow} from "./battleSquaddie";
+import {unTintSquaddieMapIcon} from "./animation/drawSquaddie";
 
 export type BattleSquaddieTeamOptions = {
     name: string;
@@ -67,5 +68,16 @@ export class BattleSquaddieTeam {
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
             return !canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie) && dynamicSquaddie.canStillActThisRound();
         })
+    }
+
+    beginNewRound() {
+        this.dynamicSquaddieIds.forEach((dynamicSquaddieId => {
+            const {
+                staticSquaddie,
+                dynamicSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            dynamicSquaddie.beginNewRound();
+            unTintSquaddieMapIcon(staticSquaddie, dynamicSquaddie);
+        }));
     }
 }

@@ -143,39 +143,12 @@ describe('BattleSquaddieSelector', () => {
         expect(mockHexMap.mouseClicked).not.toBeCalled();
     });
 
-    it('recommends squaddie mover if the last action was a movement', () => {
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam();
-        const moveActivity: SquaddieInstruction = makeSquaddieMoveActivity("player_static_0", "player_dynamic_0");
+    it('recommends squaddie map activity if the player cannot control the squaddies', () => {
+        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam();
 
         const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: {
-                instruction: moveActivity,
-            },
             battlePhaseTracker,
-        });
-
-        selector.update(state);
-
-        expect(selector.hasCompleted(state)).toBeTruthy();
-        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
-        expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
-    });
-
-    it('recommends squaddie map activity if the last action was end turn', () => {
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam();
-
-        const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
-            staticSquaddieId: "player_static_0",
-            dynamicSquaddieId: "player_dynamic_0",
-            startingLocation: {q: 0, r: 0},
-        });
-        endTurnActivity.endTurn();
-
-        const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: {
-                instruction: endTurnActivity,
-            },
-            battlePhaseTracker,
+            squaddieRepo,
         });
 
         selector.update(state);

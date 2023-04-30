@@ -18,6 +18,10 @@ export const tintSquaddieMapIconTurnComplete = (staticSquaddie: BattleSquaddieSt
     dynamicSquaddie.mapIcon.setTint(squaddieAffiliationHue, 50, 50, 192);
 }
 
+export const unTintSquaddieMapIcon = (staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) => {
+    dynamicSquaddie.mapIcon.removeTint();
+}
+
 export const drawSquaddieMapIconAtMapLocation = (p: p5, squaddieRepo: BattleSquaddieRepository, dynamicSquaddie: BattleSquaddieDynamic, dynamicSquaddieId: string, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...camera.getCoordinates())

@@ -190,7 +190,6 @@ export class BattleMissionLoader implements OrchestratorComponent {
             squaddieRepo: state.squaddieRepo,
             dynamicSquaddieIds: ["enemy_demon_slither_0"],
         }));
-        state.battlePhaseTracker.advanceToNextPhase();
 
         this.affiliateIconResourceKeys = [
             "affiliate icon crusaders",

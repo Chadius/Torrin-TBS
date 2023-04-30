@@ -5,7 +5,6 @@ import {
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
-import {spendSquaddieActions} from "../squaddieMovementLogic";
 import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -39,7 +38,10 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
     update(state: OrchestratorState, p?: p5): void {
         if (this.animationCompleteStartTime === undefined) {
             const dynamicSquaddieId = state.squaddieCurrentlyActing.instruction.getDynamicSquaddieId();
-            const { dynamicSquaddie, staticSquaddie} = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            const {
+                dynamicSquaddie,
+                staticSquaddie
+            } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
 
             const mostRecentActivity = state.squaddieCurrentlyActing.instruction.getMostRecentActivity();
 
