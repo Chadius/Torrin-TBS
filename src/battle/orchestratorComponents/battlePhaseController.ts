@@ -14,7 +14,6 @@ import {ScreenDimensions} from "../../utils/graphicsConfig";
 export const BANNER_ANIMATION_TIME = 2000;
 
 export type BattlePhaseState = {
-    bannerDisplayAnimationStartTime?: number;
     bannerPhaseToShow: BattlePhase;
 }
 
@@ -23,13 +22,23 @@ export class BattlePhaseController implements OrchestratorComponent {
     bannerImageUI: ImageUI;
     affiliationImage: p5.Image;
     affiliationImageUI: ImageUI;
+    bannerDisplayAnimationStartTime?: number;
+    newBannerShown: boolean;
+
+    constructor() {
+        this.newBannerShown = false;
+    }
 
     hasCompleted(state: OrchestratorState): boolean {
-        if (state.battlePhaseState.bannerDisplayAnimationStartTime === undefined) {
+        if (!this.newBannerShown && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
+            return true;
+        }
+
+        if (this.bannerDisplayAnimationStartTime === undefined) {
             return false;
         }
 
-        if (Date.now() - state.battlePhaseState.bannerDisplayAnimationStartTime < BANNER_ANIMATION_TIME) {
+        if (Date.now() - this.bannerDisplayAnimationStartTime < BANNER_ANIMATION_TIME) {
             return false;
         }
 
@@ -40,23 +49,23 @@ export class BattlePhaseController implements OrchestratorComponent {
     }
 
     update(state: OrchestratorState, p?: p5): void {
-        if (state.battlePhaseState.bannerDisplayAnimationStartTime !== undefined && Date.now() - state.battlePhaseState.bannerDisplayAnimationStartTime < BANNER_ANIMATION_TIME) {
+        if (!this.newBannerShown && state.battlePhaseTracker.getCurrentPhase() !== BattlePhase.UNKNOWN && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
+            return;
+        }
+
+        if (this.bannerDisplayAnimationStartTime !== undefined && Date.now() - this.bannerDisplayAnimationStartTime < BANNER_ANIMATION_TIME) {
             this.draw(state, p);
             return;
         }
 
-        if (state.battlePhaseState.bannerDisplayAnimationStartTime === undefined) {
-            state.battlePhaseState.bannerDisplayAnimationStartTime = Date.now();
-            state.battlePhaseState.bannerPhaseToShow = state.battlePhaseTracker.getCurrentPhase();
-            this.setBannerImage(state, p);
-            return;
-        }
-
-        if (!state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
-            state.battlePhaseState.bannerDisplayAnimationStartTime = Date.now();
+        if (state.battlePhaseTracker.getCurrentPhase() === BattlePhase.UNKNOWN || !state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
+            this.newBannerShown = true;
             state.battlePhaseTracker.advanceToNextPhase();
+            this.bannerDisplayAnimationStartTime = Date.now();
             state.battlePhaseState.bannerPhaseToShow = state.battlePhaseTracker.getCurrentPhase();
             this.setBannerImage(state, p);
+
+            state.battlePhaseTracker.getCurrentTeam().beginNewRound();
         }
     }
 
@@ -135,5 +144,7 @@ export class BattlePhaseController implements OrchestratorComponent {
         this.bannerImageUI = undefined;
         this.affiliationImage = undefined;
         this.affiliationImageUI = undefined;
+        this.bannerDisplayAnimationStartTime = undefined;
+        this.newBannerShown = false;
     }
 }

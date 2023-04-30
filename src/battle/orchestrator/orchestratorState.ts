@@ -15,7 +15,6 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 
 export type CurrentSquaddieAnimationState = {
     instruction: SquaddieInstruction,
-    animationStartTime?: number,
 };
 
 export type OrchestratorStateOptions = {

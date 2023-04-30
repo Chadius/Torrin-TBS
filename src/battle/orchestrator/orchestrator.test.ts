@@ -2,7 +2,7 @@ import {BattleOrchestratorMode, Orchestrator} from "./orchestrator";
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
-import {BattleSquaddieSelector} from "../orchestratorComponents/BattleSquaddieSelector";
+import {BattleSquaddieSelector} from "../orchestratorComponents/battleSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
@@ -51,6 +51,7 @@ describe('Battle Orchestrator', () => {
         mockSquaddieSelector.update = jest.fn();
         mockSquaddieSelector.mouseEventHappened = jest.fn();
         mockSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
+        mockSquaddieSelector.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
 
         mockSquaddieMover = new (<new () => BattleSquaddieMover>BattleSquaddieMover)() as jest.Mocked<BattleSquaddieMover>;
         mockSquaddieMover.update = jest.fn();
@@ -211,6 +212,7 @@ describe('Battle Orchestrator', () => {
         nullState.squaddieCurrentlyActing = {
             instruction,
         };
+
         orchestrator.update(nullState);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMover);

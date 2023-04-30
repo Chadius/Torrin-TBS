@@ -100,7 +100,6 @@ describe('BattleSquaddieMover', () => {
             hexMap: map.terrainTileMap,
             squaddieCurrentlyActing: {
                 instruction: moveActivity,
-                animationStartTime: 0,
             }
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -110,6 +109,6 @@ describe('BattleSquaddieMover', () => {
         mover.update(state);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
-        expect(state.squaddieCurrentlyActing.animationStartTime).toBeUndefined();
+        expect(mover.animationStartTime).toBeUndefined();
     });
 });

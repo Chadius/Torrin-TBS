@@ -19,7 +19,6 @@ describe('BattlePhaseController', () => {
     let battlePhaseController: BattlePhaseController;
     let playerSquaddieTeam: BattleSquaddieTeam;
     let enemySquaddieTeam: BattleSquaddieTeam;
-    let startTime: number;
     let diffTime: number;
     let state: OrchestratorState;
 
@@ -44,7 +43,8 @@ describe('BattlePhaseController', () => {
             new BattleSquaddieDynamic({
                 staticSquaddieId: "player_squaddie",
                 mapLocation: {q: 0, r: 0},
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn(),
+                mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
             })
         );
 
@@ -66,7 +66,8 @@ describe('BattlePhaseController', () => {
             new BattleSquaddieDynamic({
                 staticSquaddieId: "enemy_squaddie",
                 mapLocation: {q: 1, r: 0},
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn(),
+                mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
             })
         );
 
@@ -86,16 +87,13 @@ describe('BattlePhaseController', () => {
         battlePhaseTracker = new BattlePhaseTracker();
         battlePhaseTracker.addTeam(playerSquaddieTeam);
         battlePhaseTracker.addTeam(enemySquaddieTeam);
-        battlePhaseTracker.advanceToNextPhase();
 
-        startTime = 100;
         diffTime = 100;
 
         state = new OrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             battlePhaseState: {
-                bannerDisplayAnimationStartTime: startTime,
                 bannerPhaseToShow: BattlePhase.UNKNOWN,
             }
         });
@@ -104,14 +102,14 @@ describe('BattlePhaseController', () => {
         battlePhaseController.draw = jest.fn();
     });
 
-    it('sets the next state to selected squaddie and does not change phase if team has not finished their turns', () => {
-        jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME);
+    it('does nothing and finishes immediately if team has not finished their turn', () => {
+        battlePhaseTracker.advanceToNextPhase();
+        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
 
         battlePhaseController.update(state);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
         expect(battlePhaseController.draw).not.toBeCalled();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
-        expect(state.battlePhaseState.bannerDisplayAnimationStartTime).toBe(startTime);
     });
 
     it('starts showing the player phase banner by default', () => {
@@ -126,7 +124,7 @@ describe('BattlePhaseController', () => {
         battlePhaseController.update(state);
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
-        expect(state.battlePhaseState.bannerDisplayAnimationStartTime).toBe(startTime);
+        expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(startTime);
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
         battlePhaseController.update(state);
@@ -135,15 +133,19 @@ describe('BattlePhaseController', () => {
     });
 
     it('starts the animation and completes if team has finished their turns', () => {
+        battlePhaseTracker.advanceToNextPhase();
+        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+
         const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_squaddie_0"));
         dynamicSquaddie0.endTurn();
 
+        const startTime = 100;
+        jest.spyOn(Date, 'now').mockImplementation(() => startTime);
         battlePhaseController.update(state);
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.ENEMY);
-        expect(state.battlePhaseState.bannerDisplayAnimationStartTime).toBe(startTime + BANNER_ANIMATION_TIME);
 
-        jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + BANNER_ANIMATION_TIME + diffTime);
+        jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
         battlePhaseController.update(state);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.ENEMY);
@@ -162,7 +164,7 @@ describe('BattlePhaseController', () => {
 
         battlePhaseController.update(state);
         expect(battlePhaseController.draw).not.toBeCalled();
-        expect(state.battlePhaseState.bannerDisplayAnimationStartTime).toBe(startTime);
+        expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(startTime);
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME * 0.5);
         battlePhaseController.update(state);
@@ -180,5 +182,25 @@ describe('BattlePhaseController', () => {
         expect(battlePhaseController.affiliationImageUI).toBeTruthy();
         battlePhaseController.reset(new OrchestratorState());
         expect(battlePhaseController.affiliationImageUI).toBeFalsy();
+    });
+
+    it('restores team squaddie turns once the banner appears starts', () => {
+        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_squaddie_0"));
+        dynamicSquaddie0.endTurn();
+        expect(dynamicSquaddie0.canStillActThisRound()).toBeFalsy();
+
+        const state: OrchestratorState = new OrchestratorState({
+            battlePhaseTracker,
+            squaddieRepo
+        });
+        battlePhaseController = new BattlePhaseController();
+        const startTime = 0;
+
+        jest.spyOn(Date, 'now').mockImplementation(() => startTime);
+        battlePhaseController.update(state);
+
+        expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
+        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        expect(dynamicSquaddie0.canStillActThisRound()).toBeTruthy();
     });
 });

@@ -18,6 +18,12 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {spendSquaddieActions, updateSquaddieLocation} from "../squaddieMovementLogic";
 
 export class BattleSquaddieMover implements OrchestratorComponent {
+    animationStartTime?: number;
+
+    constructor() {
+        this.animationStartTime = undefined;
+    }
+
     hasCompleted(state: OrchestratorState): boolean {
         return state.battleSquaddieUIInput.getSelectionState() !== BattleSquaddieUISelectionState.MOVING_SQUADDIE;
     }
@@ -33,6 +39,9 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     }
 
     private updateBattleSquaddieUIMovingSquaddie(state: OrchestratorState, clickedHexCoordinate?: HexCoordinate) {
+        if (!this.animationStartTime) {
+            this.animationStartTime = Date.now();
+        }
         const newSelectionState: BattleSquaddieUISelectionState = calculateNewBattleSquaddieUISelectionState(
             {
                 tileClickedOn: clickedHexCoordinate,
@@ -40,7 +49,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
                 missionMap: state.missionMap,
                 squaddieRepository: state.squaddieRepo,
                 selectedSquaddieDynamicID: state.battleSquaddieUIInput.selectedSquaddieDynamicID,
-                finishedAnimating: hasMovementAnimationFinished(state.squaddieCurrentlyActing.animationStartTime, state.squaddieMovePath),
+                finishedAnimating: hasMovementAnimationFinished(this.animationStartTime, state.squaddieMovePath),
             }
         );
 
@@ -62,13 +71,13 @@ export class BattleSquaddieMover implements OrchestratorComponent {
             state.battleSquaddieUIInput.selectedSquaddieDynamicID
         ));
 
-        if (hasMovementAnimationFinished(state.squaddieCurrentlyActing.animationStartTime, state.squaddieMovePath)) {
+        if (hasMovementAnimationFinished(this.animationStartTime, state.squaddieMovePath)) {
             updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap);
             updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);
             spendSquaddieActions(dynamicSquaddie, state.squaddieMovePath.getNumberOfMovementActions());
             tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
         } else {
-            moveSquaddieAlongPath(dynamicSquaddie, state.squaddieCurrentlyActing.animationStartTime, state.squaddieMovePath, state.camera);
+            moveSquaddieAlongPath(dynamicSquaddie, this.animationStartTime, state.squaddieMovePath, state.camera);
         }
         dynamicSquaddie.mapIcon.draw(p);
     }
@@ -80,8 +89,6 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     }
 
     reset(state: OrchestratorState) {
-        if (state && state.squaddieCurrentlyActing) {
-            state.squaddieCurrentlyActing.animationStartTime = undefined;
-        }
+        this.animationStartTime = undefined;
     }
 }

@@ -8,7 +8,7 @@ import {BattlePhaseTracker} from "./battle/orchestratorComponents/battlePhaseTra
 import {BattleCamera} from "./battle/battleCamera";
 import {BattleMissionLoader} from "./battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "./battle/orchestratorComponents/battleCutscenePlayer";
-import {BattleSquaddieSelector} from "./battle/orchestratorComponents/BattleSquaddieSelector";
+import {BattleSquaddieSelector} from "./battle/orchestratorComponents/battleSquaddieSelector";
 import {BattleSquaddieMover} from "./battle/orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "./battle/orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "./battle/orchestratorComponents/battlePhaseController";
