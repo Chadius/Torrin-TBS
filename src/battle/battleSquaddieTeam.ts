@@ -58,4 +58,14 @@ export class BattleSquaddieTeam {
             return canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie);
         })
     }
+
+    getDynamicSquaddieIdThatCanActButNotPlayerControlled(): string {
+        return this.dynamicSquaddieIds.find(dynamicSquaddieId => {
+            const {
+                staticSquaddie,
+                dynamicSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            return !canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie) && dynamicSquaddie.canStillActThisRound();
+        })
+    }
 }

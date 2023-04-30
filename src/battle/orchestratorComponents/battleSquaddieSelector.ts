@@ -32,9 +32,16 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     hasCompleted(state: OrchestratorState): boolean {
+        return this.gaveInstruction(state) || !this.atLeastOneSquaddieOnCurrentTeamCanAct(state);
+    }
+
+    private atLeastOneSquaddieOnCurrentTeamCanAct(state: OrchestratorState): boolean {
+        return state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()
+    }
+
+    private gaveInstruction(state: OrchestratorState): boolean {
         return state.squaddieCurrentlyActing
-            && ![null, undefined].includes(state.squaddieCurrentlyActing.instruction)
-            && state.squaddieCurrentlyActing.animationStartTime !== undefined;
+            && ![null, undefined].includes(state.squaddieCurrentlyActing.instruction);
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
@@ -191,7 +198,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                         r: dynamicSquaddie.mapLocation.r,
                     },
                 }),
-                animationStartTime: Date.now(),
             };
         }
 
@@ -199,7 +205,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             destination: destinationHexCoordinate,
             numberOfActionsSpent: 1,
         }));
-        state.squaddieCurrentlyActing.animationStartTime = Date.now();
     }
 
     private focusOnSelectedSquaddie(state: OrchestratorState, squaddieID: SquaddieId, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -216,17 +221,41 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     update(state: OrchestratorState, p?: p5): void {
+        const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+        if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+            const dynamicSquaddieId: string = currentTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled();
+            const {
+                staticSquaddie,
+                dynamicSquaddie,
+            } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
+
+            const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
+                staticSquaddieId: staticSquaddie.squaddieId.id,
+                dynamicSquaddieId,
+                startingLocation: dynamicSquaddie.mapLocation,
+            });
+            endTurnActivity.endTurn();
+
+            state.squaddieCurrentlyActing = {
+                instruction: endTurnActivity,
+            }
+        }
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode = undefined;
-        let newActivity = state.squaddieCurrentlyActing.instruction.getActivities().reverse()[0];
 
-        if (newActivity instanceof SquaddieMovementActivity) {
-            nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
-        }
-        if (newActivity instanceof SquaddieEndTurnActivity) {
-            nextMode = BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY;
+        if (this.gaveInstruction(state)) {
+            let newActivity = state.squaddieCurrentlyActing.instruction.getActivities().reverse()[0];
+
+            if (newActivity instanceof SquaddieMovementActivity) {
+                nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
+            }
+            if (newActivity instanceof SquaddieEndTurnActivity) {
+                nextMode = BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY;
+            }
+        } else if(!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
+            nextMode = BattleOrchestratorMode.PHASE_CONTROLLER;
         }
 
         return {

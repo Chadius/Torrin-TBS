@@ -2,7 +2,7 @@ import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader
 import {OrchestratorChanges, OrchestratorComponent, OrchestratorComponentMouseEventType} from "./orchestratorComponent";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
-import {BattleSquaddieSelector} from "../orchestratorComponents/BattleSquaddieSelector";
+import {BattleSquaddieSelector} from "../orchestratorComponents/battleSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import p5 from "p5";

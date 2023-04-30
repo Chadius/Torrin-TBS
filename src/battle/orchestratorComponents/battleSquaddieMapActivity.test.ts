@@ -9,6 +9,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
+import {ImageUI} from "../../ui/imageUI";
 
 describe('BattleSquaddieMapActivity', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -34,14 +35,16 @@ describe('BattleSquaddieMapActivity', () => {
             activities: [],
         };
         dynamicSquaddieBase = new BattleSquaddieDynamic({
-            staticSquaddieId: "dynamic_squaddie",
+            staticSquaddieId: "static_squaddie",
             mapLocation: {q: 0, r: 0},
-            squaddieTurn: new SquaddieTurn()
+            squaddieTurn: new SquaddieTurn(),
+            mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });
 
         squaddieRepo.addStaticSquaddie(
             staticSquaddieBase
         );
+        squaddieRepo.addDynamicSquaddie("dynamic_squaddie", dynamicSquaddieBase);
     });
 
     it('can wait half a second before ending turn', () => {
@@ -57,18 +60,23 @@ describe('BattleSquaddieMapActivity', () => {
         const state: OrchestratorState = new OrchestratorState({
             squaddieCurrentlyActing: {
                 instruction: endTurnInstruction,
-                animationStartTime: 0,
-            }
+            },
+            squaddieRepo,
         })
 
         expect(mapActivity.update(state));
+        expect(mapActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(mapActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => 500);
 
         expect(mapActivity.update(state));
         expect(mapActivity.hasCompleted(state)).toBeTruthy();
+
         const stateChanges = mapActivity.recommendStateChanges(state);
         expect(stateChanges.nextMode).toBeUndefined();
         expect(stateChanges.displayMap).toBeTruthy();
+
+        mapActivity.reset(state);
+        expect(mapActivity.animationCompleteStartTime).toBeUndefined();
     });
 });

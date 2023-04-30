@@ -15,6 +15,11 @@ describe('Battle Squaddie Team', () => {
     let dynamicSquaddie0: BattleSquaddieDynamic;
     let dynamicSquaddie1: BattleSquaddieDynamic;
 
+    let twoEnemyTeam: BattleSquaddieTeam;
+    let enemyStaticSquaddieBase: BattleSquaddieStatic;
+    let enemyDynamicSquaddie0: BattleSquaddieDynamic;
+    let enemyDynamicSquaddie1: BattleSquaddieDynamic;
+
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
         twoPlayerTeam = new BattleSquaddieTeam({
@@ -60,6 +65,50 @@ describe('Battle Squaddie Team', () => {
             dynamicSquaddie1
         );
         twoPlayerTeam.addDynamicSquaddieIds(["player_young_torrin_0", "player_young_torrin_1"])
+
+        twoEnemyTeam = new BattleSquaddieTeam({
+            name: "awesome test team",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepo: squaddieRepo,
+        });
+        enemyStaticSquaddieBase = new BattleSquaddieStatic({
+            squaddieId: new SquaddieId({
+                id: "enemy_slither_demon",
+                name: "Slither",
+                resources: NullSquaddieResource(),
+                traits: NullTraitStatusStorage(),
+                affiliation: SquaddieAffiliation.ENEMY,
+            }),
+            movement: NullSquaddieMovement(),
+            activities: [],
+        });
+
+        squaddieRepo.addStaticSquaddie(
+            enemyStaticSquaddieBase
+        );
+
+        enemyDynamicSquaddie0 =
+            new BattleSquaddieDynamic({
+                staticSquaddieId: "enemy_slither_demon",
+                mapLocation: {q: 0, r: 0},
+                squaddieTurn: new SquaddieTurn()
+            });
+
+        squaddieRepo.addDynamicSquaddie(
+            "enemy_slither_demon_0",
+            enemyDynamicSquaddie0
+        );
+
+        enemyDynamicSquaddie1 = new BattleSquaddieDynamic({
+            staticSquaddieId: "enemy_slither_demon",
+            mapLocation: {q: 1, r: 0},
+            squaddieTurn: new SquaddieTurn()
+        });
+        squaddieRepo.addDynamicSquaddie(
+            "enemy_slither_demon_1",
+            enemyDynamicSquaddie1
+        );
+        twoEnemyTeam.addDynamicSquaddieIds(["enemy_slither_demon_0", "enemy_slither_demon_1"])
     });
     it('knows at least 1 squaddie can act', () => {
         expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
@@ -78,5 +127,12 @@ describe('Battle Squaddie Team', () => {
 
         dynamicSquaddie1.endTurn();
         expect(twoPlayerTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeFalsy();
+    });
+    it('can get a squaddie who can act this round but is not controlled by the player', () => {
+        expect(twoEnemyTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeFalsy();
+
+        enemyDynamicSquaddie0.endTurn();
+
+        expect(twoEnemyTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled()).toBe("enemy_slither_demon_1");
     });
 });
