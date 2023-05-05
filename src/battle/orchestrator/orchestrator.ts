@@ -1,5 +1,10 @@
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
-import {OrchestratorChanges, OrchestratorComponent, OrchestratorComponentMouseEventType} from "./orchestratorComponent";
+import {
+    OrchestratorChanges,
+    OrchestratorComponent,
+    OrchestratorComponentMouseEvent,
+    OrchestratorComponentMouseEventType
+} from "./orchestratorComponent";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattleSquaddieSelector} from "../orchestratorComponents/battleSquaddieSelector";
@@ -120,25 +125,40 @@ export class Orchestrator {
     }
 
     public mouseClicked(state: OrchestratorState, mouseX: number, mouseY: number) {
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY,
+        };
+
         this.getCurrentComponent().mouseEventHappened(
             state,
-            {
-                eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX,
-                mouseY,
-            }
+            mouseEvent
         )
+
+        if (
+            BattleOrchestratorMode.SQUADDIE_SELECTOR === this.mode &&
+            state.displayMap === true
+        ) {
+            this.mapDisplay.mouseEventHappened(state, mouseEvent);
+        }
     }
 
     public mouseMoved(state: OrchestratorState, mouseX: number, mouseY: number) {
-        this.getCurrentComponent().mouseEventHappened(
-            state,
-            {
-                eventType: OrchestratorComponentMouseEventType.MOVED,
-                mouseX,
-                mouseY,
-            }
-        )
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.MOVED,
+            mouseX,
+            mouseY,
+        };
+
+        this.getCurrentComponent().mouseEventHappened(state, mouseEvent);
+
+        if (
+            BattleOrchestratorMode.SQUADDIE_SELECTOR === this.mode &&
+            state.displayMap === true
+        ) {
+            this.mapDisplay.mouseEventHappened(state, mouseEvent);
+        }
     }
 
     private updateUnknown(_: OrchestratorState) {
