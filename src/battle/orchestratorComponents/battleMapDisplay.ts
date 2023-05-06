@@ -22,7 +22,6 @@ export class BattleMapDisplay implements OrchestratorComponent {
 
         this.drawSquaddieMapIcons(state, p);
         state.camera.moveCamera();
-        state.camera.constrainCamera();
 
         state.battleSquaddieSelectedHUD.draw(p);
     }
@@ -36,11 +35,15 @@ export class BattleMapDisplay implements OrchestratorComponent {
             state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
         }
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
-            this.moveCamera(state, event.mouseX, event.mouseY);
+            this.moveCameraBasedOnMouseMovement(state, event.mouseX, event.mouseY);
         }
     }
 
-    moveCamera(state: OrchestratorState, mouseX: number, mouseY: number) {
+    moveCameraBasedOnMouseMovement(state: OrchestratorState, mouseX: number, mouseY: number) {
+        if (state.camera.isPanning()) {
+            return;
+        }
+
         if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.10) {
             state.camera.setXVelocity(-1);
             if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.04) {

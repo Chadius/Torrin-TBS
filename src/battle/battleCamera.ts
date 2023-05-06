@@ -5,6 +5,16 @@ import {
 } from "../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../utils/graphicsConfig";
 
+export type PanningInformation = {
+    xStartCoordinate: number,
+    yStartCoordinate: number,
+    xDestination: number,
+    yDestination: number,
+    timeToPan: number,
+    panStartTime: number,
+    respectConstraints: boolean,
+};
+
 export class BattleCamera {
     xCoord: number;
     yCoord: number;
@@ -16,6 +26,8 @@ export class BattleCamera {
         widthOfWidestRow: number;
         numberOfRows: number;
     }
+
+    panningInformation?: PanningInformation;
 
     constructor(xCoord: number = 0, yCoord: number = 0) {
         this.xCoord = xCoord;
@@ -42,8 +54,14 @@ export class BattleCamera {
     }
 
     moveCamera() {
+        if (this.panningInformation) {
+            this.panCamera();
+            return;
+        }
+
         this.xCoord += this.xVelocity;
         this.yCoord += this.yVelocity;
+        this.constrainCamera();
     }
 
     constrainCamera() {
@@ -125,5 +143,66 @@ export class BattleCamera {
             widthOfWidestRow,
             numberOfRows
         };
+    }
+
+    pan(panInfo: { yDestination: number; xDestination: number; timeToPan: number, respectConstraints: boolean }) {
+        this.panningInformation = {
+            xStartCoordinate: this.xCoord,
+            yStartCoordinate: this.yCoord,
+            xDestination: panInfo.xDestination,
+            yDestination: panInfo.yDestination,
+            timeToPan: panInfo.timeToPan,
+            panStartTime: Date.now(),
+            respectConstraints: panInfo.respectConstraints,
+        }
+    }
+
+    isPanning(): boolean {
+        return this.panningInformation !== undefined;
+    }
+
+    getPanningInformation(): PanningInformation | undefined {
+        if (this.panningInformation) {
+            return {...this.panningInformation};
+        }
+        return undefined;
+    }
+
+    panCamera(): void {
+        const timePassed: number = Date.now() - this.panningInformation.panStartTime;
+
+        if (timePassed >= this.panningInformation.timeToPan) {
+            this.xCoord = this.panningInformation.xDestination;
+            this.yCoord = this.panningInformation.yDestination;
+            if (this.panningInformation.respectConstraints) {
+                this.constrainCamera();
+            }
+
+            this.panningInformation = undefined;
+            return;
+        }
+
+        this.xCoord = (
+            this.panningInformation.xDestination
+            - this.panningInformation.xStartCoordinate
+        ) * (timePassed / this.panningInformation.timeToPan) + this.panningInformation.xStartCoordinate;
+
+        this.yCoord = (
+            this.panningInformation.yDestination
+            - this.panningInformation.yStartCoordinate
+        ) * (timePassed / this.panningInformation.timeToPan) + this.panningInformation.yStartCoordinate;
+
+        if (this.panningInformation.respectConstraints) {
+            this.constrainCamera();
+        }
+    }
+
+    cut(cutInfo: { yDestination: number; xDestination: number; respectConstraints: boolean }) {
+        this.pan({
+            xDestination: cutInfo.xDestination,
+            yDestination: cutInfo.yDestination,
+            timeToPan: 0,
+            respectConstraints: cutInfo.respectConstraints,
+        });
     }
 }
