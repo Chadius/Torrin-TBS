@@ -9,6 +9,11 @@ import {BattlePhaseController} from "../orchestratorComponents/battlePhaseContro
 import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import p5 from "p5";
+
+jest.mock('p5', () => () => {
+    return {}
+});
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -33,6 +38,8 @@ describe('Battle Orchestrator', () => {
     let mockPhaseController: BattlePhaseController;
 
     let nullState: OrchestratorState;
+
+    let mockedP5: p5;
 
     beforeEach(() => {
         nullState = new OrchestratorState();
@@ -74,6 +81,8 @@ describe('Battle Orchestrator', () => {
         mockPhaseController.mouseEventHappened = jest.fn();
         mockPhaseController.hasCompleted = jest.fn().mockReturnValue(true);
         mockPhaseController.draw = jest.fn();
+
+        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
 
     const createOrchestrator: (overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
@@ -99,7 +108,7 @@ describe('Battle Orchestrator', () => {
 
     it('starts in mission loading mode', () => {
         orchestrator = createOrchestrator({missionLoader: mockBattleMissionLoader});
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.LOADING_MISSION);
         expect(orchestrator.getCurrentComponent()).toBe(mockBattleMissionLoader);
     });
@@ -114,10 +123,10 @@ describe('Battle Orchestrator', () => {
             missionLoader: needsTwoUpdatesToFinishLoading,
             initialMode: BattleOrchestratorMode.LOADING_MISSION,
         });
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.LOADING_MISSION);
         expect(orchestrator.getCurrentComponent()).toBe(needsTwoUpdatesToFinishLoading);
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(needsTwoUpdatesToFinishLoading.update).toBeCalledTimes(2);
         expect(needsTwoUpdatesToFinishLoading.hasCompleted).toBeCalledTimes(2);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
@@ -144,18 +153,18 @@ describe('Battle Orchestrator', () => {
         const loadingOrchestratorShouldNotDraw: Orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.LOADING_MISSION
         });
-        loadingOrchestratorShouldNotDraw.update(stateWantsToDisplayTheMap);
+        loadingOrchestratorShouldNotDraw.update(stateWantsToDisplayTheMap, mockedP5);
         expect(mockMapDisplay.update).not.toBeCalled();
 
         const squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator = createOrchestrator({
             squaddieSelector: mockSquaddieSelector,
             initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
         });
-        squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap);
+        squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap, mockedP5);
         const updateCallsAfterStateChange: number = (mockMapDisplay.update as jest.Mock).mock.calls.length;
 
         expect(updateCallsAfterStateChange).toBeGreaterThan(0);
-        squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap);
+        squaddieSelectorOrchestratorShouldDisplayMap.update(stateWantsToDisplayTheMap, mockedP5);
         expect(mockMapDisplay.update).toBeCalledTimes(updateCallsAfterStateChange + 1);
     });
 
@@ -163,10 +172,10 @@ describe('Battle Orchestrator', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
         });
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
         expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController);
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(mockPhaseController.update).toBeCalledTimes(1);
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
     });
@@ -188,10 +197,10 @@ describe('Battle Orchestrator', () => {
             instruction,
         };
 
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieSelector);
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(mockSquaddieSelector.update).toBeCalledTimes(1);
         expect(mockSquaddieSelector.hasCompleted).toBeCalledTimes(1);
     });
@@ -213,10 +222,10 @@ describe('Battle Orchestrator', () => {
             instruction,
         };
 
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMover);
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(mockSquaddieMover.update).toBeCalledTimes(1);
         expect(mockSquaddieMover.hasCompleted).toBeCalledTimes(1);
     });
@@ -227,10 +236,10 @@ describe('Battle Orchestrator', () => {
         });
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMover);
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
         expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController);
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(mockPhaseController.update).toBeCalledTimes(1);
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
     });
@@ -250,7 +259,7 @@ describe('Battle Orchestrator', () => {
         });
 
         expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.LOADING_MISSION);
-        orchestratorJumpsToSquaddieMover.update(nullState);
+        orchestratorJumpsToSquaddieMover.update(nullState, mockedP5);
         expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
     });
 
@@ -260,7 +269,7 @@ describe('Battle Orchestrator', () => {
         });
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMapActivity);
-        orchestrator.update(nullState);
+        orchestrator.update(nullState, mockedP5);
         expect(mockSquaddieMapActivity.update).toBeCalledTimes(1);
         expect(mockSquaddieMapActivity.hasCompleted).toBeCalledTimes(1);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);

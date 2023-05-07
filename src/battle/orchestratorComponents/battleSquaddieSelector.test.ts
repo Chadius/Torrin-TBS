@@ -19,14 +19,21 @@ import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoor
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import p5 from "p5";
+
+jest.mock('p5', () => () => {
+    return {}
+});
 
 describe('BattleSquaddieSelector', () => {
     let selector: BattleSquaddieSelector = new BattleSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
+    let mockedP5: p5;
 
     beforeEach(() => {
         selector = new BattleSquaddieSelector();
         squaddieRepo = new BattleSquaddieRepository();
+        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = () => {
@@ -151,7 +158,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepo,
         });
 
-        selector.update(state);
+        selector.update(state, mockedP5);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
@@ -213,7 +220,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepo,
         });
 
-        selector.update(state);
+        selector.update(state, mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
         const endTurnActivity: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
@@ -244,7 +251,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepo,
         });
 
-        selector.update(state);
+        selector.update(state, mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);

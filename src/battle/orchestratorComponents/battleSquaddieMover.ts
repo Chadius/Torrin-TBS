@@ -31,7 +31,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    update(state: OrchestratorState, p?: p5): void {
+    update(state: OrchestratorState, p: p5): void {
         if (state.battleSquaddieUIInput.getSelectionState() === BattleSquaddieUISelectionState.MOVING_SQUADDIE) {
             this.updateBattleSquaddieUIMovingSquaddie(state, state.clickedHexCoordinate);
             this.moveSquaddie(state, p);

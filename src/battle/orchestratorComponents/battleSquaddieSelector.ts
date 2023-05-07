@@ -219,7 +219,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         state.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }
 
-    update(state: OrchestratorState, p?: p5): void {
+    update(state: OrchestratorState, p: p5): void {
         const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             const dynamicSquaddieId: string = currentTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled();

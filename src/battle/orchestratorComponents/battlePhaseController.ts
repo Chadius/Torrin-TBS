@@ -48,7 +48,7 @@ export class BattlePhaseController implements OrchestratorComponent {
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    update(state: OrchestratorState, p?: p5): void {
+    update(state: OrchestratorState, p: p5): void {
         if (!this.newBannerShown && state.battlePhaseTracker.getCurrentPhase() !== BattlePhase.UNKNOWN && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
             return;
         }
@@ -63,18 +63,14 @@ export class BattlePhaseController implements OrchestratorComponent {
             state.battlePhaseTracker.advanceToNextPhase();
             this.bannerDisplayAnimationStartTime = Date.now();
             state.battlePhaseState.bannerPhaseToShow = state.battlePhaseTracker.getCurrentPhase();
-            this.setBannerImage(state, p);
+            this.setBannerImage(state);
 
             state.battlePhaseTracker.getCurrentTeam().beginNewRound();
         }
     }
 
-    setBannerImage(state: OrchestratorState, p?: p5) {
+    setBannerImage(state: OrchestratorState) {
         state.hexMap?.stopOutlineTiles();
-
-        if (!p) {
-            return;
-        }
 
         switch (state.battlePhaseState.bannerPhaseToShow) {
             case BattlePhase.PLAYER:
@@ -126,7 +122,7 @@ export class BattlePhaseController implements OrchestratorComponent {
         });
     }
 
-    draw(state: OrchestratorState, p?: p5): void {
+    draw(state: OrchestratorState, p: p5): void {
         if (this.bannerImageUI) {
             this.bannerImageUI.draw(p);
             this.affiliationImageUI.draw(p);

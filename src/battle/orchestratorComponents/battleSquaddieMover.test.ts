@@ -18,12 +18,18 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import p5 from "p5";
+
+jest.mock('p5', () => () => {
+    return {}
+});
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
     let player1Static: BattleSquaddieStatic;
     let player1Dynamic: BattleSquaddieDynamic;
     let map: MissionMap;
+    let mockedP5: p5;
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
@@ -60,7 +66,8 @@ describe('BattleSquaddieMover', () => {
                     " 1 1 "
                 ]
             })
-        })
+        });
+        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
     it('is complete once enough time passes and the squaddie finishes moving', () => {
         const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
@@ -106,7 +113,7 @@ describe('BattleSquaddieMover', () => {
         expect(mover.hasCompleted(state)).toBeFalsy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0 + TIME_TO_MOVE);
-        mover.update(state);
+        mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();

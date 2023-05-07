@@ -26,7 +26,7 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
         }
     }
 
-    update(state: OrchestratorState, p?: p5): void {
+    update(state: OrchestratorState, p: p5): void {
         if (p && state.currentCutscene && state.currentCutscene.hasLoaded() && !state.currentCutscene.isInProgress()) {
             state.currentCutscene.setResources();
             state.currentCutscene.start();

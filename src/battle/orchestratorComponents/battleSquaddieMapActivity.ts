@@ -35,7 +35,7 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
         this.animationCompleteStartTime = undefined;
     }
 
-    update(state: OrchestratorState, p?: p5): void {
+    update(state: OrchestratorState, p: p5): void {
         if (this.animationCompleteStartTime === undefined) {
             const dynamicSquaddieId = state.squaddieCurrentlyActing.instruction.getDynamicSquaddieId();
             const {

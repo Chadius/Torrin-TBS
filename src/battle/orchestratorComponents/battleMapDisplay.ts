@@ -95,7 +95,7 @@ export class BattleMapDisplay implements OrchestratorComponent {
         }
     }
 
-    update(state: OrchestratorState, p?: p5): void {
+    update(state: OrchestratorState, p: p5): void {
         this.draw(state, p);
     }
 

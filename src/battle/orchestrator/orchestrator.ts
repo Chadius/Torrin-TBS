@@ -79,7 +79,7 @@ export class Orchestrator {
         return this.mode;
     }
 
-    public update(state: OrchestratorState, p?: p5) {
+    public update(state: OrchestratorState, p: p5) {
         if (state.displayMap && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
             this.displayBattleMap(state, p);
         }
