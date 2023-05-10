@@ -1,4 +1,4 @@
-import {BattleSquaddieSelector} from "./battleSquaddieSelector";
+import {BattleSquaddieSelector, SQUADDIE_SELECTOR_PANNING_TIME} from "./battleSquaddieSelector";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
@@ -13,13 +13,17 @@ import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleCamera} from "../battleCamera";
+import {BattleCamera, PanningInformation} from "../battleCamera";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
-import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
+import {
+    convertMapCoordinatesToScreenCoordinates,
+    convertMapCoordinatesToWorldCoordinates
+} from "../../hexMap/convertCoordinates";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import p5 from "p5";
+import {ScreenDimensions} from "../../utils/graphicsConfig";
 
 jest.mock('p5', () => () => {
     return {}
@@ -152,10 +156,11 @@ describe('BattleSquaddieSelector', () => {
 
     it('recommends squaddie map activity if the player cannot control the squaddies', () => {
         const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam();
-
+        const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
         const state: OrchestratorState = new OrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
+            camera,
         });
 
         selector.update(state, mockedP5);
@@ -163,6 +168,37 @@ describe('BattleSquaddieSelector', () => {
         expect(selector.hasCompleted(state)).toBeTruthy();
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+    });
+
+    it('moves camera to squaddie player cannot control before before moving', () => {
+        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam();
+        const squaddieLocation: number[] = convertMapCoordinatesToWorldCoordinates(0, 0);
+        const camera: BattleCamera = new BattleCamera(
+            squaddieLocation[0] + (ScreenDimensions.SCREEN_WIDTH * 2),
+            squaddieLocation[1] + (ScreenDimensions.SCREEN_HEIGHT * 2),
+        );
+        const state: OrchestratorState = new OrchestratorState({
+            battlePhaseTracker,
+            squaddieRepo,
+            camera,
+        });
+        jest.spyOn(Date, 'now').mockImplementation(() => 0);
+
+        camera.moveCamera();
+        selector.update(state, mockedP5);
+
+        expect(selector.hasCompleted(state)).toBeFalsy();
+        expect(camera.isPanning()).toBeTruthy();
+        const panningInfo: PanningInformation = camera.getPanningInformation();
+        expect(panningInfo.xDestination).toBe(squaddieLocation[0]);
+        expect(panningInfo.yDestination).toBe(squaddieLocation[1]);
+
+        jest.spyOn(Date, 'now').mockImplementation(() => SQUADDIE_SELECTOR_PANNING_TIME);
+        camera.moveCamera();
+        selector.update(state, mockedP5);
+
+        expect(selector.hasCompleted(state)).toBeTruthy();
+        expect(camera.isPanning()).toBeFalsy();
     });
 
     it('can make a movement activity by clicking on the field', () => {

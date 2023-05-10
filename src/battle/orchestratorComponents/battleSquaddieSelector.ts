@@ -5,7 +5,10 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
-import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
+import {
+    convertMapCoordinatesToScreenCoordinates,
+    convertScreenCoordinatesToMapCoordinates
+} from "../../hexMap/convertCoordinates";
 import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
@@ -26,12 +29,17 @@ import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
+import {isCoordinateOnScreen, ScreenDimensions} from "../../utils/graphicsConfig";
+
+export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
 export class BattleSquaddieSelector implements OrchestratorComponent {
     gaveInstruction: boolean;
+    pannedCameraOnComputerControlledSquaddie: boolean;
 
     constructor() {
         this.gaveInstruction = false;
+        this.pannedCameraOnComputerControlledSquaddie = false;
     }
 
     hasCompleted(state: OrchestratorState): boolean {
@@ -222,23 +230,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     update(state: OrchestratorState, p: p5): void {
         const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
-            const dynamicSquaddieId: string = currentTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled();
-            const {
-                staticSquaddie,
-                dynamicSquaddie,
-            } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
-
-            const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
-                staticSquaddieId: staticSquaddie.squaddieId.id,
-                dynamicSquaddieId,
-                startingLocation: dynamicSquaddie.mapLocation,
-            });
-            endTurnActivity.endTurn();
-
-            state.squaddieCurrentlyActing = {
-                instruction: endTurnActivity,
-            }
-            this.gaveInstruction = true;
+            this.askComputerControlSquaddie(state);
         }
     }
 
@@ -266,5 +258,53 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     reset(state: OrchestratorState) {
         this.gaveInstruction = false;
+        this.pannedCameraOnComputerControlledSquaddie = false;
+    }
+
+    private askComputerControlSquaddie(state: OrchestratorState) {
+        const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+        const dynamicSquaddieId: string = currentTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled();
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
+
+        if (this.pannedCameraOnComputerControlledSquaddie && !state.camera.isPanning()) {
+            this.askComputerToGiveInstructionToSquaddie(staticSquaddie, dynamicSquaddieId, dynamicSquaddie, state);
+            return;
+        }
+
+        const squaddieScreenLocation: number[] = convertMapCoordinatesToScreenCoordinates(
+            dynamicSquaddie.mapLocation.q,
+            dynamicSquaddie.mapLocation.r,
+            ...state.camera.getCoordinates(),
+        )
+
+        if (isCoordinateOnScreen(squaddieScreenLocation[0], squaddieScreenLocation[1])) {
+            this.askComputerToGiveInstructionToSquaddie(staticSquaddie, dynamicSquaddieId, dynamicSquaddie, state);
+            return;
+        }
+
+        this.pannedCameraOnComputerControlledSquaddie = true;
+        state.camera.pan({
+            xDestination: dynamicSquaddie.mapLocation.q,
+            yDestination: dynamicSquaddie.mapLocation.r,
+            timeToPan: SQUADDIE_SELECTOR_PANNING_TIME,
+            respectConstraints: true,
+        });
+    }
+
+    private askComputerToGiveInstructionToSquaddie(staticSquaddie: BattleSquaddieStatic, dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic, state: OrchestratorState) {
+        const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: staticSquaddie.squaddieId.id,
+            dynamicSquaddieId,
+            startingLocation: dynamicSquaddie.mapLocation,
+        });
+        endTurnActivity.endTurn();
+
+        state.squaddieCurrentlyActing = {
+            instruction: endTurnActivity,
+        }
+        this.gaveInstruction = true;
     }
 }
