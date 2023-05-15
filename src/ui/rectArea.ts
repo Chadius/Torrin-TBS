@@ -436,4 +436,13 @@ export class RectArea {
                 break;
         }
     }
+
+    public isInside(coordinateX: number, coordinateY: number): boolean {
+        return (
+            coordinateX >= this.left
+            && coordinateX <= this.left + this.width
+            && coordinateY >= this.top
+            && coordinateY <= this.top + this.height
+        );
+    }
 }

@@ -54,6 +54,14 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
             if (currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+                let hudUsedMouseClick: boolean = false;
+                if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
+                    hudUsedMouseClick = state.battleSquaddieSelectedHUD.didMouseClickOnHUD(event.mouseX, event.mouseY);
+                }
+                if (hudUsedMouseClick) {
+                    return;
+                }
+
                 this.updateBattleSquaddieUIMouseClicked(state, event.mouseX, event.mouseY);
                 state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
             }

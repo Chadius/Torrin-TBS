@@ -347,4 +347,20 @@ describe('RectArea', () => {
             expect(rect.getCenterX()).toBe(30);
         });
     });
+    describe('RectArea queries', () => {
+        it('knows if a given point is inside the rectangle', () => {
+            const rect = new RectArea({
+                top: 0,
+                left: 10,
+                height: 30,
+                width: 20,
+            });
+
+            expect(rect.isInside(10, 0)).toBeTruthy();
+            expect(rect.isInside(0, 0)).toBeFalsy();
+            expect(rect.isInside(10, -10)).toBeFalsy();
+            expect(rect.isInside(30, 30)).toBeTruthy();
+            expect(rect.isInside(31, 31)).toBeFalsy();
+        });
+    });
 });

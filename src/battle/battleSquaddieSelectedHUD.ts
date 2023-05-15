@@ -1,7 +1,7 @@
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {MissionMap} from "../missionMap/missionMap";
 import p5 from "p5";
-import {RectArea} from "../ui/rectArea";
+import {HorizontalAnchor, RectArea, VerticalAnchor} from "../ui/rectArea";
 import {Rectangle} from "../ui/rectangle";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ScreenDimensions} from "../utils/graphicsConfig";
@@ -9,6 +9,7 @@ import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {ActivityButton} from "../squaddie/activityButton";
 
 export type BattleSquaddieSelectedHUDOptions = {
     squaddieRepository: BattleSquaddieRepository;
@@ -24,6 +25,8 @@ export class BattleSquaddieSelectedHUD {
 
     background: Rectangle;
     affiliateIcon?: ImageUI;
+
+    activityButtons: ActivityButton[];
 
     constructor(options: BattleSquaddieSelectedHUDOptions) {
         this.squaddieRepository = options.squaddieRepository;
@@ -89,16 +92,39 @@ export class BattleSquaddieSelectedHUD {
             this.affiliateIcon = null;
         }
 
+        this.activityButtons = [];
+        this.activityButtons.push(
+            new ActivityButton({
+                isEndTurn: true,
+                hue: squaddieAffiliationHue,
+                buttonArea: new RectArea({
+                    baseRectangle: windowDimensions,
+                    anchorLeft: HorizontalAnchor.RIGHT,
+                    anchorTop: VerticalAnchor.CENTER,
+                    left: -64,
+                    width: 32,
+                    height: 32,
+                })
+            })
+        );
+    }
 
+    public didMouseClickOnHUD(mouseX: number, mouseY: number): boolean {
+        return this.background.area.isInside(mouseX, mouseY);
+    }
+
+    public shouldDrawTheHUD(): boolean {
+        return !!this.selectedSquaddieDynamicID;
     }
 
     draw(p: p5) {
-        if (!this.selectedSquaddieDynamicID) {
+        if (!this.shouldDrawTheHUD()) {
             return;
         }
         this.background.draw(p);
         this.drawSquaddieID(p);
         this.drawNumberOfActions(p);
+        this.drawSquaddieActivities(p);
     }
 
     private drawSquaddieID(p: p5) {
@@ -171,5 +197,10 @@ export class BattleSquaddieSelectedHUD {
         });
 
         p.pop();
+    }
+
+
+    private drawSquaddieActivities(p: p5) {
+        this.activityButtons.forEach((button) => {button.draw(p)});
     }
 }
