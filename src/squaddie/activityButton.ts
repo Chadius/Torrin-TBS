@@ -31,7 +31,7 @@ export class ActivityButton {
         const background = new Rectangle({
             area: this.buttonArea,
             fillColor: [this.hue, 40, 60],
-            strokeColor: [0,0,0],
+            strokeColor: [0, 0, 0],
             strokeWeight: 0,
         });
 

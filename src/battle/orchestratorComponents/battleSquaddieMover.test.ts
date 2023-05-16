@@ -106,6 +106,7 @@ describe('BattleSquaddieMover', () => {
             squaddieMovePath: movePath,
             hexMap: map.terrainTileMap,
             squaddieCurrentlyActing: {
+                dynamicSquaddieId: "player_dynamic_0",
                 instruction: moveActivity,
             }
         });

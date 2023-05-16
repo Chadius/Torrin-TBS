@@ -65,6 +65,7 @@ describe('BattleSquaddieMapActivity', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
             squaddieCurrentlyActing: {
+                dynamicSquaddieId: "dynamic_squaddie",
                 instruction: endTurnInstruction,
             },
             squaddieRepo,

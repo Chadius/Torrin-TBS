@@ -29,7 +29,8 @@ import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
-import {isCoordinateOnScreen, ScreenDimensions} from "../../utils/graphicsConfig";
+import {isCoordinateOnScreen} from "../../utils/graphicsConfig";
+import {ACTIVITY_END_TURN_ID} from "../../squaddie/endTurnActivity";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -57,6 +58,12 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 let hudUsedMouseClick: boolean = false;
                 if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
                     hudUsedMouseClick = state.battleSquaddieSelectedHUD.didMouseClickOnHUD(event.mouseX, event.mouseY);
+                    if (hudUsedMouseClick) {
+                        state.battleSquaddieSelectedHUD.mouseClicked(event.mouseX, event.mouseY);
+                    }
+                    if (state.battleSquaddieSelectedHUD.wasActivitySelected()) {
+                        this.reactToPlayerSelectedActivity(state);
+                    }
                 }
                 if (hudUsedMouseClick) {
                     return;
@@ -204,6 +211,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             }));
 
             state.squaddieCurrentlyActing = {
+                dynamicSquaddieId: dynamicSquaddieId,
                 instruction: new SquaddieInstruction({
                     staticSquaddieId: staticSquaddie.squaddieId.id,
                     dynamicSquaddieId,
@@ -267,6 +275,8 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     reset(state: OrchestratorState) {
         this.gaveInstruction = false;
         this.pannedCameraOnComputerControlledSquaddie = false;
+
+        state.battleSquaddieSelectedHUD.reset();
     }
 
     private askComputerControlSquaddie(state: OrchestratorState) {
@@ -311,8 +321,33 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         endTurnActivity.endTurn();
 
         state.squaddieCurrentlyActing = {
+            dynamicSquaddieId: dynamicSquaddieId,
             instruction: endTurnActivity,
         }
         this.gaveInstruction = true;
+    }
+
+    private reactToPlayerSelectedActivity(state: OrchestratorState) {
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+            dynamicSquaddieId,
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
+
+        if (state.battleSquaddieSelectedHUD.getSelectedActivity().id === ACTIVITY_END_TURN_ID) {
+            const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
+                staticSquaddieId: staticSquaddie.squaddieId.id,
+                dynamicSquaddieId,
+                startingLocation: dynamicSquaddie.mapLocation,
+            });
+            endTurnActivity.endTurn();
+
+            state.squaddieCurrentlyActing = {
+                dynamicSquaddieId: dynamicSquaddieId,
+                instruction: endTurnActivity,
+            }
+            state.hexMap.stopHighlightingTiles();
+            this.gaveInstruction = true;
+        }
     }
 }

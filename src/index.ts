@@ -68,22 +68,22 @@ export const sketch = (p: p5) => {
                     {
                         type: ResourceType.IMAGE,
                         path: "assets/affiliate-icon-crusaders.png",
-                        key: "affiliate icon crusaders"
+                        key: "affiliate_icon_crusaders"
                     },
                     {
                         type: ResourceType.IMAGE,
                         path: "assets/affiliate-icon-infiltrators.png",
-                        key: "affiliate icon infiltrators"
+                        key: "affiliate_icon_infiltrators"
                     },
                     {
                         type: ResourceType.IMAGE,
                         path: "assets/affiliate-icon-western.png",
-                        key: "affiliate icon western"
+                        key: "affiliate_icon_western"
                     },
                     {
                         type: ResourceType.IMAGE,
                         path: "assets/affiliate-icon-none.png",
-                        key: "affiliate icon none"
+                        key: "affiliate_icon_none"
                     },
                     {
                         type: ResourceType.IMAGE,

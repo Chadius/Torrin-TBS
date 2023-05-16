@@ -146,6 +146,7 @@ describe('Battle Orchestrator', () => {
         const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
             displayMap: true,
             squaddieCurrentlyActing: {
+                dynamicSquaddieId: "new dynamic squaddie",
                 instruction,
             }
         });
@@ -194,6 +195,7 @@ describe('Battle Orchestrator', () => {
             numberOfActionsSpent: 2,
         }));
         nullState.squaddieCurrentlyActing = {
+            dynamicSquaddieId: "new dynamic squaddie",
             instruction,
         };
 
@@ -219,6 +221,7 @@ describe('Battle Orchestrator', () => {
             numberOfActionsSpent: 2,
         }));
         nullState.squaddieCurrentlyActing = {
+            dynamicSquaddieId: "new dynamic squaddie",
             instruction,
         };
 

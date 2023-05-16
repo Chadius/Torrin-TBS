@@ -24,6 +24,8 @@ import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import p5 from "p5";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {endTurnActivity} from "../../squaddie/endTurnActivity";
 
 jest.mock('p5', () => () => {
     return {}
@@ -244,6 +246,60 @@ describe('BattleSquaddieSelector', () => {
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
+    });
+
+    it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: ["1 1 "]
+            })
+        });
+
+        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam();
+
+        const camera: BattleCamera = new BattleCamera();
+
+        const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
+            squaddieRepository: squaddieRepo,
+            selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+            missionMap,
+            selectedSquaddieDynamicID: "player_soldier_0",
+            tileClickedOn: {q: 0, r: 0},
+        });
+
+        let mockHud: BattleSquaddieSelectedHUD;
+        mockHud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
+        mockHud.wasActivitySelected = jest.fn().mockReturnValue(true);
+        mockHud.getSelectedActivity = jest.fn().mockReturnValue(endTurnActivity);
+        mockHud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
+        mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
+        mockHud.mouseClicked = jest.fn();
+        mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
+
+        const state: OrchestratorState = new OrchestratorState({
+            missionMap,
+            squaddieRepo,
+            camera,
+            battleSquaddieSelectedHUD: mockHud,
+            battleSquaddieUIInput,
+            hexMap: missionMap.terrainTileMap,
+            battlePhaseTracker,
+            pathfinder: new Pathfinder(),
+        });
+
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: 0,
+            mouseY: 0
+        });
+
+        expect(selector.hasCompleted(state)).toBeTruthy();
+        const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
+        const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
+        expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
+
+        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
     });
 
     it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {

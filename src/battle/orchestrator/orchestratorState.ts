@@ -14,6 +14,7 @@ import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController"
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 
 export type CurrentSquaddieAnimationState = {
+    dynamicSquaddieId: string,
     instruction: SquaddieInstruction,
 };
 
