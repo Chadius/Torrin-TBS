@@ -74,19 +74,19 @@ export class BattlePhaseController implements OrchestratorComponent {
 
         switch (state.battlePhaseState.bannerPhaseToShow) {
             case BattlePhase.PLAYER:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate icon crusaders"));
+                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_crusaders"));
                 this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource("phase banner player"));
                 break;
             case BattlePhase.ENEMY:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate icon infiltrators"));
+                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_infiltrators"));
                 this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource("phase banner enemy"));
                 break;
             case BattlePhase.ALLY:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate icon western"));
+                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_western"));
                 this.bannerImage = undefined;
                 break;
             case BattlePhase.NONE:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate icon none"));
+                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_none"));
                 this.bannerImage = undefined;
                 break;
             default:

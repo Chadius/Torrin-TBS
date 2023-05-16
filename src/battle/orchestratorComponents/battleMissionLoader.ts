@@ -192,10 +192,10 @@ export class BattleMissionLoader implements OrchestratorComponent {
         }));
 
         this.affiliateIconResourceKeys = [
-            "affiliate icon crusaders",
-            "affiliate icon infiltrators",
-            "affiliate icon western",
-            "affiliate icon none",
+            "affiliate_icon_crusaders",
+            "affiliate_icon_infiltrators",
+            "affiliate_icon_western",
+            "affiliate_icon_none",
         ];
         state.resourceHandler.loadResources(this.affiliateIconResourceKeys);
 
