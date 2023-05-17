@@ -11,6 +11,7 @@ import {ImageUI} from "../ui/imageUI";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ActivityButton} from "../squaddie/activityButton";
 import {BattleSquaddieStatic} from "./battleSquaddie";
+import {SquaddieActivity} from "../squaddie/activity";
 
 export type BattleSquaddieSelectedHUDOptions = {
     squaddieRepository: BattleSquaddieRepository;
@@ -19,13 +20,14 @@ export type BattleSquaddieSelectedHUDOptions = {
 }
 
 export class BattleSquaddieSelectedHUD {
-    selectedSquaddieDynamicID: string;
     squaddieRepository: BattleSquaddieRepository;
     missionMap: MissionMap;
     resourceHandler: ResourceHandler;
 
+    selectedSquaddieDynamicID: string;
     background: Rectangle;
     affiliateIcon?: ImageUI;
+    selectedActivity: SquaddieActivity;
 
     activityButtons: ActivityButton[];
 
@@ -33,6 +35,8 @@ export class BattleSquaddieSelectedHUD {
         this.squaddieRepository = options.squaddieRepository;
         this.missionMap = options.missionMap;
         this.resourceHandler = options.resourceHandler;
+
+        this.reset();
     }
 
     mouseClickedNoSquaddieSelected() {
@@ -222,6 +226,30 @@ export class BattleSquaddieSelectedHUD {
     }
 
     getActivityButtons(): ActivityButton[] {
-        return [...this.activityButtons];
+        return this.activityButtons ? [...this.activityButtons] : [];
+    }
+
+    wasActivitySelected(): boolean {
+        return this.selectedActivity !== undefined;
+    }
+
+    getSelectedActivity(): SquaddieActivity {
+        return this.selectedActivity;
+    }
+
+    mouseClicked(mouseX: number, mouseY: number) {
+        const clickedActivityButton = this.activityButtons.find((button) =>
+            button.buttonArea.isInside(mouseX, mouseY)
+        );
+
+        this.selectedActivity = clickedActivityButton.activity;
+    }
+
+    reset() {
+        this.selectedSquaddieDynamicID = "";
+        this.background = undefined;
+        this.affiliateIcon = undefined;
+        this.selectedActivity = undefined;
+        this.activityButtons = undefined;
     }
 }

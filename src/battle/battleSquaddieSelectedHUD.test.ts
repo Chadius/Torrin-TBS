@@ -102,5 +102,23 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
         expect(waitTurnButton).toBeTruthy();
     });
-    // it('reports when a Wait Turn activity button was clicked on', () => {});
+
+    it('reports when a Wait Turn activity button was clicked on', () => {
+        hud.mouseClickedSquaddieSelected(playerSquaddieDynamicID, 0, 0);
+        expect(hud.wasActivitySelected()).toBeFalsy();
+        expect(hud.getSelectedActivity()).toBeUndefined();
+
+        const waitTurnButton = hud.getActivityButtons().find((button) =>
+            button.activity.id === ACTIVITY_END_TURN_ID
+        );
+
+        hud.mouseClicked(waitTurnButton.buttonArea.getLeft(), waitTurnButton.buttonArea.getTop());
+
+        expect(hud.wasActivitySelected()).toBeTruthy();
+        expect(hud.getSelectedActivity()).toBe(waitTurnButton.activity);
+
+        hud.reset();
+        expect(hud.wasActivitySelected()).toBeFalsy();
+        expect(hud.getSelectedActivity()).toBeUndefined();
+    });
 });
