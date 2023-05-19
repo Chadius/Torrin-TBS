@@ -26,6 +26,8 @@ import p5 from "p5";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {endTurnActivity} from "../../squaddie/endTurnActivity";
+import {Recording} from "../history/recording";
+import {BattleEvent} from "../history/battleEvent";
 
 jest.mock('p5', () => () => {
     return {}
@@ -230,6 +232,7 @@ describe('BattleSquaddieSelector', () => {
             hexMap: missionMap.terrainTileMap,
             battlePhaseTracker,
             pathfinder: new Pathfinder(),
+            battleEventRecording: new Recording({}),
         });
 
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates());
@@ -246,6 +249,26 @@ describe('BattleSquaddieSelector', () => {
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
+
+        const expectedMovementInstruction: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "player_soldier",
+            dynamicSquaddieId: "player_soldier_0",
+            startingLocation: {
+                q: 0,
+                r: 0,
+            }
+        });
+
+        expectedMovementInstruction.addMovement(new SquaddieMovementActivity({
+            destination: {q: 0, r: 1},
+            numberOfActionsSpent: 1,
+        }));
+
+        const history = state.battleEventRecording.getHistory();
+        expect(history).toHaveLength(1);
+        expect(history[0]).toStrictEqual(new BattleEvent({
+            instruction: expectedMovementInstruction
+        }));
     });
 
     it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
@@ -300,6 +323,12 @@ describe('BattleSquaddieSelector', () => {
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+
+        const history = state.battleEventRecording.getHistory();
+        expect(history).toHaveLength(1);
+        expect(history[0]).toStrictEqual(new BattleEvent({
+            instruction: endTurnActivityInstruction
+        }));
     });
 
     it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
@@ -310,17 +339,24 @@ describe('BattleSquaddieSelector', () => {
                 movementCost: ["1 1 "]
             }),
             squaddieRepo,
+            battleEventRecording: new Recording({})
         });
 
         selector.update(state, mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
-        const endTurnActivity: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
-        const mostRecentActivity = endTurnActivity.getActivities().reverse()[0];
+        const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
+        const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
         expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+
+        const history = state.battleEventRecording.getHistory();
+        expect(history).toHaveLength(1);
+        expect(history[0]).toStrictEqual(new BattleEvent({
+            instruction: endTurnActivityInstruction
+        }));
     });
 
     it('will change phase if no squaddies are able to act', () => {

@@ -12,6 +12,7 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {Recording} from "../history/recording";
 
 export type CurrentSquaddieAnimationState = {
     dynamicSquaddieId: string,
@@ -36,6 +37,7 @@ export type OrchestratorStateOptions = {
     clickedHexCoordinate: HexCoordinate;
     battlePhaseState: BattlePhaseState;
     squaddieCurrentlyActing: CurrentSquaddieAnimationState;
+    battleEventRecording: Recording;
 }
 
 export class OrchestratorState {
@@ -54,6 +56,7 @@ export class OrchestratorState {
     clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
     squaddieCurrentlyActing: CurrentSquaddieAnimationState;
+    battleEventRecording: Recording;
 
     constructor(options: Partial<OrchestratorStateOptions> = {}) {
         this.displayMap = options.displayMap || false;
@@ -83,5 +86,6 @@ export class OrchestratorState {
             bannerPhaseToShow: BattlePhase.UNKNOWN,
         };
         this.squaddieCurrentlyActing = options.squaddieCurrentlyActing || undefined;
+        this.battleEventRecording = options.battleEventRecording || new Recording({});
     }
 }

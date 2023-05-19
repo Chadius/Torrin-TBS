@@ -31,6 +31,7 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {isCoordinateOnScreen} from "../../utils/graphicsConfig";
 import {ACTIVITY_END_TURN_ID} from "../../squaddie/endTurnActivity";
+import {BattleEvent} from "../history/battleEvent";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -225,9 +226,13 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         state.squaddieCurrentlyActing.instruction.addMovement(new SquaddieMovementActivity({
             destination: destinationHexCoordinate,
-            numberOfActionsSpent: 1,
+            numberOfActionsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
         }));
         this.gaveInstruction = true;
+
+        state.battleEventRecording.addEvent(new BattleEvent({
+            instruction: state.squaddieCurrentlyActing.instruction
+        }));
     }
 
     private focusOnSelectedSquaddie(state: OrchestratorState, squaddieID: SquaddieId, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -325,6 +330,10 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             instruction: endTurnActivity,
         }
         this.gaveInstruction = true;
+
+        state.battleEventRecording.addEvent(new BattleEvent({
+            instruction: endTurnActivity
+        }));
     }
 
     private reactToPlayerSelectedActivity(state: OrchestratorState) {
@@ -348,6 +357,10 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             }
             state.hexMap.stopHighlightingTiles();
             this.gaveInstruction = true;
+
+            state.battleEventRecording.addEvent(new BattleEvent({
+                instruction: endTurnActivity
+            }));
         }
     }
 }

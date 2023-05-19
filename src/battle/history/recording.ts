@@ -4,6 +4,7 @@ export type RecordingOptions = {}
 
 export class Recording {
     history: BattleEvent[];
+
     constructor(options: Partial<RecordingOptions>) {
         this.history = [];
     }
