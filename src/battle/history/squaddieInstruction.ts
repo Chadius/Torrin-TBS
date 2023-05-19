@@ -1,7 +1,7 @@
 import {HexCoordinate} from "../../hexMap/hexGrid";
 import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 import {SquaddieMovementActivity} from "./squaddieMovementActivity";
-import {SquaddieActivity} from "./squaddieActivity";
+import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
 
 type SquaddieInstructionRequiredOptions = {
     staticSquaddieId: string;
@@ -17,7 +17,7 @@ export class SquaddieInstruction {
     dynamicSquaddieId: string;
     startingLocation: HexCoordinate;
 
-    activities: SquaddieActivity[];
+    activities: SquaddieInstructionActivity[];
 
     constructor(options: SquaddieInstructionRequiredOptions & Partial<SquaddieInstructionOptionalOptions>) {
         this.staticSquaddieId = options.staticSquaddieId;
@@ -51,11 +51,11 @@ export class SquaddieInstruction {
         this.activities.push(movementActivity);
     }
 
-    getActivities(): SquaddieActivity[] {
+    getActivities(): SquaddieInstructionActivity[] {
         return [...this.activities];
     }
 
-    getMostRecentActivity(): SquaddieActivity {
+    getMostRecentActivity(): SquaddieInstructionActivity {
         if (this.activities.length === 0) {
             return undefined;
         }
