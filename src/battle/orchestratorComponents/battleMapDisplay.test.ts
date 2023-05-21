@@ -6,6 +6,8 @@ import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {OrchestratorComponentMouseEventType} from "../orchestrator/orchestratorComponent";
 import p5 from "p5";
+import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
+import {BattlePhaseController, BattlePhaseState} from "./battlePhaseController";
 
 jest.mock('p5', () => () => {
     return {
@@ -99,86 +101,118 @@ describe('battleMapDisplay', () => {
             expect(camera.getCoordinates()[0]).toBeCloseTo((destinationCoordinates[0]));
             expect(camera.getCoordinates()[1]).toBeCloseTo((destinationCoordinates[1]));
         });
+    });
 
-        describe('it will change the camera velocity based on the mouse location', () => {
-            type CameraTest = {
-                cameraDescription: string,
-                mouseX: number,
-                mouseY: number,
-                cameraVelocityTest: (camera: BattleCamera) => boolean,
-            }
+    describe('it will change the camera velocity based on the mouse location', () => {
+        let state: OrchestratorState;
+        let camera: BattleCamera;
+        let initialCameraCoordinates: number[];
 
-            const tests: CameraTest[] = [
-                {
-                    cameraDescription: "move left",
-                    mouseX: 0,
-                    mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                    cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] < 0,
-                },
-                {
-                    cameraDescription: "move right",
-                    mouseX: ScreenDimensions.SCREEN_WIDTH,
-                    mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
-                    cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] > 0,
-                },
-                {
-                    cameraDescription: "move up",
-                    mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                    mouseY: 0,
-                    cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[1] < 0,
-                },
-                {
-                    cameraDescription: "move down",
-                    mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
-                    mouseY: ScreenDimensions.SCREEN_HEIGHT,
-                    cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[1] > 0,
-                },
-            ];
+        beforeEach(() => {
+            initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
+            camera = new BattleCamera(...initialCameraCoordinates)
 
-            it.each(tests)(`moving mouse to ($mouseX, $mouseY) will make the camera $cameraDescription`, ({
-                                                                                                              cameraDescription,
-                                                                                                              mouseX,
-                                                                                                              mouseY,
-                                                                                                              cameraVelocityTest
-                                                                                                          }) => {
-                battleMapDisplay.moveCameraBasedOnMouseMovement(state, mouseX, mouseY);
-                expect(cameraVelocityTest(camera)).toBeTruthy();
-            });
-        });
-
-        describe('will not pan the camera if the HUD is open', () => {
-            type CameraTest = {
-                cameraDescription: string,
-                mouseY: number,
-            }
-
-            const tests: CameraTest[] = [
-                {
-                    cameraDescription: "move up",
-                    mouseY: 0,
-                },
-                {
-                    cameraDescription: "move down",
-                    mouseY: ScreenDimensions.SCREEN_HEIGHT,
-                },
-            ];
-
-            const hudIsOpen = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-            hudIsOpen.draw = jest.fn();
-            hudIsOpen.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
-            hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
-            const stateWithOpenedHUD = new OrchestratorState({
+            state = new OrchestratorState({
                 displayMap: true,
                 camera,
                 squaddieRepo,
-                battleSquaddieSelectedHUD: hudIsOpen,
+                battleSquaddieSelectedHUD,
             });
+        });
 
-            it.each(tests)(`when hovering over the HUD at mouseY $mouseY, do not move the camera`, ({mouseY}) => {
-                hudIsOpen.createWindowPosition(mouseY);
-                battleMapDisplay.moveCameraBasedOnMouseMovement(stateWithOpenedHUD, ScreenDimensions.SCREEN_WIDTH / 2, mouseY);
-                expect(camera.getVelocity()[1]).toBe(0);
+        type CameraTest = {
+            cameraDescription: string,
+            mouseX: number,
+            mouseY: number,
+            cameraVelocityTest: (camera: BattleCamera) => boolean,
+        }
+
+        const tests: CameraTest[] = [
+            {
+                cameraDescription: "move left",
+                mouseX: 0,
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] < 0,
+            },
+            {
+                cameraDescription: "move right",
+                mouseX: ScreenDimensions.SCREEN_WIDTH,
+                mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] > 0,
+            },
+            {
+                cameraDescription: "move up",
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
+                mouseY: 0,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[1] < 0,
+            },
+            {
+                cameraDescription: "move down",
+                mouseX: ScreenDimensions.SCREEN_WIDTH / 2,
+                mouseY: ScreenDimensions.SCREEN_HEIGHT,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[1] > 0,
+            },
+        ];
+
+        it.each(tests)(`moving mouse to ($mouseX, $mouseY) will make the camera $cameraDescription`, ({
+                                                                                                          cameraDescription,
+                                                                                                          mouseX,
+                                                                                                          mouseY,
+                                                                                                          cameraVelocityTest
+                                                                                                      }) => {
+            battleMapDisplay.moveCameraBasedOnMouseMovement(state, mouseX, mouseY);
+            expect(cameraVelocityTest(camera)).toBeTruthy();
+        });
+    });
+
+    describe('will not scroll the camera if the HUD is open', () => {
+        let state: OrchestratorState;
+        let camera: BattleCamera;
+        let initialCameraCoordinates: number[];
+
+        beforeEach(() => {
+            initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
+            camera = new BattleCamera(...initialCameraCoordinates)
+
+            state = new OrchestratorState({
+                displayMap: true,
+                camera,
+                squaddieRepo,
+                battleSquaddieSelectedHUD,
             });
+        });
+
+        type CameraTest = {
+            cameraDescription: string,
+            mouseY: number,
+        }
+
+        const tests: CameraTest[] = [
+            {
+                cameraDescription: "move up",
+                mouseY: 0,
+            },
+            {
+                cameraDescription: "move down",
+                mouseY: ScreenDimensions.SCREEN_HEIGHT,
+            },
+        ];
+
+        const hudIsOpen = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
+        hudIsOpen.draw = jest.fn();
+        hudIsOpen.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
+        hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
+        const stateWithOpenedHUD = new OrchestratorState({
+            displayMap: true,
+            camera,
+            squaddieRepo,
+            battleSquaddieSelectedHUD: hudIsOpen,
+        });
+
+        it.each(tests)(`when hovering over the HUD at mouseY $mouseY, do not move the camera`, ({mouseY}) => {
+            hudIsOpen.createWindowPosition(mouseY);
+            battleMapDisplay.moveCameraBasedOnMouseMovement(stateWithOpenedHUD, ScreenDimensions.SCREEN_WIDTH / 2, mouseY);
+            expect(camera.getVelocity()[1]).toBe(0);
         });
     });
 });
