@@ -64,6 +64,10 @@ export class BattleMapDisplay implements OrchestratorComponent {
             state.camera.setXVelocity(0);
         }
 
+        if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD() && state.battleSquaddieSelectedHUD.isMouseInsideHUD(mouseX, mouseY)) {
+            return;
+        }
+
         if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.10) {
             state.camera.setYVelocity(-1);
             if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.04) {

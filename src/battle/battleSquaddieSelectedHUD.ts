@@ -113,7 +113,7 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private createWindowPosition(mouseY: number) {
+    createWindowPosition(mouseY: number) {
         const windowTop: number = (mouseY < (ScreenDimensions.SCREEN_HEIGHT * 0.8)) ? ScreenDimensions.SCREEN_HEIGHT * 0.8 : 10;
         const windowHeight: number = (ScreenDimensions.SCREEN_HEIGHT * 0.2) - 10;
         const windowDimensions = new RectArea({
@@ -128,6 +128,11 @@ export class BattleSquaddieSelectedHUD {
             windowHeight,
             windowDimensions
         }
+    }
+
+
+    public isMouseInsideHUD(mouseX: number, mouseY: number): boolean {
+        return this.didMouseClickOnHUD(mouseX, mouseY);
     }
 
     public didMouseClickOnHUD(mouseX: number, mouseY: number): boolean {
