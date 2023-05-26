@@ -13,6 +13,7 @@ import {BattleSquaddieMover} from "./battle/orchestratorComponents/battleSquaddi
 import {BattleMapDisplay} from "./battle/orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "./battle/orchestratorComponents/battlePhaseController";
 import {BattleSquaddieMapActivity} from "./battle/orchestratorComponents/battleSquaddieMapActivity";
+import {EndTurnTeamStrategy} from "./battle/teamStrategy/endTurn";
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -100,6 +101,11 @@ export const sketch = (p: p5) => {
             squaddieRepo: new BattleSquaddieRepository(),
             battlePhaseTracker: new BattlePhaseTracker(),
             camera: new BattleCamera(0, 100),
+            teamStrategyByAffiliation: {
+                ENEMY: new EndTurnTeamStrategy(),
+                ALLY: new EndTurnTeamStrategy(),
+                NONE: new EndTurnTeamStrategy(),
+            }
         });
 
         battleOrchestrator = new Orchestrator({

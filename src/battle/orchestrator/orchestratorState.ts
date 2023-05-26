@@ -13,6 +13,9 @@ import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {Recording} from "../history/recording";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {TeamStrategy} from "../teamStrategy/teamStrategy";
+import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 
 export type CurrentSquaddieAnimationState = {
     dynamicSquaddieId: string,
@@ -38,6 +41,7 @@ export type OrchestratorStateOptions = {
     battlePhaseState: BattlePhaseState;
     squaddieCurrentlyActing: CurrentSquaddieAnimationState;
     battleEventRecording: Recording;
+    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy }
 }
 
 export class OrchestratorState {
@@ -57,6 +61,7 @@ export class OrchestratorState {
     battlePhaseState: BattlePhaseState;
     squaddieCurrentlyActing: CurrentSquaddieAnimationState;
     battleEventRecording: Recording;
+    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy }
 
     constructor(options: Partial<OrchestratorStateOptions> = {}) {
         this.displayMap = options.displayMap || false;
@@ -87,5 +92,25 @@ export class OrchestratorState {
         };
         this.squaddieCurrentlyActing = options.squaddieCurrentlyActing || undefined;
         this.battleEventRecording = options.battleEventRecording || new Recording({});
+
+        this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
+    }
+
+    private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy }) {
+        this.teamStrategyByAffiliation = {...teamStrategyByAffiliation};
+        [
+            SquaddieAffiliation.PLAYER,
+            SquaddieAffiliation.ENEMY,
+            SquaddieAffiliation.ALLY,
+            SquaddieAffiliation.NONE,
+        ].forEach((affiliation) => {
+            if (this.teamStrategyByAffiliation[affiliation]) {
+                return;
+            }
+            if (affiliation === SquaddieAffiliation.PLAYER) {
+                return;
+            }
+            this.teamStrategyByAffiliation[affiliation] = new EndTurnTeamStrategy();
+        });
     }
 }

@@ -13,8 +13,8 @@ describe('Battle Squaddie Team', () => {
     let squaddieRepo: BattleSquaddieRepository;
     let twoPlayerTeam: BattleSquaddieTeam;
     let playerStaticSquaddieBase: BattleSquaddieStatic;
-    let dynamicSquaddie0: BattleSquaddieDynamic;
-    let dynamicSquaddie1: BattleSquaddieDynamic;
+    let playerDynamicSquaddie0: BattleSquaddieDynamic;
+    let playerDynamicSquaddie1: BattleSquaddieDynamic;
 
     let twoEnemyTeam: BattleSquaddieTeam;
     let enemyStaticSquaddieBase: BattleSquaddieStatic;
@@ -44,7 +44,7 @@ describe('Battle Squaddie Team', () => {
             playerStaticSquaddieBase
         );
 
-        dynamicSquaddie0 =
+        playerDynamicSquaddie0 =
             new BattleSquaddieDynamic({
                 staticSquaddieId: "player_young_torrin",
                 mapLocation: {q: 0, r: 0},
@@ -54,10 +54,10 @@ describe('Battle Squaddie Team', () => {
 
         squaddieRepo.addDynamicSquaddie(
             "player_young_torrin_0",
-            dynamicSquaddie0
+            playerDynamicSquaddie0
         );
 
-        dynamicSquaddie1 = new BattleSquaddieDynamic({
+        playerDynamicSquaddie1 = new BattleSquaddieDynamic({
             staticSquaddieId: "player_young_torrin",
             mapLocation: {q: 1, r: 0},
             squaddieTurn: new SquaddieTurn(),
@@ -65,7 +65,7 @@ describe('Battle Squaddie Team', () => {
         });
         squaddieRepo.addDynamicSquaddie(
             "player_young_torrin_1",
-            dynamicSquaddie1
+            playerDynamicSquaddie1
         );
         twoPlayerTeam.addDynamicSquaddieIds(["player_young_torrin_0", "player_young_torrin_1"])
 
@@ -116,20 +116,27 @@ describe('Battle Squaddie Team', () => {
     it('knows at least 1 squaddie can act', () => {
         expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
 
-        dynamicSquaddie0.endTurn();
+        playerDynamicSquaddie0.endTurn();
         expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
 
-        dynamicSquaddie1.endTurn();
+        playerDynamicSquaddie1.endTurn();
         expect(twoPlayerTeam.hasAnActingSquaddie()).toBeFalsy();
     });
     it('knows if the player can control at least 1 squaddie', () => {
         expect(twoPlayerTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeTruthy();
 
-        dynamicSquaddie0.endTurn();
+        playerDynamicSquaddie0.endTurn();
         expect(twoPlayerTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeTruthy();
 
-        dynamicSquaddie1.endTurn();
+        playerDynamicSquaddie1.endTurn();
         expect(twoPlayerTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeFalsy();
+    });
+    it('can get a squaddie who can act this round', () => {
+        expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
+        expect(twoPlayerTeam.getDynamicSquaddiesThatCanAct()).toStrictEqual(["player_young_torrin_0", "player_young_torrin_1"]);
+        playerDynamicSquaddie0.endTurn();
+
+        expect(twoPlayerTeam.getDynamicSquaddiesThatCanAct()).toStrictEqual(["player_young_torrin_1"]);
     });
     it('can get a squaddie who can act this round but is not controlled by the player', () => {
         expect(twoEnemyTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()).toBeFalsy();
@@ -140,14 +147,14 @@ describe('Battle Squaddie Team', () => {
     });
     describe('begin new round', () => {
         it('can restore actions to the team upon beginning a round', () => {
-            dynamicSquaddie0.endTurn();
-            dynamicSquaddie1.endTurn();
+            playerDynamicSquaddie0.endTurn();
+            playerDynamicSquaddie1.endTurn();
             expect(twoPlayerTeam.hasAnActingSquaddie()).toBeFalsy();
 
             twoPlayerTeam.beginNewRound();
             expect(twoPlayerTeam.hasAnActingSquaddie()).toBeTruthy();
-            expect(dynamicSquaddie0.canStillActThisRound()).toBeTruthy();
-            expect(dynamicSquaddie1.canStillActThisRound()).toBeTruthy();
+            expect(playerDynamicSquaddie0.canStillActThisRound()).toBeTruthy();
+            expect(playerDynamicSquaddie1.canStillActThisRound()).toBeTruthy();
         });
     });
 });

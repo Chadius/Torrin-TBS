@@ -70,6 +70,15 @@ export class BattleSquaddieTeam {
         })
     }
 
+    getDynamicSquaddiesThatCanAct(): string[] {
+        return this.dynamicSquaddieIds.filter(dynamicSquaddieId => {
+            const {
+                dynamicSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            return dynamicSquaddie.canStillActThisRound();
+        });
+    }
+
     beginNewRound() {
         this.dynamicSquaddieIds.forEach((dynamicSquaddieId => {
             const {

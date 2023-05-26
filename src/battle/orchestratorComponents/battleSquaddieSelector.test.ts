@@ -28,6 +28,7 @@ import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {endTurnActivity} from "../../squaddie/endTurnActivity";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
+import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 
 jest.mock('p5', () => () => {
     return {}
@@ -333,13 +334,19 @@ describe('BattleSquaddieSelector', () => {
 
     it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
         const battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam();
+        const enemyEndTurnStrategy = new EndTurnTeamStrategy();
+        const strategySpy = jest.spyOn(enemyEndTurnStrategy, "DetermineNextInstruction");
+
         const state: OrchestratorState = new OrchestratorState({
             battlePhaseTracker,
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
             }),
             squaddieRepo,
-            battleEventRecording: new Recording({})
+            battleEventRecording: new Recording({}),
+            teamStrategyByAffiliation: {
+                ENEMY: enemyEndTurnStrategy,
+            },
         });
 
         selector.update(state, mockedP5);
@@ -357,6 +364,9 @@ describe('BattleSquaddieSelector', () => {
         expect(history[0]).toStrictEqual(new BattleEvent({
             instruction: endTurnActivityInstruction
         }));
+
+        expect(strategySpy).toHaveBeenCalled();
+        strategySpy.mockClear();
     });
 
     it('will change phase if no squaddies are able to act', () => {

@@ -6,8 +6,6 @@ import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {OrchestratorComponentMouseEventType} from "../orchestrator/orchestratorComponent";
 import p5 from "p5";
-import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
-import {BattlePhaseController, BattlePhaseState} from "./battlePhaseController";
 
 jest.mock('p5', () => () => {
     return {
