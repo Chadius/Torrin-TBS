@@ -13,10 +13,10 @@ export class PriorityQueue {
         this.items.push(item);
 
         this.items.sort((a, b) => {
-            if (a.getTotalCost() < b.getTotalCost()) {
+            if (a.getTotalMovementCost() < b.getTotalMovementCost()) {
                 return -1;
             }
-            if (a.getTotalCost() > b.getTotalCost()) {
+            if (a.getTotalMovementCost() > b.getTotalMovementCost()) {
                 return 1;
             }
             return 0;

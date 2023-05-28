@@ -42,7 +42,7 @@ export class SearchPath implements CostReportable {
         return undefined;
     }
 
-    getTotalCost(): number {
+    getTotalMovementCost(): number {
         return this.totalMovementCost;
     }
 
@@ -54,12 +54,12 @@ export class SearchPath implements CostReportable {
         return [...this.tilesTraveled];
     }
 
-    getTilesTraveledByNumberOfMovementActions(): TileFoundDescription[][] {
-        return [...this.tilesTraveledByNumberOfMovementActions];
+    getTotalDistance(): number {
+        return this.tilesTraveled ? this.tilesTraveled.length - 1 : 0;
     }
 
-    getTotalMovementCost(): number {
-        return this.totalMovementCost;
+    getTilesTraveledByNumberOfMovementActions(): TileFoundDescription[][] {
+        return [...this.tilesTraveledByNumberOfMovementActions];
     }
 
     getMovementCostSinceStartOfAction(): number {

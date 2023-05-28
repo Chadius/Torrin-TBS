@@ -9,7 +9,7 @@ class PathWithCost implements CostReportable {
         this.id = id;
     }
 
-    getTotalCost(): number {
+    getTotalMovementCost(): number {
         return this.cost;
     }
 }

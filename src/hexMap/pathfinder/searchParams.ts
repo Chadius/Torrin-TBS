@@ -12,6 +12,7 @@ export type SearchParamsOptions = {
     canStopOnSquaddies?: boolean;
     numberOfActions?: number;
     minimumDistanceMoved?: number;
+    maximumDistanceMoved?: number;
     missionMap: MissionMap;
 };
 
@@ -23,6 +24,7 @@ export class SearchParams {
     }
     movement: {
         minimumDistanceMoved?: number;
+        maximumDistanceMoved?: number;
         movementPerAction: number;
         passThroughWalls: boolean;
         crossOverPits: boolean;
@@ -41,6 +43,7 @@ export class SearchParams {
         };
         this.movement = {
             minimumDistanceMoved: options.minimumDistanceMoved,
+            maximumDistanceMoved: options.maximumDistanceMoved,
             movementPerAction: options.squaddieMovement ? options.squaddieMovement.movementPerAction : 0,
             passThroughWalls: options.squaddieMovement ? options.squaddieMovement.passThroughWalls : false,
             crossOverPits: options.squaddieMovement ? options.squaddieMovement.crossOverPits : false,
@@ -58,6 +61,10 @@ export class SearchParams {
 
     getMinimumDistanceMoved(): number {
         return this.movement.minimumDistanceMoved;
+    }
+
+    getMaximumDistanceMoved(): number {
+        return this.movement.maximumDistanceMoved;
     }
 
     getPassThroughWalls(): boolean | undefined {

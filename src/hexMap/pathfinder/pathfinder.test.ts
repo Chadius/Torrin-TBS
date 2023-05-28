@@ -152,12 +152,12 @@ describe('pathfinder', () => {
                 missionMap,
                 pathfinder,
             } = createMapAndPathfinder([
-                "1 1 1 1 "
+                "1 2 1 1 "
             ])
 
             const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
                 missionMap: missionMap,
-                squaddieMovement: squaddieMovementThreeMovementPerAction,
+                squaddieMovement: squaddieMovementHighMovementPerAction,
                 numberOfActions: 1,
                 minimumDistanceMoved: 2,
                 startLocation: {q: 0, r: 0}
@@ -172,6 +172,35 @@ describe('pathfinder', () => {
                 [
                     {q: 0, r: 0,},
                     {q: 0, r: 1,},
+                ]
+            );
+        });
+
+        it('can factor a maximum distance to movement', () => {
+            const {
+                missionMap,
+                pathfinder,
+            } = createMapAndPathfinder([
+                "1 2 2 1 "
+            ])
+
+            const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+                missionMap: missionMap,
+                squaddieMovement: squaddieMovementHighMovementPerAction,
+                numberOfActions: 1,
+                maximumDistanceMoved: 2,
+                startLocation: {q: 0, r: 0}
+            }));
+
+            validateTilesAreFound(
+                searchResults.allReachableTiles,
+                [
+                    {q: 0, r: 0,},
+                    {q: 0, r: 1,},
+                    {q: 0, r: 2,},
+                ],
+                [
+                    {q: 0, r: 3,},
                 ]
             );
         });
@@ -1042,7 +1071,7 @@ describe('pathfinder', () => {
             let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
             routeFound = getResultOrThrowError(routeOrError);
 
-            expect(routeFound.getTotalCost()).toEqual(1);
+            expect(routeFound.getTotalMovementCost()).toEqual(1);
             expect(routeFound.getDestination()).toStrictEqual({
                 q: 0,
                 r: 1,
@@ -1153,7 +1182,7 @@ describe('pathfinder', () => {
             let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
             routeFound = getResultOrThrowError(routeOrError);
 
-            expect(routeFound.getTotalCost()).toEqual(0);
+            expect(routeFound.getTotalMovementCost()).toEqual(0);
             expect(routeFound.getDestination()).toStrictEqual({
                 q: 0,
                 r: 0,
@@ -1193,7 +1222,7 @@ describe('pathfinder', () => {
             let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
             routeFound = getResultOrThrowError(routeOrError);
 
-            expect(routeFound.getTotalCost()).toEqual(4);
+            expect(routeFound.getTotalMovementCost()).toEqual(4);
             expect(routeFound.getDestination()).toStrictEqual({
                 q: 2,
                 r: 2,
@@ -1287,7 +1316,7 @@ describe('pathfinder', () => {
             let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
             routeFound = getResultOrThrowError(routeOrError);
 
-            expect(routeFound.getTotalCost()).toEqual(5);
+            expect(routeFound.getTotalMovementCost()).toEqual(5);
             expect(routeFound.getTilesTraveled()).toStrictEqual([
                 {
                     q: 0,

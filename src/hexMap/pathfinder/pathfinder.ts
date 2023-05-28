@@ -257,6 +257,15 @@ export class Pathfinder {
                 continue;
             }
 
+            if (this.isPathMoreThanMaximumDistance(head, searchParams)) {
+                movementEndsOnTheseTiles.push({
+                    q: mostRecentTileLocation.q,
+                    r: mostRecentTileLocation.r,
+                    movementCost: mostRecentTileLocation.movementCost,
+                });
+                continue;
+            }
+
             let neighboringLocations = this.createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r);
             neighboringLocations = this.selectValidPathCandidates(
                 neighboringLocations,
@@ -469,7 +478,15 @@ export class Pathfinder {
         if (searchParams.getMinimumDistanceMoved() === undefined || searchParams.getMinimumDistanceMoved() <= 0) {
             return true;
         }
-        return head.getTotalCost() >= searchParams.getMinimumDistanceMoved();
+
+        return head.getTotalDistance() >= searchParams.getMinimumDistanceMoved();
+    }
+
+    private isPathMoreThanMaximumDistance(head: SearchPath, searchParams: SearchParams): boolean {
+        if (searchParams.getMaximumDistanceMoved() === undefined) {
+            return false;
+        }
+        return head.getTotalDistance() >= searchParams.getMaximumDistanceMoved();
     }
 
     private hasFoundStopLocation(searchParams: SearchParams, workingSearchState: SearchState,): boolean {

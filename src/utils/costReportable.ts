@@ -1,3 +1,3 @@
 interface CostReportable {
-    getTotalCost(): number;
+    getTotalMovementCost(): number;
 }
