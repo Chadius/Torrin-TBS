@@ -345,4 +345,90 @@ describe('pathfinder and squaddies', () => {
             movementCost: 3,
         }));
     });
+
+    it('knows which squaddies it was adjacent to', () => {
+        const {
+            missionMap,
+            pathfinder,
+        } = createMapAndPathfinder([
+            "1 1 x f 1 1 1 1 - 1 ",
+            " 1 1 1 1 a ",
+        ]);
+
+        missionMap.addSquaddie(
+            new SquaddieId({
+                name: "enemy is nearby and could be flanked",
+                id: "enemy_nearby",
+                resources: NullSquaddieResource(),
+                traits: NullTraitStatusStorage(),
+                affiliation: SquaddieAffiliation.ENEMY
+            }),
+            {q: 0, r: 2}
+        )
+
+        missionMap.addSquaddie(
+            new SquaddieId({
+                name: "ally can be passed through and is flanking enemy",
+                id: "ally_flanking",
+                resources: NullSquaddieResource(),
+                traits: NullTraitStatusStorage(),
+                affiliation: SquaddieAffiliation.ALLY
+            }),
+            {q: 0, r: 3}
+        )
+
+        missionMap.addSquaddie(
+            new SquaddieId({
+                name: "ally at the edge of movement",
+                id: "ally_at_the_edge",
+                resources: NullSquaddieResource(),
+                traits: NullTraitStatusStorage(),
+                affiliation: SquaddieAffiliation.ALLY
+            }),
+            {q: 0, r: 4}
+        )
+
+        missionMap.addSquaddie(
+            new SquaddieId({
+                name: "ally too far away to get close to",
+                id: "ally_far_away",
+                resources: NullSquaddieResource(),
+                traits: NullTraitStatusStorage(),
+                affiliation: SquaddieAffiliation.ALLY
+            }),
+            {q: 0, r: 8}
+        )
+
+        const searchResults: SearchResults =
+            pathfinder.findReachableSquaddies(new SearchParams({
+                missionMap: missionMap,
+                squaddieMovement: squaddieMovementTwoMovementPerAction,
+                numberOfActions: 2,
+                startLocation: {q: 0, r: 0},
+                squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            }));
+
+        const reachableSquaddies = searchResults.getReachableSquaddies();
+
+        const enemyNearby = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("enemy_nearby");
+        expect(enemyNearby[1]).toContainEqual({q: 0, r: 1});
+        expect(enemyNearby[1]).toContainEqual({q: 1, r: 1});
+        expect(enemyNearby[1]).toContainEqual({q: 1, r: 2});
+        expect(enemyNearby[1]).not.toContainEqual({q: 0, r: 2}); // Cannot pass through enemy
+        expect(enemyNearby[1]).not.toContainEqual({q: 0, r: 3}); // Cannot stop on ally
+
+        const allyFlankingNearby = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_flanking");
+        expect(allyFlankingNearby[0]).toContainEqual({q: 0, r: 3}); // 0 distance can pass through ally
+        expect(allyFlankingNearby[1]).toContainEqual({q: 1, r: 2});
+        expect(allyFlankingNearby[1]).toContainEqual({q: 1, r: 3});
+        expect(allyFlankingNearby[1]).not.toContainEqual({q: 0, r: 2}); // Cannot stop on enemy
+        expect(allyFlankingNearby[1]).not.toContainEqual({q: 0, r: 4}); // Out of movement
+
+        const allyAtTheEdge = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_at_the_edge");
+        expect(allyAtTheEdge[1]).toContainEqual({q: 1, r: 3});
+        expect(allyAtTheEdge[0]).not.toContainEqual({q: 1, r: 4}); // Out of movement
+
+        const allyFarAway = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_far_away");
+        expect(allyFarAway).toBeUndefined();
+    });
 });

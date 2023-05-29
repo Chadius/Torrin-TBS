@@ -181,6 +181,10 @@ export class Pathfinder {
         return Object.values(inRangeTilesByLocation);
     }
 
+    findReachableSquaddies(searchParams: SearchParams): SearchResults {
+        return undefined;
+    }
+
     private searchMapForPaths(searchParams: SearchParams): SearchResults {
         const workingSearchState: SearchState = new SearchState(searchParams);
 
