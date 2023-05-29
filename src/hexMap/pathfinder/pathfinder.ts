@@ -55,12 +55,12 @@ class SearchState {
 
     hasAlreadyMarkedLocationAsVisited(location: HexCoordinate): boolean {
         let locationKey: string = HexCoordinateToKey(location);
-        return this.tileLocationsAlreadyVisited[locationKey] !== true;
+        return this.tileLocationsAlreadyVisited[locationKey] === true;
     }
 
     hasAlreadyMarkedLocationAsEnqueued(location: HexCoordinate): boolean {
         let locationKey: string = HexCoordinateToKey(location);
-        return this.tileLocationsAlreadyConsideredForQueue[locationKey] !== true;
+        return this.tileLocationsAlreadyConsideredForQueue[locationKey] === true;
     }
 
     markLocationAsConsideredForQueue(mostRecentTileLocation: TileFoundDescription) {
@@ -128,6 +128,24 @@ class SearchState {
     setLowestCostRoute(searchPath: SearchPath) {
         this.results.setLowestCostRoute(searchPath);
     }
+
+    recordReachableSquaddies(searchParams: SearchParams, missionMap: MissionMap) {
+        missionMap.getAllSquaddieIds().forEach((squaddieId: SquaddieId) => {
+            const squaddieLocation = missionMap.getSquaddieLocationById(squaddieId.id);
+            if (this.hasAlreadyMarkedLocationAsVisited(squaddieLocation)) {
+                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.id, 0, squaddieLocation);
+            }
+
+            const adjacentLocations: [number, number][] = CreateNewPathCandidates(squaddieLocation.q, squaddieLocation.r);
+            this.getTilesSearchCanStopAt().forEach((description: TileFoundDescription) => {
+                adjacentLocations.forEach((location: [number, number]) => {
+                    if (description.q === location[0] && description.r === location[1]) {
+                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.id, 1, description);
+                    }
+                });
+            });
+        });
+    }
 }
 
 export class Pathfinder {
@@ -181,6 +199,10 @@ export class Pathfinder {
         return Object.values(inRangeTilesByLocation);
     }
 
+    findReachableSquaddies(searchParams: SearchParams): SearchResults {
+        return this.getAllReachableTiles(searchParams);
+    }
+
     private searchMapForPaths(searchParams: SearchParams): SearchResults {
         const workingSearchState: SearchState = new SearchState(searchParams);
 
@@ -216,6 +238,7 @@ export class Pathfinder {
             }
         }
         workingSearchState.setAllReachableTiles();
+        workingSearchState.recordReachableSquaddies(searchParams, searchParams.getMissionMap());
         return workingSearchState.results;
     }
 
@@ -375,7 +398,7 @@ export class Pathfinder {
         workingSearchState: SearchState,
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
-            return workingSearchState.hasAlreadyMarkedLocationAsVisited({
+            return !workingSearchState.hasAlreadyMarkedLocationAsVisited({
                 q: neighbor[0],
                 r: neighbor[1],
             });
@@ -387,7 +410,7 @@ export class Pathfinder {
         workingSearchState: SearchState,
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
-            return workingSearchState.hasAlreadyMarkedLocationAsEnqueued({
+            return !workingSearchState.hasAlreadyMarkedLocationAsEnqueued({
                 q: neighbor[0],
                 r: neighbor[1],
             });

@@ -99,6 +99,10 @@ export class SearchParams {
         return (this.movement.canStopOnSquaddies === true)
     }
 
+    getMissionMap(): MissionMap {
+        return this.setup.missionMap;
+    }
+
     getSearchParamsOptions(): SearchParamsOptions {
         return {
             canStopOnSquaddies: this.movement.canStopOnSquaddies,

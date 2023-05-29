@@ -2,6 +2,7 @@ import {HexCoordinate, HexCoordinateToKey} from "../hexGrid";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
+import {ReachableSquaddiesResults} from "./reachableSquaddiesResults";
 
 export type SearchResultOptions = {
     stopLocation?: HexCoordinate;
@@ -11,11 +12,13 @@ export class SearchResults {
     allReachableTiles: TileFoundDescription[];
     lowestCostRoutes: { [key: string]: SearchPath };
     stopLocation?: HexCoordinate;
+    reachableSquaddies: ReachableSquaddiesResults;
 
     constructor(options?: SearchResultOptions) {
         this.allReachableTiles = [];
         this.lowestCostRoutes = {};
         this.stopLocation = options ? options.stopLocation : undefined;
+        this.reachableSquaddies = new ReachableSquaddiesResults();
     }
 
     getRouteToStopLocation(): ResultOrError<SearchPath, Error> {
@@ -108,5 +111,9 @@ export class SearchResults {
             }
             return 0;
         });
+    }
+
+    getReachableSquaddies(): ReachableSquaddiesResults {
+        return this.reachableSquaddies;
     }
 }
