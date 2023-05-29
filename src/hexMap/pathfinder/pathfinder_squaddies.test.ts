@@ -351,53 +351,29 @@ describe('pathfinder and squaddies', () => {
             missionMap,
             pathfinder,
         } = createMapAndPathfinder([
-            "1 1 x f 1 1 1 1 - 1 ",
-            " 1 1 1 1 a ",
+            "1 1 1 1 1 1 1 1 1 1 ",
+            " 1 1 1 1 1 ",
         ]);
 
         missionMap.addSquaddie(
-            new SquaddieId({
-                name: "enemy is nearby and could be flanked",
-                id: "enemy_nearby",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.ENEMY
-            }),
+            NewDummySquaddieID("enemy_nearby", SquaddieAffiliation.ENEMY),
             {q: 0, r: 2}
-        )
+        );
 
         missionMap.addSquaddie(
-            new SquaddieId({
-                name: "ally can be passed through and is flanking enemy",
-                id: "ally_flanking",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.ALLY
-            }),
+            NewDummySquaddieID("ally_flanking", SquaddieAffiliation.ALLY),
             {q: 0, r: 3}
-        )
+        );
 
         missionMap.addSquaddie(
-            new SquaddieId({
-                name: "ally at the edge of movement",
-                id: "ally_at_the_edge",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.ALLY
-            }),
+            NewDummySquaddieID("ally_at_the_edge", SquaddieAffiliation.ALLY),
             {q: 0, r: 4}
-        )
+        );
 
         missionMap.addSquaddie(
-            new SquaddieId({
-                name: "ally too far away to get close to",
-                id: "ally_far_away",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.ALLY
-            }),
+            NewDummySquaddieID("ally_far_away", SquaddieAffiliation.ALLY),
             {q: 0, r: 8}
-        )
+        );
 
         const searchResults: SearchResults =
             pathfinder.findReachableSquaddies(new SearchParams({
@@ -426,7 +402,7 @@ describe('pathfinder and squaddies', () => {
 
         const allyAtTheEdge = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_at_the_edge");
         expect(allyAtTheEdge[1]).toContainEqual({q: 1, r: 3});
-        expect(allyAtTheEdge[0]).not.toContainEqual({q: 1, r: 4}); // Out of movement
+        expect(allyAtTheEdge[0]).toBeUndefined(); // Out of movement, cannot reach ally's location
 
         const allyFarAway = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_far_away");
         expect(allyFarAway).toBeUndefined();

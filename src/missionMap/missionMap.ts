@@ -14,7 +14,7 @@ export class MissionMap {
         [id: string]: {
             q: number;
             r: number;
-            squaddieID: SquaddieId;
+            squaddieId: SquaddieId;
         };
     }
 
@@ -49,7 +49,7 @@ export class MissionMap {
         this.squaddiesById[squaddieID.id] = {
             q: hexCoordinate.q,
             r: hexCoordinate.r,
-            squaddieID: squaddieID
+            squaddieId: squaddieID
         };
 
         return undefined;
@@ -76,7 +76,13 @@ export class MissionMap {
         if (!moreInfo) {
             return undefined;
         }
-        return this.squaddiesById[moreInfo.id]?.squaddieID;
+        return this.squaddiesById[moreInfo.id]?.squaddieId;
+    }
+
+    getAllSquaddieIds() {
+        return Object.values(this.squaddiesById).map(info =>
+            info.squaddieId
+        );
     }
 
     getTerrainTileTypeAtLocation(hexCoordinate: HexCoordinate): HexGridMovementCost {
@@ -115,6 +121,6 @@ export class MissionMap {
         });
         delete this.squaddiesByLocation[squaddieToMoveCoordinateKey];
 
-        return this.addSquaddie(squaddieToMoveInfo.squaddieID, mapLocation);
+        return this.addSquaddie(squaddieToMoveInfo.squaddieId, mapLocation);
     }
 }

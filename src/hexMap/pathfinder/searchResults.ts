@@ -12,11 +12,13 @@ export class SearchResults {
     allReachableTiles: TileFoundDescription[];
     lowestCostRoutes: { [key: string]: SearchPath };
     stopLocation?: HexCoordinate;
+    reachableSquaddies: ReachableSquaddiesResults;
 
     constructor(options?: SearchResultOptions) {
         this.allReachableTiles = [];
         this.lowestCostRoutes = {};
         this.stopLocation = options ? options.stopLocation : undefined;
+        this.reachableSquaddies = new ReachableSquaddiesResults();
     }
 
     getRouteToStopLocation(): ResultOrError<SearchPath, Error> {
@@ -112,6 +114,6 @@ export class SearchResults {
     }
 
     getReachableSquaddies(): ReachableSquaddiesResults {
-        return undefined;
+        return this.reachableSquaddies;
     }
 }
