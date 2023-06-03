@@ -133,6 +133,7 @@ class SearchState {
         missionMap.getAllSquaddieIds().forEach((squaddieId: SquaddieId) => {
             const squaddieLocation = missionMap.getSquaddieLocationById(squaddieId.id);
             if (this.hasAlreadyMarkedLocationAsVisited(squaddieLocation)) {
+                this.results.reachableSquaddies.addSquaddie(squaddieId.id, squaddieLocation);
                 this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.id, 0, squaddieLocation);
             }
 
@@ -140,6 +141,7 @@ class SearchState {
             this.getTilesSearchCanStopAt().forEach((description: TileFoundDescription) => {
                 adjacentLocations.forEach((location: [number, number]) => {
                     if (description.q === location[0] && description.r === location[1]) {
+                        this.results.reachableSquaddies.addSquaddie(squaddieId.id, squaddieLocation);
                         this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.id, 1, description);
                     }
                 });

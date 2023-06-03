@@ -7,9 +7,9 @@ import {
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
-import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 
 export class BattleMapDisplay implements OrchestratorComponent {
     draw(state: OrchestratorState, p: p5): void {
@@ -104,14 +104,21 @@ export class BattleMapDisplay implements OrchestratorComponent {
     }
 
     private drawSquaddieMapIcons(state: OrchestratorState, p: p5) {
+        let currentlyMovingSquaddie: string = "";
+        if (
+            state.squaddieCurrentlyActing
+            && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
+        ) {
+            currentlyMovingSquaddie = state.squaddieCurrentlyActing.dynamicSquaddieId;
+        }
+
         state.squaddieRepo.getDynamicSquaddieIterator()
             .filter((info) =>
                 info.dynamicSquaddie.mapIcon
             )
             .forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
-                if (state.battleSquaddieUIInput.selectionState === BattleSquaddieUISelectionState.MOVING_SQUADDIE && dynamicSquaddieId === state.battleSquaddieUIInput.selectedSquaddieDynamicID) {
-                } else {
+                if (dynamicSquaddieId !== currentlyMovingSquaddie) {
                     drawSquaddieMapIconAtMapLocation(p, state.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, state.camera);
                 }
             });

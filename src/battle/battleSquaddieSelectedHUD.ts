@@ -253,6 +253,10 @@ export class BattleSquaddieSelectedHUD {
             button.buttonArea.isInside(mouseX, mouseY)
         );
 
+        if (!clickedActivityButton) {
+            return;
+        }
+
         this.selectedActivity = clickedActivityButton.activity;
     }
 

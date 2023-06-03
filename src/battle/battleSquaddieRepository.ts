@@ -37,6 +37,11 @@ export class BattleSquaddieRepository {
         this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId] = dynamicSquaddie;
     }
 
+    addSquaddie(staticSquaddie: BattleSquaddieStatic, dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic) {
+        this.addStaticSquaddie(staticSquaddie);
+        this.addDynamicSquaddie(dynamicSquaddieId, dynamicSquaddie);
+    }
+
     getSquaddieByDynamicID(dynamicSquaddieId: string): ResultOrError<{
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic,

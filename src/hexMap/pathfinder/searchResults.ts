@@ -113,6 +113,18 @@ export class SearchResults {
         });
     }
 
+    calculateNumberOfMoveActionsRequired(targetLocation: HexCoordinate): number {
+        const reachableTilesByNumberOfMovementActions = this.getReachableTilesByNumberOfMovementActions();
+        const [numberOfMoveActionsStr, _] =
+            Object.entries(reachableTilesByNumberOfMovementActions)
+                .find(([_, destination]) => {
+                    return destination.some((mapLocation) =>
+                        mapLocation.q === targetLocation.q && mapLocation.r === targetLocation.r
+                    )
+                });
+        return parseInt(numberOfMoveActionsStr);
+    }
+
     getReachableSquaddies(): ReachableSquaddiesResults {
         return this.reachableSquaddies;
     }
