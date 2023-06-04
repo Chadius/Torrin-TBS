@@ -33,6 +33,7 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
 
     reset(state: OrchestratorState): void {
         this.animationCompleteStartTime = undefined;
+        state.squaddieCurrentlyActing = undefined;
     }
 
     update(state: OrchestratorState, p: p5): void {

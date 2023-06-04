@@ -109,6 +109,7 @@ export const moveSquaddieAlongPath = (dynamicSquaddie: BattleSquaddieDynamic, ti
         TIME_TO_MOVE,
         camera,
     )
-
-    setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
+    if (dynamicSquaddie.mapIcon) {
+        setImageToLocation(dynamicSquaddie, squaddieDrawCoordinates);
+    }
 }

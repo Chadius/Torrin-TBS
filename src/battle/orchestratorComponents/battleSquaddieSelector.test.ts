@@ -406,6 +406,61 @@ describe('BattleSquaddieSelector', () => {
             const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
         });
+
+        it('will prepare to move if computer controlled squaddie wants to move', () => {
+            const moveActivity = makeSquaddieMoveActivity(
+                "enemy_demon",
+                "enemy_demon_0",
+            );
+
+            class TestTeamStrategy implements TeamStrategy {
+                DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+                    return moveActivity;
+                }
+            }
+
+            const hexMap: TerrainTileMap = new TerrainTileMap({
+                movementCost: [
+                    "1 1 1 ",
+                    " 1 1 1 ",
+                ]
+            });
+
+            const missionMap = new MissionMap({
+                terrainTileMap: hexMap
+            });
+
+            const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
+            const mockBattleSquaddieUIInput: BattleSquaddieUIInput = new (<new (options: any) => BattleSquaddieUIInput>BattleSquaddieUIInput)({}) as jest.Mocked<BattleSquaddieUIInput>;
+            const state: OrchestratorState = new OrchestratorState({
+                battlePhaseTracker,
+                squaddieRepo,
+                camera,
+                missionMap,
+                hexMap,
+                battleSquaddieUIInput: mockBattleSquaddieUIInput,
+                pathfinder: new Pathfinder(),
+                teamStrategyByAffiliation: {
+                    ENEMY: [new TestTeamStrategy()]
+                }
+            });
+
+            const hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles");
+            const battleSquaddieUIInputChangeSelectionStateSpy = jest.spyOn(mockBattleSquaddieUIInput, "changeSelectionState");
+
+            selector.update(state, mockedP5);
+
+            expect(selector.hasCompleted(state)).toBeTruthy();
+            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
+
+            expect(state.squaddieMovePath.getDestination()).toStrictEqual(moveActivity.destinationLocation());
+            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("enemy_demon_0");
+            expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(1);
+            expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieMovementActivity);
+            expect(hexMapHighlightTilesSpy).toBeCalled();
+            expect(battleSquaddieUIInputChangeSelectionStateSpy).toBeCalledWith(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
+        });
     });
 
     it('will change phase if no squaddies are able to act', () => {

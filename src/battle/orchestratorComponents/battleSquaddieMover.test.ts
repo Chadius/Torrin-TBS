@@ -3,7 +3,7 @@ import {SquaddieId} from "../../squaddie/id";
 import {NullSquaddieResource} from "../../squaddie/resource";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullSquaddieMovement} from "../../squaddie/movement";
+import {NullSquaddieMovement, SquaddieMovement} from "../../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
@@ -44,10 +44,11 @@ describe('BattleSquaddieMover', () => {
             movement: NullSquaddieMovement(),
             activities: [],
         };
+
         player1Dynamic = new BattleSquaddieDynamic({
             staticSquaddieId: "player_1",
             mapLocation: {q: 0, r: 0},
-            squaddieTurn: new SquaddieTurn()
+            squaddieTurn: new SquaddieTurn(),
         });
 
         squaddieRepo.addStaticSquaddie(
@@ -86,12 +87,16 @@ describe('BattleSquaddieMover', () => {
                     squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     canStopOnSquaddies: true,
                     missionMap: map,
+                    squaddieMovement: new SquaddieMovement({
+                        movementPerAction: 999,
+                        traits: NullTraitStatusStorage()
+                    })
                 }))
             ).getRouteToStopLocation());
 
         const moveActivity: SquaddieInstruction = new SquaddieInstruction({
-            staticSquaddieId: "player_static_0",
-            dynamicSquaddieId: "player_dynamic_0",
+            staticSquaddieId: "player_1",
+            dynamicSquaddieId: "player_1",
             startingLocation: {q: 0, r: 0},
         });
         moveActivity.addMovement(new SquaddieMovementActivity({
@@ -103,20 +108,24 @@ describe('BattleSquaddieMover', () => {
             squaddieRepo,
             battleSquaddieUIInput: uiInput,
             pathfinder,
+            missionMap: map,
             squaddieMovePath: movePath,
             hexMap: map.terrainTileMap,
             squaddieCurrentlyActing: {
-                dynamicSquaddieId: "player_dynamic_0",
+                dynamicSquaddieId: "player_1",
                 instruction: moveActivity,
             }
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
+        jest.spyOn(Date, 'now').mockImplementation(() => 1);
+        mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeFalsy();
 
-        jest.spyOn(Date, 'now').mockImplementation(() => 0 + TIME_TO_MOVE);
+        jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
         mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
+        expect(state.squaddieCurrentlyActing).toBeUndefined();
     });
 });

@@ -164,6 +164,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         if (newSelectionState === BattleSquaddieUISelectionState.MOVING_SQUADDIE) {
             this.createSearchPath(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
+            this.addMovementInstruction(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
         }
     }
 
@@ -202,8 +203,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
         state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
-
-        this.addMovementInstruction(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
     }
 
     private addMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
@@ -231,7 +230,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             numberOfActionsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
         }));
         this.gaveInstruction = true;
-
         state.battleEventRecording.addEvent(new BattleEvent({
             instruction: state.squaddieCurrentlyActing.instruction
         }));
@@ -261,8 +259,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         let nextMode: BattleOrchestratorMode = undefined;
 
         if (this.gaveInstruction) {
-            let newActivity = state.squaddieCurrentlyActing.instruction.getActivities().reverse()[0];
-
+            let newActivity = state.squaddieCurrentlyActing.instruction.getMostRecentActivity();
             if (newActivity instanceof SquaddieMovementActivity) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
             }
@@ -292,13 +289,15 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             const currentTeamStrategies: TeamStrategy[] = state.teamStrategyByAffiliation[currentTeam.getAffiliation()];
 
             let strategyIndex = 0;
-            let activity: SquaddieInstruction = undefined;
-            while (!activity && strategyIndex < currentTeamStrategies.length) {
+            let squaddieInstruction: SquaddieInstruction = undefined;
+            while (!squaddieInstruction && strategyIndex < currentTeamStrategies.length) {
                 const nextStrategy: TeamStrategy = currentTeamStrategies[strategyIndex];
-                activity = this.askTeamStrategyToInstructSquaddie(state, currentTeam, nextStrategy);
+                squaddieInstruction = this.askTeamStrategyToInstructSquaddie(state, currentTeam, nextStrategy);
                 strategyIndex++;
             }
-            if (!activity) {
+            if (squaddieInstruction) {
+                this.reactToComputerSelectedActivity(state, squaddieInstruction);
+            } else {
                 this.defaultSquaddieToEndTurn(state, currentTeam);
             }
 
@@ -308,6 +307,10 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     private defaultSquaddieToEndTurn(state: OrchestratorState, currentTeam: BattleSquaddieTeam) {
         const dynamicSquaddieId: string = currentTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled();
+        return this.addEndTurnInstruction(state, dynamicSquaddieId);
+    }
+
+    private addEndTurnInstruction(state: OrchestratorState, dynamicSquaddieId: string) {
         const {
             staticSquaddie,
             dynamicSquaddie,
@@ -334,8 +337,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         return squaddieActivity;
     }
 
-
-    private askTeamStrategyToInstructSquaddie(state: OrchestratorState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy) {
+    private askTeamStrategyToInstructSquaddie(state: OrchestratorState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): SquaddieInstruction {
         const teamStrategyState: TeamStrategyState = new TeamStrategyState({
             missionMap: state.missionMap,
             team: currentTeam,
@@ -346,17 +348,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         if (!squaddieActivity) {
             return;
         }
-
-        state.squaddieCurrentlyActing = {
-            dynamicSquaddieId: squaddieActivity.getDynamicSquaddieId(),
-            instruction: squaddieActivity,
-        }
-
-        this.gaveInstruction = true;
-
-        state.battleEventRecording.addEvent(new BattleEvent({
-            instruction: squaddieActivity
-        }));
 
         return squaddieActivity;
     }
@@ -409,6 +400,22 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 timeToPan: SQUADDIE_SELECTOR_PANNING_TIME,
                 respectConstraints: true,
             });
+        }
+    }
+
+    private reactToComputerSelectedActivity(state: OrchestratorState, squaddieInstruction: SquaddieInstruction) {
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(squaddieInstruction.dynamicSquaddieId));
+        let newActivity = squaddieInstruction.getMostRecentActivity();
+        if (newActivity instanceof SquaddieMovementActivity) {
+            this.createSearchPath(state, staticSquaddie, dynamicSquaddie, newActivity.destination);
+            this.addMovementInstruction(state, staticSquaddie, dynamicSquaddie, newActivity.destination);
+            return;
+        }
+        if (newActivity instanceof SquaddieEndTurnActivity) {
+            this.addEndTurnInstruction(state, squaddieInstruction.dynamicSquaddieId);
         }
     }
 }
