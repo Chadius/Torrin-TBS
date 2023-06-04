@@ -41,7 +41,7 @@ export type OrchestratorStateOptions = {
     battlePhaseState: BattlePhaseState;
     squaddieCurrentlyActing: CurrentSquaddieAnimationState;
     battleEventRecording: Recording;
-    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy }
+    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 }
 
 export class OrchestratorState {
@@ -61,7 +61,7 @@ export class OrchestratorState {
     battlePhaseState: BattlePhaseState;
     squaddieCurrentlyActing: CurrentSquaddieAnimationState;
     battleEventRecording: Recording;
-    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy }
+    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 
     constructor(options: Partial<OrchestratorStateOptions> = {}) {
         this.displayMap = options.displayMap || false;
@@ -96,7 +96,7 @@ export class OrchestratorState {
         this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
     }
 
-    private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy }) {
+    private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {
         this.teamStrategyByAffiliation = {...teamStrategyByAffiliation};
         [
             SquaddieAffiliation.PLAYER,
@@ -110,7 +110,7 @@ export class OrchestratorState {
             if (affiliation === SquaddieAffiliation.PLAYER) {
                 return;
             }
-            this.teamStrategyByAffiliation[affiliation] = new EndTurnTeamStrategy();
+            this.teamStrategyByAffiliation[affiliation] = [new EndTurnTeamStrategy()];
         });
     }
 }

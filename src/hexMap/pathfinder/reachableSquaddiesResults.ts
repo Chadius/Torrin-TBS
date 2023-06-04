@@ -4,9 +4,38 @@ export type HexCoordinatesByDistance = {
     [distance: number]: HexCoordinate[]
 };
 
-export type ReachableSquaddieDescription = {
+export class ReachableSquaddieDescription {
     squaddieMapLocation: HexCoordinate
     closestCoordinatesByDistance: HexCoordinatesByDistance
+
+    constructor(options: {
+        squaddieMapLocation?: HexCoordinate,
+        closestCoordinatesByDistance: HexCoordinatesByDistance
+    }) {
+        this.squaddieMapLocation = options.squaddieMapLocation;
+        this.closestCoordinatesByDistance = options.closestCoordinatesByDistance;
+    }
+
+    getClosestAdjacentDistanceToSquaddie() {
+        const distances: number[] = Object.keys(this.closestCoordinatesByDistance).sort((a, b) => {
+            if (parseInt(a) < parseInt(b)) {
+                return -1;
+            }
+            if (parseInt(a) > parseInt(b)) {
+                return 1;
+            }
+            return 0;
+        }).map(g => parseInt(g));
+        return distances.find(d => d > 0);
+    }
+
+    getClosestAdjacentLocationToSquaddie() {
+        const closestDistance = this.getClosestAdjacentDistanceToSquaddie();
+        if (closestDistance === undefined) {
+            return undefined;
+        }
+        return this.closestCoordinatesByDistance[closestDistance][0];
+    }
 }
 
 export class ReachableSquaddiesResults {
@@ -20,10 +49,9 @@ export class ReachableSquaddiesResults {
 
     addCoordinateCloseToSquaddie(squaddieId: string, distance: number, hexCoordinate: HexCoordinate) {
         if (!this.coordinatesCloseToSquaddieByDistance[squaddieId]) {
-            this.coordinatesCloseToSquaddieByDistance[squaddieId] = {
-                squaddieMapLocation: undefined,
+            this.coordinatesCloseToSquaddieByDistance[squaddieId] = new ReachableSquaddieDescription({
                 closestCoordinatesByDistance: {}
-            };
+            });
         }
 
         if (!this.coordinatesCloseToSquaddieByDistance[squaddieId].closestCoordinatesByDistance[distance]) {
@@ -48,10 +76,10 @@ export class ReachableSquaddiesResults {
 
     addSquaddie(squaddieId: string, mapLocation: { q: number; r: number }) {
         if (!this.coordinatesCloseToSquaddieByDistance[squaddieId]) {
-            this.coordinatesCloseToSquaddieByDistance[squaddieId] = {
+            this.coordinatesCloseToSquaddieByDistance[squaddieId] = new ReachableSquaddieDescription({
                 squaddieMapLocation: mapLocation,
                 closestCoordinatesByDistance: {}
-            };
+            });
         }
 
         this.coordinatesCloseToSquaddieByDistance[squaddieId].squaddieMapLocation = mapLocation;
@@ -66,5 +94,20 @@ export class ReachableSquaddiesResults {
             squaddieInfo[squaddieId] = description.squaddieMapLocation
         });
         return squaddieInfo;
+    }
+
+    getClosestSquaddie(squaddieIds: string[]) {
+        let foundSquaddieId = "";
+        let minimumDistanceToSquaddie = 0;
+        squaddieIds.forEach((squaddieId) => {
+            const distanceToSquaddieDescription = this.getCoordinatesCloseToSquaddieByDistance(squaddieId);
+            const minimumDistance = distanceToSquaddieDescription.getClosestAdjacentDistanceToSquaddie();
+
+            if (foundSquaddieId === "" || minimumDistance === undefined || minimumDistance < minimumDistanceToSquaddie) {
+                foundSquaddieId = squaddieId;
+                minimumDistanceToSquaddie = minimumDistance ?? 0;
+            }
+        });
+        return foundSquaddieId;
     }
 }

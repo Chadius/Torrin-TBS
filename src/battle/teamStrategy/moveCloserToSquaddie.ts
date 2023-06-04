@@ -6,22 +6,27 @@ import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
-import {ReachableSquaddieDescription} from "../../hexMap/pathfinder/reachableSquaddiesResults";
-import {HexCoordinate} from "../../hexMap/hexGrid";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
-// TODO Make a MoveCloser specific state object, I want this strategy to be stateless!
 export type MoveCloserToSquaddieOptions = {
-    desiredDynamicSquaddieId?: string
+    desiredDynamicSquaddieId?: string;
+    desiredAffiliation?: SquaddieAffiliation;
 }
 
 export class MoveCloserToSquaddie implements TeamStrategy {
     desiredDynamicSquaddieId: string;
+    desiredAffiliation: SquaddieAffiliation;
 
     constructor(options: MoveCloserToSquaddieOptions) {
         this.desiredDynamicSquaddieId = options.desiredDynamicSquaddieId;
+        this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+        if (!this.desiredDynamicSquaddieId && !this.desiredAffiliation) {
+            throw new Error("Move Closer to Squaddie strategy has no target");
+        }
+
         const squaddiesWhoCanAct: string[] = state.getTeam().getDynamicSquaddiesThatCanAct();
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
@@ -45,17 +50,37 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         const reachableSquaddiesResults = searchResults.getReachableSquaddies();
         const reachableSquaddieLocations = reachableSquaddiesResults.getClosestSquaddies();
 
-        const [foundSquaddieId, _] = Object.entries(reachableSquaddieLocations).find(([squaddieId, mapLocation]) => {
+        const foundInfo = Object.entries(reachableSquaddieLocations).filter(([squaddieId, mapLocation]) => {
             const {
                 dynamicSquaddieId,
+                staticSquaddie,
             } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByStaticIdAndLocation(squaddieId, mapLocation));
-            return dynamicSquaddieId === this.desiredDynamicSquaddieId;
+            if (this.desiredDynamicSquaddieId) {
+                return dynamicSquaddieId === this.desiredDynamicSquaddieId;
+            }
+            if (this.desiredAffiliation) {
+                return staticSquaddie.squaddieId.affiliation === this.desiredAffiliation;
+            }
+            return false;
         });
 
-        if (foundSquaddieId) {
-            const closestCoordinatesByDistance = reachableSquaddiesResults.getCoordinatesCloseToSquaddieByDistance(foundSquaddieId);
-            const targetLocation = this.getClosestLocationToSquaddie(closestCoordinatesByDistance);
-            const numberOfMoveActions = this.calculateNumberOfMoveActionsRequired(searchResults, targetLocation);
+        if (foundInfo.length === 0) {
+            return undefined;
+        }
+
+        let closestSquaddieToMoveTowards = reachableSquaddiesResults.getClosestSquaddie(
+            foundInfo.map(([squaddieId, _]) =>
+                squaddieId
+            )
+        );
+
+        if (closestSquaddieToMoveTowards) {
+            const closestCoordinatesByDistance = reachableSquaddiesResults.getCoordinatesCloseToSquaddieByDistance(closestSquaddieToMoveTowards);
+            const targetLocation = closestCoordinatesByDistance.getClosestAdjacentLocationToSquaddie();
+            if (targetLocation === undefined) {
+                return undefined;
+            }
+            const numberOfMoveActions = searchResults.calculateNumberOfMoveActionsRequired(targetLocation);
 
             const moveTowardsLocation: SquaddieInstruction = new SquaddieInstruction({
                 staticSquaddieId: staticSquaddie.squaddieId.id,
@@ -70,47 +95,6 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             return moveTowardsLocation;
         }
 
-        const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
-            staticSquaddieId: staticSquaddie.squaddieId.id,
-            dynamicSquaddieId: squaddieToAct,
-            startingLocation: dynamicSquaddie.mapLocation,
-        });
-        endTurnActivity.endTurn();
-
-        state.setInstruction(endTurnActivity);
-
-        return endTurnActivity;
-    }
-
-    private calculateNumberOfMoveActionsRequired(searchResults: SearchResults, targetLocation: HexCoordinate) {
-        const reachableTilesByNumberOfMovementActions = searchResults.getReachableTilesByNumberOfMovementActions();
-        const [numberOfMoveActionsStr, _] =
-            Object.entries(reachableTilesByNumberOfMovementActions)
-                .find(([_, destination]) => {
-                    return destination.some((mapLocation) =>
-                        mapLocation.q === targetLocation.q && mapLocation.r === targetLocation.r
-                    )
-                });
-        return parseInt(numberOfMoveActionsStr);
-    }
-
-    private getClosestLocationToSquaddie(closestCoordinatesByDistance: ReachableSquaddieDescription) {
-        const closestDistance = this.getClosestDistanceToSquaddie(closestCoordinatesByDistance);
-        const targetLocation = closestCoordinatesByDistance.closestCoordinatesByDistance[closestDistance][0];
-        return targetLocation;
-    }
-
-    private getClosestDistanceToSquaddie(closestCoordinatesByDistance: ReachableSquaddieDescription) {
-        const distances: number[] = Object.keys(closestCoordinatesByDistance.closestCoordinatesByDistance).sort((a, b) => {
-            if (parseInt(a) < parseInt(b)) {
-                return -1;
-            }
-            if (parseInt(a) > parseInt(b)) {
-                return 1;
-            }
-            return 0;
-        }).map(g => parseInt(g));
-        const closestDistance = distances.find(d => d > 0);
-        return closestDistance;
+        return undefined;
     }
 }

@@ -29,6 +29,8 @@ import {endTurnActivity} from "../../squaddie/endTurnActivity";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
+import {TeamStrategy} from "../teamStrategy/teamStrategy";
+import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 
 jest.mock('p5', () => () => {
     return {}
@@ -332,41 +334,78 @@ describe('BattleSquaddieSelector', () => {
         }));
     });
 
-    it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
-        const battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam();
-        const enemyEndTurnStrategy = new EndTurnTeamStrategy();
-        const strategySpy = jest.spyOn(enemyEndTurnStrategy, "DetermineNextInstruction");
+    describe('squaddie team strategy', () => {
+        let battlePhaseTracker: BattlePhaseTracker;
 
-        const state: OrchestratorState = new OrchestratorState({
-            battlePhaseTracker,
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
-            }),
-            squaddieRepo,
-            battleEventRecording: new Recording({}),
-            teamStrategyByAffiliation: {
-                ENEMY: enemyEndTurnStrategy,
-            },
+        beforeEach(() => {
+            battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam();
         });
 
-        selector.update(state, mockedP5);
-        expect(selector.hasCompleted(state)).toBeTruthy();
+        it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
+            const enemyEndTurnStrategy = new EndTurnTeamStrategy();
+            const strategySpy = jest.spyOn(enemyEndTurnStrategy, "DetermineNextInstruction");
 
-        const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
-        const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
-        expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
+            const state: OrchestratorState = new OrchestratorState({
+                battlePhaseTracker,
+                hexMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
+                squaddieRepo,
+                battleEventRecording: new Recording({}),
+                teamStrategyByAffiliation: {
+                    ENEMY: [enemyEndTurnStrategy],
+                },
+            });
 
-        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
-        expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+            selector.update(state, mockedP5);
+            expect(selector.hasCompleted(state)).toBeTruthy();
 
-        const history = state.battleEventRecording.getHistory();
-        expect(history).toHaveLength(1);
-        expect(history[0]).toStrictEqual(new BattleEvent({
-            instruction: endTurnActivityInstruction
-        }));
+            const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
+            const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
+            expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
 
-        expect(strategySpy).toHaveBeenCalled();
-        strategySpy.mockClear();
+            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+
+            const history = state.battleEventRecording.getHistory();
+            expect(history).toHaveLength(1);
+            expect(history[0]).toStrictEqual(new BattleEvent({
+                instruction: endTurnActivityInstruction
+            }));
+
+            expect(strategySpy).toHaveBeenCalled();
+            strategySpy.mockClear();
+        });
+
+        it('will default to ending its turn if none of the strategies provide instruction', () => {
+            class TestTeamStrategy implements TeamStrategy {
+                DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+                    return undefined;
+                }
+            }
+
+            const state: OrchestratorState = new OrchestratorState({
+                battlePhaseTracker,
+                hexMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
+                squaddieRepo,
+                battleEventRecording: new Recording({}),
+                teamStrategyByAffiliation: {
+                    ENEMY: [new TestTeamStrategy()],
+                },
+            });
+
+            selector.update(state, mockedP5);
+            expect(selector.hasCompleted(state)).toBeTruthy();
+
+            const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
+            const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
+            expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
+
+            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+        });
     });
 
     it('will change phase if no squaddies are able to act', () => {

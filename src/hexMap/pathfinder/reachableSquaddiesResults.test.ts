@@ -1,4 +1,4 @@
-import {HexCoordinatesByDistance, ReachableSquaddiesResults} from "./reachableSquaddiesResults";
+import {ReachableSquaddieDescription, ReachableSquaddiesResults} from "./reachableSquaddiesResults";
 
 describe('Reachable Squaddies Results', () => {
     it('can add squaddies by distance', () => {
@@ -22,8 +22,9 @@ describe('Reachable Squaddies Results', () => {
         expect(soldierDistanceResults.closestCoordinatesByDistance[2]).toContainEqual({q: 0, r: 2});
         expect(soldierDistanceResults.closestCoordinatesByDistance[2]).toContainEqual({q: 1, r: 1});
         expect(soldierDistanceResults.closestCoordinatesByDistance[3]).toBeUndefined();
+        expect(soldierDistanceResults.getClosestAdjacentDistanceToSquaddie()).toBe(1);
 
-        const doesNotExistResults: HexCoordinatesByDistance = results.getCoordinatesCloseToSquaddieByDistance("does not exist");
+        const doesNotExistResults: ReachableSquaddieDescription = results.getCoordinatesCloseToSquaddieByDistance("does not exist");
         expect(doesNotExistResults).toBeUndefined();
     });
 });

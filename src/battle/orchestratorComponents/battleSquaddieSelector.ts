@@ -289,11 +289,16 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     private askComputerControlSquaddie(state: OrchestratorState) {
         if (!this.gaveInstruction) {
             const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
-            const currentTeamStrategy: TeamStrategy = state.teamStrategyByAffiliation[currentTeam.getAffiliation()];
+            const currentTeamStrategies: TeamStrategy[] = state.teamStrategyByAffiliation[currentTeam.getAffiliation()];
 
-            if (currentTeamStrategy) {
-                this.askTeamStrategyToInstructSquaddie(state, currentTeam, currentTeamStrategy);
-            } else {
+            let strategyIndex = 0;
+            let activity: SquaddieInstruction = undefined;
+            while (!activity && strategyIndex < currentTeamStrategies.length) {
+                const nextStrategy: TeamStrategy = currentTeamStrategies[strategyIndex];
+                activity = this.askTeamStrategyToInstructSquaddie(state, currentTeam, nextStrategy);
+                strategyIndex++;
+            }
+            if (!activity) {
                 this.defaultSquaddieToEndTurn(state, currentTeam);
             }
 
@@ -338,6 +343,10 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         })
 
         let squaddieActivity: SquaddieInstruction = currentTeamStrategy.DetermineNextInstruction(teamStrategyState);
+        if (!squaddieActivity) {
+            return;
+        }
+
         state.squaddieCurrentlyActing = {
             dynamicSquaddieId: squaddieActivity.getDynamicSquaddieId(),
             instruction: squaddieActivity,

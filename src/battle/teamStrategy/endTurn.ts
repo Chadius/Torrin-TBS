@@ -4,7 +4,7 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export class EndTurnTeamStrategy implements TeamStrategy {
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
         const squaddiesWhoCanAct: string[] = state.getTeam().getDynamicSquaddiesThatCanAct();
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
