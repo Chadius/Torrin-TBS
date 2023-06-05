@@ -7,14 +7,16 @@ import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {HexCoordinate} from "../../hexMap/hexGrid";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 
-export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap) => {
+export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const reachableTileSearchResults: SearchResults = pathfinder.getAllReachableTiles(
         new SearchParams({
             missionMap: missionMap,
             startLocation: dynamicSquaddie.mapLocation,
             squaddieMovement: staticSquaddie.movement,
             squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
+            squaddieRepository,
             numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
         })
     );

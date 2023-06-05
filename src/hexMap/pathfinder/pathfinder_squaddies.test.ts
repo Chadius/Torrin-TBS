@@ -1,5 +1,5 @@
-import {NewDummySquaddieID, SquaddieId} from "../../squaddie/id";
-import {NullSquaddieResource, SquaddieResource} from "../../squaddie/resource";
+import {SquaddieId} from "../../squaddie/id";
+import {SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder} from "./pathfinder";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SearchParams, SearchParamsOptions} from "./searchParams";
@@ -11,6 +11,8 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError, ResultOrError} from "../../utils/ResultOrError";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {createMapAndPathfinder, createSquaddieMovements, validateTilesAreFound} from "./pathfinder_test_utils";
+import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {addSquaddieToSquaddieRepository} from "../../utils/test/squaddieRepository";
 
 describe('pathfinder and squaddies', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -91,11 +93,22 @@ describe('pathfinder and squaddies', () => {
                 traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
                 affiliation: blockingAffiliation,
             });
-            missionMap.addStaticSquaddieByLocation(blockingSquaddie, {q: 0, r: 1});
+            missionMap.addSquaddie(blockingSquaddie.staticId, "dynamic_0", {q: 0, r: 1});
+            let squaddieRepository = new BattleSquaddieRepository();
+
+            addSquaddieToSquaddieRepository(
+                "blocker",
+                "dynamic_0",
+                "blocker",
+                blockingAffiliation,
+                {q: 0, r: 0},
+                squaddieRepository
+            );
 
             const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
                 ...baseSearchParamOptions,
                 squaddieAffiliation: pathfindingAffiliation,
+                squaddieRepository
             }));
             if (canPassThrough) {
                 validateCanPassThroughFriendly(searchResults);
@@ -242,22 +255,10 @@ describe('pathfinder and squaddies', () => {
             "1 1 1 1 1 1 ",
         ]);
 
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("player", SquaddieAffiliation.PLAYER),
-            {q: 0, r: 0}
-        );
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("enemy", SquaddieAffiliation.ENEMY),
-            {q: 0, r: 1}
-        );
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("ally", SquaddieAffiliation.ALLY),
-            {q: 0, r: 2}
-        );
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("none", SquaddieAffiliation.NONE),
-            {q: 0, r: 3}
-        );
+        missionMap.addSquaddie("player", "player_dynamic_0", {q: 0, r: 0});
+        missionMap.addSquaddie("enemy", "enemy_dynamic_0", {q: 0, r: 1});
+        missionMap.addSquaddie("ally", "ally_dynamic_0", {q: 0, r: 2});
+        missionMap.addSquaddie("none", "none_dynamic_0", {q: 0, r: 3});
 
         const allTilesOnMap: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
             canStopOnSquaddies: true,
@@ -295,16 +296,18 @@ describe('pathfinder and squaddies', () => {
             " 1 1 1 1 1 ",
         ]);
 
-        missionMap.addStaticSquaddieByLocation(
-            new SquaddieId({
-                name: "enemy",
-                staticId: "enemy",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.ENEMY
-            }),
-            {q: 0, r: 1}
-        )
+        missionMap.addSquaddie("enemy", "dynamic_0", {q: 0, r: 1});
+
+        let squaddieRepository = new BattleSquaddieRepository();
+
+        addSquaddieToSquaddieRepository(
+            "enemy",
+            "dynamic_0",
+            "enemy",
+            SquaddieAffiliation.ENEMY,
+            {q: 0, r: 0},
+            squaddieRepository
+        );
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             missionMap: missionMap,
@@ -312,6 +315,7 @@ describe('pathfinder and squaddies', () => {
             startLocation: {q: 0, r: 0},
             stopLocation: {q: 0, r: 2},
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository,
         }));
 
         let routeFound: SearchPath;
@@ -355,25 +359,45 @@ describe('pathfinder and squaddies', () => {
             " 1 1 1 1 1 ",
         ]);
 
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("enemy_nearby", SquaddieAffiliation.ENEMY),
-            {q: 0, r: 2}
+        missionMap.addSquaddie("enemy_nearby", "enemy_nearby_dynamic_0", {q: 0, r: 2});
+        missionMap.addSquaddie("ally_flanking", "ally_flanking_dynamic_0", {q: 0, r: 3});
+        missionMap.addSquaddie("ally_at_the_edge", "ally_at_the_edge_dynamic_0", {q: 0, r: 4});
+        missionMap.addSquaddie("ally_far_away", "ally_far_away_dynamic_0", {q: 0, r: 8});
+
+        let squaddieRepository = new BattleSquaddieRepository();
+        addSquaddieToSquaddieRepository(
+            "enemy_nearby",
+            "enemy_nearby_dynamic_0",
+            "enemy_nearby_enemy",
+            SquaddieAffiliation.ENEMY,
+            {q: 0, r: 2},
+            squaddieRepository
+        );
+        addSquaddieToSquaddieRepository(
+            "ally_flanking",
+            "ally_flanking_dynamic_0",
+            "ally_flanking_enemy",
+            SquaddieAffiliation.ALLY,
+            {q: 0, r: 3},
+            squaddieRepository
+        );
+        addSquaddieToSquaddieRepository(
+            "ally_at_the_edge",
+            "ally_at_the_edge_dynamic_0",
+            "ally_at_the_edge_enemy",
+            SquaddieAffiliation.ALLY,
+            {q: 0, r: 4},
+            squaddieRepository
+        );
+        addSquaddieToSquaddieRepository(
+            "ally_far_away",
+            "ally_far_away_dynamic_0",
+            "ally_far_away_enemy",
+            SquaddieAffiliation.ALLY,
+            {q: 0, r: 8},
+            squaddieRepository
         );
 
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("ally_flanking", SquaddieAffiliation.ALLY),
-            {q: 0, r: 3}
-        );
-
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("ally_at_the_edge", SquaddieAffiliation.ALLY),
-            {q: 0, r: 4}
-        );
-
-        missionMap.addStaticSquaddieByLocation(
-            NewDummySquaddieID("ally_far_away", SquaddieAffiliation.ALLY),
-            {q: 0, r: 8}
-        );
 
         const searchResults: SearchResults =
             pathfinder.findReachableSquaddies(new SearchParams({
@@ -382,6 +406,7 @@ describe('pathfinder and squaddies', () => {
                 numberOfActions: 2,
                 startLocation: {q: 0, r: 0},
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                squaddieRepository
             }));
 
         const reachableSquaddies = searchResults.getReachableSquaddies();

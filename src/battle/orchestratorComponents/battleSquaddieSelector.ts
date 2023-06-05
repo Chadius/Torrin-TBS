@@ -12,7 +12,6 @@ import {
 import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
-import {SquaddieId} from "../../squaddie/id";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {
     getHighlightedTileDescriptionByNumberOfMovementActions,
@@ -111,24 +110,23 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 squaddieRepository: state.squaddieRepo,
             }
         );
-
         if (newSelectionState !== BattleSquaddieUISelectionState.SELECTED_SQUADDIE) {
             state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
-
-        const squaddieID: SquaddieId = state.missionMap.getStaticSquaddieAtLocation(clickedHexCoordinate);
-        if (!squaddieID) {
+        const squaddieDatum = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        if (!squaddieDatum.isValid()) {
             state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
+
         const {
             staticSquaddie,
             dynamicSquaddie,
             dynamicSquaddieId,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.staticId, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieDatum.staticSquaddieId, clickedHexCoordinate));
 
-        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap);
+        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepo);
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddieId);
         state.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }
@@ -141,9 +139,9 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             return;
         }
 
-        const squaddieID: SquaddieId = state.missionMap.getStaticSquaddieAtLocation(clickedHexCoordinate);
-        if (squaddieID) {
-            this.focusOnSelectedSquaddie(state, squaddieID, clickedHexCoordinate, mouseX, mouseY);
+        const squaddieDatum = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        if (squaddieDatum.isValid()) {
+            this.focusOnSelectedSquaddie(state, squaddieDatum.staticSquaddieId, clickedHexCoordinate, mouseX, mouseY);
         }
 
         const {
@@ -182,7 +180,8 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                     q: clickedHexCoordinate.q,
                     r: clickedHexCoordinate.r
                 },
-                squaddieAffiliation: staticSquaddie.squaddieId.affiliation
+                squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
+                squaddieRepository: state.squaddieRepo,
             }))
         );
 
@@ -235,15 +234,15 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         }));
     }
 
-    private focusOnSelectedSquaddie(state: OrchestratorState, squaddieID: SquaddieId, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
+    private focusOnSelectedSquaddie(state: OrchestratorState, staticSquaddieId: string, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         const {
             staticSquaddie,
             dynamicSquaddie,
             dynamicSquaddieId,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.staticId, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(staticSquaddieId, clickedHexCoordinate));
 
         state.hexMap.stopHighlightingTiles();
-        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap);
+        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepo);
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddieId);
         state.battleSquaddieSelectedHUD.mouseClickedSquaddieSelected(dynamicSquaddieId, mouseX, mouseY);
     }

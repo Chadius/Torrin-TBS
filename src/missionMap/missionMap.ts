@@ -1,126 +1,136 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {HexCoordinate, HexCoordinateToKey} from "../hexMap/hexGrid";
-import {SquaddieId} from "../squaddie/id";
+import {HexCoordinate} from "../hexMap/hexGrid";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
-import {HexMapLocationInfo} from "../hexMap/HexMapLocationInfo";
 
 type RequiredOptions = {
     terrainTileMap: TerrainTileMap;
 }
 
-export class MissionMap {
-    terrainTileMap: TerrainTileMap;
-    staticSquaddiesById: {
-        [id: string]: {
-            q: number;
-            r: number;
-            squaddieId: SquaddieId;
-        };
+export class MissionMapSquaddieDatum {
+    dynamicSquaddieId: string;
+    staticSquaddieId: string;
+    mapLocation?: HexCoordinate;
+
+    constructor(info: { dynamicSquaddieId: string, staticSquaddieId: string, mapLocation?: HexCoordinate }) {
+        this.dynamicSquaddieId = info.dynamicSquaddieId;
+        this.staticSquaddieId = info.staticSquaddieId;
+        this.mapLocation = info.mapLocation;
     }
 
-    staticSquaddiesByLocation: {
-        [coordinate: string]: {
-            q: number;
-            r: number;
-            id: string;
-        }
+    isValid() {
+        return this.dynamicSquaddieId !== undefined && this.staticSquaddieId !== undefined;
     }
+
+    static clone(datum: MissionMapSquaddieDatum): MissionMapSquaddieDatum {
+        return new MissionMapSquaddieDatum({
+            staticSquaddieId: datum.staticSquaddieId,
+            dynamicSquaddieId: datum.dynamicSquaddieId,
+            mapLocation: datum.mapLocation,
+        });
+    }
+}
+
+function NullMissionMapSquaddieDatum(): MissionMapSquaddieDatum {
+    return new MissionMapSquaddieDatum({
+        dynamicSquaddieId: undefined,
+        staticSquaddieId: undefined,
+    });
+}
+
+export class MissionMap {
+    terrainTileMap: TerrainTileMap;
+    squaddieInfo: MissionMapSquaddieDatum[];
 
     constructor(options: RequiredOptions) {
         this.terrainTileMap = options.terrainTileMap;
-        this.staticSquaddiesById = {};
-        this.staticSquaddiesByLocation = {};
-    }
-
-    addStaticSquaddieByLocation(squaddieID: SquaddieId, hexCoordinate: HexCoordinate): Error | undefined {
-        const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
-        if (this.staticSquaddiesByLocation[coordinateKey]) {
-            return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, already occupied by ${this.staticSquaddiesByLocation[coordinateKey].id}`);
-        }
-        if (!this.terrainTileMap.areCoordinatesOnMap(hexCoordinate)) {
-            return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, not on map`);
-        }
-
-        this.staticSquaddiesByLocation[coordinateKey] = {
-            q: hexCoordinate.q,
-            r: hexCoordinate.r,
-            id: squaddieID.staticId,
-        }
-        this.staticSquaddiesById[squaddieID.staticId] = {
-            q: hexCoordinate.q,
-            r: hexCoordinate.r,
-            squaddieId: squaddieID
-        };
-
-        return undefined;
-    }
-
-    getStaticSquaddieLocationById(staticSquaddieId: string): HexCoordinate {
-        const locationInfo = this.staticSquaddiesById[staticSquaddieId];
-        if (!locationInfo) {
-            return {
-                q: undefined,
-                r: undefined
-            };
-        }
-
-        return {
-            q: locationInfo.q,
-            r: locationInfo.r
-        }
-    }
-
-    getStaticSquaddieAtLocation(hexCoordinate: HexCoordinate): SquaddieId {
-        const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
-        const moreInfo = this.staticSquaddiesByLocation[coordinateKey];
-        if (!moreInfo) {
-            return undefined;
-        }
-        return this.staticSquaddiesById[moreInfo.id]?.squaddieId;
-    }
-
-    getAllStaticSquaddieIds() {
-        return Object.values(this.staticSquaddiesById).map(info =>
-            info.squaddieId
-        );
-    }
-
-    getTerrainTileTypeAtLocation(hexCoordinate: HexCoordinate): HexGridMovementCost {
-        return this.terrainTileMap.getTileTerrainTypeAtLocation(hexCoordinate);
+        this.squaddieInfo = [];
     }
 
     areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {
         return this.terrainTileMap.areCoordinatesOnMap(hexCoordinate);
     }
 
-    getMapInformationForLocation(hexCoordinate: HexCoordinate): HexMapLocationInfo {
-        const staticSquaddieAtLocation = this.getStaticSquaddieAtLocation(hexCoordinate);
-        const staticSquaddieId = staticSquaddieAtLocation ? staticSquaddieAtLocation.staticId : undefined;
-
-        const tileTerrainType = this.getTerrainTileTypeAtLocation(hexCoordinate);
-        const q = tileTerrainType ? hexCoordinate.q : undefined;
-        const r = tileTerrainType ? hexCoordinate.r : undefined;
-
-        return {
-            q,
-            r,
-            squaddieId: staticSquaddieId,
-            tileTerrainType
+    addSquaddie(staticSquaddieId: string, dynamicSquaddieId: string, location?: HexCoordinate): Error | undefined {
+        if (location && !this.terrainTileMap.areCoordinatesOnMap(location)) {
+            return new Error(`cannot add ${dynamicSquaddieId} to (${location.q}, ${location.r}) is not on map`);
         }
+
+        const squaddieWithDynamicId: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+            datum.dynamicSquaddieId === dynamicSquaddieId
+        );
+        if (squaddieWithDynamicId) {
+            return new Error(`${dynamicSquaddieId} already added`);
+        }
+
+        const squaddieAlreadyOccupyingLocation: MissionMapSquaddieDatum = this.getSquaddieAtLocation(location);
+        if (squaddieAlreadyOccupyingLocation.isValid()) {
+            return new Error(`cannot add ${dynamicSquaddieId} to (${location.q}, ${location.r}), already occupied by ${squaddieAlreadyOccupyingLocation.dynamicSquaddieId}`);
+        }
+
+        this.squaddieInfo.push(new MissionMapSquaddieDatum({
+            staticSquaddieId,
+            dynamicSquaddieId,
+            mapLocation: location,
+        }));
+        return undefined;
     }
 
-    updateStaticSquaddiePosition(id: string, mapLocation: HexCoordinate): Error | undefined {
-        const staticSquaddieToMoveInfo = this.staticSquaddiesById[id];
-        if (!staticSquaddieToMoveInfo) {
-            return new Error(`updateSquaddieLocation: no static squaddie with id ${id}`);
+    getSquaddieAtLocation(location: HexCoordinate): MissionMapSquaddieDatum {
+        const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+            location && datum.mapLocation && datum.mapLocation.q === location.q && datum.mapLocation.r === location.r
+        );
+        return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : NullMissionMapSquaddieDatum();
+    }
+
+    getSquaddieByDynamicId(dynamicSquaddieId: string): MissionMapSquaddieDatum {
+        const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+            datum.dynamicSquaddieId === dynamicSquaddieId
+        );
+        return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : NullMissionMapSquaddieDatum();
+    }
+
+    getHexGridMovementAtLocation(location: HexCoordinate): HexGridMovementCost {
+        if (this.terrainTileMap.areCoordinatesOnMap(location)) {
+            return this.terrainTileMap.getTileTerrainTypeAtLocation(location);
+        }
+        return undefined;
+    }
+
+    getSquaddiesThatHaveNoLocation(): MissionMapSquaddieDatum[] {
+        return this.squaddieInfo.filter((datum) =>
+            datum.mapLocation === undefined
+        ).map((datum) => MissionMapSquaddieDatum.clone(datum));
+    }
+
+    updateSquaddieLocation(dynamicSquaddieId: string, location: HexCoordinate): Error | undefined {
+        const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+            datum.dynamicSquaddieId === dynamicSquaddieId
+        );
+        if (!foundDatum) {
+            return new Error(`cannot update position for ${dynamicSquaddieId}, does not exist`);
         }
 
-        const squaddieToMoveCoordinateKey = HexCoordinateToKey({
-            q: staticSquaddieToMoveInfo.q,
-            r: staticSquaddieToMoveInfo.r,
-        });
-        delete this.staticSquaddiesByLocation[squaddieToMoveCoordinateKey];
+        if (location && !this.terrainTileMap.areCoordinatesOnMap(location)) {
+            return new Error(`cannot update position for ${dynamicSquaddieId} to (${location.q}, ${location.r}) is not on map`);
+        }
 
-        return this.addStaticSquaddieByLocation(staticSquaddieToMoveInfo.squaddieId, mapLocation);
+        if (location) {
+            const squaddieAtTheLocation = this.getSquaddieAtLocation(location);
+            if (squaddieAtTheLocation.isValid() && squaddieAtTheLocation.dynamicSquaddieId !== dynamicSquaddieId) {
+                return new Error(`cannot update position for ${dynamicSquaddieId} to (${location.q}, ${location.r}) already occupied by ${squaddieAtTheLocation.dynamicSquaddieId}`);
+            }
+        }
+
+        foundDatum.mapLocation = location;
+    }
+
+    getAllSquaddieData(): MissionMapSquaddieDatum[] {
+        return this.squaddieInfo.map((datum) => new MissionMapSquaddieDatum({...datum}))
+            .map((datum) => MissionMapSquaddieDatum.clone(datum));
+    }
+
+    getSquaddiesByStaticId(staticSquaddieId: string): MissionMapSquaddieDatum[] {
+        return this.squaddieInfo.filter((datum) => datum.staticSquaddieId === staticSquaddieId)
+            .map((datum) => MissionMapSquaddieDatum.clone(datum));
     }
 }

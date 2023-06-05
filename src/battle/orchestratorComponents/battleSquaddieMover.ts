@@ -58,11 +58,12 @@ export class BattleSquaddieMover implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
+            dynamicSquaddieId,
         } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(
             state.squaddieCurrentlyActing.dynamicSquaddieId
         ));
 
-        updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap);
+        updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap, dynamicSquaddieId);
         spendSquaddieActions(dynamicSquaddie, state.squaddieMovePath.getNumberOfMovementActions());
         if (dynamicSquaddie.mapIcon) {
             updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);

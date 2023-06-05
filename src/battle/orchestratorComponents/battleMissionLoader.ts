@@ -219,7 +219,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 staticSquaddie
             } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
 
-            state.missionMap.addStaticSquaddieByLocation(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
+            state.missionMap.addSquaddie(staticSquaddie.squaddieId.staticId, dynamicSquaddieId, dynamicSquaddie.mapLocation);
         })
     }
 

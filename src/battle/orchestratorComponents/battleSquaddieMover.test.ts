@@ -33,6 +33,15 @@ describe('BattleSquaddieMover', () => {
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
+        map = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: [
+                    "1 1 ",
+                    " 1 1 "
+                ]
+            })
+        });
+
         player1Static = {
             squaddieId: new SquaddieId({
                 staticId: "player_1",
@@ -59,15 +68,8 @@ describe('BattleSquaddieMover', () => {
             "player_1",
             player1Dynamic
         );
+        map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-        map = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
-                movementCost: [
-                    "1 1 ",
-                    " 1 1 "
-                ]
-            })
-        });
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
     it('is complete once enough time passes and the squaddie finishes moving', () => {
@@ -90,7 +92,8 @@ describe('BattleSquaddieMover', () => {
                     squaddieMovement: new SquaddieMovement({
                         movementPerAction: 999,
                         traits: NullTraitStatusStorage()
-                    })
+                    }),
+                    squaddieRepository: squaddieRepo,
                 }))
             ).getRouteToStopLocation());
 

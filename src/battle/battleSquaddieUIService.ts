@@ -16,7 +16,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
             case BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED:
                 if (
                     state.tileClickedOn &&
-                    state.missionMap.getStaticSquaddieAtLocation(state.tileClickedOn)
+                    state.missionMap.getSquaddieAtLocation(state.tileClickedOn).isValid()
                 ) {
                     return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
                 }
@@ -27,7 +27,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                 }
 
                 if (
-                    state.missionMap.getStaticSquaddieAtLocation(state.tileClickedOn)
+                    state.missionMap.getSquaddieAtLocation(state.tileClickedOn).isValid()
                 ) {
                     return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
                 }
@@ -48,6 +48,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                         startLocation: dynamicSquaddie.mapLocation,
                         stopLocation: state.tileClickedOn,
                         squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                        squaddieRepository: state.squaddieRepository,
                         numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
                     }))
                 );

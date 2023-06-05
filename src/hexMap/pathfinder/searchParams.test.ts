@@ -4,12 +4,15 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../terrainTileMap";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 
 describe('searchParams', () => {
     it('getSearchParamsOptions generates options that can be used to build new objects', () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 "]})
         })
+
+        const squaddieRepo = new BattleSquaddieRepository();
 
         const originalParams: SearchParams = new SearchParams({
             canStopOnSquaddies: true,
@@ -26,6 +29,7 @@ describe('searchParams', () => {
             numberOfActions: 3,
             minimumDistanceMoved: 2,
             missionMap: missionMap,
+            squaddieRepository: squaddieRepo,
         });
 
         const extractedOptions: SearchParamsOptions = originalParams.getSearchParamsOptions();

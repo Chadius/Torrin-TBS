@@ -3,6 +3,7 @@ import {SquaddieMovement} from "../../squaddie/movement";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 
 export type SearchParamsOptions = {
     startLocation?: HexCoordinate;
@@ -14,6 +15,7 @@ export type SearchParamsOptions = {
     minimumDistanceMoved?: number;
     maximumDistanceMoved?: number;
     missionMap: MissionMap;
+    squaddieRepository?: BattleSquaddieRepository;
 };
 
 export class SearchParams {
@@ -21,6 +23,7 @@ export class SearchParams {
         startLocation?: HexCoordinate;
         missionMap: MissionMap;
         affiliation?: SquaddieAffiliation;
+        squaddieRepository?: BattleSquaddieRepository;
     }
     movement: {
         minimumDistanceMoved?: number;
@@ -40,6 +43,7 @@ export class SearchParams {
             startLocation: options.startLocation,
             missionMap: options.missionMap,
             affiliation: options.squaddieAffiliation ? options.squaddieAffiliation : undefined,
+            squaddieRepository: options.squaddieRepository,
         };
         this.movement = {
             minimumDistanceMoved: options.minimumDistanceMoved,
@@ -103,11 +107,16 @@ export class SearchParams {
         return this.setup.missionMap;
     }
 
+    getSquaddieRepository(): BattleSquaddieRepository {
+        return this.setup.squaddieRepository;
+    }
+
     getSearchParamsOptions(): SearchParamsOptions {
         return {
             canStopOnSquaddies: this.movement.canStopOnSquaddies,
             minimumDistanceMoved: this.movement.minimumDistanceMoved,
             missionMap: this.setup.missionMap,
+            squaddieRepository: this.setup.squaddieRepository,
             numberOfActions: this.stopConditions.numberOfActions,
             squaddieAffiliation: this.setup.affiliation,
             squaddieMovement: new SquaddieMovement({

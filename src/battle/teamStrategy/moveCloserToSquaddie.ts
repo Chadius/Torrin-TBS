@@ -46,6 +46,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
                 startLocation: dynamicSquaddie.mapLocation,
                 squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
+                squaddieRepository: state.getSquaddieRepository(),
             }));
         const reachableSquaddiesResults = searchResults.getReachableSquaddies();
         const reachableSquaddieLocations = reachableSquaddiesResults.getClosestSquaddies();
