@@ -35,7 +35,7 @@ describe('BattleSquaddieMover', () => {
         squaddieRepo = new BattleSquaddieRepository();
         player1Static = {
             squaddieId: new SquaddieId({
-                id: "player_1",
+                staticId: "player_1",
                 name: "Player1",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),

@@ -82,7 +82,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
     private loadSquaddies(state: OrchestratorState) {
         state.squaddieRepo.addStaticSquaddie({
             squaddieId: new SquaddieId({
-                id: "player_young_torrin",
+                staticId: "player_young_torrin",
                 name: "Torrin",
                 resources: new SquaddieResource({
                     mapIconResourceKey: "map icon young torrin"
@@ -111,7 +111,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         });
         state.squaddieRepo.addStaticSquaddie({
             squaddieId: new SquaddieId({
-                id: "player_sir_camil",
+                staticId: "player_sir_camil",
                 name: "Sir Camil",
                 resources: new SquaddieResource({
                     mapIconResourceKey: "map icon sir camil"
@@ -137,7 +137,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         });
         state.squaddieRepo.addStaticSquaddie({
             squaddieId: new SquaddieId({
-                id: "enemy_demon_slither",
+                staticId: "enemy_demon_slither",
                 name: "Slither Demon",
                 resources: new SquaddieResource({
                     mapIconResourceKey: "map icon demon slither"
@@ -219,7 +219,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 staticSquaddie
             } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
 
-            state.missionMap.addSquaddie(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
+            state.missionMap.addStaticSquaddieByLocation(staticSquaddie.squaddieId, dynamicSquaddie.mapLocation);
         })
     }
 

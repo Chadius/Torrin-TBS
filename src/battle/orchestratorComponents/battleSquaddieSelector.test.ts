@@ -59,7 +59,7 @@ describe('BattleSquaddieSelector', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "enemy_demon",
+                    staticId: "enemy_demon",
                     name: "Slither Demon",
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
@@ -106,7 +106,7 @@ describe('BattleSquaddieSelector', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "player_soldier",
+                    staticId: "player_soldier",
                     name: "Player Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),

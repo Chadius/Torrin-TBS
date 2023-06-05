@@ -21,7 +21,7 @@ describe('BattleSquaddieUIService', () => {
         playerStaticSquaddie = {
             squaddieId: new SquaddieId({
                 name: "torrin",
-                id: "torrin",
+                staticId: "torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER
@@ -66,10 +66,10 @@ describe('BattleSquaddieUIService', () => {
     it('should switch to SELECTED_SQUADDIE mode when clicked on', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             new SquaddieId({
                 name: "torrin",
-                id: "torrin",
+                staticId: "torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER
@@ -100,7 +100,7 @@ describe('BattleSquaddieUIService', () => {
             }),
             squaddieId: new SquaddieId({
                 name: "enemy",
-                id: "enemy",
+                staticId: "enemy",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY
@@ -114,7 +114,7 @@ describe('BattleSquaddieUIService', () => {
         });
         squaddieRepository.addDynamicSquaddie("enemy_0", enemySquaddieDynamic)
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             enemySquaddieStatic.squaddieId,
             {q: 0, r: 0}
         )
@@ -135,10 +135,10 @@ describe('BattleSquaddieUIService', () => {
     it('should stay on SELECTED_SQUADDIE if you clicked on another squaddie', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             new SquaddieId({
                 name: "torrin",
-                id: "torrin",
+                staticId: "torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER
@@ -161,10 +161,10 @@ describe('BattleSquaddieUIService', () => {
     it('should change to MOVING_SQUADDIE when a controllable squaddie is selected and you click on the map', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             new SquaddieId({
                 name: "torrin",
-                id: "torrin",
+                staticId: "torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
@@ -188,10 +188,10 @@ describe('BattleSquaddieUIService', () => {
     it('should change to NO_SQUADDIE_SELECTED when the moving squaddie has finished', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             new SquaddieId({
                 name: "torrin",
-                id: "torrin",
+                staticId: "torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,

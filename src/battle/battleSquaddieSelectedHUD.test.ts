@@ -68,7 +68,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         squaddieRepository.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "player_soldier",
+                    staticId: "player_soldier",
                     name: "Player Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),

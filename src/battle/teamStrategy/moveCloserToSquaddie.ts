@@ -90,7 +90,6 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
                         missionMap: state.missionMap,
                         squaddieMovement: staticSquaddie.movement,
-                        numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
                         startLocation: dynamicSquaddie.mapLocation,
                         canStopOnSquaddies: true,
                         stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
@@ -105,7 +104,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             const numberOfMoveActions = searchResults.calculateNumberOfMoveActionsRequired(targetLocation);
 
             const moveTowardsLocation: SquaddieInstruction = new SquaddieInstruction({
-                staticSquaddieId: staticSquaddie.squaddieId.id,
+                staticSquaddieId: staticSquaddie.squaddieId.staticId,
                 dynamicSquaddieId: squaddieToAct,
                 startingLocation: dynamicSquaddie.mapLocation,
             });

@@ -130,19 +130,19 @@ class SearchState {
     }
 
     recordReachableSquaddies(searchParams: SearchParams, missionMap: MissionMap) {
-        missionMap.getAllSquaddieIds().forEach((squaddieId: SquaddieId) => {
-            const squaddieLocation = missionMap.getSquaddieLocationById(squaddieId.id);
+        missionMap.getAllStaticSquaddieIds().forEach((squaddieId: SquaddieId) => {
+            const squaddieLocation = missionMap.getStaticSquaddieLocationById(squaddieId.staticId);
             if (this.hasAlreadyMarkedLocationAsVisited(squaddieLocation)) {
-                this.results.reachableSquaddies.addSquaddie(squaddieId.id, squaddieLocation);
-                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.id, 0, squaddieLocation);
+                this.results.reachableSquaddies.addSquaddie(squaddieId.staticId, squaddieLocation);
+                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.staticId, 0, squaddieLocation);
             }
 
             const adjacentLocations: [number, number][] = CreateNewPathCandidates(squaddieLocation.q, squaddieLocation.r);
             this.getTilesSearchCanStopAt().forEach((description: TileFoundDescription) => {
                 adjacentLocations.forEach((location: [number, number]) => {
                     if (description.q === location[0] && description.r === location[1]) {
-                        this.results.reachableSquaddies.addSquaddie(squaddieId.id, squaddieLocation);
-                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.id, 1, description);
+                        this.results.reachableSquaddies.addSquaddie(squaddieId.staticId, squaddieLocation);
+                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieId.staticId, 1, description);
                     }
                 });
             });
@@ -466,7 +466,7 @@ export class Pathfinder {
         const searcherAffiliation: SquaddieAffiliation = searchParams.getSquaddieAffiliation();
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
         return neighboringLocations.filter((neighbor) => {
-            const squaddieAtLocation: SquaddieId = missionMap.getSquaddieAtLocation({
+            const squaddieAtLocation: SquaddieId = missionMap.getStaticSquaddieAtLocation({
                 q: neighbor[0],
                 r: neighbor[1],
             });

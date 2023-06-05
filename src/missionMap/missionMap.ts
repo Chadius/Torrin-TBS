@@ -10,7 +10,7 @@ type RequiredOptions = {
 
 export class MissionMap {
     terrainTileMap: TerrainTileMap;
-    squaddiesById: {
+    staticSquaddiesById: {
         [id: string]: {
             q: number;
             r: number;
@@ -18,7 +18,7 @@ export class MissionMap {
         };
     }
 
-    squaddiesByLocation: {
+    staticSquaddiesByLocation: {
         [coordinate: string]: {
             q: number;
             r: number;
@@ -28,25 +28,25 @@ export class MissionMap {
 
     constructor(options: RequiredOptions) {
         this.terrainTileMap = options.terrainTileMap;
-        this.squaddiesById = {};
-        this.squaddiesByLocation = {};
+        this.staticSquaddiesById = {};
+        this.staticSquaddiesByLocation = {};
     }
 
-    addSquaddie(squaddieID: SquaddieId, hexCoordinate: HexCoordinate): Error | undefined {
+    addStaticSquaddieByLocation(squaddieID: SquaddieId, hexCoordinate: HexCoordinate): Error | undefined {
         const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
-        if (this.squaddiesByLocation[coordinateKey]) {
-            return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, already occupied by ${this.squaddiesByLocation[coordinateKey].id}`);
+        if (this.staticSquaddiesByLocation[coordinateKey]) {
+            return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, already occupied by ${this.staticSquaddiesByLocation[coordinateKey].id}`);
         }
         if (!this.terrainTileMap.areCoordinatesOnMap(hexCoordinate)) {
             return new Error(`cannot add ${squaddieID.name} to ${coordinateKey}, not on map`);
         }
 
-        this.squaddiesByLocation[coordinateKey] = {
+        this.staticSquaddiesByLocation[coordinateKey] = {
             q: hexCoordinate.q,
             r: hexCoordinate.r,
-            id: squaddieID.id,
+            id: squaddieID.staticId,
         }
-        this.squaddiesById[squaddieID.id] = {
+        this.staticSquaddiesById[squaddieID.staticId] = {
             q: hexCoordinate.q,
             r: hexCoordinate.r,
             squaddieId: squaddieID
@@ -55,8 +55,8 @@ export class MissionMap {
         return undefined;
     }
 
-    getSquaddieLocationById(id: string): HexCoordinate {
-        const locationInfo = this.squaddiesById[id];
+    getStaticSquaddieLocationById(staticSquaddieId: string): HexCoordinate {
+        const locationInfo = this.staticSquaddiesById[staticSquaddieId];
         if (!locationInfo) {
             return {
                 q: undefined,
@@ -70,17 +70,17 @@ export class MissionMap {
         }
     }
 
-    getSquaddieAtLocation(hexCoordinate: HexCoordinate): SquaddieId {
+    getStaticSquaddieAtLocation(hexCoordinate: HexCoordinate): SquaddieId {
         const coordinateKey: string = HexCoordinateToKey(hexCoordinate);
-        const moreInfo = this.squaddiesByLocation[coordinateKey];
+        const moreInfo = this.staticSquaddiesByLocation[coordinateKey];
         if (!moreInfo) {
             return undefined;
         }
-        return this.squaddiesById[moreInfo.id]?.squaddieId;
+        return this.staticSquaddiesById[moreInfo.id]?.squaddieId;
     }
 
-    getAllSquaddieIds() {
-        return Object.values(this.squaddiesById).map(info =>
+    getAllStaticSquaddieIds() {
+        return Object.values(this.staticSquaddiesById).map(info =>
             info.squaddieId
         );
     }
@@ -94,8 +94,8 @@ export class MissionMap {
     }
 
     getMapInformationForLocation(hexCoordinate: HexCoordinate): HexMapLocationInfo {
-        const squaddieAtLocation = this.getSquaddieAtLocation(hexCoordinate);
-        const squaddieId = squaddieAtLocation ? squaddieAtLocation.id : undefined;
+        const staticSquaddieAtLocation = this.getStaticSquaddieAtLocation(hexCoordinate);
+        const staticSquaddieId = staticSquaddieAtLocation ? staticSquaddieAtLocation.staticId : undefined;
 
         const tileTerrainType = this.getTerrainTileTypeAtLocation(hexCoordinate);
         const q = tileTerrainType ? hexCoordinate.q : undefined;
@@ -104,23 +104,23 @@ export class MissionMap {
         return {
             q,
             r,
-            squaddieId,
+            squaddieId: staticSquaddieId,
             tileTerrainType
         }
     }
 
-    updateSquaddiePosition(id: string, mapLocation: HexCoordinate): Error | undefined {
-        const squaddieToMoveInfo = this.squaddiesById[id];
-        if (!squaddieToMoveInfo) {
-            return new Error(`updateSquaddieLocation: no squaddie with id ${id}`);
+    updateStaticSquaddiePosition(id: string, mapLocation: HexCoordinate): Error | undefined {
+        const staticSquaddieToMoveInfo = this.staticSquaddiesById[id];
+        if (!staticSquaddieToMoveInfo) {
+            return new Error(`updateSquaddieLocation: no static squaddie with id ${id}`);
         }
 
         const squaddieToMoveCoordinateKey = HexCoordinateToKey({
-            q: squaddieToMoveInfo.q,
-            r: squaddieToMoveInfo.r,
+            q: staticSquaddieToMoveInfo.q,
+            r: staticSquaddieToMoveInfo.r,
         });
-        delete this.squaddiesByLocation[squaddieToMoveCoordinateKey];
+        delete this.staticSquaddiesByLocation[squaddieToMoveCoordinateKey];
 
-        return this.addSquaddie(squaddieToMoveInfo.squaddieId, mapLocation);
+        return this.addStaticSquaddieByLocation(staticSquaddieToMoveInfo.squaddieId, mapLocation);
     }
 }

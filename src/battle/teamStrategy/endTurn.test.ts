@@ -25,7 +25,7 @@ describe('end turn team strategy', () => {
         squaddieRepository = new BattleSquaddieRepository();
         playerStaticSquaddie = new BattleSquaddieStatic({
             squaddieId: new SquaddieId({
-                id: "new_static_squaddie",
+                staticId: "new_static_squaddie",
                 name: "Torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),

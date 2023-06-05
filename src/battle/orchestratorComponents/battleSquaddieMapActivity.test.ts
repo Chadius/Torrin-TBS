@@ -25,7 +25,7 @@ describe('BattleSquaddieMapActivity', () => {
         squaddieRepo = new BattleSquaddieRepository();
         staticSquaddieBase = {
             squaddieId: new SquaddieId({
-                id: "static_squaddie",
+                staticId: "static_squaddie",
                 name: "Torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),

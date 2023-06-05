@@ -60,7 +60,7 @@ describe('BattleSquaddie', () => {
             playerStaticSquaddie = new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
                     name: "player_static_squaddie",
-                    id: "static_squaddie",
+                    staticId: "static_squaddie",
                     affiliation: SquaddieAffiliation.PLAYER,
                 })
             });
@@ -81,7 +81,7 @@ describe('BattleSquaddie', () => {
             const enemyStaticSquaddie: BattleSquaddieStatic = new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
                     name: "enemy_static_squaddie",
-                    id: "static_squaddie",
+                    staticId: "static_squaddie",
                     affiliation: SquaddieAffiliation.ENEMY,
                 })
             });

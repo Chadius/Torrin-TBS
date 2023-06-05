@@ -117,7 +117,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             return;
         }
 
-        const squaddieID: SquaddieId = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        const squaddieID: SquaddieId = state.missionMap.getStaticSquaddieAtLocation(clickedHexCoordinate);
         if (!squaddieID) {
             state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
@@ -126,7 +126,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             staticSquaddie,
             dynamicSquaddie,
             dynamicSquaddieId,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.id, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.staticId, clickedHexCoordinate));
 
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap);
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddieId);
@@ -141,7 +141,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             return;
         }
 
-        const squaddieID: SquaddieId = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        const squaddieID: SquaddieId = state.missionMap.getStaticSquaddieAtLocation(clickedHexCoordinate);
         if (squaddieID) {
             this.focusOnSelectedSquaddie(state, squaddieID, clickedHexCoordinate, mouseX, mouseY);
         }
@@ -207,7 +207,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     private addMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
         if (!state.squaddieCurrentlyActing) {
-            const {dynamicSquaddieId} = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(staticSquaddie.squaddieId.id, {
+            const {dynamicSquaddieId} = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(staticSquaddie.squaddieId.staticId, {
                 q: dynamicSquaddie.mapLocation.q,
                 r: dynamicSquaddie.mapLocation.r,
             }));
@@ -215,7 +215,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             state.squaddieCurrentlyActing = {
                 dynamicSquaddieId: dynamicSquaddieId,
                 instruction: new SquaddieInstruction({
-                    staticSquaddieId: staticSquaddie.squaddieId.id,
+                    staticSquaddieId: staticSquaddie.squaddieId.staticId,
                     dynamicSquaddieId,
                     startingLocation: {
                         q: dynamicSquaddie.mapLocation.q,
@@ -240,7 +240,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             staticSquaddie,
             dynamicSquaddie,
             dynamicSquaddieId,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.id, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieID.staticId, clickedHexCoordinate));
 
         state.hexMap.stopHighlightingTiles();
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap);
@@ -317,7 +317,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
 
         let squaddieActivity: SquaddieInstruction = new SquaddieInstruction({
-            staticSquaddieId: staticSquaddie.squaddieId.id,
+            staticSquaddieId: staticSquaddie.squaddieId.staticId,
             dynamicSquaddieId,
             startingLocation: dynamicSquaddie.mapLocation,
         });
@@ -361,7 +361,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         if (state.battleSquaddieSelectedHUD.getSelectedActivity().id === ACTIVITY_END_TURN_ID) {
             const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
-                staticSquaddieId: staticSquaddie.squaddieId.id,
+                staticSquaddieId: staticSquaddie.squaddieId.staticId,
                 dynamicSquaddieId,
                 startingLocation: dynamicSquaddie.mapLocation,
             });

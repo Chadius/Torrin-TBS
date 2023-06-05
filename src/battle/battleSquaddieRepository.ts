@@ -17,11 +17,11 @@ export class BattleSquaddieRepository {
     }
 
     addStaticSquaddie(staticSquaddie: BattleSquaddieStatic) {
-        if (this.squaddieStaticInfoById[staticSquaddie.squaddieId.id]) {
-            throw new Error(`cannot addStaticSquaddie '${staticSquaddie.squaddieId.id}', is already added`);
+        if (this.squaddieStaticInfoById[staticSquaddie.squaddieId.staticId]) {
+            throw new Error(`cannot addStaticSquaddie '${staticSquaddie.squaddieId.staticId}', is already added`);
         }
 
-        this.squaddieStaticInfoById[staticSquaddie.squaddieId.id] = staticSquaddie;
+        this.squaddieStaticInfoById[staticSquaddie.squaddieId.staticId] = staticSquaddie;
     }
 
     addDynamicSquaddie(dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic) {

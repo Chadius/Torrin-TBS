@@ -86,12 +86,12 @@ describe('pathfinder and squaddies', () => {
         ) => {
             const blockingSquaddie = new SquaddieId({
                 name: "blocker",
-                id: "blocker",
+                staticId: "blocker",
                 resources: new SquaddieResource({mapIconResourceKey: "map_icon_blocker"}),
                 traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
                 affiliation: blockingAffiliation,
             });
-            missionMap.addSquaddie(blockingSquaddie, {q: 0, r: 1});
+            missionMap.addStaticSquaddieByLocation(blockingSquaddie, {q: 0, r: 1});
 
             const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
                 ...baseSearchParamOptions,
@@ -242,19 +242,19 @@ describe('pathfinder and squaddies', () => {
             "1 1 1 1 1 1 ",
         ]);
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("player", SquaddieAffiliation.PLAYER),
             {q: 0, r: 0}
         );
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("enemy", SquaddieAffiliation.ENEMY),
             {q: 0, r: 1}
         );
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("ally", SquaddieAffiliation.ALLY),
             {q: 0, r: 2}
         );
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("none", SquaddieAffiliation.NONE),
             {q: 0, r: 3}
         );
@@ -295,10 +295,10 @@ describe('pathfinder and squaddies', () => {
             " 1 1 1 1 1 ",
         ]);
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             new SquaddieId({
                 name: "enemy",
-                id: "enemy",
+                staticId: "enemy",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY
@@ -355,22 +355,22 @@ describe('pathfinder and squaddies', () => {
             " 1 1 1 1 1 ",
         ]);
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("enemy_nearby", SquaddieAffiliation.ENEMY),
             {q: 0, r: 2}
         );
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("ally_flanking", SquaddieAffiliation.ALLY),
             {q: 0, r: 3}
         );
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("ally_at_the_edge", SquaddieAffiliation.ALLY),
             {q: 0, r: 4}
         );
 
-        missionMap.addSquaddie(
+        missionMap.addStaticSquaddieByLocation(
             NewDummySquaddieID("ally_far_away", SquaddieAffiliation.ALLY),
             {q: 0, r: 8}
         );

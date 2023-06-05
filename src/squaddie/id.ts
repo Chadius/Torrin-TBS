@@ -4,7 +4,7 @@ import {SquaddieAffiliation} from "./squaddieAffiliation";
 
 type RequiredOptions = {
     name: string;
-    id: string;
+    staticId: string;
     affiliation: SquaddieAffiliation;
 }
 
@@ -15,7 +15,7 @@ type Options = {
 
 export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation) => {
     return new SquaddieId({
-        id,
+        staticId: id,
         name: id,
         resources: NullSquaddieResource(),
         traits: NullTraitStatusStorage(),
@@ -25,14 +25,14 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
 
 export class SquaddieId {
     name: string;
-    id: string;
+    staticId: string;
     resources: SquaddieResource;
     traits: TraitStatusStorage;
     affiliation: SquaddieAffiliation;
 
     constructor(options: RequiredOptions & Partial<Options>) {
         this.name = options.name;
-        this.id = options.id;
+        this.staticId = options.staticId;
         this.resources = options.resources || NullSquaddieResource();
         this.traits = options.traits || NullTraitStatusStorage();
         this.affiliation = options.affiliation;

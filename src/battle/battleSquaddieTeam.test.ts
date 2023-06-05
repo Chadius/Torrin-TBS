@@ -30,7 +30,7 @@ describe('Battle Squaddie Team', () => {
         });
         playerStaticSquaddieBase = new BattleSquaddieStatic({
             squaddieId: new SquaddieId({
-                id: "player_young_torrin",
+                staticId: "player_young_torrin",
                 name: "Torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
@@ -76,7 +76,7 @@ describe('Battle Squaddie Team', () => {
         });
         enemyStaticSquaddieBase = new BattleSquaddieStatic({
             squaddieId: new SquaddieId({
-                id: "enemy_slither_demon",
+                staticId: "enemy_slither_demon",
                 name: "Slither",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),

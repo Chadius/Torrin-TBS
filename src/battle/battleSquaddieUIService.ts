@@ -16,7 +16,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
             case BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED:
                 if (
                     state.tileClickedOn &&
-                    state.missionMap.getSquaddieAtLocation(state.tileClickedOn)
+                    state.missionMap.getStaticSquaddieAtLocation(state.tileClickedOn)
                 ) {
                     return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
                 }
@@ -27,7 +27,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                 }
 
                 if (
-                    state.missionMap.getSquaddieAtLocation(state.tileClickedOn)
+                    state.missionMap.getStaticSquaddieAtLocation(state.tileClickedOn)
                 ) {
                     return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
                 }

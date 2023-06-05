@@ -23,7 +23,7 @@ describe('battlePhaseTracker', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "player_squaddie",
+                    staticId: "player_squaddie",
                     name: "Player",
                     resources: NullSquaddieResource(),
                     traits: NullTraitStatusStorage(),
@@ -45,7 +45,7 @@ describe('battlePhaseTracker', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "enemy_squaddie",
+                    staticId: "enemy_squaddie",
                     name: "Enemy",
                     resources: NullSquaddieResource(),
                     traits: NullTraitStatusStorage(),
@@ -67,7 +67,7 @@ describe('battlePhaseTracker', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "ally_squaddie",
+                    staticId: "ally_squaddie",
                     name: "Ally",
                     resources: NullSquaddieResource(),
                     traits: NullTraitStatusStorage(),
@@ -89,7 +89,7 @@ describe('battlePhaseTracker', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "none_squaddie",
+                    staticId: "none_squaddie",
                     name: "None",
                     resources: NullSquaddieResource(),
                     traits: NullTraitStatusStorage(),

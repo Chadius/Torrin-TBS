@@ -17,7 +17,7 @@ describe('BattleSquaddieRepository', () => {
         squaddieRepo = new BattleSquaddieRepository();
         staticSquaddieBase = {
             squaddieId: new SquaddieId({
-                id: "player_young_torrin",
+                staticId: "player_young_torrin",
                 name: "Torrin",
                 resources: NullSquaddieResource(),
                 traits: NullTraitStatusStorage(),
@@ -156,7 +156,7 @@ describe('BattleSquaddieRepository', () => {
         }[] = squaddieRepo.getStaticSquaddieIterator();
 
         expect(entities).toStrictEqual([{
-            staticSquaddieId: staticSquaddieBase.squaddieId.id,
+            staticSquaddieId: staticSquaddieBase.squaddieId.staticId,
             staticSquaddie: staticSquaddieBase
         }]);
     });
@@ -188,7 +188,7 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddie,
             dynamicSquaddieId,
         } = getResultOrThrowError(squaddieRepo.getSquaddieByStaticIdAndLocation(
-            staticSquaddieBase.squaddieId.id,
+            staticSquaddieBase.squaddieId.staticId,
             {
                 q: dynamicSquaddieBase.mapLocation.q,
                 r: dynamicSquaddieBase.mapLocation.r,
@@ -207,7 +207,7 @@ describe('BattleSquaddieRepository', () => {
         )
 
         const resultOrError = squaddieRepo.getSquaddieByStaticIdAndLocation(
-            staticSquaddieBase.squaddieId.id,
+            staticSquaddieBase.squaddieId.staticId,
             {
                 q: dynamicSquaddieBase.mapLocation.q + 1,
                 r: dynamicSquaddieBase.mapLocation.r,

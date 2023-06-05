@@ -19,7 +19,7 @@ export function addSquaddieToSquaddieRepository(
 ) {
     const staticSquaddie = new BattleSquaddieStatic({
         squaddieId: new SquaddieId({
-            id: staticSquaddieId,
+            staticId: staticSquaddieId,
             name: squaddieName,
             resources: NullSquaddieResource(),
             traits: NullTraitStatusStorage(),

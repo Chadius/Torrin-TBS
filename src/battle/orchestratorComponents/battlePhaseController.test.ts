@@ -35,7 +35,7 @@ describe('BattlePhaseController', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "player_squaddie",
+                    staticId: "player_squaddie",
                     name: "Player",
                     resources: NullSquaddieResource(),
                     traits: NullTraitStatusStorage(),
@@ -58,7 +58,7 @@ describe('BattlePhaseController', () => {
         squaddieRepo.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
-                    id: "enemy_squaddie",
+                    staticId: "enemy_squaddie",
                     name: "Enemy",
                     resources: NullSquaddieResource(),
                     traits: NullTraitStatusStorage(),
