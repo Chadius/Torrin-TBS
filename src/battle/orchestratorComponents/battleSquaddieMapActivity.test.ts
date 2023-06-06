@@ -40,6 +40,7 @@ describe('BattleSquaddieMapActivity', () => {
             activities: [],
         };
         dynamicSquaddieBase = new BattleSquaddieDynamic({
+            dynamicSquaddieId: "dynamic_squaddie",
             staticSquaddieId: "static_squaddie",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
@@ -49,7 +50,7 @@ describe('BattleSquaddieMapActivity', () => {
         squaddieRepo.addStaticSquaddie(
             staticSquaddieBase
         );
-        squaddieRepo.addDynamicSquaddie("dynamic_squaddie", dynamicSquaddieBase);
+        squaddieRepo.addDynamicSquaddie(dynamicSquaddieBase);
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
 

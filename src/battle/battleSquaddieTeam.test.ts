@@ -46,6 +46,7 @@ describe('Battle Squaddie Team', () => {
 
         playerDynamicSquaddie0 =
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "player_young_torrin_0",
                 staticSquaddieId: "player_young_torrin",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn(),
@@ -53,18 +54,17 @@ describe('Battle Squaddie Team', () => {
             });
 
         squaddieRepo.addDynamicSquaddie(
-            "player_young_torrin_0",
             playerDynamicSquaddie0
         );
 
         playerDynamicSquaddie1 = new BattleSquaddieDynamic({
+            dynamicSquaddieId: "player_young_torrin_1",
             staticSquaddieId: "player_young_torrin",
             mapLocation: {q: 1, r: 0},
             squaddieTurn: new SquaddieTurn(),
             mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });
         squaddieRepo.addDynamicSquaddie(
-            "player_young_torrin_1",
             playerDynamicSquaddie1
         );
         twoPlayerTeam.addDynamicSquaddieIds(["player_young_torrin_0", "player_young_torrin_1"])
@@ -92,23 +92,23 @@ describe('Battle Squaddie Team', () => {
 
         enemyDynamicSquaddie0 =
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_slither_demon_0",
                 staticSquaddieId: "enemy_slither_demon",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()
             });
 
         squaddieRepo.addDynamicSquaddie(
-            "enemy_slither_demon_0",
             enemyDynamicSquaddie0
         );
 
         enemyDynamicSquaddie1 = new BattleSquaddieDynamic({
+            dynamicSquaddieId: "enemy_slither_demon_1",
             staticSquaddieId: "enemy_slither_demon",
             mapLocation: {q: 1, r: 0},
             squaddieTurn: new SquaddieTurn()
         });
         squaddieRepo.addDynamicSquaddie(
-            "enemy_slither_demon_1",
             enemyDynamicSquaddie1
         );
         twoEnemyTeam.addDynamicSquaddieIds(["enemy_slither_demon_0", "enemy_slither_demon_1"])

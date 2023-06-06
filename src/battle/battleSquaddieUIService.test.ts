@@ -37,11 +37,12 @@ describe('BattleSquaddieUIService', () => {
         );
 
         playerDynamicSquaddie = new BattleSquaddieDynamic({
+            dynamicSquaddieId: "torrin_0",
             staticSquaddieId: "torrin",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
         });
-        squaddieRepository.addDynamicSquaddie("torrin_0", playerDynamicSquaddie);
+        squaddieRepository.addDynamicSquaddie(playerDynamicSquaddie);
     });
 
     const createMissionMap: (movementCost: string[]) => MissionMap = (movementCost: string[]) => {
@@ -99,11 +100,12 @@ describe('BattleSquaddieUIService', () => {
         }
         squaddieRepository.addStaticSquaddie(enemySquaddieStatic);
         const enemySquaddieDynamic: BattleSquaddieDynamic = new BattleSquaddieDynamic({
+            dynamicSquaddieId: "enemy_0",
             staticSquaddieId: "enemy",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
         });
-        squaddieRepository.addDynamicSquaddie("enemy_0", enemySquaddieDynamic)
+        squaddieRepository.addDynamicSquaddie(enemySquaddieDynamic)
 
         missionMap.addSquaddie("enemy", "enemy_0", {q: 0, r: 0});
 

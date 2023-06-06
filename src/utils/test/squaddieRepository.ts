@@ -11,7 +11,7 @@ import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 
 export function addSquaddieToSquaddieRepository(
     staticSquaddieId: string,
-    staticDynamicId: string,
+    dynamicSquaddieId: string,
     squaddieName: string,
     squaddieAffiliation: SquaddieAffiliation,
     mapLocation: HexCoordinate,
@@ -30,6 +30,7 @@ export function addSquaddieToSquaddieRepository(
     });
     const dynamicSquaddie =
         new BattleSquaddieDynamic({
+            dynamicSquaddieId: dynamicSquaddieId,
             staticSquaddieId: staticSquaddieId,
             mapLocation: mapLocation,
             squaddieTurn: new SquaddieTurn(),
@@ -37,7 +38,6 @@ export function addSquaddieToSquaddieRepository(
         });
     squaddieRepository.addSquaddie(
         staticSquaddie,
-        staticDynamicId,
         dynamicSquaddie
     );
 

@@ -30,6 +30,7 @@ export class BattleSquaddieStatic {
 
 export type BattleSquaddieDynamicOptions = {
     staticSquaddieId: string,
+    dynamicSquaddieId: string,
     mapLocation: HexCoordinate,
     squaddieTurn: SquaddieTurn,
     mapIcon?: ImageUI,
@@ -37,18 +38,21 @@ export type BattleSquaddieDynamicOptions = {
 
 export class BattleSquaddieDynamic {
     staticSquaddieId: string;
+    dynamicSquaddieId: string;
     mapLocation: HexCoordinate;
     squaddieTurn: SquaddieTurn;
     mapIcon?: ImageUI;
 
     constructor(options: BattleSquaddieDynamicOptions) {
         this.staticSquaddieId = options.staticSquaddieId;
+        this.dynamicSquaddieId = options.dynamicSquaddieId;
         this.mapLocation = options.mapLocation;
         this.squaddieTurn = options.squaddieTurn;
         this.mapIcon = options.mapIcon;
     }
 
     assertBattleSquaddieDynamic(): void {
+        if (!this.dynamicSquaddieId) throw new Error("Dynamic Squaddie has no Dynamic Squaddie Id");
         if (!this.staticSquaddieId) throw new Error("Dynamic Squaddie has no Static Squaddie Id");
         assertsInteger(this.mapLocation.q);
         assertsInteger(this.mapLocation.r);

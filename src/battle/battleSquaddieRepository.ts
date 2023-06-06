@@ -24,28 +24,27 @@ export class BattleSquaddieRepository {
         this.squaddieStaticInfoById[staticSquaddie.squaddieId.staticId] = staticSquaddie;
     }
 
-    addDynamicSquaddie(dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic) {
+    addDynamicSquaddie(dynamicSquaddie: BattleSquaddieDynamic) {
         dynamicSquaddie.assertBattleSquaddieDynamic();
         if (!this.squaddieStaticInfoById[dynamicSquaddie.staticSquaddieId]) {
-            throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddieId}', no static squaddie '${dynamicSquaddie.staticSquaddieId}' exists`);
+            throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddie.dynamicSquaddieId}', no static squaddie '${dynamicSquaddie.staticSquaddieId}' exists`);
         }
 
-        if (this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId]) {
-            throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddieId}', again, it already exists`);
+        if (this.squaddieDynamicInfoByDynamicId[dynamicSquaddie.dynamicSquaddieId]) {
+            throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddie.dynamicSquaddieId}', again, it already exists`);
         }
 
-        this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId] = dynamicSquaddie;
+        this.squaddieDynamicInfoByDynamicId[dynamicSquaddie.dynamicSquaddieId] = dynamicSquaddie;
     }
 
-    addSquaddie(staticSquaddie: BattleSquaddieStatic, dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic) {
+    addSquaddie(staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) {
         this.addStaticSquaddie(staticSquaddie);
-        this.addDynamicSquaddie(dynamicSquaddieId, dynamicSquaddie);
+        this.addDynamicSquaddie(dynamicSquaddie);
     }
 
     getSquaddieByDynamicID(dynamicSquaddieId: string): ResultOrError<{
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic,
-        dynamicSquaddieId: string,
     }, Error> {
         const dynamicSquaddie: BattleSquaddieDynamic = this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId];
         if (!dynamicSquaddie) {
@@ -57,7 +56,6 @@ export class BattleSquaddieRepository {
         return makeResult({
             staticSquaddie,
             dynamicSquaddie,
-            dynamicSquaddieId,
         });
     }
 
@@ -82,7 +80,6 @@ export class BattleSquaddieRepository {
     getSquaddieByStaticIdAndLocation(staticID: string, mapLocation: HexCoordinate): ResultOrError<{
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic,
-        dynamicSquaddieId: string,
     }, Error> {
         const dynamicSquaddieInfo = this.getDynamicSquaddieIterator().find((info) =>
             info.dynamicSquaddie.mapLocation.q === mapLocation.q

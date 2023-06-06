@@ -46,8 +46,8 @@ describe('BattlePhaseController', () => {
             })
         );
         squaddieRepo.addDynamicSquaddie(
-            "player_squaddie_0",
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "player_squaddie_0",
                 staticSquaddieId: "player_squaddie",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn(),
@@ -69,8 +69,8 @@ describe('BattlePhaseController', () => {
             })
         );
         squaddieRepo.addDynamicSquaddie(
-            "enemy_squaddie_0",
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_squaddie_0",
                 staticSquaddieId: "enemy_squaddie",
                 mapLocation: {q: 1, r: 0},
                 squaddieTurn: new SquaddieTurn(),

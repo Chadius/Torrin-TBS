@@ -53,11 +53,11 @@ export class MoveCloserToSquaddie implements TeamStrategy {
 
         const foundInfo = Object.entries(reachableSquaddieLocations).filter(([squaddieId, mapLocation]) => {
             const {
-                dynamicSquaddieId,
+                dynamicSquaddie,
                 staticSquaddie,
             } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByStaticIdAndLocation(squaddieId, mapLocation));
             if (this.desiredDynamicSquaddieId) {
-                return dynamicSquaddieId === this.desiredDynamicSquaddieId;
+                return dynamicSquaddie.dynamicSquaddieId === this.desiredDynamicSquaddieId;
             }
             if (this.desiredAffiliation) {
                 return staticSquaddie.squaddieId.affiliation === this.desiredAffiliation;

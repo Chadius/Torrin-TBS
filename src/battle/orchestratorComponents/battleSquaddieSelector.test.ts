@@ -67,8 +67,8 @@ describe('BattleSquaddieSelector', () => {
         );
 
         squaddieRepo.addDynamicSquaddie(
-            "enemy_demon_0",
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_0",
                 staticSquaddieId: "enemy_demon",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()
@@ -76,8 +76,8 @@ describe('BattleSquaddieSelector', () => {
         );
 
         squaddieRepo.addDynamicSquaddie(
-            "enemy_demon_1",
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_1",
                 staticSquaddieId: "enemy_demon",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()
@@ -114,8 +114,8 @@ describe('BattleSquaddieSelector', () => {
         );
 
         squaddieRepo.addDynamicSquaddie(
-            "player_soldier_0",
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "player_soldier_0",
                 staticSquaddieId: "player_soldier",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()

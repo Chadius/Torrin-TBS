@@ -162,17 +162,20 @@ export class BattleMissionLoader implements OrchestratorComponent {
             ],
         });
 
-        state.squaddieRepo.addDynamicSquaddie("player_young_torrin", new BattleSquaddieDynamic({
+        state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
+            dynamicSquaddieId: "player_young_torrin",
             staticSquaddieId: "player_young_torrin",
             mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn()
         }))
-        state.squaddieRepo.addDynamicSquaddie("player_sir_camil", new BattleSquaddieDynamic({
+        state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
+            dynamicSquaddieId: "player_sir_camil",
             staticSquaddieId: "player_sir_camil",
             mapLocation: {q: 1, r: 1},
             squaddieTurn: new SquaddieTurn()
         }))
-        state.squaddieRepo.addDynamicSquaddie("enemy_demon_slither_0", new BattleSquaddieDynamic({
+        state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
+            dynamicSquaddieId: "enemy_demon_slither_0",
             staticSquaddieId: "enemy_demon_slither",
             mapLocation: {q: 1, r: 2},
             squaddieTurn: new SquaddieTurn()

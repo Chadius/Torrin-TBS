@@ -41,6 +41,7 @@ describe('end turn team strategy', () => {
 
         playerDynamicSquaddie =
             new BattleSquaddieDynamic({
+                dynamicSquaddieId: "new_dynamic_squaddie",
                 staticSquaddieId: "new_static_squaddie",
                 mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn(),
@@ -48,7 +49,6 @@ describe('end turn team strategy', () => {
             });
 
         squaddieRepository.addDynamicSquaddie(
-            "new_dynamic_squaddie",
             playerDynamicSquaddie
         );
 
