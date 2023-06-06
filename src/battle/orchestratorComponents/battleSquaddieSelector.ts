@@ -123,7 +123,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(squaddieDatum.staticSquaddieId, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(squaddieDatum.dynamicSquaddieId));
 
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepo);
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddie.dynamicSquaddieId);
@@ -140,7 +140,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         const squaddieDatum = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
         if (squaddieDatum.isValid()) {
-            this.focusOnSelectedSquaddie(state, squaddieDatum.staticSquaddieId, clickedHexCoordinate, mouseX, mouseY);
+            this.focusOnSelectedSquaddie(state, squaddieDatum.dynamicSquaddieId, clickedHexCoordinate, mouseX, mouseY);
         }
 
         const {
@@ -165,14 +165,16 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     private createSearchPath(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
+        const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
+
         const searchResults: SearchResults = getResultOrThrowError(
             state.pathfinder.findPathToStopLocation(new SearchParams({
                 missionMap: state.missionMap,
                 squaddieMovement: staticSquaddie.movement,
                 numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
                 startLocation: {
-                    q: dynamicSquaddie.mapLocation.q,
-                    r: dynamicSquaddie.mapLocation.r,
+                    q: datum.mapLocation.q,
+                    r: datum.mapLocation.r,
                 },
                 stopLocation: {
                     q: clickedHexCoordinate.q,
@@ -204,6 +206,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     private addMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
         if (!state.squaddieCurrentlyActing) {
+            const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
             const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
 
             state.squaddieCurrentlyActing = {
@@ -212,8 +215,8 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                     staticSquaddieId: staticSquaddie.squaddieId.staticId,
                     dynamicSquaddieId,
                     startingLocation: {
-                        q: dynamicSquaddie.mapLocation.q,
-                        r: dynamicSquaddie.mapLocation.r,
+                        q: datum.mapLocation.q,
+                        r: datum.mapLocation.r,
                     },
                 }),
             };
@@ -229,11 +232,11 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         }));
     }
 
-    private focusOnSelectedSquaddie(state: OrchestratorState, staticSquaddieId: string, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
+    private focusOnSelectedSquaddie(state: OrchestratorState, dynamicSquaddieId: string, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByStaticIdAndLocation(staticSquaddieId, clickedHexCoordinate));
+        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
 
         state.hexMap.stopHighlightingTiles();
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepo);
@@ -308,11 +311,11 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             staticSquaddie,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
-
+        const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         let squaddieActivity: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: staticSquaddie.squaddieId.staticId,
             dynamicSquaddieId,
-            startingLocation: dynamicSquaddie.mapLocation,
+            startingLocation: datum.mapLocation,
         });
 
         squaddieActivity.endTurn();
@@ -350,12 +353,12 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             staticSquaddie,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
-
+        const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         if (state.battleSquaddieSelectedHUD.getSelectedActivity().id === ACTIVITY_END_TURN_ID) {
             const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
                 staticSquaddieId: staticSquaddie.squaddieId.staticId,
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
-                startingLocation: dynamicSquaddie.mapLocation,
+                startingLocation: datum.mapLocation,
             });
             endTurnActivity.endTurn();
 
@@ -379,16 +382,18 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
 
+        const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
+
         const squaddieScreenLocation: number[] = convertMapCoordinatesToScreenCoordinates(
-            dynamicSquaddie.mapLocation.q,
-            dynamicSquaddie.mapLocation.r,
+            datum.mapLocation.q,
+            datum.mapLocation.r,
             ...state.camera.getCoordinates(),
         )
 
         if (!isCoordinateOnScreen(squaddieScreenLocation[0], squaddieScreenLocation[1])) {
             state.camera.pan({
-                xDestination: dynamicSquaddie.mapLocation.q,
-                yDestination: dynamicSquaddie.mapLocation.r,
+                xDestination: datum.mapLocation.q,
+                yDestination: datum.mapLocation.r,
                 timeToPan: SQUADDIE_SELECTOR_PANNING_TIME,
                 respectConstraints: true,
             });

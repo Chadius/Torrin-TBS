@@ -48,7 +48,6 @@ describe('Battle Squaddie Team', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "player_young_torrin_0",
                 staticSquaddieId: "player_young_torrin",
-                mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
             });
@@ -60,7 +59,6 @@ describe('Battle Squaddie Team', () => {
         playerDynamicSquaddie1 = new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_young_torrin_1",
             staticSquaddieId: "player_young_torrin",
-            mapLocation: {q: 1, r: 0},
             squaddieTurn: new SquaddieTurn(),
             mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });
@@ -94,7 +92,6 @@ describe('Battle Squaddie Team', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "enemy_slither_demon_0",
                 staticSquaddieId: "enemy_slither_demon",
-                mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()
             });
 
@@ -105,7 +102,6 @@ describe('Battle Squaddie Team', () => {
         enemyDynamicSquaddie1 = new BattleSquaddieDynamic({
             dynamicSquaddieId: "enemy_slither_demon_1",
             staticSquaddieId: "enemy_slither_demon",
-            mapLocation: {q: 1, r: 0},
             squaddieTurn: new SquaddieTurn()
         });
         squaddieRepo.addDynamicSquaddie(

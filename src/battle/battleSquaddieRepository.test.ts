@@ -34,7 +34,6 @@ describe('BattleSquaddieRepository', () => {
         dynamicSquaddieBase = new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_young_torrin_0",
             staticSquaddieId: "player_young_torrin",
-            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn()
         });
 
@@ -78,7 +77,6 @@ describe('BattleSquaddieRepository', () => {
                 new BattleSquaddieDynamic({
                     dynamicSquaddieId: "dynamic_id",
                     staticSquaddieId: "unknown_static_squaddie",
-                    mapLocation: {q: 0, r: 0},
                     squaddieTurn: new SquaddieTurn()
                 })
             );
@@ -117,7 +115,6 @@ describe('BattleSquaddieRepository', () => {
                 dynamicSquaddieBase = new BattleSquaddieDynamic({
                     dynamicSquaddieId: "",
                     staticSquaddieId: "static",
-                    mapLocation: {q: 0, r: 0},
                     squaddieTurn: new SquaddieTurn()
                 })
             );
@@ -169,44 +166,5 @@ describe('BattleSquaddieRepository', () => {
             dynamicSquaddieId: "player_young_torrin_0",
             dynamicSquaddie: dynamicSquaddieBase
         }]);
-    });
-
-    it('can get dynamic and static squaddie info based on static id and location', () => {
-        squaddieRepo.addDynamicSquaddie(
-            dynamicSquaddieBase
-        )
-
-        const {
-            staticSquaddie,
-            dynamicSquaddie,
-        } = getResultOrThrowError(squaddieRepo.getSquaddieByStaticIdAndLocation(
-            staticSquaddieBase.squaddieId.staticId,
-            {
-                q: dynamicSquaddieBase.mapLocation.q,
-                r: dynamicSquaddieBase.mapLocation.r,
-            }
-        ));
-
-        expect(staticSquaddie).toStrictEqual(staticSquaddie);
-        expect(dynamicSquaddie).toStrictEqual(dynamicSquaddie);
-    });
-
-    it('should return an error if there is no squaddie at the given location', () => {
-        squaddieRepo.addDynamicSquaddie(
-            dynamicSquaddieBase
-        )
-
-        const resultOrError = squaddieRepo.getSquaddieByStaticIdAndLocation(
-            staticSquaddieBase.squaddieId.staticId,
-            {
-                q: dynamicSquaddieBase.mapLocation.q + 1,
-                r: dynamicSquaddieBase.mapLocation.r,
-            }
-        )
-
-        expect(isError(resultOrError)).toBeTruthy();
-
-        const expectedError = unwrapResultOrError(resultOrError);
-        expect((expectedError as Error).message).toBe("cannot find squaddie at location (1, 0)");
     });
 });

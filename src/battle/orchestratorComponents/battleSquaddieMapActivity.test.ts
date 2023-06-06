@@ -42,7 +42,6 @@ describe('BattleSquaddieMapActivity', () => {
         dynamicSquaddieBase = new BattleSquaddieDynamic({
             dynamicSquaddieId: "dynamic_squaddie",
             staticSquaddieId: "static_squaddie",
-            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
             mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });

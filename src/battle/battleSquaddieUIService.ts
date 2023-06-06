@@ -41,11 +41,12 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                 }
 
                 const pathfinder: Pathfinder = new Pathfinder();
+                const squaddieDatum = state.missionMap.getSquaddieByDynamicId(state.selectedSquaddieDynamicID);
                 const searchResults: SearchResults = getResultOrThrowError(
                     pathfinder.findPathToStopLocation(new SearchParams({
                         missionMap: state.missionMap,
                         squaddieMovement: staticSquaddie.movement,
-                        startLocation: dynamicSquaddie.mapLocation,
+                        startLocation: squaddieDatum.mapLocation,
                         stopLocation: state.tileClickedOn,
                         squaddieAffiliation: SquaddieAffiliation.PLAYER,
                         squaddieRepository: state.squaddieRepository,

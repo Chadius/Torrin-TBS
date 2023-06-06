@@ -4,30 +4,11 @@ import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 describe('BattleSquaddie', () => {
-    it('throws an error if non integer coordinates are used for dynamic placement', () => {
-        const shouldThrowError = () => {
-            const badDynamicSquaddie: BattleSquaddieDynamic = new BattleSquaddieDynamic({
-                dynamicSquaddieId: "dynamicSquaddieId",
-                staticSquaddieId: "static squaddie",
-                mapLocation: {q: 0.5, r: 1},
-                squaddieTurn: new SquaddieTurn(),
-            })
-            badDynamicSquaddie.assertBattleSquaddieDynamic();
-        }
-
-        expect(() => {
-            shouldThrowError()
-        }).toThrow(Error);
-        expect(() => {
-            shouldThrowError()
-        }).toThrow("Value must be an integer: 0.5");
-    });
     it('throws an error if dynamic squaddie has no static ID', () => {
         const shouldThrowError = () => {
             const badDynamicSquaddie: BattleSquaddieDynamic = new BattleSquaddieDynamic({
                 dynamicSquaddieId: "dynamicSquaddieId",
                 staticSquaddieId: "",
-                mapLocation: {q: 0, r: 1},
                 squaddieTurn: new SquaddieTurn(),
             })
             badDynamicSquaddie.assertBattleSquaddieDynamic();
@@ -45,7 +26,6 @@ describe('BattleSquaddie', () => {
             const badDynamicSquaddie: BattleSquaddieDynamic = new BattleSquaddieDynamic({
                 staticSquaddieId: "staticSquaddieId",
                 dynamicSquaddieId: "",
-                mapLocation: {q: 0, r: 1},
                 squaddieTurn: new SquaddieTurn(),
             })
             badDynamicSquaddie.assertBattleSquaddieDynamic();
@@ -63,7 +43,6 @@ describe('BattleSquaddie', () => {
             const newTurnSquaddie: BattleSquaddieDynamic = new BattleSquaddieDynamic({
                 dynamicSquaddieId: "dynamic_squaddie",
                 staticSquaddieId: "static squaddie",
-                mapLocation: {q: 0, r: 1},
                 squaddieTurn: new SquaddieTurn(),
             });
 
@@ -88,7 +67,6 @@ describe('BattleSquaddie', () => {
             newTurnDynamicSquaddie = new BattleSquaddieDynamic({
                 dynamicSquaddieId: "dynamic_squaddie",
                 staticSquaddieId: "static_squaddie",
-                mapLocation: {q: 0, r: 1},
                 squaddieTurn: new SquaddieTurn(),
             });
         });

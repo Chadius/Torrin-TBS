@@ -6,7 +6,6 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullSquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {ImageUI} from "../../ui/imageUI";
-import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 
 export function addSquaddieToSquaddieRepository(
@@ -14,7 +13,6 @@ export function addSquaddieToSquaddieRepository(
     dynamicSquaddieId: string,
     squaddieName: string,
     squaddieAffiliation: SquaddieAffiliation,
-    mapLocation: HexCoordinate,
     squaddieRepository: BattleSquaddieRepository
 ) {
     const staticSquaddie = new BattleSquaddieStatic({
@@ -32,7 +30,6 @@ export function addSquaddieToSquaddieRepository(
         new BattleSquaddieDynamic({
             dynamicSquaddieId: dynamicSquaddieId,
             staticSquaddieId: staticSquaddieId,
-            mapLocation: mapLocation,
             squaddieTurn: new SquaddieTurn(),
             mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });

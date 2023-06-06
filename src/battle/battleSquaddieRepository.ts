@@ -1,6 +1,5 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
-import {HexCoordinate} from "../hexMap/hexGrid";
 
 export class BattleSquaddieRepository {
     squaddieStaticInfoById: {
@@ -75,25 +74,5 @@ export class BattleSquaddieRepository {
                 dynamicSquaddieId,
             };
         });
-    }
-
-    getSquaddieByStaticIdAndLocation(staticID: string, mapLocation: HexCoordinate): ResultOrError<{
-        staticSquaddie: BattleSquaddieStatic,
-        dynamicSquaddie: BattleSquaddieDynamic,
-    }, Error> {
-        const dynamicSquaddieInfo = this.getDynamicSquaddieIterator().find((info) =>
-            info.dynamicSquaddie.mapLocation.q === mapLocation.q
-            && info.dynamicSquaddie.mapLocation.r === mapLocation.r
-        );
-
-        if (!dynamicSquaddieInfo) {
-            return makeError(new Error(`cannot find squaddie at location (${mapLocation.q}, ${mapLocation.r})`));
-        }
-
-        const {
-            dynamicSquaddieId
-        } = dynamicSquaddieInfo;
-
-        return this.getSquaddieByDynamicID(dynamicSquaddieId);
     }
 }

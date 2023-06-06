@@ -119,7 +119,10 @@ export class BattleMapDisplay implements OrchestratorComponent {
             .forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
                 if (dynamicSquaddieId !== currentlyMovingSquaddie) {
-                    drawSquaddieMapIconAtMapLocation(p, state.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, state.camera);
+                    const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
+                    if (datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation)) {
+                        drawSquaddieMapIconAtMapLocation(p, state.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
+                    }
                 }
             });
     }

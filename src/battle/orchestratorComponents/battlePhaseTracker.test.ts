@@ -37,7 +37,6 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "player_squaddie_0",
                 staticSquaddieId: "player_squaddie",
-                mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -59,7 +58,6 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "enemy_squaddie_0",
                 staticSquaddieId: "enemy_squaddie",
-                mapLocation: {q: 1, r: 0},
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -81,7 +79,6 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "ally_squaddie_0",
                 staticSquaddieId: "ally_squaddie",
-                mapLocation: {q: 2, r: 0},
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -103,7 +100,6 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "none_squaddie_0",
                 staticSquaddieId: "none_squaddie",
-                mapLocation: {q: 3, r: 0},
                 squaddieTurn: new SquaddieTurn()
             })
         );

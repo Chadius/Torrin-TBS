@@ -39,7 +39,6 @@ describe('BattleSquaddieUIService', () => {
         playerDynamicSquaddie = new BattleSquaddieDynamic({
             dynamicSquaddieId: "torrin_0",
             staticSquaddieId: "torrin",
-            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
         });
         squaddieRepository.addDynamicSquaddie(playerDynamicSquaddie);
@@ -102,7 +101,6 @@ describe('BattleSquaddieUIService', () => {
         const enemySquaddieDynamic: BattleSquaddieDynamic = new BattleSquaddieDynamic({
             dynamicSquaddieId: "enemy_0",
             staticSquaddieId: "enemy",
-            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
         });
         squaddieRepository.addDynamicSquaddie(enemySquaddieDynamic)

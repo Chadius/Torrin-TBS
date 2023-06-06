@@ -79,7 +79,6 @@ describe('BattleSquaddieSelectedHUD', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: playerSquaddieDynamicID,
                 staticSquaddieId: "player_soldier",
-                mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn()
             })
         );

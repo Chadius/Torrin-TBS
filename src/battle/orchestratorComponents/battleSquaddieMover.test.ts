@@ -57,7 +57,6 @@ describe('BattleSquaddieMover', () => {
         player1Dynamic = new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_1",
             staticSquaddieId: "player_1",
-            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn(),
         });
 

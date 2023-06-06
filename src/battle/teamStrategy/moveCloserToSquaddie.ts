@@ -37,14 +37,14 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             staticSquaddie,
             dynamicSquaddie,
         } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByDynamicID(squaddieToAct));
-
+        const {mapLocation} = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const pathfinder = new Pathfinder();
         const searchResults: SearchResults =
             pathfinder.findReachableSquaddies(new SearchParams({
                 missionMap: state.missionMap,
                 squaddieMovement: staticSquaddie.movement,
                 numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
-                startLocation: dynamicSquaddie.mapLocation,
+                startLocation: mapLocation,
                 squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
                 squaddieRepository: state.getSquaddieRepository(),
             }));
@@ -52,10 +52,12 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         const reachableSquaddieLocations = reachableSquaddiesResults.getClosestSquaddies();
 
         const foundInfo = Object.entries(reachableSquaddieLocations).filter(([squaddieId, mapLocation]) => {
+            const {dynamicSquaddieId} = state.getMissionMap().getSquaddieAtLocation(mapLocation);
             const {
                 dynamicSquaddie,
                 staticSquaddie,
-            } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByStaticIdAndLocation(squaddieId, mapLocation));
+            } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByDynamicID(dynamicSquaddieId));
+
             if (this.desiredDynamicSquaddieId) {
                 return dynamicSquaddie.dynamicSquaddieId === this.desiredDynamicSquaddieId;
             }
@@ -91,7 +93,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
                         missionMap: state.missionMap,
                         squaddieMovement: staticSquaddie.movement,
-                        startLocation: dynamicSquaddie.mapLocation,
+                        startLocation: mapLocation,
                         canStopOnSquaddies: true,
                         stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
                     }))
@@ -107,7 +109,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             const moveTowardsLocation: SquaddieInstruction = new SquaddieInstruction({
                 staticSquaddieId: staticSquaddie.squaddieId.staticId,
                 dynamicSquaddieId: squaddieToAct,
-                startingLocation: dynamicSquaddie.mapLocation,
+                startingLocation: mapLocation,
             });
             moveTowardsLocation.addMovement(new SquaddieMovementActivity({
                 numberOfActionsSpent: numberOfMoveActions,

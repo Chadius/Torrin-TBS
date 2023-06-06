@@ -22,13 +22,13 @@ export const unTintSquaddieMapIcon = (staticSquaddie: BattleSquaddieStatic, dyna
     dynamicSquaddie.mapIcon.removeTint();
 }
 
-export const drawSquaddieMapIconAtMapLocation = (p: p5, squaddieRepo: BattleSquaddieRepository, dynamicSquaddie: BattleSquaddieDynamic, dynamicSquaddieId: string, camera: BattleCamera) => {
+export const drawSquaddieMapIconAtMapLocation = (p: p5, squaddieRepo: BattleSquaddieRepository, dynamicSquaddie: BattleSquaddieDynamic, dynamicSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...camera.getCoordinates())
+        mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     setImageToLocation(dynamicSquaddie, xyCoords);
     const {staticSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
     if (staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
-        drawSquaddieActions(p, staticSquaddie, dynamicSquaddie, camera);
+        drawSquaddieActions(p, staticSquaddie, dynamicSquaddie, mapLocation, camera);
     }
     dynamicSquaddie.mapIcon.draw(p);
 }
@@ -43,9 +43,9 @@ export const setImageToLocation = (
     dynamicSquaddieInfo.mapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 }
 
-export const drawSquaddieActions = (p: p5, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, camera: BattleCamera) => {
+export const drawSquaddieActions = (p: p5, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-        dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...camera.getCoordinates())
+        mapLocation.q, mapLocation.r, ...camera.getCoordinates())
 
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
 

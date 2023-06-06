@@ -43,7 +43,6 @@ describe('end turn team strategy', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "new_dynamic_squaddie",
                 staticSquaddieId: "new_static_squaddie",
-                mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
             });
@@ -70,6 +69,7 @@ describe('end turn team strategy', () => {
             team: squaddieTeam,
             squaddieRepository: squaddieRepository,
         });
+        missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
 
         const expectedInstruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "new_static_squaddie",

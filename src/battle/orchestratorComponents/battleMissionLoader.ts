@@ -165,21 +165,23 @@ export class BattleMissionLoader implements OrchestratorComponent {
         state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_young_torrin",
             staticSquaddieId: "player_young_torrin",
-            mapLocation: {q: 0, r: 0},
             squaddieTurn: new SquaddieTurn()
-        }))
+        }));
+        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", {q: 0, r: 0});
+
         state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_sir_camil",
             staticSquaddieId: "player_sir_camil",
-            mapLocation: {q: 1, r: 1},
             squaddieTurn: new SquaddieTurn()
-        }))
+        }));
+        state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", {q: 1, r: 1});
+
         state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
             dynamicSquaddieId: "enemy_demon_slither_0",
             staticSquaddieId: "enemy_demon_slither",
-            mapLocation: {q: 1, r: 2},
             squaddieTurn: new SquaddieTurn()
-        }))
+        }));
+        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", {q: 2, r: 2});
 
         state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.PLAYER,
@@ -221,8 +223,6 @@ export class BattleMissionLoader implements OrchestratorComponent {
             const {
                 staticSquaddie
             } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
-
-            state.missionMap.addSquaddie(staticSquaddie.squaddieId.staticId, dynamicSquaddieId, dynamicSquaddie.mapLocation);
         })
     }
 
@@ -253,8 +253,9 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 state.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)
             );
 
+            const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
             const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                dynamicSquaddie.mapLocation.q, dynamicSquaddie.mapLocation.r, ...state.camera.getCoordinates())
+                datum.mapLocation.q, datum.mapLocation.r, ...state.camera.getCoordinates())
 
             dynamicSquaddie.mapIcon = new ImageUI({
                 graphic: image,

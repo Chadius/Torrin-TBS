@@ -34,7 +34,6 @@ describe('move towards closest squaddie in range', () => {
             "target_squaddie_0",
             "Target",
             SquaddieAffiliation.PLAYER,
-            {q: 0, r: 0},
             squaddieRepository,
         ));
 
@@ -46,7 +45,6 @@ describe('move towards closest squaddie in range', () => {
             "ignored_squaddie_0",
             "Ignored",
             SquaddieAffiliation.PLAYER,
-            {q: 0, r: 3},
             squaddieRepository,
         ));
 
@@ -58,7 +56,6 @@ describe('move towards closest squaddie in range', () => {
             "searching_squaddie_0",
             "Searching",
             SquaddieAffiliation.ALLY,
-            {q: 0, r: 2},
             squaddieRepository,
         ));
         searchingSquaddieStatic.movement = new SquaddieMovement({
@@ -78,9 +75,9 @@ describe('move towards closest squaddie in range', () => {
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 1 1 1 1 1 1 "]})
         });
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", targetSquaddieDynamic.mapLocation);
-        missionMap.addSquaddie(ignoredSquaddieStatic.squaddieId.staticId, "ignored_squaddie_0", ignoredSquaddieDynamic.mapLocation);
-        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", searchingSquaddieDynamic.mapLocation);
+        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", {q: 0, r: 0});
+        missionMap.addSquaddie(ignoredSquaddieStatic.squaddieId.staticId, "ignored_squaddie_0", {q: 0, r: 3});
+        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", {q: 0, r: 2});
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -128,8 +125,6 @@ describe('move towards closest squaddie in range', () => {
     });
 
     it('will give no instruction if it is already next to the target', () => {
-        searchingSquaddieDynamic.mapLocation = {q: 0, r: 1};
-
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
@@ -139,8 +134,8 @@ describe('move towards closest squaddie in range', () => {
             })
         });
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", targetSquaddieDynamic.mapLocation);
-        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", searchingSquaddieDynamic.mapLocation);
+        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", {q: 0, r: 0});
+        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", {q: 0, r: 1});
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -156,14 +151,12 @@ describe('move towards closest squaddie in range', () => {
     });
 
     it('will give no instruction if no targets are in range', () => {
-        searchingSquaddieDynamic.mapLocation = {q: 0, r: 8};
-
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 1 1 1 1 1 1 "]})
         });
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", targetSquaddieDynamic.mapLocation);
-        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", searchingSquaddieDynamic.mapLocation);
+        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", {q: 0, r: 0});
+        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", {q: 0, r: 8});
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -186,15 +179,13 @@ describe('move towards closest squaddie in range', () => {
     });
 
     it('will move towards closest squaddie of a given affiliation', () => {
-        ignoredSquaddieDynamic.mapLocation = {q: 0, r: 8};
-
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 1 1 1 1 1 1 "]})
         });
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", targetSquaddieDynamic.mapLocation);
-        missionMap.addSquaddie(ignoredSquaddieStatic.squaddieId.staticId, "ignored_squaddie_0", ignoredSquaddieDynamic.mapLocation);
-        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", searchingSquaddieDynamic.mapLocation);
+        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.staticId, "target_squaddie_0", {q: 0, r: 0});
+        missionMap.addSquaddie(ignoredSquaddieStatic.squaddieId.staticId, "ignored_squaddie_0", {q: 0, r: 8});
+        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.staticId, "searching_squaddie_0", {q: 0, r: 2});
 
         const state = new TeamStrategyState({
             missionMap: missionMap,

@@ -10,10 +10,12 @@ import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexD
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 
 export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
+    const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
+
     const reachableTileSearchResults: SearchResults = pathfinder.getAllReachableTiles(
         new SearchParams({
             missionMap: missionMap,
-            startLocation: dynamicSquaddie.mapLocation,
+            startLocation: squaddieDatum.mapLocation,
             squaddieMovement: staticSquaddie.movement,
             squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
             squaddieRepository,

@@ -16,10 +16,11 @@ export class EndTurnTeamStrategy implements TeamStrategy {
             dynamicSquaddie,
         } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByDynamicID(squaddieToAct));
 
+        const datum = state.getMissionMap().getSquaddieByDynamicId(squaddieToAct);
         const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: staticSquaddie.squaddieId.staticId,
             dynamicSquaddieId: squaddieToAct,
-            startingLocation: dynamicSquaddie.mapLocation,
+            startingLocation: datum.mapLocation,
         });
         endTurnActivity.endTurn();
 

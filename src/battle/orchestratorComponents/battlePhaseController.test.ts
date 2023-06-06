@@ -49,7 +49,6 @@ describe('BattlePhaseController', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "player_squaddie_0",
                 staticSquaddieId: "player_squaddie",
-                mapLocation: {q: 0, r: 0},
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
             })
@@ -72,7 +71,6 @@ describe('BattlePhaseController', () => {
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "enemy_squaddie_0",
                 staticSquaddieId: "enemy_squaddie",
-                mapLocation: {q: 1, r: 0},
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
             })

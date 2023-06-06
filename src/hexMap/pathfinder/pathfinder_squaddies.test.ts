@@ -95,20 +95,19 @@ describe('pathfinder and squaddies', () => {
             });
             missionMap.addSquaddie(blockingSquaddie.staticId, "dynamic_0", {q: 0, r: 1});
             let squaddieRepository = new BattleSquaddieRepository();
-
             addSquaddieToSquaddieRepository(
                 "blocker",
                 "dynamic_0",
                 "blocker",
                 blockingAffiliation,
-                {q: 0, r: 0},
                 squaddieRepository
             );
 
             const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
                 ...baseSearchParamOptions,
                 squaddieAffiliation: pathfindingAffiliation,
-                squaddieRepository
+                squaddieRepository,
+                missionMap,
             }));
             if (canPassThrough) {
                 validateCanPassThroughFriendly(searchResults);
@@ -305,7 +304,6 @@ describe('pathfinder and squaddies', () => {
             "dynamic_0",
             "enemy",
             SquaddieAffiliation.ENEMY,
-            {q: 0, r: 0},
             squaddieRepository
         );
 
@@ -370,7 +368,6 @@ describe('pathfinder and squaddies', () => {
             "enemy_nearby_dynamic_0",
             "enemy_nearby_enemy",
             SquaddieAffiliation.ENEMY,
-            {q: 0, r: 2},
             squaddieRepository
         );
         addSquaddieToSquaddieRepository(
@@ -378,7 +375,6 @@ describe('pathfinder and squaddies', () => {
             "ally_flanking_dynamic_0",
             "ally_flanking_enemy",
             SquaddieAffiliation.ALLY,
-            {q: 0, r: 3},
             squaddieRepository
         );
         addSquaddieToSquaddieRepository(
@@ -386,7 +382,6 @@ describe('pathfinder and squaddies', () => {
             "ally_at_the_edge_dynamic_0",
             "ally_at_the_edge_enemy",
             SquaddieAffiliation.ALLY,
-            {q: 0, r: 4},
             squaddieRepository
         );
         addSquaddieToSquaddieRepository(
@@ -394,7 +389,6 @@ describe('pathfinder and squaddies', () => {
             "ally_far_away_dynamic_0",
             "ally_far_away_enemy",
             SquaddieAffiliation.ALLY,
-            {q: 0, r: 8},
             squaddieRepository
         );
 
