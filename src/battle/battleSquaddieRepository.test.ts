@@ -7,6 +7,7 @@ import {SquaddieMovement} from "../squaddie/movement";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
+import {NullArmyAttributes} from "../squaddie/armyAttributes";
 
 describe('BattleSquaddieRepository', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -16,6 +17,7 @@ describe('BattleSquaddieRepository', () => {
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
         staticSquaddieBase = {
+            attributes: NullArmyAttributes(),
             squaddieId: new SquaddieId({
                 staticId: "player_young_torrin",
                 name: "Torrin",

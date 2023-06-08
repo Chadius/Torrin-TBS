@@ -11,6 +11,7 @@ import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
 import {ImageUI} from "../../ui/imageUI";
 import p5 from "p5";
+import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 
 jest.mock('p5', () => () => {
     return {}
@@ -24,6 +25,7 @@ describe('BattleSquaddieMapActivity', () => {
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
         staticSquaddieBase = {
+            attributes: NullArmyAttributes(),
             squaddieId: new SquaddieId({
                 staticId: "static_squaddie",
                 name: "Torrin",

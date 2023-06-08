@@ -33,6 +33,9 @@ export class BattleSquaddieRepository {
             throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddie.dynamicSquaddieId}', again, it already exists`);
         }
 
+        const staticSquaddie: BattleSquaddieStatic = this.squaddieStaticInfoById[dynamicSquaddie.staticSquaddieId];
+        dynamicSquaddie.initializeInBattleAttributes(staticSquaddie.attributes);
+
         this.squaddieDynamicInfoByDynamicId[dynamicSquaddie.dynamicSquaddieId] = dynamicSquaddie;
     }
 

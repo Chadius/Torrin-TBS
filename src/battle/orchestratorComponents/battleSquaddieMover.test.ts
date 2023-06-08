@@ -19,6 +19,7 @@ import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import p5 from "p5";
+import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 
 jest.mock('p5', () => () => {
     return {}
@@ -43,6 +44,7 @@ describe('BattleSquaddieMover', () => {
         });
 
         player1Static = {
+            attributes: NullArmyAttributes(),
             squaddieId: new SquaddieId({
                 staticId: "player_1",
                 name: "Player1",

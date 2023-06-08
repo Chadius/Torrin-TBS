@@ -22,6 +22,7 @@ import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoor
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -80,107 +81,122 @@ export class BattleMissionLoader implements OrchestratorComponent {
     }
 
     private loadSquaddies(state: OrchestratorState) {
-        state.squaddieRepo.addStaticSquaddie({
-            squaddieId: new SquaddieId({
-                staticId: "player_young_torrin",
-                name: "Torrin",
-                resources: new SquaddieResource({
-                    mapIconResourceKey: "map icon young torrin"
+        state.squaddieRepo.addSquaddie(
+            new BattleSquaddieStatic({
+                squaddieId: new SquaddieId({
+                    staticId: "player_young_torrin",
+                    name: "Torrin",
+                    resources: new SquaddieResource({
+                        mapIconResourceKey: "map icon young torrin"
+                    }),
+                    traits: new TraitStatusStorage({
+                        [Trait.HUMANOID]: true,
+                        [Trait.MONSU]: true,
+                    }).filterCategory(TraitCategory.CREATURE),
+                    affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                traits: new TraitStatusStorage({
-                    [Trait.HUMANOID]: true,
-                    [Trait.MONSU]: true,
-                }).filterCategory(TraitCategory.CREATURE),
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            movement: new SquaddieMovement({
-                movementPerAction: 2,
-                traits: new TraitStatusStorage({
-                    [Trait.PASS_THROUGH_WALLS]: true,
-                }).filterCategory(TraitCategory.MOVEMENT)
-            }),
-            activities: [
-                new SquaddieActivity({
-                    name: "water saber",
-                    id: "torrin_water_saber",
-                    minimumRange: 0,
-                    maximumRange: 2,
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-                })
-            ],
-        });
-        state.squaddieRepo.addStaticSquaddie({
-            squaddieId: new SquaddieId({
-                staticId: "player_sir_camil",
-                name: "Sir Camil",
-                resources: new SquaddieResource({
-                    mapIconResourceKey: "map icon sir camil"
+                attributes: new ArmyAttributes({
+                    maxHitPoints: 3,
+                    armorClass: 0,
                 }),
-                traits: new TraitStatusStorage({
-                    [Trait.HUMANOID]: true,
-                }).filterCategory(TraitCategory.CREATURE),
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            movement: new SquaddieMovement({
-                movementPerAction: 2,
-                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-            }),
-            activities: [
-                new SquaddieActivity({
-                    name: "longsword",
-                    id: "sir_camil_longsword",
-                    minimumRange: 0,
-                    maximumRange: 1,
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-                })
-            ],
-        });
-        state.squaddieRepo.addStaticSquaddie({
-            squaddieId: new SquaddieId({
-                staticId: "enemy_demon_slither",
-                name: "Slither Demon",
-                resources: new SquaddieResource({
-                    mapIconResourceKey: "map icon demon slither"
+                movement: new SquaddieMovement({
+                    movementPerAction: 2,
+                    traits: new TraitStatusStorage({
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }).filterCategory(TraitCategory.MOVEMENT)
                 }),
-                traits: new TraitStatusStorage({
-                    [Trait.DEMON]: true,
-                }).filterCategory(TraitCategory.CREATURE),
-                affiliation: SquaddieAffiliation.ENEMY,
+                activities: [
+                    new SquaddieActivity({
+                        name: "water saber",
+                        id: "torrin_water_saber",
+                        minimumRange: 0,
+                        maximumRange: 2,
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                    })
+                ],
             }),
-            movement: new SquaddieMovement({
-                movementPerAction: 1,
-                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "player_young_torrin",
+                staticSquaddieId: "player_young_torrin",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.squaddieRepo.addSquaddie(
+            new BattleSquaddieStatic({
+                attributes: new ArmyAttributes({
+                    maxHitPoints: 5,
+                    armorClass: 2,
+                }),
+                squaddieId: new SquaddieId({
+                    staticId: "player_sir_camil",
+                    name: "Sir Camil",
+                    resources: new SquaddieResource({
+                        mapIconResourceKey: "map icon sir camil"
+                    }),
+                    traits: new TraitStatusStorage({
+                        [Trait.HUMANOID]: true,
+                    }).filterCategory(TraitCategory.CREATURE),
+                    affiliation: SquaddieAffiliation.PLAYER,
+                }),
+                movement: new SquaddieMovement({
+                    movementPerAction: 2,
+                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                }),
+                activities: [
+                    new SquaddieActivity({
+                        name: "longsword",
+                        id: "sir_camil_longsword",
+                        minimumRange: 0,
+                        maximumRange: 1,
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                    })
+                ],
             }),
-            activities: [
-                new SquaddieActivity({
-                    name: "Bite",
-                    id: "demon_slither_bite",
-                    minimumRange: 0,
-                    maximumRange: 1,
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
-                })
-            ],
-        });
-
-        state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
-            dynamicSquaddieId: "player_young_torrin",
-            staticSquaddieId: "player_young_torrin",
-            squaddieTurn: new SquaddieTurn()
-        }));
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "player_sir_camil",
+                staticSquaddieId: "player_sir_camil",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.squaddieRepo.addSquaddie(
+            new BattleSquaddieStatic({
+                attributes: new ArmyAttributes({
+                    maxHitPoints: 1,
+                    armorClass: -5,
+                }),
+                squaddieId: new SquaddieId({
+                    staticId: "enemy_demon_slither",
+                    name: "Slither Demon",
+                    resources: new SquaddieResource({
+                        mapIconResourceKey: "map icon demon slither"
+                    }),
+                    traits: new TraitStatusStorage({
+                        [Trait.DEMON]: true,
+                    }).filterCategory(TraitCategory.CREATURE),
+                    affiliation: SquaddieAffiliation.ENEMY,
+                }),
+                movement: new SquaddieMovement({
+                    movementPerAction: 1,
+                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                }),
+                activities: [
+                    new SquaddieActivity({
+                        name: "Bite",
+                        id: "demon_slither_bite",
+                        minimumRange: 0,
+                        maximumRange: 1,
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                    })
+                ],
+            }),
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_0",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
         state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", {q: 0, r: 0});
-
-        state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
-            dynamicSquaddieId: "player_sir_camil",
-            staticSquaddieId: "player_sir_camil",
-            squaddieTurn: new SquaddieTurn()
-        }));
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", {q: 1, r: 1});
-
-        state.squaddieRepo.addDynamicSquaddie(new BattleSquaddieDynamic({
-            dynamicSquaddieId: "enemy_demon_slither_0",
-            staticSquaddieId: "enemy_demon_slither",
-            squaddieTurn: new SquaddieTurn()
-        }));
         state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", {q: 2, r: 2});
 
         state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
@@ -213,17 +229,6 @@ export class BattleMissionLoader implements OrchestratorComponent {
             "phase banner enemy",
         ];
         state.resourceHandler.loadResources(this.bannerImageResourceKeys);
-
-        state.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
-            const {
-                dynamicSquaddie,
-                dynamicSquaddieId
-            } = info;
-
-            const {
-                staticSquaddie
-            } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId))
-        })
     }
 
     update(state: OrchestratorState) {

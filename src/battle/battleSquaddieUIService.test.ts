@@ -10,6 +10,7 @@ import {SquaddieTurn} from "../squaddie/turn";
 import {SquaddieMovement} from "../squaddie/movement";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {NullArmyAttributes} from "../squaddie/armyAttributes";
 
 describe('BattleSquaddieUIService', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -19,6 +20,7 @@ describe('BattleSquaddieUIService', () => {
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
         playerStaticSquaddie = {
+            attributes: NullArmyAttributes(),
             squaddieId: new SquaddieId({
                 name: "torrin",
                 staticId: "torrin",
@@ -84,6 +86,7 @@ describe('BattleSquaddieUIService', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
         const enemySquaddieStatic: BattleSquaddieStatic = {
+            attributes: NullArmyAttributes(),
             activities: [],
             movement: new SquaddieMovement({
                 movementPerAction: 1,
