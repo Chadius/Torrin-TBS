@@ -6,6 +6,8 @@ import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {OrchestratorComponentMouseEventType} from "../orchestrator/orchestratorComponent";
 import p5 from "p5";
+import {Rectangle} from "../../ui/rectangle";
+import {RectArea} from "../../ui/rectArea";
 
 jest.mock('p5', () => () => {
     return {
@@ -163,7 +165,7 @@ describe('battleMapDisplay', () => {
         });
     });
 
-    describe('will not scroll the camera if the HUD is open', () => {
+    describe('will not vertically scroll the camera if the HUD is open', () => {
         let state: OrchestratorState;
         let camera: BattleCamera;
         let initialCameraCoordinates: number[];
@@ -200,6 +202,17 @@ describe('battleMapDisplay', () => {
         hudIsOpen.draw = jest.fn();
         hudIsOpen.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
         hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
+        jest.spyOn(hudIsOpen, "background", "get").mockReturnValue(
+            new Rectangle({
+                area: new RectArea({
+                    left: 10,
+                    right: ScreenDimensions.SCREEN_WIDTH - 10,
+                    top: 0,
+                    bottom: ScreenDimensions.SCREEN_HEIGHT
+                })
+            })
+        );
+
         const stateWithOpenedHUD = new OrchestratorState({
             displayMap: true,
             camera,
@@ -208,9 +221,92 @@ describe('battleMapDisplay', () => {
         });
 
         it.each(tests)(`when hovering over the HUD at mouseY $mouseY, do not move the camera`, ({mouseY}) => {
+            stateWithOpenedHUD.camera.setXVelocity(0);
+            stateWithOpenedHUD.camera.setYVelocity(0);
             hudIsOpen.createWindowPosition(mouseY);
             battleMapDisplay.moveCameraBasedOnMouseMovement(stateWithOpenedHUD, ScreenDimensions.SCREEN_WIDTH / 2, mouseY);
-            expect(camera.getVelocity()[1]).toBe(0);
+            expect(stateWithOpenedHUD.camera.getVelocity()[1]).toBe(0);
+        });
+    });
+
+    describe('will horizontally scroll the camera if the HUD is open but only at the extreme edge', () => {
+        let state: OrchestratorState;
+        let camera: BattleCamera;
+        let initialCameraCoordinates: number[];
+
+        beforeEach(() => {
+            initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
+            camera = new BattleCamera(...initialCameraCoordinates)
+
+            state = new OrchestratorState({
+                displayMap: true,
+                camera,
+                squaddieRepo,
+                battleSquaddieSelectedHUD,
+            });
+        });
+
+        type CameraTest = {
+            cameraDescription: string,
+            mouseX: number,
+            cameraVelocityTest: (camera: BattleCamera) => boolean,
+        }
+
+        const tests: CameraTest[] = [
+            {
+                cameraDescription: "move left",
+                mouseX: 0,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] < 0,
+            },
+            {
+                cameraDescription: "move right",
+                mouseX: ScreenDimensions.SCREEN_WIDTH,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] > 0,
+            },
+            {
+                cameraDescription: "not move",
+                mouseX: 10,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] === 0,
+            },
+            {
+                cameraDescription: "move down",
+                mouseX: ScreenDimensions.SCREEN_WIDTH - 10,
+                cameraVelocityTest: (camera: BattleCamera) => camera.getVelocity()[0] === 0,
+            },
+        ];
+
+        const hudIsOpen = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
+        hudIsOpen.draw = jest.fn();
+        hudIsOpen.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
+        hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
+        jest.spyOn(hudIsOpen, "background", "get").mockReturnValue(
+            new Rectangle({
+                area: new RectArea({
+                    left: 10,
+                    right: ScreenDimensions.SCREEN_WIDTH - 10,
+                    top: 0,
+                    bottom: ScreenDimensions.SCREEN_HEIGHT
+                })
+            })
+        );
+
+        const stateWithOpenedHUD = new OrchestratorState({
+            displayMap: true,
+            camera,
+            squaddieRepo,
+            battleSquaddieSelectedHUD: hudIsOpen,
+        });
+
+        it.each(tests)(`when hovering over the HUD at mouseX $mouseX, the camera should $cameraDescription`, ({
+                                                                                                                  cameraDescription,
+                                                                                                                  mouseX,
+                                                                                                                  cameraVelocityTest
+                                                                                                              }) => {
+            stateWithOpenedHUD.camera.setXVelocity(0);
+            stateWithOpenedHUD.camera.setYVelocity(0);
+            hudIsOpen.createWindowPosition(ScreenDimensions.SCREEN_HEIGHT / 2);
+            battleMapDisplay.moveCameraBasedOnMouseMovement(stateWithOpenedHUD, mouseX, ScreenDimensions.SCREEN_HEIGHT / 2);
+            expect(cameraVelocityTest(stateWithOpenedHUD.camera)).toBeTruthy();
         });
     });
 });

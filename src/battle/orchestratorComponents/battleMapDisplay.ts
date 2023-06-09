@@ -44,6 +44,17 @@ export class BattleMapDisplay implements OrchestratorComponent {
             return;
         }
 
+        if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD() && state.battleSquaddieSelectedHUD.isMouseInsideHUD(mouseX, mouseY)) {
+            if (mouseX < state.battleSquaddieSelectedHUD.background.area.getLeft()) {
+                state.camera.setXVelocity(-5);
+            }
+            if (mouseX > state.battleSquaddieSelectedHUD.background.area.getRight()) {
+                state.camera.setXVelocity(5);
+            }
+
+            return;
+        }
+
         if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.10) {
             state.camera.setXVelocity(-1);
             if (mouseX < ScreenDimensions.SCREEN_WIDTH * 0.04) {
@@ -62,10 +73,6 @@ export class BattleMapDisplay implements OrchestratorComponent {
             }
         } else {
             state.camera.setXVelocity(0);
-        }
-
-        if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD() && state.battleSquaddieSelectedHUD.isMouseInsideHUD(mouseX, mouseY)) {
-            return;
         }
 
         if (mouseY < ScreenDimensions.SCREEN_HEIGHT * 0.10) {

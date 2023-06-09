@@ -25,7 +25,7 @@ export class BattleSquaddieSelectedHUD {
     resourceHandler: ResourceHandler;
 
     selectedSquaddieDynamicId: string;
-    background: Rectangle;
+    private _background: Rectangle;
     affiliateIcon?: ImageUI;
     selectedActivity: SquaddieActivity;
 
@@ -37,6 +37,10 @@ export class BattleSquaddieSelectedHUD {
         this.resourceHandler = options.resourceHandler;
 
         this.reset();
+    }
+
+    get background(): Rectangle {
+        return this._background;
     }
 
     mouseClickedNoSquaddieSelected() {
@@ -51,7 +55,7 @@ export class BattleSquaddieSelectedHUD {
         const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId))
         const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
 
-        this.background = new Rectangle({
+        this._background = new Rectangle({
             area: windowDimensions,
             fillColor: [squaddieAffiliationHue, 10, 30],
             strokeColor: [squaddieAffiliationHue, 10, 6],
@@ -102,8 +106,8 @@ export class BattleSquaddieSelectedHUD {
             this.affiliateIcon = new ImageUI({
                 graphic: affiliateIconImage,
                 area: new RectArea({
-                    left: this.background.area.getLeft() + 20,
-                    top: this.background.area.getTop() + 10,
+                    left: this._background.area.getLeft() + 20,
+                    top: this._background.area.getTop() + 10,
                     width: 32,
                     height: 32,
                 })
@@ -136,7 +140,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     public didMouseClickOnHUD(mouseX: number, mouseY: number): boolean {
-        return this.background.area.isInside(mouseX, mouseY);
+        return this._background.area.isInside(mouseX, mouseY);
     }
 
     public shouldDrawTheHUD(): boolean {
@@ -151,7 +155,7 @@ export class BattleSquaddieSelectedHUD {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
-        this.background.draw(p);
+        this._background.draw(p);
         this.drawSquaddieID(p);
         this.drawNumberOfActions(p);
         this.drawSquaddieActivities(p);
@@ -167,8 +171,8 @@ export class BattleSquaddieSelectedHUD {
         }
 
         p.push();
-        const textLeft: number = this.background.area.getLeft() + 60;
-        const textTop: number = this.background.area.getTop() + 30;
+        const textLeft: number = this._background.area.getLeft() + 60;
+        const textTop: number = this._background.area.getTop() + 30;
 
         p.textSize(24);
         p.fill("#efefef");
@@ -187,7 +191,7 @@ export class BattleSquaddieSelectedHUD {
         p.push();
 
         const mainActionIconWidth: number = 25;
-        const actionIconLeft: number = this.background.area.getLeft() + 20;
+        const actionIconLeft: number = this._background.area.getLeft() + 20;
 
         p.fill("#dedede");
         p.stroke("#1f1f1f");
@@ -195,7 +199,7 @@ export class BattleSquaddieSelectedHUD {
             left: actionIconLeft,
             height: mainActionIconWidth * 3,
             width: 40,
-            top: this.background.area.getTop() + 45,
+            top: this._background.area.getTop() + 45,
         })
         p.fill("#1f1f1f");
         p.stroke("#1f1f1f");
@@ -262,7 +266,7 @@ export class BattleSquaddieSelectedHUD {
 
     reset() {
         this.selectedSquaddieDynamicId = "";
-        this.background = undefined;
+        this._background = undefined;
         this.affiliateIcon = undefined;
         this.selectedActivity = undefined;
         this.activityButtons = undefined;
