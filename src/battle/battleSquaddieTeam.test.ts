@@ -3,7 +3,6 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {SquaddieId} from "../squaddie/id";
 import {NullSquaddieResource} from "../squaddie/resource";
 import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
-import {NullSquaddieMovement} from "../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
@@ -36,7 +35,6 @@ describe('Battle Squaddie Team', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            movement: NullSquaddieMovement(),
             activities: [],
         });
 
@@ -80,7 +78,6 @@ describe('Battle Squaddie Team', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
-            movement: NullSquaddieMovement(),
             activities: [],
         });
 

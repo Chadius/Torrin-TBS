@@ -3,17 +3,19 @@ import {SquaddieId} from "../../squaddie/id";
 import {NullSquaddieResource} from "../../squaddie/resource";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullSquaddieMovement} from "../../squaddie/movement";
+import {NullSquaddieMovement, SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {ImageUI} from "../../ui/imageUI";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 export function addSquaddieToSquaddieRepository(
     staticSquaddieId: string,
     dynamicSquaddieId: string,
     squaddieName: string,
     squaddieAffiliation: SquaddieAffiliation,
-    squaddieRepository: BattleSquaddieRepository
+    squaddieRepository: BattleSquaddieRepository,
+    movement?: SquaddieMovement,
 ) {
     const staticSquaddie = new BattleSquaddieStatic({
         squaddieId: new SquaddieId({
@@ -23,7 +25,9 @@ export function addSquaddieToSquaddieRepository(
             traits: NullTraitStatusStorage(),
             affiliation: squaddieAffiliation,
         }),
-        movement: NullSquaddieMovement(),
+        attributes: new ArmyAttributes({
+            movement: movement ?? NullSquaddieMovement(),
+        }),
         activities: [],
     });
     const dynamicSquaddie =

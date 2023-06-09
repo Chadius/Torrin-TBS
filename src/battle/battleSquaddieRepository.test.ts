@@ -7,7 +7,7 @@ import {SquaddieMovement} from "../squaddie/movement";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
-import {NullArmyAttributes} from "../squaddie/armyAttributes";
+import {ArmyAttributes} from "../squaddie/armyAttributes";
 
 describe('BattleSquaddieRepository', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -16,8 +16,17 @@ describe('BattleSquaddieRepository', () => {
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
-        staticSquaddieBase = {
-            attributes: NullArmyAttributes(),
+        staticSquaddieBase = new BattleSquaddieStatic({
+            attributes: new ArmyAttributes({
+                maxHitPoints: 1,
+                armorClass: 0,
+                movement: new SquaddieMovement({
+                    movementPerAction: 2,
+                    traits: new TraitStatusStorage({
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }).filterCategory(TraitCategory.MOVEMENT)
+                }),
+            }),
             squaddieId: new SquaddieId({
                 staticId: "player_young_torrin",
                 name: "Torrin",
@@ -25,14 +34,8 @@ describe('BattleSquaddieRepository', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            movement: new SquaddieMovement({
-                movementPerAction: 2,
-                traits: new TraitStatusStorage({
-                    [Trait.PASS_THROUGH_WALLS]: true,
-                }).filterCategory(TraitCategory.MOVEMENT)
-            }),
             activities: [],
-        };
+        });
         dynamicSquaddieBase = new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_young_torrin_0",
             staticSquaddieId: "player_young_torrin",

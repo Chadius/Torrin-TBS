@@ -98,12 +98,12 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 attributes: new ArmyAttributes({
                     maxHitPoints: 3,
                     armorClass: 0,
-                }),
-                movement: new SquaddieMovement({
-                    movementPerAction: 2,
-                    traits: new TraitStatusStorage({
-                        [Trait.PASS_THROUGH_WALLS]: true,
-                    }).filterCategory(TraitCategory.MOVEMENT)
+                    movement: new SquaddieMovement({
+                        movementPerAction: 2,
+                        traits: new TraitStatusStorage({
+                            [Trait.PASS_THROUGH_WALLS]: true,
+                        }).filterCategory(TraitCategory.MOVEMENT)
+                    }),
                 }),
                 activities: [
                     new SquaddieActivity({
@@ -126,6 +126,10 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 attributes: new ArmyAttributes({
                     maxHitPoints: 5,
                     armorClass: 2,
+                    movement: new SquaddieMovement({
+                        movementPerAction: 2,
+                        traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                    }),
                 }),
                 squaddieId: new SquaddieId({
                     staticId: "player_sir_camil",
@@ -137,10 +141,6 @@ export class BattleMissionLoader implements OrchestratorComponent {
                         [Trait.HUMANOID]: true,
                     }).filterCategory(TraitCategory.CREATURE),
                     affiliation: SquaddieAffiliation.PLAYER,
-                }),
-                movement: new SquaddieMovement({
-                    movementPerAction: 2,
-                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                 }),
                 activities: [
                     new SquaddieActivity({
@@ -163,6 +163,10 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 attributes: new ArmyAttributes({
                     maxHitPoints: 1,
                     armorClass: -5,
+                    movement: new SquaddieMovement({
+                        movementPerAction: 1,
+                        traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                    }),
                 }),
                 squaddieId: new SquaddieId({
                     staticId: "enemy_demon_slither",
@@ -174,10 +178,6 @@ export class BattleMissionLoader implements OrchestratorComponent {
                         [Trait.DEMON]: true,
                     }).filterCategory(TraitCategory.CREATURE),
                     affiliation: SquaddieAffiliation.ENEMY,
-                }),
-                movement: new SquaddieMovement({
-                    movementPerAction: 1,
-                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                 }),
                 activities: [
                     new SquaddieActivity({

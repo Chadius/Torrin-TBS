@@ -11,7 +11,7 @@ import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
 import {ImageUI} from "../../ui/imageUI";
 import p5 from "p5";
-import {NullArmyAttributes} from "../../squaddie/armyAttributes";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 jest.mock('p5', () => () => {
     return {}
@@ -24,8 +24,15 @@ describe('BattleSquaddieMapActivity', () => {
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
-        staticSquaddieBase = {
-            attributes: NullArmyAttributes(),
+        staticSquaddieBase = new BattleSquaddieStatic({
+            attributes: new ArmyAttributes({
+                movement: new SquaddieMovement({
+                    movementPerAction: 2,
+                    traits: new TraitStatusStorage({
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }).filterCategory(TraitCategory.MOVEMENT)
+                }),
+            }),
             squaddieId: new SquaddieId({
                 staticId: "static_squaddie",
                 name: "Torrin",
@@ -33,14 +40,8 @@ describe('BattleSquaddieMapActivity', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            movement: new SquaddieMovement({
-                movementPerAction: 2,
-                traits: new TraitStatusStorage({
-                    [Trait.PASS_THROUGH_WALLS]: true,
-                }).filterCategory(TraitCategory.MOVEMENT)
-            }),
             activities: [],
-        };
+        });
         dynamicSquaddieBase = new BattleSquaddieDynamic({
             dynamicSquaddieId: "dynamic_squaddie",
             staticSquaddieId: "static_squaddie",

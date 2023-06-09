@@ -7,7 +7,6 @@ import {NullSquaddieResource} from "../squaddie/resource";
 import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../squaddie/turn";
-import {SquaddieMovement} from "../squaddie/movement";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {NullArmyAttributes} from "../squaddie/armyAttributes";
@@ -19,7 +18,7 @@ describe('BattleSquaddieUIService', () => {
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
-        playerStaticSquaddie = {
+        playerStaticSquaddie = new BattleSquaddieStatic({
             attributes: NullArmyAttributes(),
             squaddieId: new SquaddieId({
                 name: "torrin",
@@ -28,12 +27,8 @@ describe('BattleSquaddieUIService', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER
             }),
-            movement: new SquaddieMovement({
-                movementPerAction: 1,
-                traits: NullTraitStatusStorage(),
-            }),
             activities: [],
-        };
+        });
         squaddieRepository.addStaticSquaddie(
             playerStaticSquaddie
         );
@@ -85,13 +80,9 @@ describe('BattleSquaddieUIService', () => {
     it('should change to NO_SQUADDIE_SELECTED when an uncontrollable squaddie is selected and you click on the map', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        const enemySquaddieStatic: BattleSquaddieStatic = {
+        const enemySquaddieStatic: BattleSquaddieStatic = new BattleSquaddieStatic({
             attributes: NullArmyAttributes(),
             activities: [],
-            movement: new SquaddieMovement({
-                movementPerAction: 1,
-                traits: NullTraitStatusStorage()
-            }),
             squaddieId: new SquaddieId({
                 name: "enemy",
                 staticId: "enemy",
@@ -99,7 +90,7 @@ describe('BattleSquaddieUIService', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY
             })
-        }
+        });
         squaddieRepository.addStaticSquaddie(enemySquaddieStatic);
         const enemySquaddieDynamic: BattleSquaddieDynamic = new BattleSquaddieDynamic({
             dynamicSquaddieId: "enemy_0",

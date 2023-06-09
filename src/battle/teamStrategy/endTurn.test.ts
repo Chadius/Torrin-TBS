@@ -6,7 +6,6 @@ import {SquaddieId} from "../../squaddie/id";
 import {NullSquaddieResource} from "../../squaddie/resource";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullSquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {ImageUI} from "../../ui/imageUI";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
@@ -31,7 +30,6 @@ describe('end turn team strategy', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            movement: NullSquaddieMovement(),
             activities: [],
         });
 

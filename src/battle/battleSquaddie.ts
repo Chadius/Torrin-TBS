@@ -1,5 +1,5 @@
 import {SquaddieId} from "../squaddie/id";
-import {NullSquaddieMovement, SquaddieMovement} from "../squaddie/movement";
+import {SquaddieMovement} from "../squaddie/movement";
 import {SquaddieActivity} from "../squaddie/activity";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieTurn} from "../squaddie/turn";
@@ -9,20 +9,21 @@ import {InBattleAttributes, NullInBattleAttributes} from "./stats/inBattleAttrib
 
 export class BattleSquaddieStatic {
     squaddieId: SquaddieId;
-    movement: SquaddieMovement;
     activities: SquaddieActivity[];
     attributes: ArmyAttributes;
 
     constructor(options: {
         squaddieId: SquaddieId,
-        movement?: SquaddieMovement,
         activities?: SquaddieActivity[],
         attributes?: ArmyAttributes,
     }) {
         this.squaddieId = options.squaddieId;
-        this.movement = options.movement || NullSquaddieMovement();
         this.activities = options.activities || [];
         this.attributes = options.attributes || NullArmyAttributes();
+    }
+
+    get movement(): SquaddieMovement {
+        return this.attributes.movement;
     }
 }
 

@@ -57,11 +57,11 @@ describe('move towards closest squaddie in range', () => {
             "Searching",
             SquaddieAffiliation.ALLY,
             squaddieRepository,
+            new SquaddieMovement({
+                movementPerAction: 1,
+                traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+            })
         ));
-        searchingSquaddieStatic.movement = new SquaddieMovement({
-            movementPerAction: 1,
-            traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
-        });
 
         allyTeam = new BattleSquaddieTeam({
             name: "team",

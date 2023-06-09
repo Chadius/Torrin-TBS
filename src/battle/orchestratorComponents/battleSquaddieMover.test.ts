@@ -3,7 +3,7 @@ import {SquaddieId} from "../../squaddie/id";
 import {NullSquaddieResource} from "../../squaddie/resource";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullSquaddieMovement, SquaddieMovement} from "../../squaddie/movement";
+import {SquaddieMovement} from "../../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
@@ -43,7 +43,7 @@ describe('BattleSquaddieMover', () => {
             })
         });
 
-        player1Static = {
+        player1Static = new BattleSquaddieStatic({
             attributes: NullArmyAttributes(),
             squaddieId: new SquaddieId({
                 staticId: "player_1",
@@ -52,9 +52,8 @@ describe('BattleSquaddieMover', () => {
                 traits: NullTraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            movement: NullSquaddieMovement(),
             activities: [],
-        };
+        });
 
         player1Dynamic = new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_1",

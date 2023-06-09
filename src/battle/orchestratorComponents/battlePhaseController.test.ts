@@ -7,7 +7,6 @@ import {SquaddieId} from "../../squaddie/id";
 import {NullSquaddieResource} from "../../squaddie/resource";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullSquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController} from "./battlePhaseController";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
@@ -41,7 +40,6 @@ describe('BattlePhaseController', () => {
                     traits: NullTraitStatusStorage(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                movement: NullSquaddieMovement(),
                 activities: [],
             })
         );
@@ -63,7 +61,6 @@ describe('BattlePhaseController', () => {
                     traits: NullTraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
-                movement: NullSquaddieMovement(),
                 activities: [],
             })
         );
