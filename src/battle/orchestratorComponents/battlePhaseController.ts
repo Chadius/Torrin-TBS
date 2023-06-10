@@ -65,6 +65,9 @@ export class BattlePhaseController implements OrchestratorComponent {
             state.battlePhaseState.bannerPhaseToShow = state.battlePhaseTracker.getCurrentPhase();
             this.setBannerImage(state);
 
+            state.camera.setXVelocity(0);
+            state.camera.setYVelocity(0);
+
             state.battlePhaseTracker.getCurrentTeam().beginNewRound();
         }
     }

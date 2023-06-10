@@ -13,6 +13,7 @@ import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {ImageUI} from "../../ui/imageUI";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import p5 from "p5";
+import {BattleCamera} from "../battleCamera";
 
 jest.mock('p5', () => () => {
     return {}
@@ -139,6 +140,26 @@ describe('BattlePhaseController', () => {
         battlePhaseController.update(state, mockedP5);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+    });
+
+    it('stops the camera when it displays the banner', () => {
+        const camera: BattleCamera = new BattleCamera();
+        camera.setXVelocity(-100);
+        camera.setYVelocity(-100);
+
+        const state: OrchestratorState = new OrchestratorState({
+            battlePhaseTracker,
+            squaddieRepo,
+            resourceHandler,
+        });
+        battlePhaseController = new BattlePhaseController();
+        const startTime = 0;
+        jest.spyOn(Date, 'now').mockImplementation(() => startTime);
+
+        battlePhaseController.update(state, mockedP5);
+        expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
+
+        expect(state.camera.getVelocity()).toStrictEqual([0, 0]);
     });
 
     it('starts the animation and completes if team has finished their turns', () => {
