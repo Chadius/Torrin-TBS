@@ -1,4 +1,4 @@
-import {HexCoordinate} from "../hexGrid";
+import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../hexGrid";
 import {Pathfinder} from "./pathfinder";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
 import {SquaddieMovement} from "../../squaddie/movement";
@@ -354,7 +354,8 @@ describe('pathfinding with a single move', () => {
                     squaddieMovement: new SquaddieMovement({
                         movementPerAction: 1,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
-                    })
+                    }),
+                    startLocation: NewHexCoordinateFromNumberPair([0,0]),
                 }),
                 0,
                 justTheCenter.map((hex) => {
@@ -380,6 +381,7 @@ describe('pathfinding with a single move', () => {
                         movementPerAction: 1,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
                     }),
+                    startLocation: NewHexCoordinateFromNumberPair([0,0]),
                 }),
                 1,
                 justTheCenter.map((hex) => {
@@ -409,6 +411,7 @@ describe('pathfinding with a single move', () => {
                         movementPerAction: 1,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
                     }),
+                    startLocation: NewHexCoordinateFromNumberPair([0,0]),
                 }),
                 2,
                 justTheCenter.map((hex) => {
@@ -436,6 +439,7 @@ describe('pathfinding with a single move', () => {
                         movementPerAction: 1,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
                     }),
+                    startLocation: NewHexCoordinateFromNumberPair([justTheCenter[0].q, justTheCenter[0].r]),
                 }),
                 1,
                 movementRangeTiles,
@@ -490,6 +494,7 @@ describe('pathfinding with a single move', () => {
             const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
                     missionMap: missionMap,
                     minimumDistanceMoved: 2,
+                    startLocation: NewHexCoordinateFromNumberPair([justTheCenter[0].q, justTheCenter[0].r]),
                 }),
                 3,
                 movementRangeTiles,
@@ -531,6 +536,7 @@ describe('pathfinding with a single move', () => {
             const indirectAttackTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
                     missionMap: missionMap,
                     minimumDistanceMoved: 2,
+                    startLocation: NewHexCoordinateFromNumberPair([justTheCenter[0].q, justTheCenter[0].r]),
                 }),
                 3,
                 movementRangeTiles,
@@ -584,6 +590,7 @@ describe('pathfinding with a single move', () => {
         it('can be blocked by walls', () => {
             const blockedByWall: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
                     missionMap: missionMap,
+                    startLocation: NewHexCoordinateFromNumberPair([justTheCenter[0].q, justTheCenter[0].r]),
                 }),
                 2,
                 justTheCenter,
@@ -607,6 +614,7 @@ describe('pathfinding with a single move', () => {
                         movementPerAction: 3,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
                     }),
+                    startLocation: NewHexCoordinateFromNumberPair([justTheCenter[0].q, justTheCenter[0].r]),
                 }),
                 2,
                 justTheCenter,

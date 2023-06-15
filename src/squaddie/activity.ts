@@ -1,12 +1,6 @@
 import {assertsInteger} from "../utils/mathAssert";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
 
-type RequiredOptions = {
-    name: string;
-    id: string;
-    traits: TraitStatusStorage;
-}
-
 export type ActivityRange = {
     minimumRange: number | undefined;
     maximumRange: number | undefined;
@@ -17,16 +11,21 @@ type Options = ActivityRange & {
 }
 
 export class SquaddieActivity {
-    name: string;
-    id: string;
-    minimumRange: number;
-    maximumRange: number;
-    actionsToSpend: number;
-    traits: TraitStatusStorage;
+    private _name: string;
+    private _id: string;
+    private _minimumRange: number;
+    private _maximumRange: number;
+    private _actionsToSpend: number;
+    private _traits: TraitStatusStorage;
 
-    constructor(options: RequiredOptions & Partial<Options>) {
-        this.name = options.name;
-        this.id = options.id;
+    constructor(options: {
+        name: string;
+        id: string;
+        traits: TraitStatusStorage;
+        actionsToSpend?: number;
+    } & Partial<ActivityRange>) {
+        this._name = options.name;
+        this._id = options.id;
 
         if (options.minimumRange !== undefined) {
             assertsInteger(options.minimumRange);
@@ -38,16 +37,35 @@ export class SquaddieActivity {
             assertsInteger(options.actionsToSpend);
         }
 
-        this.minimumRange = options.minimumRange;
-        this.maximumRange = options.maximumRange;
+        this._minimumRange = options.minimumRange;
+        this._maximumRange = options.maximumRange;
 
         if (options.actionsToSpend) {
             assertsInteger(options.actionsToSpend);
-            this.actionsToSpend = options.actionsToSpend;
+            this._actionsToSpend = options.actionsToSpend;
         } else {
-            this.actionsToSpend = 1;
+            this._actionsToSpend = 1;
         }
 
-        this.traits = options.traits;
+        this._traits = options.traits;
+    }
+
+    get name(): string {
+        return this._name;
+    }
+    get id(): string {
+        return this._id;
+    }
+    get traits(): TraitStatusStorage {
+        return this._traits;
+    }
+    get actionsToSpend(): number {
+        return this._actionsToSpend;
+    }
+    get minimumRange(): number {
+        return this._minimumRange;
+    }
+    get maximumRange(): number {
+        return this._maximumRange;
     }
 }

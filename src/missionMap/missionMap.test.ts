@@ -171,18 +171,18 @@ describe('Mission Map', () => {
         const squaddieData: MissionMapSquaddieDatum[] = missionMap.getSquaddiesThatHaveNoLocation();
 
         expect(squaddieData).toHaveLength(3);
-        expect(squaddieData).toContainEqual({
+        expect(squaddieData).toContainEqual(new MissionMapSquaddieDatum({
             staticSquaddieId: "static_squaddie_0",
             dynamicSquaddieId: "dynamic_squaddie_0",
-        });
-        expect(squaddieData).toContainEqual({
+        }));
+        expect(squaddieData).toContainEqual(new MissionMapSquaddieDatum({
             staticSquaddieId: "static_squaddie_0",
             dynamicSquaddieId: "dynamic_squaddie_0_1",
-        });
-        expect(squaddieData).toContainEqual({
+        }));
+        expect(squaddieData).toContainEqual(new MissionMapSquaddieDatum({
             staticSquaddieId: "static_squaddie_1",
             dynamicSquaddieId: "dynamic_squaddie_1",
-        });
+        }));
     });
 
     it('can move a squaddie by updating its position', () => {

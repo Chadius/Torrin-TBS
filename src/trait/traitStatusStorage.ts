@@ -7,6 +7,7 @@ export enum Trait {
     DEMON = "DEMON",
     CROSS_OVER_PITS = "CROSS_OVER_PITS",
     PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
+    TARGET_ARMOR = "TARGET_ARMOR",
 }
 
 export enum TraitCategory {
@@ -53,6 +54,10 @@ const traitInformation: {
     [Trait.PASS_THROUGH_WALLS]: {
         description: "Can cross over but not stop on walls.",
         categories: [TraitCategory.MOVEMENT],
+    },
+    [Trait.TARGET_ARMOR]: {
+        description: "These activities succeed based on the target's armor.",
+        categories: [TraitCategory.ACTIVITY],
     },
 }
 

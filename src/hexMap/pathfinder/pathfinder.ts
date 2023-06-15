@@ -176,13 +176,22 @@ export class Pathfinder {
     }
 
     getTilesInRange(searchParams: SearchParams, maximumDistance: number, sourceTiles: HexCoordinate[]): TileFoundDescription[] {
+        const inRangeTilesByLocation: { [locationKey: string]: TileFoundDescription } = {};
+
+        if (
+            sourceTiles.length < 1
+            || searchParams.getStartLocation() === undefined
+        ) {
+            return [];
+        }
+
         if (maximumDistance < 1) {
             return sourceTiles.map((tile) => {
                 return {...tile, movementCost: 0}
             })
         }
 
-        const inRangeTilesByLocation: { [locationKey: string]: TileFoundDescription } = {};
+
 
         sourceTiles.forEach((sourceTile) => {
             const searchParamsWithNewStartLocation = new SearchParams({
@@ -192,7 +201,7 @@ export class Pathfinder {
                     {
                         movementPerAction: maximumDistance,
                         traits: new TraitStatusStorage({
-                            [Trait.PASS_THROUGH_WALLS]: searchParams.getSearchParamsOptions().squaddieMovement.passThroughWalls,
+                            [Trait.PASS_THROUGH_WALLS]: searchParams.getPassThroughWalls(),
                             [Trait.CROSS_OVER_PITS]: true,
                         }).filterCategory(TraitCategory.MOVEMENT)
                     }),

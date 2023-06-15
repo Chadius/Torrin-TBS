@@ -7,12 +7,6 @@ import {
 import {ResourceHandler} from "../resource/resourceHandler";
 import {PulseBlendColor} from "./colorUtils";
 
-export type HexMapOptions = {
-    tiles?: HexGridTile[];
-    movementCost?: string[];
-    resourceHandler?: ResourceHandler;
-}
-
 function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
     const newTiles: HexGridTile[] = [];
     movementCost.forEach((costString, q_index) => {
@@ -58,7 +52,11 @@ export class TerrainTileMap {
     };
     resourceHandler: ResourceHandler;
 
-    constructor(options: HexMapOptions) {
+    constructor(options: {
+        tiles?: HexGridTile[];
+        movementCost?: string[];
+        resourceHandler?: ResourceHandler;
+    }) {
         let tiles: HexGridTile[] = options.tiles;
         let movementCost: string[] = options.movementCost;
 

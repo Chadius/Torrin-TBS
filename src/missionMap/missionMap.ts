@@ -2,31 +2,40 @@ import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {HexCoordinate} from "../hexMap/hexGrid";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 
-type RequiredOptions = {
-    terrainTileMap: TerrainTileMap;
-}
-
 export class MissionMapSquaddieDatum {
-    dynamicSquaddieId: string;
-    staticSquaddieId: string;
-    mapLocation?: HexCoordinate;
-
+    private _dynamicSquaddieId: string;
+    private _staticSquaddieId: string;
+    private _mapLocation?: HexCoordinate;
     constructor(info: { dynamicSquaddieId: string, staticSquaddieId: string, mapLocation?: HexCoordinate }) {
-        this.dynamicSquaddieId = info.dynamicSquaddieId;
-        this.staticSquaddieId = info.staticSquaddieId;
-        this.mapLocation = info.mapLocation;
+        this._dynamicSquaddieId = info.dynamicSquaddieId;
+        this._staticSquaddieId = info.staticSquaddieId;
+        this._mapLocation = info.mapLocation;
     }
 
     isValid() {
-        return this.dynamicSquaddieId !== undefined && this.staticSquaddieId !== undefined;
+        return this._dynamicSquaddieId !== undefined && this._staticSquaddieId !== undefined;
     }
 
     static clone(datum: MissionMapSquaddieDatum): MissionMapSquaddieDatum {
         return new MissionMapSquaddieDatum({
-            staticSquaddieId: datum.staticSquaddieId,
-            dynamicSquaddieId: datum.dynamicSquaddieId,
-            mapLocation: datum.mapLocation,
+            staticSquaddieId: datum._staticSquaddieId,
+            dynamicSquaddieId: datum._dynamicSquaddieId,
+            mapLocation: datum._mapLocation,
         });
+    }
+
+    get mapLocation(): HexCoordinate {
+        return this._mapLocation;
+    }
+
+    set mapLocation(value: HexCoordinate) {
+        this._mapLocation = value;
+    }
+    get staticSquaddieId(): string {
+        return this._staticSquaddieId;
+    }
+    get dynamicSquaddieId(): string {
+        return this._dynamicSquaddieId;
     }
 }
 
@@ -41,7 +50,9 @@ export class MissionMap {
     terrainTileMap: TerrainTileMap;
     squaddieInfo: MissionMapSquaddieDatum[];
 
-    constructor(options: RequiredOptions) {
+    constructor(options: {
+        terrainTileMap: TerrainTileMap;
+    }) {
         this.terrainTileMap = options.terrainTileMap;
         this.squaddieInfo = [];
     }
@@ -125,7 +136,7 @@ export class MissionMap {
     }
 
     getAllSquaddieData(): MissionMapSquaddieDatum[] {
-        return this.squaddieInfo.map((datum) => new MissionMapSquaddieDatum({...datum}))
+        return this.squaddieInfo.map((datum) => MissionMapSquaddieDatum.clone(datum))
             .map((datum) => MissionMapSquaddieDatum.clone(datum));
     }
 

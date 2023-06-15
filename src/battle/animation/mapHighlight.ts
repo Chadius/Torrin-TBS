@@ -5,7 +5,7 @@ import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTile
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
-import {HexCoordinate} from "../../hexMap/hexGrid";
+import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexGrid";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 
@@ -27,13 +27,17 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
         [numberOfActions: number]: [{ q: number, r: number }?]
     } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
+    const datum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
+
     const actionTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
             canStopOnSquaddies: true,
             missionMap: missionMap,
             minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
+            startLocation: datum.mapLocation,
         }),
         staticSquaddie.activities[0].maximumRange,
-        movementTiles
+        movementTiles,
+
     );
 
     const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] = Object.values(movementTilesByNumberOfActions);
