@@ -1,20 +1,39 @@
 import {assertsInteger} from "../utils/mathAssert";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
 
-export type ActivityRange = {
-    minimumRange: number | undefined;
-    maximumRange: number | undefined;
-}
+export class ActivityRange {
+    private _minimumRange: number | undefined;
+    private _maximumRange: number | undefined;
 
-type Options = ActivityRange & {
-    actionsToSpend: number;
+    constructor(options: {
+        minimumRange?: number,
+        maximumRange?: number,
+    }) {
+        this._minimumRange = options.minimumRange;
+        this._maximumRange = options.maximumRange;
+    }
+
+    get maximumRange(): number | undefined {
+        return this._maximumRange;
+    }
+
+    set maximumRange(value: number | undefined) {
+        this._maximumRange = value;
+    }
+
+    get minimumRange(): number | undefined {
+        return this._minimumRange;
+    }
+
+    set minimumRange(value: number | undefined) {
+        this._minimumRange = value;
+    }
 }
 
 export class SquaddieActivity {
     private _name: string;
     private _id: string;
-    private _minimumRange: number;
-    private _maximumRange: number;
+    private _range?: ActivityRange;
     private _actionsToSpend: number;
     private _traits: TraitStatusStorage;
 
@@ -33,12 +52,14 @@ export class SquaddieActivity {
         if (options.maximumRange !== undefined) {
             assertsInteger(options.maximumRange);
         }
+        this._range = new ActivityRange({
+            minimumRange: options.minimumRange,
+            maximumRange: options.maximumRange,
+        })
+
         if (options.actionsToSpend !== undefined) {
             assertsInteger(options.actionsToSpend);
         }
-
-        this._minimumRange = options.minimumRange;
-        this._maximumRange = options.maximumRange;
 
         if (options.actionsToSpend) {
             assertsInteger(options.actionsToSpend);
@@ -67,10 +88,10 @@ export class SquaddieActivity {
     }
 
     get minimumRange(): number {
-        return this._minimumRange;
+        return this._range.minimumRange;
     }
 
     get maximumRange(): number {
-        return this._maximumRange;
+        return this._range.maximumRange;
     }
 }
