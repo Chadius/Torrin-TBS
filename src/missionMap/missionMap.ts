@@ -1,6 +1,6 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {HexCoordinate} from "../hexMap/hexGrid";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
+import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 
 export class MissionMapSquaddieDatum {
     private _dynamicSquaddieId: string;

@@ -1,24 +1,16 @@
 import {getSquaddiePositionAlongPath, lerpSquaddieBetweenPath} from "./squaddieMoveAnimationUtils";
 import {HEX_TILE_WIDTH} from "../../graphicsConstants";
-import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {BattleCamera} from "../battleCamera";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('lerpSquaddieBetweenPath', () => {
     it('lerp between two points on a map', () => {
-        const movementPathInfo: TileFoundDescription[] = [
-            {
-                q: 0,
-                r: 0,
-                movementCost: 0,
-            },
-            {
-                q: 0,
-                r: 1,
-                movementCost: 0,
-            }
-        ]
+        const movementPathInfo: HexCoordinate[] = [
+            new HexCoordinate({q: 0, r: 0}),
+            new HexCoordinate({q: 0, r: 1}),
+        ];
 
         const startLocation = lerpSquaddieBetweenPath(
             movementPathInfo,
@@ -50,26 +42,14 @@ describe('lerpSquaddieBetweenPath', () => {
 })
 
 describe('getSquaddiePositionAlongPath', () => {
-    let movementPath: TileFoundDescription[];
+    let movementPath: HexCoordinate[];
     let camera: BattleCamera;
 
     beforeEach(() => {
         movementPath = [
-            {
-                q: 0,
-                r: 0,
-                movementCost: 0,
-            },
-            {
-                q: 0,
-                r: 1,
-                movementCost: 1,
-            },
-            {
-                q: 1,
-                r: 1,
-                movementCost: 2,
-            }
+            new HexCoordinate({q: 0, r: 0}),
+            new HexCoordinate({q: 0, r: 1}),
+            new HexCoordinate({q: 1, r: 1}),
         ];
 
         camera = new BattleCamera();

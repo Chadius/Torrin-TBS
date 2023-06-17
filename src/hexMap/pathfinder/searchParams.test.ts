@@ -5,6 +5,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../terrainTileMap";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 describe('searchParams', () => {
     it('getSearchParamsOptions generates options that can be used to build new objects', () => {
@@ -16,8 +17,8 @@ describe('searchParams', () => {
 
         const originalParams: SearchParams = new SearchParams({
             canStopOnSquaddies: true,
-            startLocation: {q: 5, r: 7},
-            stopLocation: {q: 11, r: 13},
+            startLocation: new HexCoordinate({q: 5, r: 7}),
+            stopLocation: new HexCoordinate({q: 11, r: 13}),
             squaddieMovement: new SquaddieMovement({
                 movementPerAction: 17,
                 traits: new TraitStatusStorage({

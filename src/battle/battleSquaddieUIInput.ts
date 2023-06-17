@@ -1,6 +1,6 @@
 import {MissionMap} from "../missionMap/missionMap";
-import {HexCoordinate} from "../hexMap/hexGrid";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
+import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 
 export enum BattleSquaddieUISelectionState {
     UNKNOWN = "UNKNOWN",

@@ -1,12 +1,12 @@
 import {TerrainTileMap} from "../terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {Pathfinder} from "./pathfinder";
-import {HexCoordinate} from "../hexGrid";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 export const createSquaddieMovements = () => {
     let squaddieMovementOneMovementPerAction = new SquaddieMovement({
@@ -61,7 +61,7 @@ export const validateTilesAreFound = (tilesToTest: HexCoordinate[], tilesFound: 
         tilesByKey[key] = true;
     });
 
-    const sortTiles = (a: TileFoundDescription, b: TileFoundDescription) => {
+    const sortTiles = (a: HexCoordinate, b: HexCoordinate) => {
         if (a.q < b.q) {
             return -1;
         } else if (a.q > b.q) {

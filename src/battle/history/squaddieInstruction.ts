@@ -1,7 +1,7 @@
-import {HexCoordinate} from "../../hexMap/hexGrid";
 import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 type SquaddieInstructionRequiredOptions = {
     staticSquaddieId: string;

@@ -12,6 +12,7 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('end turn team strategy', () => {
     let playerStaticSquaddie: BattleSquaddieStatic;
@@ -67,12 +68,12 @@ describe('end turn team strategy', () => {
             team: squaddieTeam,
             squaddieRepository: squaddieRepository,
         });
-        missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
+        missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", new HexCoordinate({q: 0, r: 0}));
 
         const expectedInstruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "new_static_squaddie",
             dynamicSquaddieId: "new_dynamic_squaddie",
-            startingLocation: {q: 0, r: 0},
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         expectedInstruction.endTurn();
 

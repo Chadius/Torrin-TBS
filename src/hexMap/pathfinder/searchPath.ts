@@ -1,6 +1,6 @@
-import {HexCoordinate} from "../hexGrid";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {assertsInteger} from "../../utils/mathAssert";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 export class SearchPath implements CostReportable {
     tilesTraveled: TileFoundDescription[];
@@ -32,7 +32,7 @@ export class SearchPath implements CostReportable {
         this.totalMovementCost += cost;
         this.movementCostSinceStartOfAction += cost;
 
-        this.destination = {q: tile.q, r: tile.r};
+        this.destination = new HexCoordinate({q: tile.q, r: tile.r});
     }
 
     getMostRecentTileLocation(): TileFoundDescription {

@@ -3,13 +3,13 @@ import {
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToScreenCoordinates
 } from "../../hexMap/convertCoordinates";
-import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {BattleCamera} from "../battleCamera";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const TIME_TO_MOVE = 1000.0;
 
 export const getSquaddiePositionAlongPath = (
-    tilesTraveled: TileFoundDescription[],
+    tilesTraveled: HexCoordinate[],
     timePassed: number,
     timeToMove: number,
     camera: BattleCamera,
@@ -30,7 +30,7 @@ export const getSquaddiePositionAlongPath = (
     }
 
     const currentStepIndex: number = Math.trunc(tilesTraveled.length * timePassed / timeToMove);
-    const startTile: TileFoundDescription = tilesTraveled[currentStepIndex];
+    const startTile: HexCoordinate = tilesTraveled[currentStepIndex];
     if (!startTile) {
         return convertMapCoordinatesToScreenCoordinates(
             tilesTraveled[0].q,
@@ -39,7 +39,7 @@ export const getSquaddiePositionAlongPath = (
         );
     }
 
-    let endTile: TileFoundDescription = tilesTraveled[currentStepIndex + 1];
+    let endTile: HexCoordinate = tilesTraveled[currentStepIndex + 1];
     if (!endTile) {
         endTile = startTile;
     }
@@ -47,16 +47,14 @@ export const getSquaddiePositionAlongPath = (
     const timeAtStepStart: number = currentStepIndex * timePerStep;
     const xyCoords: [number, number] = lerpSquaddieBetweenPath(
         [
-            {
+            new HexCoordinate({
                 q: startTile.q,
                 r: startTile.r,
-                movementCost: 0,
-            },
-            {
+            }),
+            new HexCoordinate({
                 q: endTile.q,
                 r: endTile.r,
-                movementCost: 0,
-            }
+            }),
         ],
         timePassed - timeAtStepStart,
         timePerStep,
@@ -66,7 +64,7 @@ export const getSquaddiePositionAlongPath = (
 }
 
 export const lerpSquaddieBetweenPath = (
-    movementPathInfo: TileFoundDescription[],
+    movementPathInfo: HexCoordinate[],
     timePassed: number,
     totalTravelTime: number,
     cameraX: number,

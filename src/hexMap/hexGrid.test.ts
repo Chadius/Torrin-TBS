@@ -2,7 +2,7 @@ import {HexGridTile} from "./hexGrid";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 
 describe('HexGrid', () => {
-    it('throws an error if non integer coordinates are used', () => {
+    it('throws an error if non integer coordinates are used for HexGrid', () => {
         const shouldThrowError = () => {
             new HexGridTile(
                 5.5,

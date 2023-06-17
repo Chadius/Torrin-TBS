@@ -1,4 +1,4 @@
-import {HexCoordinate, HexGridTile} from "./hexGrid";
+import {HexGridTile} from "./hexGrid";
 import {convertStringToMovementCost, HexGridMovementCost} from "./hexGridMovementCost";
 import {
     convertScreenCoordinatesToWorldCoordinates,
@@ -6,6 +6,7 @@ import {
 } from "./convertCoordinates";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {PulseBlendColor} from "./colorUtils";
+import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 
 function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
     const newTiles: HexGridTile[] = [];
@@ -94,10 +95,10 @@ export class TerrainTileMap {
         if (
             this.tiles.some((tile) => tile.q == tileCoordinates[0] && tile.r == tileCoordinates[1])
         ) {
-            this.outlineTileCoordinates = {
+            this.outlineTileCoordinates = new HexCoordinate({
                 q: tileCoordinates[0],
                 r: tileCoordinates[1],
-            }
+            });
         } else {
             this.outlineTileCoordinates = undefined;
         }

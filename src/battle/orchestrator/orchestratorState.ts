@@ -9,13 +9,13 @@ import {Cutscene} from "../../cutscene/cutscene";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
-import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {Recording} from "../history/recording";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export type CurrentSquaddieAnimationState = {
     dynamicSquaddieId: string,

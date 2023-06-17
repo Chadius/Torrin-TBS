@@ -20,6 +20,7 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import p5 from "p5";
 import {NullArmyAttributes} from "../../squaddie/armyAttributes";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 jest.mock('p5', () => () => {
     return {}
@@ -68,7 +69,7 @@ describe('BattleSquaddieMover', () => {
         squaddieRepo.addDynamicSquaddie(
             player1Dynamic
         );
-        map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
+        map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
@@ -78,14 +79,14 @@ describe('BattleSquaddieMover', () => {
             missionMap: map,
             squaddieRepository: squaddieRepo,
             selectedSquaddieDynamicID: "player_1",
-            tileClickedOn: {q: 1, r: 1},
+            tileClickedOn: new HexCoordinate({q: 1, r: 1}),
             finishedAnimating: false,
         });
         const pathfinder: Pathfinder = new Pathfinder();
         const movePath: SearchPath = getResultOrThrowError(
             getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
-                    startLocation: {q: 0, r: 0},
-                    stopLocation: {q: 1, r: 1},
+                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    stopLocation: new HexCoordinate({q: 1, r: 1}),
                     squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     canStopOnSquaddies: true,
                     missionMap: map,
@@ -100,10 +101,10 @@ describe('BattleSquaddieMover', () => {
         const moveActivity: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "player_1",
             dynamicSquaddieId: "player_1",
-            startingLocation: {q: 0, r: 0},
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         moveActivity.addMovement(new SquaddieMovementActivity({
-            destination: {q: 1, r: 1},
+            destination: new HexCoordinate({q: 1, r: 1}),
             numberOfActionsSpent: 1,
         }));
 

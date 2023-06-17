@@ -23,6 +23,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -195,9 +196,9 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 squaddieTurn: new SquaddieTurn()
             })
         );
-        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", {q: 0, r: 0});
-        state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", {q: 1, r: 1});
-        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", {q: 2, r: 2});
+        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 0, r: 0}));
+        state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
+        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 2, r: 2}));
 
         state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.PLAYER,

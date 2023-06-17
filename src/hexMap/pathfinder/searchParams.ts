@@ -1,9 +1,9 @@
-import {HexCoordinate} from "../hexGrid";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 export type SearchParamsOptions = {
     startLocation?: HexCoordinate;

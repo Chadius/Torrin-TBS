@@ -1,15 +1,15 @@
-import {HexCoordinate, HexCoordinateToKey} from "../hexGrid";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {ReachableSquaddiesResults} from "./reachableSquaddiesResults";
+import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 
 export type SearchResultOptions = {
     stopLocation?: HexCoordinate;
 };
 
 export class SearchResults {
-    allReachableTiles: TileFoundDescription[];
+    allReachableTiles: HexCoordinate[];
     lowestCostRoutes: { [key: string]: SearchPath };
     stopLocation?: HexCoordinate;
     reachableSquaddies: ReachableSquaddiesResults;
@@ -49,13 +49,13 @@ export class SearchResults {
         );
     }
 
-    setAllReachableTiles(tilesSearchCanStopAt: TileFoundDescription[]) {
+    setAllReachableTiles(tilesSearchCanStopAt: HexCoordinate[]) {
         this.allReachableTiles = [...tilesSearchCanStopAt];
     }
 
     setLowestCostRoute(searchPath: SearchPath) {
         const locationFound: TileFoundDescription = searchPath.getMostRecentTileLocation();
-        const locationKey: string = HexCoordinateToKey(locationFound);
+        const locationKey: string = HexCoordinateToKey(locationFound.hexCoordinate);
         if (this.lowestCostRoutes[locationKey]) {
             throw new Error(`lowest cost route already exists with key ${locationKey}`);
         }
@@ -63,11 +63,11 @@ export class SearchResults {
     }
 
     getLowestCostRoute(q: number, r: number): SearchPath {
-        const locationKey: string = HexCoordinateToKey({q, r});
+        const locationKey: string = HexCoordinateToKey(new HexCoordinate({q, r}));
         return this.lowestCostRoutes[locationKey];
     }
 
-    getReachableTiles: () => TileFoundDescription[] = () => {
+    getReachableTiles: () => HexCoordinate[] = () => {
         return [...this.allReachableTiles]
     }
 
@@ -90,10 +90,10 @@ export class SearchResults {
 
     getClosestTilesToDestination(): { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] {
         return Object.values(this.lowestCostRoutes).map((searchPath: SearchPath) => {
-            const coordinate: HexCoordinate = {
+            const coordinate: HexCoordinate = new HexCoordinate({
                 q: searchPath.getMostRecentTileLocation().q,
                 r: searchPath.getMostRecentTileLocation().r,
-            };
+            });
             const distance: number = Math.abs(coordinate.q - this.stopLocation.q)
                 + Math.abs(coordinate.r - this.stopLocation.r);
 

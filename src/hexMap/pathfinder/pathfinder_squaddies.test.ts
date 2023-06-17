@@ -13,6 +13,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {createMapAndPathfinder, createSquaddieMovements, validateTilesAreFound} from "./pathfinder_test_utils";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {addSquaddieToSquaddieRepository} from "../../utils/test/squaddieRepository";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 describe('pathfinder and squaddies', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -49,34 +50,34 @@ describe('pathfinder and squaddies', () => {
                 missionMap: missionMap,
                 squaddieMovement: squaddieMovementThreeMovementPerAction,
                 numberOfActions: 1,
-                startLocation: {q: 0, r: 0}
+                startLocation: new HexCoordinate({q: 0, r: 0}),
             };
         });
 
         const validateCanPassThroughFriendly = (searchResults: SearchResults) => {
             validateTilesAreFound(
-                searchResults.allReachableTiles,
+                searchResults.getReachableTiles(),
                 [
-                    {q: 0, r: 0,},
-                    {q: 0, r: 2,},
-                    {q: 0, r: 3,},
+                    new HexCoordinate({q: 0, r: 0,}),
+                    new HexCoordinate({q: 0, r: 2,}),
+                    new HexCoordinate({q: 0, r: 3,}),
                 ],
                 [
-                    {q: 0, r: 1,},
+                    new HexCoordinate({q: 0, r: 1,}),
                 ]
             );
         }
 
         const validateCannotPassThroughUnfriendly = (searchResults: SearchResults) => {
             validateTilesAreFound(
-                searchResults.allReachableTiles,
+                searchResults.getReachableTiles(),
                 [
-                    {q: 0, r: 0,},
+                    new HexCoordinate({q: 0, r: 0,}),
                 ],
                 [
-                    {q: 0, r: 1,},
-                    {q: 0, r: 2,},
-                    {q: 0, r: 3,},
+                    new HexCoordinate({q: 0, r: 1,}),
+                    new HexCoordinate({q: 0, r: 2,}),
+                    new HexCoordinate({q: 0, r: 3,}),
                 ]
             );
         }
@@ -93,7 +94,7 @@ describe('pathfinder and squaddies', () => {
                 traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
                 affiliation: blockingAffiliation,
             });
-            missionMap.addSquaddie(blockingSquaddie.staticId, "dynamic_0", {q: 0, r: 1});
+            missionMap.addSquaddie(blockingSquaddie.staticId, "dynamic_0", new HexCoordinate({q: 0, r: 1}));
             let squaddieRepository = new BattleSquaddieRepository();
             addSquaddieToSquaddieRepository(
                 "blocker",
@@ -254,10 +255,10 @@ describe('pathfinder and squaddies', () => {
             "1 1 1 1 1 1 ",
         ]);
 
-        missionMap.addSquaddie("player", "player_dynamic_0", {q: 0, r: 0});
-        missionMap.addSquaddie("enemy", "enemy_dynamic_0", {q: 0, r: 1});
-        missionMap.addSquaddie("ally", "ally_dynamic_0", {q: 0, r: 2});
-        missionMap.addSquaddie("none", "none_dynamic_0", {q: 0, r: 3});
+        missionMap.addSquaddie("player", "player_dynamic_0", new HexCoordinate({q: 0, r: 0}));
+        missionMap.addSquaddie("enemy", "enemy_dynamic_0", new HexCoordinate({q: 0, r: 1}));
+        missionMap.addSquaddie("ally", "ally_dynamic_0", new HexCoordinate({q: 0, r: 2}));
+        missionMap.addSquaddie("none", "none_dynamic_0", new HexCoordinate({q: 0, r: 3}));
 
         const allTilesOnMap: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             canStopOnSquaddies: true,
@@ -268,19 +269,19 @@ describe('pathfinder and squaddies', () => {
                 movementPerAction: 10,
                 traits: NullTraitStatusStorage(),
             }),
-            startLocation: {q: 0, r: 0},
+            startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: undefined
         })));
 
         validateTilesAreFound(
             allTilesOnMap.getReachableTiles(),
             [
-                {q: 0, r: 0,},
-                {q: 0, r: 1,},
-                {q: 0, r: 2,},
-                {q: 0, r: 3,},
-                {q: 0, r: 4,},
-                {q: 0, r: 5,},
+                new HexCoordinate({q: 0, r: 0,}),
+                new HexCoordinate({q: 0, r: 1,}),
+                new HexCoordinate({q: 0, r: 2,}),
+                new HexCoordinate({q: 0, r: 3,}),
+                new HexCoordinate({q: 0, r: 4,}),
+                new HexCoordinate({q: 0, r: 5,}),
             ],
             []
         );
@@ -295,7 +296,7 @@ describe('pathfinder and squaddies', () => {
             " 1 1 1 1 1 ",
         ]);
 
-        missionMap.addSquaddie("enemy", "dynamic_0", {q: 0, r: 1});
+        missionMap.addSquaddie("enemy", "dynamic_0", new HexCoordinate({q: 0, r: 1}));
 
         let squaddieRepository = new BattleSquaddieRepository();
 
@@ -310,8 +311,8 @@ describe('pathfinder and squaddies', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             missionMap: missionMap,
             squaddieMovement: squaddieMovementHighMovementPerAction,
-            startLocation: {q: 0, r: 0},
-            stopLocation: {q: 0, r: 2},
+            startLocation: new HexCoordinate({q: 0, r: 0}),
+            stopLocation: new HexCoordinate({q: 0, r: 2}),
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
         }));
@@ -321,11 +322,6 @@ describe('pathfinder and squaddies', () => {
         routeFound = getResultOrThrowError(routeOrError);
         const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
         expect(tilesTraveled).toHaveLength(4);
-        expect(tilesTraveled[0]).toEqual(expect.objectContaining({
-            q: 0,
-            r: 0,
-            movementCost: 0,
-        }));
         expect(tilesTraveled[0]).toEqual(expect.objectContaining({
             q: 0,
             r: 0,
@@ -357,10 +353,10 @@ describe('pathfinder and squaddies', () => {
             " 1 1 1 1 1 ",
         ]);
 
-        missionMap.addSquaddie("enemy_nearby", "enemy_nearby_dynamic_0", {q: 0, r: 2});
-        missionMap.addSquaddie("ally_flanking", "ally_flanking_dynamic_0", {q: 0, r: 3});
-        missionMap.addSquaddie("ally_at_the_edge", "ally_at_the_edge_dynamic_0", {q: 0, r: 4});
-        missionMap.addSquaddie("ally_far_away", "ally_far_away_dynamic_0", {q: 0, r: 8});
+        missionMap.addSquaddie("enemy_nearby", "enemy_nearby_dynamic_0", new HexCoordinate({q: 0, r: 2}));
+        missionMap.addSquaddie("ally_flanking", "ally_flanking_dynamic_0", new HexCoordinate({q: 0, r: 3}));
+        missionMap.addSquaddie("ally_at_the_edge", "ally_at_the_edge_dynamic_0", new HexCoordinate({q: 0, r: 4}));
+        missionMap.addSquaddie("ally_far_away", "ally_far_away_dynamic_0", new HexCoordinate({q: 0, r: 8}));
 
         let squaddieRepository = new BattleSquaddieRepository();
         addSquaddieToSquaddieRepository(
@@ -398,7 +394,7 @@ describe('pathfinder and squaddies', () => {
                 missionMap: missionMap,
                 squaddieMovement: squaddieMovementTwoMovementPerAction,
                 numberOfActions: 2,
-                startLocation: {q: 0, r: 0},
+                startLocation: new HexCoordinate({q: 0, r: 0}),
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
                 squaddieRepository
             }));
@@ -406,36 +402,54 @@ describe('pathfinder and squaddies', () => {
         const reachableSquaddies = searchResults.getReachableSquaddies();
 
         const enemyNearby = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("enemy_nearby");
-        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual({q: 0, r: 1});
-        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual({q: 1, r: 1});
-        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual({q: 1, r: 2});
-        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual({q: 0, r: 2}); // Cannot pass through enemy
-        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual({q: 0, r: 3}); // Cannot stop on ally
+        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual(new HexCoordinate({
+            q: 0,
+            r: 1
+        }));
+        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual(new HexCoordinate({
+            q: 1,
+            r: 1
+        }));
+        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual(new HexCoordinate({
+            q: 1,
+            r: 2
+        }));
+        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual(new HexCoordinate({
+            q: 0,
+            r: 2
+        })); // Cannot pass through enemy
+        expect(enemyNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual(new HexCoordinate({
+            q: 0,
+            r: 3
+        })); // Cannot stop on ally
 
         const allyFlankingNearby = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_flanking");
-        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(0)).toContainEqual({
+        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(0)).toContainEqual(new HexCoordinate({
             q: 0,
             r: 3
-        }); // 0 distance can pass through ally
-        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual({
+        })); // 0 distance can pass through ally
+        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual(new HexCoordinate({
             q: 1,
             r: 2
-        });
-        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual({
+        }));
+        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual(new HexCoordinate({
             q: 1,
             r: 3
-        });
-        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual({
+        }));
+        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual(new HexCoordinate({
             q: 0,
             r: 2
-        }); // Cannot stop on enemy
-        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual({
+        })); // Cannot stop on enemy
+        expect(allyFlankingNearby.closestCoordinatesByDistance.getCoordinatesByDistance(1)).not.toContainEqual(new HexCoordinate({
             q: 0,
             r: 4
-        }); // Out of movement
+        })); // Out of movement
 
         const allyAtTheEdge = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_at_the_edge");
-        expect(allyAtTheEdge.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual({q: 1, r: 3});
+        expect(allyAtTheEdge.closestCoordinatesByDistance.getCoordinatesByDistance(1)).toContainEqual(new HexCoordinate({
+            q: 1,
+            r: 3
+        }));
         expect(allyAtTheEdge.closestCoordinatesByDistance.getCoordinatesByDistance(0)).toStrictEqual([]); // Out of movement, cannot reach ally's location
 
         const allyFarAway = reachableSquaddies.getCoordinatesCloseToSquaddieByDistance("ally_far_away");
@@ -443,9 +457,9 @@ describe('pathfinder and squaddies', () => {
 
         const closestSquaddies = reachableSquaddies.getClosestSquaddies();
         expect(closestSquaddies).toStrictEqual({
-            "enemy_nearby": {q: 0, r: 2},
-            "ally_flanking": {q: 0, r: 3},
-            "ally_at_the_edge": {q: 0, r: 4},
+            "enemy_nearby": new HexCoordinate({q: 0, r: 2}),
+            "ally_flanking": new HexCoordinate({q: 0, r: 3}),
+            "ally_at_the_edge": new HexCoordinate({q: 0, r: 4}),
         });
     });
 });

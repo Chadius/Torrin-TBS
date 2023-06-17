@@ -10,7 +10,8 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {findValidTargets, TargetingResults} from "./targetingService";
-import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexGrid";
+
+import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('Targeting Service', () => {
     let longswordActivity: SquaddieActivity;
@@ -64,7 +65,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             sirCamilStaticSquaddie.squaddieId.staticId,
             sirCamilDynamicSquaddie.dynamicSquaddieId,
-            {q: 1, r: 1},
+            new HexCoordinate({q: 1, r: 1}),
         );
 
         const results: TargetingResults = findValidTargets({
@@ -152,7 +153,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             archerStaticSquaddie.squaddieId.staticId,
             archerDynamicSquaddie.dynamicSquaddieId,
-            {q: 1, r: 1},
+            new HexCoordinate({q: 1, r: 1}),
         );
 
         const results: TargetingResults = findValidTargets({
@@ -184,7 +185,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             sirCamilStaticSquaddie.squaddieId.staticId,
             sirCamilDynamicSquaddie.dynamicSquaddieId,
-            {q: 1, r: 1},
+            new HexCoordinate({q: 1, r: 1}),
         );
 
         let playerTeamStatic = new BattleSquaddieStatic({
@@ -208,7 +209,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             playerTeamStatic.squaddieId.staticId,
             playerTeamDynamic.dynamicSquaddieId,
-            {q: 1, r: 0},
+            new HexCoordinate({q: 1, r: 0}),
         );
 
         let enemyTeamStatic = new BattleSquaddieStatic({
@@ -232,7 +233,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             enemyTeamStatic.squaddieId.staticId,
             enemyTeamDynamic.dynamicSquaddieId,
-            {q: 2, r: 1},
+            new HexCoordinate({q: 2, r: 1}),
         );
 
         let enemyFarAwayTeamStatic = new BattleSquaddieStatic({
@@ -256,7 +257,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             enemyFarAwayTeamStatic.squaddieId.staticId,
             enemyFarAwayTeamDynamic.dynamicSquaddieId,
-            {q: 0, r: 3},
+            new HexCoordinate({q: 0, r: 3}),
         );
 
         const results: TargetingResults = findValidTargets({

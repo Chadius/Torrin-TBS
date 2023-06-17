@@ -31,6 +31,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 jest.mock('p5', () => () => {
     return {}
@@ -90,12 +91,12 @@ describe('BattleSquaddieSelector', () => {
         missionMap.addSquaddie(
             "enemy_demon",
             "enemy_demon_0",
-            {q: 0, r: 0}
+            new HexCoordinate({q: 0, r: 0})
         );
         missionMap.addSquaddie(
             "enemy_demon",
             "enemy_demon_0",
-            {q: 0, r: 1}
+            new HexCoordinate({q: 0, r: 1})
         );
         return battlePhaseTracker;
     }
@@ -134,7 +135,7 @@ describe('BattleSquaddieSelector', () => {
         missionMap.addSquaddie(
             "player_soldier",
             "player_soldier_0",
-            {q: 0, r: 0}
+            new HexCoordinate({q: 0, r: 0})
         );
 
         return battlePhaseTracker;
@@ -144,10 +145,10 @@ describe('BattleSquaddieSelector', () => {
         const moveActivity: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId,
             dynamicSquaddieId,
-            startingLocation: {q: 0, r: 0},
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         moveActivity.addMovement(new SquaddieMovementActivity({
-            destination: {q: 1, r: 1},
+            destination: new HexCoordinate({q: 1, r: 1}),
             numberOfActionsSpent: 1,
         }));
         return moveActivity;
@@ -259,7 +260,7 @@ describe('BattleSquaddieSelector', () => {
             selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
-            tileClickedOn: {q: 0, r: 0},
+            tileClickedOn: new HexCoordinate({q: 0, r: 0}),
         })
 
         const state: OrchestratorState = new OrchestratorState({
@@ -283,7 +284,10 @@ describe('BattleSquaddieSelector', () => {
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.squaddieCurrentlyActing.instruction.totalActionsSpent()).toBe(1);
-        expect(state.squaddieCurrentlyActing.instruction.destinationLocation()).toStrictEqual({q: 0, r: 1});
+        expect(state.squaddieCurrentlyActing.instruction.destinationLocation()).toStrictEqual(new HexCoordinate({
+            q: 0,
+            r: 1
+        }));
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
@@ -291,14 +295,14 @@ describe('BattleSquaddieSelector', () => {
         const expectedMovementInstruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "player_soldier",
             dynamicSquaddieId: "player_soldier_0",
-            startingLocation: {
+            startingLocation: new HexCoordinate({
                 q: 0,
                 r: 0,
-            }
+            })
         });
 
         expectedMovementInstruction.addMovement(new SquaddieMovementActivity({
-            destination: {q: 0, r: 1},
+            destination: new HexCoordinate({q: 0, r: 1}),
             numberOfActionsSpent: 1,
         }));
 
@@ -325,7 +329,7 @@ describe('BattleSquaddieSelector', () => {
             selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
-            tileClickedOn: {q: 0, r: 0},
+            tileClickedOn: new HexCoordinate({q: 0, r: 0}),
         });
 
         let mockHud: BattleSquaddieSelectedHUD;
@@ -476,12 +480,12 @@ describe('BattleSquaddieSelector', () => {
             missionMap.addSquaddie(
                 "enemy_demon",
                 "enemy_demon_0",
-                {q: 0, r: 0}
+                new HexCoordinate({q: 0, r: 0})
             );
             missionMap.addSquaddie(
                 "enemy_demon",
                 "enemy_demon_0",
-                {q: 0, r: 1}
+                new HexCoordinate({q: 0, r: 1})
             );
 
             const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));

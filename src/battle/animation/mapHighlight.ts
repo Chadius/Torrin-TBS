@@ -4,11 +4,10 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
-import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
-import {HexCoordinate} from "../../hexMap/hexGrid";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
@@ -23,14 +22,14 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
         }))
     );
-    const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
+    const movementTiles: HexCoordinate[] = reachableTileSearchResults.getReachableTiles();
     const movementTilesByNumberOfActions: {
         [numberOfActions: number]: [{ q: number, r: number }?]
     } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
     const datum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
 
-    const actionTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+    const actionTiles: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
             canStopOnSquaddies: true,
             missionMap: missionMap,
             minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
@@ -40,7 +39,15 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
         movementTiles,
     );
 
-    const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] = Object.values(movementTilesByNumberOfActions);
+    const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
+        Object.values(movementTilesByNumberOfActions).map(
+            (coordinateList: [({ q: number, r: number } | undefined)]) => {
+                return coordinateList.map(
+                    (coordinate) => {
+                        return new HexCoordinate({...coordinate})
+                    })
+            });
+
     tilesTraveledByNumberOfMovementActions.unshift([]);
     const highlightTileDescriptions = getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
 

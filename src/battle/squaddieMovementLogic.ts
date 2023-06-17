@@ -1,6 +1,6 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {HexCoordinate} from "../hexMap/hexGrid";
 import {MissionMap} from "../missionMap/missionMap";
+import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 
 export const updateSquaddieLocation = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, destination: HexCoordinate, missionMap: MissionMap, dynamicSquaddieId: string) => {
     let error = missionMap.updateSquaddieLocation(dynamicSquaddieId, destination);

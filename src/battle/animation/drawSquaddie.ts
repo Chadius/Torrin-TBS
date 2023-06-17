@@ -11,7 +11,7 @@ import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
-import {HexCoordinate} from "../../hexMap/hexGrid";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const tintSquaddieMapIconTurnComplete = (staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];

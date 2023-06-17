@@ -3,6 +3,7 @@ import {HexGridTile} from "./hexGrid";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ScreenDimensions} from "../utils/graphicsConfig";
+import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 
 describe('hexMap', () => {
     describe('mouseClicks on the map', () => {
@@ -51,36 +52,36 @@ describe('hexMap', () => {
         ];
 
         const hexGrid = new TerrainTileMap({tiles: gridTiles});
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: 0, r: 0})).toBe(HexGridMovementCost.pit);
-        expect(hexGrid.getTileTerrainTypeAtLocation({
+        expect(hexGrid.getTileTerrainTypeAtLocation(new HexCoordinate({q: 0, r: 0}))).toBe(HexGridMovementCost.pit);
+        expect(hexGrid.getTileTerrainTypeAtLocation(new HexCoordinate({
             q: 0,
             r: 1
-        })).toBe(HexGridMovementCost.doubleMovement);
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: 0, r: 2})).toBe(HexGridMovementCost.wall);
-        expect(hexGrid.getTileTerrainTypeAtLocation({
+        }))).toBe(HexGridMovementCost.doubleMovement);
+        expect(hexGrid.getTileTerrainTypeAtLocation(new HexCoordinate({q: 0, r: 2}))).toBe(HexGridMovementCost.wall);
+        expect(hexGrid.getTileTerrainTypeAtLocation(new HexCoordinate({
             q: 0,
             r: -1
-        })).toBe(HexGridMovementCost.singleMovement);
-        expect(hexGrid.getTileTerrainTypeAtLocation({
+        }))).toBe(HexGridMovementCost.singleMovement);
+        expect(hexGrid.getTileTerrainTypeAtLocation(new HexCoordinate({
             q: 1,
             r: 0
-        })).toBe(HexGridMovementCost.doubleMovement);
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: -1, r: 0})).toBe(HexGridMovementCost.pit);
+        }))).toBe(HexGridMovementCost.doubleMovement);
+        expect(hexGrid.getTileTerrainTypeAtLocation(new HexCoordinate({q: -1, r: 0}))).toBe(HexGridMovementCost.pit);
 
-        expect(hexGrid.getTileTerrainTypeAtLocation({q: 3, r: 3})).toBeUndefined();
+        expect(hexGrid.getTileTerrainTypeAtLocation(new HexCoordinate({q: 3, r: 3}))).toBeUndefined();
 
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: 0})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: 1})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: 2})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: 0, r: -1})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: 1, r: 0})).toBeTruthy();
-        expect(hexGrid.areCoordinatesOnMap({q: -1, r: 0})).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: 0, r: 0}))).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: 0, r: 1}))).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: 0, r: 2}))).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: 0, r: -1}))).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: 1, r: 0}))).toBeTruthy();
+        expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: -1, r: 0}))).toBeTruthy();
 
-        expect(hexGrid.areCoordinatesOnMap({q: 3, r: 3})).toBeFalsy();
+        expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: 3, r: 3}))).toBeFalsy();
     });
     describe('can create maps using text strings', () => {
         const verifyTileAtLocationIsExpectedMovementCost = (map: TerrainTileMap, q: number, r: number, expectedMovementCost: HexGridMovementCost): void => {
-            const actualMovementCost = map.getTileTerrainTypeAtLocation({q: q, r: r});
+            const actualMovementCost = map.getTileTerrainTypeAtLocation(new HexCoordinate({q: q, r: r}));
             try {
                 expect(actualMovementCost).toBe(expectedMovementCost);
             } catch (e) {
