@@ -1,8 +1,9 @@
-import {HexCoordinate, HexCoordinateToKey} from "../hexGrid";
+import {HexCoordinate} from "../hexGrid";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {ReachableSquaddiesResults} from "./reachableSquaddiesResults";
+import {HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 
 export type SearchResultOptions = {
     stopLocation?: HexCoordinate;

@@ -1,4 +1,4 @@
-import {HexCoordinate, HexCoordinateToKey} from "../hexGrid";
+import {HexCoordinate} from "../hexGrid";
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
 import {CreateNewPathCandidates} from "../hexGridDirection";
@@ -18,6 +18,7 @@ import {
     unwrapResultOrError
 } from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 
 class SearchState {
     tilesSearchCanStopAt: TileFoundDescription[];

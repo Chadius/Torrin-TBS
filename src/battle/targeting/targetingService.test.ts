@@ -10,7 +10,8 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {findValidTargets, TargetingResults} from "./targetingService";
-import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexGrid";
+
+import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('Targeting Service', () => {
     let longswordActivity: SquaddieActivity;

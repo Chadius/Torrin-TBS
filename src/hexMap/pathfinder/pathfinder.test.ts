@@ -1,4 +1,4 @@
-import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../hexGrid";
+import {HexCoordinate} from "../hexGrid";
 import {Pathfinder} from "./pathfinder";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
 import {SquaddieMovement} from "../../squaddie/movement";
@@ -9,6 +9,7 @@ import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
 import {createMapAndPathfinder, createSquaddieMovements, validateTilesAreFound} from "./pathfinder_test_utils";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {NewHexCoordinateFromNumberPair} from "../hexCoordinate/hexCoordinate";
 
 describe('pathfinding with a single move', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
