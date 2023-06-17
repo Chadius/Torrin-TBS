@@ -35,7 +35,7 @@ describe('searchParams', () => {
 
         const extractedOptions: SearchParamsOptions = originalParams.getSearchParamsOptions();
 
-        const newParams: SearchParams = new SearchParams(extractedOptions);
+        const newParams: SearchParams = new SearchParams({searchParamsOptions: extractedOptions});
 
         expect(originalParams).toStrictEqual(newParams);
     });

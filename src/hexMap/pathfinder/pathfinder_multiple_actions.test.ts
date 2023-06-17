@@ -43,7 +43,7 @@ describe('pathfinder move with multiple movement actions', () => {
             startLocation: new HexCoordinate({q: 0, r: 0})
         })));
         validateTilesAreFound(
-            searchResults.allReachableTiles.map(tile => tile.hexCoordinate),
+            searchResults.getReachableTiles(),
             [
                 new HexCoordinate({q: 0, r: 0,}),
                 new HexCoordinate({q: 0, r: 1,}),
@@ -74,7 +74,7 @@ describe('pathfinder move with multiple movement actions', () => {
             startLocation: new HexCoordinate({q: 0, r: 0})
         })));
         validateTilesAreFound(
-            searchResults.allReachableTiles.map(tile => tile.hexCoordinate),
+            searchResults.getReachableTiles(),
             [
                 new HexCoordinate({q: 0, r: 0,}),
                 new HexCoordinate({q: 0, r: 1,}),

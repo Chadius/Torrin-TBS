@@ -5,7 +5,7 @@ import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
-export type SearchParamsOptions = {
+export class SearchParamsOptions {
     startLocation?: HexCoordinate;
     stopLocation?: HexCoordinate;
     squaddieMovement?: SquaddieMovement;
@@ -38,24 +38,64 @@ export class SearchParams {
         stopLocation?: HexCoordinate;
     }
 
-    constructor(options: SearchParamsOptions) {
+    constructor(options: {
+        startLocation?: HexCoordinate,
+        stopLocation?: HexCoordinate,
+        squaddieMovement?: SquaddieMovement,
+        squaddieAffiliation?: SquaddieAffiliation,
+        canStopOnSquaddies?: boolean,
+        numberOfActions?: number,
+        minimumDistanceMoved?: number,
+        maximumDistanceMoved?: number,
+        missionMap: MissionMap,
+        squaddieRepository?: BattleSquaddieRepository,
+    } |
+        {
+            searchParamsOptions: SearchParamsOptions
+        }
+    ) {
+        if ("searchParamsOptions" in options) {
+            this.setUsingSearchParamsOptions(options.searchParamsOptions);
+        } else {
+            this.setup = {
+                startLocation: options.startLocation,
+                missionMap: options.missionMap,
+                affiliation: options.squaddieAffiliation ? options.squaddieAffiliation : undefined,
+                squaddieRepository: options.squaddieRepository,
+            };
+            this.movement = {
+                minimumDistanceMoved: options.minimumDistanceMoved,
+                maximumDistanceMoved: options.maximumDistanceMoved,
+                movementPerAction: options.squaddieMovement ? options.squaddieMovement.movementPerAction : 0,
+                passThroughWalls: options.squaddieMovement ? options.squaddieMovement.passThroughWalls : false,
+                crossOverPits: options.squaddieMovement ? options.squaddieMovement.crossOverPits : false,
+                canStopOnSquaddies: options.canStopOnSquaddies,
+            }
+            this.stopConditions = {
+                numberOfActions: options.numberOfActions,
+                stopLocation: options.stopLocation,
+            }
+        }
+    }
+
+    private setUsingSearchParamsOptions(searchParamsOptions: SearchParamsOptions) {
         this.setup = {
-            startLocation: options.startLocation,
-            missionMap: options.missionMap,
-            affiliation: options.squaddieAffiliation ? options.squaddieAffiliation : undefined,
-            squaddieRepository: options.squaddieRepository,
+            startLocation: searchParamsOptions.startLocation,
+            missionMap: searchParamsOptions.missionMap,
+            affiliation: searchParamsOptions.squaddieAffiliation ?? undefined,
+            squaddieRepository: searchParamsOptions.squaddieRepository,
         };
         this.movement = {
-            minimumDistanceMoved: options.minimumDistanceMoved,
-            maximumDistanceMoved: options.maximumDistanceMoved,
-            movementPerAction: options.squaddieMovement ? options.squaddieMovement.movementPerAction : 0,
-            passThroughWalls: options.squaddieMovement ? options.squaddieMovement.passThroughWalls : false,
-            crossOverPits: options.squaddieMovement ? options.squaddieMovement.crossOverPits : false,
-            canStopOnSquaddies: options.canStopOnSquaddies,
+            minimumDistanceMoved: searchParamsOptions.minimumDistanceMoved,
+            maximumDistanceMoved: searchParamsOptions.maximumDistanceMoved,
+            movementPerAction: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.movementPerAction : 0,
+            passThroughWalls: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.passThroughWalls : false,
+            crossOverPits: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.crossOverPits : false,
+            canStopOnSquaddies: searchParamsOptions.canStopOnSquaddies,
         }
         this.stopConditions = {
-            numberOfActions: options.numberOfActions,
-            stopLocation: options.stopLocation,
+            numberOfActions: searchParamsOptions.numberOfActions,
+            stopLocation: searchParamsOptions.stopLocation,
         }
     }
 

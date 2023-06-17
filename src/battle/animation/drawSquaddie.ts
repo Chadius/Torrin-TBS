@@ -104,7 +104,7 @@ export const hasMovementAnimationFinished = (timeMovementStarted: number, squadd
 export const moveSquaddieAlongPath = (dynamicSquaddie: BattleSquaddieDynamic, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
     const timePassed = Date.now() - timeMovementStarted;
     const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
-        squaddieMovePath.getTilesTraveled(),
+        squaddieMovePath.getTilesTraveled().map(tile => tile.hexCoordinate),
         timePassed,
         TIME_TO_MOVE,
         camera,
