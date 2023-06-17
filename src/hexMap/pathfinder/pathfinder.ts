@@ -20,7 +20,7 @@ import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squa
 import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 
 class SearchState {
-    tilesSearchCanStopAt: TileFoundDescription[];
+    tilesSearchCanStopAt: HexCoordinate[];
     tileLocationsAlreadyVisited: { [loc: string]: boolean };
     tileLocationsAlreadyConsideredForQueue: { [loc: string]: boolean };
     searchPathQueue: PriorityQueue;
@@ -36,7 +36,7 @@ class SearchState {
         });
     }
 
-    getTilesSearchCanStopAt(): TileFoundDescription[] {
+    getTilesSearchCanStopAt(): HexCoordinate[] {
         return this.tilesSearchCanStopAt;
     }
 
@@ -46,13 +46,11 @@ class SearchState {
     }
 
     markLocationAsStopped(tileLocation: TileFoundDescription) {
-        this.tilesSearchCanStopAt.push(new TileFoundDescription({
-            hexCoordinate: new HexCoordinate({
+        this.tilesSearchCanStopAt.push(new HexCoordinate({
                 q: tileLocation.q,
                 r: tileLocation.r,
-            }),
-            movementCost: tileLocation.movementCost,
-        }));
+            })
+        );
     }
 
     markLocationAsVisited(mostRecentTileLocation: TileFoundDescription) {
@@ -152,11 +150,11 @@ class SearchState {
             }
 
             const adjacentLocations: [number, number][] = CreateNewPathCandidates(mapLocation.q, mapLocation.r);
-            this.getTilesSearchCanStopAt().forEach((description: TileFoundDescription) => {
+            this.getTilesSearchCanStopAt().forEach((description: HexCoordinate) => {
                 adjacentLocations.forEach((location: [number, number]) => {
                     if (description.q === location[0] && description.r === location[1]) {
                         this.results.reachableSquaddies.addSquaddie(staticSquaddieId, mapLocation);
-                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(staticSquaddieId, 1, description.hexCoordinate);
+                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(staticSquaddieId, 1, description);
                     }
                 });
             });
@@ -184,8 +182,8 @@ export class Pathfinder {
         return makeResult(this.searchMapForPaths(searchParams));
     }
 
-    getTilesInRange(searchParams: SearchParams, maximumDistance: number, sourceTiles: HexCoordinate[]): TileFoundDescription[] {
-        const inRangeTilesByLocation: { [locationKey: string]: TileFoundDescription } = {};
+    getTilesInRange(searchParams: SearchParams, maximumDistance: number, sourceTiles: HexCoordinate[]): HexCoordinate[] {
+        const inRangeTilesByLocation: { [locationKey: string]: HexCoordinate } = {};
 
         if (
             sourceTiles.length < 1
@@ -195,14 +193,8 @@ export class Pathfinder {
         }
 
         if (maximumDistance < 1) {
-            return sourceTiles.map((tile) => {
-                return new TileFoundDescription({
-                    hexCoordinate: tile,
-                    movementCost: 0
-                });
-            })
+            return [...sourceTiles];
         }
-
 
         sourceTiles.forEach((sourceTile) => {
             const searchParamsWithNewStartLocation = new SearchParams({
@@ -221,9 +213,8 @@ export class Pathfinder {
 
             const reachableTiles: SearchResults = getResultOrThrowError(this.getAllReachableTiles(searchParamsWithNewStartLocation));
 
-            reachableTiles.allReachableTiles.forEach((reachableTile) => {
-                let locationKey: string = HexCoordinateToKey(reachableTile.hexCoordinate);
-                inRangeTilesByLocation[locationKey] = reachableTile;
+            reachableTiles.getReachableTiles().forEach((reachableTile) => {
+                inRangeTilesByLocation[reachableTile.toStringKey()] = reachableTile;
             });
         });
 

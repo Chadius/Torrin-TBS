@@ -9,7 +9,7 @@ export type SearchResultOptions = {
 };
 
 export class SearchResults {
-    allReachableTiles: TileFoundDescription[];
+    allReachableTiles: HexCoordinate[];
     lowestCostRoutes: { [key: string]: SearchPath };
     stopLocation?: HexCoordinate;
     reachableSquaddies: ReachableSquaddiesResults;
@@ -49,7 +49,7 @@ export class SearchResults {
         );
     }
 
-    setAllReachableTiles(tilesSearchCanStopAt: TileFoundDescription[]) {
+    setAllReachableTiles(tilesSearchCanStopAt: HexCoordinate[]) {
         this.allReachableTiles = [...tilesSearchCanStopAt];
     }
 
@@ -67,7 +67,7 @@ export class SearchResults {
         return this.lowestCostRoutes[locationKey];
     }
 
-    getReachableTiles: () => TileFoundDescription[] = () => {
+    getReachableTiles: () => HexCoordinate[] = () => {
         return [...this.allReachableTiles]
     }
 

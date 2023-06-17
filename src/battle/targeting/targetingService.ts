@@ -3,7 +3,6 @@ import {MissionMap, MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
-import {TileFoundDescription, TileFoundDescriptionToHexCoordinate} from "../../hexMap/pathfinder/tileFoundDescription";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -51,7 +50,7 @@ export const findValidTargets = (params: {
     const pathfinder: Pathfinder = new Pathfinder();
     const squaddieInfo = map.getSquaddieByDynamicId(params.actingDynamicSquaddie.dynamicSquaddieId)
 
-    const tilesToHighlight: TileFoundDescription[] = pathfinder.getTilesInRange(
+    const tilesToHighlight: HexCoordinate[] = pathfinder.getTilesInRange(
         new SearchParams({
             startLocation: squaddieInfo.mapLocation,
             canStopOnSquaddies: true,
@@ -66,7 +65,7 @@ export const findValidTargets = (params: {
 
     const results = new TargetingResults();
     results.addLocationsInRange(
-        tilesToHighlight.map(TileFoundDescriptionToHexCoordinate)
+        tilesToHighlight
     );
 
     addValidTargetsToResult(results, actingStaticSquaddie, tilesToHighlight, map, squaddieRepository);
@@ -77,13 +76,13 @@ export const findValidTargets = (params: {
 function addValidTargetsToResult(
     targetingResults: TargetingResults,
     actingStaticSquaddie: BattleSquaddieStatic,
-    tilesInRange: TileFoundDescription[],
+    tilesInRange: HexCoordinate[],
     map: MissionMap,
     squaddieRepository: BattleSquaddieRepository
 ) {
     const actingAffiliation: SquaddieAffiliation = actingStaticSquaddie.squaddieId.affiliation;
     const validDynamicSquaddieIds: string[] = tilesInRange.map((tile) => {
-        const mapData: MissionMapSquaddieDatum = map.getSquaddieAtLocation(tile.hexCoordinate);
+        const mapData: MissionMapSquaddieDatum = map.getSquaddieAtLocation(tile);
         if (!mapData.isValid()) {
             return undefined;
         }

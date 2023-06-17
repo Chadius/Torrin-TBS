@@ -4,7 +4,6 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
-import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -23,21 +22,21 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
         }))
     );
-    const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
+    const movementTiles: HexCoordinate[] = reachableTileSearchResults.getReachableTiles();
     const movementTilesByNumberOfActions: {
         [numberOfActions: number]: [{ q: number, r: number }?]
     } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
 
     const datum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
 
-    const actionTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+    const actionTiles: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
             canStopOnSquaddies: true,
             missionMap: missionMap,
             minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
             startLocation: datum.mapLocation,
         }),
         staticSquaddie.activities[0].maximumRange,
-        movementTiles.map(tile => tile.hexCoordinate),
+        movementTiles,
     );
 
     const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
@@ -54,7 +53,7 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
 
     if (actionTiles) {
         highlightTileDescriptions.push({
-                tiles: actionTiles.map(tile => tile.hexCoordinate),
+                tiles: actionTiles,
                 pulseColor: HighlightPulseRedColor,
                 overlayImageResourceName: "map icon attack 1 action",
             },

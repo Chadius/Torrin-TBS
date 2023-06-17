@@ -56,7 +56,7 @@ describe('pathfinder and squaddies', () => {
 
         const validateCanPassThroughFriendly = (searchResults: SearchResults) => {
             validateTilesAreFound(
-                searchResults.allReachableTiles.map(tile => tile.hexCoordinate),
+                searchResults.getReachableTiles(),
                 [
                     new HexCoordinate({q: 0, r: 0,}),
                     new HexCoordinate({q: 0, r: 2,}),
@@ -70,7 +70,7 @@ describe('pathfinder and squaddies', () => {
 
         const validateCannotPassThroughUnfriendly = (searchResults: SearchResults) => {
             validateTilesAreFound(
-                searchResults.allReachableTiles.map(tile => tile.hexCoordinate),
+                searchResults.getReachableTiles(),
                 [
                     new HexCoordinate({q: 0, r: 0,}),
                 ],
@@ -274,7 +274,7 @@ describe('pathfinder and squaddies', () => {
         })));
 
         validateTilesAreFound(
-            allTilesOnMap.getReachableTiles().map(tile => tile.hexCoordinate),
+            allTilesOnMap.getReachableTiles(),
             [
                 new HexCoordinate({q: 0, r: 0,}),
                 new HexCoordinate({q: 0, r: 1,}),
@@ -322,11 +322,6 @@ describe('pathfinder and squaddies', () => {
         routeFound = getResultOrThrowError(routeOrError);
         const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
         expect(tilesTraveled).toHaveLength(4);
-        expect(tilesTraveled[0]).toEqual(expect.objectContaining({
-            q: 0,
-            r: 0,
-            movementCost: 0,
-        }));
         expect(tilesTraveled[0]).toEqual(expect.objectContaining({
             q: 0,
             r: 0,
