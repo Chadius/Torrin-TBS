@@ -70,9 +70,8 @@ class SearchState {
         return this.tileLocationsAlreadyConsideredForQueue[locationKey] === true;
     }
 
-    markLocationAsConsideredForQueue(mostRecentTileLocation: TileFoundDescription) {
-        let mostRecentTileLocationKey: string = HexCoordinateToKey(mostRecentTileLocation.hexCoordinate);
-        this.tileLocationsAlreadyConsideredForQueue[mostRecentTileLocationKey] = true;
+    markLocationAsConsideredForQueue(location: HexCoordinate) {
+        this.tileLocationsAlreadyConsideredForQueue[location.toStringKey()] = true;
     }
 
     initializeStartPath(startLocation: HexCoordinate) {
@@ -400,12 +399,10 @@ export class Pathfinder {
     ): SearchPath[] {
         const newPaths: SearchPath[] = [];
         neighboringLocations.forEach((neighbor) =>
-            workingSearchState.markLocationAsConsideredForQueue(new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({
-                        q: neighbor[0],
-                        r: neighbor[1],
-                    }),
-                    movementCost: 0,
+            workingSearchState.markLocationAsConsideredForQueue(
+                new HexCoordinate({
+                    q: neighbor[0],
+                    r: neighbor[1],
                 })
             ));
         neighboringLocations.forEach((neighbor) => {
