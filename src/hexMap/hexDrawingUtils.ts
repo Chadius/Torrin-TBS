@@ -6,10 +6,10 @@ import {
     convertMapCoordinatesToWorldCoordinates,
     convertWorldCoordinatesToScreenCoordinates
 } from "./convertCoordinates";
-import {HexCoordinate} from "./hexGrid";
 import {TerrainTileMap} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
+import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
 

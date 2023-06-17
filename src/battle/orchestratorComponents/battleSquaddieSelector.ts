@@ -9,7 +9,6 @@ import {
     convertMapCoordinatesToScreenCoordinates,
     convertScreenCoordinatesToMapCoordinates
 } from "../../hexMap/convertCoordinates";
-import {HexCoordinate} from "../../hexMap/hexGrid";
 import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -33,6 +32,7 @@ import {ACTIVITY_END_TURN_ID} from "../../squaddie/endTurnActivity";
 import {BattleEvent} from "../history/battleEvent";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -79,10 +79,10 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     private updateBattleSquaddieUIMouseClicked(state: OrchestratorState, mouseX: number, mouseY: number) {
         const clickedTileCoordinates: [number, number] = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...state.camera.getCoordinates());
-        state.clickedHexCoordinate = {
+        state.clickedHexCoordinate = new HexCoordinate({
             q: clickedTileCoordinates[0],
             r: clickedTileCoordinates[1]
-        };
+        });
 
         if (
             !state.hexMap.areCoordinatesOnMap(state.clickedHexCoordinate)
@@ -172,14 +172,14 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 missionMap: state.missionMap,
                 squaddieMovement: staticSquaddie.movement,
                 numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
-                startLocation: {
+                startLocation: new HexCoordinate({
                     q: datum.mapLocation.q,
                     r: datum.mapLocation.r,
-                },
-                stopLocation: {
+                }),
+                stopLocation: new HexCoordinate({
                     q: clickedHexCoordinate.q,
                     r: clickedHexCoordinate.r
-                },
+                }),
                 squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
                 squaddieRepository: state.squaddieRepo,
             }))
@@ -196,7 +196,13 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         state.squaddieMovePath = closestRoute;
         let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
 
-        const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(routeSortedByNumberOfMovementActions);
+        const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(
+            routeSortedByNumberOfMovementActions.map(
+                tiles => tiles.map(
+                    tile => tile.hexCoordinate
+                )
+            )
+        );
         state.hexMap.stopHighlightingTiles();
         state.hexMap.highlightTiles(routeTilesByDistance);
 
@@ -214,10 +220,10 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 instruction: new SquaddieInstruction({
                     staticSquaddieId: staticSquaddie.squaddieId.staticId,
                     dynamicSquaddieId,
-                    startingLocation: {
+                    startingLocation: new HexCoordinate({
                         q: datum.mapLocation.q,
                         r: datum.mapLocation.r,
-                    },
+                    }),
                 }),
             };
         }

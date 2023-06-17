@@ -1,11 +1,10 @@
 import {assertsInteger} from "../../utils/mathAssert";
-import {HexCoordinate} from "../hexGrid";
 
-export class HexCoordinate2 {
+export class HexCoordinate {
     private _q: number;
     private _r: number;
 
-    constructor(params: {q?: number, r?: number, coordinates?: [number, number]}) {
+    constructor(params: { q?: number, r?: number, coordinates?: [number, number] }) {
         const qIsUndefined: boolean = params.q === undefined || params.q === null;
         const rIsUndefined: boolean = params.r === undefined || params.r === null;
         const coordinatesIsUndefined: boolean = params.coordinates === undefined || params.coordinates === null;
@@ -44,6 +43,7 @@ export class HexCoordinate2 {
     set r(value: number) {
         this._r = value;
     }
+
     get q(): number {
         return this._q;
     }
@@ -51,12 +51,16 @@ export class HexCoordinate2 {
     set q(value: number) {
         this._q = value;
     }
+
+    toStringKey(): string {
+        return `${this.q},${this.r}`;
+    }
 }
 
 export const HexCoordinateToKey = (coordinate: HexCoordinate): string => {
-    return `${coordinate.q},${coordinate.r}`;
+    return coordinate.toStringKey();
 }
 
 export const NewHexCoordinateFromNumberPair = (numberPair: [number, number]): HexCoordinate => {
-    return {q: numberPair[0], r: numberPair[1]};
+    return new HexCoordinate({coordinates: numberPair});
 }

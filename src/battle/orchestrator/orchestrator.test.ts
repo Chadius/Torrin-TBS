@@ -10,6 +10,7 @@ import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddi
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import p5 from "p5";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 jest.mock('p5', () => () => {
     return {}
@@ -137,10 +138,10 @@ describe('Battle Orchestrator', () => {
         const instruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
-            startingLocation: {q: 0, r: 0}
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         instruction.addMovement(new SquaddieMovementActivity({
-            destination: {q: 1, r: 2},
+            destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
         const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
@@ -188,10 +189,10 @@ describe('Battle Orchestrator', () => {
         const instruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
-            startingLocation: {q: 0, r: 0}
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         instruction.addMovement(new SquaddieMovementActivity({
-            destination: {q: 1, r: 2},
+            destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
         nullState.squaddieCurrentlyActing = {
@@ -214,10 +215,10 @@ describe('Battle Orchestrator', () => {
         const instruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
-            startingLocation: {q: 0, r: 0}
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         instruction.addMovement(new SquaddieMovementActivity({
-            destination: {q: 1, r: 2},
+            destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
         nullState.squaddieCurrentlyActing = {

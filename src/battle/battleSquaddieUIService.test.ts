@@ -10,6 +10,7 @@ import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {NullArmyAttributes} from "../squaddie/armyAttributes";
+import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 
 describe('BattleSquaddieUIService', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -63,12 +64,12 @@ describe('BattleSquaddieUIService', () => {
     it('should switch to SELECTED_SQUADDIE mode when clicked on', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie("torrin", "torrin_0", {q: 0, r: 0});
+        missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0, r: 0},
+                    tileClickedOn: new HexCoordinate({q: 0, r: 0}),
                     selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
                     missionMap,
                     squaddieRepository,
@@ -99,12 +100,12 @@ describe('BattleSquaddieUIService', () => {
         });
         squaddieRepository.addDynamicSquaddie(enemySquaddieDynamic)
 
-        missionMap.addSquaddie("enemy", "enemy_0", {q: 0, r: 0});
+        missionMap.addSquaddie("enemy", "enemy_0", new HexCoordinate({q: 0, r: 0}));
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0, r: 1},
+                    tileClickedOn: new HexCoordinate({q: 0, r: 1}),
                     selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
                     missionMap,
                     selectedSquaddieDynamicID: "enemy_0",
@@ -117,12 +118,12 @@ describe('BattleSquaddieUIService', () => {
     it('should stay on SELECTED_SQUADDIE if you clicked on another squaddie', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie("torrin", "torrin_0", {q: 0, r: 0});
+        missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0, r: 0},
+                    tileClickedOn: new HexCoordinate({q: 0, r: 0}),
                     selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
                     missionMap,
                     squaddieRepository,
@@ -134,12 +135,12 @@ describe('BattleSquaddieUIService', () => {
     it('should change to MOVING_SQUADDIE when a controllable squaddie is selected and you click on the map', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie("torrin", "torrin_0", {q: 0, r: 0});
+        missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0, r: 1},
+                    tileClickedOn: new HexCoordinate({q: 0, r: 1}),
                     selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
                     missionMap,
                     selectedSquaddieDynamicID: "torrin_0",
@@ -152,12 +153,12 @@ describe('BattleSquaddieUIService', () => {
     it('should change to NO_SQUADDIE_SELECTED when the moving squaddie has finished', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
-        missionMap.addSquaddie("torrin", "torrin_0", {q: 0, r: 0});
+        missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    tileClickedOn: {q: 0, r: 1},
+                    tileClickedOn: new HexCoordinate({q: 0, r: 1}),
                     selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
                     missionMap,
                     selectedSquaddieDynamicID: "torrin_0",

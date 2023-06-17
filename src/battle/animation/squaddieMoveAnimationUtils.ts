@@ -5,6 +5,7 @@ import {
 } from "../../hexMap/convertCoordinates";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {BattleCamera} from "../battleCamera";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const TIME_TO_MOVE = 1000.0;
 
@@ -47,16 +48,20 @@ export const getSquaddiePositionAlongPath = (
     const timeAtStepStart: number = currentStepIndex * timePerStep;
     const xyCoords: [number, number] = lerpSquaddieBetweenPath(
         [
-            {
-                q: startTile.q,
-                r: startTile.r,
+            new TileFoundDescription({
+                hexCoordinate: new HexCoordinate({
+                    q: startTile.q,
+                    r: startTile.r,
+                }),
                 movementCost: 0,
-            },
-            {
-                q: endTile.q,
-                r: endTile.r,
+            }),
+            new TileFoundDescription({
+                hexCoordinate: new HexCoordinate({
+                    q: endTile.q,
+                    r: endTile.r,
+                }),
                 movementCost: 0,
-            }
+            })
         ],
         timePassed - timeAtStepStart,
         timePerStep,

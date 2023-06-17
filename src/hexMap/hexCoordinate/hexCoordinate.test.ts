@@ -1,21 +1,21 @@
-import {HexCoordinate2} from "./hexCoordinate";
+import {HexCoordinate} from "./hexCoordinate";
 
 describe('HexCoordinates', () => {
     it('creates HexCoordinates given q & r', () => {
-        const hexCoordinate: HexCoordinate2 = new HexCoordinate2({q: 3, r: 10});
+        const hexCoordinate: HexCoordinate = new HexCoordinate({q: 3, r: 10});
         expect(hexCoordinate.q).toBe(3);
         expect(hexCoordinate.r).toBe(10);
     });
 
     it('creates HexCoordinates given coordinates', () => {
-        const hexCoordinate: HexCoordinate2 = new HexCoordinate2({coordinates: [3, 10]});
+        const hexCoordinate: HexCoordinate = new HexCoordinate({coordinates: [3, 10]});
         expect(hexCoordinate.q).toBe(3);
         expect(hexCoordinate.r).toBe(10);
     });
 
     it('throws an error if a HexCoordinate is made without arguments', () => {
         const qIsMissing = () => {
-            new HexCoordinate2({r: 3});
+            new HexCoordinate({r: 3});
         };
 
         expect(() => {
@@ -26,7 +26,7 @@ describe('HexCoordinates', () => {
         }).toThrow("HexCoordinate requires q or coordinates");
 
         const rIsMissing = () => {
-            new HexCoordinate2({q: 3});
+            new HexCoordinate({q: 3});
         };
 
         expect(() => {
@@ -37,7 +37,7 @@ describe('HexCoordinates', () => {
         }).toThrow("HexCoordinate requires r or coordinates");
 
         const coordinatesAreMissing = () => {
-            new HexCoordinate2({});
+            new HexCoordinate({});
         };
         expect(() => {
             coordinatesAreMissing()
@@ -49,7 +49,7 @@ describe('HexCoordinates', () => {
 
     it('throws an error if the coordinates are not integers', () => {
         const qIsNotAnInteger = () => {
-            new HexCoordinate2({q: 5.5, r: 3});
+            new HexCoordinate({q: 5.5, r: 3});
         };
 
         expect(() => {
@@ -60,7 +60,7 @@ describe('HexCoordinates', () => {
         }).toThrow("Value must be an integer: 5.5");
 
         const rIsNotAnInteger = () => {
-            new HexCoordinate2({q: 4, r: 3.2});
+            new HexCoordinate({q: 4, r: 3.2});
         };
 
         expect(() => {
@@ -71,7 +71,7 @@ describe('HexCoordinates', () => {
         }).toThrow("Value must be an integer: 3.2");
 
         const coordinatesDoNotHaveIntegers = () => {
-            new HexCoordinate2({coordinates: [0.3, 0.5]});
+            new HexCoordinate({coordinates: [0.3, 0.5]});
         };
 
         expect(() => {
@@ -80,5 +80,10 @@ describe('HexCoordinates', () => {
         expect(() => {
             coordinatesDoNotHaveIntegers()
         }).toThrow("Value must be an integer: 0.3");
+    });
+
+    it('can create a string key', () => {
+        const hexCoordinate: HexCoordinate = new HexCoordinate({q: 3, r: 10});
+        expect(hexCoordinate.toStringKey()).toBe("3,10");
     });
 });

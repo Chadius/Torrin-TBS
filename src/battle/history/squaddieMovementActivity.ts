@@ -1,4 +1,4 @@
-import {HexCoordinate} from "../../hexMap/hexGrid";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 type SquaddieMovementActivityRequiredOptions = {
     destination: HexCoordinate;

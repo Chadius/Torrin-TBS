@@ -2,12 +2,12 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {MissionMap, MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {HexCoordinate} from "../../hexMap/hexGrid";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {TileFoundDescription, TileFoundDescriptionToHexCoordinate} from "../../hexMap/pathfinder/tileFoundDescription";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export class TargetingResults {
     private _locationsInRange: HexCoordinate[];
@@ -83,7 +83,7 @@ function addValidTargetsToResult(
 ) {
     const actingAffiliation: SquaddieAffiliation = actingStaticSquaddie.squaddieId.affiliation;
     const validDynamicSquaddieIds: string[] = tilesInRange.map((tile) => {
-        const mapData: MissionMapSquaddieDatum = map.getSquaddieAtLocation(tile);
+        const mapData: MissionMapSquaddieDatum = map.getSquaddieAtLocation(tile.hexCoordinate);
         if (!mapData.isValid()) {
             return undefined;
         }

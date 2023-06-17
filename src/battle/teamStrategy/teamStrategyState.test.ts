@@ -5,6 +5,7 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('Team Strategy State', () => {
     const createDummyState = (instruction?: SquaddieInstruction): TeamStrategyState => {
@@ -28,7 +29,7 @@ describe('Team Strategy State', () => {
         const newInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
-            startingLocation: {q: 0, r: 0}
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
 
         const state: TeamStrategyState = createDummyState(newInstruction);
@@ -45,7 +46,7 @@ describe('Team Strategy State', () => {
         const newInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
-            startingLocation: {q: 0, r: 0}
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         state.setInstruction(newInstruction);
 

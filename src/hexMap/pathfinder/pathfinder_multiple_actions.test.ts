@@ -8,6 +8,7 @@ import {
     validateTilesAreFound
 } from "./pathfinder_test_utils";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 describe('pathfinder move with multiple movement actions', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -39,17 +40,17 @@ describe('pathfinder move with multiple movement actions', () => {
             missionMap: missionMap,
             squaddieMovement: squaddieMovementOneMovementPerAction,
             numberOfActions: 2,
-            startLocation: {q: 0, r: 0}
+            startLocation: new HexCoordinate({q: 0, r: 0})
         })));
         validateTilesAreFound(
-            searchResults.allReachableTiles,
+            searchResults.allReachableTiles.map(tile => tile.hexCoordinate),
             [
-                {q: 0, r: 0,},
-                {q: 0, r: 1,},
-                {q: 0, r: 2,},
+                new HexCoordinate({q: 0, r: 0,}),
+                new HexCoordinate({q: 0, r: 1,}),
+                new HexCoordinate({q: 0, r: 2,}),
             ],
             [
-                {q: 0, r: 3,},
+                new HexCoordinate({q: 0, r: 3,}),
             ]
         );
 
@@ -70,15 +71,15 @@ describe('pathfinder move with multiple movement actions', () => {
             missionMap: missionMap,
             squaddieMovement: squaddieMovementTwoMovementPerAction,
             numberOfActions: 2,
-            startLocation: {q: 0, r: 0}
+            startLocation: new HexCoordinate({q: 0, r: 0})
         })));
         validateTilesAreFound(
-            searchResults.allReachableTiles,
+            searchResults.allReachableTiles.map(tile => tile.hexCoordinate),
             [
-                {q: 0, r: 0,},
-                {q: 0, r: 1,},
-                {q: 0, r: 2,},
-                {q: 0, r: 3,},
+                new HexCoordinate({q: 0, r: 0,}),
+                new HexCoordinate({q: 0, r: 1,}),
+                new HexCoordinate({q: 0, r: 2,}),
+                new HexCoordinate({q: 0, r: 3,}),
             ],
             []
         );

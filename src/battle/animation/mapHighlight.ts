@@ -5,10 +5,10 @@ import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTile
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
-import {HexCoordinate} from "../../hexMap/hexGrid";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
@@ -37,16 +37,24 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             startLocation: datum.mapLocation,
         }),
         staticSquaddie.activities[0].maximumRange,
-        movementTiles,
+        movementTiles.map(tile => tile.hexCoordinate),
     );
 
-    const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] = Object.values(movementTilesByNumberOfActions);
+    const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
+        Object.values(movementTilesByNumberOfActions).map(
+            (coordinateList: [({ q: number, r: number } | undefined)]) => {
+                return coordinateList.map(
+                    (coordinate) => {
+                        return new HexCoordinate({...coordinate})
+                    })
+            });
+
     tilesTraveledByNumberOfMovementActions.unshift([]);
     const highlightTileDescriptions = getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
 
     if (actionTiles) {
         highlightTileDescriptions.push({
-                tiles: actionTiles,
+                tiles: actionTiles.map(tile => tile.hexCoordinate),
                 pulseColor: HighlightPulseRedColor,
                 overlayImageResourceName: "map icon attack 1 action",
             },

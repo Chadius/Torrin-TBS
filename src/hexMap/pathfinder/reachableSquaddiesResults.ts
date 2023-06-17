@@ -1,4 +1,4 @@
-import {HexCoordinate} from "../hexGrid";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 export class HexCoordinatesByDistance {
     coordinatesByDistance: { [distance: number]: HexCoordinate[] };
@@ -97,11 +97,11 @@ export class ReachableSquaddiesResults {
 
         this.coordinatesCloseToSquaddieByDistance[squaddieId].closestCoordinatesByDistance.addDistanceAndCoordinate(
             distance,
-            {
+            new HexCoordinate({
                 q: hexCoordinate.q,
                 r: hexCoordinate.r
-            }
-        )
+            })
+        );
     }
 
     getCoordinatesCloseToSquaddieByDistance(squaddieId: string): ReachableSquaddieDescription {
@@ -111,12 +111,12 @@ export class ReachableSquaddiesResults {
     addSquaddie(squaddieId: string, mapLocation: { q: number; r: number }) {
         if (!this.coordinatesCloseToSquaddieByDistance[squaddieId]) {
             this.coordinatesCloseToSquaddieByDistance[squaddieId] = new ReachableSquaddieDescription({
-                squaddieMapLocation: mapLocation,
+                squaddieMapLocation: new HexCoordinate(mapLocation),
                 closestCoordinatesByDistance: new HexCoordinatesByDistance(),
             });
         }
 
-        this.coordinatesCloseToSquaddieByDistance[squaddieId].squaddieMapLocation = mapLocation;
+        this.coordinatesCloseToSquaddieByDistance[squaddieId].squaddieMapLocation = new HexCoordinate(mapLocation);
     }
 
     getClosestSquaddies(): {

@@ -2,7 +2,6 @@ import {HexGridMovementCost} from "./hexGridMovementCost";
 import {assertsInteger} from "../utils/mathAssert";
 
 export type Integer = number & { _brand: 'Integer' }
-export type HexCoordinate = { q: number, r: number }
 
 export class HexGridTile {
     q: number;
