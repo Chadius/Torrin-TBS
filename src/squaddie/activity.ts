@@ -53,18 +53,23 @@ export class SquaddieActivity {
     get name(): string {
         return this._name;
     }
+
     get id(): string {
         return this._id;
     }
+
     get traits(): TraitStatusStorage {
         return this._traits;
     }
+
     get actionsToSpend(): number {
         return this._actionsToSpend;
     }
+
     get minimumRange(): number {
         return this._minimumRange;
     }
+
     get maximumRange(): number {
         return this._maximumRange;
     }

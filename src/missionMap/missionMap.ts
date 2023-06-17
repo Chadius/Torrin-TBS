@@ -6,6 +6,7 @@ export class MissionMapSquaddieDatum {
     private _dynamicSquaddieId: string;
     private _staticSquaddieId: string;
     private _mapLocation?: HexCoordinate;
+
     constructor(info: { dynamicSquaddieId: string, staticSquaddieId: string, mapLocation?: HexCoordinate }) {
         this._dynamicSquaddieId = info.dynamicSquaddieId;
         this._staticSquaddieId = info.staticSquaddieId;
@@ -31,9 +32,11 @@ export class MissionMapSquaddieDatum {
     set mapLocation(value: HexCoordinate) {
         this._mapLocation = value;
     }
+
     get staticSquaddieId(): string {
         return this._staticSquaddieId;
     }
+
     get dynamicSquaddieId(): string {
         return this._dynamicSquaddieId;
     }

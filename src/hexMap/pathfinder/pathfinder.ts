@@ -171,8 +171,12 @@ export class Pathfinder {
         return makeResult(this.searchMapForPaths(searchParams));
     }
 
-    getAllReachableTiles(searchParams: SearchParams): SearchResults {
-        return this.searchMapForPaths(searchParams);
+    getAllReachableTiles(searchParams: SearchParams): ResultOrError<SearchResults, Error> {
+        if (!searchParams.getStartLocation()) {
+            return makeError(new Error("no starting location provided"));
+        }
+
+        return makeResult(this.searchMapForPaths(searchParams));
     }
 
     getTilesInRange(searchParams: SearchParams, maximumDistance: number, sourceTiles: HexCoordinate[]): TileFoundDescription[] {
@@ -192,7 +196,6 @@ export class Pathfinder {
         }
 
 
-
         sourceTiles.forEach((sourceTile) => {
             const searchParamsWithNewStartLocation = new SearchParams({
                 ...searchParams.getSearchParamsOptions(),
@@ -208,7 +211,7 @@ export class Pathfinder {
                 startLocation: sourceTile
             })
 
-            const reachableTiles: SearchResults = this.getAllReachableTiles(searchParamsWithNewStartLocation);
+            const reachableTiles: SearchResults = getResultOrThrowError(this.getAllReachableTiles(searchParamsWithNewStartLocation));
 
             reachableTiles.allReachableTiles.forEach((reachableTile) => {
                 let locationKey: string = HexCoordinateToKey(reachableTile);
@@ -220,7 +223,7 @@ export class Pathfinder {
     }
 
     findReachableSquaddies(searchParams: SearchParams): SearchResults {
-        return this.getAllReachableTiles(searchParams);
+        return getResultOrThrowError(this.getAllReachableTiles(searchParams));
     }
 
     private searchMapForPaths(searchParams: SearchParams): SearchResults {

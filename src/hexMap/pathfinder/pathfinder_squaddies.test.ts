@@ -103,12 +103,12 @@ describe('pathfinder and squaddies', () => {
                 squaddieRepository
             );
 
-            const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+            const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 ...baseSearchParamOptions,
                 squaddieAffiliation: pathfindingAffiliation,
                 squaddieRepository,
                 missionMap,
-            }));
+            })));
             if (canPassThrough) {
                 validateCanPassThroughFriendly(searchResults);
                 return;
@@ -259,7 +259,7 @@ describe('pathfinder and squaddies', () => {
         missionMap.addSquaddie("ally", "ally_dynamic_0", {q: 0, r: 2});
         missionMap.addSquaddie("none", "none_dynamic_0", {q: 0, r: 3});
 
-        const allTilesOnMap: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+        const allTilesOnMap: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             canStopOnSquaddies: true,
             minimumDistanceMoved: 0,
             missionMap,
@@ -270,7 +270,7 @@ describe('pathfinder and squaddies', () => {
             }),
             startLocation: {q: 0, r: 0},
             stopLocation: undefined
-        }))
+        })));
 
         validateTilesAreFound(
             allTilesOnMap.getReachableTiles(),

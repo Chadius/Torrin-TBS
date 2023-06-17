@@ -8,6 +8,7 @@ import {SearchResults} from "./searchResults";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
 import {createMapAndPathfinder, createSquaddieMovements, validateTilesAreFound} from "./pathfinder_test_utils";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 describe('pathfinding with a single move', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -35,12 +36,12 @@ describe('pathfinding with a single move', () => {
         ])
 
         const origin: HexCoordinate = {q: 1, r: 1};
-        const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             missionMap: missionMap,
             squaddieMovement: squaddieMovementOneMovementPerAction,
             numberOfActions: 1,
             startLocation: origin
-        }));
+        })));
 
         validateTilesAreFound(
             searchResults.allReachableTiles,
@@ -57,6 +58,32 @@ describe('pathfinding with a single move', () => {
         );
     });
 
+    it('shows no tiles are reachable if SearchParams has no start location', () => {
+        const {
+            missionMap,
+            pathfinder,
+        } = createMapAndPathfinder([
+            "  1 1 1 ",
+            " 1 1 1 1 ",
+            "  1 1 1 ",
+        ])
+
+        const shouldThrowError = () => {
+            getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
+                missionMap: missionMap,
+                squaddieMovement: squaddieMovementOneMovementPerAction,
+                numberOfActions: 1,
+            })));
+        }
+
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(Error);
+        expect(() => {
+            shouldThrowError()
+        }).toThrow("no starting location provided");
+    });
+
     it('can factor a minimum distance to movement', () => {
         const {
             missionMap,
@@ -65,13 +92,13 @@ describe('pathfinding with a single move', () => {
             "1 2 1 1 "
         ])
 
-        const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             missionMap: missionMap,
             squaddieMovement: squaddieMovementHighMovementPerAction,
             numberOfActions: 1,
             minimumDistanceMoved: 2,
             startLocation: {q: 0, r: 0}
-        }));
+        })));
 
         validateTilesAreFound(
             searchResults.allReachableTiles,
@@ -94,13 +121,13 @@ describe('pathfinding with a single move', () => {
             "1 2 2 1 "
         ])
 
-        const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             missionMap: missionMap,
             squaddieMovement: squaddieMovementHighMovementPerAction,
             numberOfActions: 1,
             maximumDistanceMoved: 2,
             startLocation: {q: 0, r: 0}
-        }));
+        })));
 
         validateTilesAreFound(
             searchResults.allReachableTiles,
@@ -123,12 +150,12 @@ describe('pathfinding with a single move', () => {
             "1 1 1 2 1 "
         ])
 
-        const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             missionMap: missionMap,
             squaddieMovement: squaddieMovementTwoMovementPerAction,
             numberOfActions: 1,
             startLocation: {q: 0, r: 1}
-        }));
+        })));
 
         validateTilesAreFound(
             searchResults.allReachableTiles,
@@ -164,12 +191,12 @@ describe('pathfinding with a single move', () => {
                 pathfinder,
             } = createMapAndPathfinder(mapOneRowWithAWallBlockingTheEnd);
 
-            const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+            const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 missionMap: missionMap,
                 squaddieMovement: squaddieMovementTwoMovementPerAction,
                 numberOfActions: 1,
                 startLocation: {q: 0, r: 0}
-            }));
+            })));
 
             validateTilesAreFound(
                 searchResults.allReachableTiles,
@@ -190,7 +217,7 @@ describe('pathfinding with a single move', () => {
                 pathfinder,
             } = createMapAndPathfinder(mapOneRowWithAWallBlockingTheEnd);
 
-            const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+            const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 missionMap: missionMap,
                 squaddieMovement: new SquaddieMovement({
                     movementPerAction: 3,
@@ -198,7 +225,7 @@ describe('pathfinding with a single move', () => {
                 }),
                 numberOfActions: 1,
                 startLocation: {q: 0, r: 0}
-            }));
+            })));
 
             validateTilesAreFound(
                 searchResults.allReachableTiles,
@@ -226,12 +253,12 @@ describe('pathfinding with a single move', () => {
                 pathfinder,
             } = createMapAndPathfinder(mapOneRowWithAPitBlockingTheEnd);
 
-            const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+            const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 missionMap: missionMap,
                 squaddieMovement: squaddieMovementThreeMovementPerAction,
                 numberOfActions: 1,
                 startLocation: {q: 0, r: 0}
-            }));
+            })));
 
             validateTilesAreFound(
                 searchResults.allReachableTiles,
@@ -252,7 +279,7 @@ describe('pathfinding with a single move', () => {
                 pathfinder,
             } = createMapAndPathfinder(mapOneRowWithAPitBlockingTheEnd);
 
-            const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+            const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 missionMap: missionMap,
                 squaddieMovement: new SquaddieMovement({
                     movementPerAction: 3,
@@ -260,7 +287,7 @@ describe('pathfinding with a single move', () => {
                 }),
                 numberOfActions: 1,
                 startLocation: {q: 0, r: 0}
-            }));
+            })));
 
             validateTilesAreFound(
                 searchResults.allReachableTiles,
@@ -281,7 +308,7 @@ describe('pathfinding with a single move', () => {
                 pathfinder,
             } = createMapAndPathfinder(mapOneRowWithAPitBlockingTheEnd);
 
-            const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+            const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 missionMap: missionMap,
                 squaddieMovement: new SquaddieMovement({
                     movementPerAction: 2,
@@ -289,7 +316,7 @@ describe('pathfinding with a single move', () => {
                 }),
                 numberOfActions: 1,
                 startLocation: {q: 0, r: 0}
-            }));
+            })));
 
             validateTilesAreFound(
                 searchResults.allReachableTiles,
@@ -348,6 +375,23 @@ describe('pathfinding with a single move', () => {
             ];
         });
 
+        it('returns nothing if no start location is provided', () => {
+            const noTiles: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
+                    missionMap: missionMap,
+                    squaddieMovement: new SquaddieMovement({
+                        movementPerAction: 1,
+                        traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
+                    }),
+                }),
+                0,
+                justTheCenter.map((hex) => {
+                    return {q: hex.q, r: hex.r, numberOfActions: 0, movementCost: 0}
+                }),
+            );
+
+            expect(noTiles).toHaveLength(0);
+        });
+
         it('can only includes itself with radius 0', () => {
             const centerTileOnly: TileFoundDescription[] = pathfinder.getTilesInRange(new SearchParams({
                     missionMap: missionMap,
@@ -355,7 +399,7 @@ describe('pathfinding with a single move', () => {
                         movementPerAction: 1,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
                     }),
-                    startLocation: NewHexCoordinateFromNumberPair([0,0]),
+                    startLocation: NewHexCoordinateFromNumberPair([0, 0]),
                 }),
                 0,
                 justTheCenter.map((hex) => {
@@ -381,7 +425,7 @@ describe('pathfinding with a single move', () => {
                         movementPerAction: 1,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
                     }),
-                    startLocation: NewHexCoordinateFromNumberPair([0,0]),
+                    startLocation: NewHexCoordinateFromNumberPair([0, 0]),
                 }),
                 1,
                 justTheCenter.map((hex) => {
@@ -411,7 +455,7 @@ describe('pathfinding with a single move', () => {
                         movementPerAction: 1,
                         traits: new TraitStatusStorage({[Trait.PASS_THROUGH_WALLS]: true,}).filterCategory(TraitCategory.MOVEMENT)
                     }),
-                    startLocation: NewHexCoordinateFromNumberPair([0,0]),
+                    startLocation: NewHexCoordinateFromNumberPair([0, 0]),
                 }),
                 2,
                 justTheCenter.map((hex) => {

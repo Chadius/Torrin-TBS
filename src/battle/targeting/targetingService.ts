@@ -87,7 +87,10 @@ function addValidTargetsToResult(
         if (!mapData.isValid()) {
             return undefined;
         }
-        const {staticSquaddie, dynamicSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicID(mapData.dynamicSquaddieId));
+        const {
+            staticSquaddie,
+            dynamicSquaddie
+        } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicID(mapData.dynamicSquaddieId));
 
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[actingAffiliation];
         if (friendlyAffiliations[staticSquaddie.squaddieId.affiliation]) {

@@ -5,14 +5,15 @@ import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTile
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
-import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexGrid";
+import {HexCoordinate} from "../../hexMap/hexGrid";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
 
-    const reachableTileSearchResults: SearchResults = pathfinder.getAllReachableTiles(
+    const reachableTileSearchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(
         new SearchParams({
             missionMap: missionMap,
             startLocation: squaddieDatum.mapLocation,
@@ -20,7 +21,7 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
             squaddieRepository,
             numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
-        })
+        }))
     );
     const movementTiles: TileFoundDescription[] = reachableTileSearchResults.allReachableTiles;
     const movementTilesByNumberOfActions: {
@@ -37,7 +38,6 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
         }),
         staticSquaddie.activities[0].maximumRange,
         movementTiles,
-
     );
 
     const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] = Object.values(movementTilesByNumberOfActions);

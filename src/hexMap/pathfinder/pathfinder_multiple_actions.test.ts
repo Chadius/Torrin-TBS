@@ -7,6 +7,7 @@ import {
     validateTileHasExpectedNumberOfActions,
     validateTilesAreFound
 } from "./pathfinder_test_utils";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 describe('pathfinder move with multiple movement actions', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -34,12 +35,12 @@ describe('pathfinder move with multiple movement actions', () => {
             pathfinder,
         } = createMapAndPathfinder(mapOneRowFourColumns);
 
-        const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             missionMap: missionMap,
             squaddieMovement: squaddieMovementOneMovementPerAction,
             numberOfActions: 2,
             startLocation: {q: 0, r: 0}
-        }));
+        })));
         validateTilesAreFound(
             searchResults.allReachableTiles,
             [
@@ -65,12 +66,12 @@ describe('pathfinder move with multiple movement actions', () => {
             "1 1 1 2 "
         ]);
 
-        const searchResults: SearchResults = pathfinder.getAllReachableTiles(new SearchParams({
+        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             missionMap: missionMap,
             squaddieMovement: squaddieMovementTwoMovementPerAction,
             numberOfActions: 2,
             startLocation: {q: 0, r: 0}
-        }));
+        })));
         validateTilesAreFound(
             searchResults.allReachableTiles,
             [
