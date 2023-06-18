@@ -141,3 +141,15 @@ It feels less of a penalty, but maybe players won't notice the hat trick. Could 
 There are attacks that ignore MAP, like most reaction attacks. Spending your first action with them is usually a good idea.
 
 There are attacks that ignore MAP but also count towards your MAP. So you can attack twice at full bonus, for example. But your 3rd attack would suffer the biggest penalty.
+
+# 2023-Jun-18
+## Attack Value
+This is the squaddie's bonus to attack rolls. To calculate it:
+Base Value + Attack Proficiency + Status Bonus + Item Bonus + Circumstance Bonus - Multiple Attack Penalty = Attack Value
+- Base Value is based on the character's overall value.
+- Attack Proficiency is determined by the squaddie's ability. A fencer has a higher proficiency with weapon attacks, while a wizard is good with elemental attacks. The Body, Mind or Soul attribute may factor in.
+- Status Bonus can be positive or negative, but they are used when the squaddie has an ongoing benefit or impairment. A blacksmith tempering their blade so it is more accurate. A speaker breaking someone's spirit with a few choice words. A holy warrior blessed by their diety.
+- Item Bonuses are based on the character's inventory. A protective charm activates as combat breaks out. A potion guards a squaddie's health against disease. Poison tipped blades slow the target's reactions.
+- Circumstance Bonuses occur in combat and are short lived but very useful. A flanked enemy cannot defend against both foes. A sniper's nest provides the high ground. Taking cover gives protection against an explosion.
+- Multiple Attack Penalty applies a penalty for attacking more than once per turn. The first attack should be likely to hit. The third and subsequent attacks will probably miss.
+

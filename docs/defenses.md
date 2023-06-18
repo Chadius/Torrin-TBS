@@ -110,3 +110,18 @@ Examples include:
 - Elemental Aura (All Mind attacks within range deal extra damage)
 - Sniper Calibration (Penalty to attacks, but more range)
 - Calming Aura (Nearby friendly allies get bonus to Soul defense)
+
+# 2023-Jun-18
+There are 4 types of defense values: • Armor(akaWeaponDefense)
+- Body
+- Elemental
+- Spirit
+
+Attacks fall into one of these four categories. To determine the defensive bonus against them:
+Base Value + Defense Proficiency + Status Bonus + Item Bonus + Circumstance Bonus = Defense Value
+- Base Value, Status Bonus and Circumstance Bonus are similar to Attack Values.
+- Defense Proficiency varies based on the type of attack. A cleric has impressive Spiritual Defense bonuses. A knight has strong armor.
+- Item Bonuses are similar to Attack Values. Armor bonuses are the easiest defense to come up with. A suit of armor is pretty easy to access.
+
+Defense values should lag behind Attack values so attackers can get the advantage and are likely to hit with an opening attack.
+We want to avoid stalemates without using some resources. Defensive characters can be built to reduce damage, but should not be able to eliminate it.
