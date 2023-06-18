@@ -53,43 +53,43 @@ describe('Move Hex Coordinate in one direction', () => {
 describe('Move q r coordinates in one direction', () => {
     it('Can stay at origin', () => {
         const destination = moveCoordinatesInOneDirection(0, 0, HexDirection.ORIGIN);
-        expect(destination[0]).toBe(0);
-        expect(destination[1]).toBe(0);
+        expect(destination.q).toBe(0);
+        expect(destination.r).toBe(0);
     });
 
     it('Can move right', () => {
         const destination = moveCoordinatesInOneDirection(0, 0, HexDirection.RIGHT);
-        expect(destination[0]).toBe(0);
-        expect(destination[1]).toBe(1);
+        expect(destination.q).toBe(0);
+        expect(destination.r).toBe(1);
     });
 
     it('Can move left', () => {
         const destination = moveCoordinatesInOneDirection(0, 0, HexDirection.LEFT);
-        expect(destination[0]).toBe(0);
-        expect(destination[1]).toBe(-1);
+        expect(destination.q).toBe(0);
+        expect(destination.r).toBe(-1);
     });
 
     it('Can move down and right', () => {
         const destination = moveCoordinatesInOneDirection(0, 0, HexDirection.DOWN_RIGHT);
-        expect(destination[0]).toBe(+1);
-        expect(destination[1]).toBe(0);
+        expect(destination.q).toBe(+1);
+        expect(destination.r).toBe(0);
     });
 
     it('Can move down and left', () => {
         const destination = moveCoordinatesInOneDirection(0, 0, HexDirection.DOWN_LEFT);
-        expect(destination[0]).toBe(1);
-        expect(destination[1]).toBe(-1);
+        expect(destination.q).toBe(1);
+        expect(destination.r).toBe(-1);
     });
 
     it('Can move up and left', () => {
         const destination = moveCoordinatesInOneDirection(0, 0, HexDirection.UP_LEFT);
-        expect(destination[0]).toBe(-1);
-        expect(destination[1]).toBe(0);
+        expect(destination.q).toBe(-1);
+        expect(destination.r).toBe(0);
     });
 
     it('Can move up and right', () => {
         const destination = moveCoordinatesInOneDirection(0, 0, HexDirection.UP_RIGHT);
-        expect(destination[0]).toBe(-1);
-        expect(destination[1]).toBe(1);
+        expect(destination.q).toBe(-1);
+        expect(destination.r).toBe(1);
     });
 });

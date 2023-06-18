@@ -21,6 +21,7 @@ import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import p5 from "p5";
 import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {TargetingShape} from "../targeting/targetingShapeGenerator";
 
 jest.mock('p5', () => () => {
     return {}
@@ -95,6 +96,7 @@ describe('BattleSquaddieMover', () => {
                         traits: NullTraitStatusStorage()
                     }),
                     squaddieRepository: squaddieRepo,
+                    shapeGeneratorType: TargetingShape.Snake,
                 }))
             ).getRouteToStopLocation());
 

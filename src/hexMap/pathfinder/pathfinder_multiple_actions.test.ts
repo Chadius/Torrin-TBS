@@ -9,6 +9,7 @@ import {
 } from "./pathfinder_test_utils";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
+import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 describe('pathfinder move with multiple movement actions', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -40,7 +41,8 @@ describe('pathfinder move with multiple movement actions', () => {
             missionMap: missionMap,
             squaddieMovement: squaddieMovementOneMovementPerAction,
             numberOfActions: 2,
-            startLocation: new HexCoordinate({q: 0, r: 0})
+            startLocation: new HexCoordinate({q: 0, r: 0}),
+            shapeGeneratorType: TargetingShape.Snake,
         })));
         validateTilesAreFound(
             searchResults.getReachableTiles(),
@@ -71,7 +73,8 @@ describe('pathfinder move with multiple movement actions', () => {
             missionMap: missionMap,
             squaddieMovement: squaddieMovementTwoMovementPerAction,
             numberOfActions: 2,
-            startLocation: new HexCoordinate({q: 0, r: 0})
+            startLocation: new HexCoordinate({q: 0, r: 0}),
+            shapeGeneratorType: TargetingShape.Snake,
         })));
         validateTilesAreFound(
             searchResults.getReachableTiles(),

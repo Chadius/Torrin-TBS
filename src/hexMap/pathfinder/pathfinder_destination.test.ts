@@ -6,6 +6,7 @@ import {TileFoundDescription} from "./tileFoundDescription";
 import {getResultOrThrowError, isError, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {createMapAndPathfinder, createSquaddieMovements} from "./pathfinder_test_utils";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
+import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 describe('pathfinder reaching a destination', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -39,6 +40,7 @@ describe('pathfinder reaching a destination', () => {
             numberOfActions: 1,
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: new HexCoordinate({q: 0, r: 1}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let routeFound: SearchPath;
@@ -79,6 +81,7 @@ describe('pathfinder reaching a destination', () => {
             squaddieMovement: squaddieMovementOneMovementPerAction,
             numberOfActions: 1,
             startLocation: new HexCoordinate({q: 0, r: 0}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let errorFound: Error;
@@ -101,6 +104,7 @@ describe('pathfinder reaching a destination', () => {
             squaddieMovement: squaddieMovementOneMovementPerAction,
             numberOfActions: 1,
             startLocation: new HexCoordinate({q: 0, r: 0}),
+            shapeGeneratorType: TargetingShape.Snake,
         })));
 
         let somePathOrError = allTiles.getRouteToStopLocation();
@@ -123,6 +127,7 @@ describe('pathfinder reaching a destination', () => {
             numberOfActions: 1,
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: new HexCoordinate({q: 9000, r: 2}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let routeFound: SearchPath;
@@ -143,6 +148,7 @@ describe('pathfinder reaching a destination', () => {
             numberOfActions: 1,
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: new HexCoordinate({q: 0, r: 0}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let routeFound: SearchPath;
@@ -183,6 +189,7 @@ describe('pathfinder reaching a destination', () => {
             squaddieMovement: squaddieMovementTwoMovementPerAction,
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: new HexCoordinate({q: 2, r: 2}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let routeFound: SearchPath;
@@ -268,6 +275,7 @@ describe('pathfinder reaching a destination', () => {
             squaddieMovement: squaddieMovementHighMovementPerAction,
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: new HexCoordinate({q: 0, r: 4}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let routeFound: SearchPath;
@@ -317,6 +325,7 @@ describe('pathfinder reaching a destination', () => {
             numberOfActions: 2,
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: new HexCoordinate({q: 0, r: 4}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let routeFound: SearchPath;
@@ -338,6 +347,7 @@ describe('pathfinder reaching a destination', () => {
             squaddieMovement: squaddieMovementHighMovementPerAction,
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: new HexCoordinate({q: 0, r: 4}),
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let closestTilesToDestination: {
@@ -383,6 +393,7 @@ describe('pathfinder reaching a destination', () => {
             numberOfActions: 3,
             startLocation: new HexCoordinate({q: 1, r: 1}),
             stopLocation: new HexCoordinate({q: 2, r: 2}),
+            shapeGeneratorType: TargetingShape.Snake,
         })));
 
         let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());

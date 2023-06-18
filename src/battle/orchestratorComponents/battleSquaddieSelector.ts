@@ -33,6 +33,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {TargetingShape} from "../targeting/targetingShapeGenerator";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -182,6 +183,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 }),
                 squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
                 squaddieRepository: state.squaddieRepo,
+                shapeGeneratorType: TargetingShape.Snake,
             }))
         );
 

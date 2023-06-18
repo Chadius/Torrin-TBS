@@ -30,7 +30,7 @@ export const moveOneTileInDirection = (origin: HexCoordinate, direction: HexDire
     }
 }
 
-export const CreateNewPathCandidates = (q: number, r: number): [number, number][] => {
+export const CreateNewNeighboringCoordinates = (q: number, r: number): HexCoordinate[] => {
     return [
         moveCoordinatesInOneDirection(q, r, HexDirection.RIGHT),
         moveCoordinatesInOneDirection(q, r, HexDirection.LEFT),
@@ -42,22 +42,22 @@ export const CreateNewPathCandidates = (q: number, r: number): [number, number][
 }
 
 
-export const moveCoordinatesInOneDirection = (origin_q: number, origin_r: number, direction: HexDirection): [number, number] => {
+export const moveCoordinatesInOneDirection = (origin_q: number, origin_r: number, direction: HexDirection): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
-            return [origin_q, origin_r + 1];
+            return new HexCoordinate({coordinates: [origin_q, origin_r + 1]});
         case HexDirection.LEFT:
-            return [origin_q, origin_r - 1];
+            return new HexCoordinate({coordinates: [origin_q, origin_r - 1]});
         case HexDirection.UP_RIGHT:
-            return [origin_q - 1, origin_r + 1];
+            return new HexCoordinate({coordinates: [origin_q - 1, origin_r + 1]});
         case HexDirection.UP_LEFT:
-            return [origin_q - 1, origin_r];
+            return new HexCoordinate({coordinates: [origin_q - 1, origin_r]});
         case HexDirection.DOWN_RIGHT:
-            return [origin_q + 1, origin_r];
+            return new HexCoordinate({coordinates: [origin_q + 1, origin_r]});
         case HexDirection.DOWN_LEFT:
-            return [origin_q + 1, origin_r - 1];
+            return new HexCoordinate({coordinates: [origin_q + 1, origin_r - 1]});
         case HexDirection.ORIGIN:
         default:
-            return [origin_q, origin_r];
+            return new HexCoordinate({coordinates: [origin_q, origin_r]});
     }
 }

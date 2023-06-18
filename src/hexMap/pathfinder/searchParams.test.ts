@@ -6,6 +6,7 @@ import {TerrainTileMap} from "../terrainTileMap";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
+import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 describe('searchParams', () => {
     it('getSearchParamsOptions generates options that can be used to build new objects', () => {
@@ -31,6 +32,7 @@ describe('searchParams', () => {
             minimumDistanceMoved: 2,
             missionMap: missionMap,
             squaddieRepository: squaddieRepo,
+            shapeGeneratorType: TargetingShape.Snake,
         });
 
         const extractedOptions: SearchParamsOptions = originalParams.getSearchParamsOptions();

@@ -2,7 +2,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {CreateNewPathCandidates} from "../../hexMap/hexGridDirection";
+import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieId} from "../../squaddie/id";
@@ -78,7 +78,7 @@ describe('Targeting Service', () => {
 
         expect(results.locationsInRange).toHaveLength(6);
         expect(results.locationsInRange).toStrictEqual(
-            CreateNewPathCandidates(1, 1).map(NewHexCoordinateFromNumberPair)
+            CreateNewNeighboringCoordinates(1, 1)
         );
     });
 

@@ -14,6 +14,7 @@ import {createMapAndPathfinder, createSquaddieMovements, validateTilesAreFound} 
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {addSquaddieToSquaddieRepository} from "../../utils/test/squaddieRepository";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
+import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 describe('pathfinder and squaddies', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -51,6 +52,7 @@ describe('pathfinder and squaddies', () => {
                 squaddieMovement: squaddieMovementThreeMovementPerAction,
                 numberOfActions: 1,
                 startLocation: new HexCoordinate({q: 0, r: 0}),
+                shapeGeneratorType: TargetingShape.Snake,
             };
         });
 
@@ -270,7 +272,8 @@ describe('pathfinder and squaddies', () => {
                 traits: NullTraitStatusStorage(),
             }),
             startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: undefined
+            stopLocation: undefined,
+            shapeGeneratorType: TargetingShape.Snake,
         })));
 
         validateTilesAreFound(
@@ -315,6 +318,7 @@ describe('pathfinder and squaddies', () => {
             stopLocation: new HexCoordinate({q: 0, r: 2}),
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
+            shapeGeneratorType: TargetingShape.Snake,
         }));
 
         let routeFound: SearchPath;
@@ -396,7 +400,8 @@ describe('pathfinder and squaddies', () => {
                 numberOfActions: 2,
                 startLocation: new HexCoordinate({q: 0, r: 0}),
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository
+                squaddieRepository,
+                shapeGeneratorType: TargetingShape.Snake,
             }));
 
         const reachableSquaddies = searchResults.getReachableSquaddies();

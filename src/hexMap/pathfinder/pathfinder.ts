@@ -1,6 +1,6 @@
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
-import {CreateNewPathCandidates} from "../hexGridDirection";
+import {CreateNewNeighboringCoordinates} from "../hexGridDirection";
 import {SearchParams} from "./searchParams";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -18,6 +18,7 @@ import {
 } from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
+import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
 
 class SearchState {
     tilesSearchCanStopAt: HexCoordinate[];
@@ -25,6 +26,8 @@ class SearchState {
     tileLocationsAlreadyConsideredForQueue: { [loc: string]: boolean };
     searchPathQueue: PriorityQueue;
     results: SearchResults;
+
+    private _shapeGenerator: TargetingShapeGenerator;
 
     constructor(searchParams: SearchParams) {
         this.tilesSearchCanStopAt = [];
@@ -34,6 +37,15 @@ class SearchState {
         this.results = new SearchResults({
             stopLocation: searchParams.getStopLocation()
         });
+        this.shapeGenerator = searchParams.shapeGenerator;
+    }
+
+    get shapeGenerator(): TargetingShapeGenerator {
+        return this._shapeGenerator;
+    }
+
+    set shapeGenerator(value: TargetingShapeGenerator) {
+        this._shapeGenerator = value;
     }
 
     getTilesSearchCanStopAt(): HexCoordinate[] {
@@ -149,10 +161,10 @@ class SearchState {
                 this.results.reachableSquaddies.addCoordinateCloseToSquaddie(staticSquaddieId, 0, mapLocation);
             }
 
-            const adjacentLocations: [number, number][] = CreateNewPathCandidates(mapLocation.q, mapLocation.r);
+            const adjacentLocations: HexCoordinate[] = CreateNewNeighboringCoordinates(mapLocation.q, mapLocation.r);
             this.getTilesSearchCanStopAt().forEach((description: HexCoordinate) => {
-                adjacentLocations.forEach((location: [number, number]) => {
-                    if (description.q === location[0] && description.r === location[1]) {
+                adjacentLocations.forEach((location: HexCoordinate) => {
+                    if (description.q === location.q && description.r === location.r) {
                         this.results.reachableSquaddies.addSquaddie(staticSquaddieId, mapLocation);
                         this.results.reachableSquaddies.addCoordinateCloseToSquaddie(staticSquaddieId, 1, description);
                     }
@@ -315,7 +327,7 @@ export class Pathfinder {
                 continue;
             }
 
-            let neighboringLocations = this.createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r);
+            let neighboringLocations = this.createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r, workingSearchState.shapeGenerator);
             neighboringLocations = this.selectValidPathCandidates(
                 neighboringLocations,
                 searchParams,
@@ -418,8 +430,11 @@ export class Pathfinder {
         )
     }
 
-    private createNewPathCandidates(q: number, r: number): [number, number][] {
-        return CreateNewPathCandidates(q, r)
+    private createNewPathCandidates(q: number, r: number, shapeGenerator: TargetingShapeGenerator): [number, number][] {
+        const neighbors: HexCoordinate[] = shapeGenerator.createNeighboringHexCoordinates(new HexCoordinate({coordinates: [q, r]}));
+        return neighbors.map((coordinate: HexCoordinate) => {
+            return [coordinate.q, coordinate.r]
+        });
     }
 
     private filterNeighborsNotVisited(

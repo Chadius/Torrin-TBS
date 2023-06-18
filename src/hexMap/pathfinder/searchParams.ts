@@ -4,6 +4,12 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
+import {
+    GetTargetingShapeGenerator,
+    TargetingShape,
+    TargetingShapeGenerator
+} from "../../battle/targeting/targetingShapeGenerator";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export class SearchParamsOptions {
     startLocation?: HexCoordinate;
@@ -16,6 +22,7 @@ export class SearchParamsOptions {
     maximumDistanceMoved?: number;
     missionMap: MissionMap;
     squaddieRepository?: BattleSquaddieRepository;
+    shapeGeneratorType: TargetingShape;
 };
 
 export class SearchParams {
@@ -32,6 +39,7 @@ export class SearchParams {
         passThroughWalls: boolean;
         crossOverPits: boolean;
         canStopOnSquaddies: boolean;
+        shapeGenerator: TargetingShapeGenerator;
     }
     stopConditions: {
         numberOfActions?: number;
@@ -39,20 +47,21 @@ export class SearchParams {
     }
 
     constructor(options: {
-        startLocation?: HexCoordinate,
-        stopLocation?: HexCoordinate,
-        squaddieMovement?: SquaddieMovement,
-        squaddieAffiliation?: SquaddieAffiliation,
-        canStopOnSquaddies?: boolean,
-        numberOfActions?: number,
-        minimumDistanceMoved?: number,
-        maximumDistanceMoved?: number,
-        missionMap: MissionMap,
-        squaddieRepository?: BattleSquaddieRepository,
-    } |
-        {
-            searchParamsOptions: SearchParamsOptions
-        }
+                    startLocation?: HexCoordinate,
+                    stopLocation?: HexCoordinate,
+                    squaddieMovement?: SquaddieMovement,
+                    squaddieAffiliation?: SquaddieAffiliation,
+                    canStopOnSquaddies?: boolean,
+                    numberOfActions?: number,
+                    minimumDistanceMoved?: number,
+                    maximumDistanceMoved?: number,
+                    missionMap: MissionMap,
+                    squaddieRepository?: BattleSquaddieRepository,
+                    shapeGeneratorType: TargetingShape,
+                } |
+                    {
+                        searchParamsOptions: SearchParamsOptions
+                    }
     ) {
         if ("searchParamsOptions" in options) {
             this.setUsingSearchParamsOptions(options.searchParamsOptions);
@@ -70,6 +79,7 @@ export class SearchParams {
                 passThroughWalls: options.squaddieMovement ? options.squaddieMovement.passThroughWalls : false,
                 crossOverPits: options.squaddieMovement ? options.squaddieMovement.crossOverPits : false,
                 canStopOnSquaddies: options.canStopOnSquaddies,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(options.shapeGeneratorType)),
             }
             this.stopConditions = {
                 numberOfActions: options.numberOfActions,
@@ -92,11 +102,16 @@ export class SearchParams {
             passThroughWalls: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.passThroughWalls : false,
             crossOverPits: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.crossOverPits : false,
             canStopOnSquaddies: searchParamsOptions.canStopOnSquaddies,
+            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(searchParamsOptions.shapeGeneratorType)),
         }
         this.stopConditions = {
             numberOfActions: searchParamsOptions.numberOfActions,
             stopLocation: searchParamsOptions.stopLocation,
         }
+    }
+
+    get shapeGenerator(): TargetingShapeGenerator {
+        return this.movement.shapeGenerator;
     }
 
     getStartLocation(): HexCoordinate {
@@ -168,6 +183,7 @@ export class SearchParams {
             }),
             startLocation: this.setup.startLocation,
             stopLocation: this.stopConditions.stopLocation,
+            shapeGeneratorType: this.movement.shapeGenerator.getShape(),
         }
     }
 }

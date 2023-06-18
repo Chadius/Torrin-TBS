@@ -1,16 +1,20 @@
 import {assertsInteger} from "../utils/mathAssert";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
+import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 
 export class ActivityRange {
     private _minimumRange: number | undefined;
     private _maximumRange: number | undefined;
+    private _targetingShape: TargetingShape;
 
     constructor(options: {
         minimumRange?: number,
         maximumRange?: number,
+        targetingShape?: TargetingShape,
     }) {
         this._minimumRange = options.minimumRange;
         this._maximumRange = options.maximumRange;
+        this._targetingShape = options.targetingShape ?? TargetingShape.Snake;
     }
 
     get maximumRange(): number | undefined {
@@ -27,6 +31,10 @@ export class ActivityRange {
 
     set minimumRange(value: number | undefined) {
         this._minimumRange = value;
+    }
+
+    get targetingShape(): TargetingShape {
+        return this._targetingShape;
     }
 }
 
@@ -93,5 +101,9 @@ export class SquaddieActivity {
 
     get maximumRange(): number {
         return this._range.maximumRange;
+    }
+
+    get targetingShape(): TargetingShape {
+        return this._range.targetingShape;
     }
 }

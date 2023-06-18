@@ -7,6 +7,7 @@ import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {TargetingShape} from "./targetingShapeGenerator";
 
 export class TargetingResults {
     private _locationsInRange: HexCoordinate[];
@@ -58,6 +59,7 @@ export const findValidTargets = (params: {
             maximumDistanceMoved: activity.maximumRange,
             missionMap: map,
             squaddieRepository: squaddieRepository,
+            shapeGeneratorType: TargetingShape.Snake,
         }),
         activity.maximumRange,
         [squaddieInfo.mapLocation],

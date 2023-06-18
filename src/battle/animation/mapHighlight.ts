@@ -8,6 +8,7 @@ import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexD
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {TargetingShape} from "../targeting/targetingShapeGenerator";
 
 export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
@@ -20,6 +21,7 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
             squaddieRepository,
             numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+            shapeGeneratorType: TargetingShape.Snake,
         }))
     );
     const movementTiles: HexCoordinate[] = reachableTileSearchResults.getReachableTiles();
@@ -34,6 +36,7 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             missionMap: missionMap,
             minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
             startLocation: datum.mapLocation,
+            shapeGeneratorType: staticSquaddie.activities[0].targetingShape,
         }),
         staticSquaddie.activities[0].maximumRange,
         movementTiles,

@@ -8,6 +8,7 @@ import {getResultOrThrowError} from "../utils/ResultOrError";
 import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {TargetingShape} from "./targeting/targetingShapeGenerator";
 
 export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSquaddieUIInputOptions) => BattleSquaddieUISelectionState =
     (stateOptions: BattleSquaddieUIInputOptions) => {
@@ -51,6 +52,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                         squaddieAffiliation: SquaddieAffiliation.PLAYER,
                         squaddieRepository: state.squaddieRepository,
                         numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+                        shapeGeneratorType: TargetingShape.Snake,
                     }))
                 );
                 const closestRoute = getResultOrThrowError(searchResults.getRouteToStopLocation());

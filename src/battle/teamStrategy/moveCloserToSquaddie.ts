@@ -7,6 +7,7 @@ import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {TargetingShape} from "../targeting/targetingShapeGenerator";
 
 export type MoveCloserToSquaddieOptions = {
     desiredDynamicSquaddieId?: string;
@@ -47,6 +48,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 startLocation: mapLocation,
                 squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
                 squaddieRepository: state.getSquaddieRepository(),
+                shapeGeneratorType: TargetingShape.Snake,
             }));
         const reachableSquaddiesResults = searchResults.getReachableSquaddies();
         const reachableSquaddieLocations = reachableSquaddiesResults.getClosestSquaddies();
@@ -96,6 +98,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                         startLocation: mapLocation,
                         canStopOnSquaddies: true,
                         stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
+                        shapeGeneratorType: TargetingShape.Snake,
                     }))
                 );
 
