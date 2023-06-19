@@ -31,16 +31,19 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
 
     const datum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
 
-    const actionTiles: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
-            canStopOnSquaddies: true,
-            missionMap: missionMap,
-            minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
-            startLocation: datum.mapLocation,
-            shapeGeneratorType: staticSquaddie.activities[0].targetingShape,
-        }),
-        staticSquaddie.activities[0].maximumRange,
-        movementTiles,
-    );
+    const squaddieHasActivities: boolean = staticSquaddie.activities.length > 0
+    const actionTiles: HexCoordinate[] = squaddieHasActivities ?
+        pathfinder.getTilesInRange(new SearchParams({
+                canStopOnSquaddies: true,
+                missionMap: missionMap,
+                minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
+                startLocation: datum.mapLocation,
+                shapeGeneratorType: staticSquaddie.activities[0].targetingShape,
+            }),
+            staticSquaddie.activities[0].maximumRange,
+            movementTiles,
+        )
+        : [];
 
     const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
         Object.values(movementTilesByNumberOfActions).map(

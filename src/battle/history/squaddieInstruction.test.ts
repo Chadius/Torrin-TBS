@@ -2,6 +2,10 @@ import {SquaddieInstruction} from "./squaddieInstruction";
 import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {SquaddieActivity} from "../../squaddie/activity";
+import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
+import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
 
 describe('SquaddieInstruction', () => {
     it('can add a squaddie and location', () => {
@@ -48,7 +52,7 @@ describe('SquaddieInstruction', () => {
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0})
         });
-        instruction.addMovement(new SquaddieMovementActivity({
+        instruction.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
@@ -61,7 +65,7 @@ describe('SquaddieInstruction', () => {
         expect(moveActivity.destination).toStrictEqual(new HexCoordinate({q: 1, r: 2}));
         expect(moveActivity.numberOfActionsSpent).toBe(2);
 
-        instruction.addMovement(new SquaddieMovementActivity({
+        instruction.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 2, r: 2}),
             numberOfActionsSpent: 1,
         }));
@@ -70,6 +74,44 @@ describe('SquaddieInstruction', () => {
         expect(allActivities).toHaveLength(2);
         expect(instruction.totalActionsSpent()).toBe(3);
         expect(instruction.destinationLocation()).toStrictEqual(new HexCoordinate({q: 2, r: 2}));
+    });
+    it('can add squaddie activity', () => {
+        const instruction: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "new static squaddie",
+            dynamicSquaddieId: "new dynamic squaddie",
+            startingLocation: new HexCoordinate({q: 0, r: 0})
+        });
+        const longswordActivity: SquaddieActivity = new SquaddieActivity({
+            name: "longsword",
+            id: "longsword",
+            traits: NullTraitStatusStorage(),
+            actionsToSpend: 1,
+            minimumRange: 0,
+            maximumRange: 1,
+            targetingShape: TargetingShape.Snake,
+        });
+        instruction.addSquaddieSquaddieActivity(new SquaddieSquaddieActivity({
+            squaddieActivity: longswordActivity,
+            targetLocation: new HexCoordinate({q: 1, r: 0})
+        }));
+
+        const activitiesAfterOneActivity = instruction.getActivities();
+        expect(activitiesAfterOneActivity).toHaveLength(1);
+
+        expect(activitiesAfterOneActivity[0]).toBeInstanceOf(SquaddieSquaddieActivity);
+        const squaddieSquaddieActivity: SquaddieSquaddieActivity = activitiesAfterOneActivity[0] as SquaddieSquaddieActivity;
+        expect(squaddieSquaddieActivity.targetLocation).toStrictEqual(new HexCoordinate({q: 1, r: 0}));
+        expect(squaddieSquaddieActivity.numberOfActionsSpent).toBe(longswordActivity.actionsToSpend);
+
+        instruction.addSquaddieSquaddieActivity(new SquaddieSquaddieActivity({
+            squaddieActivity: longswordActivity,
+            targetLocation: new HexCoordinate({q: 1, r: 0})
+        }));
+
+        const allActivities = instruction.getActivities();
+        expect(allActivities).toHaveLength(2);
+        expect(instruction.totalActionsSpent()).toBe(2);
+        expect(instruction.destinationLocation()).toStrictEqual(new HexCoordinate({q: 0, r: 0}));
     });
     it('will return the start location as the destination if no movement actions are given', () => {
         const instruction: SquaddieInstruction = new SquaddieInstruction({

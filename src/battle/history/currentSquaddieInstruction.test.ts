@@ -44,8 +44,7 @@ describe('Current Squaddie Instruction', () => {
     });
 
     it('will accept new squaddie and activity if it is reset', () => {
-        const newInstruction = new CurrentSquaddieInstruction({
-        });
+        const newInstruction = new CurrentSquaddieInstruction({});
 
         newInstruction.addSquaddie(
             {
@@ -56,7 +55,7 @@ describe('Current Squaddie Instruction', () => {
         );
         expect(newInstruction.dynamicSquaddieId).toBe("Torrin 0");
 
-        newInstruction.addActivity(purifyingBlastActivity);
+        newInstruction.addConfirmedActivity(purifyingBlastActivity);
 
         const initialInstruction: SquaddieInstruction = newInstruction.instruction;
 
@@ -64,7 +63,7 @@ describe('Current Squaddie Instruction', () => {
         expect(initialInstruction).toStrictEqual(torrinInstruction);
         expect(newInstruction.currentSquaddieActivity).toStrictEqual(purifyingBlast);
 
-        newInstruction.addActivity(new SquaddieMovementActivity({
+        newInstruction.addConfirmedActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 2, r: 3}),
             numberOfActionsSpent: 2,
         }));
@@ -76,11 +75,10 @@ describe('Current Squaddie Instruction', () => {
     });
 
     it('will throw an error if an activity is added without setting the squaddie', () => {
-        const newInstruction = new CurrentSquaddieInstruction({
-        });
+        const newInstruction = new CurrentSquaddieInstruction({});
 
         const shouldThrowError = () => {
-            newInstruction.addActivity(purifyingBlastActivity);
+            newInstruction.addConfirmedActivity(purifyingBlastActivity);
         }
 
         expect(() => {

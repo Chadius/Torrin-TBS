@@ -50,7 +50,7 @@ describe('BattleMissionLoader', () => {
         expect(loader.finishedPreparations).toBeTruthy();
         expect(loader.startedLoading).toBeTruthy();
 
-        loader.reset(new OrchestratorState());
+        loader.reset(new OrchestratorState({}));
         expect(loader.startedLoading).toBeFalsy();
         expect(loader.finishedPreparations).toBeFalsy();
     });

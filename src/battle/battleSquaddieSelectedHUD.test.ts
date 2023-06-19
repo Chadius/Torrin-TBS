@@ -11,6 +11,9 @@ import {stubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {ActivityButton} from "../squaddie/activityButton";
 import {ACTIVITY_END_TURN_ID} from "../squaddie/endTurnActivity";
+import {SquaddieActivity} from "../squaddie/activity";
+import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
+import {TargetingShape} from "./targeting/targetingShapeGenerator";
 
 jest.mock('p5', () => () => {
     return {}
@@ -22,6 +25,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let resourceHandler: ResourceHandler;
     let mockedP5: p5;
     let playerSquaddieDynamicID: string = "player_squaddie_0";
+    let longswordActivity: SquaddieActivity;
 
     beforeEach(() => {
         missionMap = new MissionMap({
@@ -65,6 +69,16 @@ describe('BattleSquaddieSelectedHUD', () => {
             "affiliate_icon_none",
         ]);
 
+        longswordActivity = new SquaddieActivity({
+            name: "longsword",
+            id: "longsword",
+            traits: NullTraitStatusStorage(),
+            actionsToSpend: 1,
+            minimumRange: 0,
+            maximumRange: 1,
+            targetingShape: TargetingShape.Snake,
+        });
+
         squaddieRepository.addStaticSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
@@ -72,6 +86,9 @@ describe('BattleSquaddieSelectedHUD', () => {
                     name: "Player Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
+                activities: [
+                    longswordActivity
+                ]
             })
         );
 
@@ -88,6 +105,31 @@ describe('BattleSquaddieSelectedHUD', () => {
             missionMap,
             resourceHandler: resourceHandler,
         })
+    });
+
+    it('generates a button for each squaddie activity', () => {
+        hud.mouseClickedSquaddieSelected(playerSquaddieDynamicID, 0, 0);
+
+        const activityButtons: ActivityButton[] = hud.getActivityButtons();
+        expect(activityButtons).toBeTruthy();
+
+        expect(activityButtons.find((button) => button.activity.name === longswordActivity.name)).toBeTruthy();
+    });
+
+    it('reports when an activity button is selected', () => {
+        hud.mouseClickedSquaddieSelected(playerSquaddieDynamicID, 0, 0);
+        expect(hud.wasActivitySelected()).toBeFalsy();
+        expect(hud.getSelectedActivity()).toBeUndefined();
+
+        const longswordButton = hud.getActivityButtons().find((button) => button.activity.name === longswordActivity.name);
+        hud.mouseClicked(longswordButton.buttonArea.getLeft(), longswordButton.buttonArea.getTop());
+
+        expect(hud.wasActivitySelected()).toBeTruthy();
+        expect(hud.getSelectedActivity()).toBe(longswordActivity);
+
+        hud.reset();
+        expect(hud.wasActivitySelected()).toBeFalsy();
+        expect(hud.getSelectedActivity()).toBeUndefined();
     });
 
     it('generates a Wait Turn activity button when a squaddie is selected', () => {

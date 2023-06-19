@@ -3,6 +3,8 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
 import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
+import {SquaddieMovementActivity} from "./squaddieMovementActivity";
+import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 
 
 export class CurrentSquaddieInstruction {
@@ -52,15 +54,31 @@ export class CurrentSquaddieInstruction {
         }
     }
 
-    addActivity(activity: SquaddieInstructionActivity) {
+    addConfirmedActivity(activity: SquaddieInstructionActivity) {
         if (!this._instruction) {
             throw new Error("no squaddie found, cannot add activity");
         }
 
-        if (activity instanceof SquaddieSquaddieActivity) {
-            this._currentSquaddieActivity = activity.squaddieActivity;
+        if (!(
+            activity instanceof SquaddieSquaddieActivity
+            || activity instanceof SquaddieMovementActivity
+            || activity instanceof SquaddieEndTurnActivity
+        )) {
+            throw new Error("wrong activity type")
         }
 
-        this._instruction.addActivity(activity);
+        if (activity instanceof SquaddieSquaddieActivity) {
+            this.addSelectedActivity(activity.squaddieActivity);
+        }
+
+        this.instruction.addActivity(activity);
+    }
+
+    addSelectedActivity(activity: SquaddieActivity) {
+        if (!this._instruction) {
+            throw new Error("no squaddie found, cannot add activity");
+        }
+
+        this._currentSquaddieActivity = activity;
     }
 };

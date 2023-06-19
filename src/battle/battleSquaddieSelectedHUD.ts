@@ -10,7 +10,7 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ActivityButton} from "../squaddie/activityButton";
-import {BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
 
 export type BattleSquaddieSelectedHUDOptions = {
@@ -52,7 +52,10 @@ export class BattleSquaddieSelectedHUD {
 
         const {windowDimensions} = this.createWindowPosition(mouseY);
 
-        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId))
+        const {
+            staticSquaddie,
+            dynamicSquaddie
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId))
         const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
 
         this._background = new Rectangle({
@@ -62,11 +65,34 @@ export class BattleSquaddieSelectedHUD {
             strokeWeight: 4,
         });
         this.generateAffiliateIcon(staticSquaddie);
-        this.generateSquaddieActivityButtons(squaddieAffiliationHue, windowDimensions);
+        this.generateSquaddieActivityButtons(staticSquaddie, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
     }
 
-    private generateSquaddieActivityButtons(squaddieAffiliationHue: number, windowDimensions: RectArea) {
+    private generateSquaddieActivityButtons(
+        staticSquaddie: BattleSquaddieStatic,
+        dynamicSquaddie: BattleSquaddieDynamic,
+        squaddieAffiliationHue: number,
+        windowDimensions: RectArea
+    ) {
         this.activityButtons = [];
+        staticSquaddie.activities.forEach((activity: SquaddieActivity, index: number) => {
+            this.activityButtons.push(
+                new ActivityButton({
+                    buttonArea: new RectArea({
+                        baseRectangle: windowDimensions,
+                        anchorLeft: HorizontalAnchor.LEFT,
+                        anchorTop: VerticalAnchor.CENTER,
+                        left: windowDimensions.getWidth() * (6 + index) / 12,
+                        width: 32,
+                        height: 32,
+                    }),
+                    activity,
+                    hue: squaddieAffiliationHue,
+                    isEndTurn: false
+                })
+            );
+        });
+
         this.activityButtons.push(
             new ActivityButton({
                 isEndTurn: true,

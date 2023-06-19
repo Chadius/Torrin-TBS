@@ -100,7 +100,7 @@ describe('move towards closest squaddie in range', () => {
             dynamicSquaddieId: "searching_squaddie_0",
             startingLocation: new HexCoordinate({q: 0, r: 2}),
         });
-        expectedInstruction.addMovement(new SquaddieMovementActivity({
+        expectedInstruction.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 0, r: 1}),
             numberOfActionsSpent: 1,
         }))
@@ -229,7 +229,7 @@ describe('move towards closest squaddie in range', () => {
             dynamicSquaddieId: "searching_squaddie_0",
             startingLocation: new HexCoordinate({q: 0, r: 2}),
         });
-        expectedInstruction.addMovement(new SquaddieMovementActivity({
+        expectedInstruction.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 0, r: 1}),
             numberOfActionsSpent: 1,
         }))

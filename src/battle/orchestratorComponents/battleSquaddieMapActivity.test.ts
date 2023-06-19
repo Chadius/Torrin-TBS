@@ -88,6 +88,6 @@ describe('BattleSquaddieMapActivity', () => {
 
         mapActivity.reset(state);
         expect(mapActivity.animationCompleteStartTime).toBeUndefined();
-        expect(state.squaddieCurrentlyActing).toBeUndefined();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
     });
 });

@@ -106,7 +106,7 @@ describe('BattleSquaddieMover', () => {
             dynamicSquaddieId: "player_1",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        moveActivity.addMovement(new SquaddieMovementActivity({
+        moveActivity.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 1, r: 1}),
             numberOfActionsSpent: 1,
         }));
@@ -132,6 +132,62 @@ describe('BattleSquaddieMover', () => {
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
-        expect(state.squaddieCurrentlyActing).toBeUndefined();
+        expect(state.squaddieCurrentlyActing).not.toBeUndefined();
+    });
+
+    it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
+        const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
+            selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
+            missionMap: map,
+            squaddieRepository: squaddieRepo,
+            selectedSquaddieDynamicID: "player_1",
+            tileClickedOn: new HexCoordinate({q: 1, r: 1}),
+            finishedAnimating: false,
+        });
+        const pathfinder: Pathfinder = new Pathfinder();
+        const movePath: SearchPath = getResultOrThrowError(
+            getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
+                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    stopLocation: new HexCoordinate({q: 1, r: 1}),
+                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                    canStopOnSquaddies: true,
+                    missionMap: map,
+                    squaddieMovement: new SquaddieMovement({
+                        movementPerAction: 999,
+                        traits: NullTraitStatusStorage()
+                    }),
+                    squaddieRepository: squaddieRepo,
+                    shapeGeneratorType: TargetingShape.Snake,
+                }))
+            ).getRouteToStopLocation());
+
+        const moveActivity: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "player_1",
+            dynamicSquaddieId: "player_1",
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
+        });
+        moveActivity.addActivity(new SquaddieMovementActivity({
+            destination: new HexCoordinate({q: 1, r: 1}),
+            numberOfActionsSpent: 3,
+        }));
+
+        const state: OrchestratorState = new OrchestratorState({
+            squaddieRepo,
+            battleSquaddieUIInput: uiInput,
+            pathfinder,
+            missionMap: map,
+            squaddieMovePath: movePath,
+            hexMap: map.terrainTileMap,
+            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+                instruction: moveActivity,
+            }),
+        });
+        const mover: BattleSquaddieMover = new BattleSquaddieMover();
+        jest.spyOn(Date, 'now').mockImplementation(() => 1);
+        mover.update(state, mockedP5);
+        jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
+        mover.update(state, mockedP5);
+        mover.reset(state);
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
     });
 });

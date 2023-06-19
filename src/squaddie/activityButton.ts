@@ -5,19 +5,17 @@ import {Rectangle} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 
-export type ActivityButtonOptions = {
-    buttonArea: RectArea;
-    activity: SquaddieActivity;
-    hue: number;
-    isEndTurn: boolean;
-};
-
 export class ActivityButton {
     buttonArea: RectArea;
     activity: SquaddieActivity;
     hue: number;
 
-    constructor(options: Partial<ActivityButtonOptions> = {}) {
+    constructor(options: {
+        buttonArea?: RectArea;
+        activity?: SquaddieActivity;
+        hue?: number;
+        isEndTurn?: boolean;
+    }) {
         this.buttonArea = options.buttonArea;
         this.activity = options.activity;
         this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];

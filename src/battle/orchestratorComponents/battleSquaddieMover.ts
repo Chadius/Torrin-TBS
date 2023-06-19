@@ -14,6 +14,8 @@ import {
 import p5 from "p5";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {spendSquaddieActions, updateSquaddieLocation} from "../squaddieMovementLogic";
+import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 
 export class BattleSquaddieMover implements OrchestratorComponent {
     animationStartTime?: number;
@@ -63,7 +65,11 @@ export class BattleSquaddieMover implements OrchestratorComponent {
         ));
 
         updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap, dynamicSquaddie.dynamicSquaddieId);
-        spendSquaddieActions(dynamicSquaddie, state.squaddieMovePath.getNumberOfMovementActions());
+        const mostRecentActivity = state.squaddieCurrentlyActing.instruction.getMostRecentActivity();
+        if (mostRecentActivity instanceof SquaddieMovementActivity) {
+            spendSquaddieActions(dynamicSquaddie, mostRecentActivity.numberOfActionsSpent);
+        }
+
         if (dynamicSquaddie.mapIcon) {
             updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);
             tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
@@ -80,7 +86,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     }
 
     reset(state: OrchestratorState) {
-        state.squaddieCurrentlyActing = undefined;
         this.animationStartTime = undefined;
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     }
 }

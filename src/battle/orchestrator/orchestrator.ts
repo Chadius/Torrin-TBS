@@ -13,6 +13,7 @@ import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import p5 from "p5";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
+import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -20,18 +21,9 @@ export enum BattleOrchestratorMode {
     CUTSCENE_PLAYER = "CUTSCENE_PLAYER",
     PHASE_CONTROLLER = "PHASE_CONTROLLER",
     SQUADDIE_SELECTOR = "SQUADDIE_SELECTOR",
+    SQUADDIE_TARGET = "SQUADDIE_TARGET",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
     SQUADDIE_MAP_ACTIVITY = "SQUADDIE_MAP_ACTIVITY",
-}
-
-type OrchestratorOptions = {
-    missionLoader: BattleMissionLoader,
-    cutscenePlayer: BattleCutscenePlayer,
-    squaddieSelector: BattleSquaddieSelector,
-    squaddieMapActivity: BattleSquaddieMapActivity,
-    squaddieMover: BattleSquaddieMover,
-    mapDisplay: BattleMapDisplay,
-    phaseController: BattlePhaseController,
 }
 
 export class Orchestrator {
@@ -40,16 +32,27 @@ export class Orchestrator {
     missionLoader: BattleMissionLoader;
     cutscenePlayer: BattleCutscenePlayer;
     squaddieSelector: BattleSquaddieSelector;
+    squaddieTarget: BattleSquaddieTarget;
     squaddieMapActivity: BattleSquaddieMapActivity;
     squaddieMover: BattleSquaddieMover;
     mapDisplay: BattleMapDisplay;
     phaseController: BattlePhaseController;
 
-    constructor(options: OrchestratorOptions) {
+    constructor(options: {
+        missionLoader: BattleMissionLoader,
+        cutscenePlayer: BattleCutscenePlayer,
+        squaddieSelector: BattleSquaddieSelector,
+        squaddieMapActivity: BattleSquaddieMapActivity,
+        squaddieMover: BattleSquaddieMover,
+        squaddieTarget: BattleSquaddieTarget,
+        mapDisplay: BattleMapDisplay,
+        phaseController: BattlePhaseController,
+    }) {
         this.mode = BattleOrchestratorMode.UNKNOWN;
         this.missionLoader = options.missionLoader;
         this.cutscenePlayer = options.cutscenePlayer;
         this.squaddieSelector = options.squaddieSelector;
+        this.squaddieTarget = options.squaddieTarget;
         this.squaddieMapActivity = options.squaddieMapActivity;
         this.squaddieMover = options.squaddieMover;
         this.mapDisplay = options.mapDisplay;
@@ -66,6 +69,8 @@ export class Orchestrator {
                 return this.phaseController;
             case BattleOrchestratorMode.SQUADDIE_SELECTOR:
                 return this.squaddieSelector;
+            case BattleOrchestratorMode.SQUADDIE_TARGET:
+                return this.squaddieTarget;
             case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
                 return this.squaddieMapActivity;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
