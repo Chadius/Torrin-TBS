@@ -75,6 +75,8 @@ describe('BattleSquaddieMover', () => {
 
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
+
+
     it('is complete once enough time passes and the squaddie finishes moving', () => {
         const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
             selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
@@ -106,10 +108,15 @@ describe('BattleSquaddieMover', () => {
             dynamicSquaddieId: "player_1",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        moveActivity.addMovement(new SquaddieMovementActivity({
+        moveActivity.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 1, r: 1}),
-            numberOfActionsSpent: 1,
+            numberOfActionsSpent: 3,
         }));
+
+        const squaddieCurrentlyActing: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({
+            instruction: moveActivity
+        });
+        squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving("player_1");
 
         const state: OrchestratorState = new OrchestratorState({
             squaddieRepo,
@@ -126,12 +133,70 @@ describe('BattleSquaddieMover', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
         mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeFalsy();
+        expect(state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving("player_1")).toBeTruthy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
         mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
-        expect(state.squaddieCurrentlyActing).toBeUndefined();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
+        expect(state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving("player_1")).toBeFalsy();
+    });
+
+    it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
+        const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
+            selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
+            missionMap: map,
+            squaddieRepository: squaddieRepo,
+            selectedSquaddieDynamicID: "player_1",
+            tileClickedOn: new HexCoordinate({q: 1, r: 1}),
+            finishedAnimating: false,
+        });
+        const pathfinder: Pathfinder = new Pathfinder();
+        const movePath: SearchPath = getResultOrThrowError(
+            getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
+                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    stopLocation: new HexCoordinate({q: 1, r: 1}),
+                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                    canStopOnSquaddies: true,
+                    missionMap: map,
+                    squaddieMovement: new SquaddieMovement({
+                        movementPerAction: 999,
+                        traits: NullTraitStatusStorage()
+                    }),
+                    squaddieRepository: squaddieRepo,
+                    shapeGeneratorType: TargetingShape.Snake,
+                }))
+            ).getRouteToStopLocation());
+
+        const moveActivity: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "player_1",
+            dynamicSquaddieId: "player_1",
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
+        });
+        moveActivity.addActivity(new SquaddieMovementActivity({
+            destination: new HexCoordinate({q: 1, r: 1}),
+            numberOfActionsSpent: 3,
+        }));
+
+        const state: OrchestratorState = new OrchestratorState({
+            squaddieRepo,
+            battleSquaddieUIInput: uiInput,
+            pathfinder,
+            missionMap: map,
+            squaddieMovePath: movePath,
+            hexMap: map.terrainTileMap,
+            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+                instruction: moveActivity,
+            }),
+        });
+        const mover: BattleSquaddieMover = new BattleSquaddieMover();
+        jest.spyOn(Date, 'now').mockImplementation(() => 1);
+        mover.update(state, mockedP5);
+        jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
+        mover.update(state, mockedP5);
+        mover.reset(state);
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
     });
 });

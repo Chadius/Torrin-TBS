@@ -10,8 +10,9 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ActivityButton} from "../squaddie/activityButton";
-import {BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
+import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 
 export type BattleSquaddieSelectedHUDOptions = {
     squaddieRepository: BattleSquaddieRepository;
@@ -27,7 +28,7 @@ export class BattleSquaddieSelectedHUD {
     selectedSquaddieDynamicId: string;
     private _background: Rectangle;
     affiliateIcon?: ImageUI;
-    selectedActivity: SquaddieActivity;
+    selectedActivity: SquaddieActivity | SquaddieEndTurnActivity;
 
     activityButtons: ActivityButton[];
 
@@ -52,7 +53,10 @@ export class BattleSquaddieSelectedHUD {
 
         const {windowDimensions} = this.createWindowPosition(mouseY);
 
-        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId))
+        const {
+            staticSquaddie,
+            dynamicSquaddie
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId))
         const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
 
         this._background = new Rectangle({
@@ -62,14 +66,35 @@ export class BattleSquaddieSelectedHUD {
             strokeWeight: 4,
         });
         this.generateAffiliateIcon(staticSquaddie);
-        this.generateSquaddieActivityButtons(squaddieAffiliationHue, windowDimensions);
+        this.generateSquaddieActivityButtons(staticSquaddie, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
     }
 
-    private generateSquaddieActivityButtons(squaddieAffiliationHue: number, windowDimensions: RectArea) {
+    private generateSquaddieActivityButtons(
+        staticSquaddie: BattleSquaddieStatic,
+        dynamicSquaddie: BattleSquaddieDynamic,
+        squaddieAffiliationHue: number,
+        windowDimensions: RectArea
+    ) {
         this.activityButtons = [];
+        staticSquaddie.activities.forEach((activity: SquaddieActivity, index: number) => {
+            this.activityButtons.push(
+                new ActivityButton({
+                    buttonArea: new RectArea({
+                        baseRectangle: windowDimensions,
+                        anchorLeft: HorizontalAnchor.LEFT,
+                        anchorTop: VerticalAnchor.CENTER,
+                        left: windowDimensions.getWidth() * (6 + index) / 12,
+                        width: 32,
+                        height: 32,
+                    }),
+                    activity,
+                    hue: squaddieAffiliationHue,
+                })
+            );
+        });
+
         this.activityButtons.push(
             new ActivityButton({
-                isEndTurn: true,
                 hue: squaddieAffiliationHue,
                 buttonArea: new RectArea({
                     baseRectangle: windowDimensions,
@@ -78,7 +103,8 @@ export class BattleSquaddieSelectedHUD {
                     left: -64,
                     width: 32,
                     height: 32,
-                })
+                }),
+                activity: new SquaddieEndTurnActivity(),
             })
         );
     }
@@ -248,7 +274,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedActivity !== undefined;
     }
 
-    getSelectedActivity(): SquaddieActivity {
+    getSelectedActivity(): SquaddieActivity | SquaddieEndTurnActivity {
         return this.selectedActivity;
     }
 

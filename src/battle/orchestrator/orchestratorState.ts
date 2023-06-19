@@ -17,28 +17,6 @@ import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 
-export type OrchestratorStateOptions = {
-    displayMap: boolean;
-    bannerDisplayAnimationStartTime: number;
-    bannerAffiliationToShow: BattlePhase;
-    resourceHandler: ResourceHandler;
-    missionMap: MissionMap;
-    hexMap: TerrainTileMap;
-    pathfinder: Pathfinder;
-    squaddieRepo: BattleSquaddieRepository;
-    battlePhaseTracker: BattlePhaseTracker;
-    camera: BattleCamera;
-    currentCutscene: Cutscene;
-    battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
-    battleSquaddieUIInput: BattleSquaddieUIInput;
-    squaddieMovePath: SearchPath;
-    clickedHexCoordinate: HexCoordinate;
-    battlePhaseState: BattlePhaseState;
-    squaddieCurrentlyActing: CurrentSquaddieInstruction;
-    battleEventRecording: Recording;
-    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
-}
-
 export class OrchestratorState {
     resourceHandler: ResourceHandler;
     missionMap: MissionMap;
@@ -58,7 +36,27 @@ export class OrchestratorState {
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 
-    constructor(options: Partial<OrchestratorStateOptions> = {}) {
+    constructor(options: {
+        displayMap?: boolean;
+        bannerDisplayAnimationStartTime?: number;
+        bannerAffiliationToShow?: BattlePhase;
+        resourceHandler?: ResourceHandler;
+        missionMap?: MissionMap;
+        hexMap?: TerrainTileMap;
+        pathfinder?: Pathfinder;
+        squaddieRepo?: BattleSquaddieRepository;
+        battlePhaseTracker?: BattlePhaseTracker;
+        camera?: BattleCamera;
+        currentCutscene?: Cutscene;
+        battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD;
+        battleSquaddieUIInput?: BattleSquaddieUIInput;
+        squaddieMovePath?: SearchPath;
+        clickedHexCoordinate?: HexCoordinate;
+        battlePhaseState?: BattlePhaseState;
+        squaddieCurrentlyActing?: CurrentSquaddieInstruction;
+        battleEventRecording?: Recording;
+        teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] }
+    }) {
         this.displayMap = options.displayMap || false;
         this.resourceHandler = options.resourceHandler;
         this.hexMap = options.hexMap;

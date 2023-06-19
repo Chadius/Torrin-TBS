@@ -8,6 +8,7 @@ import p5 from "p5";
 import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 
 const ACTIVITY_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -33,7 +34,7 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
 
     reset(state: OrchestratorState): void {
         this.animationCompleteStartTime = undefined;
-        state.squaddieCurrentlyActing = undefined;
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     }
 
     update(state: OrchestratorState, p: p5): void {

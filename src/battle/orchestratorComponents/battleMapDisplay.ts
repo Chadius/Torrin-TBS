@@ -9,7 +9,6 @@ import p5 from "p5";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 
 export class BattleMapDisplay implements OrchestratorComponent {
     draw(state: OrchestratorState, p: p5): void {
@@ -111,21 +110,14 @@ export class BattleMapDisplay implements OrchestratorComponent {
     }
 
     private drawSquaddieMapIcons(state: OrchestratorState, p: p5) {
-        let currentlyMovingSquaddie: string = "";
-        if (
-            state.squaddieCurrentlyActing
-            && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
-        ) {
-            currentlyMovingSquaddie = state.squaddieCurrentlyActing.dynamicSquaddieId;
-        }
-
+        const noSquaddieIsCurrentlyActing: boolean = state.squaddieCurrentlyActing === undefined;
         state.squaddieRepo.getDynamicSquaddieIterator()
             .filter((info) =>
                 info.dynamicSquaddie.mapIcon
             )
             .forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
-                if (dynamicSquaddieId !== currentlyMovingSquaddie) {
+                if (noSquaddieIsCurrentlyActing || !state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
                     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
                     if (datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation)) {
                         drawSquaddieMapIconAtMapLocation(p, state.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);

@@ -45,7 +45,7 @@ export type HighlightTileDescription = {
 export class TerrainTileMap {
     tiles: HexGridTile[];
     outlineTileCoordinates: HexCoordinate | undefined;
-    highlightedTiles: {
+    private _highlightedTiles: {
         [coordinateKey: string]: {
             pulseColor: PulseBlendColor,
             name: string
@@ -83,9 +83,13 @@ export class TerrainTileMap {
         })
 
         this.tiles = tilesSortedByRThenQ;
-        this.highlightedTiles = {};
+        this._highlightedTiles = {};
 
         this.resourceHandler = options.resourceHandler;
+    }
+
+    get highlightedTiles(): { [p: string]: { pulseColor: PulseBlendColor; name: string } } {
+        return this._highlightedTiles;
     }
 
     mouseClicked(mouseX: number, mouseY: number, cameraX: number, cameraY: number) {
@@ -107,11 +111,11 @@ export class TerrainTileMap {
     highlightTiles(
         highlightTileDescriptions: HighlightTileDescription[]
     ): void {
-        this.highlightedTiles = {};
+        this._highlightedTiles = {};
         highlightTileDescriptions.reverse().forEach((tileDesc) => {
             tileDesc.tiles.forEach((tile) => {
                 const key = `${tile.q},${tile.r}`;
-                this.highlightedTiles[key] = {
+                this._highlightedTiles[key] = {
                     pulseColor: tileDesc.pulseColor,
                     name: tileDesc.overlayImageResourceName
                 };
@@ -120,7 +124,7 @@ export class TerrainTileMap {
     }
 
     stopHighlightingTiles(): void {
-        this.highlightedTiles = {};
+        this._highlightedTiles = {};
     }
 
     stopOutlineTiles(): void {

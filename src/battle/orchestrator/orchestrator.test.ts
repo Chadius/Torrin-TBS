@@ -12,6 +12,14 @@ import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import p5 from "p5";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {NewDummySquaddieID} from "../../squaddie/id";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {SquaddieTurn} from "../../squaddie/turn";
+import {OrchestratorComponent} from "./orchestratorComponent";
+import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 
 jest.mock('p5', () => () => {
     return {}
@@ -25,6 +33,7 @@ describe('Battle Orchestrator', () => {
         squaddieMapActivity: BattleSquaddieMapActivity;
         squaddieMover: BattleSquaddieMover;
         phaseController: BattlePhaseController;
+        squaddieTarget: BattleSquaddieTarget;
 
         initialMode: BattleOrchestratorMode;
     }
@@ -34,6 +43,7 @@ describe('Battle Orchestrator', () => {
     let mockBattleMissionLoader: BattleMissionLoader;
     let mockBattleCutscenePlayer: BattleCutscenePlayer;
     let mockSquaddieSelector: BattleSquaddieSelector;
+    let mockSquaddieTarget: BattleSquaddieTarget;
     let mockSquaddieMapActivity: BattleSquaddieMapActivity;
     let mockSquaddieMover: BattleSquaddieMover;
     let mockMapDisplay: BattleMapDisplay;
@@ -43,9 +53,7 @@ describe('Battle Orchestrator', () => {
 
     let mockedP5: p5;
 
-    beforeEach(() => {
-        nullState = new OrchestratorState();
-
+    function setupMocks() {
         mockBattleMissionLoader = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
         mockBattleMissionLoader.update = jest.fn();
         mockBattleMissionLoader.mouseEventHappened = jest.fn();
@@ -61,6 +69,12 @@ describe('Battle Orchestrator', () => {
         mockSquaddieSelector.mouseEventHappened = jest.fn();
         mockSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
         mockSquaddieSelector.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
+
+        mockSquaddieTarget = new (<new () => BattleSquaddieTarget>BattleSquaddieTarget)() as jest.Mocked<BattleSquaddieTarget>;
+        mockSquaddieTarget.update = jest.fn();
+        mockSquaddieTarget.mouseEventHappened = jest.fn();
+        mockSquaddieTarget.hasCompleted = jest.fn().mockReturnValue(true);
+        mockSquaddieTarget.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
 
         mockSquaddieMover = new (<new () => BattleSquaddieMover>BattleSquaddieMover)() as jest.Mocked<BattleSquaddieMover>;
         mockSquaddieMover.update = jest.fn();
@@ -85,6 +99,15 @@ describe('Battle Orchestrator', () => {
         mockPhaseController.draw = jest.fn();
 
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
+    }
+
+    beforeEach(() => {
+        nullState = new OrchestratorState({
+            hexMap: new TerrainTileMap({
+                movementCost: ["1 1 "]
+            })
+        });
+        setupMocks();
     });
 
     const createOrchestrator: (overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
@@ -95,6 +118,7 @@ describe('Battle Orchestrator', () => {
                 squaddieSelector: mockSquaddieSelector,
                 squaddieMapActivity: mockSquaddieMapActivity,
                 squaddieMover: mockSquaddieMover,
+                squaddieTarget: mockSquaddieTarget,
                 mapDisplay: mockMapDisplay,
                 phaseController: mockPhaseController,
             },
@@ -141,7 +165,7 @@ describe('Battle Orchestrator', () => {
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        instruction.addMovement(new SquaddieMovementActivity({
+        instruction.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
@@ -151,6 +175,17 @@ describe('Battle Orchestrator', () => {
                 instruction,
             })
         });
+        stateWantsToDisplayTheMap.squaddieRepo = new BattleSquaddieRepository();
+        stateWantsToDisplayTheMap.squaddieRepo.addSquaddie(
+            new BattleSquaddieStatic({
+                squaddieId: NewDummySquaddieID("new static squaddie", SquaddieAffiliation.PLAYER),
+            }),
+            new BattleSquaddieDynamic({
+                staticSquaddieId: "new static squaddie",
+                dynamicSquaddieId: "new dynamic squaddie",
+                squaddieTurn: new SquaddieTurn(),
+            }),
+        );
 
         const loadingOrchestratorShouldNotDraw: Orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.LOADING_MISSION
@@ -191,7 +226,7 @@ describe('Battle Orchestrator', () => {
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        instruction.addMovement(new SquaddieMovementActivity({
+        instruction.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
@@ -216,10 +251,21 @@ describe('Battle Orchestrator', () => {
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        instruction.addMovement(new SquaddieMovementActivity({
+        instruction.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
+        nullState.squaddieRepo = new BattleSquaddieRepository();
+        nullState.squaddieRepo.addSquaddie(
+            new BattleSquaddieStatic({
+                squaddieId: NewDummySquaddieID("new static squaddie", SquaddieAffiliation.PLAYER),
+            }),
+            new BattleSquaddieDynamic({
+                staticSquaddieId: "new static squaddie",
+                dynamicSquaddieId: "new dynamic squaddie",
+                squaddieTurn: new SquaddieTurn(),
+            }),
+        );
         nullState.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
             instruction,
         });
@@ -245,6 +291,49 @@ describe('Battle Orchestrator', () => {
         expect(mockPhaseController.update).toBeCalledTimes(1);
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
     });
+
+    describe('mode switching', () => {
+        const loadAndExpect = (options: {
+            mode: BattleOrchestratorMode,
+            orchestratorComponent: OrchestratorComponent,
+        }) => {
+            orchestrator = createOrchestrator({
+                initialMode: options.mode,
+            });
+            expect(orchestrator.getCurrentMode()).toBe(options.mode);
+            expect(orchestrator.getCurrentComponent()).toBe(options.orchestratorComponent);
+
+            if (options.orchestratorComponent === undefined) {
+                return;
+            }
+            orchestrator.update(nullState, mockedP5);
+            expect(options.orchestratorComponent.update).toBeCalled();
+        }
+
+        describe('knows which component to load based on the state', () => {
+            for (const modeStr in BattleOrchestratorMode) {
+                const mode: BattleOrchestratorMode = modeStr as BattleOrchestratorMode;
+                it(`using the ${mode} mode will use the expected component`, () => {
+                    const tests: { [mode in BattleOrchestratorMode]: OrchestratorComponent } = {
+                        [BattleOrchestratorMode.UNKNOWN]: undefined,
+                        [BattleOrchestratorMode.LOADING_MISSION]: mockBattleMissionLoader,
+                        [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,
+                        [BattleOrchestratorMode.PHASE_CONTROLLER]: mockPhaseController,
+                        [BattleOrchestratorMode.SQUADDIE_SELECTOR]: mockSquaddieSelector,
+                        [BattleOrchestratorMode.SQUADDIE_TARGET]: mockSquaddieTarget,
+                        [BattleOrchestratorMode.SQUADDIE_MOVER]: mockSquaddieMover,
+                        [BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY]: mockSquaddieMapActivity,
+                    };
+
+                    loadAndExpect({
+                        mode,
+                        orchestratorComponent: tests[mode]
+                    })
+                });
+            }
+        });
+    });
+
 
     it('will use the recommended next mode to switch', () => {
         const battleLoaderRecommendsAMode = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;

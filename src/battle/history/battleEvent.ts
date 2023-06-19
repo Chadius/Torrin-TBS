@@ -1,13 +1,11 @@
 import {SquaddieInstruction} from "./squaddieInstruction";
 
-export type BattleEventOptions = {
-    instruction: SquaddieInstruction;
-}
-
 export class BattleEvent {
     instruction: SquaddieInstruction;
 
-    constructor(options: BattleEventOptions) {
+    constructor(options: {
+        instruction: SquaddieInstruction;
+    }) {
         this.instruction = options.instruction;
     }
 }

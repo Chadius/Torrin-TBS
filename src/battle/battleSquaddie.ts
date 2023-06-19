@@ -25,6 +25,10 @@ export class BattleSquaddieStatic {
     get movement(): SquaddieMovement {
         return this.attributes.movement;
     }
+
+    get staticId(): string {
+        return this.squaddieId.staticId;
+    }
 }
 
 export class BattleSquaddieDynamic {

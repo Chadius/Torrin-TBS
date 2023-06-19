@@ -114,7 +114,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 dynamicSquaddieId: squaddieToAct,
                 startingLocation: mapLocation,
             });
-            moveTowardsLocation.addMovement(new SquaddieMovementActivity({
+            moveTowardsLocation.addActivity(new SquaddieMovementActivity({
                 numberOfActionsSpent: numberOfMoveActions,
                 destination: targetLocation,
             }));

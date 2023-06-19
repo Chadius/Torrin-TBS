@@ -59,6 +59,11 @@ export class BattlePhaseController implements OrchestratorComponent {
         }
 
         if (state.battlePhaseTracker.getCurrentPhase() === BattlePhase.UNKNOWN || !state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
+            const oldTeam = state.battlePhaseTracker.getCurrentTeam();
+            if (oldTeam) {
+                oldTeam.beginNewRound()
+            }
+
             this.newBannerShown = true;
             state.battlePhaseTracker.advanceToNextPhase();
             this.bannerDisplayAnimationStartTime = Date.now();
@@ -69,6 +74,8 @@ export class BattlePhaseController implements OrchestratorComponent {
             state.camera.setYVelocity(0);
 
             state.battlePhaseTracker.getCurrentTeam().beginNewRound();
+
+
         }
     }
 

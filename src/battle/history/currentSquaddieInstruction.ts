@@ -3,11 +3,14 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
 import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
+import {SquaddieMovementActivity} from "./squaddieMovementActivity";
+import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 
 
 export class CurrentSquaddieInstruction {
     private _instruction?: SquaddieInstruction;
     private _currentSquaddieActivity?: SquaddieActivity;
+    private _movingSquaddieDynamicIds: string[];
 
     constructor(options: {
         instruction?: SquaddieInstruction,
@@ -15,6 +18,11 @@ export class CurrentSquaddieInstruction {
     }) {
         this._instruction = options.instruction;
         this._currentSquaddieActivity = options.currentSquaddieActivity;
+        this._movingSquaddieDynamicIds = [];
+    }
+
+    get movingSquaddieDynamicIds(): string[] {
+        return this._movingSquaddieDynamicIds;
     }
 
     get dynamicSquaddieId(): string {
@@ -36,6 +44,7 @@ export class CurrentSquaddieInstruction {
     reset() {
         this._instruction = undefined;
         this._currentSquaddieActivity = undefined;
+        this._movingSquaddieDynamicIds = [];
     }
 
     addSquaddie(param: {
@@ -52,15 +61,48 @@ export class CurrentSquaddieInstruction {
         }
     }
 
-    addActivity(activity: SquaddieInstructionActivity) {
+    addConfirmedActivity(activity: SquaddieInstructionActivity) {
         if (!this._instruction) {
             throw new Error("no squaddie found, cannot add activity");
         }
 
-        if (activity instanceof SquaddieSquaddieActivity) {
-            this._currentSquaddieActivity = activity.squaddieActivity;
+        if (!(
+            activity instanceof SquaddieSquaddieActivity
+            || activity instanceof SquaddieMovementActivity
+            || activity instanceof SquaddieEndTurnActivity
+        )) {
+            throw new Error("wrong activity type")
         }
 
-        this._instruction.addActivity(activity);
+        if (activity instanceof SquaddieSquaddieActivity) {
+            this.addSelectedActivity(activity.squaddieActivity);
+        }
+
+        this.instruction.addActivity(activity);
+    }
+
+    addSelectedActivity(activity: SquaddieActivity) {
+        if (!this._instruction) {
+            throw new Error("no squaddie found, cannot add activity");
+        }
+
+        this._currentSquaddieActivity = activity;
+    }
+
+    markSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
+        if (this.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
+            return;
+        }
+        this._movingSquaddieDynamicIds.push(dynamicSquaddieId);
+    }
+
+    isSquaddieDynamicIdMoving(dynamicSquaddieId: string): boolean {
+        return this.movingSquaddieDynamicIds.some((id) => id === dynamicSquaddieId);
+    }
+
+    removeSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
+        this._movingSquaddieDynamicIds = this.movingSquaddieDynamicIds.filter(
+            (id) => id !== dynamicSquaddieId
+        );
     }
 };
