@@ -11,6 +11,7 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import p5 from "p5";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 
 jest.mock('p5', () => () => {
     return {}
@@ -146,10 +147,9 @@ describe('Battle Orchestrator', () => {
         }));
         const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
             displayMap: true,
-            squaddieCurrentlyActing: {
-                dynamicSquaddieId: "new dynamic squaddie",
+            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
                 instruction,
-            }
+            })
         });
 
         const loadingOrchestratorShouldNotDraw: Orchestrator = createOrchestrator({
@@ -195,10 +195,9 @@ describe('Battle Orchestrator', () => {
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
-        nullState.squaddieCurrentlyActing = {
-            dynamicSquaddieId: "new dynamic squaddie",
+        nullState.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
             instruction,
-        };
+        });
 
         orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
@@ -221,10 +220,9 @@ describe('Battle Orchestrator', () => {
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
-        nullState.squaddieCurrentlyActing = {
-            dynamicSquaddieId: "new dynamic squaddie",
+        nullState.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
             instruction,
-        };
+        });
 
         orchestrator.update(nullState, mockedP5);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);

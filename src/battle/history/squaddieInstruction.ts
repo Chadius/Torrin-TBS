@@ -3,15 +3,6 @@ import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
-type SquaddieInstructionRequiredOptions = {
-    staticSquaddieId: string;
-    dynamicSquaddieId: string;
-}
-
-type SquaddieInstructionOptionalOptions = {
-    startingLocation: HexCoordinate;
-}
-
 export class SquaddieInstruction {
     staticSquaddieId: string;
     dynamicSquaddieId: string;
@@ -19,7 +10,11 @@ export class SquaddieInstruction {
 
     activities: SquaddieInstructionActivity[];
 
-    constructor(options: SquaddieInstructionRequiredOptions & Partial<SquaddieInstructionOptionalOptions>) {
+    constructor(options: {
+        staticSquaddieId: string;
+        dynamicSquaddieId: string;
+        startingLocation?: HexCoordinate;
+    }) {
         this.staticSquaddieId = options.staticSquaddieId;
         this.dynamicSquaddieId = options.dynamicSquaddieId;
         this.startingLocation = options.startingLocation;
@@ -51,6 +46,10 @@ export class SquaddieInstruction {
         this.activities.push(movementActivity);
     }
 
+    addActivity(activity: SquaddieInstructionActivity) {
+        this.activities.push(activity);
+    }
+
     getActivities(): SquaddieInstructionActivity[] {
         return [...this.activities];
     }
@@ -68,7 +67,7 @@ export class SquaddieInstruction {
         }
 
         const addActionsSpent: (accumulator: number, currentValue: SquaddieEndTurnActivity | SquaddieMovementActivity) => number = (accumulator, currentValue) => {
-            if (currentValue instanceof SquaddieMovementActivity) {
+            if (!(currentValue instanceof SquaddieEndTurnActivity)) {
                 return accumulator + currentValue.numberOfActionsSpent;
             }
 

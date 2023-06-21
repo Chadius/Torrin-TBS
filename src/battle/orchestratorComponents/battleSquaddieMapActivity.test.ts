@@ -12,6 +12,7 @@ import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
 import {ImageUI} from "../../ui/imageUI";
 import p5 from "p5";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 
 jest.mock('p5', () => () => {
     return {}
@@ -67,10 +68,9 @@ describe('BattleSquaddieMapActivity', () => {
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: {
-                dynamicSquaddieId: "dynamic_squaddie",
+            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
                 instruction: endTurnInstruction,
-            },
+            }),
             squaddieRepo,
         })
 

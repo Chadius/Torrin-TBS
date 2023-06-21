@@ -34,6 +34,7 @@ import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -217,8 +218,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
             const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
 
-            state.squaddieCurrentlyActing = {
-                dynamicSquaddieId: dynamicSquaddieId,
+            state.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
                 instruction: new SquaddieInstruction({
                     staticSquaddieId: staticSquaddie.squaddieId.staticId,
                     dynamicSquaddieId,
@@ -227,7 +227,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                         r: datum.mapLocation.r,
                     }),
                 }),
-            };
+            });
         }
 
         state.squaddieCurrentlyActing.instruction.addMovement(new SquaddieMovementActivity({
@@ -327,10 +327,9 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         });
 
         squaddieActivity.endTurn();
-        state.squaddieCurrentlyActing = {
-            dynamicSquaddieId: dynamicSquaddieId,
+        state.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
             instruction: squaddieActivity,
-        }
+        });
 
         this.gaveInstruction = true;
 
@@ -370,10 +369,10 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             });
             endTurnActivity.endTurn();
 
-            state.squaddieCurrentlyActing = {
-                dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
+            state.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
                 instruction: endTurnActivity,
-            }
+            });
+
             state.hexMap.stopHighlightingTiles();
             this.gaveInstruction = true;
 

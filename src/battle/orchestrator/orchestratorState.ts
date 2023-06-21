@@ -10,29 +10,12 @@ import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {Recording} from "../history/recording";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieActivity} from "../../squaddie/activity";
-
-export class CurrentSquaddieInstruction {
-    dynamicSquaddieId: string;
-    instruction?: SquaddieInstruction;
-    currentSquaddieActivity?: SquaddieActivity;
-
-    constructor(options: {
-        dynamicSquaddieId: string,
-        instruction?: SquaddieInstruction,
-        currentSquaddieActivity?: SquaddieActivity,
-    }) {
-        this.dynamicSquaddieId = options.dynamicSquaddieId;
-        this.instruction = options.instruction;
-        this.currentSquaddieActivity = options.currentSquaddieActivity;
-    }
-};
+import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 
 export type OrchestratorStateOptions = {
     displayMap: boolean;

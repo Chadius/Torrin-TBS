@@ -22,6 +22,7 @@ import p5 from "p5";
 import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 
 jest.mock('p5', () => () => {
     return {}
@@ -117,10 +118,9 @@ describe('BattleSquaddieMover', () => {
             missionMap: map,
             squaddieMovePath: movePath,
             hexMap: map.terrainTileMap,
-            squaddieCurrentlyActing: {
-                dynamicSquaddieId: "player_1",
+            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
                 instruction: moveActivity,
-            }
+            }),
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
