@@ -16,10 +16,22 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {SquaddieActivity} from "../../squaddie/activity";
 
-export type CurrentSquaddieAnimationState = {
-    dynamicSquaddieId: string,
-    instruction: SquaddieInstruction,
+export class CurrentSquaddieInstruction {
+    dynamicSquaddieId: string;
+    instruction?: SquaddieInstruction;
+    currentSquaddieActivity?: SquaddieActivity;
+
+    constructor(options: {
+        dynamicSquaddieId: string,
+        instruction?: SquaddieInstruction,
+        currentSquaddieActivity?: SquaddieActivity,
+    }) {
+        this.dynamicSquaddieId = options.dynamicSquaddieId;
+        this.instruction = options.instruction;
+        this.currentSquaddieActivity = options.currentSquaddieActivity;
+    }
 };
 
 export type OrchestratorStateOptions = {
@@ -39,7 +51,7 @@ export type OrchestratorStateOptions = {
     squaddieMovePath: SearchPath;
     clickedHexCoordinate: HexCoordinate;
     battlePhaseState: BattlePhaseState;
-    squaddieCurrentlyActing: CurrentSquaddieAnimationState;
+    squaddieCurrentlyActing: CurrentSquaddieInstruction;
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 }
@@ -59,7 +71,7 @@ export class OrchestratorState {
     squaddieMovePath?: SearchPath;
     clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
-    squaddieCurrentlyActing: CurrentSquaddieAnimationState;
+    squaddieCurrentlyActing: CurrentSquaddieInstruction;
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 

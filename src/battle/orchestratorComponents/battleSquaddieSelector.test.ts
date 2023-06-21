@@ -313,6 +313,8 @@ describe('BattleSquaddieSelector', () => {
         }));
     });
 
+    it('will add movement to existing action', () => {});
+
     it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
