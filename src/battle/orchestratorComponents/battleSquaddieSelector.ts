@@ -223,7 +223,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     private addMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
-        if (!state.squaddieCurrentlyActing) {
+        if (!(state.squaddieCurrentlyActing && state.squaddieCurrentlyActing.instruction)) {
             const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
             const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
 

@@ -111,21 +111,14 @@ export class BattleMapDisplay implements OrchestratorComponent {
     }
 
     private drawSquaddieMapIcons(state: OrchestratorState, p: p5) {
-        let currentlyMovingSquaddie: string = "";
-        if (
-            state.squaddieCurrentlyActing
-            && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
-        ) {
-            currentlyMovingSquaddie = state.squaddieCurrentlyActing.dynamicSquaddieId;
-        }
-
+        const noSquaddieIsCurrentlyActing: boolean = state.squaddieCurrentlyActing === undefined;
         state.squaddieRepo.getDynamicSquaddieIterator()
             .filter((info) =>
                 info.dynamicSquaddie.mapIcon
             )
             .forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
-                if (dynamicSquaddieId !== currentlyMovingSquaddie) {
+                if (noSquaddieIsCurrentlyActing || !state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
                     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
                     if (datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation)) {
                         drawSquaddieMapIconAtMapLocation(p, state.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
@@ -138,6 +131,5 @@ export class BattleMapDisplay implements OrchestratorComponent {
         return undefined;
     }
 
-    reset(state: OrchestratorState) {
-    }
+    reset(state: OrchestratorState) {}
 }

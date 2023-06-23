@@ -88,4 +88,22 @@ describe('Current Squaddie Instruction', () => {
             shouldThrowError()
         }).toThrow("no squaddie found, cannot add activity");
     });
+
+    describe('mark squaddie as moving', () => {
+        it('can mark dynamic squaddies as moving', () => {
+            const newInstruction = new CurrentSquaddieInstruction({});
+            newInstruction.addSquaddie(
+                {
+                    staticSquaddieId: "Torrin",
+                    dynamicSquaddieId: "Torrin 0",
+                    startingLocation: new HexCoordinate({q: 0, r: 0})
+                }
+            );
+            newInstruction.markSquaddieDynamicIdAsMoving("Torrin 0");
+            expect(newInstruction.isSquaddieDynamicIdMoving("Torrin 0")).toBeTruthy();
+
+            newInstruction.removeSquaddieDynamicIdAsMoving("Torrin 0");
+            expect(newInstruction.isSquaddieDynamicIdMoving("Torrin 0")).toBeFalsy();
+        });
+    });
 });

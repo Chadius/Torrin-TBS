@@ -34,6 +34,14 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     update(state: OrchestratorState, p: p5): void {
         if (!this.animationStartTime) {
             this.animationStartTime = Date.now();
+
+            if (
+                state.squaddieCurrentlyActing
+                && state.squaddieCurrentlyActing.instruction
+                && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
+            ) {
+                state.squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
+            }
         }
 
         if (!hasMovementAnimationFinished(this.animationStartTime, state.squaddieMovePath)) {
@@ -88,5 +96,13 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     reset(state: OrchestratorState) {
         this.animationStartTime = undefined;
         ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+
+        if (
+            state.squaddieCurrentlyActing
+            && state.squaddieCurrentlyActing.instruction
+            && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
+        ) {
+            state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
+        }
     }
 }

@@ -10,6 +10,7 @@ import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 export class CurrentSquaddieInstruction {
     private _instruction?: SquaddieInstruction;
     private _currentSquaddieActivity?: SquaddieActivity;
+    private _movingSquaddieDynamicIds: string[];
 
     constructor(options: {
         instruction?: SquaddieInstruction,
@@ -17,6 +18,11 @@ export class CurrentSquaddieInstruction {
     }) {
         this._instruction = options.instruction;
         this._currentSquaddieActivity = options.currentSquaddieActivity;
+        this._movingSquaddieDynamicIds = [];
+    }
+
+    get movingSquaddieDynamicIds(): string[] {
+        return this._movingSquaddieDynamicIds;
     }
 
     get dynamicSquaddieId(): string {
@@ -38,6 +44,7 @@ export class CurrentSquaddieInstruction {
     reset() {
         this._instruction = undefined;
         this._currentSquaddieActivity = undefined;
+        this._movingSquaddieDynamicIds = [];
     }
 
     addSquaddie(param: {
@@ -80,5 +87,22 @@ export class CurrentSquaddieInstruction {
         }
 
         this._currentSquaddieActivity = activity;
+    }
+
+    markSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
+        if(this.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
+            return;
+        }
+        this._movingSquaddieDynamicIds.push(dynamicSquaddieId);
+    }
+
+    isSquaddieDynamicIdMoving(dynamicSquaddieId: string): boolean {
+        return this.movingSquaddieDynamicIds.some((id) => id === dynamicSquaddieId);
+    }
+
+    removeSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
+        this._movingSquaddieDynamicIds = this.movingSquaddieDynamicIds.filter(
+            (id) => id !== dynamicSquaddieId
+        );
     }
 };

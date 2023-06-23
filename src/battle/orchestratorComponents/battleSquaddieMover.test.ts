@@ -111,6 +111,11 @@ describe('BattleSquaddieMover', () => {
             numberOfActionsSpent: 1,
         }));
 
+        const squaddieCurrentlyActing: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({
+            instruction: moveActivity
+        });
+        squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving("player_1");
+
         const state: OrchestratorState = new OrchestratorState({
             squaddieRepo,
             battleSquaddieUIInput: uiInput,
@@ -126,13 +131,15 @@ describe('BattleSquaddieMover', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
         mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeFalsy();
+        expect(state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving("player_1")).toBeTruthy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
         mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
-        expect(state.squaddieCurrentlyActing).not.toBeUndefined();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
+        expect(state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving("player_1")).toBeFalsy();
     });
 
     it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
