@@ -111,7 +111,11 @@ export class Orchestrator {
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 this.updateComponent(state, this.squaddieMover, p, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
+            case BattleOrchestratorMode.SQUADDIE_TARGET:
+                this.updateComponent(state, this.squaddieTarget, p, BattleOrchestratorMode.SQUADDIE_SELECTOR);
+                break;
             default:
+                throw new Error(`update does not know about ${this.mode}, cannot switch mode`);
                 break;
         }
     }

@@ -18,6 +18,7 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {NewDummySquaddieID} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
+import {OrchestratorComponent} from "./orchestratorComponent";
 
 jest.mock('p5', () => () => {
     return {}
@@ -51,9 +52,7 @@ describe('Battle Orchestrator', () => {
 
     let mockedP5: p5;
 
-    beforeEach(() => {
-        nullState = new OrchestratorState({});
-
+    function setupMocks() {
         mockBattleMissionLoader = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
         mockBattleMissionLoader.update = jest.fn();
         mockBattleMissionLoader.mouseEventHappened = jest.fn();
@@ -99,6 +98,11 @@ describe('Battle Orchestrator', () => {
         mockPhaseController.draw = jest.fn();
 
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
+    }
+
+    beforeEach(() => {
+        nullState = new OrchestratorState({});
+        setupMocks();
     });
 
     const createOrchestrator: (overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
@@ -281,6 +285,103 @@ describe('Battle Orchestrator', () => {
         orchestrator.update(nullState, mockedP5);
         expect(mockPhaseController.update).toBeCalledTimes(1);
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
+    });
+
+    describe('mode switching', () => {
+        const loadAndExpect = (options: {
+            mode: BattleOrchestratorMode,
+            orchestratorComponent: OrchestratorComponent,
+        }) => {
+            orchestrator = createOrchestrator({
+                initialMode: options.mode,
+            });
+            expect(orchestrator.getCurrentMode()).toBe(options.mode);
+            expect(orchestrator.getCurrentComponent()).toBe(options.orchestratorComponent);
+
+            if (options.orchestratorComponent === undefined) {
+                return;
+            }
+            orchestrator.update(nullState, mockedP5);
+            expect(options.orchestratorComponent.update).toBeCalled();
+        }
+
+        describe('knows which component to load based on the state', () => {
+            for (const modeStr in BattleOrchestratorMode) {
+                const mode: BattleOrchestratorMode = modeStr as BattleOrchestratorMode;
+                it(`using the ${mode} mode will use the expected component`, () => {
+                    const tests: {[mode in BattleOrchestratorMode]: OrchestratorComponent} = {
+                        [BattleOrchestratorMode.UNKNOWN]: undefined,
+                        [BattleOrchestratorMode.LOADING_MISSION]: mockBattleMissionLoader,
+                        [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,
+                        [BattleOrchestratorMode.PHASE_CONTROLLER]: mockPhaseController,
+                        [BattleOrchestratorMode.SQUADDIE_SELECTOR]: mockSquaddieSelector,
+                        [BattleOrchestratorMode.SQUADDIE_TARGET]: mockSquaddieTarget,
+                        [BattleOrchestratorMode.SQUADDIE_MOVER]: mockSquaddieMover,
+                        [BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY]: mockSquaddieMapActivity,
+                    };
+
+                    loadAndExpect({
+                        mode,
+                        orchestratorComponent: tests[mode]
+                    })
+                });
+            }
+        });
+
+        it(`using the ${BattleOrchestratorMode.LOADING_MISSION} mode will use the expected component`, () => {
+            loadAndExpect({
+                mode: BattleOrchestratorMode.LOADING_MISSION,
+                orchestratorComponent: mockBattleMissionLoader
+            });
+        });
+        it(`using the ${BattleOrchestratorMode.CUTSCENE_PLAYER} mode will use the expected component`, () => {
+            loadAndExpect({
+                mode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+                orchestratorComponent: mockBattleCutscenePlayer
+            });
+        });
+        it(`using the ${BattleOrchestratorMode.PHASE_CONTROLLER} mode will use the expected component`, () => {
+            loadAndExpect({mode: BattleOrchestratorMode.PHASE_CONTROLLER, orchestratorComponent: mockPhaseController});
+        });
+        it(`using the ${BattleOrchestratorMode.SQUADDIE_SELECTOR} mode will use the expected component`, () => {
+            loadAndExpect({
+                mode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+                orchestratorComponent: mockSquaddieSelector
+            });
+        });
+        it(`using the ${BattleOrchestratorMode.SQUADDIE_TARGET} mode will use the expected component`, () => {
+            loadAndExpect({mode: BattleOrchestratorMode.SQUADDIE_TARGET, orchestratorComponent: mockSquaddieTarget});
+        });
+        it(`using the ${BattleOrchestratorMode.SQUADDIE_MOVER} mode will use the expected component`, () => {
+            loadAndExpect({mode: BattleOrchestratorMode.SQUADDIE_MOVER, orchestratorComponent: mockSquaddieMover});
+        });
+        it(`using the ${BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY} mode will use the expected component`, () => {
+            loadAndExpect({
+                mode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
+                orchestratorComponent: mockSquaddieMapActivity
+            });
+        });
+    });
+
+    it.each([
+        {mode: BattleOrchestratorMode.UNKNOWN, orchestratorComponent: mockBattleMissionLoader},
+        {mode: BattleOrchestratorMode.LOADING_MISSION, orchestratorComponent: mockBattleMissionLoader},
+        {mode: BattleOrchestratorMode.CUTSCENE_PLAYER, orchestratorComponent: mockBattleCutscenePlayer},
+        {mode: BattleOrchestratorMode.PHASE_CONTROLLER, orchestratorComponent: mockPhaseController},
+        {mode: BattleOrchestratorMode.SQUADDIE_SELECTOR, orchestratorComponent: mockSquaddieSelector},
+        {mode: BattleOrchestratorMode.SQUADDIE_TARGET, orchestratorComponent: mockSquaddieTarget},
+        {mode: BattleOrchestratorMode.SQUADDIE_MOVER, orchestratorComponent: mockSquaddieMover},
+        {mode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY, orchestratorComponent: mockSquaddieMapActivity}
+    ])(`using the $mode mode will use expected component`, ({
+                                                                mode,
+                                                                orchestratorComponent
+                                                            }) => {
+        setupMocks();
+        orchestrator = createOrchestrator({
+            initialMode: mode,
+        });
+        expect(orchestrator.getCurrentMode()).toBe(mode);
+        expect(orchestrator.getCurrentComponent()).toBe(orchestratorComponent);
     });
 
     it('will use the recommended next mode to switch', () => {

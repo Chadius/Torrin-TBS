@@ -47,6 +47,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > buttonTop) {
                     this.cancelAbility = true;
+                    state.hexMap.stopHighlightingTiles();
                     return;
                 } else {
                     return this.tryToSelectValidTarget(event.mouseX, event.mouseY, state);
@@ -73,11 +74,14 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     }
 
     update(state: OrchestratorState, p: p5): void {
+        console.log("Update");
         if (!this.hasHighlightedTargetRange) {
+            console.log("highlight range");
             return this.highlightTargetRange(state, p);
         }
 
         if (this.hasHighlightedTargetRange && !this.hasSelectedValidTarget) {
+            console.log("Draw Cancel button");
             this.drawCancelAbilityButton(state, p);
         }
 
@@ -209,7 +213,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         this.drawButton(
             new RectArea({
                 left: 0,
-                top: buttonTop,
+                top: ScreenDimensions.SCREEN_HEIGHT / 2,
                 width: buttonMiddleDivider,
                 height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
             }),
@@ -230,7 +234,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
 
         p.push();
         const textLeft: number = buttonBackground.area.getCenterX() - 50;
-        const textTop: number = buttonBackground.area.getTop() + 16;
+        const textTop: number = buttonBackground.area.getCenterY() + 6;
 
         p.textSize(24);
         p.fill("#0f0f0f");
