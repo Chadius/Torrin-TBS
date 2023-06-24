@@ -245,7 +245,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         }));
         this.gaveCompleteInstruction = true;
         state.battleEventRecording.addEvent(new BattleEvent({
-            instruction: state.squaddieCurrentlyActing.instruction
+            currentSquaddieInstruction: state.squaddieCurrentlyActing,
         }));
     }
 
@@ -347,7 +347,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         this.gaveCompleteInstruction = true;
 
         state.battleEventRecording.addEvent(new BattleEvent({
-            instruction: state.squaddieCurrentlyActing.instruction,
+            currentSquaddieInstruction: state.squaddieCurrentlyActing,
         }));
     }
 
@@ -402,7 +402,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             this.gaveCompleteInstruction = true;
 
             state.battleEventRecording.addEvent(new BattleEvent({
-                instruction: state.squaddieCurrentlyActing.instruction
+                currentSquaddieInstruction: state.squaddieCurrentlyActing,
             }));
             this.gaveCompleteInstruction = true;
         } else if (state.battleSquaddieSelectedHUD.getSelectedActivity() instanceof SquaddieActivity) {

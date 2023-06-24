@@ -301,7 +301,8 @@ describe('BattleSquaddieSelector', () => {
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
-        const expectedMovementInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const expectedSquaddieInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
+        expectedSquaddieInstruction.addSquaddie({
             staticSquaddieId: "player_soldier",
             dynamicSquaddieId: "player_soldier_0",
             startingLocation: new HexCoordinate({
@@ -309,16 +310,15 @@ describe('BattleSquaddieSelector', () => {
                 r: 0,
             })
         });
-
-        expectedMovementInstruction.addActivity(new SquaddieMovementActivity({
+        expectedSquaddieInstruction.addConfirmedActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 0, r: 1}),
             numberOfActionsSpent: 1,
-        }));
+        }))
 
         const history = state.battleEventRecording.getHistory();
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual(new BattleEvent({
-            instruction: expectedMovementInstruction
+            currentSquaddieInstruction: expectedSquaddieInstruction,
         }));
     });
 
@@ -483,9 +483,15 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
-        const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
-        expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
+        const endTurnInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
+        endTurnInstruction.addSquaddie({
+            dynamicSquaddieId: "player_soldier_0",
+            staticSquaddieId: "player_soldier",
+            startingLocation: new HexCoordinate({q: 0, r: 0}),
+        });
+        endTurnInstruction.addConfirmedActivity(new SquaddieEndTurnActivity());
+
+        expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
@@ -493,7 +499,7 @@ describe('BattleSquaddieSelector', () => {
         const history = state.battleEventRecording.getHistory();
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual(new BattleEvent({
-            instruction: endTurnActivityInstruction
+            currentSquaddieInstruction: endTurnInstruction
         }));
     });
 
@@ -598,9 +604,15 @@ describe('BattleSquaddieSelector', () => {
             selector.update(state, mockedP5);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
-            const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
-            const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
-            expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
+            const endTurnInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
+            endTurnInstruction.addSquaddie({
+                dynamicSquaddieId: "enemy_demon_0",
+                staticSquaddieId: "enemy_demon",
+                startingLocation: new HexCoordinate({q: 0, r: 0}),
+            });
+            endTurnInstruction.addConfirmedActivity(new SquaddieEndTurnActivity());
+
+            expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
 
             const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
@@ -608,7 +620,7 @@ describe('BattleSquaddieSelector', () => {
             const history = state.battleEventRecording.getHistory();
             expect(history).toHaveLength(1);
             expect(history[0]).toStrictEqual(new BattleEvent({
-                instruction: endTurnActivityInstruction
+                currentSquaddieInstruction: endTurnInstruction,
             }));
 
             expect(strategySpy).toHaveBeenCalled();
