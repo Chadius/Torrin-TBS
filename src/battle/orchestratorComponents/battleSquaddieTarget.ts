@@ -17,23 +17,24 @@ import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliat
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
+import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
 
 export class BattleSquaddieTarget implements OrchestratorComponent {
-    private hasHighlightedTargetRange: boolean;
     private cancelAbility: boolean;
     private hasSelectedValidTarget: boolean;
     private hasConfirmedAction: boolean;
     private validTargetLocation?: HexCoordinate;
+    private highlightedTargetRange: HexCoordinate[];
 
     constructor() {
-        this.hasHighlightedTargetRange = false;
         this.cancelAbility = false;
         this.hasSelectedValidTarget = false;
         this.validTargetLocation = undefined;
         this.hasConfirmedAction = false;
+        this.highlightedTargetRange = [];
     }
 
     hasCompleted(state: OrchestratorState): boolean {
@@ -74,14 +75,11 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     }
 
     update(state: OrchestratorState, p: p5): void {
-        console.log("Update");
         if (!this.hasHighlightedTargetRange) {
-            console.log("highlight range");
             return this.highlightTargetRange(state, p);
         }
 
         if (this.hasHighlightedTargetRange && !this.hasSelectedValidTarget) {
-            console.log("Draw Cancel button");
             this.drawCancelAbilityButton(state, p);
         }
 
@@ -109,10 +107,18 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     }
 
     reset(state: OrchestratorState) {
-        this.hasHighlightedTargetRange = false;
+        this.hasConfirmedAction = false;
+        this.highlightedTargetRange = [];
         this.cancelAbility = false;
         this.hasSelectedValidTarget = false;
         this.validTargetLocation = undefined;
+
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+        state.hexMap.stopHighlightingTiles();
+    }
+
+    private get hasHighlightedTargetRange(): boolean {
+        return this.highlightedTargetRange.length > 0;
     }
 
     private highlightTargetRange(state: OrchestratorState, p: p5) {
@@ -132,6 +138,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             [mapLocation],
         );
 
+        state.hexMap.stopHighlightingTiles();
         state.hexMap.highlightTiles([
                 {
                     tiles: abilityRange,
@@ -140,7 +147,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
                 }
             ]
         );
-        this.hasHighlightedTargetRange = true;
+        this.highlightedTargetRange = [...abilityRange];
     }
 
     private drawCancelAbilityButton(state: OrchestratorState, p: p5) {
@@ -167,6 +174,15 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             ]
         });
 
+        if (!
+            this.highlightedTargetRange.some(
+                tile =>
+                    tile.q === clickedLocation.q && tile.r === clickedLocation.r
+            )
+        ) {
+            return;
+        }
+
         const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
             state.squaddieRepo.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
@@ -183,6 +199,8 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             return;
         }
 
+        const cameraCoordinates = state.camera.getCoordinates();
+        state.hexMap.mouseClicked(mouseX, mouseY, cameraCoordinates[0], cameraCoordinates[1]);
         this.hasSelectedValidTarget = true;
         this.validTargetLocation = clickedLocation;
     }

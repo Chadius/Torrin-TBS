@@ -309,7 +309,7 @@ describe('Battle Orchestrator', () => {
             for (const modeStr in BattleOrchestratorMode) {
                 const mode: BattleOrchestratorMode = modeStr as BattleOrchestratorMode;
                 it(`using the ${mode} mode will use the expected component`, () => {
-                    const tests: {[mode in BattleOrchestratorMode]: OrchestratorComponent} = {
+                    const tests: { [mode in BattleOrchestratorMode]: OrchestratorComponent } = {
                         [BattleOrchestratorMode.UNKNOWN]: undefined,
                         [BattleOrchestratorMode.LOADING_MISSION]: mockBattleMissionLoader,
                         [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,

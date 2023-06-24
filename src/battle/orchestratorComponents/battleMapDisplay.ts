@@ -9,7 +9,6 @@ import p5 from "p5";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 
 export class BattleMapDisplay implements OrchestratorComponent {
     draw(state: OrchestratorState, p: p5): void {
@@ -131,5 +130,6 @@ export class BattleMapDisplay implements OrchestratorComponent {
         return undefined;
     }
 
-    reset(state: OrchestratorState) {}
+    reset(state: OrchestratorState) {
+    }
 }

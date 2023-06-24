@@ -56,7 +56,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const gaveCompleteInstruction = this.gaveCompleteInstruction;
         const cameraIsNotPanning = !state.camera.isPanning();
         const selectedActivityRequiresATarget = this.gaveInstructionThatNeedsATarget;
-
         return (gaveCompleteInstruction || selectedActivityRequiresATarget) && cameraIsNotPanning;
     }
 

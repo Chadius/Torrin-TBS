@@ -90,7 +90,7 @@ export class CurrentSquaddieInstruction {
     }
 
     markSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
-        if(this.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
+        if (this.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
             return;
         }
         this._movingSquaddieDynamicIds.push(dynamicSquaddieId);
