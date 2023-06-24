@@ -19,6 +19,7 @@ import {NewDummySquaddieID} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {OrchestratorComponent} from "./orchestratorComponent";
+import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 
 jest.mock('p5', () => () => {
     return {}
@@ -101,7 +102,11 @@ describe('Battle Orchestrator', () => {
     }
 
     beforeEach(() => {
-        nullState = new OrchestratorState({});
+        nullState = new OrchestratorState({
+            hexMap: new TerrainTileMap({
+                movementCost: ["1 1 "]
+            })
+        });
         setupMocks();
     });
 
@@ -327,62 +332,8 @@ describe('Battle Orchestrator', () => {
                 });
             }
         });
-
-        it(`using the ${BattleOrchestratorMode.LOADING_MISSION} mode will use the expected component`, () => {
-            loadAndExpect({
-                mode: BattleOrchestratorMode.LOADING_MISSION,
-                orchestratorComponent: mockBattleMissionLoader
-            });
-        });
-        it(`using the ${BattleOrchestratorMode.CUTSCENE_PLAYER} mode will use the expected component`, () => {
-            loadAndExpect({
-                mode: BattleOrchestratorMode.CUTSCENE_PLAYER,
-                orchestratorComponent: mockBattleCutscenePlayer
-            });
-        });
-        it(`using the ${BattleOrchestratorMode.PHASE_CONTROLLER} mode will use the expected component`, () => {
-            loadAndExpect({mode: BattleOrchestratorMode.PHASE_CONTROLLER, orchestratorComponent: mockPhaseController});
-        });
-        it(`using the ${BattleOrchestratorMode.SQUADDIE_SELECTOR} mode will use the expected component`, () => {
-            loadAndExpect({
-                mode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
-                orchestratorComponent: mockSquaddieSelector
-            });
-        });
-        it(`using the ${BattleOrchestratorMode.SQUADDIE_TARGET} mode will use the expected component`, () => {
-            loadAndExpect({mode: BattleOrchestratorMode.SQUADDIE_TARGET, orchestratorComponent: mockSquaddieTarget});
-        });
-        it(`using the ${BattleOrchestratorMode.SQUADDIE_MOVER} mode will use the expected component`, () => {
-            loadAndExpect({mode: BattleOrchestratorMode.SQUADDIE_MOVER, orchestratorComponent: mockSquaddieMover});
-        });
-        it(`using the ${BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY} mode will use the expected component`, () => {
-            loadAndExpect({
-                mode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
-                orchestratorComponent: mockSquaddieMapActivity
-            });
-        });
     });
 
-    it.each([
-        {mode: BattleOrchestratorMode.UNKNOWN, orchestratorComponent: mockBattleMissionLoader},
-        {mode: BattleOrchestratorMode.LOADING_MISSION, orchestratorComponent: mockBattleMissionLoader},
-        {mode: BattleOrchestratorMode.CUTSCENE_PLAYER, orchestratorComponent: mockBattleCutscenePlayer},
-        {mode: BattleOrchestratorMode.PHASE_CONTROLLER, orchestratorComponent: mockPhaseController},
-        {mode: BattleOrchestratorMode.SQUADDIE_SELECTOR, orchestratorComponent: mockSquaddieSelector},
-        {mode: BattleOrchestratorMode.SQUADDIE_TARGET, orchestratorComponent: mockSquaddieTarget},
-        {mode: BattleOrchestratorMode.SQUADDIE_MOVER, orchestratorComponent: mockSquaddieMover},
-        {mode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY, orchestratorComponent: mockSquaddieMapActivity}
-    ])(`using the $mode mode will use expected component`, ({
-                                                                mode,
-                                                                orchestratorComponent
-                                                            }) => {
-        setupMocks();
-        orchestrator = createOrchestrator({
-            initialMode: mode,
-        });
-        expect(orchestrator.getCurrentMode()).toBe(mode);
-        expect(orchestrator.getCurrentComponent()).toBe(orchestratorComponent);
-    });
 
     it('will use the recommended next mode to switch', () => {
         const battleLoaderRecommendsAMode = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;

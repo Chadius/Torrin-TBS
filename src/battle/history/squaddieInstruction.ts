@@ -58,7 +58,9 @@ export class SquaddieInstruction {
         if (this.activities.length === 0) {
             return undefined;
         }
-        return this.activities.reverse()[0];
+        return this.activities[
+        this.activities.length - 1
+            ];
     }
 
     totalActionsSpent() {

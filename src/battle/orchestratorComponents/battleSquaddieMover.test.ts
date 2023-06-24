@@ -75,6 +75,8 @@ describe('BattleSquaddieMover', () => {
 
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
+
+
     it('is complete once enough time passes and the squaddie finishes moving', () => {
         const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
             selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
@@ -108,7 +110,7 @@ describe('BattleSquaddieMover', () => {
         });
         moveActivity.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 1, r: 1}),
-            numberOfActionsSpent: 1,
+            numberOfActionsSpent: 3,
         }));
 
         const squaddieCurrentlyActing: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({

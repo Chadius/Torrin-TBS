@@ -1,28 +1,23 @@
 import {RectArea} from "../ui/rectArea";
 import {SquaddieActivity} from "./activity";
-import {endTurnActivity} from "./endTurnActivity";
 import {Rectangle} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
+import {SquaddieEndTurnActivity} from "../battle/history/squaddieEndTurnActivity";
 
 export class ActivityButton {
     buttonArea: RectArea;
-    activity: SquaddieActivity;
+    activity: SquaddieActivity | SquaddieEndTurnActivity;
     hue: number;
 
     constructor(options: {
         buttonArea?: RectArea;
-        activity?: SquaddieActivity;
+        activity?: SquaddieActivity | SquaddieEndTurnActivity;
         hue?: number;
-        isEndTurn?: boolean;
     }) {
         this.buttonArea = options.buttonArea;
         this.activity = options.activity;
         this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];
-
-        if (options.isEndTurn) {
-            this.activity = endTurnActivity;
-        }
     }
 
     draw(p: p5) {
@@ -42,7 +37,11 @@ export class ActivityButton {
         p.textSize(12);
         p.fill("#efefef");
 
-        p.text(this.activity.name, textLeft, textTop);
+        if (this.activity instanceof SquaddieEndTurnActivity) {
+            p.text("End Turn", textLeft, textTop);
+        } else {
+            p.text(this.activity.name, textLeft, textTop);
+        }
 
         p.pop();
     }

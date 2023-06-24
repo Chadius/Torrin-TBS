@@ -18,6 +18,7 @@ import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -30,11 +31,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     private highlightedTargetRange: HexCoordinate[];
 
     constructor() {
-        this.cancelAbility = false;
-        this.hasSelectedValidTarget = false;
-        this.validTargetLocation = undefined;
-        this.hasConfirmedAction = false;
-        this.highlightedTargetRange = [];
+        this.resetObject();
     }
 
     hasCompleted(state: OrchestratorState): boolean {
@@ -107,14 +104,17 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     }
 
     reset(state: OrchestratorState) {
+        this.resetObject();
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+        state.hexMap.stopHighlightingTiles();
+    }
+
+    private resetObject() {
         this.hasConfirmedAction = false;
         this.highlightedTargetRange = [];
         this.cancelAbility = false;
         this.hasSelectedValidTarget = false;
         this.validTargetLocation = undefined;
-
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-        state.hexMap.stopHighlightingTiles();
     }
 
     private get hasHighlightedTargetRange(): boolean {
@@ -289,5 +289,6 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         this.hasConfirmedAction = true;
 
         actingSquaddieDynamic.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentSquaddieActivity);
+        tintSquaddieIfTurnIsComplete(actingSquaddieDynamic, actingSquaddieStatic);
     }
 }

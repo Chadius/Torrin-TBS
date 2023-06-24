@@ -10,10 +10,10 @@ import {SquaddieTurn} from "../squaddie/turn";
 import {stubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {ActivityButton} from "../squaddie/activityButton";
-import {ACTIVITY_END_TURN_ID} from "../squaddie/endTurnActivity";
 import {SquaddieActivity} from "../squaddie/activity";
 import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
+import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 
 jest.mock('p5', () => () => {
     return {}
@@ -113,7 +113,10 @@ describe('BattleSquaddieSelectedHUD', () => {
         const activityButtons: ActivityButton[] = hud.getActivityButtons();
         expect(activityButtons).toBeTruthy();
 
-        expect(activityButtons.find((button) => button.activity.name === longswordActivity.name)).toBeTruthy();
+        expect(activityButtons.find((button) =>
+            button.activity instanceof SquaddieActivity
+            && button.activity.name === longswordActivity.name
+        )).toBeTruthy();
     });
 
     it('reports when an activity button is selected', () => {
@@ -121,7 +124,10 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
 
-        const longswordButton = hud.getActivityButtons().find((button) => button.activity.name === longswordActivity.name);
+        const longswordButton = hud.getActivityButtons().find((button) =>
+            button.activity instanceof SquaddieActivity
+            && button.activity.name === longswordActivity.name
+        );
         hud.mouseClicked(longswordButton.buttonArea.getLeft(), longswordButton.buttonArea.getTop());
 
         expect(hud.wasActivitySelected()).toBeTruthy();
@@ -139,7 +145,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(activityButtons).toBeTruthy();
 
         const waitTurnButton = activityButtons.find((button) =>
-            button.activity.id === ACTIVITY_END_TURN_ID
+            button.activity instanceof SquaddieEndTurnActivity
         );
         expect(waitTurnButton).toBeTruthy();
     });
@@ -150,13 +156,13 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedActivity()).toBeUndefined();
 
         const waitTurnButton = hud.getActivityButtons().find((button) =>
-            button.activity.id === ACTIVITY_END_TURN_ID
+            button.activity instanceof SquaddieEndTurnActivity
         );
 
         hud.mouseClicked(waitTurnButton.buttonArea.getLeft(), waitTurnButton.buttonArea.getTop());
 
         expect(hud.wasActivitySelected()).toBeTruthy();
-        expect(hud.getSelectedActivity()).toBe(waitTurnButton.activity);
+        expect(hud.getSelectedActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
 
         hud.reset();
         expect(hud.wasActivitySelected()).toBeFalsy();

@@ -34,6 +34,7 @@ import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {SquaddieActivity} from "../../squaddie/activity";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -404,9 +405,9 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 instruction: state.squaddieCurrentlyActing.instruction
             }));
             this.gaveCompleteInstruction = true;
-        } else {
+        } else if (state.battleSquaddieSelectedHUD.getSelectedActivity() instanceof SquaddieActivity) {
             const newActivity = state.battleSquaddieSelectedHUD.getSelectedActivity();
-            state.squaddieCurrentlyActing.addSelectedActivity(newActivity);
+            state.squaddieCurrentlyActing.addSelectedActivity(newActivity as SquaddieActivity);
             this.gaveInstructionThatNeedsATarget = true;
         }
 

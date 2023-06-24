@@ -12,6 +12,7 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ActivityButton} from "../squaddie/activityButton";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
+import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 
 export type BattleSquaddieSelectedHUDOptions = {
     squaddieRepository: BattleSquaddieRepository;
@@ -27,7 +28,7 @@ export class BattleSquaddieSelectedHUD {
     selectedSquaddieDynamicId: string;
     private _background: Rectangle;
     affiliateIcon?: ImageUI;
-    selectedActivity: SquaddieActivity;
+    selectedActivity: SquaddieActivity | SquaddieEndTurnActivity;
 
     activityButtons: ActivityButton[];
 
@@ -88,14 +89,12 @@ export class BattleSquaddieSelectedHUD {
                     }),
                     activity,
                     hue: squaddieAffiliationHue,
-                    isEndTurn: false
                 })
             );
         });
 
         this.activityButtons.push(
             new ActivityButton({
-                isEndTurn: true,
                 hue: squaddieAffiliationHue,
                 buttonArea: new RectArea({
                     baseRectangle: windowDimensions,
@@ -104,7 +103,8 @@ export class BattleSquaddieSelectedHUD {
                     left: -64,
                     width: 32,
                     height: 32,
-                })
+                }),
+                activity: new SquaddieEndTurnActivity(),
             })
         );
     }
@@ -274,7 +274,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedActivity !== undefined;
     }
 
-    getSelectedActivity(): SquaddieActivity {
+    getSelectedActivity(): SquaddieActivity | SquaddieEndTurnActivity {
         return this.selectedActivity;
     }
 
