@@ -125,7 +125,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         const ability = state.squaddieCurrentlyActing.currentSquaddieActivity;
 
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId);
-        const {staticSquaddie} = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
+        const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
         const abilityRange: HexCoordinate[] = state.pathfinder.getTilesInRange(new SearchParams({
                 canStopOnSquaddies: true,
                 missionMap: state.missionMap,
@@ -192,7 +192,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             mouseY,
             camera: state.camera,
             map: state.missionMap,
-            squaddieRepository: state.squaddieRepo,
+            squaddieRepository: state.squaddieRepository,
         });
 
         if (targetSquaddieStatic === undefined) {
@@ -200,7 +200,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         }
 
         const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
-            state.squaddieRepo.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
+            state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
 
         if (FriendlyAffiliationsByAffiliation[actingSquaddieStatic.squaddieId.affiliation][targetSquaddieStatic.squaddieId.affiliation]) {
@@ -275,7 +275,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
 
     private confirmTargetSelection(state: OrchestratorState) {
         const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
-            state.squaddieRepo.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
+            state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
         const actingSquaddieInfo = state.missionMap.getSquaddieByDynamicId(actingSquaddieDynamic.dynamicSquaddieId);
 

@@ -111,7 +111,7 @@ export class BattleMapDisplay implements OrchestratorComponent {
 
     private drawSquaddieMapIcons(state: OrchestratorState, p: p5) {
         const noSquaddieIsCurrentlyActing: boolean = state.squaddieCurrentlyActing === undefined;
-        state.squaddieRepo.getDynamicSquaddieIterator()
+        state.squaddieRepository.getDynamicSquaddieIterator()
             .filter((info) =>
                 info.dynamicSquaddie.mapIcon
             )
@@ -120,7 +120,7 @@ export class BattleMapDisplay implements OrchestratorComponent {
                 if (noSquaddieIsCurrentlyActing || !state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
                     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
                     if (datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation)) {
-                        drawSquaddieMapIconAtMapLocation(p, state.squaddieRepo, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
+                        drawSquaddieMapIconAtMapLocation(p, state.squaddieRepository, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
                     }
                 }
             });

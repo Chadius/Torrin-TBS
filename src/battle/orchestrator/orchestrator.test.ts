@@ -175,8 +175,8 @@ describe('Battle Orchestrator', () => {
                 instruction,
             })
         });
-        stateWantsToDisplayTheMap.squaddieRepo = new BattleSquaddieRepository();
-        stateWantsToDisplayTheMap.squaddieRepo.addSquaddie(
+        stateWantsToDisplayTheMap.squaddieRepository = new BattleSquaddieRepository();
+        stateWantsToDisplayTheMap.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: NewDummySquaddieID("new static squaddie", SquaddieAffiliation.PLAYER),
             }),
@@ -255,8 +255,8 @@ describe('Battle Orchestrator', () => {
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
-        nullState.squaddieRepo = new BattleSquaddieRepository();
-        nullState.squaddieRepo.addSquaddie(
+        nullState.squaddieRepository = new BattleSquaddieRepository();
+        nullState.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: NewDummySquaddieID("new static squaddie", SquaddieAffiliation.PLAYER),
             }),

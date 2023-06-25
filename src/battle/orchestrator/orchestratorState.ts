@@ -23,7 +23,7 @@ export class OrchestratorState {
     hexMap: TerrainTileMap;
     displayMap: boolean;
     pathfinder: Pathfinder;
-    squaddieRepo: BattleSquaddieRepository;
+    squaddieRepository: BattleSquaddieRepository;
     battlePhaseTracker: BattlePhaseTracker;
     camera: BattleCamera;
     currentCutscene: Cutscene;
@@ -63,7 +63,7 @@ export class OrchestratorState {
         this.displayMap = options.displayMap;
         this.missionMap = options.missionMap;
         this.pathfinder = options.pathfinder;
-        this.squaddieRepo = options.squaddieRepo;
+        this.squaddieRepository = options.squaddieRepo;
         this.battlePhaseTracker = options.battlePhaseTracker || new BattlePhaseTracker();
         this.camera = options.camera || new BattleCamera();
         this.currentCutscene = options.currentCutscene;
@@ -73,11 +73,11 @@ export class OrchestratorState {
         this.battleSquaddieUIInput = options.battleSquaddieUIInput || new BattleSquaddieUIInput({
             selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
             missionMap: this.missionMap,
-            squaddieRepository: this.squaddieRepo,
+            squaddieRepository: this.squaddieRepository,
         });
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD({
             missionMap: this.missionMap,
-            squaddieRepository: this.squaddieRepo,
+            squaddieRepository: this.squaddieRepository,
             resourceHandler: this.resourceHandler,
         });
         this.battlePhaseState = options.battlePhaseState || {

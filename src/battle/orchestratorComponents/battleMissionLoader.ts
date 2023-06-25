@@ -82,7 +82,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
     }
 
     private loadSquaddies(state: OrchestratorState) {
-        state.squaddieRepo.addSquaddie(
+        state.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
                     staticId: "player_young_torrin",
@@ -122,7 +122,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 squaddieTurn: new SquaddieTurn()
             })
         );
-        state.squaddieRepo.addSquaddie(
+        state.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 attributes: new ArmyAttributes({
                     maxHitPoints: 5,
@@ -159,7 +159,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
                 squaddieTurn: new SquaddieTurn()
             })
         );
-        state.squaddieRepo.addSquaddie(
+        state.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 attributes: new ArmyAttributes({
                     maxHitPoints: 1,
@@ -203,13 +203,13 @@ export class BattleMissionLoader implements OrchestratorComponent {
         state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.PLAYER,
             name: "Crusaders",
-            squaddieRepo: state.squaddieRepo,
+            squaddieRepo: state.squaddieRepository,
             dynamicSquaddieIds: ["player_young_torrin", "player_sir_camil"],
         }));
         state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.ENEMY,
             name: "Infiltrators",
-            squaddieRepo: state.squaddieRepo,
+            squaddieRepo: state.squaddieRepository,
             dynamicSquaddieIds: ["enemy_demon_slither_0"],
         }));
 
@@ -221,7 +221,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         ];
         state.resourceHandler.loadResources(this.affiliateIconResourceKeys);
 
-        const staticSquaddies: BattleSquaddieStatic[] = state.squaddieRepo.getStaticSquaddieIterator().map(info => info.staticSquaddie);
+        const staticSquaddies: BattleSquaddieStatic[] = state.squaddieRepository.getStaticSquaddieIterator().map(info => info.staticSquaddie);
         this.staticSquaddieResourceKeys = staticSquaddies.map(staticSquaddie => staticSquaddie.squaddieId.resources.mapIconResourceKey);
         state.resourceHandler.loadResources(this.staticSquaddieResourceKeys);
 
@@ -251,9 +251,9 @@ export class BattleMissionLoader implements OrchestratorComponent {
     }
 
     private initializeSquaddieResources(state: OrchestratorState) {
-        state.squaddieRepo.getDynamicSquaddieIterator().forEach((info) => {
+        state.squaddieRepository.getDynamicSquaddieIterator().forEach((info) => {
             const {dynamicSquaddie, dynamicSquaddieId} = info;
-            const {staticSquaddie} = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(dynamicSquaddieId));
 
             let image: p5.Image = getResultOrThrowError(
                 state.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)

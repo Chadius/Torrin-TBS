@@ -10,7 +10,7 @@ import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoor
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: OrchestratorState) => {
     if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
         const {dynamicSquaddie} = getResultOrThrowError(
-            state.squaddieRepo.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
+            state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
         if (!dynamicSquaddie.squaddieTurn.hasActionsRemaining()) {
             state.squaddieCurrentlyActing.reset();
