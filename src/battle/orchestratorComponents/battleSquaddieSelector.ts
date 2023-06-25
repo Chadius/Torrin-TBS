@@ -36,6 +36,8 @@ import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 import {SquaddieActivity} from "../../squaddie/activity";
 
+import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
+
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
 export class BattleSquaddieSelector implements OrchestratorComponent {
@@ -125,16 +127,20 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
             state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
-        const squaddieDatum = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
-        if (!squaddieDatum.isValid()) {
-            state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
-            return;
-        }
 
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepo.getSquaddieByDynamicID(squaddieDatum.dynamicSquaddieId));
+        } = GetSquaddieAtMapLocation({
+            mapLocation: clickedHexCoordinate,
+            map: state.missionMap,
+            squaddieRepository: state.squaddieRepo,
+        });
+
+        if (!staticSquaddie) {
+            state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
+            return;
+        }
 
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepo);
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddie.dynamicSquaddieId);

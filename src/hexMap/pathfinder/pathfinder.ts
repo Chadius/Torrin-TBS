@@ -7,7 +7,7 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
-import {MissionMap, MissionMapSquaddieDatum} from "../../missionMap/missionMap";
+import {MissionMap} from "../../missionMap/missionMap";
 import {
     getResultOrThrowError,
     isError,
@@ -19,6 +19,8 @@ import {
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
+
+import {GetSquaddieAtMapLocation} from "../../battle/orchestratorComponents/orchestratorUtils";
 
 class SearchState {
     tilesSearchCanStopAt: HexCoordinate[];
@@ -510,16 +512,18 @@ export class Pathfinder {
         const searcherAffiliation: SquaddieAffiliation = searchParams.getSquaddieAffiliation();
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
         return neighboringLocations.filter((neighbor) => {
-            const squaddieInfo: MissionMapSquaddieDatum = missionMap.getSquaddieAtLocation(new HexCoordinate({
-                q: neighbor[0],
-                r: neighbor[1],
-            }));
-            if (!squaddieInfo.isValid()) {
+            const {
+                staticSquaddie,
+            } = GetSquaddieAtMapLocation({
+                mapLocation: new HexCoordinate({coordinates: neighbor}),
+                map: searchParams.getMissionMap(),
+                squaddieRepository: searchParams.getSquaddieRepository(),
+            });
+
+            if (!staticSquaddie) {
                 return true;
             }
-            const {
-                staticSquaddie
-            } = getResultOrThrowError(searchParams.getSquaddieRepository().getSquaddieByDynamicID(squaddieInfo.dynamicSquaddieId));
+
             return friendlyAffiliations[staticSquaddie.squaddieId.affiliation];
         });
     }

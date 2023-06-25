@@ -17,7 +17,7 @@ import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliat
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
-import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {GetSquaddieAtScreenLocation, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
@@ -183,16 +183,24 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             return;
         }
 
-        const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
-            state.squaddieRepo.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
-        );
+        const {
+            staticSquaddie: targetSquaddieStatic,
+            dynamicSquaddie: targetSquaddieDynamic,
+            squaddieMapLocation,
+        } = GetSquaddieAtScreenLocation({
+            mouseX,
+            mouseY,
+            camera: state.camera,
+            map: state.missionMap,
+            squaddieRepository: state.squaddieRepo,
+        });
 
-        const targetDatum = state.missionMap.getSquaddieAtLocation(clickedLocation);
-        if (!targetDatum.isValid()) {
+        if (targetSquaddieStatic === undefined) {
             return;
         }
-        const {staticSquaddie: targetSquaddieStatic, dynamicSquaddie: targetSquaddieDynamic} = getResultOrThrowError(
-            state.squaddieRepo.getSquaddieByDynamicID(targetDatum.dynamicSquaddieId)
+
+        const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
+            state.squaddieRepo.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
 
         if (FriendlyAffiliationsByAffiliation[actingSquaddieStatic.squaddieId.affiliation][targetSquaddieStatic.squaddieId.affiliation]) {
