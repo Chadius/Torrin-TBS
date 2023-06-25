@@ -368,20 +368,39 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will call mouse events in battle map display during squaddie selection mode', () => {
+        expectMouseEventsWillGoToMapDisplay(
+            createOrchestrator({
+                squaddieSelector: mockSquaddieSelector,
+                initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+            }),
+            mockSquaddieSelector,
+        );
+    });
+
+    it('will call mouse events in battle map display during squaddie target mode', () => {
+        expectMouseEventsWillGoToMapDisplay(
+            createOrchestrator({
+                squaddieTarget: mockSquaddieTarget,
+                initialMode: BattleOrchestratorMode.SQUADDIE_TARGET,
+            }),
+            mockSquaddieTarget,
+        );
+    });
+
+    const expectMouseEventsWillGoToMapDisplay = (
+        squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator,
+        component: OrchestratorComponent
+    ) => {
         const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
             displayMap: true,
         });
 
-        const squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator = createOrchestrator({
-            squaddieSelector: mockSquaddieSelector,
-            initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
-        });
         squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(stateWantsToDisplayTheMap, 0, 0);
-        expect(mockSquaddieSelector.mouseEventHappened).toBeCalledTimes(1);
+        expect(component.mouseEventHappened).toBeCalledTimes(1);
         expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(1);
 
         squaddieSelectorOrchestratorShouldDisplayMap.mouseClicked(stateWantsToDisplayTheMap, 0, 0);
-        expect(mockSquaddieSelector.mouseEventHappened).toBeCalledTimes(2);
+        expect(component.mouseEventHappened).toBeCalledTimes(2);
         expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2);
-    });
+    }
 });

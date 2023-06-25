@@ -26,6 +26,11 @@ export enum BattleOrchestratorMode {
     SQUADDIE_MAP_ACTIVITY = "SQUADDIE_MAP_ACTIVITY",
 }
 
+const modesThatCanScrollTheMap: BattleOrchestratorMode[] = [
+    BattleOrchestratorMode.SQUADDIE_SELECTOR,
+    BattleOrchestratorMode.SQUADDIE_TARGET,
+];
+
 export class Orchestrator {
     mode: BattleOrchestratorMode;
 
@@ -146,7 +151,7 @@ export class Orchestrator {
         )
 
         if (
-            BattleOrchestratorMode.SQUADDIE_SELECTOR === this.mode &&
+            modesThatCanScrollTheMap.includes(this.mode) &&
             state.displayMap === true
         ) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent);
@@ -163,7 +168,7 @@ export class Orchestrator {
         this.getCurrentComponent().mouseEventHappened(state, mouseEvent);
 
         if (
-            BattleOrchestratorMode.SQUADDIE_SELECTOR === this.mode &&
+            modesThatCanScrollTheMap.includes(this.mode) &&
             state.displayMap === true
         ) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent);
