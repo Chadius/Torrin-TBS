@@ -35,7 +35,7 @@ describe('searchParams', () => {
             shapeGeneratorType: TargetingShape.Snake,
         });
 
-        const extractedOptions: SearchParamsOptions = originalParams.getSearchParamsOptions();
+        const extractedOptions: SearchParamsOptions = originalParams.searchParamsOptions;
 
         const newParams: SearchParams = new SearchParams({searchParamsOptions: extractedOptions});
 

@@ -37,7 +37,7 @@ class SearchState {
         this.tileLocationsAlreadyConsideredForQueue = {};
         this.searchPathQueue = new PriorityQueue();
         this.results = new SearchResults({
-            stopLocation: searchParams.getStopLocation()
+            stopLocation: searchParams.stopLocation
         });
         this.shapeGenerator = searchParams.shapeGenerator;
     }
@@ -182,14 +182,14 @@ export class Pathfinder {
     }
 
     findPathToStopLocation(searchParams: SearchParams): ResultOrError<SearchResults, Error> {
-        if (searchParams.getStopLocation() === undefined) {
+        if (searchParams.stopLocation === undefined) {
             return makeError(new Error("no stop location was given"));
         }
         return makeResult(this.searchMapForPaths(searchParams));
     }
 
     getAllReachableTiles(searchParams: SearchParams): ResultOrError<SearchResults, Error> {
-        if (!searchParams.getStartLocation()) {
+        if (!searchParams.startLocation) {
             return makeError(new Error("no starting location provided"));
         }
 
@@ -201,7 +201,7 @@ export class Pathfinder {
 
         if (
             sourceTiles.length < 1
-            || searchParams.getStartLocation() === undefined
+            || searchParams.startLocation === undefined
         ) {
             return [];
         }
@@ -212,13 +212,13 @@ export class Pathfinder {
 
         sourceTiles.forEach((sourceTile) => {
             const searchParamsWithNewStartLocation = new SearchParams({
-                ...searchParams.getSearchParamsOptions(),
+                ...searchParams.searchParamsOptions,
                 numberOfActions: 1,
                 squaddieMovement: new SquaddieMovement(
                     {
                         movementPerAction: maximumDistance,
                         traits: new TraitStatusStorage({
-                            [Trait.PASS_THROUGH_WALLS]: searchParams.getPassThroughWalls(),
+                            [Trait.PASS_THROUGH_WALLS]: searchParams.passThroughWalls,
                             [Trait.CROSS_OVER_PITS]: true,
                         }).filterCategory(TraitCategory.MOVEMENT)
                     }),
@@ -243,8 +243,8 @@ export class Pathfinder {
         const workingSearchState: SearchState = new SearchState(searchParams);
 
         workingSearchState.initializeStartPath(new HexCoordinate({
-            q: searchParams.getStartLocation().q,
-            r: searchParams.getStartLocation().r,
+            q: searchParams.startLocation.q,
+            r: searchParams.startLocation.r,
         }));
 
         let numberOfMovementActions: number = 1;
@@ -261,7 +261,7 @@ export class Pathfinder {
             } = this.addLegalSearchPaths(
                 searchParams,
                 workingSearchState,
-                searchParams.setup.missionMap
+                searchParams.missionMap
             );
 
             morePathsAdded = newAddedSearchPaths.length > 0;
@@ -274,13 +274,13 @@ export class Pathfinder {
             }
         }
         workingSearchState.setAllReachableTiles();
-        workingSearchState.recordReachableSquaddies(searchParams, searchParams.getMissionMap());
+        workingSearchState.recordReachableSquaddies(searchParams, searchParams.missionMap);
         return workingSearchState.results;
     }
 
     private hasRemainingMovementActions(searchParams: SearchParams, numberOfMovementActions: number) {
-        return searchParams.getNumberOfActions() === undefined
-            || numberOfMovementActions <= searchParams.getNumberOfActions();
+        return searchParams.numberOfActions === undefined
+            || numberOfMovementActions <= searchParams.numberOfActions;
     }
 
     private addLegalSearchPaths(
@@ -310,9 +310,9 @@ export class Pathfinder {
             workingSearchState.markLocationAsVisited(mostRecentTileLocation);
 
             if (
-                searchParams.getStopLocation() !== undefined
-                && head.getMostRecentTileLocation().q === searchParams.getStopLocation().q
-                && head.getMostRecentTileLocation().r === searchParams.getStopLocation().r
+                searchParams.stopLocation !== undefined
+                && head.getMostRecentTileLocation().q === searchParams.stopLocation.q
+                && head.getMostRecentTileLocation().r === searchParams.stopLocation.r
             ) {
                 arrivedAtTheStopLocation = true;
                 continue;
@@ -392,7 +392,7 @@ export class Pathfinder {
         neighboringLocations = this.filterNeighborsNotEnqueued(neighboringLocations, workingSearchState);
         neighboringLocations = this.filterNeighborsNotVisited(neighboringLocations, workingSearchState);
         neighboringLocations = this.filterNeighborsOnMap(missionMap, neighboringLocations);
-        neighboringLocations = this.filterNeighborsCheckingAffiliation(neighboringLocations, missionMap, searchParams);
+        neighboringLocations = this.filterNeighborsCheckingAffiliation(neighboringLocations, searchParams);
         return this.filterNeighborsWithinMovementPerAction(neighboringLocations, searchParams, head, missionMap);
     }
 
@@ -423,7 +423,7 @@ export class Pathfinder {
     }
 
     private squaddieCanStopMovingOnTile(searchParams: SearchParams, hexCostTerrainType: HexGridMovementCost, squaddieIsOccupyingTile: boolean) {
-        const squaddieIsBlocking: boolean = !searchParams.getCanStopOnSquaddies() && squaddieIsOccupyingTile;
+        const squaddieIsBlocking: boolean = !searchParams.canStopOnSquaddies && squaddieIsOccupyingTile;
         return !(
             [HexGridMovementCost.wall, HexGridMovementCost.pit].includes(
                 hexCostTerrainType
@@ -481,43 +481,42 @@ export class Pathfinder {
                 r: neighbor[1]
             }));
 
-            if (!searchParams.getPassThroughWalls() && hexCostTerrainType === HexGridMovementCost.wall) {
+            if (!searchParams.passThroughWalls && hexCostTerrainType === HexGridMovementCost.wall) {
                 return false;
             }
 
-            if (!searchParams.getCrossOverPits() && hexCostTerrainType === HexGridMovementCost.pit) {
+            if (!searchParams.crossOverPits && hexCostTerrainType === HexGridMovementCost.pit) {
                 return false;
             }
 
-            if (searchParams.getMovementPerAction() === undefined) {
+            if (searchParams.movementPerAction === undefined) {
                 return true;
             }
 
             let movementCost = MovingCostByTerrainType[hexCostTerrainType];
-            return head.getMovementCostSinceStartOfAction() + movementCost <= searchParams.getMovementPerAction();
+            return head.getMovementCostSinceStartOfAction() + movementCost <= searchParams.movementPerAction;
         });
     }
 
     private filterNeighborsCheckingAffiliation(
         neighboringLocations: [number, number][],
-        missionMap: MissionMap,
         searchParams: SearchParams
     ): [number, number][] {
         if (!searchParams.hasSquaddieAffiliation()
-            || !searchParams.getSquaddieRepository()
+            || !searchParams.squaddieRepository
         ) {
             return neighboringLocations;
         }
 
-        const searcherAffiliation: SquaddieAffiliation = searchParams.getSquaddieAffiliation();
+        const searcherAffiliation: SquaddieAffiliation = searchParams.squaddieAffiliation;
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
         return neighboringLocations.filter((neighbor) => {
             const {
                 staticSquaddie,
             } = GetSquaddieAtMapLocation({
                 mapLocation: new HexCoordinate({coordinates: neighbor}),
-                map: searchParams.getMissionMap(),
-                squaddieRepository: searchParams.getSquaddieRepository(),
+                map: searchParams.missionMap,
+                squaddieRepository: searchParams.squaddieRepository,
             });
 
             if (!staticSquaddie) {
@@ -554,22 +553,22 @@ export class Pathfinder {
     }
 
     private isPathAtLeastMinimumDistance(head: SearchPath, searchParams: SearchParams): boolean {
-        if (searchParams.getMinimumDistanceMoved() === undefined || searchParams.getMinimumDistanceMoved() <= 0) {
+        if (searchParams.minimumDistanceMoved === undefined || searchParams.minimumDistanceMoved <= 0) {
             return true;
         }
 
-        return head.getTotalDistance() >= searchParams.getMinimumDistanceMoved();
+        return head.getTotalDistance() >= searchParams.minimumDistanceMoved;
     }
 
     private isPathMoreThanMaximumDistance(head: SearchPath, searchParams: SearchParams): boolean {
-        if (searchParams.getMaximumDistanceMoved() === undefined) {
+        if (searchParams.maximumDistanceMoved === undefined) {
             return false;
         }
-        return head.getTotalDistance() >= searchParams.getMaximumDistanceMoved();
+        return head.getTotalDistance() >= searchParams.maximumDistanceMoved;
     }
 
     private hasFoundStopLocation(searchParams: SearchParams, workingSearchState: SearchState,): boolean {
-        if (searchParams.getStopLocation() === undefined) {
+        if (searchParams.stopLocation === undefined) {
             return false;
         }
         return workingSearchState.hasFoundStopLocation();

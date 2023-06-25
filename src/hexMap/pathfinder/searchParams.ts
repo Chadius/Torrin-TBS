@@ -26,13 +26,13 @@ export class SearchParamsOptions {
 };
 
 export class SearchParams {
-    setup: {
+    private setup: {
         startLocation?: HexCoordinate;
         missionMap: MissionMap;
         affiliation?: SquaddieAffiliation;
         squaddieRepository?: BattleSquaddieRepository;
     }
-    movement: {
+    private movement: {
         minimumDistanceMoved?: number;
         maximumDistanceMoved?: number;
         movementPerAction: number;
@@ -41,7 +41,7 @@ export class SearchParams {
         canStopOnSquaddies: boolean;
         shapeGenerator: TargetingShapeGenerator;
     }
-    stopConditions: {
+    private stopConditions: {
         numberOfActions?: number;
         stopLocation?: HexCoordinate;
     }
@@ -114,35 +114,35 @@ export class SearchParams {
         return this.movement.shapeGenerator;
     }
 
-    getStartLocation(): HexCoordinate {
+    get startLocation(): HexCoordinate {
         return this.setup.startLocation;
     }
 
-    getMinimumDistanceMoved(): number {
+    get minimumDistanceMoved(): number {
         return this.movement.minimumDistanceMoved;
     }
 
-    getMaximumDistanceMoved(): number {
+    get maximumDistanceMoved(): number {
         return this.movement.maximumDistanceMoved;
     }
 
-    getPassThroughWalls(): boolean | undefined {
+    get passThroughWalls(): boolean | undefined {
         return this.movement.passThroughWalls;
     }
 
-    getCrossOverPits(): boolean | undefined {
+    get crossOverPits(): boolean | undefined {
         return this.movement.crossOverPits;
     }
 
-    getMovementPerAction(): number | undefined {
+    get movementPerAction(): number | undefined {
         return this.movement.movementPerAction;
     }
 
-    getNumberOfActions(): number | undefined {
+    get numberOfActions(): number | undefined {
         return this.stopConditions.numberOfActions;
     }
 
-    getStopLocation(): HexCoordinate | undefined {
+    get stopLocation(): HexCoordinate | undefined {
         return this.stopConditions.stopLocation;
     }
 
@@ -150,23 +150,23 @@ export class SearchParams {
         return this.setup.affiliation !== undefined && this.setup.affiliation !== SquaddieAffiliation.UNKNOWN;
     }
 
-    getSquaddieAffiliation(): SquaddieAffiliation {
+    get squaddieAffiliation(): SquaddieAffiliation {
         return this.setup.affiliation;
     }
 
-    getCanStopOnSquaddies(): boolean {
+    get canStopOnSquaddies(): boolean {
         return (this.movement.canStopOnSquaddies === true)
     }
 
-    getMissionMap(): MissionMap {
+    get missionMap(): MissionMap {
         return this.setup.missionMap;
     }
 
-    getSquaddieRepository(): BattleSquaddieRepository {
+    get squaddieRepository(): BattleSquaddieRepository {
         return this.setup.squaddieRepository;
     }
 
-    getSearchParamsOptions(): SearchParamsOptions {
+    get searchParamsOptions(): SearchParamsOptions {
         return {
             canStopOnSquaddies: this.movement.canStopOnSquaddies,
             minimumDistanceMoved: this.movement.minimumDistanceMoved,
