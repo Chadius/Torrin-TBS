@@ -106,7 +106,10 @@ export class BattleSquaddieMover implements OrchestratorComponent {
             state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
         }
 
-        if (!state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
+        if (
+            state.squaddieCurrentlyActing
+            && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
+        ) {
             const {
                 staticSquaddie,
                 dynamicSquaddie
