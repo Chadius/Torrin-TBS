@@ -16,6 +16,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {spendSquaddieActions, updateSquaddieLocation} from "../squaddieMovementLogic";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {canPlayerControlSquaddieRightNow} from "../battleSquaddie";
 
 export class BattleSquaddieMover implements OrchestratorComponent {
     animationStartTime?: number;
@@ -103,6 +104,20 @@ export class BattleSquaddieMover implements OrchestratorComponent {
             && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
         ) {
             state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
+        }
+
+        if (!state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
+            const {
+                staticSquaddie,
+                dynamicSquaddie
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
+            if (canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie)) {
+                state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+                    dynamicID: state.squaddieCurrentlyActing.dynamicSquaddieId,
+                });
+            } else {
+                state.battleSquaddieSelectedHUD.reset();
+            }
         }
     }
 }

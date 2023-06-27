@@ -14,12 +14,6 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 
-export type BattleSquaddieSelectedHUDOptions = {
-    squaddieRepository: BattleSquaddieRepository;
-    missionMap: MissionMap;
-    resourceHandler: ResourceHandler;
-}
-
 export class BattleSquaddieSelectedHUD {
     squaddieRepository: BattleSquaddieRepository;
     missionMap: MissionMap;
@@ -32,7 +26,11 @@ export class BattleSquaddieSelectedHUD {
 
     activityButtons: ActivityButton[];
 
-    constructor(options: BattleSquaddieSelectedHUDOptions) {
+    constructor(options: {
+        squaddieRepository: BattleSquaddieRepository;
+        missionMap: MissionMap;
+        resourceHandler: ResourceHandler;
+    }) {
         this.squaddieRepository = options.squaddieRepository;
         this.missionMap = options.missionMap;
         this.resourceHandler = options.resourceHandler;
@@ -48,10 +46,20 @@ export class BattleSquaddieSelectedHUD {
         this.selectedSquaddieDynamicId = "";
     }
 
-    mouseClickedSquaddieSelected(dynamicID: string, mouseX: number, mouseY: number) {
+    selectSquaddieAndDrawWindow({dynamicID, repositionWindow}: {
+                                    dynamicID: string,
+                                    repositionWindow?: { mouseX: number, mouseY: number }
+                                }
+    ) {
         this.selectedSquaddieDynamicId = dynamicID;
 
-        const {windowDimensions} = this.createWindowPosition(mouseY);
+        let windowDimensions: RectArea;
+        if (repositionWindow) {
+            const windowInfo = this.createWindowPosition(repositionWindow.mouseY);
+            windowDimensions = windowInfo.windowDimensions;
+        } else {
+            windowDimensions = this._background.area;
+        }
 
         const {
             staticSquaddie,
@@ -292,7 +300,6 @@ export class BattleSquaddieSelectedHUD {
 
     reset() {
         this.selectedSquaddieDynamicId = "";
-        this._background = undefined;
         this.affiliateIcon = undefined;
         this.selectedActivity = undefined;
         this.activityButtons = undefined;

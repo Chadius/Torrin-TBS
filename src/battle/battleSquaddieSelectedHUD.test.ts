@@ -14,6 +14,7 @@ import {SquaddieActivity} from "../squaddie/activity";
 import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
+import {RectArea} from "../ui/rectArea";
 
 jest.mock('p5', () => () => {
     return {}
@@ -108,7 +109,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('generates a button for each squaddie activity', () => {
-        hud.mouseClickedSquaddieSelected(playerSquaddieDynamicID, 0, 0);
+        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
 
         const activityButtons: ActivityButton[] = hud.getActivityButtons();
         expect(activityButtons).toBeTruthy();
@@ -120,7 +121,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when an activity button is selected', () => {
-        hud.mouseClickedSquaddieSelected(playerSquaddieDynamicID, 0, 0);
+        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
 
@@ -139,7 +140,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('generates a Wait Turn activity button when a squaddie is selected', () => {
-        hud.mouseClickedSquaddieSelected(playerSquaddieDynamicID, 0, 0);
+        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
 
         const activityButtons: ActivityButton[] = hud.getActivityButtons();
         expect(activityButtons).toBeTruthy();
@@ -151,7 +152,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when a Wait Turn activity button was clicked on', () => {
-        hud.mouseClickedSquaddieSelected(playerSquaddieDynamicID, 0, 0);
+        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
 
@@ -167,5 +168,12 @@ describe('BattleSquaddieSelectedHUD', () => {
         hud.reset();
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
+    });
+
+    it('can reopen the window in the previous position if no mouse location is given', () => {
+        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        const initialWindowPosition: RectArea = new RectArea({...hud.background.area});
+        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID});
+        expect(hud.background.area).toStrictEqual(initialWindowPosition);
     });
 });

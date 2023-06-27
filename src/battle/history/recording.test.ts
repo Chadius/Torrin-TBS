@@ -32,7 +32,7 @@ describe('Recording', () => {
             currentSquaddieInstruction: squaddieMovesAndEndsTurn,
         }));
 
-        const history: BattleEvent[] = recording.getHistory();
+        const history: BattleEvent[] = recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual(new BattleEvent({
             currentSquaddieInstruction: squaddieMovesAndEndsTurn

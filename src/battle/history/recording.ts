@@ -1,19 +1,17 @@
 import {BattleEvent} from "./battleEvent";
 
-export type RecordingOptions = {}
-
 export class Recording {
-    history: BattleEvent[];
+    private readonly _history: BattleEvent[];
 
-    constructor(options: Partial<RecordingOptions>) {
-        this.history = [];
+    constructor(options: {}) {
+        this._history = [];
     }
 
     addEvent(battleEvent: BattleEvent) {
-        this.history.push(battleEvent);
+        this._history.push(battleEvent);
     }
 
-    getHistory(): BattleEvent[] {
-        return [...this.history];
+    get history(): BattleEvent[] {
+        return [...this._history];
     }
 }

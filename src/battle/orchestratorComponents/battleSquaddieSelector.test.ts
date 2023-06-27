@@ -21,7 +21,7 @@ import {
 } from "../../hexMap/convertCoordinates";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import p5 from "p5";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
@@ -35,6 +35,8 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {ResourceHandler} from "../../resource/resourceHandler";
+import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 
 jest.mock('p5', () => () => {
     return {}
@@ -315,74 +317,100 @@ describe('BattleSquaddieSelector', () => {
             numberOfActionsSpent: 1,
         }))
 
-        const history = state.battleEventRecording.getHistory();
+        const history = state.battleEventRecording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual(new BattleEvent({
             currentSquaddieInstruction: expectedSquaddieInstruction,
         }));
     });
 
-    it('will add movement to existing instruction', () => {
-        const missionMap: MissionMap = new MissionMap({
-            terrainTileMap: new TerrainTileMap({
-                movementCost: ["1 1 1 "]
-            })
-        });
-
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
-
-        const camera: BattleCamera = new BattleCamera();
-
-        const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
-            squaddieRepository: squaddieRepo,
-            selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
-            missionMap,
-            selectedSquaddieDynamicID: "player_soldier_0",
-            tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-        })
-
-        const squaddieCurrentlyActing: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
-        squaddieCurrentlyActing.addSquaddie({
-            dynamicSquaddieId: "player_soldier_0",
-            staticSquaddieId: "player_soldier",
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
-        });
-        squaddieCurrentlyActing.addConfirmedActivity(new SquaddieMovementActivity({
-            destination: new HexCoordinate({q: 0, r: 1}),
-            numberOfActionsSpent: 1
-        }));
-
+    describe('adding movement mid turn instruction', () => {
         let mockHud: BattleSquaddieSelectedHUD;
-        mockHud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-        mockHud.mouseClickedSquaddieSelected = jest.fn();
+        let camera: BattleCamera;
+        let battlePhaseTracker: BattlePhaseTracker;
+        let battleSquaddieUIInput: BattleSquaddieUIInput;
+        let state: OrchestratorState;
+        let squaddieCurrentlyActing: CurrentSquaddieInstruction;
 
-        const state: OrchestratorState = new OrchestratorState({
-            missionMap,
-            squaddieRepo,
-            camera,
-            battleSquaddieUIInput,
-            battleSquaddieSelectedHUD: mockHud,
-            hexMap: missionMap.terrainTileMap,
-            battlePhaseTracker,
-            pathfinder: new Pathfinder(),
-            squaddieCurrentlyActing,
-            battleEventRecording: new Recording({}),
+        beforeEach(() => {
+            const missionMap: MissionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "]
+                })
+            });
+
+            battlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+
+            camera = new BattleCamera();
+
+            battleSquaddieUIInput = new BattleSquaddieUIInput({
+                squaddieRepository: squaddieRepo,
+                selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+                missionMap,
+                selectedSquaddieDynamicID: "player_soldier_0",
+                tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+            })
+
+            const mockResourceHandler = new (
+                <new (options: any) => ResourceHandler>ResourceHandler
+            )({
+                imageLoader: new stubImmediateLoader(),
+            }) as jest.Mocked<ResourceHandler>;
+            mockResourceHandler.loadResources = jest.fn();
+            mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
+            mockHud = new BattleSquaddieSelectedHUD({
+                missionMap,
+                resourceHandler: mockResourceHandler,
+                squaddieRepository: squaddieRepo,
+            });
+            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
+            mockHud.selectSquaddieAndDrawWindow({
+                dynamicID: "player_soldier_0",
+                repositionWindow: {mouseX: mouseX, mouseY: mouseY}
+            });
+
+            squaddieCurrentlyActing = new CurrentSquaddieInstruction({});
+            squaddieCurrentlyActing.addSquaddie({
+                dynamicSquaddieId: "player_soldier_0",
+                staticSquaddieId: "player_soldier",
+                startingLocation: new HexCoordinate({q: 0, r: 0}),
+            });
+            squaddieCurrentlyActing.addConfirmedActivity(new SquaddieMovementActivity({
+                destination: new HexCoordinate({q: 0, r: 1}),
+                numberOfActionsSpent: 1
+            }));
+
+            state = new OrchestratorState({
+                missionMap,
+                squaddieRepo,
+                camera,
+                battleSquaddieUIInput,
+                battleSquaddieSelectedHUD: mockHud,
+                hexMap: missionMap.terrainTileMap,
+                battlePhaseTracker,
+                pathfinder: new Pathfinder(),
+                squaddieCurrentlyActing,
+                battleEventRecording: new Recording({}),
+            });
         });
 
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX,
-            mouseY,
+        it('when user clicks on new location, will add movement to existing instruction', () => {
+            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
+            selector.mouseEventHappened(state, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX,
+                mouseY,
+            });
+            expect(selector.hasCompleted(state)).toBeTruthy();
+            expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(2);
+            expect(state.squaddieCurrentlyActing.instruction.getActivities()[1]).toStrictEqual(new SquaddieMovementActivity({
+                destination: new HexCoordinate({q: 0, r: 2}),
+                numberOfActionsSpent: 1,
+            }));
+            expect(state.squaddieCurrentlyActing.instruction.totalActionsSpent()).toBe(2);
         });
-
-        expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(2);
-        expect(state.squaddieCurrentlyActing.instruction.getActivities()[1]).toStrictEqual(new SquaddieMovementActivity({
-            destination: new HexCoordinate({q: 0, r: 2}),
-            numberOfActionsSpent: 1,
-        }));
-        expect(state.squaddieCurrentlyActing.instruction.totalActionsSpent()).toBe(2);
     });
 
     it('will add end turn to existing instruction', () => {
@@ -496,7 +524,7 @@ describe('BattleSquaddieSelector', () => {
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
 
-        const history = state.battleEventRecording.getHistory();
+        const history = state.battleEventRecording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual(new BattleEvent({
             currentSquaddieInstruction: endTurnInstruction
@@ -567,7 +595,7 @@ describe('BattleSquaddieSelector', () => {
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_TARGET);
 
-        const history = state.battleEventRecording.getHistory();
+        const history = state.battleEventRecording.history;
         expect(history).toHaveLength(0);
     });
 
@@ -617,7 +645,7 @@ describe('BattleSquaddieSelector', () => {
             const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
 
-            const history = state.battleEventRecording.getHistory();
+            const history = state.battleEventRecording.history;
             expect(history).toHaveLength(1);
             expect(history[0]).toStrictEqual(new BattleEvent({
                 currentSquaddieInstruction: endTurnInstruction,
