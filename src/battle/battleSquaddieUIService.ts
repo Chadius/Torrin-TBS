@@ -15,11 +15,9 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
         const state: BattleSquaddieUIInput = new BattleSquaddieUIInput(stateOptions);
         switch (state.selectionState) {
             case BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED:
-                if (
-                    state.tileClickedOn &&
-                    state.missionMap.getSquaddieAtLocation(state.tileClickedOn).isValid()
-                ) {
-                    return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+                const newSelectionState = ProcessNoSquaddieSelected(state);
+                if (newSelectionState !== undefined) {
+                    return newSelectionState;
                 }
                 break;
             case BattleSquaddieUISelectionState.SELECTED_SQUADDIE:
@@ -72,3 +70,21 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
         }
         return BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED;
     }
+
+const ProcessNoSquaddieSelected = (state: BattleSquaddieUIInput): BattleSquaddieUISelectionState => {
+    if (
+        state.tileClickedOn &&
+        state.missionMap.getSquaddieAtLocation(state.tileClickedOn).isValid()
+    ) {
+        return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+    }
+
+    if (
+        state.currentlyActingSquaddie
+        && !state.currentlyActingSquaddie.isReadyForNewSquaddie()
+    ) {
+        return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
+    }
+
+    return undefined;
+}

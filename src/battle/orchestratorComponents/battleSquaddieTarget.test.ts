@@ -28,6 +28,10 @@ import {
 import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {ResourceHandler} from "../../resource/resourceHandler";
+import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
+import {makeResult} from "../../utils/ResultOrError";
+import {ImageUI} from "../../ui/imageUI";
 
 jest.mock('p5', () => () => {
     return {}
@@ -42,8 +46,10 @@ describe('BattleSquaddieTarget', () => {
     let thiefDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
     let longswordActivity: SquaddieActivity;
+    let powerAttackLongswordActivity: SquaddieActivity;
     let state: OrchestratorState;
     let camera: BattleCamera;
+    let mockResourceHandler: jest.Mocked<ResourceHandler>;
 
     beforeEach(() => {
         targetComponent = new BattleSquaddieTarget();
@@ -68,6 +74,19 @@ describe('BattleSquaddieTarget', () => {
             }).filterCategory(TraitCategory.ACTIVITY),
             minimumRange: 1,
             maximumRange: 1,
+            actionsToSpend: 1,
+        });
+
+        powerAttackLongswordActivity = new SquaddieActivity({
+            name: "power attack longsword",
+            id: "powerAttackLongsword",
+            traits: new TraitStatusStorage({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+            minimumRange: 1,
+            maximumRange: 1,
+            actionsToSpend: 3,
         });
 
         knightStatic = new BattleSquaddieStatic({
@@ -84,6 +103,7 @@ describe('BattleSquaddieTarget', () => {
             staticSquaddie: knightStatic,
             dynamicSquaddieId: "Knight 0",
             squaddieTurn: new SquaddieTurn(),
+            mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });
 
         squaddieRepo.addSquaddie(knightStatic, knightDynamic);
@@ -117,12 +137,20 @@ describe('BattleSquaddieTarget', () => {
             currentSquaddieActivity: longswordActivity,
         });
 
+        mockResourceHandler = new (
+            <new (options: any) => ResourceHandler>ResourceHandler
+        )({
+            imageLoader: new stubImmediateLoader(),
+        }) as jest.Mocked<ResourceHandler>;
+        mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
         state = new OrchestratorState({
             missionMap: battleMap,
             squaddieRepo,
             hexMap: battleMap.terrainTileMap,
             squaddieCurrentlyActing: currentInstruction,
             pathfinder: new Pathfinder(),
+            resourceHandler: mockResourceHandler,
         });
 
         camera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
@@ -325,5 +353,100 @@ describe('BattleSquaddieTarget', () => {
 
         expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
         expect(knightDynamic.squaddieTurn.getRemainingActions()).toBe(1);
+    });
+
+
+    describe('reset actions based on squaddie', () => {
+        let map: MissionMap;
+
+        beforeEach(() => {
+            map = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "]
+                })
+            });
+        });
+
+        const setupSquaddie = ({
+                                   newInstruction,
+                               }: {
+            newInstruction: SquaddieInstruction,
+        }): OrchestratorState => {
+            let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
+            map = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: [
+                        "1 1 1",
+                    ]
+                })
+            });
+
+            let mockResourceHandler = new (
+                <new (options: any) => ResourceHandler>ResourceHandler
+            )({
+                imageLoader: new stubImmediateLoader(),
+            }) as jest.Mocked<ResourceHandler>;
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
+            return new OrchestratorState({
+                squaddieRepo: squaddieRepository,
+                missionMap: map,
+                hexMap: map.terrainTileMap,
+                squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+                    instruction: newInstruction,
+                }),
+                resourceHandler: mockResourceHandler,
+            });
+        }
+
+        it('should open the HUD if the player squaddie turn is not complete', () => {
+            state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+                dynamicID: knightDynamic.dynamicSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+            });
+
+            targetComponent.update(state, mockedP5);
+            clickOnThief();
+            clickOnConfirmTarget();
+            targetComponent.update(state, mockedP5);
+            targetComponent.reset(state);
+
+            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
+            expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+        });
+
+        it('should close the HUD if the player squaddie turn is complete', () => {
+            const currentInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({
+                instruction: new SquaddieInstruction({
+                    dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+                    staticSquaddieId: knightStatic.staticId,
+                    startingLocation: new HexCoordinate({q: 1, r: 1}),
+                }),
+                currentSquaddieActivity: powerAttackLongswordActivity,
+            });
+
+            state = new OrchestratorState({
+                missionMap: battleMap,
+                squaddieRepo,
+                hexMap: battleMap.terrainTileMap,
+                squaddieCurrentlyActing: currentInstruction,
+                pathfinder: new Pathfinder(),
+                resourceHandler: mockResourceHandler,
+            });
+
+            state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+                dynamicID: knightDynamic.dynamicSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+            });
+
+            targetComponent.update(state, mockedP5);
+            clickOnThief();
+            clickOnConfirmTarget();
+            targetComponent.update(state, mockedP5);
+            targetComponent.reset(state);
+
+            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
+            expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+        });
     });
 });

@@ -1,6 +1,7 @@
 import {MissionMap} from "../missionMap/missionMap";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
+import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
 
 export enum BattleSquaddieUISelectionState {
     UNKNOWN = "UNKNOWN",
@@ -9,25 +10,20 @@ export enum BattleSquaddieUISelectionState {
     MOVING_SQUADDIE = "MOVING_SQUADDIE",
 }
 
-type BattleSquaddieUIInputRequiredOptions = {
+export type BattleSquaddieUIInputOptions = {
     selectionState: BattleSquaddieUISelectionState;
     missionMap: MissionMap;
     squaddieRepository: BattleSquaddieRepository;
+    selectedSquaddieDynamicID?: string;
+    tileClickedOn?: HexCoordinate;
+    finishedAnimating?: boolean;
+    currentlyActingSquaddie?: CurrentSquaddieInstruction;
 }
-
-type BattleSquaddieUIInputOptionalOptions = {
-    selectedSquaddieDynamicID: string;
-    tileClickedOn: HexCoordinate;
-    finishedAnimating: boolean;
-}
-
-export type BattleSquaddieUIInputOptions =
-    BattleSquaddieUIInputRequiredOptions
-    & Partial<BattleSquaddieUIInputOptionalOptions>
 
 export class BattleSquaddieUIInput {
+    private _selectionState: BattleSquaddieUISelectionState;
+    private _currentlyActingSquaddie: CurrentSquaddieInstruction;
     selectedSquaddieDynamicID?: string;
-    selectionState: BattleSquaddieUISelectionState;
     missionMap: MissionMap;
     tileClickedOn?: HexCoordinate;
     squaddieRepository: BattleSquaddieRepository;
@@ -35,21 +31,26 @@ export class BattleSquaddieUIInput {
 
     constructor(options: BattleSquaddieUIInputOptions) {
         this.selectedSquaddieDynamicID = options.selectedSquaddieDynamicID;
-        this.selectionState = options.selectionState;
+        this._selectionState = options.selectionState;
         this.missionMap = options.missionMap;
         this.tileClickedOn = options.tileClickedOn;
         this.squaddieRepository = options.squaddieRepository;
         this.finishedAnimating = options.finishedAnimating;
+        this._currentlyActingSquaddie = options.currentlyActingSquaddie;
     }
 
     changeSelectionState(newSelectionState: BattleSquaddieUISelectionState, dynamicSquaddieId?: string) {
-        this.selectionState = newSelectionState;
+        this._selectionState = newSelectionState;
         if (dynamicSquaddieId !== undefined && dynamicSquaddieId !== null) {
             this.selectedSquaddieDynamicID = dynamicSquaddieId;
         }
     }
 
-    getSelectionState() {
-        return this.selectionState;
+    get selectionState(): BattleSquaddieUISelectionState {
+        return this._selectionState;
+    }
+
+    get currentlyActingSquaddie(): CurrentSquaddieInstruction {
+        return this._currentlyActingSquaddie;
     }
 }

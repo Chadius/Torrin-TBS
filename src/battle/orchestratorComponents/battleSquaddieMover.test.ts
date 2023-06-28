@@ -68,13 +68,7 @@ describe('BattleSquaddieMover', () => {
             squaddieTurn: new SquaddieTurn(),
         });
 
-        squaddieRepo.addStaticSquaddie(
-            player1Static
-        );
-
-        squaddieRepo.addDynamicSquaddie(
-            player1Dynamic
-        );
+        squaddieRepo.addSquaddie(player1Static, player1Dynamic);
 
         enemy1Static = new BattleSquaddieStatic({
             attributes: NullArmyAttributes(),

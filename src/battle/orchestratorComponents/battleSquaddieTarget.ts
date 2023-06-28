@@ -17,7 +17,12 @@ import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliat
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
-import {GetSquaddieAtScreenLocation, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {
+    DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
+    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
+    GetSquaddieAtScreenLocation,
+    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
+} from "./orchestratorUtils";
 import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
@@ -105,8 +110,11 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
 
     reset(state: OrchestratorState) {
         this.resetObject();
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
         state.hexMap.stopHighlightingTiles();
+
+        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
+        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     }
 
     private resetObject() {

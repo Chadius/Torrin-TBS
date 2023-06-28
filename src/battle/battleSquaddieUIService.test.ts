@@ -11,6 +11,9 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {NullArmyAttributes} from "../squaddie/armyAttributes";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
+import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
+import {SquaddieInstruction} from "./history/squaddieInstruction";
+import {SquaddieMovementActivity} from "./history/squaddieMovementActivity";
 
 describe('BattleSquaddieUIService', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -167,5 +170,35 @@ describe('BattleSquaddieUIService', () => {
                 }
             )
         ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
+    });
+
+    it('goes to SQUADDIE_SELECTED phase when the squaddie is mid turn', () => {
+        const missionMap = createMissionMap(["1 1 "]);
+        missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
+        const moveInstruction = new SquaddieInstruction({
+            staticSquaddieId: "torrin",
+            dynamicSquaddieId: "torrin_0",
+            startingLocation: new HexCoordinate({q: 0, r: 0})
+        });
+        moveInstruction.addActivity(new SquaddieMovementActivity({
+            destination: new HexCoordinate({q: 0, r: 1}),
+            numberOfActionsSpent: 1,
+        }));
+        const currentInstruction = new CurrentSquaddieInstruction({
+            instruction: moveInstruction
+        });
+
+        expect(
+            calculateNewBattleSquaddieUISelectionState(
+                {
+                    currentlyActingSquaddie: currentInstruction,
+                    selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
+                    missionMap,
+                    selectedSquaddieDynamicID: "torrin_0",
+                    squaddieRepository,
+                    finishedAnimating: true,
+                }
+            )
+        ).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
     });
 });

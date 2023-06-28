@@ -3,9 +3,10 @@ import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddieDynamic, BattleSquaddieStatic, canPlayerControlSquaddieRightNow} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
+import {highlightSquaddieReach} from "../animation/mapHighlight";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: OrchestratorState) => {
     if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
@@ -14,6 +15,41 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: Orches
         );
         if (!dynamicSquaddie.squaddieTurn.hasActionsRemaining()) {
             state.squaddieCurrentlyActing.reset();
+        }
+    }
+}
+
+export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: OrchestratorState) => {
+    if (
+        state.squaddieCurrentlyActing
+        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
+    ) {
+        const {
+            staticSquaddie,
+            dynamicSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
+        if (canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie)) {
+            state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+                dynamicID: state.squaddieCurrentlyActing.dynamicSquaddieId,
+            });
+        } else {
+            state.battleSquaddieSelectedHUD.reset();
+        }
+    }
+}
+
+export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: OrchestratorState) => {
+    if (
+        state.squaddieCurrentlyActing
+        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
+    ) {
+        const {
+            staticSquaddie,
+            dynamicSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
+        if (canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie)) {
+            state.hexMap.stopHighlightingTiles();
+            highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         }
     }
 }

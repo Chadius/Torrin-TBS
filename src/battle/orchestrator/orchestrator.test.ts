@@ -20,6 +20,9 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {OrchestratorComponent} from "./orchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import * as orchestratorUtils from "../orchestratorComponents/orchestratorUtils";
+
 
 jest.mock('p5', () => () => {
     return {}
@@ -48,6 +51,7 @@ describe('Battle Orchestrator', () => {
     let mockSquaddieMover: BattleSquaddieMover;
     let mockMapDisplay: BattleMapDisplay;
     let mockPhaseController: BattlePhaseController;
+    let mockHud: BattleSquaddieSelectedHUD;
 
     let nullState: OrchestratorState;
 
@@ -98,6 +102,9 @@ describe('Battle Orchestrator', () => {
         mockPhaseController.hasCompleted = jest.fn().mockReturnValue(true);
         mockPhaseController.draw = jest.fn();
 
+        mockHud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
+        mockHud.selectSquaddieAndDrawWindow = jest.fn();
+
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     }
 
@@ -105,7 +112,8 @@ describe('Battle Orchestrator', () => {
         nullState = new OrchestratorState({
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
-            })
+            }),
+            battleSquaddieSelectedHUD: mockHud,
         });
         setupMocks();
     });
@@ -160,6 +168,9 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will call the battle map display system if not loading', () => {
+        jest.spyOn(orchestratorUtils, "DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
+        });
+
         const instruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
@@ -173,7 +184,8 @@ describe('Battle Orchestrator', () => {
             displayMap: true,
             squaddieCurrentlyActing: new CurrentSquaddieInstruction({
                 instruction,
-            })
+            }),
+            battleSquaddieSelectedHUD: mockHud,
         });
         stateWantsToDisplayTheMap.squaddieRepository = new BattleSquaddieRepository();
         stateWantsToDisplayTheMap.squaddieRepository.addSquaddie(

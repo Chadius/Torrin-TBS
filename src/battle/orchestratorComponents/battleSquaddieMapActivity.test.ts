@@ -18,13 +18,13 @@ jest.mock('p5', () => () => {
     return {}
 });
 describe('BattleSquaddieMapActivity', () => {
-    let squaddieRepo: BattleSquaddieRepository;
+    let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
     let mockedP5: p5;
 
     beforeEach(() => {
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepository = new BattleSquaddieRepository();
         staticSquaddieBase = new BattleSquaddieStatic({
             attributes: new ArmyAttributes({
                 movement: new SquaddieMovement({
@@ -50,10 +50,9 @@ describe('BattleSquaddieMapActivity', () => {
             mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
         });
 
-        squaddieRepo.addStaticSquaddie(
-            staticSquaddieBase
+        squaddieRepository.addSquaddie(
+            staticSquaddieBase, dynamicSquaddieBase
         );
-        squaddieRepo.addDynamicSquaddie(dynamicSquaddieBase);
         mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
 
@@ -71,7 +70,7 @@ describe('BattleSquaddieMapActivity', () => {
             squaddieCurrentlyActing: new CurrentSquaddieInstruction({
                 instruction: endTurnInstruction,
             }),
-            squaddieRepo,
+            squaddieRepo: squaddieRepository,
         })
 
         expect(mapActivity.update(state, mockedP5));

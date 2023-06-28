@@ -44,11 +44,13 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     private gaveCompleteInstruction: boolean;
     private gaveInstructionThatNeedsATarget: boolean;
     private pannedCameraOnComputerControlledSquaddie: boolean;
+    private initialFocusOnSquaddie: boolean;
 
     constructor() {
         this.gaveCompleteInstruction = false;
         this.gaveInstructionThatNeedsATarget = false;
         this.pannedCameraOnComputerControlledSquaddie = false;
+        this.initialFocusOnSquaddie = false;
     }
 
     hasCompleted(state: OrchestratorState): boolean {
@@ -121,6 +123,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 selectionState: state.battleSquaddieUIInput.selectionState,
                 missionMap: state.missionMap,
                 squaddieRepository: state.squaddieRepository,
+                currentlyActingSquaddie: state.squaddieCurrentlyActing,
             }
         );
         if (newSelectionState !== BattleSquaddieUISelectionState.SELECTED_SQUADDIE) {
@@ -178,7 +181,8 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 selectionState: state.battleSquaddieUIInput.selectionState,
                 missionMap: state.missionMap,
                 squaddieRepository: state.squaddieRepository,
-                selectedSquaddieDynamicID: dynamicSquaddie.dynamicSquaddieId
+                selectedSquaddieDynamicID: dynamicSquaddie.dynamicSquaddieId,
+                currentlyActingSquaddie: state.squaddieCurrentlyActing,
             }
         );
 
@@ -285,6 +289,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             this.askComputerControlSquaddie(state);
         }
+        this.beginSelectionOnCurrentlyActingSquaddie(state);
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
@@ -314,6 +319,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         this.gaveCompleteInstruction = false;
         this.pannedCameraOnComputerControlledSquaddie = false;
         this.gaveInstructionThatNeedsATarget = false;
+        this.initialFocusOnSquaddie = false;
 
         state.battleSquaddieSelectedHUD.reset();
     }
@@ -471,6 +477,20 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         }
         if (newActivity instanceof SquaddieEndTurnActivity) {
             this.addEndTurnInstruction(state, squaddieInstruction.dynamicSquaddieId);
+        }
+    }
+
+    private beginSelectionOnCurrentlyActingSquaddie(state: OrchestratorState) {
+        if (
+            !this.initialFocusOnSquaddie
+            && state.squaddieCurrentlyActing
+            && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
+        ) {
+            state.battleSquaddieUIInput.changeSelectionState(
+                BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+                state.squaddieCurrentlyActing.dynamicSquaddieId
+            );
+            this.initialFocusOnSquaddie = true;
         }
     }
 }
