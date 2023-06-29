@@ -37,6 +37,7 @@ import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction"
 import {SquaddieActivity} from "../../squaddie/activity";
 
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
+import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -158,23 +159,53 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     }
 
     private updateBattleSquaddieUISelectedSquaddie(state: OrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
-        if (
-            !state.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
-        ) {
-            state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
+        const squaddieClickedOnInfoAndMapLocation = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
+        const foundSquaddieAtLocation = squaddieClickedOnInfoAndMapLocation.isValid();
+
+        if (foundSquaddieAtLocation) {
+            this.updateBattleSquaddieUISelectedSquaddieClickedOnSquaddie(state, squaddieClickedOnInfoAndMapLocation, mouseX, mouseY);
+        } else {
+            this.updateBattleSquaddieUISelectedSquaddieClickedOnMap(state, clickedHexCoordinate, mouseX, mouseY);
+        }
+    }
+
+    private updateBattleSquaddieUISelectedSquaddieClickedOnSquaddie(state: OrchestratorState, squaddieClickedOnInfoAndMapLocation: MissionMapSquaddieDatum, mouseX: number, mouseY: number) {
+        state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+            dynamicID: squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId,
+            repositionWindow: {
+                mouseX: mouseX,
+                mouseY: mouseY
+            }
+        });
+
+        if (!this.isHudInstructingTheCurrentlyActingSquaddie(state)) {
             return;
         }
 
-        const squaddieDatum = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
-        if (squaddieDatum.isValid()) {
-            this.focusOnSelectedSquaddie(state, squaddieDatum.dynamicSquaddieId, clickedHexCoordinate, mouseX, mouseY);
+        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie();
+        const squaddieToHighlightDynamicId: string = startOfANewSquaddieTurn
+            ? squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId
+            : state.battleSquaddieUIInput.selectedSquaddieDynamicID;
+        state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, squaddieToHighlightDynamicId);
+
+        const {
+            staticSquaddie,
+            dynamicSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(squaddieToHighlightDynamicId));
+
+        state.hexMap.stopHighlightingTiles();
+        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+    }
+
+    private updateBattleSquaddieUISelectedSquaddieClickedOnMap(state: OrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
+        if (!this.isHudInstructingTheCurrentlyActingSquaddie(state)) {
+            return;
         }
 
         const {
             staticSquaddie,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.battleSquaddieUIInput.selectedSquaddieDynamicID));
-
         const newSelectionState: BattleSquaddieUISelectionState = calculateNewBattleSquaddieUISelectionState(
             {
                 tileClickedOn: clickedHexCoordinate,
@@ -274,7 +305,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         state.hexMap.stopHighlightingTiles();
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
-        state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddie.dynamicSquaddieId);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             dynamicID: dynamicSquaddie.dynamicSquaddieId,
             repositionWindow: {
@@ -391,7 +421,24 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         return squaddieActivity;
     }
 
+    private isHudInstructingTheCurrentlyActingSquaddie(state: OrchestratorState): boolean {
+        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie();
+        const squaddieShownInHUD = state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId();
+
+        if (
+            !startOfANewSquaddieTurn
+            && squaddieShownInHUD !== state.squaddieCurrentlyActing.dynamicSquaddieId
+        ) {
+            return false;
+        }
+        return true;
+    }
+
     private reactToPlayerSelectedActivity(state: OrchestratorState) {
+        if (!this.isHudInstructingTheCurrentlyActingSquaddie(state)) {
+            return;
+        }
+
         const {
             staticSquaddie,
             dynamicSquaddie,

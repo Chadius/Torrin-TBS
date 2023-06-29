@@ -22,7 +22,7 @@ export class BattleMapDisplay implements OrchestratorComponent {
         this.drawSquaddieMapIcons(state, p);
         state.camera.moveCamera();
 
-        state.battleSquaddieSelectedHUD.draw(p);
+        state.battleSquaddieSelectedHUD.draw(state.squaddieCurrentlyActing, p);
     }
 
     hasCompleted(state: OrchestratorState): boolean {

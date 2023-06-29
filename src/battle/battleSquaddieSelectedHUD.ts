@@ -13,6 +13,8 @@ import {ActivityButton} from "../squaddie/activityButton";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
+import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
+import {OrchestratorState} from "./orchestrator/orchestratorState";
 
 export class BattleSquaddieSelectedHUD {
     squaddieRepository: BattleSquaddieRepository;
@@ -185,7 +187,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedSquaddieDynamicId;
     }
 
-    draw(p: p5) {
+    draw(squaddieCurrentlyActing: CurrentSquaddieInstruction, p: p5) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
@@ -193,6 +195,7 @@ export class BattleSquaddieSelectedHUD {
         this.drawSquaddieID(p);
         this.drawNumberOfActions(p);
         this.drawSquaddieActivities(p);
+        this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, p);
     }
 
     private drawSquaddieID(p: p5) {
@@ -303,5 +306,28 @@ export class BattleSquaddieSelectedHUD {
         this.affiliateIcon = undefined;
         this.selectedActivity = undefined;
         this.activityButtons = undefined;
+    }
+
+    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: CurrentSquaddieInstruction, p: p5) {
+        if (
+            !squaddieCurrentlyActing
+            || squaddieCurrentlyActing.isReadyForNewSquaddie()
+            || this.selectedSquaddieDynamicId === squaddieCurrentlyActing.instruction.getDynamicSquaddieId()
+        ) {
+            return;
+        }
+
+        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(squaddieCurrentlyActing.instruction.getDynamicSquaddieId()));
+
+        p.push();
+        const textLeft: number = this._background.area.getCenterX() - 40;
+        const textTop: number = this._background.area.getBottom() - 30;
+
+        p.textSize(24);
+        p.fill("#efefef");
+
+        p.text(`Cannot act, wait for ${staticSquaddie.squaddieId.name}`, textLeft, textTop);
+
+        p.pop();
     }
 }

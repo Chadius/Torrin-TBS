@@ -37,6 +37,7 @@ import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
+import SpyInstance = jest.SpyInstance;
 
 jest.mock('p5', () => () => {
     return {}
@@ -779,5 +780,182 @@ describe('BattleSquaddieSelector', () => {
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
+    });
+
+    describe('squaddie must complete their turn before moving other squaddies', () => {
+        let missionMap: MissionMap;
+        let interruptSquaddieStatic: BattleSquaddieStatic;
+        let interruptSquaddieDynamic: BattleSquaddieDynamic;
+        let soldierCurrentlyActing: CurrentSquaddieInstruction;
+        let mockHud: BattleSquaddieSelectedHUD;
+        let battlePhaseTracker: BattlePhaseTracker;
+        let selectSquaddieAndDrawWindowSpy: SpyInstance;
+        let camera: BattleCamera;
+        let state: OrchestratorState;
+        let startingMouseX: number;
+        let startingMouseY: number;
+
+        beforeEach(() => {
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 1 "]
+                })
+            });
+            battlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            interruptSquaddieStatic = new BattleSquaddieStatic({
+                squaddieId: new SquaddieId({
+                    name: "interrupting squaddie",
+                    staticId: "interrupting squaddie",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            });
+            interruptSquaddieDynamic = new BattleSquaddieDynamic({
+                staticSquaddie: interruptSquaddieStatic,
+                dynamicSquaddieId: "interrupting squaddie",
+            });
+            squaddieRepo.addSquaddie(interruptSquaddieStatic, interruptSquaddieDynamic);
+            missionMap.addSquaddie(
+                interruptSquaddieStatic.staticId,
+                interruptSquaddieDynamic.dynamicSquaddieId,
+                new HexCoordinate({q: 0, r: 1})
+            );
+
+            const soldierSquaddieInfo = missionMap.getSquaddieByDynamicId("player_soldier_0");
+
+            const movingInstruction = new SquaddieInstruction({
+                staticSquaddieId: soldierSquaddieInfo.staticSquaddieId,
+                dynamicSquaddieId: soldierSquaddieInfo.dynamicSquaddieId,
+                startingLocation: soldierSquaddieInfo.mapLocation,
+            });
+            movingInstruction.addActivity(new SquaddieMovementActivity({
+                destination: new HexCoordinate({q: 0, r: 2}),
+                numberOfActionsSpent: 1,
+            }));
+
+            soldierCurrentlyActing = new CurrentSquaddieInstruction({
+                instruction: movingInstruction
+            });
+
+            const mockResourceHandler = new (
+                <new (options: any) => ResourceHandler>ResourceHandler
+            )({
+                imageLoader: new stubImmediateLoader(),
+            }) as jest.Mocked<ResourceHandler>;
+            mockResourceHandler.loadResources = jest.fn();
+            mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
+            mockHud = new BattleSquaddieSelectedHUD({
+                missionMap,
+                resourceHandler: mockResourceHandler,
+                squaddieRepository: squaddieRepo,
+            });
+
+            camera = new BattleCamera();
+            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
+            mockHud.selectSquaddieAndDrawWindow({
+                dynamicID: "player_soldier_0",
+                repositionWindow: {mouseX: mouseX, mouseY: mouseY}
+            });
+
+            selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
+
+            const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
+                squaddieRepository: squaddieRepo,
+                selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+                missionMap,
+                selectedSquaddieDynamicID: "player_soldier_0",
+                tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+            })
+
+            state = new OrchestratorState({
+                missionMap,
+                squaddieRepo,
+                camera,
+                battleSquaddieUIInput,
+                battleSquaddieSelectedHUD: mockHud,
+                hexMap: missionMap.terrainTileMap,
+                battlePhaseTracker,
+                pathfinder: new Pathfinder(),
+                battleEventRecording: new Recording({}),
+                squaddieCurrentlyActing: soldierCurrentlyActing,
+            });
+
+            const interruptSquaddieOnMap = missionMap.getSquaddieByDynamicId("interrupting squaddie");
+            [startingMouseX, startingMouseY] = convertMapCoordinatesToScreenCoordinates(
+                interruptSquaddieOnMap.mapLocation.q,
+                interruptSquaddieOnMap.mapLocation.r,
+                ...camera.getCoordinates()
+            );
+
+            selector.mouseEventHappened(state, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX: startingMouseX,
+                mouseY: startingMouseY
+            });
+            expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
+                dynamicID: interruptSquaddieDynamic.dynamicSquaddieId,
+                repositionWindow: {
+                    mouseX: startingMouseX, mouseY: startingMouseY
+                }
+            });
+        });
+
+        it('ignores movement commands issued to other squaddies', () => {
+
+            expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
+            expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
+                dynamicID: interruptSquaddieDynamic.dynamicSquaddieId,
+                repositionWindow: {
+                    mouseX: startingMouseX, mouseY: startingMouseY
+                }
+            });
+            expect(selector.hasCompleted(state)).toBeFalsy();
+
+            let [endingMouseX, endingMouseY] = convertMapCoordinatesToScreenCoordinates(
+                0, 3,
+                ...camera.getCoordinates()
+            );
+
+            selector.mouseEventHappened(state, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX: endingMouseX,
+                mouseY: endingMouseY
+            });
+
+            expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
+            expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(selector.hasCompleted(state)).toBeFalsy();
+        });
+
+        it('ignores action commands issued to other squaddies', () => {
+            const longswordActivity: SquaddieActivity = new SquaddieActivity({
+                name: "longsword",
+                id: "longsword",
+                traits: NullTraitStatusStorage(),
+                actionsToSpend: 1,
+                minimumRange: 0,
+                maximumRange: 1,
+                targetingShape: TargetingShape.Snake,
+            });
+
+            mockHud.wasActivitySelected = jest.fn().mockImplementationOnce(() => {return false;}).mockReturnValue(true);
+            mockHud.getSelectedActivity = jest.fn().mockReturnValue(longswordActivity);
+            mockHud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
+            mockHud.didMouseClickOnHUD = jest.fn().mockImplementationOnce(() => {return false;}).mockReturnValue(true);
+            mockHud.mouseClicked = jest.fn();
+
+            selector.mouseEventHappened(state, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX: 0,
+                mouseY: 0
+            });
+            expect(state.squaddieCurrentlyActing.currentSquaddieActivity).toBeUndefined();
+
+            expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
+            expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(selector.hasCompleted(state)).toBeFalsy();
+        });
     });
 });
