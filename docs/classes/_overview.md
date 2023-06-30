@@ -79,6 +79,8 @@ Role: Intel
 
 Class bonuses: +1 Body, +1 Vision, +1 Movement
 
+- Pause: 0 action. Ends their turn without consuming actions, so they can act again if they have leftover actions.
+
 ## Strategist
 Strategists understand how to anticipate the enemy and tell if attacking right now is a good idea or not.
 Role: Intel
