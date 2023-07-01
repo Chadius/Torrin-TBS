@@ -17,13 +17,7 @@ import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliat
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
-import {
-    DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
-    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
-    GetSquaddieAtScreenLocation,
-    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
-} from "./orchestratorUtils";
-import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
+import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -102,7 +96,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         if (this.hasConfirmedAction) {
             return {
                 displayMap: true,
-                nextMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+                nextMode: BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY,
             }
         }
         return undefined;
@@ -111,10 +105,6 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     reset(state: OrchestratorState) {
         this.resetObject();
         state.hexMap.stopHighlightingTiles();
-
-        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
-        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     }
 
     private resetObject() {
@@ -303,8 +293,6 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         );
 
         this.hasConfirmedAction = true;
-
         actingSquaddieDynamic.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentSquaddieActivity);
-        tintSquaddieIfTurnIsComplete(actingSquaddieDynamic, actingSquaddieStatic);
     }
 }

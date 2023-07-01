@@ -22,6 +22,7 @@ import {OrchestratorComponent} from "./orchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import * as orchestratorUtils from "../orchestratorComponents/orchestratorUtils";
+import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
 
 
 jest.mock('p5', () => () => {
@@ -34,6 +35,7 @@ describe('Battle Orchestrator', () => {
         cutscenePlayer: BattleCutscenePlayer;
         squaddieSelector: BattleSquaddieSelector;
         squaddieMapActivity: BattleSquaddieMapActivity;
+        squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
         squaddieMover: BattleSquaddieMover;
         phaseController: BattlePhaseController;
         squaddieTarget: BattleSquaddieTarget;
@@ -48,6 +50,7 @@ describe('Battle Orchestrator', () => {
     let mockSquaddieSelector: BattleSquaddieSelector;
     let mockSquaddieTarget: BattleSquaddieTarget;
     let mockSquaddieMapActivity: BattleSquaddieMapActivity;
+    let mockSquaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
     let mockSquaddieMover: BattleSquaddieMover;
     let mockMapDisplay: BattleMapDisplay;
     let mockPhaseController: BattlePhaseController;
@@ -90,6 +93,13 @@ describe('Battle Orchestrator', () => {
         mockSquaddieMapActivity.mouseEventHappened = jest.fn();
         mockSquaddieMapActivity.hasCompleted = jest.fn().mockReturnValue(true);
 
+        mockSquaddieSquaddieActivity = new (<new () => BattleSquaddieSquaddieActivity>BattleSquaddieSquaddieActivity)() as jest.Mocked<BattleSquaddieSquaddieActivity>;
+        mockSquaddieSquaddieActivity.update = jest.fn();
+        mockSquaddieSquaddieActivity.mouseEventHappened = jest.fn();
+        mockSquaddieSquaddieActivity.hasCompleted = jest.fn().mockReturnValue(true);
+        jest.spyOn(mockSquaddieSquaddieActivity as any, "consumeSquaddieActionsAndMaybeEndTheirTurn").mockImplementation(() => {
+        });
+
         mockMapDisplay = new (<new () => BattleMapDisplay>BattleMapDisplay)() as jest.Mocked<BattleMapDisplay>;
         mockMapDisplay.update = jest.fn();
         mockMapDisplay.mouseEventHappened = jest.fn();
@@ -125,13 +135,14 @@ describe('Battle Orchestrator', () => {
                 cutscenePlayer: mockBattleCutscenePlayer,
                 squaddieSelector: mockSquaddieSelector,
                 squaddieMapActivity: mockSquaddieMapActivity,
+                squaddieSquaddieActivity: mockSquaddieSquaddieActivity,
                 squaddieMover: mockSquaddieMover,
                 squaddieTarget: mockSquaddieTarget,
                 mapDisplay: mockMapDisplay,
                 phaseController: mockPhaseController,
             },
             ...overrides
-        })
+        });
 
         if (overrides.initialMode) {
             orchestrator.mode = overrides.initialMode;
@@ -335,6 +346,7 @@ describe('Battle Orchestrator', () => {
                         [BattleOrchestratorMode.SQUADDIE_TARGET]: mockSquaddieTarget,
                         [BattleOrchestratorMode.SQUADDIE_MOVER]: mockSquaddieMover,
                         [BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY]: mockSquaddieMapActivity,
+                        [BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY]: mockSquaddieSquaddieActivity,
                     };
 
                     loadAndExpect({

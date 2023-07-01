@@ -305,9 +305,9 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
         });
 
-        it('should change the state to Squaddie Selected', () => {
+        it('should change the state to Squaddie Squaddie Activity', () => {
             const recommendedInfo = targetComponent.recommendStateChanges(state);
-            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
+            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
         });
 
         it('should consume the squaddie actions', () => {
@@ -353,100 +353,5 @@ describe('BattleSquaddieTarget', () => {
 
         expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
         expect(knightDynamic.squaddieTurn.getRemainingActions()).toBe(1);
-    });
-
-
-    describe('reset actions based on squaddie', () => {
-        let map: MissionMap;
-
-        beforeEach(() => {
-            map = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 1 "]
-                })
-            });
-        });
-
-        const setupSquaddie = ({
-                                   newInstruction,
-                               }: {
-            newInstruction: SquaddieInstruction,
-        }): OrchestratorState => {
-            let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
-            map = new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: [
-                        "1 1 1",
-                    ]
-                })
-            });
-
-            let mockResourceHandler = new (
-                <new (options: any) => ResourceHandler>ResourceHandler
-            )({
-                imageLoader: new stubImmediateLoader(),
-            }) as jest.Mocked<ResourceHandler>;
-            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
-
-            return new OrchestratorState({
-                squaddieRepo: squaddieRepository,
-                missionMap: map,
-                hexMap: map.terrainTileMap,
-                squaddieCurrentlyActing: new CurrentSquaddieInstruction({
-                    instruction: newInstruction,
-                }),
-                resourceHandler: mockResourceHandler,
-            });
-        }
-
-        it('should open the HUD if the player squaddie turn is not complete', () => {
-            state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                dynamicID: knightDynamic.dynamicSquaddieId,
-                repositionWindow: {mouseX: 0, mouseY: 0},
-            });
-
-            targetComponent.update(state, mockedP5);
-            clickOnThief();
-            clickOnConfirmTarget();
-            targetComponent.update(state, mockedP5);
-            targetComponent.reset(state);
-
-            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
-            expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
-        });
-
-        it('should close the HUD if the player squaddie turn is complete', () => {
-            const currentInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({
-                instruction: new SquaddieInstruction({
-                    dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-                    staticSquaddieId: knightStatic.staticId,
-                    startingLocation: new HexCoordinate({q: 1, r: 1}),
-                }),
-                currentSquaddieActivity: powerAttackLongswordActivity,
-            });
-
-            state = new OrchestratorState({
-                missionMap: battleMap,
-                squaddieRepo,
-                hexMap: battleMap.terrainTileMap,
-                squaddieCurrentlyActing: currentInstruction,
-                pathfinder: new Pathfinder(),
-                resourceHandler: mockResourceHandler,
-            });
-
-            state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                dynamicID: knightDynamic.dynamicSquaddieId,
-                repositionWindow: {mouseX: 0, mouseY: 0},
-            });
-
-            targetComponent.update(state, mockedP5);
-            clickOnThief();
-            clickOnConfirmTarget();
-            targetComponent.update(state, mockedP5);
-            targetComponent.reset(state);
-
-            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
-            expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
-        });
     });
 });

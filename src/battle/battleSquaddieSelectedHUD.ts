@@ -14,7 +14,6 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
 
 export class BattleSquaddieSelectedHUD {
     squaddieRepository: BattleSquaddieRepository;

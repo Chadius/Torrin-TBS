@@ -73,12 +73,12 @@ describe('BattleSquaddieMapActivity', () => {
             squaddieRepo: squaddieRepository,
         })
 
-        expect(mapActivity.update(state, mockedP5));
+        mapActivity.update(state, mockedP5);
         expect(mapActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(mapActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => 500);
 
-        expect(mapActivity.update(state, mockedP5));
+        mapActivity.update(state, mockedP5);
         expect(mapActivity.hasCompleted(state)).toBeTruthy();
 
         const stateChanges = mapActivity.recommendStateChanges(state);

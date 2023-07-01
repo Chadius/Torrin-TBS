@@ -17,6 +17,7 @@ import {EndTurnTeamStrategy} from "./battle/teamStrategy/endTurn";
 import {MoveCloserToSquaddie} from "./battle/teamStrategy/moveCloserToSquaddie";
 import {SquaddieAffiliation} from "./squaddie/squaddieAffiliation";
 import {BattleSquaddieTarget} from "./battle/orchestratorComponents/battleSquaddieTarget";
+import {BattleSquaddieSquaddieActivity} from "./battle/orchestratorComponents/battleSquaddieSquaddieActivity";
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -122,6 +123,7 @@ export const sketch = (p: p5) => {
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
             squaddieTarget: new BattleSquaddieTarget(),
+            squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
         });
     }
 

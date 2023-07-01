@@ -940,10 +940,14 @@ describe('BattleSquaddieSelector', () => {
                 targetingShape: TargetingShape.Snake,
             });
 
-            mockHud.wasActivitySelected = jest.fn().mockImplementationOnce(() => {return false;}).mockReturnValue(true);
+            mockHud.wasActivitySelected = jest.fn().mockImplementationOnce(() => {
+                return false;
+            }).mockReturnValue(true);
             mockHud.getSelectedActivity = jest.fn().mockReturnValue(longswordActivity);
             mockHud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
-            mockHud.didMouseClickOnHUD = jest.fn().mockImplementationOnce(() => {return false;}).mockReturnValue(true);
+            mockHud.didMouseClickOnHUD = jest.fn().mockImplementationOnce(() => {
+                return false;
+            }).mockReturnValue(true);
             mockHud.mouseClicked = jest.fn();
 
             selector.mouseEventHappened(state, {
