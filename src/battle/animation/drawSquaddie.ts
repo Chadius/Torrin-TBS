@@ -95,10 +95,17 @@ export const updateSquaddieIconLocation = (dynamicSquaddie: BattleSquaddieDynami
     setImageToLocation(dynamicSquaddie, xyCoords);
 }
 
-export const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath?: SearchPath) => {
+export const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
+    if (squaddieMovePath.getTilesTraveled().length <= 1) {
+        return true;
+    }
+
+    if (timeMovementStarted === undefined) {
+        return true;
+    }
+
     const timePassed = Date.now() - timeMovementStarted;
-    const movementAnimationNeeded = squaddieMovePath && squaddieMovePath.getTilesTraveled().length > 0;
-    return !(movementAnimationNeeded && timePassed < TIME_TO_MOVE);
+    return timePassed >= TIME_TO_MOVE;
 }
 
 export const moveSquaddieAlongPath = (dynamicSquaddie: BattleSquaddieDynamic, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
