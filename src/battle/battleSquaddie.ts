@@ -9,7 +9,7 @@ import {InBattleAttributes, NullInBattleAttributes} from "./stats/inBattleAttrib
 
 export class BattleSquaddieStatic {
     squaddieId: SquaddieId;
-    activities: SquaddieActivity[];
+    private _activities: SquaddieActivity[];
     attributes: ArmyAttributes;
 
     constructor(options: {
@@ -18,7 +18,7 @@ export class BattleSquaddieStatic {
         attributes?: ArmyAttributes,
     }) {
         this.squaddieId = options.squaddieId;
-        this.activities = options.activities || [];
+        this._activities = options.activities || [];
         this.attributes = options.attributes || NullArmyAttributes();
     }
 
@@ -28,6 +28,14 @@ export class BattleSquaddieStatic {
 
     get staticId(): string {
         return this.squaddieId.staticId;
+    }
+
+    get activities(): SquaddieActivity[] {
+        return this._activities;
+    }
+
+    addActivity(newActivity: SquaddieActivity) {
+        this._activities.push(newActivity);
     }
 }
 

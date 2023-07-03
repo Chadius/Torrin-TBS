@@ -16,6 +16,11 @@ import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
 import {TextBox} from "../ui/textBox";
 
+enum ActivityValidityCheck {
+    IS_VALID,
+    SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTIONS,
+}
+
 export class BattleSquaddieSelectedHUD {
     squaddieRepository: BattleSquaddieRepository;
     missionMap: MissionMap;
@@ -199,6 +204,7 @@ export class BattleSquaddieSelectedHUD {
         this.drawSquaddieID(p);
         this.drawNumberOfActions(p);
         this.drawSquaddieActivities(p);
+        this.invalidCommandWarningTextBox.draw(p);
         this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, p);
     }
 
@@ -293,7 +299,12 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        this.selectedActivity = clickedActivityButton.activity;
+        const activityValidCheck = this.checkIfActivityIsValid(clickedActivityButton.activity);
+        if (activityValidCheck === ActivityValidityCheck.IS_VALID) {
+            this.selectedActivity = clickedActivityButton.activity;
+            return;
+        }
+        this.warnUserNotEnoughActionsToPerformAction(clickedActivityButton.activity);
     }
 
     reset() {
@@ -301,6 +312,15 @@ export class BattleSquaddieSelectedHUD {
         this.affiliateIcon = undefined;
         this.selectedActivity = undefined;
         this.activityButtons = undefined;
+        this.invalidCommandWarningTextBox = new TextBox({
+            text: "",
+            textSize: 0,
+            fontColor: [0, 0, 0],
+            area: new RectArea({
+                left: 0, top: 0, width: 0, height: 0,
+            }),
+            duration: 0,
+        })
     }
 
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: CurrentSquaddieInstruction, p: p5) {
@@ -312,14 +332,12 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-
         const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(squaddieCurrentlyActing.instruction.getDynamicSquaddieId()));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${staticSquaddie.squaddieId.name}`;
         this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText);
-        this.invalidCommandWarningTextBox.draw(p);
     }
 
-    private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string) {
+    private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration?: number) {
         if (
             this.invalidCommandWarningTextBox === undefined
             || this.invalidCommandWarningTextBox.isDone()
@@ -333,7 +351,8 @@ export class BattleSquaddieSelectedHUD {
                     baseRectangle: this.background.area,
                     anchorLeft: HorizontalAnchor.MIDDLE,
                     margin: [0, 0, 30, 40],
-                })
+                }),
+                duration
             })
         }
     }
@@ -350,5 +369,32 @@ export class BattleSquaddieSelectedHUD {
                 margin: [20, 0, 0, 70],
             })
         });
+    }
+
+    private warnUserNotEnoughActionsToPerformAction(activity: SquaddieActivity | SquaddieEndTurnActivity): void {
+        let warningText: string = '';
+        if (activity instanceof SquaddieEndTurnActivity) {
+            warningText = "Not enough actions to wait???";
+        } else {
+            warningText = `Need ${activity.actionsToSpend} actions to use this ability`
+        }
+
+        this.maybeCreateInvalidCommandWarningTextBox(
+            warningText,
+            2000,
+        );
+    }
+
+    private checkIfActivityIsValid(activity: SquaddieActivity | SquaddieEndTurnActivity): ActivityValidityCheck {
+        if (activity instanceof SquaddieEndTurnActivity) {
+            return ActivityValidityCheck.IS_VALID;
+        }
+
+        const {dynamicSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+        if (dynamicSquaddie.squaddieTurn.getRemainingActions() < activity.actionsToSpend) {
+            return ActivityValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTIONS;
+        }
+
+        return ActivityValidityCheck.IS_VALID
     }
 }

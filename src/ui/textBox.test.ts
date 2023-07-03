@@ -22,6 +22,7 @@ describe('Pop up text', () => {
     });
 
     it('will try to draw the text for a given amount of time', () => {
+        jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const textBox: TextBox = new TextBox({
             text: "A text box",
             textSize: 18,
@@ -35,8 +36,6 @@ describe('Pop up text', () => {
             duration: 1000,
         });
 
-
-        jest.spyOn(Date, 'now').mockImplementation(() => 0);
         textBox.draw(mockedP5);
         expect(textBox.isDone()).toBeFalsy();
 

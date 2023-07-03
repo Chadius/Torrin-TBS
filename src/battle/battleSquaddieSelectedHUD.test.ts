@@ -15,6 +15,7 @@ import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {RectArea} from "../ui/rectArea";
+import {getResultOrThrowError} from "../utils/ResultOrError";
 
 jest.mock('p5', () => () => {
     return {}
@@ -27,6 +28,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let mockedP5: p5;
     let playerSquaddieDynamicID: string = "player_squaddie_0";
     let longswordActivity: SquaddieActivity;
+    let warnUserNotEnoughActionsToPerformActionSpy: jest.SpyInstance;
 
     beforeEach(() => {
         missionMap = new MissionMap({
@@ -106,6 +108,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             missionMap,
             resourceHandler: resourceHandler,
         })
+        warnUserNotEnoughActionsToPerformActionSpy = jest.spyOn((hud as any), "warnUserNotEnoughActionsToPerformAction").mockReturnValue(null);
     });
 
     it('generates a button for each squaddie activity', () => {
@@ -175,5 +178,34 @@ describe('BattleSquaddieSelectedHUD', () => {
         const initialWindowPosition: RectArea = new RectArea({...hud.background.area});
         hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID});
         expect(hud.background.area).toStrictEqual(initialWindowPosition);
+    });
+
+    it('will warn the user if the squaddie does not have enough actions to perform the activity', () => {
+        let notEnoughActionsActivity: SquaddieActivity;
+        notEnoughActionsActivity = new SquaddieActivity({
+            name: "not enough actions",
+            id: "not enough actions",
+            traits: NullTraitStatusStorage(),
+            actionsToSpend: 9001,
+            minimumRange: 0,
+            maximumRange: 1,
+            targetingShape: TargetingShape.Snake,
+        });
+        const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicID(playerSquaddieDynamicID));
+        staticSquaddie.addActivity(notEnoughActionsActivity);
+
+        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        expect(hud.wasActivitySelected()).toBeFalsy();
+        expect(hud.getSelectedActivity()).toBeUndefined();
+
+        const notEnoughActionsButton = hud.getActivityButtons().find((button) =>
+            button.activity instanceof SquaddieActivity && button.activity.name === "not enough actions"
+        );
+
+        hud.mouseClicked(notEnoughActionsButton.buttonArea.getLeft(), notEnoughActionsButton.buttonArea.getTop());
+
+        expect(hud.wasActivitySelected()).toBeFalsy();
+        expect(hud.getSelectedActivity()).toBeUndefined();
+        expect(warnUserNotEnoughActionsToPerformActionSpy).toBeCalled();
     });
 });

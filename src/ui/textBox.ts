@@ -47,14 +47,13 @@ export class TextBox {
         this.horizAlign = options.horizAlign || HORIZ_ALIGN_LEFT;
         this.vertAlign = options.vertAlign || VERT_ALIGN_BASELINE;
 
-        this.lastTimeDrawn = undefined;
+        this.lastTimeDrawn = Date.now();
     }
 
     draw(p: p5) {
         if (this.isDone()) {
             return;
         }
-        this.lastTimeDrawn = Date.now();
 
         p.push();
         p.textSize(this.textSize);
@@ -76,8 +75,7 @@ export class TextBox {
 
     isDone(): boolean {
         return (
-            this.lastTimeDrawn !== undefined
-            && Date.now() - this.lastTimeDrawn >= this.duration
+            Date.now() - this.lastTimeDrawn >= this.duration
         );
     }
 

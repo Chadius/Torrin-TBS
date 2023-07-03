@@ -113,6 +113,14 @@ export class BattleMissionLoader implements OrchestratorComponent {
                         minimumRange: 0,
                         maximumRange: 2,
                         traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                    }),
+                    new SquaddieActivity({
+                        name: "too much water saber",
+                        id: "torrin_water_saber 4",
+                        minimumRange: 0,
+                        maximumRange: 2,
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                        actionsToSpend: 3,
                     })
                 ],
             }),
