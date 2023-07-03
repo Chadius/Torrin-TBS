@@ -27,7 +27,7 @@ import {
 } from "../orchestrator/orchestratorComponent";
 import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {makeResult} from "../../utils/ResultOrError";
@@ -128,7 +128,7 @@ describe('BattleSquaddieTarget', () => {
         squaddieRepo.addSquaddie(thiefStatic, thiefDynamic);
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
 
-        const currentInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({
+        const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
             instruction: new SquaddieInstruction({
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 staticSquaddieId: knightStatic.staticId,

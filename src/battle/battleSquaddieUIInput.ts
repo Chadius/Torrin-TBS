@@ -1,7 +1,7 @@
 import {MissionMap} from "../missionMap/missionMap";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
-import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 
 export enum BattleSquaddieUISelectionState {
     UNKNOWN = "UNKNOWN",
@@ -17,26 +17,36 @@ export type BattleSquaddieUIInputOptions = {
     selectedSquaddieDynamicID?: string;
     tileClickedOn?: HexCoordinate;
     finishedAnimating?: boolean;
-    currentlyActingSquaddie?: CurrentSquaddieInstruction;
+    squaddieInstructionInProgress: SquaddieInstructionInProgress;
 }
 
 export class BattleSquaddieUIInput {
     private _selectionState: BattleSquaddieUISelectionState;
-    private _currentlyActingSquaddie: CurrentSquaddieInstruction;
+    private _squaddieInstructionInProgress: SquaddieInstructionInProgress;
     selectedSquaddieDynamicID?: string;
     missionMap: MissionMap;
     tileClickedOn?: HexCoordinate;
     squaddieRepository: BattleSquaddieRepository;
     finishedAnimating?: boolean;
 
-    constructor(options: BattleSquaddieUIInputOptions) {
-        this.selectedSquaddieDynamicID = options.selectedSquaddieDynamicID;
-        this._selectionState = options.selectionState;
-        this.missionMap = options.missionMap;
-        this.tileClickedOn = options.tileClickedOn;
-        this.squaddieRepository = options.squaddieRepository;
-        this.finishedAnimating = options.finishedAnimating;
-        this._currentlyActingSquaddie = options.currentlyActingSquaddie;
+    constructor(options: {
+        selectionState: BattleSquaddieUISelectionState;
+        missionMap: MissionMap;
+        squaddieRepository: BattleSquaddieRepository;
+        selectedSquaddieDynamicID?: string;
+        tileClickedOn?: HexCoordinate;
+        finishedAnimating?: boolean;
+        squaddieInstructionInProgress: SquaddieInstructionInProgress;
+    } | BattleSquaddieUIInputOptions) {
+        ({
+            selectedSquaddieDynamicID: this.selectedSquaddieDynamicID,
+            selectionState: this._selectionState,
+            missionMap: this.missionMap,
+            tileClickedOn: this.tileClickedOn,
+            squaddieRepository: this.squaddieRepository,
+            finishedAnimating: this.finishedAnimating,
+            squaddieInstructionInProgress: this._squaddieInstructionInProgress,
+        } = options);
     }
 
     changeSelectionState(newSelectionState: BattleSquaddieUISelectionState, dynamicSquaddieId?: string) {
@@ -50,7 +60,7 @@ export class BattleSquaddieUIInput {
         return this._selectionState;
     }
 
-    get currentlyActingSquaddie(): CurrentSquaddieInstruction {
-        return this._currentlyActingSquaddie;
+    get squaddieInstructionInProgress(): SquaddieInstructionInProgress {
+        return this._squaddieInstructionInProgress;
     }
 }

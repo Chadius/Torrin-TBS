@@ -1,4 +1,4 @@
-import {CurrentSquaddieInstruction} from "./currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {SquaddieInstruction} from "./squaddieInstruction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieActivity} from "../../squaddie/activity";
@@ -25,7 +25,7 @@ const purifyingBlastActivity: SquaddieSquaddieActivity = new SquaddieSquaddieAct
 
 describe('Current Squaddie Instruction', () => {
     it('can be reset', () => {
-        const newInstruction = new CurrentSquaddieInstruction({
+        const newInstruction = new SquaddieInstructionInProgress({
             instruction: new SquaddieInstruction({
                 dynamicSquaddieId: "torrin 0",
                 staticSquaddieId: "torrin",
@@ -44,7 +44,7 @@ describe('Current Squaddie Instruction', () => {
     });
 
     it('will accept new squaddie and activity if it is reset', () => {
-        const newInstruction = new CurrentSquaddieInstruction({});
+        const newInstruction = new SquaddieInstructionInProgress({});
 
         newInstruction.addSquaddie(
             {
@@ -75,7 +75,7 @@ describe('Current Squaddie Instruction', () => {
     });
 
     it('will throw an error if an activity is added without setting the squaddie', () => {
-        const newInstruction = new CurrentSquaddieInstruction({});
+        const newInstruction = new SquaddieInstructionInProgress({});
 
         const shouldThrowError = () => {
             newInstruction.addConfirmedActivity(purifyingBlastActivity);
@@ -91,7 +91,7 @@ describe('Current Squaddie Instruction', () => {
 
     describe('mark squaddie as moving', () => {
         it('can mark dynamic squaddies as moving', () => {
-            const newInstruction = new CurrentSquaddieInstruction({});
+            const newInstruction = new SquaddieInstructionInProgress({});
             newInstruction.addSquaddie(
                 {
                     staticSquaddieId: "Torrin",

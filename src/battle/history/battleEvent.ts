@@ -1,10 +1,10 @@
-import {CurrentSquaddieInstruction} from "./currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 
 export class BattleEvent {
-    instruction: CurrentSquaddieInstruction;
+    instruction: SquaddieInstructionInProgress;
 
     constructor(options: {
-        currentSquaddieInstruction: CurrentSquaddieInstruction;
+        currentSquaddieInstruction: SquaddieInstructionInProgress;
     }) {
         this.instruction = options.currentSquaddieInstruction;
     }

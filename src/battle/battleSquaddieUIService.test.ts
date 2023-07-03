@@ -11,7 +11,7 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {NullArmyAttributes} from "../squaddie/armyAttributes";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
-import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {SquaddieInstruction} from "./history/squaddieInstruction";
 import {SquaddieMovementActivity} from "./history/squaddieMovementActivity";
 
@@ -59,6 +59,7 @@ describe('BattleSquaddieUIService', () => {
                     selectionState: BattleSquaddieUISelectionState.UNKNOWN,
                     missionMap,
                     squaddieRepository,
+                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
         ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
@@ -76,6 +77,7 @@ describe('BattleSquaddieUIService', () => {
                     selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
                     missionMap,
                     squaddieRepository,
+                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
         ).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
@@ -113,6 +115,7 @@ describe('BattleSquaddieUIService', () => {
                     missionMap,
                     selectedSquaddieDynamicID: "enemy_0",
                     squaddieRepository,
+                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
         ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
@@ -130,6 +133,7 @@ describe('BattleSquaddieUIService', () => {
                     selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
                     missionMap,
                     squaddieRepository,
+                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
         ).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
@@ -148,6 +152,7 @@ describe('BattleSquaddieUIService', () => {
                     missionMap,
                     selectedSquaddieDynamicID: "torrin_0",
                     squaddieRepository,
+                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
         ).toBe(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
@@ -167,6 +172,7 @@ describe('BattleSquaddieUIService', () => {
                     selectedSquaddieDynamicID: "torrin_0",
                     squaddieRepository,
                     finishedAnimating: true,
+                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
         ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
@@ -184,14 +190,14 @@ describe('BattleSquaddieUIService', () => {
             destination: new HexCoordinate({q: 0, r: 1}),
             numberOfActionsSpent: 1,
         }));
-        const currentInstruction = new CurrentSquaddieInstruction({
+        const currentInstruction = new SquaddieInstructionInProgress({
             instruction: moveInstruction
         });
 
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    currentlyActingSquaddie: currentInstruction,
+                    squaddieInstructionInProgress: currentInstruction,
                     selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
                     missionMap,
                     selectedSquaddieDynamicID: "torrin_0",

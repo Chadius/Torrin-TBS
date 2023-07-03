@@ -11,7 +11,7 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import p5 from "p5";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
@@ -195,7 +195,7 @@ describe('Battle Orchestrator', () => {
         }));
         const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
             displayMap: true,
-            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction,
             }),
             battleSquaddieSelectedHUD: mockHud,
@@ -255,7 +255,7 @@ describe('Battle Orchestrator', () => {
             destination: new HexCoordinate({q: 1, r: 2}),
             numberOfActionsSpent: 2,
         }));
-        nullState.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
+        nullState.squaddieCurrentlyActing = new SquaddieInstructionInProgress({
             instruction,
         });
 
@@ -291,7 +291,7 @@ describe('Battle Orchestrator', () => {
                 squaddieTurn: new SquaddieTurn(),
             }),
         );
-        nullState.squaddieCurrentlyActing = new CurrentSquaddieInstruction({
+        nullState.squaddieCurrentlyActing = new SquaddieInstructionInProgress({
             instruction,
         });
 

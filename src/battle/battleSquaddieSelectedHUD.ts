@@ -13,7 +13,7 @@ import {ActivityButton} from "../squaddie/activityButton";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
-import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {TextBox} from "../ui/textBox";
 
 enum ActivityValidityCheck {
@@ -196,7 +196,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedSquaddieDynamicId;
     }
 
-    draw(squaddieCurrentlyActing: CurrentSquaddieInstruction, p: p5) {
+    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, p: p5) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
@@ -323,7 +323,7 @@ export class BattleSquaddieSelectedHUD {
         })
     }
 
-    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: CurrentSquaddieInstruction, p: p5) {
+    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, p: p5) {
         if (
             !squaddieCurrentlyActing
             || squaddieCurrentlyActing.isReadyForNewSquaddie()

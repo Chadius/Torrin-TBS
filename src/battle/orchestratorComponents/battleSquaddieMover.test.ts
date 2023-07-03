@@ -22,7 +22,7 @@ import p5 from "p5";
 import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
-import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 
@@ -110,6 +110,7 @@ describe('BattleSquaddieMover', () => {
             selectedSquaddieDynamicID: "player_1",
             tileClickedOn: new HexCoordinate({q: 1, r: 1}),
             finishedAnimating: false,
+            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         });
         const pathfinder: Pathfinder = new Pathfinder();
         const movePath: SearchPath = getResultOrThrowError(
@@ -138,7 +139,7 @@ describe('BattleSquaddieMover', () => {
             numberOfActionsSpent: 3,
         }));
 
-        const squaddieCurrentlyActing: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({
+        const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
             instruction: moveActivity
         });
         squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving("player_1");
@@ -150,7 +151,7 @@ describe('BattleSquaddieMover', () => {
             missionMap: map,
             squaddieMovePath: movePath,
             hexMap: map.terrainTileMap,
-            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: moveActivity,
             }),
         });
@@ -192,6 +193,7 @@ describe('BattleSquaddieMover', () => {
                 selectedSquaddieDynamicID: dynamicSquaddieId,
                 tileClickedOn: new HexCoordinate({q: 1, r: 1}),
                 finishedAnimating: false,
+                squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
             });
             const movePath: SearchPath = getResultOrThrowError(
                 getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
@@ -223,7 +225,7 @@ describe('BattleSquaddieMover', () => {
                 missionMap: map,
                 squaddieMovePath: movePath,
                 hexMap: map.terrainTileMap,
-                squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+                squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                     instruction: newInstruction,
                 }),
                 resourceHandler: mockResourceHandler,

@@ -11,7 +11,7 @@ import {SquaddieTurn} from "../../squaddie/turn";
 import {ImageUI} from "../../ui/imageUI";
 import p5 from "p5";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ACTIVITY_COMPLETED_WAIT_TIME_MS, BattleSquaddieSquaddieActivity} from "./battleSquaddieSquaddieActivity";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
@@ -136,7 +136,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: wholeTurnInstruction,
             }),
             squaddieRepo: squaddieRepository,
@@ -169,7 +169,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
     it('can wait half a second after activity completes', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: oneActionInstruction,
             }),
             squaddieRepo: squaddieRepository,
@@ -200,7 +200,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
     it('will skip displaying the results if the user clicks', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: new CurrentSquaddieInstruction({
+            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: oneActionInstruction,
             }),
             squaddieRepo: squaddieRepository,

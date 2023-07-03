@@ -7,7 +7,7 @@ import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 
 
-export class CurrentSquaddieInstruction {
+export class SquaddieInstructionInProgress {
     private _instruction?: SquaddieInstruction;
     private _currentSquaddieActivity?: SquaddieActivity;
     private _movingSquaddieDynamicIds: string[];
@@ -105,4 +105,4 @@ export class CurrentSquaddieInstruction {
             (id) => id !== dynamicSquaddieId
         );
     }
-};
+}

@@ -34,7 +34,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
-import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import SpyInstance = jest.SpyInstance;
@@ -273,6 +273,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
             tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         })
 
         const state: OrchestratorState = new OrchestratorState({
@@ -304,7 +305,7 @@ describe('BattleSquaddieSelector', () => {
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
-        const expectedSquaddieInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
+        const expectedSquaddieInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         expectedSquaddieInstruction.addSquaddie({
             staticSquaddieId: "player_soldier",
             dynamicSquaddieId: "player_soldier_0",
@@ -331,7 +332,7 @@ describe('BattleSquaddieSelector', () => {
         let battlePhaseTracker: BattlePhaseTracker;
         let battleSquaddieUIInput: BattleSquaddieUIInput;
         let state: OrchestratorState;
-        let squaddieCurrentlyActing: CurrentSquaddieInstruction;
+        let squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
         beforeEach(() => {
             const missionMap: MissionMap = new MissionMap({
@@ -350,6 +351,7 @@ describe('BattleSquaddieSelector', () => {
                 missionMap,
                 selectedSquaddieDynamicID: "player_soldier_0",
                 tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+                squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
             })
 
             const mockResourceHandler = new (
@@ -372,7 +374,7 @@ describe('BattleSquaddieSelector', () => {
                 repositionWindow: {mouseX: mouseX, mouseY: mouseY}
             });
 
-            squaddieCurrentlyActing = new CurrentSquaddieInstruction({});
+            squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
             squaddieCurrentlyActing.addSquaddie({
                 dynamicSquaddieId: "player_soldier_0",
                 staticSquaddieId: "player_soldier",
@@ -425,9 +427,10 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
             tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         })
 
-        const squaddieCurrentlyActing: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
+        const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         squaddieCurrentlyActing.addSquaddie({
             dynamicSquaddieId: "player_soldier_0",
             staticSquaddieId: "player_soldier",
@@ -483,6 +486,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
             tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         });
 
         let mockHud: BattleSquaddieSelectedHUD;
@@ -512,7 +516,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        const endTurnInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
+        const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         endTurnInstruction.addSquaddie({
             dynamicSquaddieId: "player_soldier_0",
             staticSquaddieId: "player_soldier",
@@ -543,6 +547,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
             tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         });
 
         const longswordActivity: SquaddieActivity = new SquaddieActivity({
@@ -633,7 +638,7 @@ describe('BattleSquaddieSelector', () => {
             selector.update(state, mockedP5);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
-            const endTurnInstruction: CurrentSquaddieInstruction = new CurrentSquaddieInstruction({});
+            const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
             endTurnInstruction.addSquaddie({
                 dynamicSquaddieId: "enemy_demon_0",
                 staticSquaddieId: "enemy_demon",
@@ -786,7 +791,7 @@ describe('BattleSquaddieSelector', () => {
         let missionMap: MissionMap;
         let interruptSquaddieStatic: BattleSquaddieStatic;
         let interruptSquaddieDynamic: BattleSquaddieDynamic;
-        let soldierCurrentlyActing: CurrentSquaddieInstruction;
+        let soldierCurrentlyActing: SquaddieInstructionInProgress;
         let mockHud: BattleSquaddieSelectedHUD;
         let battlePhaseTracker: BattlePhaseTracker;
         let selectSquaddieAndDrawWindowSpy: SpyInstance;
@@ -832,7 +837,7 @@ describe('BattleSquaddieSelector', () => {
                 numberOfActionsSpent: 1,
             }));
 
-            soldierCurrentlyActing = new CurrentSquaddieInstruction({
+            soldierCurrentlyActing = new SquaddieInstructionInProgress({
                 instruction: movingInstruction
             });
 
@@ -866,6 +871,7 @@ describe('BattleSquaddieSelector', () => {
                 missionMap,
                 selectedSquaddieDynamicID: "player_soldier_0",
                 tileClickedOn: new HexCoordinate({q: 0, r: 0}),
+                squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
             })
 
             state = new OrchestratorState({

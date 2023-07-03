@@ -15,7 +15,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {CurrentSquaddieInstruction} from "../history/currentSquaddieInstruction";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 
 export class OrchestratorState {
     resourceHandler: ResourceHandler;
@@ -32,7 +32,7 @@ export class OrchestratorState {
     squaddieMovePath?: SearchPath;
     clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
-    squaddieCurrentlyActing: CurrentSquaddieInstruction;
+    squaddieCurrentlyActing: SquaddieInstructionInProgress;
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 
@@ -53,7 +53,7 @@ export class OrchestratorState {
         squaddieMovePath?: SearchPath;
         clickedHexCoordinate?: HexCoordinate;
         battlePhaseState?: BattlePhaseState;
-        squaddieCurrentlyActing?: CurrentSquaddieInstruction;
+        squaddieCurrentlyActing?: SquaddieInstructionInProgress;
         battleEventRecording?: Recording;
         teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] }
     }) {
@@ -74,6 +74,7 @@ export class OrchestratorState {
             selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
             missionMap: this.missionMap,
             squaddieRepository: this.squaddieRepository,
+            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         });
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD({
             missionMap: this.missionMap,
