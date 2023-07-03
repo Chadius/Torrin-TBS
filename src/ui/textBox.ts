@@ -12,29 +12,50 @@ type RequiredOptions = {
 type Options = {
     horizAlign: p5.HORIZ_ALIGN;
     vertAlign: p5.VERT_ALIGN;
+    duration: number;
 }
 
 export type TextBoxArguments = RequiredOptions & Partial<Options>;
 
 export class TextBox {
-    text: string;
+    private _text: string;
     textSize: number;
     fontColor: number[];
     area: RectArea;
     horizAlign: p5.HORIZ_ALIGN;
     vertAlign: p5.VERT_ALIGN;
+    duration: number;
+    lastTimeDrawn: number;
 
-    constructor(options: TextBoxArguments) {
-        this.text = options.text;
-        this.textSize = options.textSize;
-        this.fontColor = options.fontColor;
-        this.area = options.area;
+    constructor(options: {
+        text: string;
+        textSize: number;
+        fontColor: number[];
+        area: RectArea;
+        horizAlign?: p5.HORIZ_ALIGN;
+        vertAlign?: p5.VERT_ALIGN;
+        duration?: number;
+    } | TextBoxArguments) {
+        ({
+            duration: this.duration,
+            text: this._text,
+            textSize: this.textSize,
+            fontColor: this.fontColor,
+            area: this.area,
+        } = options);
 
         this.horizAlign = options.horizAlign || HORIZ_ALIGN_LEFT;
         this.vertAlign = options.vertAlign || VERT_ALIGN_BASELINE;
+
+        this.lastTimeDrawn = undefined;
     }
 
     draw(p: p5) {
+        if (this.isDone()) {
+            return;
+        }
+        this.lastTimeDrawn = Date.now();
+
         p.push();
         p.textSize(this.textSize);
         p.fill(this.fontColor);
@@ -43,7 +64,7 @@ export class TextBox {
             this.vertAlign
         );
         p.text(
-            this.text,
+            this._text,
             this.area.getLeft(),
             this.area.getTop(),
             this.area.getWidth(),
@@ -51,5 +72,16 @@ export class TextBox {
         );
         p.textAlign(p.LEFT, p.BASELINE);
         p.pop();
+    }
+
+    isDone(): boolean {
+        return (
+            this.lastTimeDrawn !== undefined
+            && Date.now() - this.lastTimeDrawn >= this.duration
+        );
+    }
+
+    get text(): string {
+        return this._text;
     }
 }

@@ -20,7 +20,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/orchestratorComponent";
-import {Rectangle} from "../../ui/rectangle";
+import {Label} from "../../ui/label";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
@@ -101,7 +101,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         mockedP5.textSize = jest.fn();
         mockedP5.fill = jest.fn();
         mockedP5.text = jest.fn();
-        jest.spyOn(Rectangle.prototype, "draw").mockReturnValue(null);
+        jest.spyOn(Label.prototype, "draw").mockReturnValue(null);
         jest.spyOn(orchestratorUtils, "DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
         });
 
@@ -148,7 +148,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             dynamicID: dynamicSquaddieBase.dynamicSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
         });
-
+        dynamicSquaddieBase.squaddieTurn.spendActionsOnActivity(powerAttackLongswordActivity);
         squaddieSquaddieActivity.update(state, mockedP5);
         expect(squaddieSquaddieActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();

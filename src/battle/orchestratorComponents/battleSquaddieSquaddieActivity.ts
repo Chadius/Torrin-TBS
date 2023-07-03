@@ -13,15 +13,16 @@ import {
     DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
 } from "./orchestratorUtils";
-import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {Label} from "../../ui/label";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
 export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     animationCompleteStartTime?: number;
     clickedToCancelActivity: boolean;
+    outputTextDisplay: Label;
 
     constructor() {
         this.animationCompleteStartTime = undefined;
@@ -70,30 +71,27 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     }
 
     private draw(state: OrchestratorState, p: p5) {
-        const buttonBackground = new Rectangle({
-            area: new RectArea({
-                startColumn: 4,
-                endColumn: 10,
-                screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                percentTop: 40,
-                percentHeight: 20,
-            }),
-            fillColor: [0, 0, 60],
-            strokeColor: [0, 0, 0],
-            strokeWeight: 4,
-        });
+        if (this.outputTextDisplay === undefined) {
+            this.outputTextDisplay = new Label({
+                area: new RectArea({
+                    startColumn: 4,
+                    endColumn: 10,
+                    screenWidth: ScreenDimensions.SCREEN_WIDTH,
+                    screenHeight: ScreenDimensions.SCREEN_HEIGHT,
+                    percentTop: 40,
+                    percentHeight: 20,
+                }),
+                fillColor: [0, 0, 60],
+                strokeColor: [0, 0, 0],
+                strokeWeight: 4,
 
-        buttonBackground.draw(p);
+                text: "Activity Happened!",
+                textSize: 24,
+                fontColor: [0, 0, 16],
+                padding: [16, 0, 0, 16],
+            });
+        }
 
-        p.push();
-        const textLeft: number = (ScreenDimensions.SCREEN_WIDTH * 0.50);
-        const textTop: number = (ScreenDimensions.SCREEN_HEIGHT * 0.50);
-
-        p.textSize(24);
-        p.fill("#0f0f0f");
-
-        p.text("Activity Happened!", textLeft, textTop);
-        p.pop();
+        this.outputTextDisplay.draw(p);
     }
 }

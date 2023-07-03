@@ -15,9 +15,9 @@ import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
 import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
+import {Label} from "../../ui/label";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -247,24 +247,19 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     }
 
     private drawButton(area: RectArea, buttonText: string, p: p5) {
-        const buttonBackground = new Rectangle({
+        const buttonBackground = new Label({
             area,
             fillColor: [0, 0, 60],
             strokeColor: [0, 0, 0],
             strokeWeight: 4,
+
+            text: buttonText,
+            textSize: 24,
+            fontColor: [0, 0, 16],
+            padding: [6, 0, 0, area.getWidth() / 2 - 50],
         });
 
         buttonBackground.draw(p);
-
-        p.push();
-        const textLeft: number = buttonBackground.area.getCenterX() - 50;
-        const textTop: number = buttonBackground.area.getCenterY() + 6;
-
-        p.textSize(24);
-        p.fill("#0f0f0f");
-
-        p.text(buttonText, textLeft, textTop);
-        p.pop();
     }
 
     private cancelTargetSelection(state: OrchestratorState) {

@@ -14,6 +14,7 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {CurrentSquaddieInstruction} from "./history/currentSquaddieInstruction";
+import {TextBox} from "../ui/textBox";
 
 export class BattleSquaddieSelectedHUD {
     squaddieRepository: BattleSquaddieRepository;
@@ -26,6 +27,9 @@ export class BattleSquaddieSelectedHUD {
     selectedActivity: SquaddieActivity | SquaddieEndTurnActivity;
 
     activityButtons: ActivityButton[];
+
+    squaddieIdTextBox: TextBox;
+    invalidCommandWarningTextBox: TextBox;
 
     constructor(options: {
         squaddieRepository: BattleSquaddieRepository;
@@ -76,6 +80,7 @@ export class BattleSquaddieSelectedHUD {
         });
         this.generateAffiliateIcon(staticSquaddie);
         this.generateSquaddieActivityButtons(staticSquaddie, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
+        this.generateSquaddieIdText(staticSquaddie);
     }
 
     private generateSquaddieActivityButtons(
@@ -206,16 +211,7 @@ export class BattleSquaddieSelectedHUD {
             this.affiliateIcon.draw(p);
         }
 
-        p.push();
-        const textLeft: number = this._background.area.getLeft() + 60;
-        const textTop: number = this._background.area.getTop() + 30;
-
-        p.textSize(24);
-        p.fill("#efefef");
-
-        p.text(staticSquaddie.squaddieId.name, textLeft, textTop);
-
-        p.pop();
+        this.squaddieIdTextBox.draw(p);
     }
 
     private drawNumberOfActions(p: p5) {
@@ -316,17 +312,43 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
+
         const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(squaddieCurrentlyActing.instruction.getDynamicSquaddieId()));
+        const differentSquaddieWarningText: string = `Cannot act, wait for ${staticSquaddie.squaddieId.name}`;
+        this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText);
+        this.invalidCommandWarningTextBox.draw(p);
+    }
 
-        p.push();
-        const textLeft: number = this._background.area.getCenterX() - 40;
-        const textTop: number = this._background.area.getBottom() - 30;
+    private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string) {
+        if (
+            this.invalidCommandWarningTextBox === undefined
+            || this.invalidCommandWarningTextBox.isDone()
+            || this.invalidCommandWarningTextBox.text !== differentSquaddieWarningText
+        ) {
+            this.invalidCommandWarningTextBox = new TextBox({
+                text: differentSquaddieWarningText,
+                textSize: 24,
+                fontColor: [0, 0, 192],
+                area: new RectArea({
+                    baseRectangle: this.background.area,
+                    anchorLeft: HorizontalAnchor.MIDDLE,
+                    margin: [0, 0, 30, 40],
+                })
+            })
+        }
+    }
 
-        p.textSize(24);
-        p.fill("#efefef");
-
-        p.text(`Cannot act, wait for ${staticSquaddie.squaddieId.name}`, textLeft, textTop);
-
-        p.pop();
+    private generateSquaddieIdText(staticSquaddie: BattleSquaddieStatic) {
+        this.squaddieIdTextBox = new TextBox({
+            text: staticSquaddie.squaddieId.name,
+            textSize: 24,
+            fontColor: [HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation], 10, 192],
+            area: new RectArea({
+                baseRectangle: this._background.area,
+                anchorLeft: HorizontalAnchor.LEFT,
+                anchorTop: VerticalAnchor.TOP,
+                margin: [20, 0, 0, 70],
+            })
+        });
     }
 }

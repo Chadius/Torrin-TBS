@@ -4,6 +4,7 @@ import {Rectangle} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieEndTurnActivity} from "../battle/history/squaddieEndTurnActivity";
+import {TextBox} from "../ui/textBox";
 
 export class ActivityButton {
     buttonArea: RectArea;
@@ -30,19 +31,25 @@ export class ActivityButton {
 
         background.draw(p);
 
-        p.push();
-        const textLeft: number = background.area.getLeft();
-        const textTop: number = background.area.getBottom() + 16;
-
-        p.textSize(12);
-        p.fill("#efefef");
-
+        let activityButtonText: string = "";
         if (this.activity instanceof SquaddieEndTurnActivity) {
-            p.text("End Turn", textLeft, textTop);
+            activityButtonText = "End Turn";
         } else {
-            p.text(this.activity.name, textLeft, textTop);
+            activityButtonText = this.activity.name;
         }
 
-        p.pop();
+        const buttonTextBox: TextBox = new TextBox({
+            area: new RectArea({
+                left: background.area.getLeft(),
+                top: background.area.getBottom() + 4,
+                width: background.area.getWidth() * 2,
+                height: background.area.getHeight(),
+            }),
+            fontColor: [0, 0, 192],
+            text: activityButtonText,
+            textSize: 12,
+        });
+
+        buttonTextBox.draw(p);
     }
 }

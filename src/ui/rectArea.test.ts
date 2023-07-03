@@ -237,6 +237,27 @@ describe('RectArea', () => {
 
             expect(rect.left).toBe(baseRect.left + expectedAnchor + expectedPercent + expectedColumn);
         });
+
+        it('can apply base rectangle, anchor and margins', () => {
+            const baseRect = new RectArea({
+                top: 10,
+                left: 20,
+                height: 30,
+                width: 40
+            });
+
+            const rect = new RectArea({
+                baseRectangle: baseRect,
+                anchorLeft: HorizontalAnchor.MIDDLE,
+                anchorTop: VerticalAnchor.CENTER,
+                margin: [60, 0, 0, 30],
+            });
+
+            expect(rect.top).toBe(baseRect.getCenterY() + 60);
+            expect(rect.left).toBe(baseRect.getCenterX() + 30);
+            expect(rect.width).toBe(baseRect.getWidth() - 30);
+            expect(rect.height).toBe(baseRect.getHeight() - 60);
+        });
     });
     describe('RectArea can apply margins based on another Rect', () => {
         let baseRect: RectArea;

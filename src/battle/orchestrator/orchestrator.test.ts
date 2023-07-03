@@ -97,6 +97,8 @@ describe('Battle Orchestrator', () => {
         mockSquaddieSquaddieActivity.update = jest.fn();
         mockSquaddieSquaddieActivity.mouseEventHappened = jest.fn();
         mockSquaddieSquaddieActivity.hasCompleted = jest.fn().mockReturnValue(true);
+        (mockSquaddieSquaddieActivity as any).maybeEndSquaddieTurn = jest.fn();
+        (mockSquaddieSquaddieActivity as any).consumeSquaddieActionsAndMaybeEndTheirTurn = jest.fn();
         jest.spyOn(mockSquaddieSquaddieActivity as any, "consumeSquaddieActionsAndMaybeEndTheirTurn").mockImplementation(() => {
         });
 

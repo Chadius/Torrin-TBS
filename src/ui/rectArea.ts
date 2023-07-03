@@ -168,13 +168,20 @@ export class RectArea {
         }
 
         const anchorTop = (params as AnchorTop)
-        if (
-            !notFound.includes(anchorTop.anchorTop)
+        const anchorTopIsValid: boolean = !notFound.includes(anchorTop.anchorTop)
             && anchorTop.anchorTop != VerticalAnchor.NONE
-            && anchorTop.baseRectangle
-        ) {
+            && anchorTop.baseRectangle !== undefined;
+
+        const marginsAll = (params as Margins);
+        const marginsAllIsValid: boolean = (marginsAll.margin || marginsAll.margin === 0)
+            && marginsAll.baseRectangle !== undefined;
+
+        if (anchorTopIsValid || marginsAllIsValid) {
             top = top ?? 0;
             top += anchorTop.baseRectangle.top;
+        }
+
+        if (anchorTopIsValid) {
             if (anchorTop.anchorTop == VerticalAnchor.CENTER) {
                 top += anchorTop.baseRectangle.height / 2;
             } else if (anchorTop.anchorTop == VerticalAnchor.BOTTOM) {
@@ -182,16 +189,11 @@ export class RectArea {
             }
         }
 
-        const marginsAll = (params as Margins)
-        if (
-            (marginsAll.margin || marginsAll.margin === 0)
-            && marginsAll.baseRectangle
-        ) {
-            top = top ?? 0;
+        if (marginsAllIsValid) {
             if (typeof marginsAll.margin === "number") {
-                top += marginsAll.baseRectangle.top + marginsAll.margin;
+                top += marginsAll.margin;
             } else {
-                top += marginsAll.baseRectangle.top + marginsAll.margin[0];
+                top += marginsAll.margin[0];
             }
         }
 
@@ -225,14 +227,21 @@ export class RectArea {
             left += columnLeft.screenWidth * columnLeft.startColumn / 12;
         }
 
-        const anchorLeft = (params as AnchorLeft)
-        if (
-            !notFound.includes(anchorLeft.anchorLeft)
+        const anchorLeft = (params as AnchorLeft);
+        const anchorLeftIsValid: boolean = !notFound.includes(anchorLeft.anchorLeft)
             && anchorLeft.anchorLeft != HorizontalAnchor.NONE
-            && anchorLeft.baseRectangle
-        ) {
+            && anchorLeft.baseRectangle !== undefined;
+
+        const marginsAll = (params as Margins);
+        const marginsAllIsValid: boolean = (marginsAll.margin || marginsAll.margin === 0)
+            && marginsAll.baseRectangle !== undefined;
+
+        if (anchorLeftIsValid || marginsAllIsValid) {
             left = left ?? 0;
             left += anchorLeft.baseRectangle.left;
+        }
+
+        if (anchorLeftIsValid) {
             if (anchorLeft.anchorLeft == HorizontalAnchor.MIDDLE) {
                 left += anchorLeft.baseRectangle.width / 2;
             } else if (anchorLeft.anchorLeft == HorizontalAnchor.RIGHT) {
@@ -240,18 +249,13 @@ export class RectArea {
             }
         }
 
-        const marginsAll = (params as Margins)
-        if (
-            (marginsAll.margin || marginsAll.margin === 0)
-            && marginsAll.baseRectangle
-        ) {
-            left = left ?? 0;
+        if (marginsAllIsValid) {
             if (typeof marginsAll.margin === "number") {
-                left += marginsAll.baseRectangle.left + marginsAll.margin;
+                left += marginsAll.margin;
             } else if ([2, 3].includes(marginsAll.margin.length)) {
-                left += marginsAll.baseRectangle.left + marginsAll.margin[1];
+                left += marginsAll.margin[1];
             } else if (marginsAll.margin.length > 3) {
-                left += marginsAll.baseRectangle.left + marginsAll.margin[3];
+                left += marginsAll.margin[3];
             }
         }
 
