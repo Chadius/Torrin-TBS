@@ -33,8 +33,10 @@ describe('BattleSquaddieMover', () => {
     let enemy1Static: BattleSquaddieStatic;
     let enemy1Dynamic: BattleSquaddieDynamic;
     let map: MissionMap;
+    let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
+        mockedP5 = mocks.mockedP5();
         squaddieRepo = new BattleSquaddieRepository();
         map = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -150,12 +152,12 @@ describe('BattleSquaddieMover', () => {
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
-        mover.update(state, mocks.mockedP5);
+        mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeFalsy();
         expect(state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving("player_1")).toBeTruthy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-        mover.update(state, mocks.mockedP5);
+        mover.update(state, mockedP5);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
@@ -246,9 +248,9 @@ describe('BattleSquaddieMover', () => {
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             jest.spyOn(Date, 'now').mockImplementation(() => 1);
-            mover.update(state, mocks.mockedP5);
+            mover.update(state, mockedP5);
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-            mover.update(state, mocks.mockedP5);
+            mover.update(state, mockedP5);
             mover.reset(state);
             expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
 
@@ -281,9 +283,9 @@ describe('BattleSquaddieMover', () => {
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             jest.spyOn(Date, 'now').mockImplementation(() => 1);
-            mover.update(state, mocks.mockedP5);
+            mover.update(state, mockedP5);
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-            mover.update(state, mocks.mockedP5);
+            mover.update(state, mockedP5);
             mover.reset(state);
 
             expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
@@ -316,9 +318,9 @@ describe('BattleSquaddieMover', () => {
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             jest.spyOn(Date, 'now').mockImplementation(() => 1);
-            mover.update(state, mocks.mockedP5);
+            mover.update(state, mockedP5);
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-            mover.update(state, mocks.mockedP5);
+            mover.update(state, mockedP5);
             mover.reset(state);
 
             expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();

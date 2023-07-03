@@ -36,8 +36,10 @@ describe('BattleSquaddieSquaddieActivity', () => {
     let squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
     let oneActionInstruction: SquaddieInstruction;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
+    let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
+        mockedP5 = mocks.mockedP5();
         squaddieRepository = new BattleSquaddieRepository();
         staticSquaddieBase = new BattleSquaddieStatic({
             attributes: new ArmyAttributes({
@@ -139,12 +141,12 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
         });
         dynamicSquaddieBase.squaddieTurn.spendActionsOnActivity(powerAttackLongswordActivity);
-        squaddieSquaddieActivity.update(state, mocks.mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5);
         expect(squaddieSquaddieActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => ACTIVITY_COMPLETED_WAIT_TIME_MS);
 
-        squaddieSquaddieActivity.update(state, mocks.mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5);
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();
 
         const stateChanges = squaddieSquaddieActivity.recommendStateChanges(state);
@@ -172,10 +174,10 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
         });
 
-        squaddieSquaddieActivity.update(state, mocks.mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5);
         jest.spyOn(Date, 'now').mockImplementation(() => ACTIVITY_COMPLETED_WAIT_TIME_MS);
 
-        squaddieSquaddieActivity.update(state, mocks.mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5);
 
         const stateChanges = squaddieSquaddieActivity.recommendStateChanges(state);
         expect(stateChanges.nextMode).toBeUndefined();
@@ -203,10 +205,10 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
         });
 
-        squaddieSquaddieActivity.update(state, mocks.mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5);
         jest.spyOn(Date, 'now').mockImplementation(() => ACTIVITY_COMPLETED_WAIT_TIME_MS / 2);
 
-        squaddieSquaddieActivity.update(state, mocks.mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5);
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -216,7 +218,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         };
 
         squaddieSquaddieActivity.mouseEventHappened(state, mouseEvent);
-        squaddieSquaddieActivity.update(state, mocks.mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5);
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();
         expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
     });

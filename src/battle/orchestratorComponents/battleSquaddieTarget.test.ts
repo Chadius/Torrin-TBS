@@ -46,8 +46,10 @@ describe('BattleSquaddieTarget', () => {
     let state: OrchestratorState;
     let camera: BattleCamera;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
+    let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
+        mockedP5 = mocks.mockedP5();
         targetComponent = new BattleSquaddieTarget();
         squaddieRepo = new BattleSquaddieRepository();
         battleMap = new MissionMap({
@@ -179,7 +181,7 @@ describe('BattleSquaddieTarget', () => {
 
 
     it('should highlight the map with the ability range', () => {
-        targetComponent.update(state, mocks.mockedP5);
+        targetComponent.update(state, mockedP5);
 
         expect(targetComponent.hasCompleted(state)).toBeFalsy();
 
@@ -242,7 +244,7 @@ describe('BattleSquaddieTarget', () => {
 
     it('should ignore if the target is out of range', () => {
         state.missionMap.updateSquaddieLocation(thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 0, r: 0}));
-        targetComponent.update(state, mocks.mockedP5);
+        targetComponent.update(state, mockedP5);
         clickOnThief();
         expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
         expect(targetComponent.hasCompleted(state)).toBeFalsy();
@@ -250,7 +252,7 @@ describe('BattleSquaddieTarget', () => {
 
     describe('user clicks on target', () => {
         beforeEach(() => {
-            targetComponent.update(state, mocks.mockedP5);
+            targetComponent.update(state, mockedP5);
             clickOnThief();
         });
 
@@ -275,7 +277,7 @@ describe('BattleSquaddieTarget', () => {
 
     describe('user confirms the target', () => {
         beforeEach(() => {
-            targetComponent.update(state, mocks.mockedP5);
+            targetComponent.update(state, mockedP5);
             clickOnThief();
             clickOnConfirmTarget();
         });
@@ -323,7 +325,7 @@ describe('BattleSquaddieTarget', () => {
         knightDynamic.squaddieTurn.spendActionsOnActivity(longswordActivity);
 
         expect(targetComponent.hasCompleted(state)).toBeFalsy();
-        targetComponent.update(state, mocks.mockedP5);
+        targetComponent.update(state, mockedP5);
         clickOnThief();
         clickOnConfirmTarget();
         expect(targetComponent.hasCompleted(state)).toBeTruthy();

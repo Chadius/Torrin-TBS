@@ -13,4 +13,6 @@ jest.mock('p5', () => () => {
     }
 });
 
-export const mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
+export const mockedP5 = () => {
+    return new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
+}

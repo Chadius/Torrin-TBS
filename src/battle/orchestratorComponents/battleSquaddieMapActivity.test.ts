@@ -18,8 +18,10 @@ describe('BattleSquaddieMapActivity', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
+    let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
+        mockedP5 = mocks.mockedP5();
         squaddieRepository = new BattleSquaddieRepository();
         staticSquaddieBase = new BattleSquaddieStatic({
             attributes: new ArmyAttributes({
@@ -68,12 +70,12 @@ describe('BattleSquaddieMapActivity', () => {
             squaddieRepo: squaddieRepository,
         })
 
-        mapActivity.update(state, mocks.mockedP5);
+        mapActivity.update(state, mockedP5);
         expect(mapActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(mapActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => 500);
 
-        mapActivity.update(state, mocks.mockedP5);
+        mapActivity.update(state, mockedP5);
         expect(mapActivity.hasCompleted(state)).toBeTruthy();
 
         const stateChanges = mapActivity.recommendStateChanges(state);

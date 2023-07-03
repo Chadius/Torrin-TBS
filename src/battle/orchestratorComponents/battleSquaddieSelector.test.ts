@@ -43,8 +43,10 @@ describe('BattleSquaddieSelector', () => {
     let selector: BattleSquaddieSelector = new BattleSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let missionMap: MissionMap;
+    let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
+        mockedP5 = mocks.mockedP5();
         selector = new BattleSquaddieSelector();
         squaddieRepo = new BattleSquaddieRepository();
         missionMap = new MissionMap({
@@ -205,7 +207,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
         });
 
-        selector.update(state, mocks.mockedP5);
+        selector.update(state, mockedP5);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
@@ -234,7 +236,7 @@ describe('BattleSquaddieSelector', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
         camera.moveCamera();
-        selector.update(state, mocks.mockedP5);
+        selector.update(state, mockedP5);
 
         expect(selector.hasCompleted(state)).toBeFalsy();
         expect(camera.isPanning()).toBeTruthy();
@@ -244,7 +246,7 @@ describe('BattleSquaddieSelector', () => {
 
         jest.spyOn(Date, 'now').mockImplementation(() => SQUADDIE_SELECTOR_PANNING_TIME);
         camera.moveCamera();
-        selector.update(state, mocks.mockedP5);
+        selector.update(state, mockedP5);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(camera.isPanning()).toBeFalsy();
@@ -462,7 +464,7 @@ describe('BattleSquaddieSelector', () => {
             mouseX: 0,
             mouseY: 0
         });
-        selector.update(state, mocks.mockedP5);
+        selector.update(state, mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(2);
         expect(state.squaddieCurrentlyActing.instruction.getActivities()[1]).toStrictEqual(new SquaddieEndTurnActivity());
@@ -629,7 +631,7 @@ describe('BattleSquaddieSelector', () => {
                 },
             });
 
-            selector.update(state, mocks.mockedP5);
+            selector.update(state, mockedP5);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
             const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
@@ -675,7 +677,7 @@ describe('BattleSquaddieSelector', () => {
                 },
             });
 
-            selector.update(state, mocks.mockedP5);
+            selector.update(state, mockedP5);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
             const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
@@ -738,7 +740,7 @@ describe('BattleSquaddieSelector', () => {
             const hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles");
             const battleSquaddieUIInputChangeSelectionStateSpy = jest.spyOn(mockBattleSquaddieUIInput, "changeSelectionState");
 
-            selector.update(state, mocks.mockedP5);
+            selector.update(state, mockedP5);
 
             expect(selector.hasCompleted(state)).toBeTruthy();
             const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
@@ -774,7 +776,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
         });
 
-        selector.update(state, mocks.mockedP5);
+        selector.update(state, mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);

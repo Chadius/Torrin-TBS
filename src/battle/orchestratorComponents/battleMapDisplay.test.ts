@@ -13,8 +13,10 @@ describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
     let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     let squaddieRepo: BattleSquaddieRepository;
+    let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
+        mockedP5 = mocks.mockedP5();
         battleSquaddieSelectedHUD = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
         battleSquaddieSelectedHUD.draw = jest.fn();
 
@@ -75,7 +77,7 @@ describe('battleMapDisplay', () => {
             });
 
             jest.spyOn(Date, 'now').mockImplementation(() => timeToPan / 2);
-            battleMapDisplay.draw(state, mocks.mockedP5);
+            battleMapDisplay.draw(state, mockedP5);
             expect(camera.getCoordinates()[0]).toBeCloseTo((initialCameraCoordinates[0] + destinationCoordinates[0]) / 2);
             expect(camera.getCoordinates()[1]).toBeCloseTo((initialCameraCoordinates[1] + destinationCoordinates[1]) / 2);
 
@@ -88,7 +90,7 @@ describe('battleMapDisplay', () => {
             expect(camera.setYVelocity).not.toBeCalled();
 
             jest.spyOn(Date, 'now').mockImplementation(() => timeToPan);
-            battleMapDisplay.draw(state, mocks.mockedP5);
+            battleMapDisplay.draw(state, mockedP5);
             expect(camera.getCoordinates()[0]).toBeCloseTo((destinationCoordinates[0]));
             expect(camera.getCoordinates()[1]).toBeCloseTo((destinationCoordinates[1]));
         });

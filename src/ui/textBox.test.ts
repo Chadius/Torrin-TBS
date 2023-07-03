@@ -4,10 +4,11 @@ import * as mocks from "../utils/test/mocks";
 
 describe('Pop up text', () => {
     let p5TextSpy: jest.SpyInstance;
+    let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
-        p5TextSpy = jest.spyOn(mocks.mockedP5, "text").mockReturnValue(undefined);
-        p5TextSpy.mockReset();
+        mockedP5 = mocks.mockedP5();
+        p5TextSpy = jest.spyOn(mockedP5, "text").mockReturnValue(undefined);
     });
 
     it('will try to draw the text for a given amount of time', () => {
@@ -25,11 +26,11 @@ describe('Pop up text', () => {
             duration: 1000,
         });
 
-        textBox.draw(mocks.mockedP5);
+        textBox.draw(mockedP5);
         expect(textBox.isDone()).toBeFalsy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1000);
-        textBox.draw(mocks.mockedP5);
+        textBox.draw(mockedP5);
         expect(p5TextSpy).toBeCalledTimes(1);
         expect(textBox.isDone()).toBeTruthy();
     });
@@ -50,10 +51,10 @@ describe('Pop up text', () => {
 
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        textBox.draw(mocks.mockedP5);
+        textBox.draw(mockedP5);
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1000);
-        textBox.draw(mocks.mockedP5);
+        textBox.draw(mockedP5);
         expect(p5TextSpy).toBeCalledTimes(2);
         expect(textBox.isDone()).toBeFalsy();
     });
