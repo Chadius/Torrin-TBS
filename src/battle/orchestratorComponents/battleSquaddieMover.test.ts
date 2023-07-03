@@ -18,17 +18,13 @@ import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
-import p5 from "p5";
 import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
-
-jest.mock('p5', () => () => {
-    return {}
-});
+import * as mocks from "../../utils/test/mocks";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -37,7 +33,6 @@ describe('BattleSquaddieMover', () => {
     let enemy1Static: BattleSquaddieStatic;
     let enemy1Dynamic: BattleSquaddieDynamic;
     let map: MissionMap;
-    let mockedP5: p5;
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
@@ -95,8 +90,6 @@ describe('BattleSquaddieMover', () => {
         squaddieRepo.addDynamicSquaddie(
             enemy1Dynamic
         );
-
-        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
 
 
@@ -157,12 +150,12 @@ describe('BattleSquaddieMover', () => {
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
-        mover.update(state, mockedP5);
+        mover.update(state, mocks.mockedP5);
         expect(mover.hasCompleted(state)).toBeFalsy();
         expect(state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving("player_1")).toBeTruthy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-        mover.update(state, mockedP5);
+        mover.update(state, mocks.mockedP5);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
@@ -253,9 +246,9 @@ describe('BattleSquaddieMover', () => {
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             jest.spyOn(Date, 'now').mockImplementation(() => 1);
-            mover.update(state, mockedP5);
+            mover.update(state, mocks.mockedP5);
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-            mover.update(state, mockedP5);
+            mover.update(state, mocks.mockedP5);
             mover.reset(state);
             expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
 
@@ -288,9 +281,9 @@ describe('BattleSquaddieMover', () => {
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             jest.spyOn(Date, 'now').mockImplementation(() => 1);
-            mover.update(state, mockedP5);
+            mover.update(state, mocks.mockedP5);
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-            mover.update(state, mockedP5);
+            mover.update(state, mocks.mockedP5);
             mover.reset(state);
 
             expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
@@ -323,9 +316,9 @@ describe('BattleSquaddieMover', () => {
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             jest.spyOn(Date, 'now').mockImplementation(() => 1);
-            mover.update(state, mockedP5);
+            mover.update(state, mocks.mockedP5);
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
-            mover.update(state, mockedP5);
+            mover.update(state, mocks.mockedP5);
             mover.reset(state);
 
             expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();

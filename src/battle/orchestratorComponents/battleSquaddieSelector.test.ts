@@ -22,7 +22,6 @@ import {
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
-import p5 from "p5";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {Recording} from "../history/recording";
@@ -37,22 +36,17 @@ import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
+import * as mocks from "../../utils/test/mocks";
 import SpyInstance = jest.SpyInstance;
-
-jest.mock('p5', () => () => {
-    return {}
-});
 
 describe('BattleSquaddieSelector', () => {
     let selector: BattleSquaddieSelector = new BattleSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
-    let mockedP5: p5;
     let missionMap: MissionMap;
 
     beforeEach(() => {
         selector = new BattleSquaddieSelector();
         squaddieRepo = new BattleSquaddieRepository();
-        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
@@ -211,7 +205,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
         });
 
-        selector.update(state, mockedP5);
+        selector.update(state, mocks.mockedP5);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
@@ -240,7 +234,7 @@ describe('BattleSquaddieSelector', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
         camera.moveCamera();
-        selector.update(state, mockedP5);
+        selector.update(state, mocks.mockedP5);
 
         expect(selector.hasCompleted(state)).toBeFalsy();
         expect(camera.isPanning()).toBeTruthy();
@@ -250,7 +244,7 @@ describe('BattleSquaddieSelector', () => {
 
         jest.spyOn(Date, 'now').mockImplementation(() => SQUADDIE_SELECTOR_PANNING_TIME);
         camera.moveCamera();
-        selector.update(state, mockedP5);
+        selector.update(state, mocks.mockedP5);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(camera.isPanning()).toBeFalsy();
@@ -468,7 +462,7 @@ describe('BattleSquaddieSelector', () => {
             mouseX: 0,
             mouseY: 0
         });
-        selector.update(state, mockedP5);
+        selector.update(state, mocks.mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(2);
         expect(state.squaddieCurrentlyActing.instruction.getActivities()[1]).toStrictEqual(new SquaddieEndTurnActivity());
@@ -635,7 +629,7 @@ describe('BattleSquaddieSelector', () => {
                 },
             });
 
-            selector.update(state, mockedP5);
+            selector.update(state, mocks.mockedP5);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
             const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
@@ -681,7 +675,7 @@ describe('BattleSquaddieSelector', () => {
                 },
             });
 
-            selector.update(state, mockedP5);
+            selector.update(state, mocks.mockedP5);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
             const endTurnActivityInstruction: SquaddieInstruction = state.squaddieCurrentlyActing.instruction;
@@ -744,7 +738,7 @@ describe('BattleSquaddieSelector', () => {
             const hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles");
             const battleSquaddieUIInputChangeSelectionStateSpy = jest.spyOn(mockBattleSquaddieUIInput, "changeSelectionState");
 
-            selector.update(state, mockedP5);
+            selector.update(state, mocks.mockedP5);
 
             expect(selector.hasCompleted(state)).toBeTruthy();
             const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
@@ -780,7 +774,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
         });
 
-        selector.update(state, mockedP5);
+        selector.update(state, mocks.mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);

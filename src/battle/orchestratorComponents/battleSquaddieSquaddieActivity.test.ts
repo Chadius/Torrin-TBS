@@ -9,7 +9,6 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {ImageUI} from "../../ui/imageUI";
-import p5 from "p5";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ACTIVITY_COMPLETED_WAIT_TIME_MS, BattleSquaddieSquaddieActivity} from "./battleSquaddieSquaddieActivity";
@@ -26,15 +25,12 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {makeResult} from "../../utils/ResultOrError";
 import * as orchestratorUtils from "./orchestratorUtils";
+import * as mocks from "../../utils/test/mocks";
 
-jest.mock('p5', () => () => {
-    return {}
-});
 describe('BattleSquaddieSquaddieActivity', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
-    let mockedP5: p5;
     let longswordActivity: SquaddieActivity;
     let powerAttackLongswordActivity: SquaddieActivity;
     let squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
@@ -95,12 +91,6 @@ describe('BattleSquaddieSquaddieActivity', () => {
         squaddieRepository.addSquaddie(
             staticSquaddieBase, dynamicSquaddieBase
         );
-        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
-        mockedP5.push = jest.fn();
-        mockedP5.pop = jest.fn();
-        mockedP5.textSize = jest.fn();
-        mockedP5.fill = jest.fn();
-        mockedP5.text = jest.fn();
         jest.spyOn(Label.prototype, "draw").mockReturnValue(null);
         jest.spyOn(orchestratorUtils, "DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
         });
@@ -149,12 +139,12 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
         });
         dynamicSquaddieBase.squaddieTurn.spendActionsOnActivity(powerAttackLongswordActivity);
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mocks.mockedP5);
         expect(squaddieSquaddieActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => ACTIVITY_COMPLETED_WAIT_TIME_MS);
 
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mocks.mockedP5);
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();
 
         const stateChanges = squaddieSquaddieActivity.recommendStateChanges(state);
@@ -182,10 +172,10 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
         });
 
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mocks.mockedP5);
         jest.spyOn(Date, 'now').mockImplementation(() => ACTIVITY_COMPLETED_WAIT_TIME_MS);
 
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mocks.mockedP5);
 
         const stateChanges = squaddieSquaddieActivity.recommendStateChanges(state);
         expect(stateChanges.nextMode).toBeUndefined();
@@ -213,10 +203,10 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
         });
 
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mocks.mockedP5);
         jest.spyOn(Date, 'now').mockImplementation(() => ACTIVITY_COMPLETED_WAIT_TIME_MS / 2);
 
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mocks.mockedP5);
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -226,7 +216,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         };
 
         squaddieSquaddieActivity.mouseEventHappened(state, mouseEvent);
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mocks.mockedP5);
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();
         expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
     });

@@ -10,18 +10,14 @@ import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
 import {ImageUI} from "../../ui/imageUI";
-import p5 from "p5";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import * as mocks from "../../utils/test/mocks";
 
-jest.mock('p5', () => () => {
-    return {}
-});
 describe('BattleSquaddieMapActivity', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
-    let mockedP5: p5;
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
@@ -53,7 +49,6 @@ describe('BattleSquaddieMapActivity', () => {
         squaddieRepository.addSquaddie(
             staticSquaddieBase, dynamicSquaddieBase
         );
-        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
     });
 
     it('can wait half a second before ending turn', () => {
@@ -73,12 +68,12 @@ describe('BattleSquaddieMapActivity', () => {
             squaddieRepo: squaddieRepository,
         })
 
-        mapActivity.update(state, mockedP5);
+        mapActivity.update(state, mocks.mockedP5);
         expect(mapActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(mapActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => 500);
 
-        mapActivity.update(state, mockedP5);
+        mapActivity.update(state, mocks.mockedP5);
         expect(mapActivity.hasCompleted(state)).toBeTruthy();
 
         const stateChanges = mapActivity.recommendStateChanges(state);

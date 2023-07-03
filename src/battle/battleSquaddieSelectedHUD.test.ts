@@ -1,7 +1,6 @@
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {MissionMap} from "../missionMap/missionMap";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
-import p5 from "p5";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieId} from "../squaddie/id";
@@ -17,15 +16,11 @@ import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {RectArea} from "../ui/rectArea";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 
-jest.mock('p5', () => () => {
-    return {}
-});
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
     let squaddieRepository: BattleSquaddieRepository;
     let missionMap: MissionMap;
     let resourceHandler: ResourceHandler;
-    let mockedP5: p5;
     let playerSquaddieDynamicID: string = "player_squaddie_0";
     let longswordActivity: SquaddieActivity;
     let warnUserNotEnoughActionsToPerformActionSpy: jest.SpyInstance;
@@ -38,7 +33,6 @@ describe('BattleSquaddieSelectedHUD', () => {
         })
 
         squaddieRepository = new BattleSquaddieRepository();
-        mockedP5 = new (<new (options: any) => p5>p5)({}) as jest.Mocked<p5>;
 
         resourceHandler = new ResourceHandler({
             imageLoader: new stubImmediateLoader(),
