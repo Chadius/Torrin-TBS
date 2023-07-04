@@ -9,7 +9,6 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
-import {ImageUI} from "../../ui/imageUI";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import * as mocks from "../../utils/test/mocks";
@@ -45,7 +44,7 @@ describe('BattleSquaddieMapActivity', () => {
             dynamicSquaddieId: "dynamic_squaddie",
             staticSquaddieId: "static_squaddie",
             squaddieTurn: new SquaddieTurn(),
-            mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+            mapIcon: mocks.mockImageUI(),
         });
 
         squaddieRepository.addSquaddie(

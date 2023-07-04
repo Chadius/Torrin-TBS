@@ -8,7 +8,6 @@ import {NullTraitStatusStorage, Trait, TraitCategory, TraitStatusStorage} from "
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {ImageUI} from "../../ui/imageUI";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ACTIVITY_COMPLETED_WAIT_TIME_MS, BattleSquaddieSquaddieActivity} from "./battleSquaddieSquaddieActivity";
@@ -22,7 +21,6 @@ import {
 import {Label} from "../../ui/label";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {makeResult} from "../../utils/ResultOrError";
 import * as orchestratorUtils from "./orchestratorUtils";
 import * as mocks from "../../utils/test/mocks";
@@ -63,7 +61,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             dynamicSquaddieId: "dynamic_squaddie",
             staticSquaddieId: "static_squaddie",
             squaddieTurn: new SquaddieTurn(),
-            mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+            mapIcon: mocks.mockImageUI(),
         });
 
         longswordActivity = new SquaddieActivity({
@@ -108,11 +106,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             squaddieActivity: longswordActivity,
         }));
 
-        mockResourceHandler = new (
-            <new (options: any) => ResourceHandler>ResourceHandler
-        )({
-            imageLoader: new stubImmediateLoader(),
-        }) as jest.Mocked<ResourceHandler>;
+        mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
     });
 

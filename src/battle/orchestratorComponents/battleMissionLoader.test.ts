@@ -1,20 +1,15 @@
 import {BattleMissionLoader} from "./battleMissionLoader";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import * as mocks from "../../utils/test/mocks";
 
 describe('BattleMissionLoader', () => {
     let initialState: OrchestratorState;
     let mockResourceHandler: ResourceHandler;
 
     beforeEach(() => {
-        mockResourceHandler = new (
-            <new (options: any) => ResourceHandler>ResourceHandler
-        )({
-            imageLoader: new stubImmediateLoader(),
-        }) as jest.Mocked<ResourceHandler>;
-        mockResourceHandler.loadResources = jest.fn();
+        mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
 
         initialState = new OrchestratorState({

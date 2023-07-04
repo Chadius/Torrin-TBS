@@ -17,8 +17,7 @@ describe('battleMapDisplay', () => {
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
-        battleSquaddieSelectedHUD = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-        battleSquaddieSelectedHUD.draw = jest.fn();
+        battleSquaddieSelectedHUD = mocks.battleSquaddieSelectedHUD();
 
         squaddieRepo = new (<new (options: any) => BattleSquaddieRepository>BattleSquaddieRepository)({}) as jest.Mocked<BattleSquaddieRepository>;
         squaddieRepo.getDynamicSquaddieIterator = jest.fn().mockReturnValue([]);
@@ -104,6 +103,8 @@ describe('battleMapDisplay', () => {
         beforeEach(() => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
+            battleSquaddieSelectedHUD.isMouseInsideHUD = jest.fn().mockReturnValue(false);
+            battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
             state = new OrchestratorState({
                 displayMap: true,
@@ -191,9 +192,7 @@ describe('battleMapDisplay', () => {
             },
         ];
 
-        const hudIsOpen = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-        hudIsOpen.draw = jest.fn();
-        hudIsOpen.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
+        const hudIsOpen = mocks.battleSquaddieSelectedHUD();
         hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
         jest.spyOn(hudIsOpen, "background", "get").mockReturnValue(
             new Rectangle({
@@ -268,9 +267,7 @@ describe('battleMapDisplay', () => {
             },
         ];
 
-        const hudIsOpen = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-        hudIsOpen.draw = jest.fn();
-        hudIsOpen.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
+        const hudIsOpen = mocks.battleSquaddieSelectedHUD();
         hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
         jest.spyOn(hudIsOpen, "background", "get").mockReturnValue(
             new Rectangle({

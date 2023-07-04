@@ -6,7 +6,7 @@ import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
-import {ImageUI} from "../ui/imageUI";
+import * as mocks from "../utils/test/mocks";
 
 describe('Battle Squaddie Team', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -47,7 +47,7 @@ describe('Battle Squaddie Team', () => {
                 dynamicSquaddieId: "player_young_torrin_0",
                 staticSquaddieId: "player_young_torrin",
                 squaddieTurn: new SquaddieTurn(),
-                mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+                mapIcon: mocks.mockImageUI(),
             });
 
         squaddieRepo.addDynamicSquaddie(
@@ -58,7 +58,7 @@ describe('Battle Squaddie Team', () => {
             dynamicSquaddieId: "player_young_torrin_1",
             staticSquaddieId: "player_young_torrin",
             squaddieTurn: new SquaddieTurn(),
-            mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+            mapIcon: mocks.mockImageUI(),
         });
         squaddieRepo.addDynamicSquaddie(
             playerDynamicSquaddie1

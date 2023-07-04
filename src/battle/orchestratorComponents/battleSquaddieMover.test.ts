@@ -22,8 +22,6 @@ import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {ResourceHandler} from "../../resource/resourceHandler";
-import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import * as mocks from "../../utils/test/mocks";
 
 describe('BattleSquaddieMover', () => {
@@ -206,11 +204,7 @@ describe('BattleSquaddieMover', () => {
                     }))
                 ).getRouteToStopLocation());
 
-            let mockResourceHandler = new (
-                <new (options: any) => ResourceHandler>ResourceHandler
-            )({
-                imageLoader: new stubImmediateLoader(),
-            }) as jest.Mocked<ResourceHandler>;
+            let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             return new OrchestratorState({

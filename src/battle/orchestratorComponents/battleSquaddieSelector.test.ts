@@ -34,8 +34,6 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {ResourceHandler} from "../../resource/resourceHandler";
-import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import * as mocks from "../../utils/test/mocks";
 import SpyInstance = jest.SpyInstance;
 
@@ -350,13 +348,7 @@ describe('BattleSquaddieSelector', () => {
                 squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
             })
 
-            const mockResourceHandler = new (
-                <new (options: any) => ResourceHandler>ResourceHandler
-            )({
-                imageLoader: new stubImmediateLoader(),
-            }) as jest.Mocked<ResourceHandler>;
-            mockResourceHandler.loadResources = jest.fn();
-            mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);
+            let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             mockHud = new BattleSquaddieSelectedHUD({
@@ -437,13 +429,7 @@ describe('BattleSquaddieSelector', () => {
             numberOfActionsSpent: 1
         }));
 
-        let mockHud: BattleSquaddieSelectedHUD;
-        mockHud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-        mockHud.wasActivitySelected = jest.fn().mockReturnValue(true);
-        mockHud.getSelectedActivity = jest.fn().mockReturnValue(new SquaddieEndTurnActivity());
-        mockHud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
-        mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
-        mockHud.mouseClicked = jest.fn();
+        let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: OrchestratorState = new OrchestratorState({
@@ -485,13 +471,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         });
 
-        let mockHud: BattleSquaddieSelectedHUD;
-        mockHud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-        mockHud.wasActivitySelected = jest.fn().mockReturnValue(true);
-        mockHud.getSelectedActivity = jest.fn().mockReturnValue(new SquaddieEndTurnActivity());
-        mockHud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
-        mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
-        mockHud.mouseClicked = jest.fn();
+        let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: OrchestratorState = new OrchestratorState({
@@ -556,12 +536,8 @@ describe('BattleSquaddieSelector', () => {
             targetingShape: TargetingShape.Snake,
         });
 
-        let mockHud: BattleSquaddieSelectedHUD;
-        mockHud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
-        mockHud.wasActivitySelected = jest.fn().mockReturnValue(true);
+        let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedActivity = jest.fn().mockReturnValue(longswordActivity);
-        mockHud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
-        mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
         mockHud.mouseClicked = jest.fn();
         mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
 
@@ -837,13 +813,7 @@ describe('BattleSquaddieSelector', () => {
                 instruction: movingInstruction
             });
 
-            const mockResourceHandler = new (
-                <new (options: any) => ResourceHandler>ResourceHandler
-            )({
-                imageLoader: new stubImmediateLoader(),
-            }) as jest.Mocked<ResourceHandler>;
-            mockResourceHandler.loadResources = jest.fn();
-            mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);
+            let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             mockHud = new BattleSquaddieSelectedHUD({

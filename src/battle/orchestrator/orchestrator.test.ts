@@ -111,7 +111,7 @@ describe('Battle Orchestrator', () => {
         mockPhaseController.hasCompleted = jest.fn().mockReturnValue(true);
         mockPhaseController.draw = jest.fn();
 
-        mockHud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
+        mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.selectSquaddieAndDrawWindow = jest.fn();
     }
 

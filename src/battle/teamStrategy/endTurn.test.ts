@@ -7,12 +7,12 @@ import {NullSquaddieResource} from "../../squaddie/resource";
 import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {ImageUI} from "../../ui/imageUI";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import * as mocks from "../../utils/test/mocks";
 
 describe('end turn team strategy', () => {
     let playerStaticSquaddie: BattleSquaddieStatic;
@@ -43,7 +43,7 @@ describe('end turn team strategy', () => {
                 dynamicSquaddieId: "new_dynamic_squaddie",
                 staticSquaddieId: "new_static_squaddie",
                 squaddieTurn: new SquaddieTurn(),
-                mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+                mapIcon: mocks.mockImageUI(),
             });
 
         squaddieRepository.addDynamicSquaddie(

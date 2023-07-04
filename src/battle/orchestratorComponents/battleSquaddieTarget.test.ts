@@ -28,9 +28,7 @@ import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {makeResult} from "../../utils/ResultOrError";
-import {ImageUI} from "../../ui/imageUI";
 import * as mocks from "../../utils/test/mocks";
 
 describe('BattleSquaddieTarget', () => {
@@ -100,7 +98,7 @@ describe('BattleSquaddieTarget', () => {
             staticSquaddie: knightStatic,
             dynamicSquaddieId: "Knight 0",
             squaddieTurn: new SquaddieTurn(),
-            mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+            mapIcon: mocks.mockImageUI(),
         });
 
         squaddieRepo.addSquaddie(knightStatic, knightDynamic);
@@ -134,11 +132,7 @@ describe('BattleSquaddieTarget', () => {
             currentSquaddieActivity: longswordActivity,
         });
 
-        mockResourceHandler = new (
-            <new (options: any) => ResourceHandler>ResourceHandler
-        )({
-            imageLoader: new stubImmediateLoader(),
-        }) as jest.Mocked<ResourceHandler>;
+        mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         state = new OrchestratorState({

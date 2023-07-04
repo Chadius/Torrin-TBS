@@ -10,7 +10,6 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController} from "./battlePhaseController";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
-import {ImageUI} from "../../ui/imageUI";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
@@ -47,7 +46,7 @@ describe('BattlePhaseController', () => {
                 dynamicSquaddieId: "player_squaddie_0",
                 staticSquaddieId: "player_squaddie",
                 squaddieTurn: new SquaddieTurn(),
-                mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+                mapIcon: mocks.mockImageUI(),
             })
         );
 
@@ -68,7 +67,7 @@ describe('BattlePhaseController', () => {
                 dynamicSquaddieId: "enemy_squaddie_0",
                 staticSquaddieId: "enemy_squaddie",
                 squaddieTurn: new SquaddieTurn(),
-                mapIcon: new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>,
+                mapIcon: mocks.mockImageUI(),
             })
         );
 
@@ -204,7 +203,7 @@ describe('BattlePhaseController', () => {
 
     it('resets internal variables once completed', () => {
         battlePhaseController = new BattlePhaseController();
-        battlePhaseController.affiliationImageUI = new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>;
+        battlePhaseController.affiliationImageUI = mocks.mockImageUI();
 
         expect(battlePhaseController.affiliationImageUI).toBeTruthy();
         battlePhaseController.reset(new OrchestratorState({}));
