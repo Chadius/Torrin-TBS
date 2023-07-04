@@ -4,6 +4,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/battleSquaddieSelectedHUD";
 import {SquaddieEndTurnActivity} from "../../battle/history/squaddieEndTurnActivity";
+import {RectArea} from "../../ui/rectArea";
 
 jest.mock('p5', () => () => {
     return {
@@ -15,6 +16,9 @@ jest.mock('p5', () => () => {
         text: jest.fn(),
         textSize: jest.fn(),
         textAlign: jest.fn(),
+        tint: jest.fn(),
+        noTint: jest.fn(),
+        image: jest.fn(),
     }
 });
 
@@ -23,7 +27,10 @@ export const mockedP5 = () => {
 }
 
 export const mockImageUI = () => {
-    return new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>;
+    const imageUI = new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>;
+    imageUI.area = new RectArea({left: 10, right: 20, top: 10, bottom: 20});
+    imageUI.draw = jest.fn();
+    return imageUI;
 }
 
 export const mockResourceHandler = () => {

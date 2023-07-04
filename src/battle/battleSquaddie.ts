@@ -4,8 +4,8 @@ import {SquaddieActivity} from "../squaddie/activity";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieTurn} from "../squaddie/turn";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {ArmyAttributes, NullArmyAttributes} from "../squaddie/armyAttributes";
-import {InBattleAttributes, NullInBattleAttributes} from "./stats/inBattleAttributes";
+import {ArmyAttributes} from "../squaddie/armyAttributes";
+import {InBattleAttributes} from "./stats/inBattleAttributes";
 
 export class BattleSquaddieStatic {
     squaddieId: SquaddieId;
@@ -19,7 +19,7 @@ export class BattleSquaddieStatic {
     }) {
         this.squaddieId = options.squaddieId;
         this._activities = options.activities || [];
-        this.attributes = options.attributes || NullArmyAttributes();
+        this.attributes = options.attributes || new ArmyAttributes();
     }
 
     get movement(): SquaddieMovement {
@@ -59,7 +59,7 @@ export class BattleSquaddieDynamic {
             this.copyStaticSquaddie(options.staticSquaddie);
         } else {
             this._staticSquaddieId = options.staticSquaddieId;
-            this._inBattleAttributes = NullInBattleAttributes();
+            this._inBattleAttributes = new InBattleAttributes();
         }
 
         this._squaddieTurn = options.squaddieTurn || new SquaddieTurn();

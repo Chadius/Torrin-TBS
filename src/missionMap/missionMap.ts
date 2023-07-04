@@ -7,7 +7,14 @@ export class MissionMapSquaddieDatum {
     private _staticSquaddieId: string;
     private _mapLocation?: HexCoordinate;
 
-    constructor(info: { dynamicSquaddieId: string, staticSquaddieId: string, mapLocation?: HexCoordinate }) {
+    constructor(info?: { dynamicSquaddieId: string, staticSquaddieId: string, mapLocation?: HexCoordinate }) {
+        if (!info) {
+            info = {
+                dynamicSquaddieId: undefined,
+                staticSquaddieId: undefined,
+            };
+        }
+
         this._dynamicSquaddieId = info.dynamicSquaddieId;
         this._staticSquaddieId = info.staticSquaddieId;
         this._mapLocation = info.mapLocation;
@@ -40,13 +47,6 @@ export class MissionMapSquaddieDatum {
     get dynamicSquaddieId(): string {
         return this._dynamicSquaddieId;
     }
-}
-
-function NullMissionMapSquaddieDatum(): MissionMapSquaddieDatum {
-    return new MissionMapSquaddieDatum({
-        dynamicSquaddieId: undefined,
-        staticSquaddieId: undefined,
-    });
 }
 
 export class MissionMap {
@@ -93,14 +93,14 @@ export class MissionMap {
         const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
             location && datum.mapLocation && datum.mapLocation.q === location.q && datum.mapLocation.r === location.r
         );
-        return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : NullMissionMapSquaddieDatum();
+        return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : new MissionMapSquaddieDatum();
     }
 
     getSquaddieByDynamicId(dynamicSquaddieId: string): MissionMapSquaddieDatum {
         const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
             datum.dynamicSquaddieId === dynamicSquaddieId
         );
-        return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : NullMissionMapSquaddieDatum();
+        return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : new MissionMapSquaddieDatum();
     }
 
     getHexGridMovementAtLocation(location: HexCoordinate): HexGridMovementCost {

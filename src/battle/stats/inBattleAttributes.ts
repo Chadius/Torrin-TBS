@@ -1,10 +1,14 @@
-import {ArmyAttributes, NullArmyAttributes} from "../../squaddie/armyAttributes";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 export class InBattleAttributes {
     private _armyAttributes: ArmyAttributes;
     private _currentHitPoints: number;
 
-    constructor(statBlock: ArmyAttributes) {
+    constructor(statBlock?: ArmyAttributes) {
+        if (!statBlock) {
+            statBlock = new ArmyAttributes();
+        }
+
         this._armyAttributes = statBlock;
         this._currentHitPoints = statBlock.maxHitPoints;
     }
@@ -12,8 +16,4 @@ export class InBattleAttributes {
     get currentHitPoints(): number {
         return this._currentHitPoints;
     }
-}
-
-export const NullInBattleAttributes = () => {
-    return new InBattleAttributes(NullArmyAttributes());
 }

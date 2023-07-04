@@ -1,16 +1,6 @@
-import {NullSquaddieResource, SquaddieResource} from "./resource";
-import {NullTraitStatusStorage, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {SquaddieResource} from "./resource";
+import {TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-
-export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation) => {
-    return new SquaddieId({
-        staticId: id,
-        name: id,
-        resources: NullSquaddieResource(),
-        traits: NullTraitStatusStorage(),
-        affiliation
-    });
-}
 
 export class SquaddieId {
     name: string;
@@ -28,8 +18,8 @@ export class SquaddieId {
     }) {
         this.name = params.name;
         this.staticId = params.staticId;
-        this.resources = params.resources || NullSquaddieResource();
-        this.traits = params.traits || NullTraitStatusStorage();
+        this.resources = params.resources || new SquaddieResource();
+        this.traits = params.traits || new TraitStatusStorage();
         this.affiliation = params.affiliation;
     }
 }

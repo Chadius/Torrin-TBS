@@ -1,13 +1,13 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieId} from "../squaddie/id";
-import {NullSquaddieResource} from "../squaddie/resource";
-import {NullTraitStatusStorage, Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../squaddie/movement";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
+import {SquaddieResource} from "../squaddie/resource";
 
 describe('BattleSquaddieRepository', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -30,8 +30,8 @@ describe('BattleSquaddieRepository', () => {
             squaddieId: new SquaddieId({
                 staticId: "player_young_torrin",
                 name: "Torrin",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
+                resources: new SquaddieResource(),
+                traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             activities: [],

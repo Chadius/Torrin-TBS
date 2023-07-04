@@ -5,13 +5,11 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullArmyAttributes} from "../../squaddie/armyAttributes";
-import {SquaddieTurn} from "../../squaddie/turn";
 import {findValidTargets, TargetingResults} from "./targetingService";
 
 import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('Targeting Service', () => {
     let longswordActivity: SquaddieActivity;
@@ -31,24 +29,17 @@ describe('Targeting Service', () => {
             maximumRange: 1,
         });
 
-        sirCamilStaticSquaddie = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "Sir Camil",
-                staticId: "Sir Camil",
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            activities: [longswordActivity],
-            attributes: NullArmyAttributes(),
-        });
-
-        sirCamilDynamicSquaddie = new BattleSquaddieDynamic({
-            staticSquaddie: sirCamilStaticSquaddie,
-            dynamicSquaddieId: "Sir Camil 0",
-            squaddieTurn: new SquaddieTurn(),
-        });
-
         squaddieRepo = new BattleSquaddieRepository();
-        squaddieRepo.addSquaddie(sirCamilStaticSquaddie, sirCamilDynamicSquaddie);
+        ({
+            staticSquaddie: sirCamilStaticSquaddie,
+            dynamicSquaddie: sirCamilDynamicSquaddie,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Sir Camil",
+            staticId: "Sir Camil",
+            dynamicId: "Sir Camil 0",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: squaddieRepo,
+        }));
     });
 
     it('will indicate which locations to highlight', () => {
@@ -131,24 +122,18 @@ describe('Targeting Service', () => {
             maximumRange: 3,
         });
 
-        let archerStaticSquaddie = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "Archer",
-                staticId: "archer",
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            activities: [longbowActivity],
-            attributes: NullArmyAttributes(),
-        });
-
-        let archerDynamicSquaddie = new BattleSquaddieDynamic({
-            staticSquaddie: archerStaticSquaddie,
-            dynamicSquaddieId: "Archer 0",
-            squaddieTurn: new SquaddieTurn(),
-        });
-
         squaddieRepo = new BattleSquaddieRepository();
-        squaddieRepo.addSquaddie(archerStaticSquaddie, archerDynamicSquaddie);
+        let {
+            staticSquaddie: archerStaticSquaddie,
+            dynamicSquaddie: archerDynamicSquaddie,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Archer",
+            staticId: "archer",
+            dynamicId: "Archer 0",
+            affiliation: SquaddieAffiliation.PLAYER,
+            activities: [longbowActivity],
+            squaddieRepository: squaddieRepo,
+        });
 
         battleMap.addSquaddie(
             archerStaticSquaddie.squaddieId.staticId,
@@ -188,23 +173,16 @@ describe('Targeting Service', () => {
             new HexCoordinate({q: 1, r: 1}),
         );
 
-        let playerTeamStatic = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "Player",
-                staticId: "player",
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            activities: [],
-            attributes: NullArmyAttributes(),
-        });
-
-        let playerTeamDynamic = new BattleSquaddieDynamic({
+        let {
             staticSquaddie: playerTeamStatic,
-            dynamicSquaddieId: "Player 0",
-            squaddieTurn: new SquaddieTurn(),
+            dynamicSquaddie: playerTeamDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Player",
+            staticId: "player",
+            dynamicId: "Player 0",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: squaddieRepo,
         });
-
-        squaddieRepo.addSquaddie(playerTeamStatic, playerTeamDynamic);
 
         battleMap.addSquaddie(
             playerTeamStatic.squaddieId.staticId,
@@ -212,23 +190,16 @@ describe('Targeting Service', () => {
             new HexCoordinate({q: 1, r: 0}),
         );
 
-        let enemyTeamStatic = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "Enemy",
-                staticId: "enemy",
-                affiliation: SquaddieAffiliation.ENEMY,
-            }),
-            activities: [],
-            attributes: NullArmyAttributes(),
-        });
-
-        let enemyTeamDynamic = new BattleSquaddieDynamic({
+        let {
             staticSquaddie: enemyTeamStatic,
-            dynamicSquaddieId: "enemy 0",
-            squaddieTurn: new SquaddieTurn(),
+            dynamicSquaddie: enemyTeamDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Enemy",
+            staticId: "enemy",
+            dynamicId: "enemy 0",
+            affiliation: SquaddieAffiliation.ENEMY,
+            squaddieRepository: squaddieRepo,
         });
-
-        squaddieRepo.addSquaddie(enemyTeamStatic, enemyTeamDynamic);
 
         battleMap.addSquaddie(
             enemyTeamStatic.squaddieId.staticId,
@@ -236,23 +207,16 @@ describe('Targeting Service', () => {
             new HexCoordinate({q: 2, r: 1}),
         );
 
-        let enemyFarAwayTeamStatic = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "Enemy far away",
-                staticId: "enemy far away",
-                affiliation: SquaddieAffiliation.ENEMY,
-            }),
-            activities: [],
-            attributes: NullArmyAttributes(),
-        });
-
-        let enemyFarAwayTeamDynamic = new BattleSquaddieDynamic({
+        let {
             staticSquaddie: enemyFarAwayTeamStatic,
-            dynamicSquaddieId: "enemy far away 0",
-            squaddieTurn: new SquaddieTurn(),
+            dynamicSquaddie: enemyFarAwayTeamDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Enemy far away",
+            staticId: "enemy far away",
+            dynamicId: "enemy far away 0",
+            affiliation: SquaddieAffiliation.ENEMY,
+            squaddieRepository: squaddieRepo,
         });
-
-        squaddieRepo.addSquaddie(enemyFarAwayTeamStatic, enemyFarAwayTeamDynamic);
 
         battleMap.addSquaddie(
             enemyFarAwayTeamStatic.squaddieId.staticId,

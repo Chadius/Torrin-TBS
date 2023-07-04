@@ -1,9 +1,10 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic, canPlayerControlSquaddieRightNow} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
-import {NewDummySquaddieID, SquaddieId} from "../squaddie/id";
+import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {ArmyAttributes, NullArmyAttributes} from "../squaddie/armyAttributes";
-import {InBattleAttributes, NullInBattleAttributes} from "./stats/inBattleAttributes";
+import {ArmyAttributes} from "../squaddie/armyAttributes";
+import {InBattleAttributes} from "./stats/inBattleAttributes";
+import {NewDummySquaddieID} from "../utils/test/squaddie";
 
 describe('BattleSquaddie', () => {
     it('throws an error if dynamic squaddie has no static ID', () => {
@@ -111,7 +112,7 @@ describe('BattleSquaddie', () => {
                 squaddieId: NewDummySquaddieID("id", SquaddieAffiliation.PLAYER),
             });
 
-            const defaultAttributes: ArmyAttributes = NullArmyAttributes();
+            const defaultAttributes: ArmyAttributes = new ArmyAttributes();
 
             expect(squaddieWithoutAttributes.attributes).toStrictEqual(defaultAttributes);
         });
@@ -122,7 +123,7 @@ describe('BattleSquaddie', () => {
                 staticSquaddieId: staticSoldier.squaddieId.staticId,
             });
 
-            const defaultInBattleAttributes: InBattleAttributes = NullInBattleAttributes();
+            const defaultInBattleAttributes: InBattleAttributes = new InBattleAttributes();
 
             expect(dynamicSoldier.inBattleAttributes).toStrictEqual(defaultInBattleAttributes);
         });

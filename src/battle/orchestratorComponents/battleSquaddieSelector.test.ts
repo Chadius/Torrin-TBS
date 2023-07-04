@@ -5,7 +5,6 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {OrchestratorChanges, OrchestratorComponentMouseEventType} from "../orchestrator/orchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -31,10 +30,11 @@ import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieActivity} from "../../squaddie/activity";
-import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import * as mocks from "../../utils/test/mocks";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -63,23 +63,13 @@ describe('BattleSquaddieSelector', () => {
             }
         );
 
-        squaddieRepo.addStaticSquaddie(
-            new BattleSquaddieStatic({
-                squaddieId: new SquaddieId({
-                    staticId: "enemy_demon",
-                    name: "Slither Demon",
-                    affiliation: SquaddieAffiliation.ENEMY,
-                }),
-            })
-        );
-
-        squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
-                dynamicSquaddieId: "enemy_demon_0",
-                staticSquaddieId: "enemy_demon",
-                squaddieTurn: new SquaddieTurn()
-            })
-        );
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "enemy_demon",
+            name: "Slither Demon",
+            affiliation: SquaddieAffiliation.ENEMY,
+            dynamicId: "enemy_demon_0",
+            squaddieRepository: squaddieRepo,
+        });
 
         squaddieRepo.addDynamicSquaddie(
             new BattleSquaddieDynamic({
@@ -119,23 +109,13 @@ describe('BattleSquaddieSelector', () => {
         );
         battlePhaseTracker.addTeam(playerTeam);
 
-        squaddieRepo.addStaticSquaddie(
-            new BattleSquaddieStatic({
-                squaddieId: new SquaddieId({
-                    staticId: "player_soldier",
-                    name: "Player Soldier",
-                    affiliation: SquaddieAffiliation.PLAYER,
-                }),
-            })
-        );
-
-        squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
-                dynamicSquaddieId: "player_soldier_0",
-                staticSquaddieId: "player_soldier",
-                squaddieTurn: new SquaddieTurn()
-            })
-        );
+        CreateNewSquaddieAndAddToRepository({
+            name: "Player Soldier",
+            staticId: "player_soldier",
+            dynamicId: "player_soldier_0",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: squaddieRepo,
+        });
         playerTeam.addDynamicSquaddieIds(["player_soldier_0"]);
 
         missionMap.addSquaddie(
@@ -529,7 +509,7 @@ describe('BattleSquaddieSelector', () => {
         const longswordActivity: SquaddieActivity = new SquaddieActivity({
             name: "longsword",
             id: "longsword",
-            traits: NullTraitStatusStorage(),
+            traits: new TraitStatusStorage(),
             actionsToSpend: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -779,18 +759,17 @@ describe('BattleSquaddieSelector', () => {
                 })
             });
             battlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
-            interruptSquaddieStatic = new BattleSquaddieStatic({
-                squaddieId: new SquaddieId({
-                    name: "interrupting squaddie",
-                    staticId: "interrupting squaddie",
-                    affiliation: SquaddieAffiliation.PLAYER,
-                })
-            });
-            interruptSquaddieDynamic = new BattleSquaddieDynamic({
+            ({
                 staticSquaddie: interruptSquaddieStatic,
-                dynamicSquaddieId: "interrupting squaddie",
-            });
-            squaddieRepo.addSquaddie(interruptSquaddieStatic, interruptSquaddieDynamic);
+                dynamicSquaddie: interruptSquaddieDynamic,
+            } = CreateNewSquaddieAndAddToRepository({
+                name: "interrupting squaddie",
+                staticId: "interrupting squaddie",
+                dynamicId: "interrupting squaddie",
+                affiliation: SquaddieAffiliation.PLAYER,
+                squaddieRepository: squaddieRepo,
+            }));
+
             missionMap.addSquaddie(
                 interruptSquaddieStatic.staticId,
                 interruptSquaddieDynamic.dynamicSquaddieId,
@@ -905,7 +884,7 @@ describe('BattleSquaddieSelector', () => {
             const longswordActivity: SquaddieActivity = new SquaddieActivity({
                 name: "longsword",
                 id: "longsword",
-                traits: NullTraitStatusStorage(),
+                traits: new TraitStatusStorage(),
                 actionsToSpend: 1,
                 minimumRange: 0,
                 maximumRange: 1,

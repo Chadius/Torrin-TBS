@@ -13,16 +13,14 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {NewDummySquaddieID} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieTurn} from "../../squaddie/turn";
 import {OrchestratorComponent} from "./orchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import * as orchestratorUtils from "../orchestratorComponents/orchestratorUtils";
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
 import * as mocks from "../../utils/test/mocks";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 
 describe('Battle Orchestrator', () => {
@@ -196,16 +194,14 @@ describe('Battle Orchestrator', () => {
             battleSquaddieSelectedHUD: mockHud,
         });
         stateWantsToDisplayTheMap.squaddieRepository = new BattleSquaddieRepository();
-        stateWantsToDisplayTheMap.squaddieRepository.addSquaddie(
-            new BattleSquaddieStatic({
-                squaddieId: NewDummySquaddieID("new static squaddie", SquaddieAffiliation.PLAYER),
-            }),
-            new BattleSquaddieDynamic({
-                staticSquaddieId: "new static squaddie",
-                dynamicSquaddieId: "new dynamic squaddie",
-                squaddieTurn: new SquaddieTurn(),
-            }),
-        );
+
+        CreateNewSquaddieAndAddToRepository({
+            name: "new static squaddie",
+            staticId: "new static squaddie",
+            dynamicId: "new dynamic squaddie",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: stateWantsToDisplayTheMap.squaddieRepository,
+        });
 
         const loadingOrchestratorShouldNotDraw: Orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.LOADING_MISSION
@@ -276,16 +272,14 @@ describe('Battle Orchestrator', () => {
             numberOfActionsSpent: 2,
         }));
         nullState.squaddieRepository = new BattleSquaddieRepository();
-        nullState.squaddieRepository.addSquaddie(
-            new BattleSquaddieStatic({
-                squaddieId: NewDummySquaddieID("new static squaddie", SquaddieAffiliation.PLAYER),
-            }),
-            new BattleSquaddieDynamic({
-                staticSquaddieId: "new static squaddie",
-                dynamicSquaddieId: "new dynamic squaddie",
-                squaddieTurn: new SquaddieTurn(),
-            }),
-        );
+        CreateNewSquaddieAndAddToRepository({
+            name: "new static squaddie",
+            staticId: "new static squaddie",
+            dynamicId: "new dynamic squaddie",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: nullState.squaddieRepository,
+        });
+
         nullState.squaddieCurrentlyActing = new SquaddieInstructionInProgress({
             instruction,
         });

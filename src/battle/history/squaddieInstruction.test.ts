@@ -3,9 +3,9 @@ import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieActivity} from "../../squaddie/activity";
-import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 describe('SquaddieInstruction', () => {
     it('can add a squaddie and location', () => {
@@ -84,7 +84,7 @@ describe('SquaddieInstruction', () => {
         const longswordActivity: SquaddieActivity = new SquaddieActivity({
             name: "longsword",
             id: "longsword",
-            traits: NullTraitStatusStorage(),
+            traits: new TraitStatusStorage(),
             actionsToSpend: 1,
             minimumRange: 0,
             maximumRange: 1,

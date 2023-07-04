@@ -3,7 +3,7 @@ import {SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder} from "./pathfinder";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SearchParams, SearchParamsOptions} from "./searchParams";
-import {NullTraitStatusStorage, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
@@ -269,7 +269,7 @@ describe('pathfinder and squaddies', () => {
             numberOfActions: 1,
             squaddieMovement: new SquaddieMovement({
                 movementPerAction: 10,
-                traits: NullTraitStatusStorage(),
+                traits: new TraitStatusStorage(),
             }),
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: undefined,

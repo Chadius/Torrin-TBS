@@ -1,5 +1,4 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -8,6 +7,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleCamera} from "../battleCamera";
 import {convertMapCoordinatesToScreenCoordinates,} from "../../hexMap/convertCoordinates";
 import {GetSquaddieAtMapLocation, GetSquaddieAtScreenLocation} from "./orchestratorUtils";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
     let knightSquaddieStatic: BattleSquaddieStatic;
@@ -17,21 +17,18 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
     let camera: BattleCamera;
 
     beforeEach(() => {
-        knightSquaddieStatic = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "knight",
-                staticId: "knight_static",
-                affiliation: SquaddieAffiliation.PLAYER,
-            })
-        });
-
-        knightSquaddieDynamic = new BattleSquaddieDynamic({
-            staticSquaddie: knightSquaddieStatic,
-            dynamicSquaddieId: "knight_dynamic",
-        });
-
         squaddieRepository = new BattleSquaddieRepository();
-        squaddieRepository.addSquaddie(knightSquaddieStatic, knightSquaddieDynamic);
+
+        ({
+            staticSquaddie: knightSquaddieStatic,
+            dynamicSquaddie: knightSquaddieDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "knight",
+            staticId: "knight_static",
+            dynamicId: "knight_dynamic",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository,
+        }));
 
         map = new MissionMap({
             terrainTileMap: new TerrainTileMap({

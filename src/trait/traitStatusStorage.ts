@@ -97,7 +97,3 @@ export class TraitStatusStorage {
         return this;
     }
 }
-
-export const NullTraitStatusStorage: () => TraitStatusStorage = () => {
-    return new TraitStatusStorage({});
-}

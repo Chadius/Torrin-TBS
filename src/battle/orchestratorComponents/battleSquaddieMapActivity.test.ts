@@ -2,16 +2,14 @@ import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {SquaddieId} from "../../squaddie/id";
-import {NullSquaddieResource} from "../../squaddie/resource";
-import {NullTraitStatusStorage, Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
-import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import * as mocks from "../../utils/test/mocks";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('BattleSquaddieMapActivity', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -22,7 +20,15 @@ describe('BattleSquaddieMapActivity', () => {
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
         squaddieRepository = new BattleSquaddieRepository();
-        staticSquaddieBase = new BattleSquaddieStatic({
+        ({
+            staticSquaddie: staticSquaddieBase,
+            dynamicSquaddie: dynamicSquaddieBase,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Torrin",
+            staticId: "static_squaddie",
+            dynamicId: "dynamic_squaddie",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: squaddieRepository,
             attributes: new ArmyAttributes({
                 movement: new SquaddieMovement({
                     movementPerAction: 2,
@@ -31,25 +37,7 @@ describe('BattleSquaddieMapActivity', () => {
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
             }),
-            squaddieId: new SquaddieId({
-                staticId: "static_squaddie",
-                name: "Torrin",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            activities: [],
-        });
-        dynamicSquaddieBase = new BattleSquaddieDynamic({
-            dynamicSquaddieId: "dynamic_squaddie",
-            staticSquaddieId: "static_squaddie",
-            squaddieTurn: new SquaddieTurn(),
-            mapIcon: mocks.mockImageUI(),
-        });
-
-        squaddieRepository.addSquaddie(
-            staticSquaddieBase, dynamicSquaddieBase
-        );
+        }));
     });
 
     it('can wait half a second before ending turn', () => {

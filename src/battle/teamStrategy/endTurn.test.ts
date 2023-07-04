@@ -3,8 +3,6 @@ import {TeamStrategyState} from "./teamStrategyState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
-import {NullSquaddieResource} from "../../squaddie/resource";
-import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
@@ -13,6 +11,8 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import * as mocks from "../../utils/test/mocks";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SquaddieResource} from "../../squaddie/resource";
 
 describe('end turn team strategy', () => {
     let playerStaticSquaddie: BattleSquaddieStatic;
@@ -27,8 +27,8 @@ describe('end turn team strategy', () => {
             squaddieId: new SquaddieId({
                 staticId: "new_static_squaddie",
                 name: "Torrin",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
+                resources: new SquaddieResource(),
+                traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             activities: [],

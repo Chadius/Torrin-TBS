@@ -1,12 +1,12 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {SquaddieId} from "../squaddie/id";
-import {NullSquaddieResource} from "../squaddie/resource";
-import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
 import * as mocks from "../utils/test/mocks";
+import {TraitStatusStorage} from "../trait/traitStatusStorage";
+import {SquaddieResource} from "../squaddie/resource";
 
 describe('Battle Squaddie Team', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -31,8 +31,8 @@ describe('Battle Squaddie Team', () => {
             squaddieId: new SquaddieId({
                 staticId: "player_young_torrin",
                 name: "Torrin",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
+                resources: new SquaddieResource(),
+                traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             activities: [],
@@ -74,8 +74,8 @@ describe('Battle Squaddie Team', () => {
             squaddieId: new SquaddieId({
                 staticId: "enemy_slither_demon",
                 name: "Slither",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
+                resources: new SquaddieResource(),
+                traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
             activities: [],

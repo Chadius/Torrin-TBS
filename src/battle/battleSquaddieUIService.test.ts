@@ -3,17 +3,17 @@ import {MissionMap} from "../missionMap/missionMap";
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
 import {BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
 import {SquaddieId} from "../squaddie/id";
-import {NullSquaddieResource} from "../squaddie/resource";
-import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {NullArmyAttributes} from "../squaddie/armyAttributes";
+import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {SquaddieInstruction} from "./history/squaddieInstruction";
 import {SquaddieMovementActivity} from "./history/squaddieMovementActivity";
+import {TraitStatusStorage} from "../trait/traitStatusStorage";
+import {SquaddieResource} from "../squaddie/resource";
 
 describe('BattleSquaddieUIService', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -23,12 +23,12 @@ describe('BattleSquaddieUIService', () => {
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
         playerStaticSquaddie = new BattleSquaddieStatic({
-            attributes: NullArmyAttributes(),
+            attributes: new ArmyAttributes(),
             squaddieId: new SquaddieId({
                 name: "torrin",
                 staticId: "torrin",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
+                resources: new SquaddieResource(),
+                traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER
             }),
             activities: [],
@@ -87,13 +87,13 @@ describe('BattleSquaddieUIService', () => {
         const missionMap = createMissionMap(["1 1 "]);
 
         const enemySquaddieStatic: BattleSquaddieStatic = new BattleSquaddieStatic({
-            attributes: NullArmyAttributes(),
+            attributes: new ArmyAttributes(),
             activities: [],
             squaddieId: new SquaddieId({
                 name: "enemy",
                 staticId: "enemy",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
+                resources: new SquaddieResource(),
+                traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY
             })
         });

@@ -1,13 +1,13 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battle/battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
-import {NullSquaddieResource} from "../../squaddie/resource";
-import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullSquaddieMovement, SquaddieMovement} from "../../squaddie/movement";
+import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import * as mocks from "../../utils/test/mocks";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SquaddieResource} from "../../squaddie/resource";
 
 export function addSquaddieToSquaddieRepository(
     staticSquaddieId: string,
@@ -21,12 +21,12 @@ export function addSquaddieToSquaddieRepository(
         squaddieId: new SquaddieId({
             staticId: staticSquaddieId,
             name: squaddieName,
-            resources: NullSquaddieResource(),
-            traits: NullTraitStatusStorage(),
+            resources: new SquaddieResource(),
+            traits: new TraitStatusStorage(),
             affiliation: squaddieAffiliation,
         }),
         attributes: new ArmyAttributes({
-            movement: movement ?? NullSquaddieMovement(),
+            movement: movement ?? new SquaddieMovement(),
         }),
         activities: [],
     });

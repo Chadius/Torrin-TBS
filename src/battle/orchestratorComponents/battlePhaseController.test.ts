@@ -4,8 +4,6 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
-import {NullSquaddieResource} from "../../squaddie/resource";
-import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController} from "./battlePhaseController";
@@ -13,6 +11,8 @@ import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SquaddieResource} from "../../squaddie/resource";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -34,8 +34,8 @@ describe('BattlePhaseController', () => {
                 squaddieId: new SquaddieId({
                     staticId: "player_squaddie",
                     name: "Player",
-                    resources: NullSquaddieResource(),
-                    traits: NullTraitStatusStorage(),
+                    resources: new SquaddieResource(),
+                    traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
                 activities: [],
@@ -55,8 +55,8 @@ describe('BattlePhaseController', () => {
                 squaddieId: new SquaddieId({
                     staticId: "enemy_squaddie",
                     name: "Enemy",
-                    resources: NullSquaddieResource(),
-                    traits: NullTraitStatusStorage(),
+                    resources: new SquaddieResource(),
+                    traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
                 activities: [],

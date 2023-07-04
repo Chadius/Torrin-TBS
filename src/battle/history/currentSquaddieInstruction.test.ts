@@ -2,9 +2,9 @@ import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {SquaddieInstruction} from "./squaddieInstruction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieActivity} from "../../squaddie/activity";
-import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 const torrinInstruction = new SquaddieInstruction({
     dynamicSquaddieId: "Torrin 0",
@@ -15,7 +15,7 @@ const torrinInstruction = new SquaddieInstruction({
 const purifyingBlast = new SquaddieActivity({
     name: "purifying stream",
     id: "purifying_stream",
-    traits: NullTraitStatusStorage(),
+    traits: new TraitStatusStorage(),
 });
 
 const purifyingBlastActivity: SquaddieSquaddieActivity = new SquaddieSquaddieActivity({
@@ -34,7 +34,7 @@ describe('Current Squaddie Instruction', () => {
             currentSquaddieActivity: new SquaddieActivity({
                 name: "purifying stream",
                 id: "purifying_stream",
-                traits: NullTraitStatusStorage(),
+                traits: new TraitStatusStorage(),
             }),
         });
 

@@ -10,11 +10,11 @@ import {stubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {ActivityButton} from "../squaddie/activityButton";
 import {SquaddieActivity} from "../squaddie/activity";
-import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {RectArea} from "../ui/rectArea";
 import {getResultOrThrowError} from "../utils/ResultOrError";
+import {TraitStatusStorage} from "../trait/traitStatusStorage";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -69,7 +69,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         longswordActivity = new SquaddieActivity({
             name: "longsword",
             id: "longsword",
-            traits: NullTraitStatusStorage(),
+            traits: new TraitStatusStorage(),
             actionsToSpend: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -179,7 +179,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         notEnoughActionsActivity = new SquaddieActivity({
             name: "not enough actions",
             id: "not enough actions",
-            traits: NullTraitStatusStorage(),
+            traits: new TraitStatusStorage(),
             actionsToSpend: 9001,
             minimumRange: 0,
             maximumRange: 1,

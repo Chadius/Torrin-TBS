@@ -1,5 +1,5 @@
 import {SquaddieActivity} from "./activity";
-import {NullTraitStatusStorage} from "../trait/traitStatusStorage";
+import {TraitStatusStorage} from "../trait/traitStatusStorage";
 
 describe('SquaddieActivity', () => {
     it('throws an error if non integer turns are used', () => {
@@ -10,7 +10,7 @@ describe('SquaddieActivity', () => {
                 maximumRange: 2,
                 minimumRange: 3,
                 name: "non integer actions to spend",
-                traits: NullTraitStatusStorage(),
+                traits: new TraitStatusStorage(),
             })
         }
 
@@ -30,7 +30,7 @@ describe('SquaddieActivity', () => {
                 minimumRange: 0.2,
                 maximumRange: 3,
                 name: "non integer minimum range to spend",
-                traits: NullTraitStatusStorage(),
+                traits: new TraitStatusStorage(),
             })
         }
 
@@ -50,7 +50,7 @@ describe('SquaddieActivity', () => {
                 minimumRange: 2,
                 maximumRange: 0.3,
                 name: "non integer maximum range to spend",
-                traits: NullTraitStatusStorage(),
+                traits: new TraitStatusStorage(),
             })
         }
 

@@ -1,11 +1,7 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {SquaddieId} from "../../squaddie/id";
-import {NullSquaddieResource} from "../../squaddie/resource";
-import {NullTraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {SquaddieTurn} from "../../squaddie/turn";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
@@ -18,11 +14,12 @@ import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
-import {NullArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import * as mocks from "../../utils/test/mocks";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -45,51 +42,27 @@ describe('BattleSquaddieMover', () => {
             })
         });
 
-        player1Static = new BattleSquaddieStatic({
-            attributes: NullArmyAttributes(),
-            squaddieId: new SquaddieId({
-                staticId: "player_1",
-                name: "Player1",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            activities: [],
-        });
+        ({
+            staticSquaddie: player1Static,
+            dynamicSquaddie: player1Dynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Player1",
+            staticId: "player_1",
+            dynamicId: "player_1",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: squaddieRepo,
+        }));
 
-        player1Dynamic = new BattleSquaddieDynamic({
-            dynamicSquaddieId: "player_1",
-            staticSquaddieId: "player_1",
-            squaddieTurn: new SquaddieTurn(),
-        });
-
-        squaddieRepo.addSquaddie(player1Static, player1Dynamic);
-
-        enemy1Static = new BattleSquaddieStatic({
-            attributes: NullArmyAttributes(),
-            squaddieId: new SquaddieId({
-                staticId: "enemy_1",
-                name: "Enemy1",
-                resources: NullSquaddieResource(),
-                traits: NullTraitStatusStorage(),
-                affiliation: SquaddieAffiliation.ENEMY,
-            }),
-            activities: [],
-        });
-
-        enemy1Dynamic = new BattleSquaddieDynamic({
-            dynamicSquaddieId: "enemy_1",
-            staticSquaddieId: "enemy_1",
-            squaddieTurn: new SquaddieTurn(),
-        });
-
-        squaddieRepo.addStaticSquaddie(
-            enemy1Static
-        );
-
-        squaddieRepo.addDynamicSquaddie(
-            enemy1Dynamic
-        );
+        ({
+            staticSquaddie: enemy1Static,
+            dynamicSquaddie: enemy1Dynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Enemy1",
+            staticId: "enemy_1",
+            dynamicId: "enemy_1",
+            affiliation: SquaddieAffiliation.ENEMY,
+            squaddieRepository: squaddieRepo,
+        }));
     });
 
 
@@ -115,7 +88,7 @@ describe('BattleSquaddieMover', () => {
                     missionMap: map,
                     squaddieMovement: new SquaddieMovement({
                         movementPerAction: 999,
-                        traits: NullTraitStatusStorage()
+                        traits: new TraitStatusStorage()
                     }),
                     squaddieRepository: squaddieRepo,
                     shapeGeneratorType: TargetingShape.Snake,
@@ -197,7 +170,7 @@ describe('BattleSquaddieMover', () => {
                         missionMap: map,
                         squaddieMovement: new SquaddieMovement({
                             movementPerAction: 999,
-                            traits: NullTraitStatusStorage()
+                            traits: new TraitStatusStorage()
                         }),
                         squaddieRepository: squaddieRepo,
                         shapeGeneratorType: TargetingShape.Snake,

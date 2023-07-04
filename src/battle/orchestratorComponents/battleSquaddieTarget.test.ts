@@ -4,10 +4,7 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {NullArmyAttributes} from "../../squaddie/armyAttributes";
-import {SquaddieTurn} from "../../squaddie/turn";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
@@ -30,6 +27,7 @@ import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInPro
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -84,43 +82,32 @@ describe('BattleSquaddieTarget', () => {
             actionsToSpend: 3,
         });
 
-        knightStatic = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "Knight",
-                staticId: "Knight",
-                affiliation: SquaddieAffiliation.PLAYER,
-            }),
-            activities: [longswordActivity],
-            attributes: NullArmyAttributes(),
-        });
-
-        knightDynamic = new BattleSquaddieDynamic({
+        ({
             staticSquaddie: knightStatic,
-            dynamicSquaddieId: "Knight 0",
-            squaddieTurn: new SquaddieTurn(),
-            mapIcon: mocks.mockImageUI(),
-        });
+            dynamicSquaddie: knightDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Knight",
+            staticId: "Knight",
+            dynamicId: "Knight 0",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository: squaddieRepo,
+            activities: [longswordActivity],
+        }));
 
-        squaddieRepo.addSquaddie(knightStatic, knightDynamic);
         battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
 
-        thiefStatic = new BattleSquaddieStatic({
-            squaddieId: new SquaddieId({
-                name: "Thief",
-                staticId: "Thief",
-                affiliation: SquaddieAffiliation.ENEMY,
-            }),
-            activities: [longswordActivity],
-            attributes: NullArmyAttributes(),
-        });
-
-        thiefDynamic = new BattleSquaddieDynamic({
+        ({
             staticSquaddie: thiefStatic,
-            dynamicSquaddieId: "Thief 0",
-            squaddieTurn: new SquaddieTurn(),
-        });
+            dynamicSquaddie: thiefDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Thief",
+            staticId: "Thief",
+            dynamicId: "Thief 0",
+            affiliation: SquaddieAffiliation.ENEMY,
+            squaddieRepository: squaddieRepo,
+            activities: [longswordActivity],
+        }));
 
-        squaddieRepo.addSquaddie(thiefStatic, thiefDynamic);
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
 
         const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
