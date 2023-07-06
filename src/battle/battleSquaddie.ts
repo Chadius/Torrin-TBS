@@ -3,7 +3,6 @@ import {SquaddieMovement} from "../squaddie/movement";
 import {SquaddieActivity} from "../squaddie/activity";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieTurn} from "../squaddie/turn";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {InBattleAttributes} from "./stats/inBattleAttributes";
 
@@ -117,11 +116,4 @@ export class BattleSquaddieDynamic {
         this._staticSquaddieId = staticSquaddie.squaddieId.staticId;
         this.initializeInBattleAttributes(staticSquaddie.attributes);
     }
-}
-
-export const canPlayerControlSquaddieRightNow = (staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) => {
-    if (staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER && dynamicSquaddie.canStillActThisRound()) {
-        return true;
-    }
-    return false;
 }

@@ -3,10 +3,11 @@ import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddieDynamic, BattleSquaddieStatic, canPlayerControlSquaddieRightNow} from "../battleSquaddie";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {highlightSquaddieReach} from "../animation/mapHighlight";
+import {CanPlayerControlSquaddieRightNow} from "../../squaddie/squaddieService";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: OrchestratorState) => {
     if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
@@ -28,7 +29,11 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: Orchestra
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
-        if (canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie)) {
+        const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
+            staticSquaddie,
+            dynamicSquaddie,
+        });
+        if (playerCanControlThisSquaddieRightNow) {
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
                 dynamicID: state.squaddieCurrentlyActing.dynamicSquaddieId,
             });
@@ -47,7 +52,11 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Orches
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
-        if (canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie)) {
+        const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
+            staticSquaddie,
+            dynamicSquaddie
+        })
+        if (playerCanControlThisSquaddieRightNow) {
             state.hexMap.stopHighlightingTiles();
             highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         }

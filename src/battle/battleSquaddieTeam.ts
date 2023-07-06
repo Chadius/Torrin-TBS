@@ -1,8 +1,8 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
-import {canPlayerControlSquaddieRightNow} from "./battleSquaddie";
 import {unTintSquaddieMapIcon} from "./animation/drawSquaddie";
+import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../squaddie/squaddieService";
 
 export type BattleSquaddieTeamOptions = {
     name: string;
@@ -12,14 +12,18 @@ export type BattleSquaddieTeamOptions = {
 }
 
 export class BattleSquaddieTeam {
+    get affiliation(): SquaddieAffiliation {
+        return this._affiliation;
+    }
+
     name: string;
-    affiliation: SquaddieAffiliation;
+    private _affiliation: SquaddieAffiliation;
     squaddieRepo: BattleSquaddieRepository;
     dynamicSquaddieIds: string[];
 
     constructor(options: BattleSquaddieTeamOptions) {
         this.name = options.name;
-        this.affiliation = options.affiliation;
+        this._affiliation = options.affiliation;
         this.squaddieRepo = options.squaddieRepo;
 
         this.dynamicSquaddieIds = [];
@@ -32,14 +36,11 @@ export class BattleSquaddieTeam {
         return this.dynamicSquaddieIds.length > 0;
     }
 
-    getAffiliation(): SquaddieAffiliation {
-        return this.affiliation;
-    }
-
     hasAnActingSquaddie(): boolean {
         return this.dynamicSquaddieIds.some(dynamicSquaddieId => {
-            const {dynamicSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-            return dynamicSquaddie.canStillActThisRound();
+            const {staticSquaddie, dynamicSquaddie} = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            const {canAct} = CanSquaddieActRightNow({staticSquaddie,dynamicSquaddie,});
+            return canAct;
         })
     }
 
@@ -56,7 +57,8 @@ export class BattleSquaddieTeam {
                 staticSquaddie,
                 dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-            return canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie);
+            const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({staticSquaddie,dynamicSquaddie,});
+            return playerCanControlThisSquaddieRightNow;
         })
     }
 
@@ -66,16 +68,18 @@ export class BattleSquaddieTeam {
                 staticSquaddie,
                 dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-            return !canPlayerControlSquaddieRightNow(staticSquaddie, dynamicSquaddie) && dynamicSquaddie.canStillActThisRound();
+            const {squaddieCanCurrentlyAct, squaddieHasThePlayerControlledAffiliation} = CanPlayerControlSquaddieRightNow({staticSquaddie,dynamicSquaddie,});
+            return !squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct;
         })
     }
 
     getDynamicSquaddiesThatCanAct(): string[] {
         return this.dynamicSquaddieIds.filter(dynamicSquaddieId => {
             const {
-                dynamicSquaddie
+                staticSquaddie, dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-            return dynamicSquaddie.canStillActThisRound();
+            const {canAct} = CanSquaddieActRightNow({staticSquaddie,dynamicSquaddie,});
+            return canAct;
         });
     }
 

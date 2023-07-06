@@ -11,7 +11,7 @@ export const GetNumberOfActions = ({
     normalActionsRemaining: number
 } => {
     return {
-        normalActionsRemaining: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+        normalActionsRemaining: dynamicSquaddie.squaddieTurn.remainingNumberOfActions,
     }
 }
 
@@ -43,15 +43,15 @@ export const GetHitPoints = ({
     }
 }
 
-export const CanPlayerControl = ({
+export const CanSquaddieActRightNow = ({
     staticSquaddie,
     dynamicSquaddie,
 }: {
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
-    playerControlledAffiliation: boolean,
-    squaddieCanCurrentlyAct: boolean,
+    canAct: boolean,
+    hasActionsRemaining: boolean,
 } => {
     let {
         normalActionsRemaining
@@ -60,8 +60,38 @@ export const CanPlayerControl = ({
         dynamicSquaddie,
     });
 
+    const hasActionsRemaining: boolean = normalActionsRemaining > 0;
+
     return {
-        playerControlledAffiliation: staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER,
-        squaddieCanCurrentlyAct: normalActionsRemaining > 0,
+        canAct: hasActionsRemaining,
+        hasActionsRemaining,
+    }
+}
+
+export const CanPlayerControlSquaddieRightNow = ({
+    staticSquaddie,
+    dynamicSquaddie,
+}: {
+    staticSquaddie: BattleSquaddieStatic,
+    dynamicSquaddie: BattleSquaddieDynamic,
+}): {
+    squaddieHasThePlayerControlledAffiliation: boolean,
+    squaddieCanCurrentlyAct: boolean,
+    playerCanControlThisSquaddieRightNow: boolean,
+} => {
+    let {
+        normalActionsRemaining
+    } = GetNumberOfActions({
+        staticSquaddie,
+        dynamicSquaddie,
+    });
+
+    const playerControlledAffiliation: boolean = staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER
+    const squaddieCanCurrentlyAct: boolean = normalActionsRemaining > 0
+
+    return {
+        squaddieHasThePlayerControlledAffiliation: playerControlledAffiliation,
+        squaddieCanCurrentlyAct,
+        playerCanControlThisSquaddieRightNow: playerControlledAffiliation && squaddieCanCurrentlyAct,
     }
 }

@@ -9,6 +9,7 @@ import {SearchResults} from "../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
+import {CanPlayerControlSquaddieRightNow, GetNumberOfActions} from "../squaddie/squaddieService";
 
 export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSquaddieUIInputOptions) => BattleSquaddieUISelectionState =
     (stateOptions: BattleSquaddieUIInputOptions) => {
@@ -35,12 +36,14 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                     dynamicSquaddie,
                     staticSquaddie
                 } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.selectedSquaddieDynamicID));
-                if (staticSquaddie.squaddieId.affiliation !== SquaddieAffiliation.PLAYER) {
+                const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie})
+                if (!playerCanControlThisSquaddieRightNow) {
                     return BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED;
                 }
 
                 const pathfinder: Pathfinder = new Pathfinder();
                 const squaddieDatum = state.missionMap.getSquaddieByDynamicId(state.selectedSquaddieDynamicID);
+                const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
                 const searchResults: SearchResults = getResultOrThrowError(
                     pathfinder.findPathToStopLocation(new SearchParams({
                         missionMap: state.missionMap,
@@ -49,7 +52,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                         stopLocation: state.tileClickedOn,
                         squaddieAffiliation: SquaddieAffiliation.PLAYER,
                         squaddieRepository: state.squaddieRepository,
-                        numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+                        numberOfActions: normalActionsRemaining,
                         shapeGeneratorType: TargetingShape.Snake,
                     }))
                 );

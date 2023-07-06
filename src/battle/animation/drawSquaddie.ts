@@ -12,6 +12,11 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {
+    CanPlayerControlSquaddieRightNow,
+    CanSquaddieActRightNow,
+    GetNumberOfActions
+} from "../../squaddie/squaddieService";
 
 export const tintSquaddieMapIconTurnComplete = (staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
@@ -27,7 +32,9 @@ export const drawSquaddieMapIconAtMapLocation = (p: p5, squaddieRepo: BattleSqua
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     setImageToLocation(dynamicSquaddie, xyCoords);
     const {staticSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-    if (staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
+    const {squaddieHasThePlayerControlledAffiliation, squaddieCanCurrentlyAct} = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie})
+    const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+    if (squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct && normalActionsRemaining < 3) {
         drawSquaddieActions(p, staticSquaddie, dynamicSquaddie, mapLocation, camera);
     }
     dynamicSquaddie.mapIcon.draw(p);
@@ -64,7 +71,8 @@ export const drawSquaddieActions = (p: p5, staticSquaddie: BattleSquaddieStatic,
 
     background.draw(p);
 
-    const heightFromRemainingActions = actionDrawingArea.getHeight() * dynamicSquaddie.squaddieTurn.getRemainingActions() / 3;
+    const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+    const heightFromRemainingActions = actionDrawingArea.getHeight() * normalActionsRemaining / 3;
     const numberOfActionsArea: RectArea = new RectArea({
         top: actionDrawingArea.getBottom() - heightFromRemainingActions,
         bottom: actionDrawingArea.getBottom(),
@@ -81,7 +89,14 @@ export const drawSquaddieActions = (p: p5, staticSquaddie: BattleSquaddieStatic,
 }
 
 export const tintSquaddieIfTurnIsComplete = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) => {
-    if (dynamicSquaddie.squaddieTurn.getRemainingActions() <= 0) {
+    let {
+        canAct,
+    } = CanSquaddieActRightNow({
+        staticSquaddie,
+        dynamicSquaddie,
+    });
+
+    if (!canAct) {
         tintSquaddieMapIconTurnComplete(staticSquaddie, dynamicSquaddie)
     }
 }

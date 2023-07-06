@@ -7,7 +7,7 @@ export class SquaddieId {
     staticId: string;
     resources: SquaddieResource;
     traits: TraitStatusStorage;
-    affiliation: SquaddieAffiliation;
+    private readonly _affiliation: SquaddieAffiliation;
 
     constructor(params: {
         name: string;
@@ -20,6 +20,10 @@ export class SquaddieId {
         this.staticId = params.staticId;
         this.resources = params.resources || new SquaddieResource();
         this.traits = params.traits || new TraitStatusStorage();
-        this.affiliation = params.affiliation;
+        this._affiliation = params.affiliation;
+    }
+
+    get affiliation(): SquaddieAffiliation {
+        return this._affiliation;
     }
 }

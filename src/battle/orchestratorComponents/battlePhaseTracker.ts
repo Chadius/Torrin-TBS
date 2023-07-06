@@ -48,7 +48,7 @@ export class BattlePhaseTracker {
     }
 
     addTeam(newSquaddieTeam: BattleSquaddieTeam) {
-        this.teamsByAffiliation[newSquaddieTeam.getAffiliation()] = newSquaddieTeam;
+        this.teamsByAffiliation[newSquaddieTeam.affiliation] = newSquaddieTeam;
     }
 
     getCurrentTeam(): BattleSquaddieTeam {

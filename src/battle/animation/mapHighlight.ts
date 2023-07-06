@@ -9,9 +9,12 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {GetNumberOfActions} from "../../squaddie/squaddieService";
 
 export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
+
+    const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
 
     const reachableTileSearchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(
         new SearchParams({
@@ -20,7 +23,7 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             squaddieMovement: staticSquaddie.movement,
             squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
             squaddieRepository,
-            numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+            numberOfActions: normalActionsRemaining,
             shapeGeneratorType: TargetingShape.Snake,
         }))
     );
