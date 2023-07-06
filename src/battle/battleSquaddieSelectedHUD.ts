@@ -15,6 +15,7 @@ import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {TextBox} from "../ui/textBox";
+import {GetNumberOfActions} from "../squaddie/squaddieService";
 
 enum ActivityValidityCheck {
     IS_VALID,
@@ -222,9 +223,10 @@ export class BattleSquaddieSelectedHUD {
 
     private drawNumberOfActions(p: p5) {
         const {
+            staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
-        const numberOfGeneralActions: number = dynamicSquaddie.squaddieTurn.getRemainingActions();
+        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie});
 
         p.push();
 
@@ -247,9 +249,9 @@ export class BattleSquaddieSelectedHUD {
         p.fill("#dedede");
         p.rect(
             actionBackground.getLeft(),
-            actionBackground.getBottom() - mainActionIconWidth * numberOfGeneralActions,
+            actionBackground.getBottom() - mainActionIconWidth * normalActionsRemaining,
             actionBackground.getWidth(),
-            mainActionIconWidth * numberOfGeneralActions);
+            mainActionIconWidth * normalActionsRemaining);
 
         const actionLineMarking: RectArea = new RectArea({
             left: actionBackground.getLeft(),
@@ -258,7 +260,7 @@ export class BattleSquaddieSelectedHUD {
             height: actionBackground.getHeight(),
         });
 
-        [1, 2].filter(i => numberOfGeneralActions >= i).forEach(i => {
+        [1, 2].filter(i => normalActionsRemaining >= i).forEach(i => {
             const verticalDistance: number = i * actionBackground.getHeight() / 3;
             p.line(
                 actionBackground.getLeft(),
@@ -329,6 +331,7 @@ export class BattleSquaddieSelectedHUD {
             || squaddieCurrentlyActing.isReadyForNewSquaddie()
             || this.selectedSquaddieDynamicId === squaddieCurrentlyActing.instruction.getDynamicSquaddieId()
         ) {
+            this.invalidCommandWarningTextBox.stop();
             return;
         }
 
@@ -390,8 +393,10 @@ export class BattleSquaddieSelectedHUD {
             return ActivityValidityCheck.IS_VALID;
         }
 
-        const {dynamicSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
-        if (dynamicSquaddie.squaddieTurn.getRemainingActions() < activity.actionsToSpend) {
+        const {staticSquaddie, dynamicSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+
+        if (normalActionsRemaining < activity.actionsToSpend) {
             return ActivityValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTIONS;
         }
 

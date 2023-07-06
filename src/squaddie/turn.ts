@@ -6,26 +6,26 @@ export enum ACTIVITY_PERFORM_FAILURE_REASON {
 }
 
 export class SquaddieTurn {
-    remainingNumberOfActions: number;
+    private _remainingNumberOfActions: number;
 
     constructor() {
-        this.remainingNumberOfActions = 3;
+        this._remainingNumberOfActions = 3;
     }
 
-    getRemainingActions(): number {
-        return this.remainingNumberOfActions;
+    get remainingNumberOfActions(): number {
+        return this._remainingNumberOfActions;
     }
 
     spendActionsOnActivity(activity: SquaddieActivity) {
-        this.remainingNumberOfActions = (this.remainingNumberOfActions - activity.actionsToSpend);
+        this._remainingNumberOfActions = (this._remainingNumberOfActions - activity.actionsToSpend);
     }
 
     spendNumberActions(numberOfActions: number) {
-        this.remainingNumberOfActions = (this.remainingNumberOfActions - numberOfActions);
+        this._remainingNumberOfActions = (this._remainingNumberOfActions - numberOfActions);
     }
 
     canPerformActivity(activity: SquaddieActivity): { canPerform: boolean, reason: ACTIVITY_PERFORM_FAILURE_REASON } {
-        if (this.remainingNumberOfActions < activity.actionsToSpend) {
+        if (this._remainingNumberOfActions < activity.actionsToSpend) {
             return {
                 canPerform: false,
                 reason: ACTIVITY_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING
@@ -43,14 +43,14 @@ export class SquaddieTurn {
     }
 
     private refreshActions() {
-        this.remainingNumberOfActions = 3;
+        this._remainingNumberOfActions = 3;
     }
 
     hasActionsRemaining(): boolean {
-        return this.remainingNumberOfActions > 0;
+        return this._remainingNumberOfActions > 0;
     }
 
     endTurn() {
-        this.remainingNumberOfActions = 0;
+        this._remainingNumberOfActions = 0;
     }
 }

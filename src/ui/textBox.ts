@@ -79,6 +79,10 @@ export class TextBox {
         );
     }
 
+    stop() {
+        this.duration = 0;
+    }
+
     get text(): string {
         return this._text;
     }

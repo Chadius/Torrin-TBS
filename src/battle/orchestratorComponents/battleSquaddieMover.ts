@@ -29,6 +29,9 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     }
 
     hasCompleted(state: OrchestratorState): boolean {
+        if (state.squaddieMovePath === undefined) {
+            return true;
+        }
         return this.animationStartTime && hasMovementAnimationFinished(this.animationStartTime, state.squaddieMovePath);
     }
 
@@ -98,6 +101,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     }
 
     reset(state: OrchestratorState) {
+        state.squaddieMovePath = undefined;
         this.animationStartTime = undefined;
         ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
 

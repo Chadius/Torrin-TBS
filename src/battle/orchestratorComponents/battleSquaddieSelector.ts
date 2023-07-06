@@ -38,6 +38,7 @@ import {SquaddieActivity} from "../../squaddie/activity";
 
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
+import {GetNumberOfActions} from "../../squaddie/squaddieService";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -225,12 +226,12 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     private createSearchPath(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-
+        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
         const searchResults: SearchResults = getResultOrThrowError(
             state.pathfinder.findPathToStopLocation(new SearchParams({
                 missionMap: state.missionMap,
                 squaddieMovement: staticSquaddie.movement,
-                numberOfActions: dynamicSquaddie.squaddieTurn.getRemainingActions(),
+                numberOfActions: normalActionsRemaining,
                 startLocation: new HexCoordinate({
                     q: datum.mapLocation.q,
                     r: datum.mapLocation.r,
@@ -357,7 +358,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
     private askComputerControlSquaddie(state: OrchestratorState) {
         if (!this.gaveCompleteInstruction) {
             const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
-            const currentTeamStrategies: TeamStrategy[] = state.teamStrategyByAffiliation[currentTeam.getAffiliation()];
+            const currentTeamStrategies: TeamStrategy[] = state.teamStrategyByAffiliation[currentTeam.affiliation];
 
             let strategyIndex = 0;
             let squaddieInstruction: SquaddieInstruction = undefined;

@@ -51,9 +51,13 @@ export const CreateNewSquaddieAndAddToRepository: (
      }
 ) => {
     const staticSquaddie = new BattleSquaddieStatic({
-        squaddieId: NewDummySquaddieID(
-            staticId, affiliation
-        ),
+        squaddieId: new SquaddieId({
+            staticId,
+            name,
+            resources: new SquaddieResource(),
+            traits: new TraitStatusStorage(),
+            affiliation
+        }),
         activities,
         attributes,
     });

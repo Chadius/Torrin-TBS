@@ -28,6 +28,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {GetNumberOfActions} from "../../squaddie/squaddieService";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -289,7 +290,8 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should consume the squaddie actions', () => {
-            expect(knightDynamic.squaddieTurn.getRemainingActions()).toBe(2);
+            const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie: knightStatic, dynamicSquaddie: knightDynamic});
+            expect(normalActionsRemaining).toBe(2);
         });
     });
 
@@ -330,6 +332,7 @@ describe('BattleSquaddieTarget', () => {
         );
 
         expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
-        expect(knightDynamic.squaddieTurn.getRemainingActions()).toBe(1);
+        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie: knightStatic, dynamicSquaddie: knightDynamic});
+        expect(normalActionsRemaining).toBe(1);
     });
 });
