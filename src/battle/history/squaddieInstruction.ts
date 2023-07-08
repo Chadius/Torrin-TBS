@@ -5,11 +5,15 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
 
 export class SquaddieInstruction {
+    get activities(): SquaddieInstructionActivity[] {
+        return this._activities;
+    }
+
     staticSquaddieId: string;
     dynamicSquaddieId: string;
     startingLocation: HexCoordinate;
 
-    activities: SquaddieInstructionActivity[];
+    private readonly _activities: SquaddieInstructionActivity[];
 
     constructor(options: {
         staticSquaddieId: string;
@@ -20,7 +24,7 @@ export class SquaddieInstruction {
         this.dynamicSquaddieId = options.dynamicSquaddieId;
         this.startingLocation = options.startingLocation;
 
-        this.activities = [];
+        this._activities = [];
     }
 
     getStaticSquaddieId(): string {
@@ -43,28 +47,28 @@ export class SquaddieInstruction {
     }
 
     addSquaddieSquaddieActivity(activity: SquaddieSquaddieActivity) {
-        this.activities.push(activity);
+        this._activities.push(activity);
     }
 
     addActivity(activity: SquaddieInstructionActivity) {
-        this.activities.push(activity);
+        this._activities.push(activity);
     }
 
     getActivities(): SquaddieInstructionActivity[] {
-        return [...this.activities];
+        return [...this._activities];
     }
 
     getMostRecentActivity(): SquaddieInstructionActivity {
-        if (this.activities.length === 0) {
+        if (this._activities.length === 0) {
             return undefined;
         }
-        return this.activities[
-        this.activities.length - 1
+        return this._activities[
+        this._activities.length - 1
             ];
     }
 
     totalActionsSpent() {
-        if (this.activities.some(activity => activity instanceof SquaddieEndTurnActivity)) {
+        if (this._activities.some(activity => activity instanceof SquaddieEndTurnActivity)) {
             return 3;
         }
 
@@ -76,14 +80,14 @@ export class SquaddieInstruction {
             return accumulator;
         };
 
-        return this.activities.reduce(
+        return this._activities.reduce(
             addActionsSpent,
             0
         );
     }
 
     destinationLocation(): HexCoordinate | undefined {
-        const lastMovementActivity = this.activities.reverse().find(activity => activity instanceof SquaddieMovementActivity)
+        const lastMovementActivity = this._activities.reverse().find(activity => activity instanceof SquaddieMovementActivity)
         if (lastMovementActivity && lastMovementActivity instanceof SquaddieMovementActivity) {
             return lastMovementActivity.destination;
         }
@@ -91,6 +95,6 @@ export class SquaddieInstruction {
     }
 
     endTurn() {
-        this.activities.push(new SquaddieEndTurnActivity());
+        this._activities.push(new SquaddieEndTurnActivity());
     }
 }

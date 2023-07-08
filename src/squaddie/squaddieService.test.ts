@@ -111,7 +111,7 @@ describe('Squaddie Service', () => {
             expect(canAct).toBeTruthy();
             expect(hasActionsRemaining).toBeTruthy();
         });
-        it ('cannot act because it is out of actions', () => {
+        it('cannot act because it is out of actions', () => {
             playerDynamic.squaddieTurn.spendNumberActions(3);
             let {
                 canAct,

@@ -393,7 +393,10 @@ export class BattleSquaddieSelectedHUD {
             return ActivityValidityCheck.IS_VALID;
         }
 
-        const {staticSquaddie, dynamicSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+        const {
+            staticSquaddie,
+            dynamicSquaddie
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
 
         if (normalActionsRemaining < activity.actionsToSpend) {

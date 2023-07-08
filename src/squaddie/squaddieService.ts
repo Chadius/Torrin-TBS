@@ -2,9 +2,9 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battle/battleSquad
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 
 export const GetNumberOfActions = ({
-    staticSquaddie,
-    dynamicSquaddie,
-}: {
+                                       staticSquaddie,
+                                       dynamicSquaddie,
+                                   }: {
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
@@ -16,9 +16,9 @@ export const GetNumberOfActions = ({
 }
 
 export const GetArmorClass = ({
-    staticSquaddie,
-    dynamicSquaddie,
-}: {
+                                  staticSquaddie,
+                                  dynamicSquaddie,
+                              }: {
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
@@ -30,9 +30,9 @@ export const GetArmorClass = ({
 }
 
 export const GetHitPoints = ({
-    staticSquaddie,
-    dynamicSquaddie,
-}: {
+                                 staticSquaddie,
+                                 dynamicSquaddie,
+                             }: {
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
@@ -44,9 +44,9 @@ export const GetHitPoints = ({
 }
 
 export const CanSquaddieActRightNow = ({
-    staticSquaddie,
-    dynamicSquaddie,
-}: {
+                                           staticSquaddie,
+                                           dynamicSquaddie,
+                                       }: {
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
@@ -69,9 +69,9 @@ export const CanSquaddieActRightNow = ({
 }
 
 export const CanPlayerControlSquaddieRightNow = ({
-    staticSquaddie,
-    dynamicSquaddie,
-}: {
+                                                     staticSquaddie,
+                                                     dynamicSquaddie,
+                                                 }: {
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {

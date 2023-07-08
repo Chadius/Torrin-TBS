@@ -8,7 +8,6 @@ import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -32,7 +31,10 @@ export const drawSquaddieMapIconAtMapLocation = (p: p5, squaddieRepo: BattleSqua
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     setImageToLocation(dynamicSquaddie, xyCoords);
     const {staticSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
-    const {squaddieHasThePlayerControlledAffiliation, squaddieCanCurrentlyAct} = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie})
+    const {
+        squaddieHasThePlayerControlledAffiliation,
+        squaddieCanCurrentlyAct
+    } = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie})
     const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
     if (squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct && normalActionsRemaining < 3) {
         drawSquaddieActions(p, staticSquaddie, dynamicSquaddie, mapLocation, camera);

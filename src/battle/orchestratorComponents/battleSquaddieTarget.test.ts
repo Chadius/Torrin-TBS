@@ -29,6 +29,7 @@ import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {BattleEvent} from "../history/battleEvent";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -290,49 +291,65 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should consume the squaddie actions', () => {
-            const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie: knightStatic, dynamicSquaddie: knightDynamic});
+            const {normalActionsRemaining} = GetNumberOfActions({
+                staticSquaddie: knightStatic,
+                dynamicSquaddie: knightDynamic
+            });
             expect(normalActionsRemaining).toBe(2);
         });
     });
 
-    it('should add to existing instruction when confirmed mid turn', () => {
-        state.squaddieCurrentlyActing.addSquaddie({
-            staticSquaddieId: knightStatic.staticId,
-            dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-            startingLocation: new HexCoordinate({q: 1, r: 1}),
+    describe('confirming an action mid turn', () => {
+        beforeEach(() => {
+            state.squaddieCurrentlyActing.addSquaddie({
+                staticSquaddieId: knightStatic.staticId,
+                dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+                startingLocation: new HexCoordinate({q: 1, r: 1}),
+            });
+
+            expect(targetComponent.hasCompleted(state)).toBeFalsy();
+            targetComponent.update(state, mockedP5);
+            clickOnThief();
+            clickOnConfirmTarget();
+            expect(targetComponent.hasCompleted(state)).toBeTruthy();
         });
-        state.squaddieCurrentlyActing.addConfirmedActivity(new SquaddieSquaddieActivity({
-            targetLocation: new HexCoordinate({q: 1, r: 2}),
-            squaddieActivity: longswordActivity,
-        }));
-        knightDynamic.squaddieTurn.spendActionsOnActivity(longswordActivity);
 
-        expect(targetComponent.hasCompleted(state)).toBeFalsy();
-        targetComponent.update(state, mockedP5);
-        clickOnThief();
-        clickOnConfirmTarget();
-        expect(targetComponent.hasCompleted(state)).toBeTruthy();
+        it('should add to existing instruction when confirmed mid turn', () => {
+            const expectedInstruction = new SquaddieInstruction({
+                staticSquaddieId: knightStatic.staticId,
+                dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+                startingLocation: new HexCoordinate({q: 1, r: 1}),
+            });
+            expectedInstruction.addSquaddieSquaddieActivity(
+                new SquaddieSquaddieActivity({
+                    targetLocation: new HexCoordinate({q: 1, r: 2}),
+                    squaddieActivity: longswordActivity,
+                })
+            );
 
-        const expectedInstruction = new SquaddieInstruction({
-            staticSquaddieId: knightStatic.staticId,
-            dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-            startingLocation: new HexCoordinate({q: 1, r: 1}),
+            expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
         });
-        expectedInstruction.addSquaddieSquaddieActivity(
-            new SquaddieSquaddieActivity({
-                targetLocation: new HexCoordinate({q: 1, r: 2}),
-                squaddieActivity: longswordActivity,
-            })
-        );
-        expectedInstruction.addSquaddieSquaddieActivity(
-            new SquaddieSquaddieActivity({
-                targetLocation: new HexCoordinate({q: 1, r: 2}),
-                squaddieActivity: longswordActivity,
-            })
-        );
 
-        expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
-        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie: knightStatic, dynamicSquaddie: knightDynamic});
-        expect(normalActionsRemaining).toBe(1);
+        it('should spend the activity resource cost', () => {
+            const {normalActionsRemaining} = GetNumberOfActions({
+                staticSquaddie: knightStatic,
+                dynamicSquaddie: knightDynamic
+            });
+            expect(normalActionsRemaining).toBe(3 - longswordActivity.actionsToSpend);
+        });
+
+        it('should add the results to the history', () => {
+            expect(state.battleEventRecording.history).toHaveLength(1);
+            const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
+            expect(mostRecentEvent.activities).toHaveLength(1);
+            expect((
+                mostRecentEvent.activities[0] as SquaddieSquaddieActivity
+            ).squaddieActivity.id).toBe(longswordActivity.id);
+            const results = mostRecentEvent.results;
+            expect(results.actingSquaddieDynamicId).toBe(knightDynamic.dynamicSquaddieId);
+            expect(results.targetedSquaddieDynamicIds).toHaveLength(1);
+            expect(results.targetedSquaddieDynamicIds[0]).toBe(thiefDynamic.dynamicSquaddieId);
+            expect(results.resultPerTarget[thiefDynamic.dynamicSquaddieId]).toBeTruthy();
+        });
     });
 });
