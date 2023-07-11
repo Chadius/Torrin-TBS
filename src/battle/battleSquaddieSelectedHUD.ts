@@ -63,6 +63,7 @@ export class BattleSquaddieSelectedHUD {
                                 }
     ) {
         this.selectedSquaddieDynamicId = dynamicID;
+        this.invalidCommandWarningTextBox.stop();
 
         let windowDimensions: RectArea;
         if (repositionWindow) {
@@ -329,14 +330,24 @@ export class BattleSquaddieSelectedHUD {
         if (
             !squaddieCurrentlyActing
             || squaddieCurrentlyActing.isReadyForNewSquaddie()
-            || this.selectedSquaddieDynamicId === squaddieCurrentlyActing.instruction.getDynamicSquaddieId()
         ) {
-            this.invalidCommandWarningTextBox.stop();
             return;
         }
 
         const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(squaddieCurrentlyActing.instruction.getDynamicSquaddieId()));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${staticSquaddie.squaddieId.name}`;
+
+        if (
+            this.selectedSquaddieDynamicId === squaddieCurrentlyActing.instruction.getDynamicSquaddieId()
+        ) {
+            if (
+                this.invalidCommandWarningTextBox.text === differentSquaddieWarningText
+            ) {
+                this.invalidCommandWarningTextBox.stop();
+            }
+            return;
+        }
+
         this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText);
     }
 

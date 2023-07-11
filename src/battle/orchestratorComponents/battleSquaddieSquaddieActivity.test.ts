@@ -22,6 +22,9 @@ import {makeResult} from "../../utils/ResultOrError";
 import * as orchestratorUtils from "./orchestratorUtils";
 import * as mocks from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {Recording} from "../history/recording";
+import {BattleEvent} from "../history/battleEvent";
+import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 
 describe('BattleSquaddieSquaddieActivity', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -33,6 +36,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
     let oneActionInstruction: SquaddieInstruction;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5 = mocks.mockedP5();
+    let battleEventRecording: Recording;
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
@@ -97,6 +101,27 @@ describe('BattleSquaddieSquaddieActivity', () => {
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
+        const wholeTurnInstruction: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "static_squaddie",
+            dynamicSquaddieId: "dynamic_squaddie",
+        });
+        wholeTurnInstruction.addActivity(new SquaddieSquaddieActivity({
+            targetLocation: new HexCoordinate({q: 0, r: 0}),
+            squaddieActivity: powerAttackLongswordActivity,
+        }));
+
+        battleEventRecording = new Recording({});
+        battleEventRecording.addEvent(new BattleEvent({
+            currentSquaddieInstruction: new SquaddieInstructionInProgress({
+                instruction: wholeTurnInstruction,
+                currentSquaddieActivity: powerAttackLongswordActivity,
+            }),
+            results: new SquaddieSquaddieResults({
+                actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId,
+                targetedSquaddieDynamicIds: [],
+            })
+        }));
     });
 
     it('can wait half a second before ending turn', () => {
@@ -113,10 +138,12 @@ describe('BattleSquaddieSquaddieActivity', () => {
         const state: OrchestratorState = new OrchestratorState({
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: wholeTurnInstruction,
+                currentSquaddieActivity: powerAttackLongswordActivity,
             }),
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,
             hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
+            battleEventRecording,
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -146,10 +173,12 @@ describe('BattleSquaddieSquaddieActivity', () => {
         const state: OrchestratorState = new OrchestratorState({
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: oneActionInstruction,
+                currentSquaddieActivity: powerAttackLongswordActivity,
             }),
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,
             hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
+            battleEventRecording,
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -177,10 +206,12 @@ describe('BattleSquaddieSquaddieActivity', () => {
         const state: OrchestratorState = new OrchestratorState({
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: oneActionInstruction,
+                currentSquaddieActivity: powerAttackLongswordActivity,
             }),
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,
             hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
+            battleEventRecording,
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({

@@ -16,6 +16,7 @@ import {
 import {RectArea} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {Label} from "../../ui/label";
+import {FormatResult} from "../animation/activityResultTextWriter";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
@@ -23,10 +24,12 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     animationCompleteStartTime?: number;
     clickedToCancelActivity: boolean;
     outputTextDisplay: Label;
+    outputTextStrings: string[];
 
     constructor() {
         this.animationCompleteStartTime = undefined;
         this.clickedToCancelActivity = false;
+        this.outputTextStrings = [];
     }
 
     hasCompleted(state: OrchestratorState): boolean {
@@ -49,6 +52,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     reset(state: OrchestratorState): void {
         this.animationCompleteStartTime = undefined;
         this.clickedToCancelActivity = false;
+        this.outputTextDisplay = undefined;
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
         this.maybeEndSquaddieTurn(state);
@@ -72,6 +76,14 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
 
     private draw(state: OrchestratorState, p: p5) {
         if (this.outputTextDisplay === undefined) {
+            this.outputTextStrings = FormatResult({
+                squaddieRepository: state.squaddieRepository,
+                currentActivity: state.squaddieCurrentlyActing.currentSquaddieActivity,
+                result: state.battleEventRecording.mostRecentEvent.results,
+            });
+
+            const textToDraw = this.outputTextStrings.join("\n");
+
             this.outputTextDisplay = new Label({
                 area: new RectArea({
                     startColumn: 4,
@@ -85,7 +97,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
                 strokeColor: [0, 0, 0],
                 strokeWeight: 4,
 
-                text: "Activity Happened!",
+                text: textToDraw,
                 textSize: 24,
                 fontColor: [0, 0, 16],
                 padding: [16, 0, 0, 16],

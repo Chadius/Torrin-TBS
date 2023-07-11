@@ -30,3 +30,10 @@ export class BattleEvent {
         this._results = results ?? new SquaddieSquaddieResults({});
     }
 }
+
+export const CloneBattleEvent = (original: BattleEvent): BattleEvent => {
+    return new BattleEvent({
+        currentSquaddieInstruction: original.instruction,
+        results: original.results,
+    });
+}

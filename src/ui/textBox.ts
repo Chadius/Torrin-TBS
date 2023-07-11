@@ -54,7 +54,6 @@ export class TextBox {
         if (this.isDone()) {
             return;
         }
-
         p.push();
         p.textSize(this.textSize);
         p.fill(this.fontColor);
