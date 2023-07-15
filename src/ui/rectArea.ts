@@ -82,17 +82,14 @@ type TwelvePointColumnEnd = {
 }
 
 type AnchorLeft = {
-    baseRectangle: RectArea
     anchorLeft: HorizontalAnchor
 }
 
 type AnchorTop = {
-    baseRectangle: RectArea
     anchorTop: VerticalAnchor
 }
 
 type Margins = {
-    baseRectangle: RectArea;
     margin: number | [number, number] | [number, number, number] | [number, number, number, number];
 }
 
@@ -101,15 +98,17 @@ type Alignment = {
     vertAlign: p5.VERT_ALIGN;
 }
 
+type BaseRectangle = {
+    baseRectangle: RectArea;
+}
+
 type RectTop = PositionTop
     | (ScreenHeight & ScreenPercentTop)
-    | AnchorTop
-    | Margins
+    | BaseRectangle & (AnchorTop | PositionTop | ScreenPercentTop | Margins)
 type RectLeft = PositionLeft
     | (ScreenWidth & ScreenPercentLeft)
     | (ScreenWidth & TwelvePointColumnStart)
-    | AnchorLeft
-    | Margins
+    | BaseRectangle & (AnchorLeft | PositionLeft | ScreenPercentLeft | Margins)
 type RectHeightTopBottom = RectTop & PositionBottom
 type RectHeightPercentHeight = ScreenHeight & ScreenPercentHeight
 type RectHeightTopPercentBottom = ScreenHeight & RectTop & ScreenPercentBottom
@@ -119,6 +118,7 @@ type RectHeight = PositionHeight
     | RectHeightPercentHeight
     | RectHeightTopPercentBottom
     | Margins
+    | BaseRectangle
 type RectWidthLeftRight = RectLeft & PositionRight
 type RectWidthPercentWidth = ScreenWidth & ScreenPercentWidth
 type RectWidthLeftPercentRight = ScreenWidth & RectLeft & ScreenPercentRight
@@ -130,6 +130,7 @@ type RectWidth = PositionWidth
     | RectWidthLeftPercentRight
     | RectWidthLeftColumnEnd
     | Margins
+    | BaseRectangle
 export type RectArguments = RectTop & RectLeft & RectHeight & RectWidth & Partial<Alignment>
 
 export class RectArea {
@@ -151,6 +152,11 @@ export class RectArea {
 
     setRectTop(params: RectTop) {
         let top = undefined;
+        const {baseRectangle} = (params as BaseRectangle);
+        if (baseRectangle && !notFound.includes(baseRectangle.top)) {
+            top = top ?? 0;
+            top = baseRectangle.getTop();
+        }
 
         const positionTop = (params as PositionTop)
         if (!notFound.includes(positionTop.top)) {
@@ -170,22 +176,17 @@ export class RectArea {
         const anchorTop = (params as AnchorTop)
         const anchorTopIsValid: boolean = !notFound.includes(anchorTop.anchorTop)
             && anchorTop.anchorTop != VerticalAnchor.NONE
-            && anchorTop.baseRectangle !== undefined;
+            && baseRectangle !== undefined;
 
         const marginsAll = (params as Margins);
         const marginsAllIsValid: boolean = (marginsAll.margin || marginsAll.margin === 0)
-            && marginsAll.baseRectangle !== undefined;
-
-        if (anchorTopIsValid || marginsAllIsValid) {
-            top = top ?? 0;
-            top += anchorTop.baseRectangle.top;
-        }
+            && baseRectangle !== undefined;
 
         if (anchorTopIsValid) {
             if (anchorTop.anchorTop == VerticalAnchor.CENTER) {
-                top += anchorTop.baseRectangle.height / 2;
+                top += baseRectangle.height / 2;
             } else if (anchorTop.anchorTop == VerticalAnchor.BOTTOM) {
-                top += anchorTop.baseRectangle.height;
+                top += baseRectangle.height;
             }
         }
 
@@ -202,6 +203,10 @@ export class RectArea {
 
     setRectLeft(params: RectLeft) {
         let left = undefined;
+        const {baseRectangle} = (params as BaseRectangle);
+        if (baseRectangle && !notFound.includes(baseRectangle.left)) {
+            left = baseRectangle.left;
+        }
 
         const positionLeft = (params as PositionLeft)
         if (!notFound.includes(positionLeft.left)) {
@@ -230,22 +235,17 @@ export class RectArea {
         const anchorLeft = (params as AnchorLeft);
         const anchorLeftIsValid: boolean = !notFound.includes(anchorLeft.anchorLeft)
             && anchorLeft.anchorLeft != HorizontalAnchor.NONE
-            && anchorLeft.baseRectangle !== undefined;
+            && baseRectangle !== undefined;
 
         const marginsAll = (params as Margins);
         const marginsAllIsValid: boolean = (marginsAll.margin || marginsAll.margin === 0)
-            && marginsAll.baseRectangle !== undefined;
-
-        if (anchorLeftIsValid || marginsAllIsValid) {
-            left = left ?? 0;
-            left += anchorLeft.baseRectangle.left;
-        }
+            && baseRectangle !== undefined;
 
         if (anchorLeftIsValid) {
             if (anchorLeft.anchorLeft == HorizontalAnchor.MIDDLE) {
-                left += anchorLeft.baseRectangle.width / 2;
+                left += baseRectangle.width / 2;
             } else if (anchorLeft.anchorLeft == HorizontalAnchor.RIGHT) {
-                left += anchorLeft.baseRectangle.width;
+                left += baseRectangle.width;
             }
         }
 
@@ -264,6 +264,11 @@ export class RectArea {
 
     setRectHeight(params: RectHeight) {
         const height = (params as PositionHeight)
+        const {baseRectangle} = (params as BaseRectangle);
+        if (baseRectangle && !notFound.includes(baseRectangle.height)) {
+            this.height = baseRectangle.height;
+        }
+
         if (!notFound.includes(height.height)) {
             this.height = height.height;
             return;
@@ -300,22 +305,27 @@ export class RectArea {
         const marginsAll = (params as Margins)
         if (
             (marginsAll.margin || marginsAll.margin === 0)
-            && marginsAll.baseRectangle
+            && baseRectangle
         ) {
             if (typeof marginsAll.margin === "number") {
                 const margin = marginsAll.margin
-                this.height = marginsAll.baseRectangle.height - 2 * margin;
+                this.height = baseRectangle.height - 2 * margin;
             } else if (marginsAll.margin.length == 2) {
                 const margin = marginsAll.margin[0]
-                this.height = marginsAll.baseRectangle.height - 2 * margin;
+                this.height = baseRectangle.height - 2 * margin;
             } else if (marginsAll.margin.length >= 3) {
-                this.height = marginsAll.baseRectangle.height - marginsAll.margin[0] - marginsAll.margin[2];
+                this.height = baseRectangle.height - marginsAll.margin[0] - marginsAll.margin[2];
             }
         }
     }
 
     setRectWidth(params: RectWidth) {
         const width = (params as PositionWidth)
+        const {baseRectangle} = (params as BaseRectangle);
+        if (baseRectangle && !notFound.includes(baseRectangle.width)) {
+            this.width = baseRectangle.width;
+        }
+
         if (!notFound.includes(width.width)) {
             this.width = width.width;
             return;
@@ -362,16 +372,16 @@ export class RectArea {
         const marginsAll = (params as Margins)
         if (
             (marginsAll.margin || marginsAll.margin === 0)
-            && marginsAll.baseRectangle
+            && baseRectangle
         ) {
             if (typeof marginsAll.margin === "number") {
                 const margin = marginsAll.margin
-                this.width = marginsAll.baseRectangle.width - 2 * margin;
+                this.width = baseRectangle.width - 2 * margin;
             } else if ([2, 3].includes(marginsAll.margin.length)) {
                 const margin = marginsAll.margin[1]
-                this.width = marginsAll.baseRectangle.width - 2 * margin;
+                this.width = baseRectangle.width - 2 * margin;
             } else if (marginsAll.margin.length > 3) {
-                this.width = marginsAll.baseRectangle.width - marginsAll.margin[1] - marginsAll.margin[3];
+                this.width = baseRectangle.width - marginsAll.margin[1] - marginsAll.margin[3];
             }
         }
     }

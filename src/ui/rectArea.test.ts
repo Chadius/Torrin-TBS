@@ -184,6 +184,26 @@ describe('RectArea', () => {
             expect(rect.height).toBe(70);
             expect(rect.width).toBe(50);
         });
+        it('can create a rect with arbitrary offset', () => {
+            const baseRect = new RectArea({
+                top: 10,
+                left: 20,
+                height: 30,
+                width: 40
+            });
+
+            const rect = new RectArea({
+                baseRectangle: baseRect,
+                left: 30,
+                top: 20,
+            });
+
+            expect(rect.top).toBe(baseRect.top + 20);
+            expect(rect.left).toBe(baseRect.left + 30);
+            expect(rect.height).toBe(baseRect.height);
+            expect(rect.width).toBe(baseRect.width);
+
+        });
     });
     describe('RectArea can combine multiple options', () => {
         it('can combine multiple top options', () => {

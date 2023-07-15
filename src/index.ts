@@ -100,6 +100,16 @@ export const sketch = (p: p5) => {
                         path: "assets/phase-banner-enemy.png",
                         key: "phase banner enemy",
                     },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/icon-armor-class.png",
+                        key: "armor class icon",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/icon-hit-points.png",
+                        key: "hit points icon",
+                    },
                 ],
             }),
             squaddieRepo: new BattleSquaddieRepository(),

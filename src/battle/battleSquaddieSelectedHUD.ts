@@ -3,7 +3,7 @@ import {MissionMap} from "../missionMap/missionMap";
 import p5 from "p5";
 import {HorizontalAnchor, RectArea, VerticalAnchor} from "../ui/rectArea";
 import {Rectangle} from "../ui/rectangle";
-import {getResultOrThrowError} from "../utils/ResultOrError";
+import {getResultOrThrowError, isResult} from "../utils/ResultOrError";
 import {ScreenDimensions} from "../utils/graphicsConfig";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {ResourceHandler} from "../resource/resourceHandler";
@@ -15,7 +15,7 @@ import {SquaddieActivity} from "../squaddie/activity";
 import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {TextBox} from "../ui/textBox";
-import {GetNumberOfActions} from "../squaddie/squaddieService";
+import {GetArmorClass, GetHitPoints, GetNumberOfActions} from "../squaddie/squaddieService";
 
 enum ActivityValidityCheck {
     IS_VALID,
@@ -204,6 +204,7 @@ export class BattleSquaddieSelectedHUD {
         }
         this._background.draw(p);
         this.drawSquaddieID(p);
+        this.drawSquaddieAttributes(p);
         this.drawNumberOfActions(p);
         this.drawSquaddieActivities(p);
         this.invalidCommandWarningTextBox.draw(p);
@@ -415,5 +416,112 @@ export class BattleSquaddieSelectedHUD {
         }
 
         return ActivityValidityCheck.IS_VALID
+    }
+
+    private drawSquaddieAttributes(p: p5) {
+        const {
+            staticSquaddie,
+            dynamicSquaddie
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+
+        const textSize = 16;
+        const fontColor = [100, 0, 80];
+        const baseRectangle = new RectArea({
+            left: this.background.area.getLeft(),
+            top: this.background.area.getTop(),
+            width: 100,
+            height: 30,
+        });
+
+        const attributeLeftOffset = 100;
+        const attributeTextTopMargin = 12;
+        const attributeTextLeftMargin = 56;
+        const attributeIconSize = 48;
+
+        const hitPointsInfo = GetHitPoints({staticSquaddie, dynamicSquaddie});
+        const hitPointsDescription = `${hitPointsInfo.maxHitPoints}`;
+        this.drawIconAndText({
+            baseRectangle,
+            fontColor,
+            iconLeftOffset: attributeLeftOffset,
+            iconResourceKey: "hit points icon",
+            iconSize: attributeIconSize,
+            text: hitPointsDescription,
+            textLeftMargin: attributeTextLeftMargin,
+            textSize,
+            textTopMargin: attributeTextTopMargin,
+            topOffset: 40,
+            p,
+        });
+
+        const armorClassInfo = GetArmorClass({staticSquaddie, dynamicSquaddie});
+        const armorClassDescription = `${armorClassInfo.normalArmorClass}`;
+        this.drawIconAndText({
+            baseRectangle,
+            fontColor,
+            iconLeftOffset: attributeLeftOffset,
+            iconResourceKey: "armor class icon",
+            iconSize: attributeIconSize,
+            text: armorClassDescription,
+            textLeftMargin: attributeTextLeftMargin,
+            textSize,
+            textTopMargin: attributeTextTopMargin,
+            topOffset: 80,
+            p,
+        });
+    }
+
+    private drawIconAndText({
+                                iconResourceKey,
+                                iconSize,
+                                topOffset,
+                                iconLeftOffset,
+                                textTopMargin,
+                                textLeftMargin,
+                                textSize,
+                                fontColor,
+                                text,
+                                baseRectangle,
+                                p,
+                            }: {
+                                iconResourceKey: string,
+                                iconSize: number,
+                                topOffset: number,
+                                iconLeftOffset: number,
+                                textTopMargin: number,
+                                textLeftMargin: number,
+                                textSize: number,
+                                fontColor: number[],
+                                text: string,
+                                baseRectangle: RectArea,
+                                p: p5,
+                            }
+    ) {
+        const textBox = new TextBox({
+            text,
+            textSize,
+            fontColor,
+            area: new RectArea({
+                baseRectangle,
+                top: topOffset + textTopMargin,
+                left: iconLeftOffset + textLeftMargin,
+            })
+        });
+        textBox.draw(p);
+
+        const iconAttempt = this.resourceHandler.getResource(iconResourceKey);
+        if (isResult(iconAttempt)) {
+            const iconImage = new ImageUI({
+                graphic: getResultOrThrowError(iconAttempt),
+                area: new RectArea({
+                    baseRectangle,
+                    top: topOffset,
+                    left: iconLeftOffset,
+                    width: iconSize,
+                    height: iconSize,
+                })
+            });
+            iconImage.draw(p);
+        }
     }
 }

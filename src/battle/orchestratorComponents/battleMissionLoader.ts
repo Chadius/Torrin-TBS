@@ -32,6 +32,11 @@ const mapMovementAndAttackIcons: string[] = [
     "map icon attack 1 action"
 ];
 
+const attributeIcons: string[] = [
+    "armor class icon",
+    "hit points icon",
+];
+
 export class BattleMissionLoader implements OrchestratorComponent {
     startedLoading: boolean;
     finishedPreparations: boolean;
@@ -71,6 +76,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         });
 
         state.resourceHandler.loadResources(mapMovementAndAttackIcons);
+        state.resourceHandler.loadResources(attributeIcons);
 
         state.missionMap = new MissionMap({
             terrainTileMap: state.hexMap

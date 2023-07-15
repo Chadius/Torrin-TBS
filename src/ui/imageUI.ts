@@ -1,20 +1,20 @@
 import {RectArea} from "./rectArea";
-
-type RequiredOptions = {
-    graphic: p5.Image;
-    area: RectArea;
-}
-
-export type ImageUIOptions = RequiredOptions;
+import p5 from "p5";
 
 export class ImageUI {
     graphic: p5.Image;
     area: RectArea;
     tintColor: number[];
 
-    constructor(options: ImageUIOptions) {
-        this.graphic = options.graphic;
-        this.area = options.area;
+    constructor({
+                    graphic,
+                    area,
+                }: {
+        graphic: p5.Image;
+        area: RectArea;
+    }) {
+        this.graphic = graphic;
+        this.area = area;
         this.tintColor = [];
     }
 
