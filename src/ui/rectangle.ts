@@ -37,10 +37,10 @@ export class Rectangle {
             p.strokeWeight(this.strokeWeight);
         }
         p.rect(
-            this.area.getLeft(),
-            this.area.getTop(),
-            this.area.getWidth(),
-            this.area.getHeight(),
+            this.area.left,
+            this.area.top,
+            this.area.width,
+            this.area.height,
         );
         p.pop();
     }

@@ -126,7 +126,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             button.activity instanceof SquaddieActivity
             && button.activity.name === longswordActivity.name
         );
-        hud.mouseClicked(longswordButton.buttonArea.getLeft(), longswordButton.buttonArea.getTop());
+        hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top);
 
         expect(hud.wasActivitySelected()).toBeTruthy();
         expect(hud.getSelectedActivity()).toBe(longswordActivity);
@@ -157,7 +157,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             button.activity instanceof SquaddieEndTurnActivity
         );
 
-        hud.mouseClicked(waitTurnButton.buttonArea.getLeft(), waitTurnButton.buttonArea.getTop());
+        hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top);
 
         expect(hud.wasActivitySelected()).toBeTruthy();
         expect(hud.getSelectedActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
@@ -169,7 +169,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('can reopen the window in the previous position if no mouse location is given', () => {
         hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
-        const initialWindowPosition: RectArea = new RectArea({...hud.background.area});
+        const initialWindowPosition: RectArea = new RectArea({baseRectangle: hud.background.area, left: 0, top: 0});
         hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID});
         expect(hud.background.area).toStrictEqual(initialWindowPosition);
     });
@@ -196,7 +196,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             button.activity instanceof SquaddieActivity && button.activity.name === "not enough actions"
         );
 
-        hud.mouseClicked(notEnoughActionsButton.buttonArea.getLeft(), notEnoughActionsButton.buttonArea.getTop());
+        hud.mouseClicked(notEnoughActionsButton.buttonArea.left, notEnoughActionsButton.buttonArea.top);
 
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();

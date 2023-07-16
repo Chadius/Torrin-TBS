@@ -40,10 +40,10 @@ export class ActivityButton {
 
         const buttonTextBox: TextBox = new TextBox({
             area: new RectArea({
-                left: background.area.getLeft(),
-                top: background.area.getBottom() + 4,
-                width: background.area.getWidth() * 2,
-                height: background.area.getHeight(),
+                left: background.area.left,
+                top: background.area.bottom + 4,
+                width: background.area.width * 2,
+                height: background.area.height,
             }),
             fontColor: [0, 0, 192],
             text: activityButtonText,

@@ -260,7 +260,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             text: buttonText,
             textSize: 24,
             fontColor: [0, 0, 16],
-            padding: [6, 0, 0, area.getWidth() / 2 - 50],
+            padding: [6, 0, 0, area.width / 2 - 50],
         });
 
         buttonBackground.draw(p);

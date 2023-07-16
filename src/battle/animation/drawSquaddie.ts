@@ -47,8 +47,7 @@ export const setImageToLocation = (
     xyCoords: [number, number]
 ) => {
     dynamicSquaddieInfo.assertBattleSquaddieDynamic();
-    dynamicSquaddieInfo.mapIcon.area.setRectLeft({left: xyCoords[0]});
-    dynamicSquaddieInfo.mapIcon.area.setRectTop({top: xyCoords[1]});
+    dynamicSquaddieInfo.mapIcon.area.move({left: xyCoords[0], top: xyCoords[1]});
     dynamicSquaddieInfo.mapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 }
 
@@ -74,12 +73,12 @@ export const drawSquaddieActions = (p: p5, staticSquaddie: BattleSquaddieStatic,
     background.draw(p);
 
     const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
-    const heightFromRemainingActions = actionDrawingArea.getHeight() * normalActionsRemaining / 3;
+    const heightFromRemainingActions = actionDrawingArea.height * normalActionsRemaining / 3;
     const numberOfActionsArea: RectArea = new RectArea({
-        top: actionDrawingArea.getBottom() - heightFromRemainingActions,
-        bottom: actionDrawingArea.getBottom(),
-        left: actionDrawingArea.getLeft(),
-        width: actionDrawingArea.getWidth(),
+        top: actionDrawingArea.bottom - heightFromRemainingActions,
+        bottom: actionDrawingArea.bottom,
+        left: actionDrawingArea.left,
+        width: actionDrawingArea.width,
     });
 
     const numberOfActionsRect: Rectangle = new Rectangle({

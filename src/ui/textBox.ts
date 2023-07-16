@@ -63,10 +63,10 @@ export class TextBox {
         );
         p.text(
             this._text,
-            this.area.getLeft(),
-            this.area.getTop(),
-            this.area.getWidth(),
-            this.area.getHeight(),
+            this.area.left,
+            this.area.top,
+            this.area.width,
+            this.area.height,
         );
         p.textAlign(p.LEFT, p.BASELINE);
         p.pop();

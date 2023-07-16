@@ -273,10 +273,10 @@ describe('RectArea', () => {
                 margin: [60, 0, 0, 30],
             });
 
-            expect(rect.top).toBe(baseRect.getCenterY() + 60);
-            expect(rect.left).toBe(baseRect.getCenterX() + 30);
-            expect(rect.width).toBe(baseRect.getWidth() - 30);
-            expect(rect.height).toBe(baseRect.getHeight() - 60);
+            expect(rect.top).toBe(baseRect.centerY + 60);
+            expect(rect.left).toBe(baseRect.centerX + 30);
+            expect(rect.width).toBe(baseRect.width - 30);
+            expect(rect.height).toBe(baseRect.height - 60);
         });
     });
     describe('RectArea can apply margins based on another Rect', () => {
@@ -361,12 +361,12 @@ describe('RectArea', () => {
                 vertAlign: VERT_ALIGN_CENTER
             });
 
-            expect(rect.getTop()).toBe(-15);
-            expect(rect.getLeft()).toBe(0);
-            expect(rect.getRight()).toBe(20);
-            expect(rect.getBottom()).toBe(15);
-            expect(rect.getHeight()).toBe(30);
-            expect(rect.getWidth()).toBe(20);
+            expect(rect.top).toBe(-15);
+            expect(rect.left).toBe(0);
+            expect(rect.right).toBe(20);
+            expect(rect.bottom).toBe(15);
+            expect(rect.height).toBe(30);
+            expect(rect.width).toBe(20);
         });
     });
     describe('RectArea getters', () => {
@@ -378,14 +378,14 @@ describe('RectArea', () => {
                 width: 40
             });
 
-            expect(rect.getTop()).toBe(0);
-            expect(rect.getLeft()).toBe(10);
-            expect(rect.getHeight()).toBe(30);
-            expect(rect.getWidth()).toBe(40);
-            expect(rect.getBottom()).toBe(30);
-            expect(rect.getRight()).toBe(50);
-            expect(rect.getCenterY()).toBe(15);
-            expect(rect.getCenterX()).toBe(30);
+            expect(rect.top).toBe(0);
+            expect(rect.left).toBe(10);
+            expect(rect.height).toBe(30);
+            expect(rect.width).toBe(40);
+            expect(rect.bottom).toBe(30);
+            expect(rect.right).toBe(50);
+            expect(rect.centerY).toBe(15);
+            expect(rect.centerX).toBe(30);
         });
     });
     describe('RectArea queries', () => {
@@ -403,5 +403,17 @@ describe('RectArea', () => {
             expect(rect.isInside(30, 30)).toBeTruthy();
             expect(rect.isInside(31, 31)).toBeFalsy();
         });
+    });
+    it('can move the rect top left corner', () => {
+        const rect = new RectArea({
+            top: 0,
+            left: 10,
+            height: 30,
+            width: 20,
+        });
+
+        rect.move({left: 40, top: 50});
+        expect(rect.left).toBe(40);
+        expect(rect.top).toBe(50);
     });
 });

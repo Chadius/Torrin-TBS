@@ -104,7 +104,7 @@ export class BattleSquaddieSelectedHUD {
                         baseRectangle: windowDimensions,
                         anchorLeft: HorizontalAnchor.LEFT,
                         anchorTop: VerticalAnchor.CENTER,
-                        left: windowDimensions.getWidth() * (6 + index) / 12,
+                        left: windowDimensions.width * (6 + index) / 12,
                         width: 32,
                         height: 32,
                     }),
@@ -153,8 +153,8 @@ export class BattleSquaddieSelectedHUD {
             this.affiliateIcon = new ImageUI({
                 graphic: affiliateIconImage,
                 area: new RectArea({
-                    left: this._background.area.getLeft() + 20,
-                    top: this._background.area.getTop() + 10,
+                    left: this._background.area.left + 20,
+                    top: this._background.area.top + 10,
                     width: 32,
                     height: 32,
                 })
@@ -233,7 +233,7 @@ export class BattleSquaddieSelectedHUD {
         p.push();
 
         const mainActionIconWidth: number = 25;
-        const actionIconLeft: number = this._background.area.getLeft() + 20;
+        const actionIconLeft: number = this._background.area.left + 20;
 
         p.fill("#dedede");
         p.stroke("#1f1f1f");
@@ -241,34 +241,34 @@ export class BattleSquaddieSelectedHUD {
             left: actionIconLeft,
             height: mainActionIconWidth * 3,
             width: 40,
-            top: this._background.area.getTop() + 45,
+            top: this._background.area.top + 45,
         })
         p.fill("#1f1f1f");
         p.stroke("#1f1f1f");
         p.strokeWeight(2);
-        p.rect(actionBackground.getLeft(), actionBackground.getTop(), actionBackground.getWidth(), actionBackground.getHeight());
+        p.rect(actionBackground.left, actionBackground.top, actionBackground.width, actionBackground.height);
 
         p.fill("#dedede");
         p.rect(
-            actionBackground.getLeft(),
-            actionBackground.getBottom() - mainActionIconWidth * normalActionsRemaining,
-            actionBackground.getWidth(),
+            actionBackground.left,
+            actionBackground.bottom - mainActionIconWidth * normalActionsRemaining,
+            actionBackground.width,
             mainActionIconWidth * normalActionsRemaining);
 
         const actionLineMarking: RectArea = new RectArea({
-            left: actionBackground.getLeft(),
+            left: actionBackground.left,
             width: 0,
-            top: actionBackground.getTop(),
-            height: actionBackground.getHeight(),
+            top: actionBackground.top,
+            height: actionBackground.height,
         });
 
         [1, 2].filter(i => normalActionsRemaining >= i).forEach(i => {
-            const verticalDistance: number = i * actionBackground.getHeight() / 3;
+            const verticalDistance: number = i * actionBackground.height / 3;
             p.line(
-                actionBackground.getLeft(),
-                actionLineMarking.getBottom() - verticalDistance,
-                actionBackground.getRight(),
-                actionLineMarking.getBottom() - verticalDistance,
+                actionBackground.left,
+                actionLineMarking.bottom - verticalDistance,
+                actionBackground.right,
+                actionLineMarking.bottom - verticalDistance,
             )
         });
 
@@ -427,8 +427,8 @@ export class BattleSquaddieSelectedHUD {
         const textSize = 16;
         const fontColor = [100, 0, 80];
         const baseRectangle = new RectArea({
-            left: this.background.area.getLeft(),
-            top: this.background.area.getTop(),
+            left: this.background.area.left,
+            top: this.background.area.top,
             width: 100,
             height: 30,
         });

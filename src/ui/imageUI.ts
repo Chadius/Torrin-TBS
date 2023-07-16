@@ -29,10 +29,10 @@ export class ImageUI {
         }
         p.image(
             this.graphic,
-            this.area.getLeft(),
-            this.area.getTop(),
-            this.area.getWidth(),
-            this.area.getHeight(),
+            this.area.left,
+            this.area.top,
+            this.area.width,
+            this.area.height,
         );
         if (this.tintColor) {
             p.noTint();

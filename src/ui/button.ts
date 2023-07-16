@@ -98,10 +98,10 @@ export class Button {
     private isMouseOnButton(mouseX: number, mouseY: number): boolean {
         const label = this.getCurrentLabel();
         return (
-            mouseX >= label.rectangle.area.getLeft()
-            && mouseX < label.rectangle.area.getRight()
-            && mouseY >= label.rectangle.area.getTop()
-            && mouseY < label.rectangle.area.getBottom()
+            mouseX >= label.rectangle.area.left
+            && mouseX < label.rectangle.area.right
+            && mouseY >= label.rectangle.area.top
+            && mouseY < label.rectangle.area.bottom
         );
     }
 
