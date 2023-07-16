@@ -36,10 +36,39 @@ export const GetHitPoints = ({
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
+    currentHitPoints: number,
     maxHitPoints: number
 } => {
     return {
+        currentHitPoints: dynamicSquaddie.inBattleAttributes.currentHitPoints,
         maxHitPoints: staticSquaddie.attributes.maxHitPoints,
+    }
+}
+
+export enum DamageType {
+    Unknown,
+    Body,
+    Mind,
+    Soul
+}
+
+export const DealDamageToTheSquaddie = ({
+                                 staticSquaddie,
+                                 dynamicSquaddie,
+    damage,
+    damageType,
+                             }: {
+    staticSquaddie: BattleSquaddieStatic,
+    dynamicSquaddie: BattleSquaddieDynamic,
+    damage: number,
+    damageType: DamageType,
+}): {
+    damageTaken: number
+} => {
+    const actualHitPointLoss: number = dynamicSquaddie.inBattleAttributes.takeDamage(damage, damageType);
+
+    return {
+        damageTaken: actualHitPointLoss,
     }
 }
 
@@ -94,4 +123,12 @@ export const CanPlayerControlSquaddieRightNow = ({
         squaddieCanCurrentlyAct,
         playerCanControlThisSquaddieRightNow: playerControlledAffiliation && squaddieCanCurrentlyAct,
     }
+}
+
+export const IsSquaddieAlive = ({staticSquaddie, dynamicSquaddie}: {
+    staticSquaddie: BattleSquaddieStatic;
+    dynamicSquaddie: BattleSquaddieDynamic
+}) => {
+    const {currentHitPoints} = GetHitPoints({staticSquaddie, dynamicSquaddie});
+    return currentHitPoints > 0;
 }

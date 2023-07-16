@@ -1,4 +1,5 @@
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {DamageType} from "../../squaddie/squaddieService";
 
 export class InBattleAttributes {
     private _armyAttributes: ArmyAttributes;
@@ -15,5 +16,16 @@ export class InBattleAttributes {
 
     get currentHitPoints(): number {
         return this._currentHitPoints;
+    }
+
+    takeDamage(damageToTake: number, damageType: DamageType) {
+        const startingHitPoints = this.currentHitPoints;
+
+        this._currentHitPoints -= damageToTake;
+        if (this._currentHitPoints < 0) {
+            this._currentHitPoints = 0;
+        }
+
+        return startingHitPoints - this._currentHitPoints;
     }
 }
