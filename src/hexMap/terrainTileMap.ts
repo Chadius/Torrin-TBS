@@ -146,7 +146,7 @@ export class TerrainTileMap {
     }
 
     areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {
-        return this.getTileAtLocation(hexCoordinate) !== undefined;
+        return hexCoordinate && this.getTileAtLocation(hexCoordinate) !== undefined;
     }
 
     getDimensions(): { widthOfWidestRow: number, numberOfRows: number } {

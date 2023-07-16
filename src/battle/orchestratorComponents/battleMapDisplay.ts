@@ -117,9 +117,13 @@ export class BattleMapDisplay implements OrchestratorComponent {
             )
             .forEach((info) => {
                 const {dynamicSquaddie, dynamicSquaddieId} = info;
+
                 if (noSquaddieIsCurrentlyActing || !state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
                     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
-                    if (datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation)) {
+
+                    const squaddieIsOnTheMap: boolean = datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation);
+                    const squaddieIsHidden: boolean = state.missionMap.isSquaddieHiddenFromDrawing(dynamicSquaddieId);
+                    if (squaddieIsOnTheMap && !squaddieIsHidden) {
                         drawSquaddieMapIconAtMapLocation(p, state.squaddieRepository, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
                     }
                 }

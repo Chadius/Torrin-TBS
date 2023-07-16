@@ -35,7 +35,7 @@ export const calculateNewBattleSquaddieUISelectionState: (stateOptions: BattleSq
                 const {
                     dynamicSquaddie,
                     staticSquaddie
-                } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.selectedSquaddieDynamicID));
+                } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.selectedSquaddieDynamicID));
                 const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
                     staticSquaddie,
                     dynamicSquaddie

@@ -12,7 +12,7 @@ import {CanPlayerControlSquaddieRightNow} from "../../squaddie/squaddieService";
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: OrchestratorState) => {
     if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
         const {dynamicSquaddie} = getResultOrThrowError(
-            state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId)
+            state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
         if (!dynamicSquaddie.squaddieTurn.hasActionsRemaining()) {
             state.squaddieCurrentlyActing.reset();
@@ -28,7 +28,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: Orchestra
         const {
             staticSquaddie,
             dynamicSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
             staticSquaddie,
             dynamicSquaddie,
@@ -51,7 +51,7 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Orches
         const {
             staticSquaddie,
             dynamicSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.squaddieCurrentlyActing.dynamicSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
             staticSquaddie,
             dynamicSquaddie
@@ -124,7 +124,7 @@ export function GetSquaddieAtMapLocation(param: {
     const {
         staticSquaddie,
         dynamicSquaddie,
-    } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicID(squaddieAndLocationIdentifier.dynamicSquaddieId))
+    } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(squaddieAndLocationIdentifier.dynamicSquaddieId))
 
     return {
         staticSquaddie,

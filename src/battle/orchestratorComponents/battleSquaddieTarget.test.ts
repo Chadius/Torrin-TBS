@@ -28,8 +28,9 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -70,6 +71,9 @@ describe('BattleSquaddieTarget', () => {
             minimumRange: 1,
             maximumRange: 1,
             actionsToSpend: 1,
+            damageDescriptions: {
+                [DamageType.Body]: 2,
+            },
         });
 
         powerAttackLongswordActivity = new SquaddieActivity({
@@ -82,6 +86,9 @@ describe('BattleSquaddieTarget', () => {
             minimumRange: 1,
             maximumRange: 1,
             actionsToSpend: 3,
+            damageDescriptions: {
+                [DamageType.Body]: 5,
+            },
         });
 
         ({
@@ -108,6 +115,9 @@ describe('BattleSquaddieTarget', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepo,
             activities: [longswordActivity],
+            attributes: new ArmyAttributes({
+                maxHitPoints: 5,
+            })
         }));
 
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
@@ -350,6 +360,18 @@ describe('BattleSquaddieTarget', () => {
             expect(results.targetedSquaddieDynamicIds).toHaveLength(1);
             expect(results.targetedSquaddieDynamicIds[0]).toBe(thiefDynamic.dynamicSquaddieId);
             expect(results.resultPerTarget[thiefDynamic.dynamicSquaddieId]).toBeTruthy();
+        });
+
+        it('should store the calculated results', () => {
+            const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
+            const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[thiefDynamic.dynamicSquaddieId];
+            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordActivity.damageDescriptions[DamageType.Body]);
+
+            const {maxHitPoints, currentHitPoints} = GetHitPoints({
+                staticSquaddie: thiefStatic,
+                dynamicSquaddie: thiefDynamic
+            });
+            expect(currentHitPoints).toBe(maxHitPoints - longswordActivity.damageDescriptions[DamageType.Body]);
         });
     });
 });

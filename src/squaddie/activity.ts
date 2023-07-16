@@ -1,6 +1,7 @@
 import {assertsInteger} from "../utils/mathAssert";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
+import {DamageType} from "./squaddieService";
 
 export class ActivityRange {
     private _minimumRange: number | undefined;
@@ -39,17 +40,23 @@ export class ActivityRange {
 }
 
 export class SquaddieActivity {
-    private _name: string;
-    private _id: string;
+    get damageDescriptions(): { [t in DamageType]?: number } {
+        return this._damageDescriptions;
+    }
+
+    private readonly _name: string;
+    private readonly _id: string;
     private _range?: ActivityRange;
-    private _actionsToSpend: number;
-    private _traits: TraitStatusStorage;
+    private readonly _actionsToSpend: number;
+    private readonly _traits: TraitStatusStorage;
+    private readonly _damageDescriptions: { [t in DamageType]?: number };
 
     constructor(options: {
         name: string;
         id: string;
         traits: TraitStatusStorage;
         actionsToSpend?: number;
+        damageDescriptions?: { [t in DamageType]?: number },
     } & Partial<ActivityRange>) {
         this._name = options.name;
         this._id = options.id;
@@ -77,6 +84,7 @@ export class SquaddieActivity {
         }
 
         this._traits = options.traits;
+        this._damageDescriptions = options.damageDescriptions ? {...options.damageDescriptions} : {};
     }
 
     get name(): string {

@@ -55,7 +55,7 @@ describe('BattleSquaddieRepository', () => {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_young_torrin_0"))
+        } = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId("player_young_torrin_0"))
 
         expect(staticSquaddie).toStrictEqual(staticSquaddie);
         expect(dynamicSquaddie).toStrictEqual(dynamicSquaddie);
@@ -134,7 +134,7 @@ describe('BattleSquaddieRepository', () => {
     })
 
     it("getDynamicSquaddieByID should return error if dynamic squaddie doesn't exist", () => {
-        const resultOrError = squaddieRepo.getSquaddieByDynamicID("player_young_torrin_0")
+        const resultOrError = squaddieRepo.getSquaddieByDynamicId("player_young_torrin_0")
 
         expect(isError(resultOrError)).toBeTruthy();
 

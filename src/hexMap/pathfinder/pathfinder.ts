@@ -21,6 +21,7 @@ import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate"
 import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
 
 import {GetSquaddieAtMapLocation} from "../../battle/orchestratorComponents/orchestratorUtils";
+import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 
 class SearchState {
     tilesSearchCanStopAt: HexCoordinate[];
@@ -153,6 +154,13 @@ class SearchState {
 
     recordReachableSquaddies(searchParams: SearchParams, missionMap: MissionMap) {
         missionMap.getAllSquaddieData().forEach((datum) => {
+            const {
+                staticSquaddie,
+                dynamicSquaddie
+            } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByDynamicId(datum.dynamicSquaddieId));
+            if (!IsSquaddieAlive({staticSquaddie, dynamicSquaddie})) {
+                return;
+            }
             const {
                 mapLocation,
                 staticSquaddieId,
@@ -303,7 +311,21 @@ export class Pathfinder {
             let head: SearchPath = workingSearchState.nextSearchPath();
 
             const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(head.getMostRecentTileLocation().hexCoordinate);
-            const squaddieIsOccupyingTile: boolean = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate).isValid();
+
+            let squaddieIsOccupyingTile: boolean = false;
+            const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate);
+            if (squaddieAtTileDatum.isValid()) {
+                const {
+                    staticSquaddie: occupyingSquaddieStatic,
+                    dynamicSquaddie: occupyingSquaddieDynamic,
+                } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByDynamicId(squaddieAtTileDatum.dynamicSquaddieId));
+                if (IsSquaddieAlive({
+                    staticSquaddie: occupyingSquaddieStatic,
+                    dynamicSquaddie: occupyingSquaddieDynamic,
+                })) {
+                    squaddieIsOccupyingTile = true;
+                }
+            }
 
             this.markLocationAsStoppable(head, searchParams, workingSearchState, hexCostTerrainType, squaddieIsOccupyingTile);
             let mostRecentTileLocation = head.getMostRecentTileLocation();
@@ -513,6 +535,7 @@ export class Pathfinder {
         return neighboringLocations.filter((neighbor) => {
             const {
                 staticSquaddie,
+                dynamicSquaddie,
             } = GetSquaddieAtMapLocation({
                 mapLocation: new HexCoordinate({coordinates: neighbor}),
                 map: searchParams.missionMap,
@@ -520,6 +543,10 @@ export class Pathfinder {
             });
 
             if (!staticSquaddie) {
+                return true;
+            }
+
+            if (!IsSquaddieAlive({staticSquaddie, dynamicSquaddie})) {
                 return true;
             }
 

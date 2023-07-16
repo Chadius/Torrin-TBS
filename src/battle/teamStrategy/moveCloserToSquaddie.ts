@@ -40,7 +40,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByDynamicID(squaddieToAct));
+        } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByDynamicId(squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie});
         const pathfinder = new Pathfinder();
@@ -106,6 +106,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                         canStopOnSquaddies: true,
                         stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
                         shapeGeneratorType: TargetingShape.Snake,
+                        squaddieRepository: state.squaddieRepository,
                     }))
                 );
 

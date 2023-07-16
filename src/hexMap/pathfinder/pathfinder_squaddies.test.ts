@@ -15,12 +15,14 @@ import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {addSquaddieToSquaddieRepository} from "../../utils/test/squaddieRepository";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
+import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
 
 describe('pathfinder and squaddies', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
     let squaddieMovementTwoMovementPerAction: SquaddieMovement;
     let squaddieMovementThreeMovementPerAction: SquaddieMovement;
     let squaddieMovementHighMovementPerAction: SquaddieMovement;
+    let squaddieRepository: BattleSquaddieRepository;
 
     beforeEach(() => {
         ({
@@ -29,6 +31,8 @@ describe('pathfinder and squaddies', () => {
             squaddieMovementThreeMovementPerAction,
             squaddieMovementHighMovementPerAction
         } = createSquaddieMovements());
+
+        squaddieRepository = new BattleSquaddieRepository();
     });
 
     describe('squaddie affiliations can allow pass through', () => {
@@ -262,6 +266,39 @@ describe('pathfinder and squaddies', () => {
         missionMap.addSquaddie("ally", "ally_dynamic_0", new HexCoordinate({q: 0, r: 2}));
         missionMap.addSquaddie("none", "none_dynamic_0", new HexCoordinate({q: 0, r: 3}));
 
+        addSquaddieToSquaddieRepository(
+            "player",
+            "player_dynamic_0",
+            "player",
+            SquaddieAffiliation.PLAYER,
+            squaddieRepository,
+        );
+
+        addSquaddieToSquaddieRepository(
+            "enemy",
+            "enemy_dynamic_0",
+            "enemy",
+            SquaddieAffiliation.ENEMY,
+            squaddieRepository,
+        );
+
+        addSquaddieToSquaddieRepository(
+            "ally",
+            "ally_dynamic_0",
+            "ally",
+            SquaddieAffiliation.ALLY,
+            squaddieRepository,
+        );
+
+        addSquaddieToSquaddieRepository(
+            "none",
+            "none_dynamic_0",
+            "none",
+            SquaddieAffiliation.NONE,
+            squaddieRepository,
+        );
+
+
         const allTilesOnMap: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             canStopOnSquaddies: true,
             minimumDistanceMoved: 0,
@@ -274,6 +311,7 @@ describe('pathfinder and squaddies', () => {
             startLocation: new HexCoordinate({q: 0, r: 0}),
             stopLocation: undefined,
             shapeGeneratorType: TargetingShape.Snake,
+            squaddieRepository,
         })));
 
         validateTilesAreFound(
@@ -345,6 +383,66 @@ describe('pathfinder and squaddies', () => {
             q: 0,
             r: 2,
             movementCost: 3,
+        }));
+    });
+
+    it('will move through dead squaddies', () => {
+        const {
+            missionMap,
+            pathfinder,
+        } = createMapAndPathfinder([
+            "1 1 1 1 1 ",
+            " 1 1 1 1 1 ",
+        ]);
+
+        missionMap.addSquaddie("enemy", "dynamic_0", new HexCoordinate({q: 0, r: 1}));
+
+        let squaddieRepository = new BattleSquaddieRepository();
+
+        const {dynamicSquaddie: enemyDynamic, staticSquaddie: enemyStatic}
+            = addSquaddieToSquaddieRepository(
+            "enemy",
+            "dynamic_0",
+            "enemy",
+            SquaddieAffiliation.ENEMY,
+            squaddieRepository
+        );
+        DealDamageToTheSquaddie({
+            staticSquaddie: enemyStatic,
+            dynamicSquaddie: enemyDynamic,
+            damage: enemyDynamic.inBattleAttributes.currentHitPoints,
+            damageType: DamageType.Body,
+        });
+
+        const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
+            missionMap: missionMap,
+            squaddieMovement: squaddieMovementHighMovementPerAction,
+            startLocation: new HexCoordinate({q: 0, r: 0}),
+            stopLocation: new HexCoordinate({q: 0, r: 2}),
+            squaddieAffiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository,
+            shapeGeneratorType: TargetingShape.Snake,
+        }));
+
+        let routeFound: SearchPath;
+        let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
+        routeFound = getResultOrThrowError(routeOrError);
+        const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
+        expect(tilesTraveled).toHaveLength(3);
+        expect(tilesTraveled[0]).toEqual(expect.objectContaining({
+            q: 0,
+            r: 0,
+            movementCost: 0,
+        }));
+        expect(tilesTraveled[1]).toEqual(expect.objectContaining({
+            q: 0,
+            r: 1,
+            movementCost: 1,
+        }));
+        expect(tilesTraveled[2]).toEqual(expect.objectContaining({
+            q: 0,
+            r: 2,
+            movementCost: 2,
         }));
     });
 

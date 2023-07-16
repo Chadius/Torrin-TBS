@@ -44,7 +44,7 @@ export class BattleSquaddieRepository {
         this.addDynamicSquaddie(dynamicSquaddie);
     }
 
-    getSquaddieByDynamicID(dynamicSquaddieId: string): ResultOrError<{
+    getSquaddieByDynamicId(dynamicSquaddieId: string): ResultOrError<{
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic,
     }, Error> {

@@ -42,6 +42,7 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
                 minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
                 startLocation: datum.mapLocation,
                 shapeGeneratorType: staticSquaddie.activities[0].targetingShape,
+                squaddieRepository,
             }),
             staticSquaddie.activities[0].maximumRange,
             movementTiles,

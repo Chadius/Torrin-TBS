@@ -161,7 +161,7 @@ describe('BattlePhaseController', () => {
         battlePhaseTracker.advanceToNextPhase();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
 
-        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_squaddie_0"));
+        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId("player_squaddie_0"));
         dynamicSquaddie0.endTurn();
 
         const startTime = 100;
@@ -211,7 +211,7 @@ describe('BattlePhaseController', () => {
     });
 
     it('restores team squaddie turns once the banner appears starts', () => {
-        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID("player_squaddie_0"));
+        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId("player_squaddie_0"));
         dynamicSquaddie0.endTurn();
         expect(dynamicSquaddie0.canStillActThisRound()).toBeFalsy();
 

@@ -24,6 +24,7 @@ import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {DamageType} from "../../squaddie/squaddieService";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -118,7 +119,10 @@ export class BattleMissionLoader implements OrchestratorComponent {
                         id: "torrin_water_saber",
                         minimumRange: 0,
                         maximumRange: 2,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                        damageDescriptions: {
+                            [DamageType.Body]: 2
+                        }
                     }),
                     new SquaddieActivity({
                         name: "too much water saber",
@@ -127,6 +131,9 @@ export class BattleMissionLoader implements OrchestratorComponent {
                         maximumRange: 2,
                         traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
                         actionsToSpend: 3,
+                        damageDescriptions: {
+                            [DamageType.Body]: 5
+                        }
                     })
                 ],
             }),
@@ -163,7 +170,10 @@ export class BattleMissionLoader implements OrchestratorComponent {
                         id: "sir_camil_longsword",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                        damageDescriptions: {
+                            [DamageType.Body]: 3
+                        }
                     })
                 ],
             }),
@@ -267,7 +277,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
     private initializeSquaddieResources(state: OrchestratorState) {
         state.squaddieRepository.getDynamicSquaddieIterator().forEach((info) => {
             const {dynamicSquaddie, dynamicSquaddieId} = info;
-            const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(dynamicSquaddieId));
+            const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
             let image: p5.Image = getResultOrThrowError(
                 state.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)

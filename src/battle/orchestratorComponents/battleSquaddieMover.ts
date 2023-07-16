@@ -61,7 +61,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     private updateWhileAnimationIsInProgress(state: OrchestratorState, p: p5) {
         const {
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(
             state.squaddieCurrentlyActing.dynamicSquaddieId
         ));
 
@@ -75,7 +75,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(
             state.squaddieCurrentlyActing.dynamicSquaddieId
         ));
 

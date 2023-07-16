@@ -78,6 +78,8 @@ describe('hexMap', () => {
         expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: -1, r: 0}))).toBeTruthy();
 
         expect(hexGrid.areCoordinatesOnMap(new HexCoordinate({q: 3, r: 3}))).toBeFalsy();
+
+        expect(hexGrid.areCoordinatesOnMap(undefined)).toBeFalsy();
     });
     describe('can create maps using text strings', () => {
         const verifyTileAtLocationIsExpectedMovementCost = (map: TerrainTileMap, q: number, r: number, expectedMovementCost: HexGridMovementCost): void => {

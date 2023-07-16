@@ -718,7 +718,7 @@ describe('BattleSquaddieSelector', () => {
             let dynamicId = battlePhaseTracker.getCurrentTeam().getDynamicSquaddieIdThatCanActButNotPlayerControlled();
             const {
                 dynamicSquaddie
-            } = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID(dynamicId));
+            } = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId(dynamicId));
 
             dynamicSquaddie.endTurn();
         }

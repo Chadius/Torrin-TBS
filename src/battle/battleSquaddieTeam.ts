@@ -41,7 +41,7 @@ export class BattleSquaddieTeam {
             const {
                 staticSquaddie,
                 dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             const {canAct} = CanSquaddieActRightNow({staticSquaddie, dynamicSquaddie,});
             return canAct;
         })
@@ -59,7 +59,7 @@ export class BattleSquaddieTeam {
             const {
                 staticSquaddie,
                 dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
                 staticSquaddie,
                 dynamicSquaddie,
@@ -73,7 +73,7 @@ export class BattleSquaddieTeam {
             const {
                 staticSquaddie,
                 dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             const {
                 squaddieCanCurrentlyAct,
                 squaddieHasThePlayerControlledAffiliation
@@ -86,7 +86,7 @@ export class BattleSquaddieTeam {
         return this.dynamicSquaddieIds.filter(dynamicSquaddieId => {
             const {
                 staticSquaddie, dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             const {canAct} = CanSquaddieActRightNow({staticSquaddie, dynamicSquaddie,});
             return canAct;
         });
@@ -97,7 +97,7 @@ export class BattleSquaddieTeam {
             const {
                 staticSquaddie,
                 dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             dynamicSquaddie.beginNewRound();
             unTintSquaddieMapIcon(staticSquaddie, dynamicSquaddie);
         }));

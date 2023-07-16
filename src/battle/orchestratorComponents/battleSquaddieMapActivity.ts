@@ -43,7 +43,7 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
             const {
                 dynamicSquaddie,
                 staticSquaddie
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(dynamicSquaddieId));
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
             const mostRecentActivity = state.squaddieCurrentlyActing.instruction.getMostRecentActivity();
 

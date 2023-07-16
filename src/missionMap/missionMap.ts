@@ -50,26 +50,40 @@ export class MissionMapSquaddieDatum {
 }
 
 export class MissionMap {
-    terrainTileMap: TerrainTileMap;
-    squaddieInfo: MissionMapSquaddieDatum[];
+    get terrainTileMap(): TerrainTileMap {
+        return this._terrainTileMap;
+    }
 
-    constructor(options: {
+    get squaddieInfo(): MissionMapSquaddieDatum[] {
+        return this._squaddieInfo;
+    }
+
+    get squaddiesHidden(): string[] {
+        return this._squaddiesHidden;
+    }
+
+    private readonly _terrainTileMap: TerrainTileMap;
+    private readonly _squaddieInfo: MissionMapSquaddieDatum[];
+    private _squaddiesHidden: string[];
+
+    constructor({terrainTileMap}: {
         terrainTileMap: TerrainTileMap;
     }) {
-        this.terrainTileMap = options.terrainTileMap;
-        this.squaddieInfo = [];
+        this._terrainTileMap = terrainTileMap;
+        this._squaddieInfo = [];
+        this._squaddiesHidden = [];
     }
 
     areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {
-        return this.terrainTileMap.areCoordinatesOnMap(hexCoordinate);
+        return this._terrainTileMap.areCoordinatesOnMap(hexCoordinate);
     }
 
     addSquaddie(staticSquaddieId: string, dynamicSquaddieId: string, location?: HexCoordinate): Error | undefined {
-        if (location && !this.terrainTileMap.areCoordinatesOnMap(location)) {
+        if (location && !this._terrainTileMap.areCoordinatesOnMap(location)) {
             return new Error(`cannot add ${dynamicSquaddieId} to (${location.q}, ${location.r}) is not on map`);
         }
 
-        const squaddieWithDynamicId: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+        const squaddieWithDynamicId: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
             datum.dynamicSquaddieId === dynamicSquaddieId
         );
         if (squaddieWithDynamicId) {
@@ -81,7 +95,7 @@ export class MissionMap {
             return new Error(`cannot add ${dynamicSquaddieId} to (${location.q}, ${location.r}), already occupied by ${squaddieAlreadyOccupyingLocation.dynamicSquaddieId}`);
         }
 
-        this.squaddieInfo.push(new MissionMapSquaddieDatum({
+        this._squaddieInfo.push(new MissionMapSquaddieDatum({
             staticSquaddieId,
             dynamicSquaddieId,
             mapLocation: location,
@@ -90,41 +104,41 @@ export class MissionMap {
     }
 
     getSquaddieAtLocation(location: HexCoordinate): MissionMapSquaddieDatum {
-        const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+        const foundDatum: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
             location && datum.mapLocation && datum.mapLocation.q === location.q && datum.mapLocation.r === location.r
         );
         return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : new MissionMapSquaddieDatum();
     }
 
     getSquaddieByDynamicId(dynamicSquaddieId: string): MissionMapSquaddieDatum {
-        const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+        const foundDatum: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
             datum.dynamicSquaddieId === dynamicSquaddieId
         );
         return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : new MissionMapSquaddieDatum();
     }
 
     getHexGridMovementAtLocation(location: HexCoordinate): HexGridMovementCost {
-        if (this.terrainTileMap.areCoordinatesOnMap(location)) {
-            return this.terrainTileMap.getTileTerrainTypeAtLocation(location);
+        if (this._terrainTileMap.areCoordinatesOnMap(location)) {
+            return this._terrainTileMap.getTileTerrainTypeAtLocation(location);
         }
         return undefined;
     }
 
     getSquaddiesThatHaveNoLocation(): MissionMapSquaddieDatum[] {
-        return this.squaddieInfo.filter((datum) =>
+        return this._squaddieInfo.filter((datum) =>
             datum.mapLocation === undefined
         ).map((datum) => MissionMapSquaddieDatum.clone(datum));
     }
 
     updateSquaddieLocation(dynamicSquaddieId: string, location: HexCoordinate): Error | undefined {
-        const foundDatum: MissionMapSquaddieDatum = this.squaddieInfo.find((datum) =>
+        const foundDatum: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
             datum.dynamicSquaddieId === dynamicSquaddieId
         );
         if (!foundDatum) {
             return new Error(`cannot update position for ${dynamicSquaddieId}, does not exist`);
         }
 
-        if (location && !this.terrainTileMap.areCoordinatesOnMap(location)) {
+        if (location && !this._terrainTileMap.areCoordinatesOnMap(location)) {
             return new Error(`cannot update position for ${dynamicSquaddieId} to (${location.q}, ${location.r}) is not on map`);
         }
 
@@ -139,12 +153,30 @@ export class MissionMap {
     }
 
     getAllSquaddieData(): MissionMapSquaddieDatum[] {
-        return this.squaddieInfo.map((datum) => MissionMapSquaddieDatum.clone(datum))
+        return this._squaddieInfo.map((datum) => MissionMapSquaddieDatum.clone(datum))
             .map((datum) => MissionMapSquaddieDatum.clone(datum));
     }
 
     getSquaddiesByStaticId(staticSquaddieId: string): MissionMapSquaddieDatum[] {
-        return this.squaddieInfo.filter((datum) => datum.staticSquaddieId === staticSquaddieId)
+        return this._squaddieInfo.filter((datum) => datum.staticSquaddieId === staticSquaddieId)
             .map((datum) => MissionMapSquaddieDatum.clone(datum));
+    }
+
+    isSquaddieHiddenFromDrawing(dynamicSquaddieId: string): boolean {
+        return this._squaddiesHidden.includes(dynamicSquaddieId);
+    }
+
+    hideSquaddieFromDrawing(dynamicSquaddieId: string) {
+        if (!this.isSquaddieHiddenFromDrawing(dynamicSquaddieId)) {
+            this._squaddiesHidden.push(dynamicSquaddieId);
+        }
+    }
+
+    revealSquaddieForDrawing(dynamicSquaddieId: string) {
+        if (this.isSquaddieHiddenFromDrawing(dynamicSquaddieId)) {
+            this._squaddiesHidden = this._squaddiesHidden.filter(
+                (id) => id !== dynamicSquaddieId
+            );
+        }
     }
 }

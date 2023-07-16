@@ -192,7 +192,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(squaddieToHighlightDynamicId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToHighlightDynamicId));
 
         state.hexMap.stopHighlightingTiles();
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
@@ -206,7 +206,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.battleSquaddieUIInput.selectedSquaddieDynamicID));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.battleSquaddieUIInput.selectedSquaddieDynamicID));
         const newSelectionState: BattleSquaddieUISelectionState = calculateNewBattleSquaddieUISelectionState(
             {
                 tileClickedOn: clickedHexCoordinate,
@@ -302,7 +302,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(dynamicSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
         state.hexMap.stopHighlightingTiles();
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
@@ -386,7 +386,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(dynamicSquaddieId))
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId))
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         if (!state.squaddieCurrentlyActing) {
             state.squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
@@ -443,7 +443,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         if (!state.squaddieCurrentlyActing) {
             const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
@@ -492,7 +492,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
         const {
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(dynamicSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
 
@@ -516,7 +516,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(squaddieInstruction.dynamicSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieInstruction.dynamicSquaddieId));
         let newActivity = squaddieInstruction.getMostRecentActivity();
         if (newActivity instanceof SquaddieMovementActivity) {
             this.createSearchPath(state, staticSquaddie, dynamicSquaddie, newActivity.destination);

@@ -30,7 +30,7 @@ export const drawSquaddieMapIconAtMapLocation = (p: p5, squaddieRepo: BattleSqua
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     setImageToLocation(dynamicSquaddie, xyCoords);
-    const {staticSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicID(dynamicSquaddieId));
+    const {staticSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
     const {
         squaddieHasThePlayerControlledAffiliation,
         squaddieCanCurrentlyAct

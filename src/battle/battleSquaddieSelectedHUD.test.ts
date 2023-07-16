@@ -185,7 +185,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             maximumRange: 1,
             targetingShape: TargetingShape.Snake,
         });
-        const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicID(playerSquaddieDynamicID));
+        const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(playerSquaddieDynamicID));
         staticSquaddie.addActivity(notEnoughActionsActivity);
 
         hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});

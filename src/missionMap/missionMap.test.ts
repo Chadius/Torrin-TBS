@@ -348,4 +348,18 @@ describe('Mission Map', () => {
         const doesNotExist: MissionMapSquaddieDatum[] = missionMap.getSquaddiesByStaticId("does not exist");
         expect(doesNotExist).toHaveLength(0);
     });
+
+    it('can draw and hide squaddies from the map', () => {
+        const missionMap = new MissionMap({
+            terrainTileMap: map
+        })
+        const dynamicSquaddieId = "dynamic_squaddie_0";
+        missionMap.addSquaddie("static_squaddie_0", dynamicSquaddieId);
+
+        expect(missionMap.isSquaddieHiddenFromDrawing(dynamicSquaddieId)).toBeFalsy();
+        missionMap.hideSquaddieFromDrawing(dynamicSquaddieId);
+        expect(missionMap.isSquaddieHiddenFromDrawing(dynamicSquaddieId)).toBeTruthy();
+        missionMap.revealSquaddieForDrawing(dynamicSquaddieId);
+        expect(missionMap.isSquaddieHiddenFromDrawing(dynamicSquaddieId)).toBeFalsy();
+    });
 });

@@ -8,12 +8,12 @@ export const FormatResult = ({currentActivity, result, squaddieRepository}: {
     result: SquaddieSquaddieResults,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {
-    const {staticSquaddie: actingStaticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicID(result.actingSquaddieDynamicId))
+    const {staticSquaddie: actingStaticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(result.actingSquaddieDynamicId))
 
     let output: string[] = [];
     output.push(`${actingStaticSquaddie.squaddieId.name} uses ${currentActivity.name}`);
     result.targetedSquaddieDynamicIds.forEach((targetSquaddieId: string) => {
-        const {staticSquaddie: targetSquaddieStatic} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicID(targetSquaddieId));
+        const {staticSquaddie: targetSquaddieStatic} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(targetSquaddieId));
         output.push(`${targetSquaddieStatic.squaddieId.name} takes ${result.resultPerTarget[targetSquaddieId].damageTaken} damage`);
     });
 

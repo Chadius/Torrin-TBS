@@ -5,9 +5,12 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battle/battleSquad
 import {
     CanPlayerControlSquaddieRightNow,
     CanSquaddieActRightNow,
+    DamageType,
+    DealDamageToTheSquaddie,
     GetArmorClass,
     GetHitPoints,
-    GetNumberOfActions
+    GetNumberOfActions,
+    IsSquaddieAlive
 } from "./squaddieService";
 import {ArmyAttributes} from "./armyAttributes";
 
@@ -85,16 +88,64 @@ describe('Squaddie Service', () => {
         });
     });
 
-    describe('Current HP', () => {
+    describe('Current Hit Points', () => {
         it('Returns the maximum HP', () => {
             let {
                 maxHitPoints,
+                currentHitPoints
             } = GetHitPoints({
                 staticSquaddie: playerStatic,
                 dynamicSquaddie: playerDynamic,
             });
 
-            expect(maxHitPoints).toBe(5);
+            expect(maxHitPoints).toBe(maxHitPoints);
+            expect(currentHitPoints).toBe(maxHitPoints);
+        });
+        it('can deal damage to the squaddie', () => {
+            let {damageTaken} = DealDamageToTheSquaddie({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+                damage: 1,
+                damageType: DamageType.Body,
+            });
+            expect(damageTaken).toBe(1);
+
+            let {
+                maxHitPoints,
+                currentHitPoints,
+            } = GetHitPoints({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+            });
+
+            expect(maxHitPoints).toBe(maxHitPoints);
+            expect(currentHitPoints).toBe(maxHitPoints - damageTaken);
+        });
+    });
+
+    describe('Squaddie is Dead', () => {
+        it('knows squaddies are alive by default', () => {
+            const squaddieIsAlive = IsSquaddieAlive({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+            });
+
+            expect(squaddieIsAlive).toBeTruthy();
+        });
+        it('knows the squaddie is dead due to zero Hit Points', () => {
+            DealDamageToTheSquaddie({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+                damage: playerDynamic.inBattleAttributes.currentHitPoints * 2,
+                damageType: DamageType.Body,
+            });
+
+            const squaddieIsAlive = IsSquaddieAlive({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+            });
+
+            expect(squaddieIsAlive).toBeFalsy();
         });
     });
 
@@ -103,6 +154,7 @@ describe('Squaddie Service', () => {
             let {
                 canAct,
                 hasActionsRemaining,
+                isDead,
             } = CanSquaddieActRightNow({
                 staticSquaddie: playerStatic,
                 dynamicSquaddie: playerDynamic,
@@ -110,6 +162,7 @@ describe('Squaddie Service', () => {
 
             expect(canAct).toBeTruthy();
             expect(hasActionsRemaining).toBeTruthy();
+            expect(isDead).toBeFalsy();
         });
         it('cannot act because it is out of actions', () => {
             playerDynamic.squaddieTurn.spendNumberActions(3);
@@ -123,6 +176,27 @@ describe('Squaddie Service', () => {
 
             expect(canAct).toBeFalsy();
             expect(hasActionsRemaining).toBeFalsy();
+        });
+        it('knows a squaddie without hit points cannot act', () => {
+            DealDamageToTheSquaddie({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+                damage: playerDynamic.inBattleAttributes.currentHitPoints * 2,
+                damageType: DamageType.Body,
+            });
+
+            let {
+                canAct,
+                hasActionsRemaining,
+                isDead,
+            } = CanSquaddieActRightNow({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+            });
+
+            expect(canAct).toBeFalsy();
+            expect(hasActionsRemaining).toBeFalsy();
+            expect(isDead).toBeTruthy();
         });
     });
 
@@ -166,6 +240,27 @@ describe('Squaddie Service', () => {
             });
             expect(squaddieHasThePlayerControlledAffiliation).toBeFalsy();
             expect(squaddieCanCurrentlyAct).toBeTruthy();
+            expect(playerCanControlThisSquaddieRightNow).toBeFalsy();
+        });
+        it('knows a squaddie without hit points cannot be controlled', () => {
+            DealDamageToTheSquaddie({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+                damage: playerDynamic.inBattleAttributes.currentHitPoints * 2,
+                damageType: DamageType.Body,
+            });
+
+            let {
+                squaddieHasThePlayerControlledAffiliation,
+                squaddieCanCurrentlyAct,
+                playerCanControlThisSquaddieRightNow,
+            } = CanPlayerControlSquaddieRightNow({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+            });
+
+            expect(squaddieHasThePlayerControlledAffiliation).toBeTruthy();
+            expect(squaddieCanCurrentlyAct).toBeFalsy();
             expect(playerCanControlThisSquaddieRightNow).toBeFalsy();
         });
     });

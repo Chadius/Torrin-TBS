@@ -76,7 +76,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             staticSquaddie,
             dynamicSquaddie
-        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId))
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId))
         const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
 
         this._background = new Rectangle({
@@ -214,7 +214,7 @@ export class BattleSquaddieSelectedHUD {
     private drawSquaddieID(p: p5) {
         const {
             staticSquaddie
-        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
 
         if (this.affiliateIcon) {
             this.affiliateIcon.draw(p);
@@ -227,7 +227,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             staticSquaddie,
             dynamicSquaddie
-        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie});
 
         p.push();
@@ -335,7 +335,7 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(squaddieCurrentlyActing.instruction.getDynamicSquaddieId()));
+        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(squaddieCurrentlyActing.instruction.getDynamicSquaddieId()));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${staticSquaddie.squaddieId.name}`;
 
         if (
@@ -408,7 +408,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             staticSquaddie,
             dynamicSquaddie
-        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
 
         if (normalActionsRemaining < activity.actionsToSpend) {
@@ -422,7 +422,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             staticSquaddie,
             dynamicSquaddie
-        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicID(this.selectedSquaddieDynamicId));
+        } = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
 
         const textSize = 16;
         const fontColor = [100, 0, 80];

@@ -36,10 +36,39 @@ export const GetHitPoints = ({
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
+    currentHitPoints: number,
     maxHitPoints: number
 } => {
     return {
+        currentHitPoints: dynamicSquaddie.inBattleAttributes.currentHitPoints,
         maxHitPoints: staticSquaddie.attributes.maxHitPoints,
+    }
+}
+
+export enum DamageType {
+    Unknown,
+    Body,
+    Mind,
+    Soul
+}
+
+export const DealDamageToTheSquaddie = ({
+                                            staticSquaddie,
+                                            dynamicSquaddie,
+                                            damage,
+                                            damageType,
+                                        }: {
+    staticSquaddie: BattleSquaddieStatic,
+    dynamicSquaddie: BattleSquaddieDynamic,
+    damage: number,
+    damageType: DamageType,
+}): {
+    damageTaken: number
+} => {
+    const actualHitPointLoss: number = dynamicSquaddie.inBattleAttributes.takeDamage(damage, damageType);
+
+    return {
+        damageTaken: actualHitPointLoss,
     }
 }
 
@@ -52,7 +81,10 @@ export const CanSquaddieActRightNow = ({
 }): {
     canAct: boolean,
     hasActionsRemaining: boolean,
+    isDead: boolean,
 } => {
+    const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+
     let {
         normalActionsRemaining
     } = GetNumberOfActions({
@@ -60,11 +92,12 @@ export const CanSquaddieActRightNow = ({
         dynamicSquaddie,
     });
 
-    const hasActionsRemaining: boolean = normalActionsRemaining > 0;
+    const hasActionsRemaining: boolean = squaddieIsAlive && normalActionsRemaining > 0;
 
     return {
         canAct: hasActionsRemaining,
         hasActionsRemaining,
+        isDead: !squaddieIsAlive,
     }
 }
 
@@ -79,6 +112,8 @@ export const CanPlayerControlSquaddieRightNow = ({
     squaddieCanCurrentlyAct: boolean,
     playerCanControlThisSquaddieRightNow: boolean,
 } => {
+    const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+
     let {
         normalActionsRemaining
     } = GetNumberOfActions({
@@ -87,11 +122,19 @@ export const CanPlayerControlSquaddieRightNow = ({
     });
 
     const playerControlledAffiliation: boolean = staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER
-    const squaddieCanCurrentlyAct: boolean = normalActionsRemaining > 0
+    const squaddieCanCurrentlyAct: boolean = normalActionsRemaining > 0 && squaddieIsAlive
 
     return {
         squaddieHasThePlayerControlledAffiliation: playerControlledAffiliation,
         squaddieCanCurrentlyAct,
         playerCanControlThisSquaddieRightNow: playerControlledAffiliation && squaddieCanCurrentlyAct,
     }
+}
+
+export const IsSquaddieAlive = ({staticSquaddie, dynamicSquaddie}: {
+    staticSquaddie: BattleSquaddieStatic;
+    dynamicSquaddie: BattleSquaddieDynamic
+}): boolean => {
+    const {currentHitPoints} = GetHitPoints({staticSquaddie, dynamicSquaddie});
+    return currentHitPoints > 0;
 }

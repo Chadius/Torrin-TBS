@@ -14,39 +14,55 @@ export type TeamStrategyStateOptionalOptions = {
 };
 
 export class TeamStrategyState {
-    instruction: SquaddieInstruction;
-    missionMap: MissionMap;
-    team: BattleSquaddieTeam;
-    squaddieRepository: BattleSquaddieRepository;
+    get squaddieRepository(): BattleSquaddieRepository {
+        return this._squaddieRepository;
+    }
+
+    get team(): BattleSquaddieTeam {
+        return this._team;
+    }
+
+    get missionMap(): MissionMap {
+        return this._missionMap;
+    }
+
+    get instruction(): SquaddieInstruction {
+        return this._instruction;
+    }
+
+    private _instruction: SquaddieInstruction;
+    private readonly _missionMap: MissionMap;
+    private readonly _team: BattleSquaddieTeam;
+    private readonly _squaddieRepository: BattleSquaddieRepository;
 
     constructor(options: TeamStrategyStateRequiredOptions & Partial<TeamStrategyStateOptionalOptions>) {
-        this.instruction = options.instruction;
-        this.missionMap = options.missionMap;
-        this.team = options.team;
-        this.squaddieRepository = options.squaddieRepository;
+        this._instruction = options.instruction;
+        this._missionMap = options.missionMap;
+        this._team = options.team;
+        this._squaddieRepository = options.squaddieRepository;
     }
 
     reset() {
-        this.instruction = undefined;
+        this._instruction = undefined;
     }
 
     getInstruction(): SquaddieInstruction {
-        return this.instruction;
+        return this._instruction;
     }
 
     setInstruction(instruction: SquaddieInstruction) {
-        this.instruction = instruction;
+        this._instruction = instruction;
     }
 
     getTeam(): BattleSquaddieTeam {
-        return this.team;
+        return this._team;
     }
 
     getMissionMap(): MissionMap {
-        return this.missionMap;
+        return this._missionMap;
     }
 
     getSquaddieRepository(): BattleSquaddieRepository {
-        return this.squaddieRepository;
+        return this._squaddieRepository;
     }
 }
