@@ -81,7 +81,10 @@ export const CanSquaddieActRightNow = ({
 }): {
     canAct: boolean,
     hasActionsRemaining: boolean,
+    isDead: boolean,
 } => {
+    const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+
     let {
         normalActionsRemaining
     } = GetNumberOfActions({
@@ -89,11 +92,12 @@ export const CanSquaddieActRightNow = ({
         dynamicSquaddie,
     });
 
-    const hasActionsRemaining: boolean = normalActionsRemaining > 0;
+    const hasActionsRemaining: boolean = squaddieIsAlive && normalActionsRemaining > 0;
 
     return {
         canAct: hasActionsRemaining,
         hasActionsRemaining,
+        isDead: !squaddieIsAlive,
     }
 }
 
@@ -108,6 +112,8 @@ export const CanPlayerControlSquaddieRightNow = ({
     squaddieCanCurrentlyAct: boolean,
     playerCanControlThisSquaddieRightNow: boolean,
 } => {
+    const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+
     let {
         normalActionsRemaining
     } = GetNumberOfActions({
@@ -116,7 +122,7 @@ export const CanPlayerControlSquaddieRightNow = ({
     });
 
     const playerControlledAffiliation: boolean = staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER
-    const squaddieCanCurrentlyAct: boolean = normalActionsRemaining > 0
+    const squaddieCanCurrentlyAct: boolean = normalActionsRemaining > 0 && squaddieIsAlive
 
     return {
         squaddieHasThePlayerControlledAffiliation: playerControlledAffiliation,

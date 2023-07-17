@@ -22,6 +22,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ActivityResult} from "../history/activityResult";
 import {BattleSquaddieDynamic} from "../battleSquaddie";
+import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -310,8 +311,21 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             staticSquaddieId: targetedSquaddieStaticId
         } = state.missionMap.getSquaddieAtLocation(this.validTargetLocation);
 
+        const {staticSquaddie: targetedSquaddieStatic, dynamicSquaddie: targetedSquaddieDynamic} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicID(targetedSquaddieDynamicId));
         const targetedSquaddieDynamicIds: string[] = [targetedSquaddieDynamicId];
-        const resultPerTarget = {[targetedSquaddieDynamicId]: new ActivityResult({damageTaken: 1})};
+        let damageDealt = 0;
+        Object.keys(state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions).forEach((damageTypeStr: string) => {
+            const damageType = parseInt(damageTypeStr) as DamageType;
+            const activityDamage = state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions[damageType]
+            const {damageTaken: damageTakenByThisType} = DealDamageToTheSquaddie({
+                staticSquaddie: targetedSquaddieStatic,
+                dynamicSquaddie: targetedSquaddieDynamic,
+                damage: activityDamage,
+                damageType,
+            });
+            damageDealt += damageTakenByThisType;
+        });
+        const resultPerTarget = {[targetedSquaddieDynamicId]: new ActivityResult({damageTaken: damageDealt})};
 
         const instructionResults: SquaddieSquaddieResults = new SquaddieSquaddieResults({
             actingSquaddieDynamicId: actingSquaddieDynamic.dynamicSquaddieId,
