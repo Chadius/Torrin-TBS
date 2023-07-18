@@ -25,11 +25,14 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
+import {DamageType} from "../../squaddie/squaddieService";
 
 describe('BattleSquaddieSquaddieActivity', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
+    let targetStatic: BattleSquaddieStatic;
+    let targetDynamic: BattleSquaddieDynamic;
     let longswordActivity: SquaddieActivity;
     let powerAttackLongswordActivity: SquaddieActivity;
     let squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
@@ -60,6 +63,26 @@ describe('BattleSquaddieSquaddieActivity', () => {
             }),
         }));
 
+        ({
+            staticSquaddie: targetStatic,
+            dynamicSquaddie: targetDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Target",
+            staticId: "target_static_squaddie",
+            dynamicId: "target_dynamic_squaddie",
+            affiliation: SquaddieAffiliation.ENEMY,
+            squaddieRepository,
+            attributes: new ArmyAttributes({
+                movement: new SquaddieMovement({
+                    movementPerAction: 2,
+                    traits: new TraitStatusStorage({
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }).filterCategory(TraitCategory.MOVEMENT)
+                }),
+                maxHitPoints: 3,
+            }),
+        }));
+
         longswordActivity = new SquaddieActivity({
             name: "longsword",
             id: "longsword",
@@ -70,6 +93,9 @@ describe('BattleSquaddieSquaddieActivity', () => {
             minimumRange: 1,
             maximumRange: 1,
             actionsToSpend: 1,
+            damageDescriptions: {
+                [DamageType.Body]: 2,
+            },
         });
 
         powerAttackLongswordActivity = new SquaddieActivity({
@@ -82,6 +108,9 @@ describe('BattleSquaddieSquaddieActivity', () => {
             minimumRange: 1,
             maximumRange: 1,
             actionsToSpend: 3,
+            damageDescriptions: {
+                [DamageType.Body]: 9001,
+            },
         });
 
         jest.spyOn(Label.prototype, "draw").mockReturnValue(null);
@@ -119,7 +148,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             }),
             results: new SquaddieSquaddieResults({
                 actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId,
-                targetedSquaddieDynamicIds: [],
+                targetedSquaddieDynamicIds: ["target_dynamic_squaddie"],
             })
         }));
     });
@@ -134,12 +163,22 @@ describe('BattleSquaddieSquaddieActivity', () => {
             squaddieActivity: powerAttackLongswordActivity,
         }));
 
+        const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
+            instruction: wholeTurnInstruction,
+            currentSquaddieActivity: powerAttackLongswordActivity,
+        });
+
+        const newEvent: BattleEvent = new BattleEvent({
+            currentSquaddieInstruction: squaddieInstructionInProgress,
+            results: new SquaddieSquaddieResults({
+                actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId
+            })
+        });
+        battleEventRecording.addEvent(newEvent);
+
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                instruction: wholeTurnInstruction,
-                currentSquaddieActivity: powerAttackLongswordActivity,
-            }),
+            squaddieCurrentlyActing: squaddieInstructionInProgress,
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,
             hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
@@ -169,6 +208,23 @@ describe('BattleSquaddieSquaddieActivity', () => {
     });
 
     it('can wait half a second after activity completes', () => {
+        const wholeTurnInstruction: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: "static_squaddie",
+            dynamicSquaddieId: "dynamic_squaddie",
+        });
+        const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
+            instruction: wholeTurnInstruction,
+            currentSquaddieActivity: powerAttackLongswordActivity,
+        });
+
+        const newEvent: BattleEvent = new BattleEvent({
+            currentSquaddieInstruction: squaddieInstructionInProgress,
+            results: new SquaddieSquaddieResults({
+                actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId
+            })
+        });
+        battleEventRecording.addEvent(newEvent);
+
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
@@ -202,12 +258,22 @@ describe('BattleSquaddieSquaddieActivity', () => {
     });
 
     it('will skip displaying the results if the user clicks', () => {
+        const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
+            instruction: oneActionInstruction,
+            currentSquaddieActivity: powerAttackLongswordActivity,
+        });
+
+        const newEvent: BattleEvent = new BattleEvent({
+            currentSquaddieInstruction: squaddieInstructionInProgress,
+            results: new SquaddieSquaddieResults({
+                actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId
+            })
+        });
+        battleEventRecording.addEvent(newEvent);
+
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: OrchestratorState = new OrchestratorState({
-            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                instruction: oneActionInstruction,
-                currentSquaddieActivity: powerAttackLongswordActivity,
-            }),
+            squaddieCurrentlyActing: squaddieInstructionInProgress,
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,
             hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),

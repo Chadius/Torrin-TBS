@@ -17,6 +17,7 @@ import {RectArea} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {Label} from "../../ui/label";
 import {FormatResult} from "../animation/activityResultTextWriter";
+import {DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
@@ -25,16 +26,25 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     clickedToCancelActivity: boolean;
     outputTextDisplay: Label;
     outputTextStrings: string[];
+    sawResultAftermath: boolean;
 
     constructor() {
+        this.resetInternalState();
+    }
+
+    private resetInternalState() {
         this.animationCompleteStartTime = undefined;
         this.clickedToCancelActivity = false;
         this.outputTextStrings = [];
+        this.sawResultAftermath = false;
     }
 
     hasCompleted(state: OrchestratorState): boolean {
-        const animationCompleted = (this.animationCompleteStartTime !== undefined && Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
-        return animationCompleted || this.clickedToCancelActivity;
+        return this.sawResultAftermath;
+    }
+
+    private getAnimationCompleted() {
+        return (this.animationCompleteStartTime !== undefined && Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
@@ -50,9 +60,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     }
 
     reset(state: OrchestratorState): void {
-        this.animationCompleteStartTime = undefined;
-        this.clickedToCancelActivity = false;
-        this.outputTextDisplay = undefined;
+        this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
         this.maybeEndSquaddieTurn(state);
@@ -104,6 +112,12 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
             });
         }
 
-        this.outputTextDisplay.draw(p);
+        const showDamageDisplay = !this.getAnimationCompleted() && !this.clickedToCancelActivity;
+        if (this.outputTextDisplay !== undefined && showDamageDisplay) {
+            this.outputTextDisplay.draw(p);
+            return;
+        }
+
+        this.sawResultAftermath = true;
     }
 }
