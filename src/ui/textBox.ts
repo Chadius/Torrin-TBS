@@ -2,20 +2,15 @@ import {RectArea} from "./rectArea";
 import * as p5 from "p5";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE} from "./constants";
 
-type RequiredOptions = {
+export type TextBoxArguments = {
     text: string;
     textSize: number;
     fontColor: number[];
     area: RectArea;
-}
-
-type Options = {
-    horizAlign: p5.HORIZ_ALIGN;
-    vertAlign: p5.VERT_ALIGN;
-    duration: number;
-}
-
-export type TextBoxArguments = RequiredOptions & Partial<Options>;
+    horizAlign?: p5.HORIZ_ALIGN;
+    vertAlign?: p5.VERT_ALIGN;
+    duration?: number;
+};
 
 export class TextBox {
     private _text: string;

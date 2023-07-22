@@ -35,7 +35,8 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: Orchestra
         });
         if (playerCanControlThisSquaddieRightNow) {
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                dynamicID: state.squaddieCurrentlyActing.dynamicSquaddieId,
+                dynamicId: state.squaddieCurrentlyActing.dynamicSquaddieId,
+                state,
             });
         } else {
             state.battleSquaddieSelectedHUD.reset();

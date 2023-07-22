@@ -2,11 +2,11 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 
 export class BattleSquaddieRepository {
-    squaddieStaticInfoById: {
+    private readonly squaddieStaticInfoById: {
         [id: string]: BattleSquaddieStatic;
     }
 
-    squaddieDynamicInfoByDynamicId: {
+    private readonly squaddieDynamicInfoByDynamicId: {
         [id: string]: BattleSquaddieDynamic;
     }
 

@@ -78,7 +78,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
                     hudUsedMouseClick = state.battleSquaddieSelectedHUD.didMouseClickOnHUD(event.mouseX, event.mouseY);
                     if (hudUsedMouseClick) {
-                        state.battleSquaddieSelectedHUD.mouseClicked(event.mouseX, event.mouseY);
+                        state.battleSquaddieSelectedHUD.mouseClicked(event.mouseX, event.mouseY, state);
                     }
                     if (state.battleSquaddieSelectedHUD.wasActivitySelected()) {
                         this.reactToPlayerSelectedActivity(state);
@@ -150,12 +150,12 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE, dynamicSquaddie.dynamicSquaddieId);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicID: dynamicSquaddie.dynamicSquaddieId,
+            dynamicId: dynamicSquaddie.dynamicSquaddieId,
             repositionWindow: {
                 mouseX: mouseX,
                 mouseY: mouseY
-
-            }
+            },
+            state,
         });
     }
 
@@ -172,11 +172,12 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     private updateBattleSquaddieUISelectedSquaddieClickedOnSquaddie(state: OrchestratorState, squaddieClickedOnInfoAndMapLocation: MissionMapSquaddieDatum, mouseX: number, mouseY: number) {
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicID: squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId,
+            dynamicId: squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId,
             repositionWindow: {
                 mouseX: mouseX,
                 mouseY: mouseY
-            }
+            },
+            state,
         });
 
         if (!this.isHudInstructingTheCurrentlyActingSquaddie(state)) {
@@ -307,11 +308,12 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         state.hexMap.stopHighlightingTiles();
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicID: dynamicSquaddie.dynamicSquaddieId,
+            dynamicId: dynamicSquaddie.dynamicSquaddieId,
             repositionWindow: {
                 mouseX: mouseX,
                 mouseY: mouseY
-            }
+            },
+            state,
         });
     }
 

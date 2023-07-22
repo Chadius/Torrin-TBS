@@ -331,17 +331,6 @@ describe('BattleSquaddieSelector', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            mockHud = new BattleSquaddieSelectedHUD({
-                missionMap,
-                resourceHandler: mockResourceHandler,
-                squaddieRepository: squaddieRepo,
-            });
-            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
-            mockHud.selectSquaddieAndDrawWindow({
-                dynamicID: "player_soldier_0",
-                repositionWindow: {mouseX: mouseX, mouseY: mouseY}
-            });
-
             squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
             squaddieCurrentlyActing.addSquaddie({
                 dynamicSquaddieId: "player_soldier_0",
@@ -353,6 +342,7 @@ describe('BattleSquaddieSelector', () => {
                 numberOfActionsSpent: 1
             }));
 
+            mockHud = new BattleSquaddieSelectedHUD();
             state = new OrchestratorState({
                 missionMap,
                 squaddieRepo,
@@ -364,11 +354,20 @@ describe('BattleSquaddieSelector', () => {
                 pathfinder: new Pathfinder(),
                 squaddieCurrentlyActing,
                 battleEventRecording: new Recording({}),
+                resourceHandler: mockResourceHandler,
+            });
+
+            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
+            mockHud.selectSquaddieAndDrawWindow({
+                dynamicId: "player_soldier_0",
+                repositionWindow: {mouseX: mouseX, mouseY: mouseY},
+                state,
             });
         });
 
         it('when user clicks on new location, will add movement to existing instruction', () => {
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
+
             selector.mouseEventHappened(state, {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
@@ -795,17 +794,20 @@ describe('BattleSquaddieSelector', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            mockHud = new BattleSquaddieSelectedHUD({
+            const stateWithNull = new OrchestratorState({
                 missionMap,
                 resourceHandler: mockResourceHandler,
-                squaddieRepository: squaddieRepo,
+                squaddieRepo,
+                camera: new BattleCamera(0, 0),
             });
+            mockHud = new BattleSquaddieSelectedHUD();
 
             camera = new BattleCamera();
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
             mockHud.selectSquaddieAndDrawWindow({
-                dynamicID: "player_soldier_0",
-                repositionWindow: {mouseX: mouseX, mouseY: mouseY}
+                dynamicId: "player_soldier_0",
+                repositionWindow: {mouseX: mouseX, mouseY: mouseY},
+                state: stateWithNull,
             });
 
             selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
@@ -830,6 +832,7 @@ describe('BattleSquaddieSelector', () => {
                 pathfinder: new Pathfinder(),
                 battleEventRecording: new Recording({}),
                 squaddieCurrentlyActing: soldierCurrentlyActing,
+                resourceHandler: mockResourceHandler,
             });
 
             const interruptSquaddieOnMap = missionMap.getSquaddieByDynamicId("interrupting squaddie");
@@ -845,10 +848,11 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: startingMouseY
             });
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
-                dynamicID: interruptSquaddieDynamic.dynamicSquaddieId,
+                dynamicId: interruptSquaddieDynamic.dynamicSquaddieId,
                 repositionWindow: {
                     mouseX: startingMouseX, mouseY: startingMouseY
-                }
+                },
+                state,
             });
         });
 
@@ -857,10 +861,11 @@ describe('BattleSquaddieSelector', () => {
             expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
             expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
-                dynamicID: interruptSquaddieDynamic.dynamicSquaddieId,
+                dynamicId: interruptSquaddieDynamic.dynamicSquaddieId,
                 repositionWindow: {
                     mouseX: startingMouseX, mouseY: startingMouseY
-                }
+                },
+                state,
             });
             expect(selector.hasCompleted(state)).toBeFalsy();
 

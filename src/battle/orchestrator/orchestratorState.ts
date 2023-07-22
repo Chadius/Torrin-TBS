@@ -76,11 +76,7 @@ export class OrchestratorState {
             squaddieRepository: this.squaddieRepository,
             squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         });
-        this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD({
-            missionMap: this.missionMap,
-            squaddieRepository: this.squaddieRepository,
-            resourceHandler: this.resourceHandler,
-        });
+        this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
         this.battlePhaseState = options.battlePhaseState || {
             bannerPhaseToShow: BattlePhase.UNKNOWN,
         };

@@ -3,9 +3,7 @@ import {MissionMap} from "../missionMap/missionMap";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {SquaddieTurn} from "../squaddie/turn";
 import {stubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {ActivityButton} from "../squaddie/activityButton";
@@ -15,6 +13,11 @@ import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
 import {RectArea} from "../ui/rectArea";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
+import {CreateNewSquaddieAndAddToRepository} from "../utils/test/squaddie";
+import {BattleCamera} from "./battleCamera";
+import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
+import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
+import {OrchestratorState} from "./orchestrator/orchestratorState";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -22,6 +25,14 @@ describe('BattleSquaddieSelectedHUD', () => {
     let missionMap: MissionMap;
     let resourceHandler: ResourceHandler;
     let playerSquaddieDynamicID: string = "player_squaddie_0";
+    let playerSquaddieStatic: BattleSquaddieStatic;
+    let playerSquaddieDynamic: BattleSquaddieDynamic;
+    let enemySquaddieDynamicID: string = "enemy_squaddie_0";
+    let enemySquaddieStatic: BattleSquaddieStatic;
+    let enemySquaddieDynamic: BattleSquaddieDynamic;
+    let player2SquaddieDynamicId: string = "player_squaddie_2";
+    let player2SquaddieStatic: BattleSquaddieStatic;
+    let player2SquaddieDynamic: BattleSquaddieDynamic;
     let longswordActivity: SquaddieActivity;
     let warnUserNotEnoughActionsToPerformActionSpy: jest.SpyInstance;
 
@@ -76,37 +87,70 @@ describe('BattleSquaddieSelectedHUD', () => {
             targetingShape: TargetingShape.Snake,
         });
 
-        squaddieRepository.addStaticSquaddie(
-            new BattleSquaddieStatic({
-                squaddieId: new SquaddieId({
+        ({
+                staticSquaddie: playerSquaddieStatic,
+                dynamicSquaddie: playerSquaddieDynamic,
+            } =
+                CreateNewSquaddieAndAddToRepository({
                     staticId: "player_soldier",
                     name: "Player Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
-                }),
-                activities: [
-                    longswordActivity
-                ]
-            })
+                    dynamicId: playerSquaddieDynamicID,
+                    squaddieRepository,
+                    activities: [
+                        longswordActivity
+                    ],
+                })
         );
 
-        squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
-                dynamicSquaddieId: playerSquaddieDynamicID,
-                staticSquaddieId: "player_soldier",
-                squaddieTurn: new SquaddieTurn()
-            })
+        ({
+                staticSquaddie: player2SquaddieStatic,
+                dynamicSquaddie: player2SquaddieDynamic,
+            } =
+                CreateNewSquaddieAndAddToRepository({
+                    staticId: "player_soldier2",
+                    name: "Player Soldier 2",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    dynamicId: player2SquaddieDynamicId,
+                    squaddieRepository,
+                    activities: [
+                        longswordActivity
+                    ],
+                })
         );
 
-        hud = new BattleSquaddieSelectedHUD({
-            squaddieRepository,
-            missionMap,
-            resourceHandler: resourceHandler,
-        })
+        ({
+                staticSquaddie: enemySquaddieStatic,
+                dynamicSquaddie: enemySquaddieDynamic,
+            } =
+                CreateNewSquaddieAndAddToRepository({
+                    staticId: "enemy_soldier",
+                    name: "Enemy Soldier",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    dynamicId: enemySquaddieDynamicID,
+                    squaddieRepository,
+                    activities: [
+                        longswordActivity
+                    ],
+                })
+        );
+
+        hud = new BattleSquaddieSelectedHUD();
         warnUserNotEnoughActionsToPerformActionSpy = jest.spyOn((hud as any), "warnUserNotEnoughActionsToPerformAction").mockReturnValue(null);
     });
 
     it('generates a button for each squaddie activity', () => {
-        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        hud.selectSquaddieAndDrawWindow({
+                dynamicId: playerSquaddieDynamicID,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state: new OrchestratorState({
+                    squaddieRepo: squaddieRepository,
+                    missionMap,
+                    resourceHandler: resourceHandler,
+                    camera: new BattleCamera(0, 0),
+                })
+            },
+        );
 
         const activityButtons: ActivityButton[] = hud.getActivityButtons();
         expect(activityButtons).toBeTruthy();
@@ -118,7 +162,17 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when an activity button is selected', () => {
-        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        const state = new OrchestratorState({
+            squaddieRepo: squaddieRepository,
+            missionMap,
+            resourceHandler: resourceHandler,
+            camera: new BattleCamera(0, 0),
+        });
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: playerSquaddieDynamicID,
+            repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
+        });
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
 
@@ -126,7 +180,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             button.activity instanceof SquaddieActivity
             && button.activity.name === longswordActivity.name
         );
-        hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top);
+        hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
         expect(hud.wasActivitySelected()).toBeTruthy();
         expect(hud.getSelectedActivity()).toBe(longswordActivity);
@@ -137,7 +191,18 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('generates a Wait Turn activity button when a squaddie is selected', () => {
-        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        const state = new OrchestratorState({
+            squaddieRepo: squaddieRepository,
+            missionMap,
+            resourceHandler: resourceHandler,
+            camera: new BattleCamera(0, 0),
+        });
+
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: playerSquaddieDynamicID,
+            repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
+        });
 
         const activityButtons: ActivityButton[] = hud.getActivityButtons();
         expect(activityButtons).toBeTruthy();
@@ -149,7 +214,18 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when a Wait Turn activity button was clicked on', () => {
-        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        const state = new OrchestratorState({
+            squaddieRepo: squaddieRepository,
+            missionMap,
+            resourceHandler: resourceHandler,
+            camera: new BattleCamera(0, 0),
+        });
+
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: playerSquaddieDynamicID,
+            repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
+        });
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
 
@@ -157,7 +233,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             button.activity instanceof SquaddieEndTurnActivity
         );
 
-        hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top);
+        hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top, state);
 
         expect(hud.wasActivitySelected()).toBeTruthy();
         expect(hud.getSelectedActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
@@ -168,9 +244,23 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('can reopen the window in the previous position if no mouse location is given', () => {
-        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        const state = new OrchestratorState({
+            squaddieRepo: squaddieRepository,
+            missionMap,
+            resourceHandler: resourceHandler,
+            camera: new BattleCamera(0, 0),
+        });
+
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: playerSquaddieDynamicID,
+            repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
+        });
         const initialWindowPosition: RectArea = new RectArea({baseRectangle: hud.background.area, left: 0, top: 0});
-        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID});
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: playerSquaddieDynamicID,
+            state,
+        });
         expect(hud.background.area).toStrictEqual(initialWindowPosition);
     });
 
@@ -188,7 +278,18 @@ describe('BattleSquaddieSelectedHUD', () => {
         const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(playerSquaddieDynamicID));
         staticSquaddie.addActivity(notEnoughActionsActivity);
 
-        hud.selectSquaddieAndDrawWindow({dynamicID: playerSquaddieDynamicID, repositionWindow: {mouseX: 0, mouseY: 0}});
+        const state = new OrchestratorState({
+            squaddieRepo: squaddieRepository,
+            missionMap,
+            resourceHandler: resourceHandler,
+            camera: new BattleCamera(0, 0),
+        });
+
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: playerSquaddieDynamicID,
+            repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
+        });
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
 
@@ -196,10 +297,139 @@ describe('BattleSquaddieSelectedHUD', () => {
             button.activity instanceof SquaddieActivity && button.activity.name === "not enough actions"
         );
 
-        hud.mouseClicked(notEnoughActionsButton.buttonArea.left, notEnoughActionsButton.buttonArea.top);
+        hud.mouseClicked(
+            notEnoughActionsButton.buttonArea.left,
+            notEnoughActionsButton.buttonArea.top,
+            state,
+        );
 
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
         expect(warnUserNotEnoughActionsToPerformActionSpy).toBeCalled();
+    });
+
+    describe("Next Squaddie button", () => {
+        it('should show the button if there are at least 2 player controllable squaddies', () => {
+            const state = new OrchestratorState({
+                squaddieRepo: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+            });
+
+
+            hud = new BattleSquaddieSelectedHUD()
+
+            hud.selectSquaddieAndDrawWindow({
+                dynamicId: playerSquaddieDynamic.dynamicSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawNextButton(state)).toBeTruthy();
+        });
+
+        it('should show the button if there is 1 player controllable squaddie and the HUD is focused on an uncontrollable squaddie', () => {
+            const onePlayerOneEnemy = new BattleSquaddieRepository();
+            onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
+            onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
+
+            const state = new OrchestratorState({
+                squaddieRepo: onePlayerOneEnemy,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+            });
+
+
+            hud = new BattleSquaddieSelectedHUD();
+
+            hud.selectSquaddieAndDrawWindow({
+                dynamicId: enemySquaddieDynamic.dynamicSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawNextButton(state)).toBeTruthy();
+        });
+
+        it('should show the button if there is 1 player controllable squaddie and the HUD is not focused', () => {
+            const onePlayerOneEnemy = new BattleSquaddieRepository();
+            onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
+            onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
+
+            const state = new OrchestratorState({
+                squaddieRepo: onePlayerOneEnemy,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+            });
+
+            hud = new BattleSquaddieSelectedHUD()
+
+            expect(hud.shouldDrawNextButton(state)).toBeTruthy();
+        });
+
+        it('should not show the button if there is fewer than 2 player controllable squaddies', () => {
+            const onePlayerOneEnemy = new BattleSquaddieRepository();
+            onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
+            onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
+            const state = new OrchestratorState({
+                squaddieRepo: onePlayerOneEnemy,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+            });
+
+            hud = new BattleSquaddieSelectedHUD();
+
+            hud.selectSquaddieAndDrawWindow({
+                dynamicId: playerSquaddieDynamic.dynamicSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawNextButton(state)).toBeFalsy();
+        });
+
+        it('clicking on the next button will select a different squaddie', () => {
+            const battleCamera = new BattleCamera(0, 0);
+            hud = new BattleSquaddieSelectedHUD();
+            missionMap.addSquaddie(playerSquaddieStatic.staticId, playerSquaddieDynamic.dynamicSquaddieId, new HexCoordinate({
+                q: 0,
+                r: 0
+            }));
+            missionMap.addSquaddie(player2SquaddieStatic.staticId, player2SquaddieDynamic.dynamicSquaddieId, new HexCoordinate({
+                q: 0,
+                r: 1
+            }));
+
+            const state = new OrchestratorState({
+                squaddieRepo: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: battleCamera,
+            });
+
+            hud.selectSquaddieAndDrawWindow({
+                dynamicId: playerSquaddieDynamic.dynamicSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.selectedSquaddieDynamicId).toBe(playerSquaddieDynamic.dynamicSquaddieId);
+            hud.mouseClicked(hud.nextSquaddieButton.rectangle.area.centerX, hud.nextSquaddieButton.rectangle.area.centerY, state,);
+            expect(hud.selectedSquaddieDynamicId).toBe(player2SquaddieDynamic.dynamicSquaddieId);
+            const panningInfo = battleCamera.getPanningInformation();
+            const player2MapCoordinates = missionMap.getSquaddieByDynamicId(player2SquaddieDynamicId);
+            expect(player2MapCoordinates.isValid()).toBeTruthy();
+            const player2WorldCoordinates = convertMapCoordinatesToWorldCoordinates(
+                player2MapCoordinates.mapLocation.q,
+                player2MapCoordinates.mapLocation.r
+            );
+
+            expect(panningInfo.xDestination).toBe(player2WorldCoordinates[0]);
+            expect(panningInfo.yDestination).toBe(player2WorldCoordinates[1]);
+        });
     });
 });

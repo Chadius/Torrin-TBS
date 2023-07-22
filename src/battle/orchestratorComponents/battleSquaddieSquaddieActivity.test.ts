@@ -188,8 +188,9 @@ describe('BattleSquaddieSquaddieActivity', () => {
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicID: dynamicSquaddieBase.dynamicSquaddieId,
+            dynamicId: dynamicSquaddieBase.dynamicSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
         });
         dynamicSquaddieBase.squaddieTurn.spendActionsOnActivity(powerAttackLongswordActivity);
         squaddieSquaddieActivity.update(state, mockedP5);
@@ -240,8 +241,9 @@ describe('BattleSquaddieSquaddieActivity', () => {
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicID: dynamicSquaddieBase.dynamicSquaddieId,
+            dynamicId: dynamicSquaddieBase.dynamicSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
         });
 
         squaddieSquaddieActivity.update(state, mockedP5);
@@ -283,8 +285,9 @@ describe('BattleSquaddieSquaddieActivity', () => {
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicID: dynamicSquaddieBase.dynamicSquaddieId,
+            dynamicId: dynamicSquaddieBase.dynamicSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
         });
 
         squaddieSquaddieActivity.update(state, mockedP5);
@@ -340,8 +343,9 @@ describe('BattleSquaddieSquaddieActivity', () => {
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicID: dynamicSquaddieBase.dynamicSquaddieId,
+            dynamicId: dynamicSquaddieBase.dynamicSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
         });
 
         squaddieSquaddieActivity.update(state, mockedP5);

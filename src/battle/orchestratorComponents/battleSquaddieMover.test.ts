@@ -244,8 +244,9 @@ describe('BattleSquaddieMover', () => {
             });
 
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                dynamicID: "player_1",
+                dynamicId: "player_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -279,8 +280,9 @@ describe('BattleSquaddieMover', () => {
             });
 
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                dynamicID: "enemy_1",
+                dynamicId: "enemy_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
