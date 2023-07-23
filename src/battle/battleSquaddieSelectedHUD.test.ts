@@ -18,6 +18,8 @@ import {BattleCamera} from "./battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {OrchestratorState} from "./orchestrator/orchestratorState";
+import {KeyButtonName} from "../utils/keyboardConfig";
+import {config} from "../configuration/config";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -430,6 +432,42 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             expect(panningInfo.xDestination).toBe(player2WorldCoordinates[0]);
             expect(panningInfo.yDestination).toBe(player2WorldCoordinates[1]);
+        });
+
+        it('should respond to keyboard presses for the next squaddie, even if the HUD is not open', () => {
+            const battleCamera = new BattleCamera(0, 0);
+            hud = new BattleSquaddieSelectedHUD();
+            const selectSpy = jest.spyOn((hud as any), "selectSquaddieAndDrawWindow");
+            jest.spyOn((hud as any), "generateAffiliateIcon").mockImplementation(() => {
+            });
+            jest.spyOn((hud as any), "generateSquaddieActivityButtons").mockImplementation(() => {
+            });
+            jest.spyOn((hud as any), "generateNextSquaddieButton").mockImplementation(() => {
+            });
+            jest.spyOn((hud as any), "generateSquaddieIdText").mockImplementation(() => {
+            });
+
+            missionMap.addSquaddie(playerSquaddieStatic.staticId, playerSquaddieDynamic.dynamicSquaddieId, new HexCoordinate({
+                q: 0,
+                r: 0
+            }));
+            missionMap.addSquaddie(player2SquaddieStatic.staticId, player2SquaddieDynamic.dynamicSquaddieId, new HexCoordinate({
+                q: 0,
+                r: 1
+            }));
+
+            const state = new OrchestratorState({
+                squaddieRepo: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: battleCamera,
+            });
+
+            expect(hud.selectedSquaddieDynamicId).toBe("");
+            hud.keyPressed(config.KEYBOARD_SHORTCUTS[KeyButtonName.NEXT_SQUADDIE][0], state);
+            expect(selectSpy).toHaveBeenCalled();
+            expect(hud.selectedSquaddieDynamicId).not.toBe("");
+            expect(battleCamera.isPanning()).toBeTruthy();
         });
     });
 });

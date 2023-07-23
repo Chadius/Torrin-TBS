@@ -1,6 +1,7 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
@@ -24,6 +25,9 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    }
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {

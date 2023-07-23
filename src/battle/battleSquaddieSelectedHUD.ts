@@ -22,6 +22,7 @@ import {Label} from "../ui/label";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1} from "../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {OrchestratorState} from "./orchestrator/orchestratorState";
+import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 
 enum ActivityValidityCheck {
     IS_VALID,
@@ -63,26 +64,16 @@ export class BattleSquaddieSelectedHUD {
         this.selectedSquaddieDynamicId = dynamicId;
         this.invalidCommandWarningTextBox.stop();
 
-        let windowDimensions: RectArea;
-        if (repositionWindow) {
-            const windowInfo = this.createWindowPosition(repositionWindow.mouseY);
-            windowDimensions = windowInfo.windowDimensions;
-        } else {
-            windowDimensions = this._background.area;
-        }
-
         const {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId))
-        const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[staticSquaddie.squaddieId.affiliation];
 
-        this._background = new Rectangle({
-            area: windowDimensions,
-            fillColor: [squaddieAffiliationHue, 10, 30],
-            strokeColor: [squaddieAffiliationHue, 10, 6],
-            strokeWeight: 4,
-        });
+        const {windowDimensions, squaddieAffiliationHue} = this.setBackgroundWindowAndGetWindowDimensions(
+            staticSquaddie.squaddieId.affiliation,
+            repositionWindow ? repositionWindow.mouseY : undefined
+        );
+
         this.generateAffiliateIcon(staticSquaddie, state);
         this.generateSquaddieActivityButtons(staticSquaddie, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
@@ -296,6 +287,45 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedActivity;
     }
 
+    private setBackgroundWindowAndGetWindowDimensions(affiliation: SquaddieAffiliation, mouseY?: number) {
+        let windowDimensions: RectArea;
+        if (mouseY !== undefined) {
+            const windowInfo = this.createWindowPosition(mouseY);
+            windowDimensions = windowInfo.windowDimensions;
+        } else {
+            if (this._background === undefined) {
+                this.setBackgroundWindowAndGetWindowDimensions(SquaddieAffiliation.UNKNOWN, 0);
+            }
+
+            windowDimensions = this._background.area;
+        }
+
+        const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[affiliation];
+
+        this._background = new Rectangle({
+            area: windowDimensions,
+            fillColor: [squaddieAffiliationHue, 10, 30],
+            strokeColor: [squaddieAffiliationHue, 10, 6],
+            strokeWeight: 4,
+        });
+
+        return {
+            windowDimensions,
+            squaddieAffiliationHue
+        };
+    }
+
+    keyPressed(keyCode: number, state: OrchestratorState) {
+        if (this._background === undefined) {
+            this.setBackgroundWindowAndGetWindowDimensions(SquaddieAffiliation.UNKNOWN, 0);
+        }
+
+        const pressedTheNextSquaddieKey: boolean = this.shouldDrawNextButton(state) && KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, keyCode);
+        if (pressedTheNextSquaddieKey) {
+            this.selectNextSquaddie(state);
+        }
+    }
+
     mouseClicked(mouseX: number, mouseY: number, state: OrchestratorState) {
         const clickedActivityButton = this.activityButtons.find((button) =>
             button.buttonArea.isInside(mouseX, mouseY)
@@ -312,7 +342,7 @@ export class BattleSquaddieSelectedHUD {
 
         const clickedOnNextButton: boolean = this.shouldDrawNextButton(state) && this.nextSquaddieButton.rectangle.area.isInside(mouseX, mouseY);
         if (clickedOnNextButton) {
-            this.selectNextSquaddie(mouseX, mouseY, state);
+            this.selectNextSquaddie(state);
         }
     }
 
@@ -586,7 +616,7 @@ export class BattleSquaddieSelectedHUD {
         return playerCanControlThisSquaddieRightNow;
     }
 
-    private selectNextSquaddie(mouseX: number, mouseY: number, state: OrchestratorState) {
+    private selectNextSquaddie(state: OrchestratorState) {
         if (this.nextSquaddieDynamicIds.length === 0) {
             this.nextSquaddieDynamicIds = state.squaddieRepository.getDynamicSquaddieIterator().filter((info) => {
                 return this.isSquaddiePlayerControllableRightNow(info.dynamicSquaddieId, state) === true

@@ -1,6 +1,8 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/orchestratorComponent";
@@ -90,6 +92,25 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
                 this.updateBattleSquaddieUIMouseClicked(state, event.mouseX, event.mouseY);
                 state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
+            }
+        }
+    }
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+        if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
+            const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+            if (currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+                state.battleSquaddieSelectedHUD.keyPressed(event.keyCode, state);
+
+                if (state.battleSquaddieSelectedHUD.selectedSquaddieDynamicId != "") {
+                    const squaddieInfo = state.missionMap.getSquaddieByDynamicId(state.battleSquaddieSelectedHUD.selectedSquaddieDynamicId);
+                    if (squaddieInfo.isValid() && state.missionMap.areCoordinatesOnMap(squaddieInfo.mapLocation)) {
+                        const squaddieScreenCoordinates = convertMapCoordinatesToScreenCoordinates(squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...state.camera.getCoordinates());
+                        this.updateBattleSquaddieUIMouseClicked(state, squaddieScreenCoordinates[0], squaddieScreenCoordinates[1]);
+                        state.hexMap.mouseClicked(squaddieScreenCoordinates[0], squaddieScreenCoordinates[1], ...state.camera.getCoordinates());
+                        return;
+                    }
+                }
             }
         }
     }
@@ -297,24 +318,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
         state.battleEventRecording.addEvent(new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,
         }));
-    }
-
-    private focusOnSelectedSquaddie(state: OrchestratorState, dynamicSquaddieId: string, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
-        const {
-            staticSquaddie,
-            dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
-
-        state.hexMap.stopHighlightingTiles();
-        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
-        state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicId: dynamicSquaddie.dynamicSquaddieId,
-            repositionWindow: {
-                mouseX: mouseX,
-                mouseY: mouseY
-            },
-            state,
-        });
     }
 
     update(state: OrchestratorState, p: p5): void {

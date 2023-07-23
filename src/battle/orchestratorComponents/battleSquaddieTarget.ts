@@ -1,6 +1,7 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/orchestratorComponent";
@@ -73,6 +74,9 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
             }
         }
         return;
+    }
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
     update(state: OrchestratorState, p: p5): void {

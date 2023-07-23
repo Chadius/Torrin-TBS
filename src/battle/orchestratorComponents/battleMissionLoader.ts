@@ -1,6 +1,7 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
@@ -303,6 +304,9 @@ export class BattleMissionLoader implements OrchestratorComponent {
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent) {
     };
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
 
     hasCompleted(state: OrchestratorState): boolean {
         return this.finishedPreparations;

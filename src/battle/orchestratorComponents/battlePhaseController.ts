@@ -1,6 +1,7 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
@@ -46,6 +47,9 @@ export class BattlePhaseController implements OrchestratorComponent {
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    }
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
     update(state: OrchestratorState, p: p5): void {

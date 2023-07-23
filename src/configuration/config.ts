@@ -9,12 +9,14 @@ export interface Config {
     environment: Environment;
     SCREEN_WIDTH: number;
     SCREEN_HEIGHT: number;
+    KEYBOARD_SHORTCUTS: { [key in string]: number[] };
 }
 
 export interface ProcessVariables {
     ENV?: Environment;
     SCREEN_WIDTH?: number;
     SCREEN_HEIGHT?: number;
+    KEYBOARD_SHORTCUTS?: { [key in string]: number[] };
 }
 
 export const config = getConfig(process.env.NODE_ENV as unknown as ProcessVariables)

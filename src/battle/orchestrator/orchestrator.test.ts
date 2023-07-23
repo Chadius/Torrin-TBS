@@ -69,6 +69,7 @@ describe('Battle Orchestrator', () => {
         mockSquaddieSelector = new (<new () => BattleSquaddieSelector>BattleSquaddieSelector)() as jest.Mocked<BattleSquaddieSelector>;
         mockSquaddieSelector.update = jest.fn();
         mockSquaddieSelector.mouseEventHappened = jest.fn();
+        mockSquaddieSelector.keyEventHappened = jest.fn();
         mockSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
         mockSquaddieSelector.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
 
@@ -100,6 +101,7 @@ describe('Battle Orchestrator', () => {
         mockMapDisplay = new (<new () => BattleMapDisplay>BattleMapDisplay)() as jest.Mocked<BattleMapDisplay>;
         mockMapDisplay.update = jest.fn();
         mockMapDisplay.mouseEventHappened = jest.fn();
+        mockMapDisplay.keyEventHappened = jest.fn();
         mockMapDisplay.hasCompleted = jest.fn().mockReturnValue(true);
         mockMapDisplay.draw = jest.fn();
 
@@ -417,5 +419,32 @@ describe('Battle Orchestrator', () => {
         squaddieSelectorOrchestratorShouldDisplayMap.mouseClicked(stateWantsToDisplayTheMap, 0, 0);
         expect(component.mouseEventHappened).toBeCalledTimes(2);
         expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2);
+    }
+
+    it('will call key pressed events in battle map display during squaddie selection mode', () => {
+        expectKeyEventsWillGoToMapDisplay(
+            createOrchestrator({
+                squaddieSelector: mockSquaddieSelector,
+                initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+            }),
+            mockSquaddieSelector,
+        );
+    });
+
+    const expectKeyEventsWillGoToMapDisplay = (
+        squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator,
+        component: OrchestratorComponent
+    ) => {
+        const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({
+            displayMap: true,
+        });
+
+        squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
+        expect(component.keyEventHappened).toBeCalledTimes(1);
+        expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(1);
+
+        squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
+        expect(component.keyEventHappened).toBeCalledTimes(2);
+        expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2);
     }
 });

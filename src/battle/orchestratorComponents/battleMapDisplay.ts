@@ -1,6 +1,7 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/orchestratorComponent";
@@ -36,6 +37,9 @@ export class BattleMapDisplay implements OrchestratorComponent {
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
             this.moveCameraBasedOnMouseMovement(state, event.mouseX, event.mouseY);
         }
+    }
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
     moveCameraBasedOnMouseMovement(state: OrchestratorState, mouseX: number, mouseY: number) {

@@ -6,7 +6,11 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {OrchestratorChanges, OrchestratorComponentMouseEventType} from "../orchestrator/orchestratorComponent";
+import {
+    OrchestratorChanges,
+    OrchestratorComponentKeyEventType,
+    OrchestratorComponentMouseEventType
+} from "../orchestrator/orchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
@@ -917,5 +921,31 @@ describe('BattleSquaddieSelector', () => {
             expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
+    });
+
+    it('will send key pressed events to the HUD', () => {
+        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+
+        const camera: BattleCamera = new BattleCamera();
+
+        let mockHud = mocks.battleSquaddieSelectedHUD();
+        mockHud.keyPressed = jest.fn();
+
+        const state: OrchestratorState = new OrchestratorState({
+            missionMap,
+            squaddieRepo,
+            camera,
+            battleSquaddieSelectedHUD: mockHud,
+            hexMap: missionMap.terrainTileMap,
+            battlePhaseTracker,
+            pathfinder: new Pathfinder(),
+        });
+
+        selector.keyEventHappened(state, {
+            eventType: OrchestratorComponentKeyEventType.PRESSED,
+            keyCode: 0,
+        });
+
+        expect(mockHud.keyPressed).toHaveBeenCalled();
     });
 });

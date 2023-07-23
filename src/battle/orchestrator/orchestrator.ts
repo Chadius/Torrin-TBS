@@ -2,6 +2,8 @@ import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
+    OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "./orchestratorComponent";
@@ -191,6 +193,21 @@ export class Orchestrator {
             state.displayMap === true
         ) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent);
+        }
+    }
+
+    public keyPressed(state: OrchestratorState, keyCode: number) {
+        const keyEvent: OrchestratorComponentKeyEvent = {
+            eventType: OrchestratorComponentKeyEventType.PRESSED,
+            keyCode,
+        }
+        this.getCurrentComponent().keyEventHappened(state, keyEvent);
+
+        if (
+            modesThatCanScrollTheMap.includes(this.mode) &&
+            state.displayMap === true
+        ) {
+            this.mapDisplay.keyEventHappened(state, keyEvent);
         }
     }
 

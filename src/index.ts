@@ -141,6 +141,10 @@ export const sketch = (p: p5) => {
         battleOrchestrator.update(battleOrchestratorState, p);
     }
 
+    p.keyPressed = () => {
+        battleOrchestrator.keyPressed(battleOrchestratorState, p.keyCode);
+    }
+
     p.mouseClicked = () => {
         battleOrchestrator.mouseClicked(battleOrchestratorState, p.mouseX, p.mouseY);
     }

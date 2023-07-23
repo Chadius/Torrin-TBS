@@ -1,6 +1,7 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/orchestratorComponent";
@@ -24,6 +25,9 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
             state.currentCutscene.mouseClicked(event.mouseX, event.mouseY);
             return;
         }
+    }
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
     update(state: OrchestratorState, p: p5): void {

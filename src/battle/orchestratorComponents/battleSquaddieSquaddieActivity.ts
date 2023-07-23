@@ -1,6 +1,7 @@
 import {
     OrchestratorChanges,
     OrchestratorComponent,
+    OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/orchestratorComponent";
@@ -51,6 +52,9 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             this.clickedToCancelActivity = true;
         }
+    }
+
+    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
