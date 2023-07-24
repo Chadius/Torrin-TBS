@@ -21,6 +21,7 @@ import * as orchestratorUtils from "../orchestratorComponents/orchestratorUtils"
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
 import * as mocks from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {UIControlSettings} from "./uiControlSettings";
 
 
 describe('Battle Orchestrator', () => {
@@ -58,16 +59,19 @@ describe('Battle Orchestrator', () => {
 
         mockBattleMissionLoader = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
         mockBattleMissionLoader.update = jest.fn();
+        mockBattleMissionLoader.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockBattleMissionLoader.mouseEventHappened = jest.fn();
         mockBattleMissionLoader.hasCompleted = jest.fn().mockReturnValue(true);
 
         mockBattleCutscenePlayer = new (<new () => BattleCutscenePlayer>BattleCutscenePlayer)() as jest.Mocked<BattleCutscenePlayer>;
         mockBattleCutscenePlayer.update = jest.fn();
+        mockBattleCutscenePlayer.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockBattleCutscenePlayer.mouseEventHappened = jest.fn();
         mockBattleCutscenePlayer.hasCompleted = jest.fn().mockReturnValue(true);
 
         mockSquaddieSelector = new (<new () => BattleSquaddieSelector>BattleSquaddieSelector)() as jest.Mocked<BattleSquaddieSelector>;
         mockSquaddieSelector.update = jest.fn();
+        mockSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockSquaddieSelector.mouseEventHappened = jest.fn();
         mockSquaddieSelector.keyEventHappened = jest.fn();
         mockSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
@@ -75,22 +79,26 @@ describe('Battle Orchestrator', () => {
 
         mockSquaddieTarget = new (<new () => BattleSquaddieTarget>BattleSquaddieTarget)() as jest.Mocked<BattleSquaddieTarget>;
         mockSquaddieTarget.update = jest.fn();
+        mockSquaddieTarget.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockSquaddieTarget.mouseEventHappened = jest.fn();
         mockSquaddieTarget.hasCompleted = jest.fn().mockReturnValue(true);
         mockSquaddieTarget.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
 
         mockSquaddieMover = new (<new () => BattleSquaddieMover>BattleSquaddieMover)() as jest.Mocked<BattleSquaddieMover>;
         mockSquaddieMover.update = jest.fn();
+        mockSquaddieMover.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockSquaddieMover.mouseEventHappened = jest.fn();
         mockSquaddieMover.hasCompleted = jest.fn().mockReturnValue(true);
 
         mockSquaddieMapActivity = new (<new () => BattleSquaddieMapActivity>BattleSquaddieMapActivity)() as jest.Mocked<BattleSquaddieMapActivity>;
         mockSquaddieMapActivity.update = jest.fn();
+        mockSquaddieMapActivity.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockSquaddieMapActivity.mouseEventHappened = jest.fn();
         mockSquaddieMapActivity.hasCompleted = jest.fn().mockReturnValue(true);
 
         mockSquaddieSquaddieActivity = new (<new () => BattleSquaddieSquaddieActivity>BattleSquaddieSquaddieActivity)() as jest.Mocked<BattleSquaddieSquaddieActivity>;
         mockSquaddieSquaddieActivity.update = jest.fn();
+        mockSquaddieSquaddieActivity.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockSquaddieSquaddieActivity.mouseEventHappened = jest.fn();
         mockSquaddieSquaddieActivity.hasCompleted = jest.fn().mockReturnValue(true);
         (mockSquaddieSquaddieActivity as any).maybeEndSquaddieTurn = jest.fn();
@@ -100,6 +108,7 @@ describe('Battle Orchestrator', () => {
 
         mockMapDisplay = new (<new () => BattleMapDisplay>BattleMapDisplay)() as jest.Mocked<BattleMapDisplay>;
         mockMapDisplay.update = jest.fn();
+        mockMapDisplay.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockMapDisplay.mouseEventHappened = jest.fn();
         mockMapDisplay.keyEventHappened = jest.fn();
         mockMapDisplay.hasCompleted = jest.fn().mockReturnValue(true);
@@ -107,6 +116,7 @@ describe('Battle Orchestrator', () => {
 
         mockPhaseController = new (<new () => BattlePhaseController>BattlePhaseController)() as jest.Mocked<BattlePhaseController>;
         mockPhaseController.update = jest.fn();
+        mockPhaseController.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockPhaseController.mouseEventHappened = jest.fn();
         mockPhaseController.hasCompleted = jest.fn().mockReturnValue(true);
         mockPhaseController.draw = jest.fn();
@@ -158,6 +168,8 @@ describe('Battle Orchestrator', () => {
     it('waits for mission to complete loading before moving on to cutscene player', () => {
         const needsTwoUpdatesToFinishLoading = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
         needsTwoUpdatesToFinishLoading.update = jest.fn();
+        needsTwoUpdatesToFinishLoading.reset = jest.fn();
+        needsTwoUpdatesToFinishLoading.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         needsTwoUpdatesToFinishLoading.mouseEventHappened = jest.fn();
         needsTwoUpdatesToFinishLoading.hasCompleted = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
 
@@ -171,6 +183,8 @@ describe('Battle Orchestrator', () => {
         orchestrator.update(nullState, mockedP5);
         expect(needsTwoUpdatesToFinishLoading.update).toBeCalledTimes(2);
         expect(needsTwoUpdatesToFinishLoading.hasCompleted).toBeCalledTimes(2);
+        expect(needsTwoUpdatesToFinishLoading.uiControlSettings).toBeCalledTimes(2);
+        expect(needsTwoUpdatesToFinishLoading.reset).toBeCalledTimes(1);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
         expect(orchestrator.getCurrentComponent()).toBe(mockBattleCutscenePlayer);
     });
@@ -355,6 +369,7 @@ describe('Battle Orchestrator', () => {
     it('will use the recommended next mode to switch', () => {
         const battleLoaderRecommendsAMode = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
         battleLoaderRecommendsAMode.update = jest.fn();
+        battleLoaderRecommendsAMode.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         battleLoaderRecommendsAMode.mouseEventHappened = jest.fn();
         battleLoaderRecommendsAMode.hasCompleted = jest.fn().mockReturnValue(true);
         battleLoaderRecommendsAMode.recommendStateChanges = jest.fn().mockReturnValue({

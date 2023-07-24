@@ -17,6 +17,7 @@ import {BattlePhaseController} from "../orchestratorComponents/battlePhaseContro
 import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
 import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
+import {UIControlSettings} from "./uiControlSettings";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -36,7 +37,12 @@ const modesThatCanScrollTheMap: BattleOrchestratorMode[] = [
 ];
 
 export class Orchestrator {
+    get uiControlSettings(): UIControlSettings {
+        return this._uiControlSettings;
+    }
+
     mode: BattleOrchestratorMode;
+    private _uiControlSettings: UIControlSettings;
 
     missionLoader: BattleMissionLoader;
     cutscenePlayer: BattleCutscenePlayer;
@@ -70,6 +76,8 @@ export class Orchestrator {
         phaseController: BattlePhaseController,
     }) {
         this.mode = BattleOrchestratorMode.UNKNOWN;
+        this._uiControlSettings = new UIControlSettings({});
+
         this.missionLoader = missionLoader;
         this.cutscenePlayer = cutscenePlayer;
         this.squaddieSelector = squaddieSelector;
@@ -148,10 +156,14 @@ export class Orchestrator {
 
     public updateComponent(state: OrchestratorState, currentComponent: OrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode) {
         currentComponent.update(state, p);
+        const newUIControlSettingsChanges = currentComponent.uiControlSettings(state);
+        this.uiControlSettings.update(newUIControlSettingsChanges);
+
         if (currentComponent.hasCompleted(state)) {
             const orchestrationChanges: OrchestratorChanges = currentComponent.recommendStateChanges(state);
             this.mode = orchestrationChanges.nextMode || defaultNextMode;
 
+            // TODO get rid of this
             state.displayMap = orchestrationChanges.displayMap !== undefined
                 ? orchestrationChanges.displayMap
                 : true;

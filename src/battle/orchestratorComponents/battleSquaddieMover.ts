@@ -21,6 +21,7 @@ import {
     DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
 } from "./orchestratorUtils";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export class BattleSquaddieMover implements OrchestratorComponent {
     animationStartTime?: number;
@@ -40,6 +41,10 @@ export class BattleSquaddieMover implements OrchestratorComponent {
     }
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({});
     }
 
     update(state: OrchestratorState, p: p5): void {
