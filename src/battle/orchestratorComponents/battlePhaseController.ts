@@ -11,6 +11,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -50,6 +51,13 @@ export class BattlePhaseController implements OrchestratorComponent {
     }
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: false,
+            displayMap: true,
+        });
     }
 
     update(state: OrchestratorState, p: p5): void {

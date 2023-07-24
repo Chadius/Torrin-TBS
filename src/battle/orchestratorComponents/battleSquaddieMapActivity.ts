@@ -10,6 +10,7 @@ import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 const ACTIVITY_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -28,6 +29,13 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
     }
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            displayMap: true,
+            scrollCamera: false,
+        });
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {

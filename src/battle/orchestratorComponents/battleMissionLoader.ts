@@ -26,6 +26,7 @@ import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {DamageType} from "../../squaddie/squaddieService";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -306,6 +307,13 @@ export class BattleMissionLoader implements OrchestratorComponent {
     };
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: false,
+            displayMap: false,
+        });
     }
 
     hasCompleted(state: OrchestratorState): boolean {

@@ -41,6 +41,7 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
@@ -113,6 +114,13 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 }
             }
         }
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: true,
+            displayMap: true,
+        });
     }
 
     private updateBattleSquaddieUIMouseClicked(state: OrchestratorState, mouseX: number, mouseY: number) {

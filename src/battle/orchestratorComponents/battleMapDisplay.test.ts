@@ -32,7 +32,6 @@ describe('battleMapDisplay', () => {
         camera.setYVelocity = jest.fn();
 
         const state = new OrchestratorState({
-            displayMap: true,
             camera,
         });
         battleMapDisplay.mouseEventHappened(state, {
@@ -54,7 +53,6 @@ describe('battleMapDisplay', () => {
             camera = new BattleCamera(...initialCameraCoordinates)
 
             state = new OrchestratorState({
-                displayMap: true,
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -107,7 +105,6 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
             state = new OrchestratorState({
-                displayMap: true,
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -169,7 +166,6 @@ describe('battleMapDisplay', () => {
             camera = new BattleCamera(...initialCameraCoordinates)
 
             state = new OrchestratorState({
-                displayMap: true,
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -206,7 +202,6 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = new OrchestratorState({
-            displayMap: true,
             camera,
             squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
@@ -231,7 +226,6 @@ describe('battleMapDisplay', () => {
             camera = new BattleCamera(...initialCameraCoordinates)
 
             state = new OrchestratorState({
-                displayMap: true,
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -281,7 +275,6 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = new OrchestratorState({
-            displayMap: true,
             camera,
             squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,

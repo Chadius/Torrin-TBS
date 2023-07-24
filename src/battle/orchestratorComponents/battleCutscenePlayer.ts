@@ -7,6 +7,7 @@ import {
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export class BattleCutscenePlayer implements OrchestratorComponent {
     constructor() {
@@ -28,6 +29,12 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
     }
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: false,
+        });
     }
 
     update(state: OrchestratorState, p: p5): void {

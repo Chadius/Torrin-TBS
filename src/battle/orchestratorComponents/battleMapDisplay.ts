@@ -10,6 +10,7 @@ import p5 from "p5";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export class BattleMapDisplay implements OrchestratorComponent {
     draw(state: OrchestratorState, p: p5): void {
@@ -40,6 +41,10 @@ export class BattleMapDisplay implements OrchestratorComponent {
     }
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({});
     }
 
     moveCameraBasedOnMouseMovement(state: OrchestratorState, mouseX: number, mouseY: number) {

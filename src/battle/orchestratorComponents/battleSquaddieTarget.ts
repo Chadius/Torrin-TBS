@@ -24,6 +24,7 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ActivityResult} from "../history/activityResult";
 import {BattleSquaddieDynamic} from "../battleSquaddie";
 import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -77,6 +78,13 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
     }
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: !this.shouldDrawConfirmWindow(),
+            displayMap: true,
+        });
     }
 
     update(state: OrchestratorState, p: p5): void {

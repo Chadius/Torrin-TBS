@@ -17,6 +17,7 @@ import {BattlePhaseController} from "../orchestratorComponents/battlePhaseContro
 import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
 import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
+import {UIControlSettings} from "./uiControlSettings";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -30,13 +31,13 @@ export enum BattleOrchestratorMode {
     SQUADDIE_SQUADDIE_ACTIVITY = "SQUADDIE_SQUADDIE_ACTIVITY",
 }
 
-const modesThatCanScrollTheMap: BattleOrchestratorMode[] = [
-    BattleOrchestratorMode.SQUADDIE_SELECTOR,
-    BattleOrchestratorMode.SQUADDIE_TARGET,
-];
-
 export class Orchestrator {
+    get uiControlSettings(): UIControlSettings {
+        return this._uiControlSettings;
+    }
+
     mode: BattleOrchestratorMode;
+    private _uiControlSettings: UIControlSettings;
 
     missionLoader: BattleMissionLoader;
     cutscenePlayer: BattleCutscenePlayer;
@@ -70,6 +71,8 @@ export class Orchestrator {
         phaseController: BattlePhaseController,
     }) {
         this.mode = BattleOrchestratorMode.UNKNOWN;
+        this._uiControlSettings = new UIControlSettings({});
+
         this.missionLoader = missionLoader;
         this.cutscenePlayer = cutscenePlayer;
         this.squaddieSelector = squaddieSelector;
@@ -109,7 +112,7 @@ export class Orchestrator {
     }
 
     public update(state: OrchestratorState, p: p5) {
-        if (state.displayMap && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
+        if (this.uiControlSettings.displayBattleMap === true && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
             this.displayBattleMap(state, p);
         }
 
@@ -148,13 +151,12 @@ export class Orchestrator {
 
     public updateComponent(state: OrchestratorState, currentComponent: OrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode) {
         currentComponent.update(state, p);
+        const newUIControlSettingsChanges = currentComponent.uiControlSettings(state);
+        this.uiControlSettings.update(newUIControlSettingsChanges);
+
         if (currentComponent.hasCompleted(state)) {
             const orchestrationChanges: OrchestratorChanges = currentComponent.recommendStateChanges(state);
             this.mode = orchestrationChanges.nextMode || defaultNextMode;
-
-            state.displayMap = orchestrationChanges.displayMap !== undefined
-                ? orchestrationChanges.displayMap
-                : true;
             currentComponent.reset(state);
         }
     }
@@ -172,8 +174,7 @@ export class Orchestrator {
         )
 
         if (
-            modesThatCanScrollTheMap.includes(this.mode) &&
-            state.displayMap === true
+            this.uiControlSettings.letMouseScrollCamera === true
         ) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent);
         }
@@ -189,8 +190,7 @@ export class Orchestrator {
         this.getCurrentComponent().mouseEventHappened(state, mouseEvent);
 
         if (
-            modesThatCanScrollTheMap.includes(this.mode) &&
-            state.displayMap === true
+            this.uiControlSettings.letMouseScrollCamera === true
         ) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent);
         }
@@ -204,8 +204,7 @@ export class Orchestrator {
         this.getCurrentComponent().keyEventHappened(state, keyEvent);
 
         if (
-            modesThatCanScrollTheMap.includes(this.mode) &&
-            state.displayMap === true
+            this.uiControlSettings.displayBattleMap === true
         ) {
             this.mapDisplay.keyEventHappened(state, keyEvent);
         }
@@ -216,8 +215,6 @@ export class Orchestrator {
     }
 
     private displayBattleMap(state: OrchestratorState, p: p5) {
-        if (state.displayMap === true) {
-            this.mapDisplay.update(state, p);
-        }
+        this.mapDisplay.update(state, p);
     }
 }

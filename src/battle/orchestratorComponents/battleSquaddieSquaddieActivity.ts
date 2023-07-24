@@ -19,6 +19,7 @@ import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {Label} from "../../ui/label";
 import {FormatResult} from "../animation/activityResultTextWriter";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
@@ -55,6 +56,13 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     }
 
     keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: false,
+            displayMap: true,
+        });
     }
 
     recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {

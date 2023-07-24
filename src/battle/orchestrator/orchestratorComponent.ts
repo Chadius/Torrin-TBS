@@ -1,6 +1,7 @@
 import {OrchestratorState} from "./orchestratorState";
 import p5 from "p5";
 import {BattleOrchestratorMode} from "./orchestrator";
+import {UIControlSettings} from "./uiControlSettings";
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -31,6 +32,8 @@ export type OrchestratorChanges = {
 
 export interface OrchestratorComponent {
     update(state: OrchestratorState, p: p5): void;
+
+    uiControlSettings(state: OrchestratorState): UIControlSettings;
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void;
 
