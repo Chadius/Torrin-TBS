@@ -31,11 +31,6 @@ export enum BattleOrchestratorMode {
     SQUADDIE_SQUADDIE_ACTIVITY = "SQUADDIE_SQUADDIE_ACTIVITY",
 }
 
-const modesThatCanScrollTheMap: BattleOrchestratorMode[] = [
-    BattleOrchestratorMode.SQUADDIE_SELECTOR,
-    BattleOrchestratorMode.SQUADDIE_TARGET,
-];
-
 export class Orchestrator {
     get uiControlSettings(): UIControlSettings {
         return this._uiControlSettings;
@@ -117,7 +112,7 @@ export class Orchestrator {
     }
 
     public update(state: OrchestratorState, p: p5) {
-        if (state.displayMap && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
+        if (this.uiControlSettings.displayMap === true && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
             this.displayBattleMap(state, p);
         }
 
@@ -162,11 +157,6 @@ export class Orchestrator {
         if (currentComponent.hasCompleted(state)) {
             const orchestrationChanges: OrchestratorChanges = currentComponent.recommendStateChanges(state);
             this.mode = orchestrationChanges.nextMode || defaultNextMode;
-
-            // TODO get rid of this
-            state.displayMap = orchestrationChanges.displayMap !== undefined
-                ? orchestrationChanges.displayMap
-                : true;
             currentComponent.reset(state);
         }
     }
@@ -184,8 +174,7 @@ export class Orchestrator {
         )
 
         if (
-            modesThatCanScrollTheMap.includes(this.mode) &&
-            state.displayMap === true
+            this.uiControlSettings.scrollCamera === true
         ) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent);
         }
@@ -201,8 +190,7 @@ export class Orchestrator {
         this.getCurrentComponent().mouseEventHappened(state, mouseEvent);
 
         if (
-            modesThatCanScrollTheMap.includes(this.mode) &&
-            state.displayMap === true
+            this.uiControlSettings.scrollCamera === true
         ) {
             this.mapDisplay.mouseEventHappened(state, mouseEvent);
         }
@@ -216,8 +204,7 @@ export class Orchestrator {
         this.getCurrentComponent().keyEventHappened(state, keyEvent);
 
         if (
-            modesThatCanScrollTheMap.includes(this.mode) &&
-            state.displayMap === true
+            this.uiControlSettings.displayMap === true
         ) {
             this.mapDisplay.keyEventHappened(state, keyEvent);
         }
@@ -228,8 +215,6 @@ export class Orchestrator {
     }
 
     private displayBattleMap(state: OrchestratorState, p: p5) {
-        if (state.displayMap === true) {
-            this.mapDisplay.update(state, p);
-        }
+        this.mapDisplay.update(state, p);
     }
 }

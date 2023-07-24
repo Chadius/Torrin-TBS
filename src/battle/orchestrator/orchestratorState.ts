@@ -21,7 +21,6 @@ export class OrchestratorState {
     resourceHandler: ResourceHandler;
     missionMap: MissionMap;
     hexMap: TerrainTileMap;
-    displayMap: boolean;
     pathfinder: Pathfinder;
     squaddieRepository: BattleSquaddieRepository;
     battlePhaseTracker: BattlePhaseTracker;
@@ -37,7 +36,6 @@ export class OrchestratorState {
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 
     constructor(options: {
-        displayMap?: boolean;
         bannerDisplayAnimationStartTime?: number;
         bannerAffiliationToShow?: BattlePhase;
         resourceHandler?: ResourceHandler;
@@ -57,10 +55,8 @@ export class OrchestratorState {
         battleEventRecording?: Recording;
         teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] }
     }) {
-        this.displayMap = options.displayMap || false;
         this.resourceHandler = options.resourceHandler;
         this.hexMap = options.hexMap;
-        this.displayMap = options.displayMap;
         this.missionMap = options.missionMap;
         this.pathfinder = options.pathfinder;
         this.squaddieRepository = options.squaddieRepo;
