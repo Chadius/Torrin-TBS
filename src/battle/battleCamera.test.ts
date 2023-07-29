@@ -44,6 +44,20 @@ describe('BattleCamera', () => {
         expect(camera.getVelocity()[1]).toBe(0);
     });
 
+    it('no horizontal scrolling if the map has only a few columns', () => {
+        const camera: BattleCamera = new BattleCamera(2 * ScreenDimensions.SCREEN_WIDTH, 0);
+        camera.setXVelocity(-100);
+        camera.setMapDimensionBoundaries(3, 3);
+
+        camera.constrainCamera();
+
+        const topLeftTile = convertMapCoordinatesToWorldCoordinates(0, 0);
+        const bottomRightTile = convertMapCoordinatesToWorldCoordinates(3, 3);
+
+        expect(camera.getCoordinates()[0]).toBe((topLeftTile[0] + bottomRightTile[0]) / 2);
+        expect(camera.getVelocity()[0]).toBe(0);
+    });
+
     it('can be constrained so it cannot scroll too far to the left', () => {
         const worldLocationOfBoundary: [number, number] = convertMapCoordinatesToWorldCoordinates(2, 0);
         const camera: BattleCamera = new BattleCamera(-ScreenDimensions.SCREEN_WIDTH * 2, worldLocationOfBoundary[1]);

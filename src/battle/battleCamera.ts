@@ -1,9 +1,7 @@
 import {assertsInteger, assertsNonNegativeNumber} from "../utils/mathAssert";
-import {
-    convertMapCoordinatesToWorldCoordinates,
-    convertWorldCoordinatesToMapCoordinates
-} from "../hexMap/convertCoordinates";
+import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../utils/graphicsConfig";
+import {RectArea} from "../ui/rectArea";
 
 export type PanningInformation = {
     xStartCoordinate: number,
@@ -82,26 +80,26 @@ export class BattleCamera {
             return;
         }
 
-        const bottomOfLastRow: number = convertMapCoordinatesToWorldCoordinates(
-            this.mapDimensionBoundaries.numberOfRows,
-            0,
-        )[1];
-
-        if (bottomOfLastRow < ScreenDimensions.SCREEN_HEIGHT) {
-            this.yCoord = bottomOfLastRow / 2;
+        const {
+            coordinateLimits,
+            worldLocationOfStartOfFirstRow,
+            worldLocationOfEndOfLastRow,
+        } = this.getCameraBoundaries();
+        const mapVerticallyFitsOnScreen = worldLocationOfStartOfFirstRow[1] >= 0 && worldLocationOfEndOfLastRow[1] <= ScreenDimensions.SCREEN_HEIGHT;
+        if (mapVerticallyFitsOnScreen) {
+            this.yCoord = (worldLocationOfStartOfFirstRow[1] + worldLocationOfEndOfLastRow[1]) / 2;
             this.setYVelocity(0);
             return;
         }
 
-        const topOfFirstRow: number = 0;
-        if (this.yCoord < topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2) {
-            this.yCoord = topOfFirstRow - verticalCameraBuffer + ScreenDimensions.SCREEN_HEIGHT / 2;
+        if (this.yCoord < coordinateLimits.top) {
+            this.yCoord = coordinateLimits.top;
             this.setYVelocity(0);
             return;
         }
 
-        if (this.yCoord > bottomOfLastRow + verticalCameraBuffer - ScreenDimensions.SCREEN_HEIGHT / 2) {
-            this.yCoord = bottomOfLastRow + verticalCameraBuffer - ScreenDimensions.SCREEN_HEIGHT / 2;
+        if (this.yCoord > coordinateLimits.bottom) {
+            this.yCoord = coordinateLimits.bottom;
             this.setYVelocity(0);
             return;
         }
@@ -112,21 +110,26 @@ export class BattleCamera {
             return;
         }
 
-        const currentMapCoordinateCameraIsPointingAt: [number, number] = convertWorldCoordinatesToMapCoordinates(
-            ...this.getCoordinates(), false
-        );
-        const horizontalCameraBuffer = ScreenDimensions.SCREEN_WIDTH / 10;
-
-        const worldLocationOfLeftSide: [number, number] = convertMapCoordinatesToWorldCoordinates(currentMapCoordinateCameraIsPointingAt[0], 0);
-        if (this.xCoord < worldLocationOfLeftSide[0] + horizontalCameraBuffer) {
-            this.xCoord = worldLocationOfLeftSide[0] + horizontalCameraBuffer;
+        const {
+            coordinateLimits,
+            worldLocationOfStartOfFirstRow,
+            worldLocationOfEndOfLastRow,
+        } = this.getCameraBoundaries();
+        const doesMapFitHorizontallyOnScreen = worldLocationOfStartOfFirstRow[0] >= 0 && worldLocationOfEndOfLastRow[0] <= ScreenDimensions.SCREEN_WIDTH;
+        if (doesMapFitHorizontallyOnScreen) {
+            this.xCoord = (worldLocationOfStartOfFirstRow[0] + worldLocationOfEndOfLastRow[0]) / 2;
             this.setXVelocity(0);
             return;
         }
 
-        const worldLocationOfRightSide: [number, number] = convertMapCoordinatesToWorldCoordinates(currentMapCoordinateCameraIsPointingAt[0], this.mapDimensionBoundaries.widthOfWidestRow);
-        if (this.xCoord > worldLocationOfRightSide[0] - horizontalCameraBuffer) {
-            this.xCoord = worldLocationOfRightSide[0] - horizontalCameraBuffer;
+        if (this.xCoord < coordinateLimits.left) {
+            this.xCoord = coordinateLimits.left;
+            this.setXVelocity(0);
+            return;
+        }
+
+        if (this.xCoord > coordinateLimits.right) {
+            this.xCoord = coordinateLimits.right;
             this.setXVelocity(0);
             return;
         }
@@ -145,15 +148,75 @@ export class BattleCamera {
         };
     }
 
-    pan(panInfo: { yDestination: number; xDestination: number; timeToPan: number, respectConstraints: boolean }) {
+    private getCameraBoundaries(): {
+        coordinateLimits: RectArea,
+        worldLocationOfStartOfFirstRow: [number, number],
+        worldLocationOfEndOfLastRow: [number, number],
+    } {
+        if (!this.mapDimensionBoundaries) {
+            return {
+                coordinateLimits: new RectArea({
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                }),
+                worldLocationOfStartOfFirstRow: [0, 0],
+                worldLocationOfEndOfLastRow: [0, 0],
+            };
+        }
+
+        const horizontalCameraBuffer = ScreenDimensions.SCREEN_WIDTH / 10;
+        const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10;
+
+        const worldLocationOfStartOfFirstRow: [number, number] = convertMapCoordinatesToWorldCoordinates(0, 0);
+        const worldLocationOfEndOfLastRow: [number, number] = convertMapCoordinatesToWorldCoordinates(this.mapDimensionBoundaries.numberOfRows, this.mapDimensionBoundaries.widthOfWidestRow);
+
+        return {
+            coordinateLimits: new RectArea({
+                left: worldLocationOfStartOfFirstRow[0] + horizontalCameraBuffer,
+                right: worldLocationOfEndOfLastRow[0] - horizontalCameraBuffer,
+                top: worldLocationOfStartOfFirstRow[1] - verticalCameraBuffer + (ScreenDimensions.SCREEN_HEIGHT / 2),
+                bottom: worldLocationOfEndOfLastRow[1] + verticalCameraBuffer - (ScreenDimensions.SCREEN_HEIGHT / 2),
+            }),
+            worldLocationOfStartOfFirstRow,
+            worldLocationOfEndOfLastRow,
+        };
+    }
+
+    pan({respectConstraints, timeToPan, xDestination, yDestination}: {
+        yDestination: number;
+        xDestination: number;
+        timeToPan: number,
+        respectConstraints: boolean
+    }) {
+
+        if (this.mapDimensionBoundaries) {
+            const {coordinateLimits} = this.getCameraBoundaries();
+
+            if (xDestination < coordinateLimits.left) {
+                xDestination = coordinateLimits.left;
+            }
+            if (xDestination > coordinateLimits.right) {
+                xDestination = coordinateLimits.right;
+            }
+
+            if (yDestination < coordinateLimits.top) {
+                yDestination = coordinateLimits.top;
+            }
+            if (yDestination > coordinateLimits.bottom) {
+                yDestination = coordinateLimits.bottom;
+            }
+        }
+
         this.panningInformation = {
             xStartCoordinate: this.xCoord,
             yStartCoordinate: this.yCoord,
-            xDestination: panInfo.xDestination,
-            yDestination: panInfo.yDestination,
-            timeToPan: panInfo.timeToPan,
+            xDestination: xDestination,
+            yDestination: yDestination,
+            timeToPan: timeToPan,
             panStartTime: Date.now(),
-            respectConstraints: panInfo.respectConstraints,
+            respectConstraints: respectConstraints,
         }
     }
 
