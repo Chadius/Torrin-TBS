@@ -12,10 +12,10 @@ import {getResultOrThrowError, ResultOrError} from "../../utils/ResultOrError";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {createMapAndPathfinder, createSquaddieMovements, validateTilesAreFound} from "./pathfinder_test_utils";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
-import {addSquaddieToSquaddieRepository} from "../../utils/test/squaddieRepository";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('pathfinder and squaddies', () => {
     let squaddieMovementOneMovementPerAction: SquaddieMovement;
@@ -102,13 +102,13 @@ describe('pathfinder and squaddies', () => {
             });
             missionMap.addSquaddie(blockingSquaddie.staticId, "dynamic_0", new HexCoordinate({q: 0, r: 1}));
             let squaddieRepository = new BattleSquaddieRepository();
-            addSquaddieToSquaddieRepository(
-                "blocker",
-                "dynamic_0",
-                "blocker",
-                blockingAffiliation,
+            CreateNewSquaddieAndAddToRepository({
+                staticId: "blocker",
+                dynamicId: "dynamic_0",
+                name: "blocker",
+                affiliation: blockingAffiliation,
                 squaddieRepository
-            );
+            });
 
             const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 ...baseSearchParamOptions,
@@ -266,37 +266,37 @@ describe('pathfinder and squaddies', () => {
         missionMap.addSquaddie("ally", "ally_dynamic_0", new HexCoordinate({q: 0, r: 2}));
         missionMap.addSquaddie("none", "none_dynamic_0", new HexCoordinate({q: 0, r: 3}));
 
-        addSquaddieToSquaddieRepository(
-            "player",
-            "player_dynamic_0",
-            "player",
-            SquaddieAffiliation.PLAYER,
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "player",
+            dynamicId: "player_dynamic_0",
+            name: "player",
+            affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
-        );
+        });
 
-        addSquaddieToSquaddieRepository(
-            "enemy",
-            "enemy_dynamic_0",
-            "enemy",
-            SquaddieAffiliation.ENEMY,
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "enemy",
+            dynamicId: "enemy_dynamic_0",
+            name: "enemy",
+            affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
-        );
+        });
 
-        addSquaddieToSquaddieRepository(
-            "ally",
-            "ally_dynamic_0",
-            "ally",
-            SquaddieAffiliation.ALLY,
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "ally",
+            dynamicId: "ally_dynamic_0",
+            name: "ally",
+            affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository,
-        );
+        });
 
-        addSquaddieToSquaddieRepository(
-            "none",
-            "none_dynamic_0",
-            "none",
-            SquaddieAffiliation.NONE,
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "none",
+            dynamicId: "none_dynamic_0",
+            name: "none",
+            affiliation: SquaddieAffiliation.NONE,
             squaddieRepository,
-        );
+        });
 
 
         const allTilesOnMap: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
@@ -341,13 +341,13 @@ describe('pathfinder and squaddies', () => {
 
         let squaddieRepository = new BattleSquaddieRepository();
 
-        addSquaddieToSquaddieRepository(
-            "enemy",
-            "dynamic_0",
-            "enemy",
-            SquaddieAffiliation.ENEMY,
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "enemy",
+            dynamicId: "dynamic_0",
+            name: "enemy",
+            affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository
-        );
+        });
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             missionMap: missionMap,
@@ -400,13 +400,13 @@ describe('pathfinder and squaddies', () => {
         let squaddieRepository = new BattleSquaddieRepository();
 
         const {dynamicSquaddie: enemyDynamic, staticSquaddie: enemyStatic}
-            = addSquaddieToSquaddieRepository(
-            "enemy",
-            "dynamic_0",
-            "enemy",
-            SquaddieAffiliation.ENEMY,
+            = CreateNewSquaddieAndAddToRepository({
+            staticId: "enemy",
+            dynamicId: "dynamic_0",
+            name: "enemy",
+            affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository
-        );
+        });
         DealDamageToTheSquaddie({
             staticSquaddie: enemyStatic,
             dynamicSquaddie: enemyDynamic,
@@ -461,34 +461,34 @@ describe('pathfinder and squaddies', () => {
         missionMap.addSquaddie("ally_far_away", "ally_far_away_dynamic_0", new HexCoordinate({q: 0, r: 8}));
 
         let squaddieRepository = new BattleSquaddieRepository();
-        addSquaddieToSquaddieRepository(
-            "enemy_nearby",
-            "enemy_nearby_dynamic_0",
-            "enemy_nearby_enemy",
-            SquaddieAffiliation.ENEMY,
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "enemy_nearby",
+            dynamicId: "enemy_nearby_dynamic_0",
+            name: "enemy_nearby_enemy",
+            affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository
-        );
-        addSquaddieToSquaddieRepository(
-            "ally_flanking",
-            "ally_flanking_dynamic_0",
-            "ally_flanking_enemy",
-            SquaddieAffiliation.ALLY,
+        });
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "ally_flanking",
+            dynamicId: "ally_flanking_dynamic_0",
+            name: "ally_flanking_enemy",
+            affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository
-        );
-        addSquaddieToSquaddieRepository(
-            "ally_at_the_edge",
-            "ally_at_the_edge_dynamic_0",
-            "ally_at_the_edge_enemy",
-            SquaddieAffiliation.ALLY,
+        });
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "ally_at_the_edge",
+            dynamicId: "ally_at_the_edge_dynamic_0",
+            name: "ally_at_the_edge_enemy",
+            affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository
-        );
-        addSquaddieToSquaddieRepository(
-            "ally_far_away",
-            "ally_far_away_dynamic_0",
-            "ally_far_away_enemy",
-            SquaddieAffiliation.ALLY,
+        });
+        CreateNewSquaddieAndAddToRepository({
+            staticId: "ally_far_away",
+            dynamicId: "ally_far_away_dynamic_0",
+            name: "ally_far_away_enemy",
+            affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository
-        );
+        });
 
 
         const searchResults: SearchResults =

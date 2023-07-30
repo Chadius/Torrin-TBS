@@ -4,7 +4,6 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
-import {addSquaddieToSquaddieRepository} from "../../utils/test/squaddieRepository";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
@@ -12,6 +11,8 @@ import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 describe('move towards closest squaddie in range', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -30,39 +31,41 @@ describe('move towards closest squaddie in range', () => {
         ({
             staticSquaddie: targetSquaddieStatic,
             dynamicSquaddie: targetSquaddieDynamic
-        } = addSquaddieToSquaddieRepository(
-            "target_squaddie",
-            "target_squaddie_0",
-            "Target",
-            SquaddieAffiliation.PLAYER,
+        } = CreateNewSquaddieAndAddToRepository({
+            staticId: "target_squaddie",
+            dynamicId: "target_squaddie_0",
+            name: "Target",
+            affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
-        ));
+        }));
 
         ({
             staticSquaddie: ignoredSquaddieStatic,
             dynamicSquaddie: ignoredSquaddieDynamic
-        } = addSquaddieToSquaddieRepository(
-            "ignored_squaddie",
-            "ignored_squaddie_0",
-            "Ignored",
-            SquaddieAffiliation.PLAYER,
+        } = CreateNewSquaddieAndAddToRepository({
+            staticId: "ignored_squaddie",
+            dynamicId: "ignored_squaddie_0",
+            name: "Ignored",
+            affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
-        ));
+        }));
 
         ({
             staticSquaddie: searchingSquaddieStatic,
             dynamicSquaddie: searchingSquaddieDynamic
-        } = addSquaddieToSquaddieRepository(
-            "searching_squaddie",
-            "searching_squaddie_0",
-            "Searching",
-            SquaddieAffiliation.ALLY,
+        } = CreateNewSquaddieAndAddToRepository({
+            staticId: "searching_squaddie",
+            dynamicId: "searching_squaddie_0",
+            name: "Searching",
+            affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository,
-            new SquaddieMovement({
-                movementPerAction: 1,
-                traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+            attributes: new ArmyAttributes({
+                movement: new SquaddieMovement({
+                    movementPerAction: 1,
+                    traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+                })
             })
-        ));
+        }));
 
         allyTeam = new BattleSquaddieTeam({
             name: "team",

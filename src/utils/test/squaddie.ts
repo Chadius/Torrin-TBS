@@ -8,6 +8,7 @@ import {SquaddieTurn} from "../../squaddie/turn";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import * as mocks from "./mocks";
+import {SquaddieMovement} from "../../squaddie/movement";
 
 export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation) => {
     return new SquaddieId({
