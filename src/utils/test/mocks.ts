@@ -19,6 +19,9 @@ jest.mock('p5', () => () => {
         tint: jest.fn(),
         noTint: jest.fn(),
         image: jest.fn(),
+        stroke: jest.fn(),
+        strokeWeight: jest.fn(),
+        rect: jest.fn(),
     }
 });
 

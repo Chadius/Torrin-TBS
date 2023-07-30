@@ -2,7 +2,7 @@ import {BattleOrchestratorMode, Orchestrator} from "./orchestrator";
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
-import {BattleSquaddieSelector} from "../orchestratorComponents/battleSquaddieSelector";
+import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
@@ -11,7 +11,7 @@ import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
+import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {OrchestratorComponent} from "./orchestratorComponent";
@@ -21,18 +21,20 @@ import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSq
 import * as mocks from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
+import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
         missionLoader: BattleMissionLoader;
         cutscenePlayer: BattleCutscenePlayer;
-        squaddieSelector: BattleSquaddieSelector;
+        playerSquaddieSelector: BattlePlayerSquaddieSelector;
+        computerSquaddieSelector: BattleComputerSquaddieSelector;
         squaddieMapActivity: BattleSquaddieMapActivity;
         squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
         squaddieMover: BattleSquaddieMover;
         phaseController: BattlePhaseController;
-        squaddieTarget: BattleSquaddieTarget;
+        playerSquaddieTarget: BattlePlayerSquaddieTarget;
 
         initialMode: BattleOrchestratorMode;
     }
@@ -41,8 +43,9 @@ describe('Battle Orchestrator', () => {
 
     let mockBattleMissionLoader: BattleMissionLoader;
     let mockBattleCutscenePlayer: BattleCutscenePlayer;
-    let mockSquaddieSelector: BattleSquaddieSelector;
-    let mockSquaddieTarget: BattleSquaddieTarget;
+    let mockPlayerSquaddieSelector: BattlePlayerSquaddieSelector;
+    let mockPlayerSquaddieTarget: BattlePlayerSquaddieTarget;
+    let mockComputerSquaddieSelector: BattleComputerSquaddieSelector;
     let mockSquaddieMapActivity: BattleSquaddieMapActivity;
     let mockSquaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
     let mockSquaddieMover: BattleSquaddieMover;
@@ -68,26 +71,37 @@ describe('Battle Orchestrator', () => {
         mockBattleCutscenePlayer.mouseEventHappened = jest.fn();
         mockBattleCutscenePlayer.hasCompleted = jest.fn().mockReturnValue(true);
 
-        mockSquaddieSelector = new (<new () => BattleSquaddieSelector>BattleSquaddieSelector)() as jest.Mocked<BattleSquaddieSelector>;
-        mockSquaddieSelector.update = jest.fn();
-        mockSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({
+        mockPlayerSquaddieSelector = new (<new () => BattlePlayerSquaddieSelector>BattlePlayerSquaddieSelector)() as jest.Mocked<BattlePlayerSquaddieSelector>;
+        mockPlayerSquaddieSelector.update = jest.fn();
+        mockPlayerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({
             displayMap: true,
             scrollCamera: true,
         }));
-        mockSquaddieSelector.mouseEventHappened = jest.fn();
-        mockSquaddieSelector.keyEventHappened = jest.fn();
-        mockSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
-        mockSquaddieSelector.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
+        mockPlayerSquaddieSelector.mouseEventHappened = jest.fn();
+        mockPlayerSquaddieSelector.keyEventHappened = jest.fn();
+        mockPlayerSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
+        mockPlayerSquaddieSelector.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
 
-        mockSquaddieTarget = new (<new () => BattleSquaddieTarget>BattleSquaddieTarget)() as jest.Mocked<BattleSquaddieTarget>;
-        mockSquaddieTarget.update = jest.fn();
-        mockSquaddieTarget.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({
+        mockPlayerSquaddieTarget = new (<new () => BattlePlayerSquaddieTarget>BattlePlayerSquaddieTarget)() as jest.Mocked<BattlePlayerSquaddieTarget>;
+        mockPlayerSquaddieTarget.update = jest.fn();
+        mockPlayerSquaddieTarget.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({
             displayMap: true,
             scrollCamera: true,
         }));
-        mockSquaddieTarget.mouseEventHappened = jest.fn();
-        mockSquaddieTarget.hasCompleted = jest.fn().mockReturnValue(true);
-        mockSquaddieTarget.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
+        mockPlayerSquaddieTarget.mouseEventHappened = jest.fn();
+        mockPlayerSquaddieTarget.hasCompleted = jest.fn().mockReturnValue(true);
+        mockPlayerSquaddieTarget.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
+
+        mockComputerSquaddieSelector = new (<new () => BattleComputerSquaddieSelector>BattleComputerSquaddieSelector)() as jest.Mocked<BattleComputerSquaddieSelector>;
+        mockComputerSquaddieSelector.update = jest.fn();
+        mockComputerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({
+            displayMap: true,
+            scrollCamera: false,
+        }));
+        mockComputerSquaddieSelector.mouseEventHappened = jest.fn();
+        mockComputerSquaddieSelector.keyEventHappened = jest.fn();
+        mockComputerSquaddieSelector.hasCompleted = jest.fn().mockReturnValue(true);
+        mockComputerSquaddieSelector.recommendStateChanges = jest.fn().mockReturnValue({displayMap: true});
 
         mockSquaddieMover = new (<new () => BattleSquaddieMover>BattleSquaddieMover)() as jest.Mocked<BattleSquaddieMover>;
         mockSquaddieMover.update = jest.fn();
@@ -146,11 +160,12 @@ describe('Battle Orchestrator', () => {
             ...{
                 missionLoader: mockBattleMissionLoader,
                 cutscenePlayer: mockBattleCutscenePlayer,
-                squaddieSelector: mockSquaddieSelector,
+                playerSquaddieSelector: mockPlayerSquaddieSelector,
+                computerSquaddieSelector: mockComputerSquaddieSelector,
                 squaddieMapActivity: mockSquaddieMapActivity,
                 squaddieSquaddieActivity: mockSquaddieSquaddieActivity,
                 squaddieMover: mockSquaddieMover,
-                squaddieTarget: mockSquaddieTarget,
+                playerSquaddieTarget: mockPlayerSquaddieTarget,
                 mapDisplay: mockMapDisplay,
                 phaseController: mockPhaseController,
             },
@@ -225,16 +240,16 @@ describe('Battle Orchestrator', () => {
         });
 
         orchestrator.update(nullState, mockedP5);
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
-        expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieSelector);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
         orchestrator.update(nullState, mockedP5);
-        expect(mockSquaddieSelector.update).toBeCalledTimes(1);
-        expect(mockSquaddieSelector.hasCompleted).toBeCalledTimes(1);
+        expect(mockPlayerSquaddieSelector.update).toBeCalledTimes(1);
+        expect(mockPlayerSquaddieSelector.hasCompleted).toBeCalledTimes(1);
     });
 
     it('will move from squaddie selector mode to squaddie move mode', () => {
         orchestrator = createOrchestrator({
-            initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+            initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
         });
         const instruction: SquaddieInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
@@ -307,8 +322,9 @@ describe('Battle Orchestrator', () => {
                         [BattleOrchestratorMode.LOADING_MISSION]: mockBattleMissionLoader,
                         [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,
                         [BattleOrchestratorMode.PHASE_CONTROLLER]: mockPhaseController,
-                        [BattleOrchestratorMode.SQUADDIE_SELECTOR]: mockSquaddieSelector,
-                        [BattleOrchestratorMode.SQUADDIE_TARGET]: mockSquaddieTarget,
+                        [BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR]: mockPlayerSquaddieSelector,
+                        [BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET]: mockPlayerSquaddieTarget,
+                        [BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR]: mockComputerSquaddieSelector,
                         [BattleOrchestratorMode.SQUADDIE_MOVER]: mockSquaddieMover,
                         [BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY]: mockSquaddieMapActivity,
                         [BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY]: mockSquaddieSquaddieActivity,
@@ -378,8 +394,8 @@ describe('Battle Orchestrator', () => {
 
     it('will call mouse events in battle map display during squaddie selection mode', () => {
         const orchestrator = createOrchestrator({
-            squaddieSelector: mockSquaddieSelector,
-            initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+            playerSquaddieSelector: mockPlayerSquaddieSelector,
+            initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
         });
         orchestrator.uiControlSettings.update(new UIControlSettings({
             scrollCamera: true,
@@ -387,7 +403,7 @@ describe('Battle Orchestrator', () => {
 
         expectMouseEventsWillGoToMapDisplay(
             orchestrator,
-            mockSquaddieSelector,
+            mockPlayerSquaddieSelector,
         );
     });
 
@@ -408,8 +424,8 @@ describe('Battle Orchestrator', () => {
 
     it('will call key pressed events in battle map display during squaddie selection mode', () => {
         const orchestrator = createOrchestrator({
-            squaddieSelector: mockSquaddieSelector,
-            initialMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+            playerSquaddieSelector: mockPlayerSquaddieSelector,
+            initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
         });
         orchestrator.uiControlSettings.update(new UIControlSettings({
             scrollCamera: true,
@@ -418,7 +434,7 @@ describe('Battle Orchestrator', () => {
 
         expectKeyEventsWillGoToMapDisplay(
             orchestrator,
-            mockSquaddieSelector,
+            mockPlayerSquaddieSelector,
         );
     });
 

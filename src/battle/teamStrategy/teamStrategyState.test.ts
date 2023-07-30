@@ -33,15 +33,15 @@ describe('Team Strategy State', () => {
         });
 
         const state: TeamStrategyState = createDummyState(newInstruction);
-        expect(state.getInstruction()).toStrictEqual(newInstruction);
+        expect(state.instruction).toStrictEqual(newInstruction);
 
         state.reset();
-        expect(state.getInstruction()).toBeUndefined();
+        expect(state.instruction).toBeUndefined();
     });
 
     it('can set the instruction afterward', () => {
         const state: TeamStrategyState = createDummyState();
-        expect(state.getInstruction()).toBeUndefined();
+        expect(state.instruction).toBeUndefined();
 
         const newInstruction = new SquaddieInstruction({
             staticSquaddieId: "new static squaddie",
@@ -50,7 +50,7 @@ describe('Team Strategy State', () => {
         });
         state.setInstruction(newInstruction);
 
-        expect(state.getInstruction()).toStrictEqual(newInstruction);
+        expect(state.instruction).toStrictEqual(newInstruction);
 
     });
 });

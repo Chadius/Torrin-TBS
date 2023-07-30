@@ -89,7 +89,7 @@ export const drawSquaddieActions = (p: p5, staticSquaddie: BattleSquaddieStatic,
     numberOfActionsRect.draw(p);
 }
 
-export const tintSquaddieIfTurnIsComplete = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) => {
+export const TintSquaddieIfTurnIsComplete = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) => {
     let {
         canAct,
     } = CanSquaddieActRightNow({

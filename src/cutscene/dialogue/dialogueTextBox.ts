@@ -1,6 +1,7 @@
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
 import {WINDOW_SPACING2, WINDOW_SPACING4} from "../../ui/constants";
+import p5 from "p5";
 
 type Options = {
     text: string;

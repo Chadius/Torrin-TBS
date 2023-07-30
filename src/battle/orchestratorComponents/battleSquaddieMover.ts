@@ -9,7 +9,7 @@ import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {
     hasMovementAnimationFinished,
     moveSquaddieAlongPath,
-    tintSquaddieIfTurnIsComplete,
+    TintSquaddieIfTurnIsComplete,
     updateSquaddieIconLocation
 } from "../animation/drawSquaddie";
 import p5 from "p5";
@@ -99,7 +99,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
 
         if (dynamicSquaddie.mapIcon) {
             updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);
-            tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
+            TintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
             dynamicSquaddie.mapIcon.draw(p);
         }
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);

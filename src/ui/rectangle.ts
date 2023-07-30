@@ -1,4 +1,5 @@
 import {RectArea} from "./rectArea";
+import p5 from "p5";
 
 type RequiredOptions = {
     area: RectArea;

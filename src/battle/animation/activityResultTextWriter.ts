@@ -19,3 +19,16 @@ export const FormatResult = ({currentActivity, result, squaddieRepository}: {
 
     return output;
 }
+
+export const FormatIntent = ({currentActivity, actingDynamicId, squaddieRepository}: {
+    currentActivity: SquaddieActivity,
+    actingDynamicId: string,
+    squaddieRepository: BattleSquaddieRepository,
+}): string[] => {
+    const {staticSquaddie: actingStaticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(actingDynamicId))
+
+    let output: string[] = [];
+    output.push(`${actingStaticSquaddie.squaddieId.name} uses ${currentActivity.name}`);
+
+    return output;
+}

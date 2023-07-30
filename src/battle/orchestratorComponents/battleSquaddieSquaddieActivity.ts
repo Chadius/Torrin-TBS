@@ -7,12 +7,10 @@ import {
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
-import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
-    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
-    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
+    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation
 } from "./orchestratorUtils";
 import {RectArea} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
@@ -20,6 +18,7 @@ import {Label} from "../../ui/label";
 import {FormatResult} from "../animation/activityResultTextWriter";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
+import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
@@ -39,6 +38,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
         this.clickedToCancelActivity = false;
         this.outputTextStrings = [];
         this.sawResultAftermath = false;
+        this.outputTextDisplay = undefined;
     }
 
     hasCompleted(state: OrchestratorState): boolean {
@@ -46,7 +46,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     }
 
     private getAnimationCompleted() {
-        return (this.animationCompleteStartTime !== undefined && Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
+        return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
@@ -75,16 +75,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
         this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
-        this.maybeEndSquaddieTurn(state);
-    }
-
-    private maybeEndSquaddieTurn(state: OrchestratorState) {
-        const {
-            dynamicSquaddie: actingSquaddieDynamic,
-            staticSquaddie: actingSquaddieStatic
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-        tintSquaddieIfTurnIsComplete(actingSquaddieDynamic, actingSquaddieStatic);
+        MaybeEndSquaddieTurn(state);
     }
 
     update(state: OrchestratorState, p: p5): void {

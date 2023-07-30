@@ -148,7 +148,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         state.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 attributes: new ArmyAttributes({
-                    maxHitPoints: 5,
+                    maxHitPoints: 3,
                     armorClass: 2,
                     movement: new SquaddieMovement({
                         movementPerAction: 2,
@@ -191,7 +191,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
                     maxHitPoints: 1,
                     armorClass: -5,
                     movement: new SquaddieMovement({
-                        movementPerAction: 1,
+                        movementPerAction: 10,
                         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
                 }),
@@ -212,7 +212,10 @@ export class BattleMissionLoader implements OrchestratorComponent {
                         id: "demon_slither_bite",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                        damageDescriptions: {
+                            [DamageType.Body]: 1
+                        }
                     })
                 ],
             }),
@@ -224,7 +227,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         );
         state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 0, r: 0}));
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
-        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 2, r: 2}));
+        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 1, r: 0}));
 
         state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.PLAYER,

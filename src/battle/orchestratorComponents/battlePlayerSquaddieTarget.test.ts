@@ -1,5 +1,5 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieTarget} from "./battleSquaddieTarget";
+import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieActivity} from "../../squaddie/activity";
@@ -9,11 +9,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
-import {BattleCamera} from "../battleCamera";
-import {
-    convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates
-} from "../../hexMap/convertCoordinates";
+import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
@@ -34,22 +30,20 @@ import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
-    let targetComponent: BattleSquaddieTarget;
+    let targetComponent: BattlePlayerSquaddieTarget;
     let knightStatic: BattleSquaddieStatic;
     let knightDynamic: BattleSquaddieDynamic;
     let thiefStatic: BattleSquaddieStatic;
     let thiefDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
     let longswordActivity: SquaddieActivity;
-    let powerAttackLongswordActivity: SquaddieActivity;
     let state: OrchestratorState;
-    let camera: BattleCamera;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
-        targetComponent = new BattleSquaddieTarget();
+        targetComponent = new BattlePlayerSquaddieTarget();
         squaddieRepo = new BattleSquaddieRepository();
         battleMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -73,21 +67,6 @@ describe('BattleSquaddieTarget', () => {
             actionsToSpend: 1,
             damageDescriptions: {
                 [DamageType.Body]: 2,
-            },
-        });
-
-        powerAttackLongswordActivity = new SquaddieActivity({
-            name: "power attack longsword",
-            id: "powerAttackLongsword",
-            traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
-            minimumRange: 1,
-            maximumRange: 1,
-            actionsToSpend: 3,
-            damageDescriptions: {
-                [DamageType.Body]: 5,
             },
         });
 
@@ -142,8 +121,6 @@ describe('BattleSquaddieTarget', () => {
             pathfinder: new Pathfinder(),
             resourceHandler: mockResourceHandler,
         });
-
-        camera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
     });
 
     function clickOnThief() {
@@ -218,7 +195,7 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
-            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
+            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
         });
     });
 

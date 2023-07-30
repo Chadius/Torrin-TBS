@@ -4,13 +4,6 @@ import {getResultOrThrowError} from "../utils/ResultOrError";
 import {unTintSquaddieMapIcon} from "./animation/drawSquaddie";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../squaddie/squaddieService";
 
-export type BattleSquaddieTeamOptions = {
-    name: string;
-    affiliation: SquaddieAffiliation;
-    squaddieRepo: BattleSquaddieRepository;
-    dynamicSquaddieIds?: string[];
-}
-
 export class BattleSquaddieTeam {
     get affiliation(): SquaddieAffiliation {
         return this._affiliation;
@@ -21,7 +14,12 @@ export class BattleSquaddieTeam {
     squaddieRepo: BattleSquaddieRepository;
     dynamicSquaddieIds: string[];
 
-    constructor(options: BattleSquaddieTeamOptions) {
+    constructor(options: {
+        name: string;
+        affiliation: SquaddieAffiliation;
+        squaddieRepo: BattleSquaddieRepository;
+        dynamicSquaddieIds?: string[];
+    }) {
         this.name = options.name;
         this._affiliation = options.affiliation;
         this.squaddieRepo = options.squaddieRepo;

@@ -12,16 +12,14 @@ import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
 
-export type MoveCloserToSquaddieOptions = {
-    desiredDynamicSquaddieId?: string;
-    desiredAffiliation?: SquaddieAffiliation;
-}
-
 export class MoveCloserToSquaddie implements TeamStrategy {
     desiredDynamicSquaddieId: string;
     desiredAffiliation: SquaddieAffiliation;
 
-    constructor(options: MoveCloserToSquaddieOptions) {
+    constructor(options: {
+        desiredDynamicSquaddieId?: string;
+        desiredAffiliation?: SquaddieAffiliation;
+    }) {
         this.desiredDynamicSquaddieId = options.desiredDynamicSquaddieId;
         this.desiredAffiliation = options.desiredAffiliation;
     }
@@ -31,16 +29,17 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
 
-        const squaddiesWhoCanAct: string[] = state.getTeam().getDynamicSquaddiesThatCanAct();
+        const squaddiesWhoCanAct: string[] = state.team.getDynamicSquaddiesThatCanAct();
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
         }
 
-        const squaddieToAct = squaddiesWhoCanAct[0];
+        let squaddieToAct = this.getActingSquaddie(state, squaddiesWhoCanAct);
+
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.getSquaddieRepository().getSquaddieByDynamicId(squaddieToAct));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie});
         const pathfinder = new Pathfinder();
@@ -51,7 +50,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 numberOfActions: normalActionsRemaining,
                 startLocation: mapLocation,
                 squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
-                squaddieRepository: state.getSquaddieRepository(),
+                squaddieRepository: state.squaddieRepository,
                 shapeGeneratorType: TargetingShape.Snake,
             }));
         const reachableSquaddiesResults = searchResults.getReachableSquaddies();
@@ -131,5 +130,13 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         }
 
         return undefined;
+    }
+
+    private getActingSquaddie(state: TeamStrategyState, squaddiesWhoCanAct: string[]) {
+        let actingSquaddie = state.instruction && state.instruction.dynamicSquaddieId ? state.instruction.dynamicSquaddieId : undefined;
+        if (actingSquaddie === undefined) {
+            actingSquaddie = squaddiesWhoCanAct[0];
+        }
+        return actingSquaddie;
     }
 }

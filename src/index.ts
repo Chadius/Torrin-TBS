@@ -8,7 +8,7 @@ import {BattlePhaseTracker} from "./battle/orchestratorComponents/battlePhaseTra
 import {BattleCamera} from "./battle/battleCamera";
 import {BattleMissionLoader} from "./battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "./battle/orchestratorComponents/battleCutscenePlayer";
-import {BattleSquaddieSelector} from "./battle/orchestratorComponents/battleSquaddieSelector";
+import {BattlePlayerSquaddieSelector} from "./battle/orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "./battle/orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "./battle/orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "./battle/orchestratorComponents/battlePhaseController";
@@ -16,8 +16,10 @@ import {BattleSquaddieMapActivity} from "./battle/orchestratorComponents/battleS
 import {EndTurnTeamStrategy} from "./battle/teamStrategy/endTurn";
 import {MoveCloserToSquaddie} from "./battle/teamStrategy/moveCloserToSquaddie";
 import {SquaddieAffiliation} from "./squaddie/squaddieAffiliation";
-import {BattleSquaddieTarget} from "./battle/orchestratorComponents/battleSquaddieTarget";
+import {BattlePlayerSquaddieTarget} from "./battle/orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "./battle/orchestratorComponents/battleSquaddieSquaddieActivity";
+import {BattleComputerSquaddieSelector} from "./battle/orchestratorComponents/battleComputerSquaddieSelector";
+import {TargetSquaddieInRange} from "./battle/teamStrategy/targetSquaddieInRange";
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -116,9 +118,14 @@ export const sketch = (p: p5) => {
             battlePhaseTracker: new BattlePhaseTracker(),
             camera: new BattleCamera(0, 100),
             teamStrategyByAffiliation: {
-                ENEMY: [new MoveCloserToSquaddie({
-                    desiredAffiliation: SquaddieAffiliation.PLAYER
-                })],
+                ENEMY: [
+                    new TargetSquaddieInRange({
+                        desiredAffiliation: SquaddieAffiliation.PLAYER
+                    }),
+                    new MoveCloserToSquaddie({
+                        desiredAffiliation: SquaddieAffiliation.PLAYER
+                    })
+                ],
                 ALLY: [new EndTurnTeamStrategy()],
                 NONE: [new EndTurnTeamStrategy()],
             }
@@ -127,12 +134,13 @@ export const sketch = (p: p5) => {
         battleOrchestrator = new Orchestrator({
             missionLoader: new BattleMissionLoader(),
             cutscenePlayer: new BattleCutscenePlayer(),
-            squaddieSelector: new BattleSquaddieSelector(),
+            playerSquaddieSelector: new BattlePlayerSquaddieSelector(),
+            computerSquaddieSelector: new BattleComputerSquaddieSelector(),
             squaddieMapActivity: new BattleSquaddieMapActivity(),
             squaddieMover: new BattleSquaddieMover(),
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
-            squaddieTarget: new BattleSquaddieTarget(),
+            playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
             squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
         });
     }

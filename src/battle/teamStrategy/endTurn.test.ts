@@ -81,7 +81,7 @@ describe('end turn team strategy', () => {
         const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.getInstruction()).toStrictEqual(expectedInstruction);
+        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('is undefined when there are no squaddies', () => {

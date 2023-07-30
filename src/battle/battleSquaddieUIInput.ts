@@ -49,6 +49,10 @@ export class BattleSquaddieUIInput {
         } = options);
     }
 
+    reset() {
+        this.changeSelectionState(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
+    }
+
     changeSelectionState(newSelectionState: BattleSquaddieUISelectionState, dynamicSquaddieId?: string) {
         this._selectionState = newSelectionState;
         if (dynamicSquaddieId !== undefined && dynamicSquaddieId !== null) {
