@@ -46,23 +46,7 @@ export class TeamStrategyState {
         this._instruction = undefined;
     }
 
-    getInstruction(): SquaddieInstruction {
-        return this._instruction;
-    }
-
     setInstruction(instruction: SquaddieInstruction) {
         this._instruction = instruction;
-    }
-
-    getTeam(): BattleSquaddieTeam {
-        return this._team;
-    }
-
-    getMissionMap(): MissionMap {
-        return this._missionMap;
-    }
-
-    getSquaddieRepository(): BattleSquaddieRepository {
-        return this._squaddieRepository;
     }
 }

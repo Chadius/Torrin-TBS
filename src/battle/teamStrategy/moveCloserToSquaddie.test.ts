@@ -114,7 +114,7 @@ describe('move towards closest squaddie in range', () => {
         const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.getInstruction()).toStrictEqual(expectedInstruction);
+        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('will raise an error if there is no target', () => {
@@ -243,6 +243,6 @@ describe('move towards closest squaddie in range', () => {
         const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.getInstruction()).toStrictEqual(expectedInstruction);
+        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 });
