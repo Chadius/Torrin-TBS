@@ -245,7 +245,7 @@ describe('target a squaddie within reach of activities', () => {
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
-    it('will consider the currently acting squaddie', () => {
+    it('will not change the currently acting squaddie', () => {
         const longBowActivity = new SquaddieActivity({
             name: "long bow",
             id: "long_bow",

@@ -34,7 +34,8 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             return undefined;
         }
 
-        const squaddieToAct = squaddiesWhoCanAct[0];
+        let squaddieToAct = this.getActingSquaddie(state, squaddiesWhoCanAct);
+
         const {
             staticSquaddie,
             dynamicSquaddie,
@@ -129,5 +130,13 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         }
 
         return undefined;
+    }
+
+    private getActingSquaddie(state: TeamStrategyState, squaddiesWhoCanAct: string[]) {
+        let actingSquaddie = state.instruction && state.instruction.dynamicSquaddieId ? state.instruction.dynamicSquaddieId : undefined;
+        if (actingSquaddie === undefined) {
+            actingSquaddie = squaddiesWhoCanAct[0];
+        }
+        return actingSquaddie;
     }
 }
