@@ -37,15 +37,19 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import * as mocks from "../../utils/test/mocks";
-import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import SpyInstance = jest.SpyInstance;
+import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 
 describe('BattleSquaddieSelector', () => {
     let selector: BattleSquaddieSelector = new BattleSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let missionMap: MissionMap;
     let mockedP5 = mocks.mockedP5();
+    let enemyDemonStatic: BattleSquaddieStatic;
+    let enemyDemonDynamic: BattleSquaddieDynamic;
+    let demonBiteActivity: SquaddieActivity;
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
@@ -67,13 +71,29 @@ describe('BattleSquaddieSelector', () => {
             }
         );
 
-        CreateNewSquaddieAndAddToRepository({
+        demonBiteActivity = new SquaddieActivity({
+            name: "demon bite",
+            id: "demon_bite",
+            traits: new TraitStatusStorage({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+            minimumRange: 1,
+            maximumRange: 1,
+            actionsToSpend: 2,
+        });
+
+        ({
+            dynamicSquaddie: enemyDemonDynamic,
+            staticSquaddie: enemyDemonStatic,
+        } = CreateNewSquaddieAndAddToRepository({
             staticId: "enemy_demon",
             name: "Slither Demon",
             affiliation: SquaddieAffiliation.ENEMY,
             dynamicId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
-        });
+            activities: [demonBiteActivity],
+        }));
 
         squaddieRepo.addDynamicSquaddie(
             new BattleSquaddieDynamic({
@@ -711,6 +731,74 @@ describe('BattleSquaddieSelector', () => {
             expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieMovementActivity);
             expect(hexMapHighlightTilesSpy).toBeCalled();
             expect(battleSquaddieUIInputChangeSelectionStateSpy).toBeCalledWith(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
+        });
+
+        it('will prepare to act if computer controlled squaddie wants to act', () => {
+            const squaddieSquaddieActivity: SquaddieInstruction = new SquaddieInstruction({
+                staticSquaddieId: enemyDemonStatic.staticId,
+                dynamicSquaddieId: enemyDemonDynamic.dynamicSquaddieId,
+                startingLocation: new HexCoordinate({q: 0, r: 0}),
+            });
+            squaddieSquaddieActivity.addActivity(new SquaddieSquaddieActivity({
+                targetLocation: new HexCoordinate({q: 0, r: 1}),
+                squaddieActivity: demonBiteActivity,
+            }));
+
+            class TestTeamStrategy implements TeamStrategy {
+                DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+                    return squaddieSquaddieActivity;
+                }
+            }
+
+            const hexMap: TerrainTileMap = new TerrainTileMap({
+                movementCost: [
+                    "1 1 1 ",
+                    " 1 1 1 ",
+                ]
+            });
+
+            const missionMap = new MissionMap({
+                terrainTileMap: hexMap
+            });
+
+            missionMap.addSquaddie(
+                "enemy_demon",
+                "enemy_demon_0",
+                new HexCoordinate({q: 0, r: 0})
+            );
+            missionMap.addSquaddie(
+                "enemy_demon",
+                "enemy_demon_0",
+                new HexCoordinate({q: 0, r: 1})
+            );
+
+            const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
+            const mockBattleSquaddieUIInput: BattleSquaddieUIInput = new (<new (options: any) => BattleSquaddieUIInput>BattleSquaddieUIInput)({}) as jest.Mocked<BattleSquaddieUIInput>;
+            const state: OrchestratorState = new OrchestratorState({
+                battlePhaseTracker,
+                squaddieRepo,
+                camera,
+                missionMap,
+                hexMap,
+                battleSquaddieUIInput: mockBattleSquaddieUIInput,
+                pathfinder: new Pathfinder(),
+                teamStrategyByAffiliation: {
+                    ENEMY: [new TestTeamStrategy()]
+                }
+            });
+
+            const hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles");
+
+            selector.update(state, mockedP5);
+
+            expect(selector.hasCompleted(state)).toBeTruthy();
+            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
+
+            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("enemy_demon_0");
+            expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(1);
+            expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieSquaddieActivity);
+            expect(hexMapHighlightTilesSpy).toBeCalled();
         });
     });
 

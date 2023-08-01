@@ -89,7 +89,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
 
     update(state: OrchestratorState, p: p5): void {
         if (!this.hasHighlightedTargetRange) {
-            return this.highlightTargetRange(state, p);
+            return this.highlightTargetRange(state);
         }
 
         if (this.hasHighlightedTargetRange && !this.hasSelectedValidTarget) {
@@ -136,7 +136,8 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         return this.highlightedTargetRange.length > 0;
     }
 
-    private highlightTargetRange(state: OrchestratorState, p: p5) {
+    // TODO extract this common function
+    private highlightTargetRange(state: OrchestratorState) {
         const ability = state.squaddieCurrentlyActing.currentSquaddieActivity;
 
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId);
