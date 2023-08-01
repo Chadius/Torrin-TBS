@@ -1,4 +1,3 @@
-import {BattleSquaddieSelector, SQUADDIE_SELECTOR_PANNING_TIME} from "./battleSquaddieSelector";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
@@ -41,9 +40,10 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import SpyInstance = jest.SpyInstance;
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
+import {BattleComputerSquaddieSelector, SQUADDIE_SELECTOR_PANNING_TIME} from "./battleComputerSquaddieSelector";
 
-describe('BattleSquaddieSelector', () => {
-    let selector: BattleSquaddieSelector = new BattleSquaddieSelector();
+describe('BattleComputerSquaddieSelector', () => {
+    let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let missionMap: MissionMap;
     let mockedP5 = mocks.mockedP5();
@@ -53,7 +53,7 @@ describe('BattleSquaddieSelector', () => {
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
-        selector = new BattleSquaddieSelector();
+        selector = new BattleComputerSquaddieSelector();
         squaddieRepo = new BattleSquaddieRepository();
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -574,7 +574,7 @@ describe('BattleSquaddieSelector', () => {
         expect(state.squaddieCurrentlyActing.currentSquaddieActivity).toStrictEqual(longswordActivity);
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
-        expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_TARGET);
+        expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
 
         const history = state.battleEventRecording.history;
         expect(history).toHaveLength(0);

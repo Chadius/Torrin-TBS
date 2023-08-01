@@ -29,7 +29,7 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
 
-export class BattleSquaddieTarget implements OrchestratorComponent {
+export class BattleComputerSquaddieTarget implements OrchestratorComponent {
     private cancelAbility: boolean;
     private hasSelectedValidTarget: boolean;
     private hasConfirmedAction: boolean;
@@ -106,7 +106,7 @@ export class BattleSquaddieTarget implements OrchestratorComponent {
         if (this.cancelAbility) {
             return {
                 displayMap: true,
-                nextMode: BattleOrchestratorMode.SQUADDIE_SELECTOR,
+                nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
             }
         }
 

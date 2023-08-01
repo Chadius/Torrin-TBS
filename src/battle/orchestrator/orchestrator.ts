@@ -9,13 +9,13 @@ import {
 } from "./orchestratorComponent";
 import {OrchestratorState} from "./orchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
-import {BattleSquaddieSelector} from "../orchestratorComponents/battleSquaddieSelector";
+import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import p5 from "p5";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
-import {BattleSquaddieTarget} from "../orchestratorComponents/battleSquaddieTarget";
+import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
 import {UIControlSettings} from "./uiControlSettings";
 
@@ -24,8 +24,8 @@ export enum BattleOrchestratorMode {
     LOADING_MISSION = "LOADING_MISSION",
     CUTSCENE_PLAYER = "CUTSCENE_PLAYER",
     PHASE_CONTROLLER = "PHASE_CONTROLLER",
-    SQUADDIE_SELECTOR = "SQUADDIE_SELECTOR",
-    SQUADDIE_TARGET = "SQUADDIE_TARGET",
+    PLAYER_SQUADDIE_SELECTOR = "PLAYER_SQUADDIE_SELECTOR",
+    PLAYER_SQUADDIE_TARGET = "PLAYER_SQUADDIE_TARGET",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
     SQUADDIE_MAP_ACTIVITY = "SQUADDIE_MAP_ACTIVITY",
     SQUADDIE_SQUADDIE_ACTIVITY = "SQUADDIE_SQUADDIE_ACTIVITY",
@@ -41,8 +41,8 @@ export class Orchestrator {
 
     missionLoader: BattleMissionLoader;
     cutscenePlayer: BattleCutscenePlayer;
-    squaddieSelector: BattleSquaddieSelector;
-    squaddieTarget: BattleSquaddieTarget;
+    playerSquaddieSelector: BattlePlayerSquaddieSelector;
+    playerSquaddieTarget: BattlePlayerSquaddieTarget;
     squaddieMapActivity: BattleSquaddieMapActivity;
     squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
     squaddieMover: BattleSquaddieMover;
@@ -62,11 +62,11 @@ export class Orchestrator {
                 }: {
         missionLoader: BattleMissionLoader,
         cutscenePlayer: BattleCutscenePlayer,
-        squaddieSelector: BattleSquaddieSelector,
+        squaddieSelector: BattlePlayerSquaddieSelector,
         squaddieMapActivity: BattleSquaddieMapActivity,
         squaddieSquaddieActivity: BattleSquaddieSquaddieActivity,
         squaddieMover: BattleSquaddieMover,
-        squaddieTarget: BattleSquaddieTarget,
+        squaddieTarget: BattlePlayerSquaddieTarget,
         mapDisplay: BattleMapDisplay,
         phaseController: BattlePhaseController,
     }) {
@@ -75,8 +75,8 @@ export class Orchestrator {
 
         this.missionLoader = missionLoader;
         this.cutscenePlayer = cutscenePlayer;
-        this.squaddieSelector = squaddieSelector;
-        this.squaddieTarget = squaddieTarget;
+        this.playerSquaddieSelector = squaddieSelector;
+        this.playerSquaddieTarget = squaddieTarget;
         this.squaddieMapActivity = squaddieMapActivity;
         this.squaddieMover = squaddieMover;
         this.mapDisplay = mapDisplay;
@@ -92,10 +92,10 @@ export class Orchestrator {
                 return this.cutscenePlayer;
             case BattleOrchestratorMode.PHASE_CONTROLLER:
                 return this.phaseController;
-            case BattleOrchestratorMode.SQUADDIE_SELECTOR:
-                return this.squaddieSelector;
-            case BattleOrchestratorMode.SQUADDIE_TARGET:
-                return this.squaddieTarget;
+            case BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR:
+                return this.playerSquaddieSelector;
+            case BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET:
+                return this.playerSquaddieTarget;
             case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
                 return this.squaddieMapActivity;
             case BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY:
@@ -127,10 +127,10 @@ export class Orchestrator {
                 this.updateComponent(state, this.cutscenePlayer, p, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.PHASE_CONTROLLER:
-                this.updateComponent(state, this.phaseController, p, BattleOrchestratorMode.SQUADDIE_SELECTOR);
+                this.updateComponent(state, this.phaseController, p, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
                 break;
-            case BattleOrchestratorMode.SQUADDIE_SELECTOR:
-                this.updateComponent(state, this.squaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER);
+            case BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR:
+                this.updateComponent(state, this.playerSquaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
                 this.updateComponent(state, this.squaddieMapActivity, p, BattleOrchestratorMode.PHASE_CONTROLLER);
@@ -141,8 +141,8 @@ export class Orchestrator {
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 this.updateComponent(state, this.squaddieMover, p, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
-            case BattleOrchestratorMode.SQUADDIE_TARGET:
-                this.updateComponent(state, this.squaddieTarget, p, BattleOrchestratorMode.SQUADDIE_SELECTOR);
+            case BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET:
+                this.updateComponent(state, this.playerSquaddieTarget, p, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
                 break;
             default:
                 throw new Error(`update does not know about ${this.mode}, cannot switch mode`);

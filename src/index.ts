@@ -8,7 +8,7 @@ import {BattlePhaseTracker} from "./battle/orchestratorComponents/battlePhaseTra
 import {BattleCamera} from "./battle/battleCamera";
 import {BattleMissionLoader} from "./battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "./battle/orchestratorComponents/battleCutscenePlayer";
-import {BattleSquaddieSelector} from "./battle/orchestratorComponents/battleSquaddieSelector";
+import {BattlePlayerSquaddieSelector} from "./battle/orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "./battle/orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "./battle/orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "./battle/orchestratorComponents/battlePhaseController";
@@ -16,7 +16,7 @@ import {BattleSquaddieMapActivity} from "./battle/orchestratorComponents/battleS
 import {EndTurnTeamStrategy} from "./battle/teamStrategy/endTurn";
 import {MoveCloserToSquaddie} from "./battle/teamStrategy/moveCloserToSquaddie";
 import {SquaddieAffiliation} from "./squaddie/squaddieAffiliation";
-import {BattleSquaddieTarget} from "./battle/orchestratorComponents/battleSquaddieTarget";
+import {BattlePlayerSquaddieTarget} from "./battle/orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "./battle/orchestratorComponents/battleSquaddieSquaddieActivity";
 
 let battleOrchestrator: Orchestrator;
@@ -127,12 +127,12 @@ export const sketch = (p: p5) => {
         battleOrchestrator = new Orchestrator({
             missionLoader: new BattleMissionLoader(),
             cutscenePlayer: new BattleCutscenePlayer(),
-            squaddieSelector: new BattleSquaddieSelector(),
+            squaddieSelector: new BattlePlayerSquaddieSelector(),
             squaddieMapActivity: new BattleSquaddieMapActivity(),
             squaddieMover: new BattleSquaddieMover(),
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
-            squaddieTarget: new BattleSquaddieTarget(),
+            squaddieTarget: new BattlePlayerSquaddieTarget(),
             squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
         });
     }

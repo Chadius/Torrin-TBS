@@ -1,5 +1,5 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieTarget} from "./battleSquaddieTarget";
+import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieActivity} from "../../squaddie/activity";
@@ -32,9 +32,9 @@ import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squad
 import {BattleEvent} from "../history/battleEvent";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
-describe('BattleSquaddieTarget', () => {
+describe('BattleComputerSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
-    let targetComponent: BattleSquaddieTarget;
+    let targetComponent: BattlePlayerSquaddieTarget;
     let knightStatic: BattleSquaddieStatic;
     let knightDynamic: BattleSquaddieDynamic;
     let thiefStatic: BattleSquaddieStatic;
@@ -49,7 +49,7 @@ describe('BattleSquaddieTarget', () => {
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
-        targetComponent = new BattleSquaddieTarget();
+        targetComponent = new BattlePlayerSquaddieTarget();
         squaddieRepo = new BattleSquaddieRepository();
         battleMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
@@ -218,7 +218,7 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
-            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SELECTOR);
+            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
         });
     });
 

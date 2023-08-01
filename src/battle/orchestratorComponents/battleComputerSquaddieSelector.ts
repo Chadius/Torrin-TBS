@@ -37,27 +37,23 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {SquaddieActivity} from "../../squaddie/activity";
-
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 
-export class BattleSquaddieSelector implements OrchestratorComponent {
+export class BattleComputerSquaddieSelector implements OrchestratorComponent {
     private gaveCompleteInstruction: boolean;
     private gaveInstructionThatNeedsATarget: boolean;
-    private pannedCameraOnComputerControlledSquaddie: boolean;
     private initialFocusOnSquaddie: boolean;
 
     constructor() {
         this.gaveCompleteInstruction = false;
         this.gaveInstructionThatNeedsATarget = false;
-        this.pannedCameraOnComputerControlledSquaddie = false;
         this.initialFocusOnSquaddie = false;
     }
 
@@ -416,7 +412,7 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY;
             }
         } else if (this.gaveInstructionThatNeedsATarget) {
-            nextMode = BattleOrchestratorMode.SQUADDIE_TARGET;
+            nextMode = BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET;
         }
 
         return {
@@ -427,7 +423,6 @@ export class BattleSquaddieSelector implements OrchestratorComponent {
 
     reset(state: OrchestratorState) {
         this.gaveCompleteInstruction = false;
-        this.pannedCameraOnComputerControlledSquaddie = false;
         this.gaveInstructionThatNeedsATarget = false;
         this.initialFocusOnSquaddie = false;
 
