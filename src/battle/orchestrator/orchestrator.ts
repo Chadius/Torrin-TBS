@@ -19,7 +19,6 @@ import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayer
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
-import {BattleComputerSquaddieTarget} from "../orchestratorComponents/battleComputerSquaddieTarget";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -29,7 +28,6 @@ export enum BattleOrchestratorMode {
     PLAYER_SQUADDIE_SELECTOR = "PLAYER_SQUADDIE_SELECTOR",
     PLAYER_SQUADDIE_TARGET = "PLAYER_SQUADDIE_TARGET",
     COMPUTER_SQUADDIE_SELECTOR = "COMPUTER_SQUADDIE_SELECTOR",
-    COMPUTER_SQUADDIE_TARGET = "COMPUTER_SQUADDIE_TARGET",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
     SQUADDIE_MAP_ACTIVITY = "SQUADDIE_MAP_ACTIVITY",
     SQUADDIE_SQUADDIE_ACTIVITY = "SQUADDIE_SQUADDIE_ACTIVITY",
@@ -48,7 +46,6 @@ export class Orchestrator {
     playerSquaddieSelector: BattlePlayerSquaddieSelector;
     playerSquaddieTarget: BattlePlayerSquaddieTarget;
     computerSquaddieSelector: BattleComputerSquaddieSelector;
-    computerSquaddieTarget: BattleComputerSquaddieTarget;
     squaddieMapActivity: BattleSquaddieMapActivity;
     squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
     squaddieMover: BattleSquaddieMover;
@@ -66,14 +63,12 @@ export class Orchestrator {
                     playerSquaddieSelector,
                     playerSquaddieTarget,
                     computerSquaddieSelector,
-                    computerSquaddieTarget,
                 }: {
         missionLoader: BattleMissionLoader,
         cutscenePlayer: BattleCutscenePlayer,
         playerSquaddieSelector: BattlePlayerSquaddieSelector,
         playerSquaddieTarget: BattlePlayerSquaddieTarget,
         computerSquaddieSelector: BattleComputerSquaddieSelector,
-        computerSquaddieTarget: BattleComputerSquaddieTarget,
         squaddieMapActivity: BattleSquaddieMapActivity,
         squaddieSquaddieActivity: BattleSquaddieSquaddieActivity,
         squaddieMover: BattleSquaddieMover,
@@ -88,7 +83,6 @@ export class Orchestrator {
         this.playerSquaddieSelector = playerSquaddieSelector;
         this.playerSquaddieTarget = playerSquaddieTarget;
         this.computerSquaddieSelector = computerSquaddieSelector;
-        this.computerSquaddieTarget = computerSquaddieTarget;
         this.squaddieMapActivity = squaddieMapActivity;
         this.squaddieMover = squaddieMover;
         this.mapDisplay = mapDisplay;
@@ -110,8 +104,6 @@ export class Orchestrator {
                 return this.playerSquaddieTarget;
             case BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR:
                 return this.computerSquaddieSelector;
-            case BattleOrchestratorMode.COMPUTER_SQUADDIE_TARGET:
-                return this.computerSquaddieTarget;
             case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
                 return this.squaddieMapActivity;
             case BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY:
@@ -162,9 +154,6 @@ export class Orchestrator {
                 break;
             case BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET:
                 this.updateComponent(state, this.playerSquaddieTarget, p, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-                break;
-            case BattleOrchestratorMode.COMPUTER_SQUADDIE_TARGET:
-                this.updateComponent(state, this.computerSquaddieTarget, p, BattleOrchestratorMode.COMPUTER_SQUADDIE_TARGET);
                 break;
             default:
                 throw new Error(`update does not know about ${this.mode}, cannot switch mode`);

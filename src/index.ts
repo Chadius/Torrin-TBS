@@ -19,7 +19,6 @@ import {SquaddieAffiliation} from "./squaddie/squaddieAffiliation";
 import {BattlePlayerSquaddieTarget} from "./battle/orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "./battle/orchestratorComponents/battleSquaddieSquaddieActivity";
 import {BattleComputerSquaddieSelector} from "./battle/orchestratorComponents/battleComputerSquaddieSelector";
-import {BattleComputerSquaddieTarget} from "./battle/orchestratorComponents/battleComputerSquaddieTarget";
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -136,7 +135,6 @@ export const sketch = (p: p5) => {
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
-            computerSquaddieTarget: new BattleComputerSquaddieTarget(),
             squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
         });
     }
