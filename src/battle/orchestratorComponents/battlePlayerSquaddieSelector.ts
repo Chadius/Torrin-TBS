@@ -19,19 +19,15 @@ import p5 from "p5";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {BattleEvent} from "../history/battleEvent";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {addMovementInstruction, createSearchPath} from "./battleSquaddieSelectorUtils";
-
-export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
+import {addMovementInstruction, createSearchPath, maybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 
 export class BattlePlayerSquaddieSelector implements OrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -306,21 +302,7 @@ export class BattlePlayerSquaddieSelector implements OrchestratorComponent {
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        if (!state.squaddieCurrentlyActing) {
-            const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-            const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
-
-            state.squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-                instruction: new SquaddieInstruction({
-                    staticSquaddieId: staticSquaddie.squaddieId.staticId,
-                    dynamicSquaddieId,
-                    startingLocation: new HexCoordinate({
-                        q: datum.mapLocation.q,
-                        r: datum.mapLocation.r,
-                    }),
-                }),
-            });
-        }
+        maybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
             state.squaddieCurrentlyActing.addSquaddie({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,

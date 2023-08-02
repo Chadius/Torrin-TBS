@@ -20,11 +20,8 @@ import {RectArea} from "../../ui/rectArea";
 import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
 import {Label} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {ActivityResult} from "../history/activityResult";
-import {BattleSquaddieDynamic} from "../battleSquaddie";
-import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
+import {calculateResults} from "./battleSquaddieSelectorUtils";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -136,7 +133,6 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         return this.highlightedTargetRange.length > 0;
     }
 
-    // TODO extract this common function
     private highlightTargetRange(state: OrchestratorState) {
         const ability = state.squaddieCurrentlyActing.currentSquaddieActivity;
 
@@ -307,7 +303,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         );
 
         actingSquaddieDynamic.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentSquaddieActivity);
-        const instructionResults = this.calculateResults(state, actingSquaddieDynamic);
+        const instructionResults = calculateResults(state, actingSquaddieDynamic, this.validTargetLocation);
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,
@@ -319,36 +315,5 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         this.hasConfirmedAction = true;
     }
 
-    private calculateResults(state: OrchestratorState, actingSquaddieDynamic: BattleSquaddieDynamic) {
-        const {
-            dynamicSquaddieId: targetedSquaddieDynamicId,
-            staticSquaddieId: targetedSquaddieStaticId
-        } = state.missionMap.getSquaddieAtLocation(this.validTargetLocation);
 
-        const {
-            staticSquaddie: targetedSquaddieStatic,
-            dynamicSquaddie: targetedSquaddieDynamic
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(targetedSquaddieDynamicId));
-        const targetedSquaddieDynamicIds: string[] = [targetedSquaddieDynamicId];
-        let damageDealt = 0;
-        Object.keys(state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions).forEach((damageTypeStr: string) => {
-            const damageType = parseInt(damageTypeStr) as DamageType;
-            const activityDamage = state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions[damageType]
-            const {damageTaken: damageTakenByThisType} = DealDamageToTheSquaddie({
-                staticSquaddie: targetedSquaddieStatic,
-                dynamicSquaddie: targetedSquaddieDynamic,
-                damage: activityDamage,
-                damageType,
-            });
-            damageDealt += damageTakenByThisType;
-        });
-        const resultPerTarget = {[targetedSquaddieDynamicId]: new ActivityResult({damageTaken: damageDealt})};
-
-        const instructionResults: SquaddieSquaddieResults = new SquaddieSquaddieResults({
-            actingSquaddieDynamicId: actingSquaddieDynamic.dynamicSquaddieId,
-            targetedSquaddieDynamicIds,
-            resultPerTarget,
-        });
-        return instructionResults;
-    }
 }

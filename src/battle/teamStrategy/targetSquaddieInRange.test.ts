@@ -304,8 +304,6 @@ describe('target a squaddie within reach of activities', () => {
         const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
-
-        // TODO MoveSquaddieInRange should consider this test as well
     });
 
     it('should pass if there are no squaddies to act', () => {

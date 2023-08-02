@@ -1,7 +1,7 @@
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {DamageType, DealDamageToTheSquaddie, GetNumberOfActions} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
@@ -14,6 +14,8 @@ import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInPro
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {BattleEvent} from "../history/battleEvent";
+import {ActivityResult} from "../history/activityResult";
+import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 
 export function createSearchPath(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
@@ -63,6 +65,18 @@ export function createSearchPath(state: OrchestratorState, staticSquaddie: Battl
 }
 
 export function addMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
+    maybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
+
+    state.squaddieCurrentlyActing.addConfirmedActivity(new SquaddieMovementActivity({
+        destination: destinationHexCoordinate,
+        numberOfActionsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
+    }));
+    state.battleEventRecording.addEvent(new BattleEvent({
+        currentSquaddieInstruction: state.squaddieCurrentlyActing,
+    }));
+}
+
+export function maybeCreateSquaddieInstruction(state: OrchestratorState, dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
     if (!(state.squaddieCurrentlyActing && state.squaddieCurrentlyActing.instruction)) {
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
@@ -78,12 +92,37 @@ export function addMovementInstruction(state: OrchestratorState, staticSquaddie:
             }),
         });
     }
+}
 
-    state.squaddieCurrentlyActing.addConfirmedActivity(new SquaddieMovementActivity({
-        destination: destinationHexCoordinate,
-        numberOfActionsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
-    }));
-    state.battleEventRecording.addEvent(new BattleEvent({
-        currentSquaddieInstruction: state.squaddieCurrentlyActing,
-    }));
+export function calculateResults(state: OrchestratorState, actingSquaddieDynamic: BattleSquaddieDynamic, validTargetLocation: HexCoordinate) {
+    const {
+        dynamicSquaddieId: targetedSquaddieDynamicId,
+        staticSquaddieId: targetedSquaddieStaticId
+    } = state.missionMap.getSquaddieAtLocation(validTargetLocation);
+
+    const {
+        staticSquaddie: targetedSquaddieStatic,
+        dynamicSquaddie: targetedSquaddieDynamic
+    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(targetedSquaddieDynamicId));
+    const targetedSquaddieDynamicIds: string[] = [targetedSquaddieDynamicId];
+    let damageDealt = 0;
+    Object.keys(state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions).forEach((damageTypeStr: string) => {
+        const damageType = parseInt(damageTypeStr) as DamageType;
+        const activityDamage = state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions[damageType]
+        const {damageTaken: damageTakenByThisType} = DealDamageToTheSquaddie({
+            staticSquaddie: targetedSquaddieStatic,
+            dynamicSquaddie: targetedSquaddieDynamic,
+            damage: activityDamage,
+            damageType,
+        });
+        damageDealt += damageTakenByThisType;
+    });
+    const resultPerTarget = {[targetedSquaddieDynamicId]: new ActivityResult({damageTaken: damageDealt})};
+
+    const instructionResults: SquaddieSquaddieResults = new SquaddieSquaddieResults({
+        actingSquaddieDynamicId: actingSquaddieDynamic.dynamicSquaddieId,
+        targetedSquaddieDynamicIds,
+        resultPerTarget,
+    });
+    return instructionResults;
 }

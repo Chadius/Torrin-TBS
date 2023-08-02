@@ -5,14 +5,17 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {OrchestratorChanges} from "../orchestrator/orchestratorComponent";
-import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import {
+    OrchestratorChanges,
+    OrchestratorComponentMouseEvent,
+    OrchestratorComponentMouseEventType
+} from "../orchestrator/orchestratorComponent";
+import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera, PanningInformation} from "../battleCamera";
-import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
@@ -30,7 +33,13 @@ import * as mocks from "../../utils/test/mocks";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {BattleComputerSquaddieSelector, SQUADDIE_SELECTOR_PANNING_TIME} from "./battleComputerSquaddieSelector";
+import {
+    BattleComputerSquaddieSelector,
+    SHOW_SELECTED_ACTIVITY_TIME,
+    SQUADDIE_SELECTOR_PANNING_TIME
+} from "./battleComputerSquaddieSelector";
+import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squaddieService";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -39,6 +48,7 @@ describe('BattleComputerSquaddieSelector', () => {
     let mockedP5 = mocks.mockedP5();
     let enemyDemonStatic: BattleSquaddieStatic;
     let enemyDemonDynamic: BattleSquaddieDynamic;
+    let enemyDemonDynamic2: BattleSquaddieDynamic;
     let demonBiteActivity: SquaddieActivity;
 
     beforeEach(() => {
@@ -71,6 +81,9 @@ describe('BattleComputerSquaddieSelector', () => {
             minimumRange: 1,
             maximumRange: 1,
             actionsToSpend: 2,
+            damageDescriptions: {
+                [DamageType.Body]: 2,
+            },
         });
 
         ({
@@ -83,29 +96,32 @@ describe('BattleComputerSquaddieSelector', () => {
             dynamicId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
             activities: [demonBiteActivity],
+            attributes: new ArmyAttributes({
+                maxHitPoints: 5,
+            })
         }));
 
-        squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
-                dynamicSquaddieId: "enemy_demon_1",
-                staticSquaddieId: "enemy_demon",
-                squaddieTurn: new SquaddieTurn()
-            })
-        );
+        enemyDemonDynamic2 = new BattleSquaddieDynamic({
+            staticSquaddieId: enemyDemonStatic.staticId,
+            dynamicSquaddieId: "enemy_demon_2",
+            squaddieTurn: new SquaddieTurn()
+        });
 
-        enemyTeam.addDynamicSquaddieIds(["enemy_demon_0", "enemy_demon_1"]);
+        squaddieRepo.addDynamicSquaddie(enemyDemonDynamic2);
+
+        enemyTeam.addDynamicSquaddieIds([enemyDemonDynamic.dynamicSquaddieId, enemyDemonDynamic2.dynamicSquaddieId]);
 
         const battlePhaseTracker: BattlePhaseTracker = new BattlePhaseTracker(BattlePhase.ENEMY);
         battlePhaseTracker.addTeam(enemyTeam);
 
         missionMap.addSquaddie(
-            "enemy_demon",
-            "enemy_demon_0",
+            enemyDemonStatic.staticId,
+            enemyDemonDynamic.dynamicSquaddieId,
             new HexCoordinate({q: 0, r: 0})
         );
         missionMap.addSquaddie(
-            "enemy_demon",
-            "enemy_demon_0",
+            enemyDemonDynamic.staticSquaddieId,
+            enemyDemonDynamic2.dynamicSquaddieId,
             new HexCoordinate({q: 0, r: 1})
         );
         return battlePhaseTracker;
@@ -162,7 +178,7 @@ describe('BattleComputerSquaddieSelector', () => {
         expect(camera.isPanning()).toBeFalsy();
     });
 
-    describe('squaddie team strategy', () => {
+    describe('squaddie team strategy ends the turn', () => {
         let battlePhaseTracker: BattlePhaseTracker;
         let missionMap: MissionMap;
 
@@ -197,8 +213,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
             endTurnInstruction.addSquaddie({
-                dynamicSquaddieId: "enemy_demon_0",
-                staticSquaddieId: "enemy_demon",
+                staticSquaddieId: enemyDemonStatic.staticId,
+                dynamicSquaddieId: enemyDemonDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
             endTurnInstruction.addConfirmedActivity(new SquaddieEndTurnActivity());
@@ -248,140 +264,6 @@ describe('BattleComputerSquaddieSelector', () => {
             const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
         });
-
-        it('will prepare to move if computer controlled squaddie wants to move', () => {
-            const moveActivity = makeSquaddieMoveActivity(
-                "enemy_demon",
-                "enemy_demon_0",
-            );
-
-            class TestTeamStrategy implements TeamStrategy {
-                DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
-                    return moveActivity;
-                }
-            }
-
-            const hexMap: TerrainTileMap = new TerrainTileMap({
-                movementCost: [
-                    "1 1 1 ",
-                    " 1 1 1 ",
-                ]
-            });
-
-            const missionMap = new MissionMap({
-                terrainTileMap: hexMap
-            });
-
-            missionMap.addSquaddie(
-                "enemy_demon",
-                "enemy_demon_0",
-                new HexCoordinate({q: 0, r: 0})
-            );
-            missionMap.addSquaddie(
-                "enemy_demon",
-                "enemy_demon_0",
-                new HexCoordinate({q: 0, r: 1})
-            );
-
-            const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
-            const mockBattleSquaddieUIInput: BattleSquaddieUIInput = new (<new (options: any) => BattleSquaddieUIInput>BattleSquaddieUIInput)({}) as jest.Mocked<BattleSquaddieUIInput>;
-            const state: OrchestratorState = new OrchestratorState({
-                battlePhaseTracker,
-                squaddieRepo,
-                camera,
-                missionMap,
-                hexMap,
-                battleSquaddieUIInput: mockBattleSquaddieUIInput,
-                pathfinder: new Pathfinder(),
-                teamStrategyByAffiliation: {
-                    ENEMY: [new TestTeamStrategy()]
-                }
-            });
-
-            const hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles");
-            const battleSquaddieUIInputChangeSelectionStateSpy = jest.spyOn(mockBattleSquaddieUIInput, "changeSelectionState");
-
-            selector.update(state, mockedP5);
-
-            expect(selector.hasCompleted(state)).toBeTruthy();
-            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
-            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
-
-            expect(state.squaddieMovePath.getDestination()).toStrictEqual(moveActivity.destinationLocation());
-            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("enemy_demon_0");
-            expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(1);
-            expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieMovementActivity);
-            expect(hexMapHighlightTilesSpy).toBeCalled();
-            expect(battleSquaddieUIInputChangeSelectionStateSpy).toBeCalledWith(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
-        });
-
-        it('will prepare to act if computer controlled squaddie wants to act', () => {
-            const squaddieSquaddieActivity: SquaddieInstruction = new SquaddieInstruction({
-                staticSquaddieId: enemyDemonStatic.staticId,
-                dynamicSquaddieId: enemyDemonDynamic.dynamicSquaddieId,
-                startingLocation: new HexCoordinate({q: 0, r: 0}),
-            });
-            squaddieSquaddieActivity.addActivity(new SquaddieSquaddieActivity({
-                targetLocation: new HexCoordinate({q: 0, r: 1}),
-                squaddieActivity: demonBiteActivity,
-            }));
-
-            class TestTeamStrategy implements TeamStrategy {
-                DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
-                    return squaddieSquaddieActivity;
-                }
-            }
-
-            const hexMap: TerrainTileMap = new TerrainTileMap({
-                movementCost: [
-                    "1 1 1 ",
-                    " 1 1 1 ",
-                ]
-            });
-
-            const missionMap = new MissionMap({
-                terrainTileMap: hexMap
-            });
-
-            missionMap.addSquaddie(
-                "enemy_demon",
-                "enemy_demon_0",
-                new HexCoordinate({q: 0, r: 0})
-            );
-            missionMap.addSquaddie(
-                "enemy_demon",
-                "enemy_demon_0",
-                new HexCoordinate({q: 0, r: 1})
-            );
-
-            const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
-            const mockBattleSquaddieUIInput: BattleSquaddieUIInput = new (<new (options: any) => BattleSquaddieUIInput>BattleSquaddieUIInput)({}) as jest.Mocked<BattleSquaddieUIInput>;
-            const state: OrchestratorState = new OrchestratorState({
-                battlePhaseTracker,
-                squaddieRepo,
-                camera,
-                missionMap,
-                hexMap,
-                battleSquaddieUIInput: mockBattleSquaddieUIInput,
-                pathfinder: new Pathfinder(),
-                teamStrategyByAffiliation: {
-                    ENEMY: [new TestTeamStrategy()]
-                }
-            });
-
-            const hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles");
-
-            selector.update(state, mockedP5);
-
-            expect(selector.hasCompleted(state)).toBeTruthy();
-            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
-            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
-
-            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("enemy_demon_0");
-            expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(1);
-            expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieSquaddieActivity);
-            expect(hexMapHighlightTilesSpy).toBeCalled();
-        });
     });
 
     it('will change phase if no squaddies are able to act', () => {
@@ -410,5 +292,194 @@ describe('BattleComputerSquaddieSelector', () => {
 
         const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
+    });
+
+    describe('computer decides to act', () => {
+        let battlePhaseTracker: BattlePhaseTracker;
+        let missionMap: MissionMap;
+        let hexMap: TerrainTileMap;
+        let hexMapHighlightTilesSpy: jest.SpyInstance;
+        let camera: BattleCamera;
+
+        beforeEach(() => {
+            hexMap = new TerrainTileMap({
+                movementCost: [
+                    "1 1 1 ",
+                    " 1 1 1 ",
+                ]
+            });
+            hexMapHighlightTilesSpy = jest.spyOn(hexMap, "highlightTiles");
+
+            missionMap = new MissionMap({
+                terrainTileMap: hexMap
+            });
+            battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+
+            missionMap.addSquaddie(
+                enemyDemonStatic.staticId,
+                enemyDemonDynamic.dynamicSquaddieId,
+                new HexCoordinate({q: 0, r: 0})
+            );
+            missionMap.addSquaddie(
+                enemyDemonStatic.staticId,
+                enemyDemonDynamic2.dynamicSquaddieId,
+                new HexCoordinate({q: 0, r: 1})
+            );
+
+            camera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
+        });
+
+        it('will prepare to move if computer controlled squaddie wants to move', () => {
+            const moveActivity = makeSquaddieMoveActivity(
+                enemyDemonStatic.staticId,
+                enemyDemonDynamic.dynamicSquaddieId,
+            );
+
+            class TestTeamStrategy implements TeamStrategy {
+                DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+                    return moveActivity;
+                }
+            }
+
+            const state: OrchestratorState = new OrchestratorState({
+                battlePhaseTracker,
+                squaddieRepo,
+                camera,
+                missionMap,
+                hexMap,
+                pathfinder: new Pathfinder(),
+                teamStrategyByAffiliation: {
+                    ENEMY: [new TestTeamStrategy()]
+                }
+            });
+
+            selector.update(state, mockedP5);
+
+            expect(selector.hasCompleted(state)).toBeTruthy();
+            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
+
+            expect(state.squaddieMovePath.getDestination()).toStrictEqual(moveActivity.destinationLocation());
+            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("enemy_demon_0");
+            expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(1);
+            expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieMovementActivity);
+            expect(hexMapHighlightTilesSpy).toBeCalled();
+        });
+
+        describe('computer controlled squaddie acts', () => {
+            let state: OrchestratorState;
+
+            beforeEach(() => {
+                const squaddieSquaddieActivity: SquaddieInstruction = new SquaddieInstruction({
+                    staticSquaddieId: enemyDemonStatic.staticId,
+                    dynamicSquaddieId: enemyDemonDynamic.dynamicSquaddieId,
+                    startingLocation: new HexCoordinate({q: 0, r: 0}),
+                });
+                squaddieSquaddieActivity.addActivity(new SquaddieSquaddieActivity({
+                    targetLocation: new HexCoordinate({q: 0, r: 1}),
+                    squaddieActivity: demonBiteActivity,
+                }));
+
+                class TestTeamStrategy implements TeamStrategy {
+                    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+                        return squaddieSquaddieActivity;
+                    }
+                }
+
+                state = new OrchestratorState({
+                    battlePhaseTracker,
+                    squaddieRepo,
+                    camera,
+                    missionMap,
+                    hexMap,
+                    pathfinder: new Pathfinder(),
+                    teamStrategyByAffiliation: {
+                        ENEMY: [new TestTeamStrategy()]
+                    }
+                });
+
+                jest.spyOn(Date, 'now').mockImplementation(() => 0);
+                selector.update(state, mockedP5);
+            });
+
+            it('will indicate the next activity', () => {
+                expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(enemyDemonDynamic.dynamicSquaddieId);
+                expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(1);
+                expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieSquaddieActivity);
+            });
+
+            it('highlight the map target and its spread', () => {
+                expect(hexMapHighlightTilesSpy).toBeCalled();
+                const actualTiles = hexMapHighlightTilesSpy.mock.calls[0][0] as HighlightTileDescription[];
+                expect(actualTiles).toHaveLength(1);
+                expect(actualTiles[0].tiles).toHaveLength(1);
+                expect(actualTiles[0].tiles[0]).toStrictEqual(new HexCoordinate({q: 0, r: 1}));
+            });
+
+            it('waits and then completes the component', () => {
+                expect(selector.hasCompleted(state)).toBeFalsy();
+                selector.update(state, mockedP5);
+
+                jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
+                selector.update(state, mockedP5);
+                expect(selector.hasCompleted(state)).toBeTruthy();
+            })
+
+            it('waits and then will recommend squaddie squaddie activity as the next field', () => {
+                jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
+                selector.update(state, mockedP5);
+                const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+                expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
+            });
+
+            it('player can click to complete the component if an activity is selected', () => {
+                expect(selector.hasCompleted(state)).toBeFalsy();
+                selector.update(state, mockedP5);
+
+                const mouseEvent: OrchestratorComponentMouseEvent = {
+                    eventType: OrchestratorComponentMouseEventType.CLICKED,
+                    mouseX: 0,
+                    mouseY: 0,
+                };
+
+                selector.mouseEventHappened(state, mouseEvent);
+                selector.update(state, mockedP5);
+                expect(selector.hasCompleted(state)).toBeTruthy();
+            });
+
+            it('should consume the squaddie actions', () => {
+                const {normalActionsRemaining} = GetNumberOfActions({
+                    staticSquaddie: enemyDemonStatic,
+                    dynamicSquaddie: enemyDemonDynamic,
+                });
+                expect(normalActionsRemaining).toBe(3 - demonBiteActivity.actionsToSpend);
+            });
+
+            it('should add the results to the history', () => {
+                expect(state.battleEventRecording.history).toHaveLength(1);
+                const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
+                expect(mostRecentEvent.activities).toHaveLength(1);
+                expect((
+                    mostRecentEvent.activities[0] as SquaddieSquaddieActivity
+                ).squaddieActivity.id).toBe(demonBiteActivity.id);
+                const results = mostRecentEvent.results;
+                expect(results.actingSquaddieDynamicId).toBe(enemyDemonDynamic.dynamicSquaddieId);
+                expect(results.targetedSquaddieDynamicIds).toHaveLength(1);
+                expect(results.targetedSquaddieDynamicIds[0]).toBe(enemyDemonDynamic2.dynamicSquaddieId);
+                expect(results.resultPerTarget[enemyDemonDynamic2.dynamicSquaddieId]).toBeTruthy();
+            });
+
+            it('should store the calculated results', () => {
+                const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
+                const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[enemyDemonDynamic2.dynamicSquaddieId];
+                expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(demonBiteActivity.damageDescriptions[DamageType.Body]);
+
+                const {maxHitPoints, currentHitPoints} = GetHitPoints({
+                    staticSquaddie: enemyDemonStatic,
+                    dynamicSquaddie: enemyDemonDynamic2
+                });
+                expect(currentHitPoints).toBe(maxHitPoints - demonBiteActivity.damageDescriptions[DamageType.Body]);
+            });
+        });
     });
 });

@@ -9,7 +9,7 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {FormatResult} from "./activityResultTextWriter";
+import {FormatIntent, FormatResult} from "./activityResultTextWriter";
 
 describe('Activity Result Text Writer', () => {
     let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -113,5 +113,16 @@ describe('Activity Result Text Writer', () => {
         expect(outputStrings[0]).toBe("Knight uses Longsword Sweep")
         expect(outputStrings[1]).toBe("Thief takes 1 damage")
         expect(outputStrings[2]).toBe("Rogue takes 1 damage")
+    });
+
+    it('Explains intent to use a power', () => {
+        const outputStrings: string[] = FormatIntent({
+            currentActivity: longswordSweepActivity,
+            actingDynamicId: knightDynamic.dynamicSquaddieId,
+            squaddieRepository,
+        });
+
+        expect(outputStrings).toHaveLength(1);
+        expect(outputStrings[0]).toBe("Knight uses Longsword Sweep")
     });
 });
