@@ -310,7 +310,10 @@ describe('target a squaddie within reach of activities', () => {
 
     it('should pass if there are no squaddies to act', () => {
         const allyTeam = new BattleSquaddieTeam({
-            affiliation: SquaddieAffiliation.ALLY, dynamicSquaddieIds: [], name: "Da team", squaddieRepo: squaddieRepository,
+            affiliation: SquaddieAffiliation.ALLY,
+            dynamicSquaddieIds: [],
+            name: "Da team",
+            squaddieRepo: squaddieRepository,
         })
 
         const state = new TeamStrategyState({

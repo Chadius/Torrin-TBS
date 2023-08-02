@@ -5,6 +5,7 @@ import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieEndTurnActivity} from "../battle/history/squaddieEndTurnActivity";
 import {TextBox} from "../ui/textBox";
+import p5 from "p5";
 
 export class ActivityButton {
     buttonArea: RectArea;
