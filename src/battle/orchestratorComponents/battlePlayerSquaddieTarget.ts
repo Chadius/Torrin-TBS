@@ -21,7 +21,7 @@ import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
 import {Label} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {calculateResults} from "./battleSquaddieSelectorUtils";
+import {CalculateResults} from "./battleSquaddieSelectorUtils";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -119,6 +119,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
     reset(state: OrchestratorState) {
         this.resetObject();
         state.hexMap.stopHighlightingTiles();
+        state.battleSquaddieUIInput.reset();
     }
 
     private resetObject() {
@@ -199,7 +200,6 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         const {
             staticSquaddie: targetSquaddieStatic,
             dynamicSquaddie: targetSquaddieDynamic,
-            squaddieMapLocation,
         } = GetSquaddieAtScreenLocation({
             mouseX,
             mouseY,
@@ -303,7 +303,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         );
 
         actingSquaddieDynamic.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentSquaddieActivity);
-        const instructionResults = calculateResults(state, actingSquaddieDynamic, this.validTargetLocation);
+        const instructionResults = CalculateResults(state, actingSquaddieDynamic, this.validTargetLocation);
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,

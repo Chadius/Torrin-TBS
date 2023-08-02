@@ -41,9 +41,7 @@ describe('BattleSquaddieTarget', () => {
     let thiefDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
     let longswordActivity: SquaddieActivity;
-    let powerAttackLongswordActivity: SquaddieActivity;
     let state: OrchestratorState;
-    let camera: BattleCamera;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5 = mocks.mockedP5();
 
@@ -73,21 +71,6 @@ describe('BattleSquaddieTarget', () => {
             actionsToSpend: 1,
             damageDescriptions: {
                 [DamageType.Body]: 2,
-            },
-        });
-
-        powerAttackLongswordActivity = new SquaddieActivity({
-            name: "power attack longsword",
-            id: "powerAttackLongsword",
-            traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
-            minimumRange: 1,
-            maximumRange: 1,
-            actionsToSpend: 3,
-            damageDescriptions: {
-                [DamageType.Body]: 5,
             },
         });
 
@@ -142,8 +125,6 @@ describe('BattleSquaddieTarget', () => {
             pathfinder: new Pathfinder(),
             resourceHandler: mockResourceHandler,
         });
-
-        camera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
     });
 
     function clickOnThief() {

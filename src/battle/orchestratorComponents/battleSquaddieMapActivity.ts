@@ -6,7 +6,7 @@ import {
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
-import {tintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
+import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
@@ -61,7 +61,7 @@ export class BattleSquaddieMapActivity implements OrchestratorComponent {
 
             if (mostRecentActivity instanceof SquaddieEndTurnActivity) {
                 dynamicSquaddie.endTurn();
-                tintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
+                TintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
             }
             this.animationCompleteStartTime = Date.now();
         }

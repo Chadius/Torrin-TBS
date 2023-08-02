@@ -50,6 +50,7 @@ describe('BattleComputerSquaddieSelector', () => {
     let enemyDemonDynamic: BattleSquaddieDynamic;
     let enemyDemonDynamic2: BattleSquaddieDynamic;
     let demonBiteActivity: SquaddieActivity;
+    let entireTurnDemonBiteActivity: SquaddieActivity;
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
@@ -83,6 +84,36 @@ describe('BattleComputerSquaddieSelector', () => {
             actionsToSpend: 2,
             damageDescriptions: {
                 [DamageType.Body]: 2,
+            },
+        });
+
+        demonBiteActivity = new SquaddieActivity({
+            name: "demon bite",
+            id: "demon_bite",
+            traits: new TraitStatusStorage({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+            minimumRange: 1,
+            maximumRange: 1,
+            actionsToSpend: 3,
+            damageDescriptions: {
+                [DamageType.Body]: 2,
+            },
+        });
+
+        entireTurnDemonBiteActivity = new SquaddieActivity({
+            name: "demon bite",
+            id: "demon_bite",
+            traits: new TraitStatusStorage({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+            minimumRange: 1,
+            maximumRange: 1,
+            actionsToSpend: 3,
+            damageDescriptions: {
+                [DamageType.Body]: 20,
             },
         });
 
@@ -269,13 +300,22 @@ describe('BattleComputerSquaddieSelector', () => {
     it('will change phase if no squaddies are able to act', () => {
         const battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
-        while (battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
-            let dynamicId = battlePhaseTracker.getCurrentTeam().getDynamicSquaddieIdThatCanActButNotPlayerControlled();
-            const {
-                dynamicSquaddie
-            } = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId(dynamicId));
+        enemyDemonDynamic.endTurn();
 
-            dynamicSquaddie.endTurn();
+        const squaddieSquaddieActivity: SquaddieInstruction = new SquaddieInstruction({
+            staticSquaddieId: enemyDemonStatic.staticId,
+            dynamicSquaddieId: enemyDemonDynamic2.dynamicSquaddieId,
+            startingLocation: new HexCoordinate({q: 0, r: 1}),
+        });
+        squaddieSquaddieActivity.addActivity(new SquaddieSquaddieActivity({
+            targetLocation: new HexCoordinate({q: 0, r: 0}),
+            squaddieActivity: entireTurnDemonBiteActivity,
+        }));
+
+        class TestTeamStrategy implements TeamStrategy {
+            DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+                return squaddieSquaddieActivity;
+            }
         }
 
         const state: OrchestratorState = new OrchestratorState({
@@ -285,12 +325,22 @@ describe('BattleComputerSquaddieSelector', () => {
             }),
             squaddieRepo,
             missionMap,
+            pathfinder: new Pathfinder(),
+            teamStrategyByAffiliation: {
+                ENEMY: [new TestTeamStrategy()],
+            },
         });
 
         selector.update(state, mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
-        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        let recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
+
+        selector.reset(state);
+        selector.update(state, mockedP5);
+        expect(selector.hasCompleted(state)).toBeTruthy();
+        recommendation = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
     });
 

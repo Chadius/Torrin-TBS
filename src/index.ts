@@ -19,6 +19,7 @@ import {SquaddieAffiliation} from "./squaddie/squaddieAffiliation";
 import {BattlePlayerSquaddieTarget} from "./battle/orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "./battle/orchestratorComponents/battleSquaddieSquaddieActivity";
 import {BattleComputerSquaddieSelector} from "./battle/orchestratorComponents/battleComputerSquaddieSelector";
+import {TargetSquaddieInRange} from "./battle/teamStrategy/targetSquaddieInRange";
 
 let battleOrchestrator: Orchestrator;
 let battleOrchestratorState: OrchestratorState;
@@ -117,9 +118,14 @@ export const sketch = (p: p5) => {
             battlePhaseTracker: new BattlePhaseTracker(),
             camera: new BattleCamera(0, 100),
             teamStrategyByAffiliation: {
-                ENEMY: [new MoveCloserToSquaddie({
-                    desiredAffiliation: SquaddieAffiliation.PLAYER
-                })],
+                ENEMY: [
+                    new TargetSquaddieInRange({
+                        desiredAffiliation: SquaddieAffiliation.PLAYER
+                    }),
+                    new MoveCloserToSquaddie({
+                        desiredAffiliation: SquaddieAffiliation.PLAYER
+                    })
+                ],
                 ALLY: [new EndTurnTeamStrategy()],
                 NONE: [new EndTurnTeamStrategy()],
             }

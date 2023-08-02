@@ -7,14 +7,15 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {highlightSquaddieReach} from "../animation/mapHighlight";
-import {CanPlayerControlSquaddieRightNow} from "../../squaddie/squaddieService";
+import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: OrchestratorState) => {
     if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
-        const {dynamicSquaddie} = getResultOrThrowError(
+        const {dynamicSquaddie, staticSquaddie} = getResultOrThrowError(
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
-        if (!dynamicSquaddie.squaddieTurn.hasActionsRemaining()) {
+        const actInfo = CanSquaddieActRightNow({dynamicSquaddie, staticSquaddie})
+        if (!actInfo.canAct) {
             state.squaddieCurrentlyActing.reset();
         }
     }

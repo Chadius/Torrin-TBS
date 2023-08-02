@@ -27,7 +27,7 @@ import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {addMovementInstruction, createSearchPath, maybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
+import {addMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 
 export class BattlePlayerSquaddieSelector implements OrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -302,7 +302,7 @@ export class BattlePlayerSquaddieSelector implements OrchestratorComponent {
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        maybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
+        MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
             state.squaddieCurrentlyActing.addSquaddie({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
