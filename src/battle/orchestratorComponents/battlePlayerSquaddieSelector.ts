@@ -27,7 +27,7 @@ import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {addMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
+import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 
 export class BattlePlayerSquaddieSelector implements OrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -232,7 +232,7 @@ export class BattlePlayerSquaddieSelector implements OrchestratorComponent {
 
         if (newSelectionState === BattleSquaddieUISelectionState.MOVING_SQUADDIE) {
             createSearchPath(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
-            addMovementInstruction(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
+            AddMovementInstruction(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
             this.gaveCompleteInstruction = true;
         }
     }

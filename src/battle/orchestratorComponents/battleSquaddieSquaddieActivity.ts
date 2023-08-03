@@ -7,12 +7,10 @@ import {
 } from "../orchestrator/orchestratorComponent";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import p5 from "p5";
-import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
-    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
-    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
+    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation
 } from "./orchestratorUtils";
 import {RectArea} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
@@ -48,7 +46,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
     }
 
     private getAnimationCompleted() {
-        return (this.animationCompleteStartTime !== undefined && Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
+        return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
     }
 
     mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {

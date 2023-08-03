@@ -66,16 +66,19 @@ export function createSearchPath(state: OrchestratorState, staticSquaddie: Battl
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
 
-export function addMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
+export function AddMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
     MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
 
-    state.squaddieCurrentlyActing.addConfirmedActivity(new SquaddieMovementActivity({
+    const moveActivity = new SquaddieMovementActivity({
         destination: destinationHexCoordinate,
         numberOfActionsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
-    }));
+    });
+
+    state.squaddieCurrentlyActing.addConfirmedActivity(moveActivity);
     state.battleEventRecording.addEvent(new BattleEvent({
         currentSquaddieInstruction: state.squaddieCurrentlyActing,
     }));
+    return moveActivity;
 }
 
 export function MaybeCreateSquaddieInstruction(state: OrchestratorState, dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
@@ -130,6 +133,14 @@ export function CalculateResults(state: OrchestratorState, actingSquaddieDynamic
 }
 
 export function MaybeEndSquaddieTurn(state: OrchestratorState) {
+    if (!state.squaddieCurrentlyActing) {
+        return;
+    }
+
+    if (!state.squaddieCurrentlyActing.dynamicSquaddieId) {
+        return;
+    }
+
     const {
         dynamicSquaddie: actingSquaddieDynamic,
         staticSquaddie: actingSquaddieStatic

@@ -19,7 +19,6 @@ import {BattleCamera, PanningInformation} from "../battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
@@ -331,7 +330,13 @@ describe('BattleComputerSquaddieSelector', () => {
             },
         });
 
+        jest.spyOn(Date, 'now').mockImplementation(() => 0);
         selector.update(state, mockedP5);
+
+
+        jest.spyOn(Date, 'now').mockImplementation(() => 0);
+        selector.update(state, mockedP5);
+        jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
         let recommendation: OrchestratorChanges = selector.recommendStateChanges(state);

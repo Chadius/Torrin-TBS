@@ -9,11 +9,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {OrchestratorState} from "../orchestrator/orchestratorState";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
-import {BattleCamera} from "../battleCamera";
-import {
-    convertMapCoordinatesToScreenCoordinates,
-    convertMapCoordinatesToWorldCoordinates
-} from "../../hexMap/convertCoordinates";
+import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
