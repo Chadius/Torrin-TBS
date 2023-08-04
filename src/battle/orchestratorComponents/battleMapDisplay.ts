@@ -1,20 +1,19 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import p5 from "p5";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
-export class BattleMapDisplay implements OrchestratorComponent {
-    draw(state: OrchestratorState, p: p5): void {
-        p.colorMode("hsb", 360, 100, 100, 255)
+export class BattleMapDisplay implements BattleOrchestratorComponent {
+    draw(state: BattleOrchestratorState, p: p5): void {
         p.background(50, 10, 20);
 
         if (state.hexMap) {
@@ -27,11 +26,11 @@ export class BattleMapDisplay implements OrchestratorComponent {
         state.battleSquaddieSelectedHUD.draw(state.squaddieCurrentlyActing, state, p);
     }
 
-    hasCompleted(state: OrchestratorState): boolean {
+    hasCompleted(state: BattleOrchestratorState): boolean {
         return false;
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
         }
@@ -40,14 +39,14 @@ export class BattleMapDisplay implements OrchestratorComponent {
         }
     }
 
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
         return new UIControlSettings({});
     }
 
-    moveCameraBasedOnMouseMovement(state: OrchestratorState, mouseX: number, mouseY: number) {
+    moveCameraBasedOnMouseMovement(state: BattleOrchestratorState, mouseX: number, mouseY: number) {
         if (state.camera.isPanning()) {
             return;
         }
@@ -114,11 +113,18 @@ export class BattleMapDisplay implements OrchestratorComponent {
         }
     }
 
-    update(state: OrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, p: p5): void {
         this.draw(state, p);
     }
 
-    private drawSquaddieMapIcons(state: OrchestratorState, p: p5) {
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+        return undefined;
+    }
+
+    reset(state: BattleOrchestratorState) {
+    }
+
+    private drawSquaddieMapIcons(state: BattleOrchestratorState, p: p5) {
         const noSquaddieIsCurrentlyActing: boolean = state.squaddieCurrentlyActing === undefined;
         state.squaddieRepository.getDynamicSquaddieIterator()
             .filter((info) =>
@@ -137,12 +143,5 @@ export class BattleMapDisplay implements OrchestratorComponent {
                     }
                 }
             });
-    }
-
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
-        return undefined;
-    }
-
-    reset(state: OrchestratorState) {
     }
 }

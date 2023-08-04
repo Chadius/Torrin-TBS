@@ -1,4 +1,4 @@
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
@@ -14,7 +14,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
+} from "../orchestrator/battleOrchestratorComponent";
 import {Label} from "../../ui/label";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
@@ -179,7 +179,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         battleEventRecording.addEvent(newEvent);
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: squaddieInstructionInProgress,
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,
@@ -229,7 +229,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         battleEventRecording.addEvent(newEvent);
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 instruction: oneActionInstruction,
                 currentSquaddieActivity: powerAttackLongswordActivity,
@@ -276,7 +276,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         battleEventRecording.addEvent(newEvent);
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: squaddieInstructionInProgress,
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,
@@ -333,7 +333,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         })
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: squaddieInstructionInProgress,
             squaddieRepo: squaddieRepository,
             resourceHandler: mockResourceHandler,

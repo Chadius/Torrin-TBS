@@ -7,10 +7,6 @@ export class Recording {
         this._history = [];
     }
 
-    addEvent(battleEvent: BattleEvent) {
-        this._history.push(battleEvent);
-    }
-
     get mostRecentEvent(): BattleEvent {
         if (this._history.length === 0) {
             return undefined;
@@ -21,5 +17,9 @@ export class Recording {
 
     get history(): BattleEvent[] {
         return [...this._history];
+    }
+
+    addEvent(battleEvent: BattleEvent) {
+        this._history.push(battleEvent);
     }
 }

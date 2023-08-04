@@ -23,6 +23,19 @@ export class DialogueAnswerButton {
         this.createUIObjects();
     }
 
+    draw(p: p5) {
+        this.answerLabel.draw(p);
+    }
+
+    buttonWasClicked(mouseX: number, mouseY: number): boolean {
+        return (
+            mouseX >= this.buttonRect.left
+            && mouseX <= this.buttonRect.left + this.buttonRect.width
+            && mouseY >= this.buttonRect.top
+            && mouseY <= this.buttonRect.top + this.buttonRect.height
+        );
+    }
+
     private createUIObjects() {
         const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
         const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
@@ -42,18 +55,5 @@ export class DialogueAnswerButton {
             horizAlign: HORIZ_ALIGN_CENTER,
             vertAlign: VERT_ALIGN_CENTER
         })
-    }
-
-    draw(p: p5) {
-        this.answerLabel.draw(p);
-    }
-
-    buttonWasClicked(mouseX: number, mouseY: number): boolean {
-        return (
-            mouseX >= this.buttonRect.left
-            && mouseX <= this.buttonRect.left + this.buttonRect.width
-            && mouseY >= this.buttonRect.top
-            && mouseY <= this.buttonRect.top + this.buttonRect.height
-        );
     }
 }

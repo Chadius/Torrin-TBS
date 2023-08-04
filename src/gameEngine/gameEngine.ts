@@ -1,14 +1,6 @@
 import p5 from "p5";
-import {Orchestrator} from "../battle/orchestrator/orchestrator";
-import {OrchestratorState} from "../battle/orchestrator/orchestratorState";
-import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
-import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
-import {BattlePhaseTracker} from "../battle/orchestratorComponents/battlePhaseTracker";
-import {BattleCamera} from "../battle/battleCamera";
-import {TargetSquaddieInRange} from "../battle/teamStrategy/targetSquaddieInRange";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {MoveCloserToSquaddie} from "../battle/teamStrategy/moveCloserToSquaddie";
-import {EndTurnTeamStrategy} from "../battle/teamStrategy/endTurn";
+import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
+import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../battle/orchestratorComponents/battlePlayerSquaddieSelector";
@@ -19,129 +11,65 @@ import {BattleMapDisplay} from "../battle/orchestratorComponents/battleMapDispla
 import {BattlePhaseController} from "../battle/orchestratorComponents/battlePhaseController";
 import {BattlePlayerSquaddieTarget} from "../battle/orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "../battle/orchestratorComponents/battleSquaddieSquaddieActivity";
+import {MouseButton} from "../utils/mouseConfig";
+import {GameModeEnum} from "../utils/startupConfig";
+import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
+import {TitleScreen} from "../titleScreen/titleScreen";
+import {TitleScreenState} from "../titleScreen/titleScreenState";
+
+export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
 export class GameEngine {
-    get battleOrchestrator(): Orchestrator {
+    private readonly graphicsContext: p5;
+
+    constructor({graphicsContext, startupMode}: { graphicsContext: p5, startupMode: GameModeEnum }) {
+        this.graphicsContext = graphicsContext;
+        this._currentMode = startupMode;
+    }
+
+    private _titleScreen: TitleScreen;
+
+    get titleScreen(): TitleScreen {
+        return this._titleScreen;
+    }
+
+    private _titleScreenState: TitleScreenState;
+
+    get titleScreenState(): TitleScreenState {
+        return this._titleScreenState;
+    }
+
+    get component(): GameEngineComponent {
+        switch (this.currentMode) {
+            case GameModeEnum.TITLE_SCREEN:
+                return this.titleScreen;
+            case GameModeEnum.BATTLE:
+                return this.battleOrchestrator;
+            default:
+                throw new Error(`Cannot find component for Game Engine mode ${this.currentMode}`);
+        }
+    }
+
+    private _currentMode: GameModeEnum;
+
+    get currentMode(): GameModeEnum {
+        return this._currentMode;
+    }
+
+    private _battleOrchestrator: BattleOrchestrator;
+
+    get battleOrchestrator(): BattleOrchestrator {
         return this._battleOrchestrator;
     }
-    get battleOrchestratorState(): OrchestratorState {
+
+    private _battleOrchestratorState: BattleOrchestratorState;
+
+    get battleOrchestratorState(): BattleOrchestratorState {
         return this._battleOrchestratorState;
     }
 
-    private graphicsContext: p5;
-    private _battleOrchestrator: Orchestrator;
-    private _battleOrchestratorState: OrchestratorState;
-
-    constructor({graphicsContext}: {graphicsContext: p5}) {
-        this.graphicsContext = graphicsContext;
-    }
-
-
-    setup() {
-        this._battleOrchestratorState = new OrchestratorState({
-            resourceHandler: new ResourceHandler({
-                p: this.graphicsContext,
-                allResources: [
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/testPortrait0001.png",
-                        key: "crazy pete face",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-young-torrin.png",
-                        key: "map icon young torrin",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-sir-camil.png",
-                        key: "map icon sir camil",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-demon-slither.png",
-                        key: "map icon demon slither",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-1-action.png",
-                        key: "map icon move 1 action"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-2-actions.png",
-                        key: "map icon move 2 actions"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-3-actions.png",
-                        key: "map icon move 3 actions"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-attack-1-action.png",
-                        key: "map icon attack 1 action"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-crusaders.png",
-                        key: "affiliate_icon_crusaders"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-infiltrators.png",
-                        key: "affiliate_icon_infiltrators"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-western.png",
-                        key: "affiliate_icon_western"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-none.png",
-                        key: "affiliate_icon_none"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/phase-banner-player.png",
-                        key: "phase banner player",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/phase-banner-enemy.png",
-                        key: "phase banner enemy",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/icon-armor-class.png",
-                        key: "armor class icon",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/icon-hit-points.png",
-                        key: "hit points icon",
-                    },
-                ],
-            }),
-            squaddieRepo: new BattleSquaddieRepository(),
-            battlePhaseTracker: new BattlePhaseTracker(),
-            camera: new BattleCamera(0, 100),
-            teamStrategyByAffiliation: {
-                ENEMY: [
-                    new TargetSquaddieInRange({
-                        desiredAffiliation: SquaddieAffiliation.PLAYER
-                    }),
-                    new MoveCloserToSquaddie({
-                        desiredAffiliation: SquaddieAffiliation.PLAYER
-                    })
-                ],
-                ALLY: [new EndTurnTeamStrategy()],
-                NONE: [new EndTurnTeamStrategy()],
-            }
-        });
-
-        this._battleOrchestrator = new Orchestrator({
+    setup({graphicsContext}: { graphicsContext: p5 }) {
+        this._battleOrchestrator = new BattleOrchestrator({
             missionLoader: new BattleMissionLoader(),
             cutscenePlayer: new BattleCutscenePlayer(),
             playerSquaddieSelector: new BattlePlayerSquaddieSelector(),
@@ -153,21 +81,48 @@ export class GameEngine {
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
             squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
         });
+
+        this._battleOrchestratorState = this.battleOrchestrator.setup({graphicsContext});
+
+        this._titleScreen = new TitleScreen();
+        this._titleScreenState = this.titleScreen.setup({graphicsContext})
     }
 
     draw() {
-        this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+        this.component.update(this.getComponentState(), this.graphicsContext);
+        this.update({graphicsContext: this.graphicsContext});
     }
 
     keyPressed(keyCode: number) {
-        this.battleOrchestrator.keyPressed(this._battleOrchestratorState, keyCode);
+        this.component.keyPressed(this.getComponentState(), keyCode);
     }
 
-    mouseClicked(mouseButton: "LEFT"|"CENTER"|"RIGHT", mouseX: number, mouseY: number) {
-        this.battleOrchestrator.mouseClicked(this.battleOrchestratorState, mouseX, mouseY);
+    mouseClicked(mouseButton: MouseButton, mouseX: number, mouseY: number) {
+        this.component.mouseClicked(this.getComponentState(), mouseButton, mouseX, mouseY);
     }
 
     mouseMoved(mouseX: number, mouseY: number) {
-        this.battleOrchestrator.mouseMoved(this.battleOrchestratorState, mouseX, mouseY);
+        this.component.mouseMoved(this.getComponentState(), mouseX, mouseY);
+    }
+
+    update({graphicsContext}: { graphicsContext: p5 }) {
+        this.component.update(this.getComponentState(), graphicsContext);
+        if (this.component.hasCompleted(this.getComponentState())) {
+            const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
+            this.component.reset(this.getComponentState());
+            this._currentMode = orchestrationChanges.nextMode || GameModeEnum.TITLE_SCREEN;
+        }
+
+    }
+
+    private getComponentState(): GameEngineComponentState {
+        switch (this.currentMode) {
+            case GameModeEnum.TITLE_SCREEN:
+                return this.titleScreenState;
+            case GameModeEnum.BATTLE:
+                return this.battleOrchestratorState;
+            default:
+                throw new Error(`Cannot find component state for Game Engine mode ${this.currentMode}`);
+        }
     }
 }

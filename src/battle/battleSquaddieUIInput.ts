@@ -21,8 +21,6 @@ export type BattleSquaddieUIInputOptions = {
 }
 
 export class BattleSquaddieUIInput {
-    private _selectionState: BattleSquaddieUISelectionState;
-    private _squaddieInstructionInProgress: SquaddieInstructionInProgress;
     selectedSquaddieDynamicID?: string;
     missionMap: MissionMap;
     tileClickedOn?: HexCoordinate;
@@ -49,6 +47,18 @@ export class BattleSquaddieUIInput {
         } = options);
     }
 
+    private _selectionState: BattleSquaddieUISelectionState;
+
+    get selectionState(): BattleSquaddieUISelectionState {
+        return this._selectionState;
+    }
+
+    private _squaddieInstructionInProgress: SquaddieInstructionInProgress;
+
+    get squaddieInstructionInProgress(): SquaddieInstructionInProgress {
+        return this._squaddieInstructionInProgress;
+    }
+
     reset() {
         this.changeSelectionState(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
     }
@@ -58,13 +68,5 @@ export class BattleSquaddieUIInput {
         if (dynamicSquaddieId !== undefined && dynamicSquaddieId !== null) {
             this.selectedSquaddieDynamicID = dynamicSquaddieId;
         }
-    }
-
-    get selectionState(): BattleSquaddieUISelectionState {
-        return this._selectionState;
-    }
-
-    get squaddieInstructionInProgress(): SquaddieInstructionInProgress {
-        return this._squaddieInstructionInProgress;
     }
 }

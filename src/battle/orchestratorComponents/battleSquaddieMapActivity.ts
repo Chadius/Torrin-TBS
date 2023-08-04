@@ -1,10 +1,10 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import p5 from "p5";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
@@ -14,42 +14,42 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 const ACTIVITY_COMPLETED_WAIT_TIME_MS = 500;
 
-export class BattleSquaddieMapActivity implements OrchestratorComponent {
+export class BattleSquaddieMapActivity implements BattleOrchestratorComponent {
     animationCompleteStartTime?: number;
 
     constructor() {
         this.animationCompleteStartTime = undefined;
     }
 
-    hasCompleted(state: OrchestratorState): boolean {
+    hasCompleted(state: BattleOrchestratorState): boolean {
         return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
         return new UIControlSettings({
             displayMap: true,
             scrollCamera: false,
         });
     }
 
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
         }
     }
 
-    reset(state: OrchestratorState): void {
+    reset(state: BattleOrchestratorState): void {
         this.animationCompleteStartTime = undefined;
         ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     }
 
-    update(state: OrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, p: p5): void {
         if (this.animationCompleteStartTime === undefined) {
             const dynamicSquaddieId = state.squaddieCurrentlyActing.instruction.getDynamicSquaddieId();
             const {

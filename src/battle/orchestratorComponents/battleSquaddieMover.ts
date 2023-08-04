@@ -1,10 +1,10 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {
     hasMovementAnimationFinished,
@@ -23,34 +23,34 @@ import {
 } from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
-export class BattleSquaddieMover implements OrchestratorComponent {
+export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
 
     constructor() {
         this.animationStartTime = undefined;
     }
 
-    hasCompleted(state: OrchestratorState): boolean {
+    hasCompleted(state: BattleOrchestratorState): boolean {
         if (state.squaddieMovePath === undefined) {
             return true;
         }
         return this.animationStartTime && hasMovementAnimationFinished(this.animationStartTime, state.squaddieMovePath);
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
         });
     }
 
-    update(state: OrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, p: p5): void {
         if (!this.animationStartTime) {
             this.animationStartTime = Date.now();
 
@@ -70,7 +70,30 @@ export class BattleSquaddieMover implements OrchestratorComponent {
         }
     }
 
-    private updateWhileAnimationIsInProgress(state: OrchestratorState, p: p5) {
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+        return {
+            displayMap: true,
+        }
+    }
+
+    reset(state: BattleOrchestratorState) {
+        state.squaddieMovePath = undefined;
+        this.animationStartTime = undefined;
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+
+        if (
+            state.squaddieCurrentlyActing
+            && state.squaddieCurrentlyActing.instruction
+            && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
+        ) {
+            state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
+        }
+
+        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
+        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
+    }
+
+    private updateWhileAnimationIsInProgress(state: BattleOrchestratorState, p: p5) {
         const {
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(
@@ -83,7 +106,7 @@ export class BattleSquaddieMover implements OrchestratorComponent {
         }
     }
 
-    private updateWhenAnimationCompletes(state: OrchestratorState, p: p5) {
+    private updateWhenAnimationCompletes(state: BattleOrchestratorState, p: p5) {
         const {
             staticSquaddie,
             dynamicSquaddie,
@@ -104,28 +127,5 @@ export class BattleSquaddieMover implements OrchestratorComponent {
         }
         state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
         state.hexMap.stopHighlightingTiles();
-    }
-
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
-        return {
-            displayMap: true,
-        }
-    }
-
-    reset(state: OrchestratorState) {
-        state.squaddieMovePath = undefined;
-        this.animationStartTime = undefined;
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-
-        if (
-            state.squaddieCurrentlyActing
-            && state.squaddieCurrentlyActing.instruction
-            && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
-        ) {
-            state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
-        }
-
-        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
-        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
     }
 }

@@ -2,7 +2,7 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -110,7 +110,7 @@ describe('BattleSquaddieMover', () => {
         });
         squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving("player_1");
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieRepo,
             battleSquaddieUIInput: uiInput,
             pathfinder,
@@ -151,7 +151,7 @@ describe('BattleSquaddieMover', () => {
             dynamicSquaddieId: string,
             squaddieAffiliation: SquaddieAffiliation,
             newInstruction: SquaddieInstruction,
-        }): OrchestratorState => {
+        }): BattleOrchestratorState => {
             const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
                 selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
                 missionMap: map,
@@ -180,7 +180,7 @@ describe('BattleSquaddieMover', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            return new OrchestratorState({
+            return new BattleOrchestratorState({
                 squaddieRepo,
                 battleSquaddieUIInput: uiInput,
                 pathfinder,

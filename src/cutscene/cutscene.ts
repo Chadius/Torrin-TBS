@@ -49,77 +49,6 @@ export class Cutscene {
         this.setUpFastForwardButton();
     }
 
-    private collectResourceLocatorsAndKeys() {
-        const onlyUnique = (value: ResourceLocator, index: number, self: ResourceLocator[]) => {
-            return self.findIndex(res => res.type == value.type && res.key == value.key) === index;
-        }
-
-        this.allResourceLocators = this.dialogueActions.map(action => action.getResourceLocators())
-            .flat()
-            .filter(x => x && x.key)
-            .filter(onlyUnique);
-        this.allResourceKeys = this.allResourceLocators.map(res => res.key)
-    }
-
-    private setUpFastForwardButton() {
-        this.fastForwardPreviousTimeTick = undefined;
-
-        const fastForwardButtonLocation = this.getFastForwardButtonLocation();
-        const buttonActivateBackgroundColor: [number, number, number] = [200, 10, 50];
-        const buttonDeactivateBackgroundColor: [number, number, number] = [200, 5, 30];
-        const buttonTextColor: [number, number, number] = [0, 0, 0];
-
-        const buttonArea = new RectArea({
-            left: fastForwardButtonLocation.left,
-            top: fastForwardButtonLocation.top,
-            width: fastForwardButtonLocation.width,
-            height: fastForwardButtonLocation.height
-        });
-
-        this.fastForwardButton = new Button({
-            activeLabel: new Label({
-                text: "Stop FF",
-                fillColor: buttonDeactivateBackgroundColor,
-                area: buttonArea,
-                textSize: WINDOW_SPACING4,
-                fontColor: buttonTextColor,
-                padding: WINDOW_SPACING1,
-                horizAlign: HORIZ_ALIGN_CENTER,
-                vertAlign: VERT_ALIGN_CENTER,
-            }),
-            readyLabel: new Label({
-                text: "Fast-forward",
-                fillColor: buttonActivateBackgroundColor,
-                area: buttonArea,
-                textSize: WINDOW_SPACING4,
-                fontColor: buttonTextColor,
-                padding: WINDOW_SPACING1,
-                horizAlign: HORIZ_ALIGN_CENTER,
-                vertAlign: VERT_ALIGN_CENTER,
-            }),
-            hoverLabel: new Label({
-                text: "Click to FF",
-                fillColor: buttonActivateBackgroundColor,
-                area: buttonArea,
-                textSize: WINDOW_SPACING4,
-                fontColor: buttonTextColor,
-                padding: WINDOW_SPACING1,
-                horizAlign: HORIZ_ALIGN_CENTER,
-                vertAlign: VERT_ALIGN_CENTER,
-            }),
-            initialStatus: ButtonStatus.READY,
-            onClickHandler(mouseX: number, mouseY: number, button: Button, caller: Cutscene): {} {
-                caller.toggleFastForwardMode();
-                if (caller.isFastForward()) {
-                    button.setStatus(ButtonStatus.ACTIVE);
-                } else {
-                    button.setStatus(ButtonStatus.READY);
-                }
-                return;
-            }
-        })
-    }
-
     hasLoaded(): boolean {
         if (!this.doesResourceHandlerExist()) {
             return true;
@@ -175,13 +104,6 @@ export class Cutscene {
         }
 
         this.resourceHandler.loadResources(this.allResourceKeys);
-    }
-
-    private doesResourceHandlerExist(): boolean {
-        if (!this.resourceHandler) {
-            return false;
-        }
-        return this.allResourceLocators && this.allResourceLocators.length > 0;
     }
 
     setResources() {
@@ -262,24 +184,6 @@ export class Cutscene {
         this.dialogueActionIndex = nextAction.actionIndex;
     }
 
-    private getTriggeredAction(): DecisionTrigger {
-        if (
-            this.currentAction === undefined
-        ) {
-            return undefined;
-        }
-
-        const selectedAnswer = this.currentAction instanceof DialogueBox ? this.currentAction.answerSelected : undefined;
-
-        return this.decisionTriggers.find((action) =>
-                action.source_dialog_id === this.currentAction.getId()
-                && (
-                    !action.doesThisRequireAMatchingAnswer()
-                    || action.source_dialog_answer === selectedAnswer
-                )
-        );
-    }
-
     getCurrentAction(): CutsceneAction {
         return this.currentAction;
     }
@@ -289,47 +193,8 @@ export class Cutscene {
         this.dialogueActionIndex = undefined;
     }
 
-    private findDialogueByID(target_id: string): CutsceneAction | undefined {
-        return this.dialogueActions.find((dialog) =>
-            dialog.getId() === target_id
-        );
-    }
-
-    private findDialogueIndexByID(target_id: string): number {
-        return this.dialogueActions.findIndex((dialog) =>
-            dialog.getId() === target_id
-        );
-    }
-
     isFastForward(): boolean {
         return this.fastForwardPreviousTimeTick !== undefined;
-    }
-
-    private getFastForwardButtonLocation() {
-        return {
-            left: this.screenDimensions.width * 0.8,
-            top: this.screenDimensions.height * 0.1,
-            width: this.screenDimensions.width * 0.15,
-            height: this.screenDimensions.height * 0.1
-        };
-    }
-
-    private toggleFastForwardMode(): void {
-        if (this.isFastForward()) {
-            this.deactivateFastForwardMode();
-            this.fastForwardButton.setStatus(ButtonStatus.READY);
-            return;
-        }
-        this.activateFastForwardMode();
-        this.fastForwardButton.setStatus(ButtonStatus.ACTIVE);
-    }
-
-    private activateFastForwardMode(): void {
-        this.fastForwardPreviousTimeTick = Date.now();
-    }
-
-    private deactivateFastForwardMode(): void {
-        this.fastForwardPreviousTimeTick = undefined;
     }
 
     update(): void {
@@ -369,5 +234,140 @@ export class Cutscene {
         }
 
         return !(this.currentAction instanceof DialogueBox && this.currentAction.asksUserForAnAnswer());
+    }
+
+    private collectResourceLocatorsAndKeys() {
+        const onlyUnique = (value: ResourceLocator, index: number, self: ResourceLocator[]) => {
+            return self.findIndex(res => res.type == value.type && res.key == value.key) === index;
+        }
+
+        this.allResourceLocators = this.dialogueActions.map(action => action.getResourceLocators())
+            .flat()
+            .filter(x => x && x.key)
+            .filter(onlyUnique);
+        this.allResourceKeys = this.allResourceLocators.map(res => res.key)
+    }
+
+    private setUpFastForwardButton() {
+        this.fastForwardPreviousTimeTick = undefined;
+
+        const fastForwardButtonLocation = this.getFastForwardButtonLocation();
+        const buttonActivateBackgroundColor: [number, number, number] = [200, 10, 50];
+        const buttonDeactivateBackgroundColor: [number, number, number] = [200, 5, 30];
+        const buttonTextColor: [number, number, number] = [0, 0, 0];
+
+        const buttonArea = new RectArea({
+            left: fastForwardButtonLocation.left,
+            top: fastForwardButtonLocation.top,
+            width: fastForwardButtonLocation.width,
+            height: fastForwardButtonLocation.height
+        });
+
+        this.fastForwardButton = new Button({
+            activeLabel: new Label({
+                text: "Stop FF",
+                fillColor: buttonDeactivateBackgroundColor,
+                area: buttonArea,
+                textSize: WINDOW_SPACING4,
+                fontColor: buttonTextColor,
+                padding: WINDOW_SPACING1,
+                horizAlign: HORIZ_ALIGN_CENTER,
+                vertAlign: VERT_ALIGN_CENTER,
+            }),
+            readyLabel: new Label({
+                text: "Fast-forward",
+                fillColor: buttonActivateBackgroundColor,
+                area: buttonArea,
+                textSize: WINDOW_SPACING4,
+                fontColor: buttonTextColor,
+                padding: WINDOW_SPACING1,
+                horizAlign: HORIZ_ALIGN_CENTER,
+                vertAlign: VERT_ALIGN_CENTER,
+            }),
+            hoverLabel: new Label({
+                text: "Click to FF",
+                fillColor: buttonActivateBackgroundColor,
+                area: buttonArea,
+                textSize: WINDOW_SPACING4,
+                fontColor: buttonTextColor,
+                padding: WINDOW_SPACING1,
+                horizAlign: HORIZ_ALIGN_CENTER,
+                vertAlign: VERT_ALIGN_CENTER,
+            }),
+            initialStatus: ButtonStatus.READY,
+            onClickHandler(mouseX: number, mouseY: number, button: Button, caller: Cutscene): {} {
+                caller.toggleFastForwardMode();
+                if (caller.isFastForward()) {
+                    button.setStatus(ButtonStatus.ACTIVE);
+                } else {
+                    button.setStatus(ButtonStatus.READY);
+                }
+                return;
+            }
+        })
+    }
+
+    private doesResourceHandlerExist(): boolean {
+        if (!this.resourceHandler) {
+            return false;
+        }
+        return this.allResourceLocators && this.allResourceLocators.length > 0;
+    }
+
+    private getTriggeredAction(): DecisionTrigger {
+        if (
+            this.currentAction === undefined
+        ) {
+            return undefined;
+        }
+
+        const selectedAnswer = this.currentAction instanceof DialogueBox ? this.currentAction.answerSelected : undefined;
+
+        return this.decisionTriggers.find((action) =>
+                action.source_dialog_id === this.currentAction.getId()
+                && (
+                    !action.doesThisRequireAMatchingAnswer()
+                    || action.source_dialog_answer === selectedAnswer
+                )
+        );
+    }
+
+    private findDialogueByID(target_id: string): CutsceneAction | undefined {
+        return this.dialogueActions.find((dialog) =>
+            dialog.getId() === target_id
+        );
+    }
+
+    private findDialogueIndexByID(target_id: string): number {
+        return this.dialogueActions.findIndex((dialog) =>
+            dialog.getId() === target_id
+        );
+    }
+
+    private getFastForwardButtonLocation() {
+        return {
+            left: this.screenDimensions.width * 0.8,
+            top: this.screenDimensions.height * 0.1,
+            width: this.screenDimensions.width * 0.15,
+            height: this.screenDimensions.height * 0.1
+        };
+    }
+
+    private toggleFastForwardMode(): void {
+        if (this.isFastForward()) {
+            this.deactivateFastForwardMode();
+            this.fastForwardButton.setStatus(ButtonStatus.READY);
+            return;
+        }
+        this.activateFastForwardMode();
+        this.fastForwardButton.setStatus(ButtonStatus.ACTIVE);
+    }
+
+    private activateFastForwardMode(): void {
+        this.fastForwardPreviousTimeTick = Date.now();
+    }
+
+    private deactivateFastForwardMode(): void {
+        this.fastForwardPreviousTimeTick = undefined;
     }
 }

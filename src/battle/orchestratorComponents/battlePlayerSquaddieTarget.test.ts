@@ -7,7 +7,7 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
@@ -16,8 +16,8 @@ import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
-import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
@@ -37,7 +37,7 @@ describe('BattleSquaddieTarget', () => {
     let thiefDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
     let longswordActivity: SquaddieActivity;
-    let state: OrchestratorState;
+    let state: BattleOrchestratorState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5 = mocks.mockedP5();
 
@@ -113,7 +113,7 @@ describe('BattleSquaddieTarget', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        state = new OrchestratorState({
+        state = new BattleOrchestratorState({
             missionMap: battleMap,
             squaddieRepo,
             hexMap: battleMap.terrainTileMap,

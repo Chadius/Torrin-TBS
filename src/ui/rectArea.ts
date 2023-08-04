@@ -134,27 +134,6 @@ type RectWidth = PositionWidth
 export type RectArguments = RectTop & RectLeft & RectHeight & RectWidth & Partial<Alignment>
 
 export class RectArea {
-    get height(): number {
-        return this._height;
-    }
-
-    get width(): number {
-        return this._width;
-    }
-
-    get left(): number {
-        return this._left;
-    }
-
-    get top(): number {
-        return this._top;
-    }
-
-    private _top: number;
-    private _left: number;
-    private _width: number;
-    private _height: number;
-
     constructor(params: RectArguments) {
         this.setRectTop(params);
         this.setRectLeft(params);
@@ -164,6 +143,65 @@ export class RectArea {
 
         this.alignVertically(params as Alignment);
         this.alignHorizontally(params as Alignment);
+    }
+
+    private _top: number;
+
+    get top(): number {
+        return this._top;
+    }
+
+    private _left: number;
+
+    get left(): number {
+        return this._left;
+    }
+
+    private _width: number;
+
+    get width(): number {
+        return this._width;
+    }
+
+    private _height: number;
+
+    get height(): number {
+        return this._height;
+    }
+
+    get bottom(): number {
+        return this._top + this._height;
+    }
+
+    get right(): number {
+        return this._left + this._width;
+    }
+
+    get centerY(): number {
+        return this._top + (this._height / 2);
+    }
+
+    get centerX(): number {
+        return this._left + (this._width / 2);
+    }
+
+    move(params: RectLeft & RectTop) {
+        this.setRectLeft(params);
+        this.setRectTop(params);
+    }
+
+    align(params: Alignment) {
+        this.alignHorizontally(params);
+        this.alignVertically(params);
+    }
+
+    public isInside(coordinateX: number, coordinateY: number): boolean {
+        return (
+            coordinateX >= this._left
+            && coordinateX <= this._left + this._width
+            && coordinateY >= this._top
+            && coordinateY <= this._top + this._height
+        );
     }
 
     private setRectTop(params: RectTop) {
@@ -215,11 +253,6 @@ export class RectArea {
         }
 
         this._top = top;
-    }
-
-    move(params: RectLeft & RectTop) {
-        this.setRectLeft(params);
-        this.setRectTop(params);
     }
 
     private setRectLeft(params: RectLeft) {
@@ -407,27 +440,6 @@ export class RectArea {
         }
     }
 
-    get bottom(): number {
-        return this._top + this._height;
-    }
-
-    get right(): number {
-        return this._left + this._width;
-    }
-
-    get centerY(): number {
-        return this._top + (this._height / 2);
-    }
-
-    get centerX(): number {
-        return this._left + (this._width / 2);
-    }
-
-    align(params: Alignment) {
-        this.alignHorizontally(params);
-        this.alignVertically(params);
-    }
-
     private alignHorizontally(params: Alignment) {
         if (!params) {
             return;
@@ -454,14 +466,5 @@ export class RectArea {
             default:
                 break;
         }
-    }
-
-    public isInside(coordinateX: number, coordinateY: number): boolean {
-        return (
-            coordinateX >= this._left
-            && coordinateX <= this._left + this._width
-            && coordinateY >= this._top
-            && coordinateY <= this._top + this._height
-        );
     }
 }

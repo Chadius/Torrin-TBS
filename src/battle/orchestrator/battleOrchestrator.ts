@@ -1,13 +1,13 @@
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "./orchestratorComponent";
-import {OrchestratorState} from "./orchestratorState";
+} from "./battleOrchestratorComponent";
+import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
@@ -19,6 +19,17 @@ import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayer
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
+import {GameEngineChanges, GameEngineComponent} from "../../gameEngine/gameEngineComponent";
+import {MouseButton} from "../../utils/mouseConfig";
+import {GameEngineComponentState} from "../../gameEngine/gameEngine";
+import {ResourceHandler, ResourceType} from "../../resource/resourceHandler";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
+import {BattleCamera} from "../battleCamera";
+import {TargetSquaddieInRange} from "../teamStrategy/targetSquaddieInRange";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {MoveCloserToSquaddie} from "../teamStrategy/moveCloserToSquaddie";
+import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -33,14 +44,8 @@ export enum BattleOrchestratorMode {
     SQUADDIE_SQUADDIE_ACTIVITY = "SQUADDIE_SQUADDIE_ACTIVITY",
 }
 
-export class Orchestrator {
-    get uiControlSettings(): UIControlSettings {
-        return this._uiControlSettings;
-    }
-
+export class BattleOrchestrator implements GameEngineComponent {
     mode: BattleOrchestratorMode;
-    private _uiControlSettings: UIControlSettings;
-
     missionLoader: BattleMissionLoader;
     cutscenePlayer: BattleCutscenePlayer;
     playerSquaddieSelector: BattlePlayerSquaddieSelector;
@@ -90,7 +95,17 @@ export class Orchestrator {
         this.squaddieSquaddieActivity = squaddieSquaddieActivity;
     }
 
-    public getCurrentComponent(): OrchestratorComponent {
+    private _uiControlSettings: UIControlSettings;
+
+    get uiControlSettings(): UIControlSettings {
+        return this._uiControlSettings;
+    }
+
+    recommendStateChanges(state: GameEngineComponentState): GameEngineChanges {
+        return undefined;
+    }
+
+    public getCurrentComponent(): BattleOrchestratorComponent {
         switch (this.mode) {
             case BattleOrchestratorMode.LOADING_MISSION:
                 return this.missionLoader;
@@ -119,7 +134,7 @@ export class Orchestrator {
         return this.mode;
     }
 
-    public update(state: OrchestratorState, p: p5) {
+    public update(state: BattleOrchestratorState, p: p5) {
         if (this.uiControlSettings.displayBattleMap === true && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
             this.displayBattleMap(state, p);
         }
@@ -160,19 +175,19 @@ export class Orchestrator {
         }
     }
 
-    public updateComponent(state: OrchestratorState, currentComponent: OrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode) {
+    public updateComponent(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode) {
         currentComponent.update(state, p);
         const newUIControlSettingsChanges = currentComponent.uiControlSettings(state);
         this.uiControlSettings.update(newUIControlSettingsChanges);
 
         if (currentComponent.hasCompleted(state)) {
-            const orchestrationChanges: OrchestratorChanges = currentComponent.recommendStateChanges(state);
+            const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
             this.mode = orchestrationChanges.nextMode || defaultNextMode;
             currentComponent.reset(state);
         }
     }
 
-    public mouseClicked(state: OrchestratorState, mouseX: number, mouseY: number) {
+    public mouseClicked(state: BattleOrchestratorState, mouseButton: MouseButton, mouseX: number, mouseY: number) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -191,7 +206,7 @@ export class Orchestrator {
         }
     }
 
-    public mouseMoved(state: OrchestratorState, mouseX: number, mouseY: number) {
+    public mouseMoved(state: BattleOrchestratorState, mouseX: number, mouseY: number) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.MOVED,
             mouseX,
@@ -207,7 +222,7 @@ export class Orchestrator {
         }
     }
 
-    public keyPressed(state: OrchestratorState, keyCode: number) {
+    public keyPressed(state: BattleOrchestratorState, keyCode: number) {
         const keyEvent: OrchestratorComponentKeyEvent = {
             eventType: OrchestratorComponentKeyEventType.PRESSED,
             keyCode,
@@ -221,11 +236,123 @@ export class Orchestrator {
         }
     }
 
-    private updateUnknown(_: OrchestratorState) {
+    hasCompleted(state: GameEngineComponentState): boolean {
+        return false;
+    }
+
+    reset(state: GameEngineComponentState): void {
+    }
+
+    setup({graphicsContext}: { graphicsContext: p5 }): BattleOrchestratorState {
+        return new BattleOrchestratorState({
+            resourceHandler: new ResourceHandler({
+                p: graphicsContext,
+                allResources: [
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/testPortrait0001.png",
+                        key: "crazy pete face",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-young-torrin.png",
+                        key: "map icon young torrin",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-sir-camil.png",
+                        key: "map icon sir camil",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-demon-slither.png",
+                        key: "map icon demon slither",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-move-1-action.png",
+                        key: "map icon move 1 action"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-move-2-actions.png",
+                        key: "map icon move 2 actions"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-move-3-actions.png",
+                        key: "map icon move 3 actions"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-attack-1-action.png",
+                        key: "map icon attack 1 action"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-crusaders.png",
+                        key: "affiliate_icon_crusaders"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-infiltrators.png",
+                        key: "affiliate_icon_infiltrators"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-western.png",
+                        key: "affiliate_icon_western"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-none.png",
+                        key: "affiliate_icon_none"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/phase-banner-player.png",
+                        key: "phase banner player",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/phase-banner-enemy.png",
+                        key: "phase banner enemy",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/icon-armor-class.png",
+                        key: "armor class icon",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/icon-hit-points.png",
+                        key: "hit points icon",
+                    },
+                ],
+            }),
+            squaddieRepo: new BattleSquaddieRepository(),
+            battlePhaseTracker: new BattlePhaseTracker(),
+            camera: new BattleCamera(0, 100),
+            teamStrategyByAffiliation: {
+                ENEMY: [
+                    new TargetSquaddieInRange({
+                        desiredAffiliation: SquaddieAffiliation.PLAYER
+                    }),
+                    new MoveCloserToSquaddie({
+                        desiredAffiliation: SquaddieAffiliation.PLAYER
+                    })
+                ],
+                ALLY: [new EndTurnTeamStrategy()],
+                NONE: [new EndTurnTeamStrategy()],
+            }
+        });
+    }
+
+    private updateUnknown(_: BattleOrchestratorState) {
         this.mode = BattleOrchestratorMode.LOADING_MISSION;
     }
 
-    private displayBattleMap(state: OrchestratorState, p: p5) {
+    private displayBattleMap(state: BattleOrchestratorState, p: p5) {
         this.mapDisplay.update(state, p);
     }
 }

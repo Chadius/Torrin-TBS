@@ -1,10 +1,6 @@
 import {SquaddieMovement} from "./movement";
 
 export class ArmyAttributes {
-    private _maxHitPoints: number;
-    private _armorClass: number;
-    private _movement: SquaddieMovement;
-
     constructor(params?: {
         maxHitPoints?: number,
         armorClass?: number,
@@ -23,13 +19,19 @@ export class ArmyAttributes {
         this._movement = params.movement ?? new SquaddieMovement();
     }
 
+    private _maxHitPoints: number;
+
     get maxHitPoints(): number {
         return this._maxHitPoints;
     }
 
+    private _armorClass: number;
+
     get armorClass(): number {
         return this._armorClass;
     }
+
+    private _movement: SquaddieMovement;
 
     get movement(): SquaddieMovement {
         return this._movement;

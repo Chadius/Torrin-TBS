@@ -1,18 +1,18 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import p5 from "p5";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
-import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
@@ -26,7 +26,7 @@ import {CalculateResults} from "./battleSquaddieSelectorUtils";
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
 
-export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
+export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     private cancelAbility: boolean;
     private hasSelectedValidTarget: boolean;
     private hasConfirmedAction: boolean;
@@ -37,13 +37,17 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         this.resetObject();
     }
 
-    hasCompleted(state: OrchestratorState): boolean {
+    private get hasHighlightedTargetRange(): boolean {
+        return this.highlightedTargetRange.length > 0;
+    }
+
+    hasCompleted(state: BattleOrchestratorState): boolean {
         const userWantsADifferentAbility: boolean = this.cancelAbility === true;
         const userConfirmedTarget: boolean = this.hasConfirmedAction === true;
         return userWantsADifferentAbility || userConfirmedTarget;
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > buttonTop) {
@@ -74,17 +78,17 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         return;
     }
 
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: !this.shouldDrawConfirmWindow(),
             displayMap: true,
         });
     }
 
-    update(state: OrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, p: p5): void {
         if (!this.hasHighlightedTargetRange) {
             return this.highlightTargetRange(state);
         }
@@ -99,7 +103,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         return;
     }
 
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
         if (this.cancelAbility) {
             return {
                 displayMap: true,
@@ -116,10 +120,14 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         return undefined;
     }
 
-    reset(state: OrchestratorState) {
+    reset(state: BattleOrchestratorState) {
         this.resetObject();
         state.hexMap.stopHighlightingTiles();
         state.battleSquaddieUIInput.reset();
+    }
+
+    shouldDrawConfirmWindow(): boolean {
+        return this.hasSelectedValidTarget === true;
     }
 
     private resetObject() {
@@ -130,11 +138,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         this.validTargetLocation = undefined;
     }
 
-    private get hasHighlightedTargetRange(): boolean {
-        return this.highlightedTargetRange.length > 0;
-    }
-
-    private highlightTargetRange(state: OrchestratorState) {
+    private highlightTargetRange(state: BattleOrchestratorState) {
         const ability = state.squaddieCurrentlyActing.currentSquaddieActivity;
 
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId);
@@ -164,7 +168,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         this.highlightedTargetRange = [...abilityRange];
     }
 
-    private drawCancelAbilityButton(state: OrchestratorState, p: p5) {
+    private drawCancelAbilityButton(state: BattleOrchestratorState, p: p5) {
         this.drawButton(
             new RectArea({
                 left: 0,
@@ -177,11 +181,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         );
     }
 
-    shouldDrawConfirmWindow(): boolean {
-        return this.hasSelectedValidTarget === true;
-    }
-
-    private tryToSelectValidTarget(mouseX: number, mouseY: number, state: OrchestratorState) {
+    private tryToSelectValidTarget(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
         const clickedLocation: HexCoordinate = new HexCoordinate({
             coordinates: [
                 ...convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...state.camera.getCoordinates())
@@ -226,7 +226,7 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         this.validTargetLocation = clickedLocation;
     }
 
-    private drawConfirmWindow(state: OrchestratorState, p: p5) {
+    private drawConfirmWindow(state: BattleOrchestratorState, p: p5) {
         this.drawButton(
             new RectArea({
                 left: 0,
@@ -277,11 +277,11 @@ export class BattlePlayerSquaddieTarget implements OrchestratorComponent {
         buttonBackground.draw(p);
     }
 
-    private cancelTargetSelection(state: OrchestratorState) {
+    private cancelTargetSelection(state: BattleOrchestratorState) {
         this.hasSelectedValidTarget = false;
     }
 
-    private confirmTargetSelection(state: OrchestratorState) {
+    private confirmTargetSelection(state: BattleOrchestratorState) {
         const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );

@@ -1,5 +1,5 @@
 import {BattlePlayerSquaddieSelector} from "./battlePlayerSquaddieSelector";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -7,12 +7,12 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {
-    OrchestratorChanges,
+    BattleOrchestratorChanges,
     OrchestratorComponentKeyEventType,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
+} from "../orchestrator/battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -161,7 +161,7 @@ describe('BattleSquaddieSelector', () => {
         }) as jest.Mocked<TerrainTileMap>;
         mockHexMap.mouseClicked = jest.fn();
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             hexMap: mockHexMap,
         })
@@ -184,7 +184,7 @@ describe('BattleSquaddieSelector', () => {
         const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             camera,
@@ -194,7 +194,7 @@ describe('BattleSquaddieSelector', () => {
         selector.update(state, mockedP5);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR);
     });
 
@@ -218,7 +218,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
         })
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
             squaddieRepo,
             camera,
@@ -244,7 +244,7 @@ describe('BattleSquaddieSelector', () => {
             r: 1
         }));
 
-        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
         const expectedSquaddieInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
@@ -273,7 +273,7 @@ describe('BattleSquaddieSelector', () => {
         let camera: BattleCamera;
         let battlePhaseTracker: BattlePhaseTracker;
         let battleSquaddieUIInput: BattleSquaddieUIInput;
-        let state: OrchestratorState;
+        let state: BattleOrchestratorState;
         let squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
         beforeEach(() => {
@@ -311,7 +311,7 @@ describe('BattleSquaddieSelector', () => {
             }));
 
             mockHud = new BattleSquaddieSelectedHUD();
-            state = new OrchestratorState({
+            state = new BattleOrchestratorState({
                 missionMap,
                 squaddieRepo,
                 camera,
@@ -379,7 +379,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
             squaddieRepo,
             camera,
@@ -421,7 +421,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
             squaddieRepo,
             camera,
@@ -449,7 +449,7 @@ describe('BattleSquaddieSelector', () => {
 
         expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
 
-        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
 
         const history = state.battleEventRecording.history;
@@ -488,7 +488,7 @@ describe('BattleSquaddieSelector', () => {
         mockHud.mouseClicked = jest.fn();
         mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
             squaddieRepo,
             camera,
@@ -517,7 +517,7 @@ describe('BattleSquaddieSelector', () => {
         expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
         expect(state.squaddieCurrentlyActing.currentSquaddieActivity).toStrictEqual(longswordActivity);
 
-        const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
 
         const history = state.battleEventRecording.history;
@@ -533,7 +533,7 @@ describe('BattleSquaddieSelector', () => {
         let battlePhaseTracker: BattlePhaseTracker;
         let selectSquaddieAndDrawWindowSpy: SpyInstance;
         let camera: BattleCamera;
-        let state: OrchestratorState;
+        let state: BattleOrchestratorState;
         let startingMouseX: number;
         let startingMouseY: number;
 
@@ -580,7 +580,7 @@ describe('BattleSquaddieSelector', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            const stateWithNull = new OrchestratorState({
+            const stateWithNull = new BattleOrchestratorState({
                 missionMap,
                 resourceHandler: mockResourceHandler,
                 squaddieRepo,
@@ -607,7 +607,7 @@ describe('BattleSquaddieSelector', () => {
                 squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
             })
 
-            state = new OrchestratorState({
+            state = new BattleOrchestratorState({
                 missionMap,
                 squaddieRepo,
                 camera,
@@ -713,7 +713,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.keyPressed = jest.fn();
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
             squaddieRepo,
             camera,

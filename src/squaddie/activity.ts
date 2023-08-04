@@ -4,10 +4,6 @@ import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType} from "./squaddieService";
 
 export class ActivityRange {
-    private _minimumRange: number | undefined;
-    private _maximumRange: number | undefined;
-    private _targetingShape: TargetingShape;
-
     constructor(options: {
         minimumRange?: number,
         maximumRange?: number,
@@ -18,13 +14,7 @@ export class ActivityRange {
         this._targetingShape = options.targetingShape ?? TargetingShape.Snake;
     }
 
-    get maximumRange(): number | undefined {
-        return this._maximumRange;
-    }
-
-    set maximumRange(value: number | undefined) {
-        this._maximumRange = value;
-    }
+    private _minimumRange: number | undefined;
 
     get minimumRange(): number | undefined {
         return this._minimumRange;
@@ -34,16 +24,24 @@ export class ActivityRange {
         this._minimumRange = value;
     }
 
+    private _maximumRange: number | undefined;
+
+    get maximumRange(): number | undefined {
+        return this._maximumRange;
+    }
+
+    set maximumRange(value: number | undefined) {
+        this._maximumRange = value;
+    }
+
+    private _targetingShape: TargetingShape;
+
     get targetingShape(): TargetingShape {
         return this._targetingShape;
     }
 }
 
 export class SquaddieActivity {
-    get damageDescriptions(): { [t in DamageType]?: number } {
-        return this._damageDescriptions;
-    }
-
     private readonly _name: string;
     private readonly _id: string;
     private _range?: ActivityRange;
@@ -85,6 +83,10 @@ export class SquaddieActivity {
 
         this._traits = options.traits;
         this._damageDescriptions = options.damageDescriptions ? {...options.damageDescriptions} : {};
+    }
+
+    get damageDescriptions(): { [t in DamageType]?: number } {
+        return this._damageDescriptions;
     }
 
     get name(): string {

@@ -45,12 +45,6 @@ export type HighlightTileDescription = {
 export class TerrainTileMap {
     tiles: HexGridTile[];
     outlineTileCoordinates: HexCoordinate | undefined;
-    private _highlightedTiles: {
-        [coordinateKey: string]: {
-            pulseColor: PulseBlendColor,
-            name: string
-        }
-    };
     resourceHandler: ResourceHandler;
 
     constructor(options: {
@@ -87,6 +81,13 @@ export class TerrainTileMap {
 
         this.resourceHandler = options.resourceHandler;
     }
+
+    private _highlightedTiles: {
+        [coordinateKey: string]: {
+            pulseColor: PulseBlendColor,
+            name: string
+        }
+    };
 
     get highlightedTiles(): { [p: string]: { pulseColor: PulseBlendColor; name: string } } {
         return this._highlightedTiles;
@@ -131,12 +132,6 @@ export class TerrainTileMap {
         this.outlineTileCoordinates = undefined;
     }
 
-    private getTileAtLocation(hexCoordinate: HexCoordinate): HexGridTile | undefined {
-        return this.tiles.find((tile) =>
-            tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
-        );
-    }
-
     getTileTerrainTypeAtLocation(hexCoordinate: HexCoordinate): HexGridMovementCost | undefined {
         const tile = this.getTileAtLocation(hexCoordinate);
         if (tile === undefined) {
@@ -167,5 +162,11 @@ export class TerrainTileMap {
             widthOfWidestRow,
             numberOfRows
         }
+    }
+
+    private getTileAtLocation(hexCoordinate: HexCoordinate): HexGridTile | undefined {
+        return this.tiles.find((tile) =>
+            tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
+        );
     }
 }

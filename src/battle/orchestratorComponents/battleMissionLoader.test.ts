@@ -1,18 +1,18 @@
 import {BattleMissionLoader} from "./battleMissionLoader";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import * as mocks from "../../utils/test/mocks";
 
 describe('BattleMissionLoader', () => {
-    let initialState: OrchestratorState;
+    let initialState: BattleOrchestratorState;
     let mockResourceHandler: ResourceHandler;
 
     beforeEach(() => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
 
-        initialState = new OrchestratorState({
+        initialState = new BattleOrchestratorState({
             resourceHandler: mockResourceHandler,
             squaddieRepo: new BattleSquaddieRepository(),
         });
@@ -45,7 +45,7 @@ describe('BattleMissionLoader', () => {
         expect(loader.finishedPreparations).toBeTruthy();
         expect(loader.startedLoading).toBeTruthy();
 
-        loader.reset(new OrchestratorState({}));
+        loader.reset(new BattleOrchestratorState({}));
         expect(loader.startedLoading).toBeFalsy();
         expect(loader.finishedPreparations).toBeFalsy();
     });

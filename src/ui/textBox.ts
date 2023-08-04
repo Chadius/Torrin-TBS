@@ -13,7 +13,6 @@ export type TextBoxArguments = {
 };
 
 export class TextBox {
-    private _text: string;
     textSize: number;
     fontColor: number[];
     area: RectArea;
@@ -43,6 +42,12 @@ export class TextBox {
         this.vertAlign = options.vertAlign || VERT_ALIGN_BASELINE;
 
         this.lastTimeDrawn = Date.now();
+    }
+
+    private _text: string;
+
+    get text(): string {
+        return this._text;
     }
 
     draw(p: p5) {
@@ -75,9 +80,5 @@ export class TextBox {
 
     stop() {
         this.duration = 0;
-    }
-
-    get text(): string {
-        return this._text;
     }
 }

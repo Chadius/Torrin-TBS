@@ -8,10 +8,6 @@ import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 
 
 export class SquaddieInstructionInProgress {
-    private _instruction?: SquaddieInstruction;
-    private _currentSquaddieActivity?: SquaddieActivity;
-    private _movingSquaddieDynamicIds: string[];
-
     constructor(options: {
         instruction?: SquaddieInstruction,
         currentSquaddieActivity?: SquaddieActivity,
@@ -21,20 +17,26 @@ export class SquaddieInstructionInProgress {
         this._movingSquaddieDynamicIds = [];
     }
 
+    private _instruction?: SquaddieInstruction;
+
+    get instruction(): SquaddieInstruction {
+        return this._instruction;
+    }
+
+    private _currentSquaddieActivity?: SquaddieActivity;
+
+    get currentSquaddieActivity(): SquaddieActivity {
+        return this._currentSquaddieActivity;
+    }
+
+    private _movingSquaddieDynamicIds: string[];
+
     get movingSquaddieDynamicIds(): string[] {
         return this._movingSquaddieDynamicIds;
     }
 
     get dynamicSquaddieId(): string {
         return this._instruction.dynamicSquaddieId;
-    }
-
-    get currentSquaddieActivity(): SquaddieActivity {
-        return this._currentSquaddieActivity;
-    }
-
-    get instruction(): SquaddieInstruction {
-        return this._instruction;
     }
 
     isReadyForNewSquaddie(): boolean {

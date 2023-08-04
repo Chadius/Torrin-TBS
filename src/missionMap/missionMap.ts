@@ -3,10 +3,6 @@ import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 
 export class MissionMapSquaddieDatum {
-    private _dynamicSquaddieId: string;
-    private _staticSquaddieId: string;
-    private _mapLocation?: HexCoordinate;
-
     constructor(info?: { dynamicSquaddieId: string, staticSquaddieId: string, mapLocation?: HexCoordinate }) {
         if (!info) {
             info = {
@@ -20,8 +16,26 @@ export class MissionMapSquaddieDatum {
         this._mapLocation = info.mapLocation;
     }
 
-    isValid() {
-        return this._dynamicSquaddieId !== undefined && this._staticSquaddieId !== undefined;
+    private _dynamicSquaddieId: string;
+
+    get dynamicSquaddieId(): string {
+        return this._dynamicSquaddieId;
+    }
+
+    private _staticSquaddieId: string;
+
+    get staticSquaddieId(): string {
+        return this._staticSquaddieId;
+    }
+
+    private _mapLocation?: HexCoordinate;
+
+    get mapLocation(): HexCoordinate {
+        return this._mapLocation;
+    }
+
+    set mapLocation(value: HexCoordinate) {
+        this._mapLocation = value;
     }
 
     static clone(datum: MissionMapSquaddieDatum): MissionMapSquaddieDatum {
@@ -32,24 +46,23 @@ export class MissionMapSquaddieDatum {
         });
     }
 
-    get mapLocation(): HexCoordinate {
-        return this._mapLocation;
-    }
-
-    set mapLocation(value: HexCoordinate) {
-        this._mapLocation = value;
-    }
-
-    get staticSquaddieId(): string {
-        return this._staticSquaddieId;
-    }
-
-    get dynamicSquaddieId(): string {
-        return this._dynamicSquaddieId;
+    isValid() {
+        return this._dynamicSquaddieId !== undefined && this._staticSquaddieId !== undefined;
     }
 }
 
 export class MissionMap {
+    private readonly _terrainTileMap: TerrainTileMap;
+    private readonly _squaddieInfo: MissionMapSquaddieDatum[];
+
+    constructor({terrainTileMap}: {
+        terrainTileMap: TerrainTileMap;
+    }) {
+        this._terrainTileMap = terrainTileMap;
+        this._squaddieInfo = [];
+        this._squaddiesHidden = [];
+    }
+
     get terrainTileMap(): TerrainTileMap {
         return this._terrainTileMap;
     }
@@ -58,20 +71,10 @@ export class MissionMap {
         return this._squaddieInfo;
     }
 
-    get squaddiesHidden(): string[] {
-        return this._squaddiesHidden;
-    }
-
-    private readonly _terrainTileMap: TerrainTileMap;
-    private readonly _squaddieInfo: MissionMapSquaddieDatum[];
     private _squaddiesHidden: string[];
 
-    constructor({terrainTileMap}: {
-        terrainTileMap: TerrainTileMap;
-    }) {
-        this._terrainTileMap = terrainTileMap;
-        this._squaddieInfo = [];
-        this._squaddiesHidden = [];
+    get squaddiesHidden(): string[] {
+        return this._squaddiesHidden;
     }
 
     areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {

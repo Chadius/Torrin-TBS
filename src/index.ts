@@ -1,35 +1,17 @@
 import p5 from 'p5';
-import {ResourceHandler, ResourceType} from "./resource/resourceHandler";
 import {ScreenDimensions} from "./utils/graphicsConfig";
-import {Orchestrator} from "./battle/orchestrator/orchestrator";
-import {OrchestratorState} from "./battle/orchestrator/orchestratorState";
-import {BattleSquaddieRepository} from "./battle/battleSquaddieRepository";
-import {BattlePhaseTracker} from "./battle/orchestratorComponents/battlePhaseTracker";
-import {BattleCamera} from "./battle/battleCamera";
-import {BattleMissionLoader} from "./battle/orchestratorComponents/battleMissionLoader";
-import {BattleCutscenePlayer} from "./battle/orchestratorComponents/battleCutscenePlayer";
-import {BattlePlayerSquaddieSelector} from "./battle/orchestratorComponents/battlePlayerSquaddieSelector";
-import {BattleSquaddieMover} from "./battle/orchestratorComponents/battleSquaddieMover";
-import {BattleMapDisplay} from "./battle/orchestratorComponents/battleMapDisplay";
-import {BattlePhaseController} from "./battle/orchestratorComponents/battlePhaseController";
-import {BattleSquaddieMapActivity} from "./battle/orchestratorComponents/battleSquaddieMapActivity";
-import {EndTurnTeamStrategy} from "./battle/teamStrategy/endTurn";
-import {MoveCloserToSquaddie} from "./battle/teamStrategy/moveCloserToSquaddie";
-import {SquaddieAffiliation} from "./squaddie/squaddieAffiliation";
-import {BattlePlayerSquaddieTarget} from "./battle/orchestratorComponents/battlePlayerSquaddieTarget";
-import {BattleSquaddieSquaddieActivity} from "./battle/orchestratorComponents/battleSquaddieSquaddieActivity";
-import {BattleComputerSquaddieSelector} from "./battle/orchestratorComponents/battleComputerSquaddieSelector";
-import {TargetSquaddieInRange} from "./battle/teamStrategy/targetSquaddieInRange";
 import {GameEngine} from "./gameEngine/gameEngine";
+import {StartupMode} from "./utils/startupConfig";
 
 let gameEngine: GameEngine;
 
 export const sketch = (p: p5) => {
     p.setup = () => {
         p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
+        p.colorMode("hsb", 360, 100, 100, 255)
 
-        gameEngine = new GameEngine({graphicsContext: p});
-        gameEngine.setup();
+        gameEngine = new GameEngine({graphicsContext: p, startupMode: StartupMode});
+        gameEngine.setup({graphicsContext: p});
     }
 
     p.draw = () => {

@@ -30,8 +30,6 @@ class SearchState {
     searchPathQueue: PriorityQueue;
     results: SearchResults;
 
-    private _shapeGenerator: TargetingShapeGenerator;
-
     constructor(searchParams: SearchParams) {
         this.tilesSearchCanStopAt = [];
         this.tileLocationsAlreadyVisited = {};
@@ -42,6 +40,8 @@ class SearchState {
         });
         this.shapeGenerator = searchParams.shapeGenerator;
     }
+
+    private _shapeGenerator: TargetingShapeGenerator;
 
     get shapeGenerator(): TargetingShapeGenerator {
         return this._shapeGenerator;

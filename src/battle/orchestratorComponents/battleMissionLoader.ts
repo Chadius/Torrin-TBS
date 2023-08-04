@@ -1,10 +1,10 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -40,7 +40,7 @@ const attributeIcons: string[] = [
     "hit points icon",
 ];
 
-export class BattleMissionLoader implements OrchestratorComponent {
+export class BattleMissionLoader implements BattleOrchestratorComponent {
     startedLoading: boolean;
     finishedPreparations: boolean;
 
@@ -53,7 +53,53 @@ export class BattleMissionLoader implements OrchestratorComponent {
         this.finishedPreparations = false;
     }
 
-    private loadMap(state: OrchestratorState) {
+    update(state: BattleOrchestratorState) {
+        if (!this.startedLoading) {
+            this.loadMap(state);
+            this.loadSquaddies(state);
+            return;
+        }
+        if (this.startedLoading && state.resourceHandler.areAllResourcesLoaded([
+            ...mapMovementAndAttackIcons,
+            ...this.affiliateIconResourceKeys,
+            ...this.staticSquaddieResourceKeys,
+            ...this.bannerImageResourceKeys,
+        ])) {
+            this.initializeSquaddieResources(state);
+            this.initializeCameraPosition(state);
+            this.finishedPreparations = true;
+        }
+    }
+
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent) {
+    };
+
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: false,
+            displayMap: false,
+        });
+    }
+
+    hasCompleted(state: BattleOrchestratorState): boolean {
+        return this.finishedPreparations;
+    }
+
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+        return {
+            displayMap: true,
+        }
+    }
+
+    reset(state: BattleOrchestratorState) {
+        this.startedLoading = false;
+        this.finishedPreparations = false;
+    }
+
+    private loadMap(state: BattleOrchestratorState) {
         state.hexMap = new TerrainTileMap({
             movementCost: [
                 "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
@@ -90,7 +136,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         this.startedLoading = true;
     }
 
-    private loadSquaddies(state: OrchestratorState) {
+    private loadSquaddies(state: BattleOrchestratorState) {
         state.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 squaddieId: new SquaddieId({
@@ -261,25 +307,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
         state.resourceHandler.loadResources(this.bannerImageResourceKeys);
     }
 
-    update(state: OrchestratorState) {
-        if (!this.startedLoading) {
-            this.loadMap(state);
-            this.loadSquaddies(state);
-            return;
-        }
-        if (this.startedLoading && state.resourceHandler.areAllResourcesLoaded([
-            ...mapMovementAndAttackIcons,
-            ...this.affiliateIconResourceKeys,
-            ...this.staticSquaddieResourceKeys,
-            ...this.bannerImageResourceKeys,
-        ])) {
-            this.initializeSquaddieResources(state);
-            this.initializeCameraPosition(state);
-            this.finishedPreparations = true;
-        }
-    }
-
-    private initializeSquaddieResources(state: OrchestratorState) {
+    private initializeSquaddieResources(state: BattleOrchestratorState) {
         state.squaddieRepository.getDynamicSquaddieIterator().forEach((info) => {
             const {dynamicSquaddie, dynamicSquaddieId} = info;
             const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
@@ -306,36 +334,8 @@ export class BattleMissionLoader implements OrchestratorComponent {
         });
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent) {
-    };
-
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
-    }
-
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: false,
-            displayMap: false,
-        });
-    }
-
-    hasCompleted(state: OrchestratorState): boolean {
-        return this.finishedPreparations;
-    }
-
-    private initializeCameraPosition(state: OrchestratorState) {
+    private initializeCameraPosition(state: BattleOrchestratorState) {
         const mapDimensions = state.hexMap.getDimensions();
         state.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
-    }
-
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
-        return {
-            displayMap: true,
-        }
-    }
-
-    reset(state: OrchestratorState) {
-        this.startedLoading = false;
-        this.finishedPreparations = false;
     }
 }
