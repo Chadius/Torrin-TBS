@@ -10,6 +10,7 @@ export interface Config {
     SCREEN_WIDTH: number;
     SCREEN_HEIGHT: number;
     KEYBOARD_SHORTCUTS: { [key in string]: number[] };
+    STARTUP_MODE: string;
 }
 
 export interface ProcessVariables {
@@ -17,6 +18,7 @@ export interface ProcessVariables {
     SCREEN_WIDTH?: number;
     SCREEN_HEIGHT?: number;
     KEYBOARD_SHORTCUTS?: { [key in string]: number[] };
+    STARTUP_MODE?: string;
 }
 
 export const config = getConfig(process.env.NODE_ENV as unknown as ProcessVariables)

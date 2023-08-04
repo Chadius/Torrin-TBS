@@ -13,5 +13,6 @@ export function getDevelopmentConfig(processVariables: ProcessVariables): Config
         KEYBOARD_SHORTCUTS: {
             NEXT_SQUADDIE: [KeyCodes.x, KeyCodes.ctrl]
         },
+        STARTUP_MODE: "TITLE_SCREEN",
     };
 }
