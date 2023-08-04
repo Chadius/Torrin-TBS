@@ -20,145 +20,32 @@ import {BattlePlayerSquaddieTarget} from "./battle/orchestratorComponents/battle
 import {BattleSquaddieSquaddieActivity} from "./battle/orchestratorComponents/battleSquaddieSquaddieActivity";
 import {BattleComputerSquaddieSelector} from "./battle/orchestratorComponents/battleComputerSquaddieSelector";
 import {TargetSquaddieInRange} from "./battle/teamStrategy/targetSquaddieInRange";
+import {GameEngine} from "./gameEngine/gameEngine";
 
-let battleOrchestrator: Orchestrator;
-let battleOrchestratorState: OrchestratorState;
+let gameEngine: GameEngine;
 
 export const sketch = (p: p5) => {
     p.setup = () => {
         p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
 
-        battleOrchestratorState = new OrchestratorState({
-            resourceHandler: new ResourceHandler({
-                p: p,
-                allResources: [
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/testPortrait0001.png",
-                        key: "crazy pete face",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-young-torrin.png",
-                        key: "map icon young torrin",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-sir-camil.png",
-                        key: "map icon sir camil",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-demon-slither.png",
-                        key: "map icon demon slither",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-1-action.png",
-                        key: "map icon move 1 action"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-2-actions.png",
-                        key: "map icon move 2 actions"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-move-3-actions.png",
-                        key: "map icon move 3 actions"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/map-icon-attack-1-action.png",
-                        key: "map icon attack 1 action"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-crusaders.png",
-                        key: "affiliate_icon_crusaders"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-infiltrators.png",
-                        key: "affiliate_icon_infiltrators"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-western.png",
-                        key: "affiliate_icon_western"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/affiliate-icon-none.png",
-                        key: "affiliate_icon_none"
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/phase-banner-player.png",
-                        key: "phase banner player",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/phase-banner-enemy.png",
-                        key: "phase banner enemy",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/icon-armor-class.png",
-                        key: "armor class icon",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
-                        path: "assets/icon-hit-points.png",
-                        key: "hit points icon",
-                    },
-                ],
-            }),
-            squaddieRepo: new BattleSquaddieRepository(),
-            battlePhaseTracker: new BattlePhaseTracker(),
-            camera: new BattleCamera(0, 100),
-            teamStrategyByAffiliation: {
-                ENEMY: [
-                    new TargetSquaddieInRange({
-                        desiredAffiliation: SquaddieAffiliation.PLAYER
-                    }),
-                    new MoveCloserToSquaddie({
-                        desiredAffiliation: SquaddieAffiliation.PLAYER
-                    })
-                ],
-                ALLY: [new EndTurnTeamStrategy()],
-                NONE: [new EndTurnTeamStrategy()],
-            }
-        });
-
-        battleOrchestrator = new Orchestrator({
-            missionLoader: new BattleMissionLoader(),
-            cutscenePlayer: new BattleCutscenePlayer(),
-            playerSquaddieSelector: new BattlePlayerSquaddieSelector(),
-            computerSquaddieSelector: new BattleComputerSquaddieSelector(),
-            squaddieMapActivity: new BattleSquaddieMapActivity(),
-            squaddieMover: new BattleSquaddieMover(),
-            mapDisplay: new BattleMapDisplay(),
-            phaseController: new BattlePhaseController(),
-            playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
-            squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
-        });
+        gameEngine = new GameEngine({graphicsContext: p});
+        gameEngine.setup();
     }
 
     p.draw = () => {
-        battleOrchestrator.update(battleOrchestratorState, p);
+        gameEngine.draw();
     }
 
     p.keyPressed = () => {
-        battleOrchestrator.keyPressed(battleOrchestratorState, p.keyCode);
+        gameEngine.keyPressed(p.keyCode);
     }
 
     p.mouseClicked = () => {
-        battleOrchestrator.mouseClicked(battleOrchestratorState, p.mouseX, p.mouseY);
+        gameEngine.mouseClicked(p.mouseButton, p.mouseX, p.mouseY);
     }
 
     p.mouseMoved = () => {
-        battleOrchestrator.mouseMoved(battleOrchestratorState, p.mouseX, p.mouseY);
+        gameEngine.mouseMoved(p.mouseX, p.mouseY);
     }
 }
 

@@ -191,7 +191,7 @@ export class BattleMissionLoader implements OrchestratorComponent {
                     maxHitPoints: 1,
                     armorClass: -5,
                     movement: new SquaddieMovement({
-                        movementPerAction: 10,
+                        movementPerAction: 2,
                         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
                 }),
