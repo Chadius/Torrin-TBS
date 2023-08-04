@@ -24,6 +24,7 @@ export class GameEngine {
     get battleOrchestrator(): Orchestrator {
         return this._battleOrchestrator;
     }
+
     get battleOrchestratorState(): OrchestratorState {
         return this._battleOrchestratorState;
     }
@@ -32,7 +33,7 @@ export class GameEngine {
     private _battleOrchestrator: Orchestrator;
     private _battleOrchestratorState: OrchestratorState;
 
-    constructor({graphicsContext}: {graphicsContext: p5}) {
+    constructor({graphicsContext}: { graphicsContext: p5 }) {
         this.graphicsContext = graphicsContext;
     }
 
@@ -163,7 +164,7 @@ export class GameEngine {
         this.battleOrchestrator.keyPressed(this._battleOrchestratorState, keyCode);
     }
 
-    mouseClicked(mouseButton: "LEFT"|"CENTER"|"RIGHT", mouseX: number, mouseY: number) {
+    mouseClicked(mouseButton: "LEFT" | "CENTER" | "RIGHT", mouseX: number, mouseY: number) {
         this.battleOrchestrator.mouseClicked(this.battleOrchestratorState, mouseX, mouseY);
     }
 

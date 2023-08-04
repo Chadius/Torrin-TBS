@@ -23,7 +23,8 @@ describe('Game Engine', () => {
     it('calls keyPressed when a key is pressed', () => {
         const newGameEngine: GameEngine = new GameEngine({graphicsContext: mockedP5});
         newGameEngine.setup();
-        const spy = jest.spyOn(newGameEngine.battleOrchestrator, "keyPressed").mockImplementation(() => {});
+        const spy = jest.spyOn(newGameEngine.battleOrchestrator, "keyPressed").mockImplementation(() => {
+        });
         newGameEngine.keyPressed(10);
         expect(spy).toBeCalledWith(newGameEngine.battleOrchestratorState, 10);
     });
@@ -31,7 +32,8 @@ describe('Game Engine', () => {
     it('calls mouseClicked when the mouse is clicked', () => {
         const newGameEngine: GameEngine = new GameEngine({graphicsContext: mockedP5});
         newGameEngine.setup();
-        const spy = jest.spyOn(newGameEngine.battleOrchestrator, "mouseClicked").mockImplementation(() => {});
+        const spy = jest.spyOn(newGameEngine.battleOrchestrator, "mouseClicked").mockImplementation(() => {
+        });
         newGameEngine.mouseClicked("LEFT", 100, 200);
         expect(spy).toBeCalledWith(newGameEngine.battleOrchestratorState, 100, 200);
     });
@@ -39,7 +41,8 @@ describe('Game Engine', () => {
     it('calls mouseClicked when the mouse is moved', () => {
         const newGameEngine: GameEngine = new GameEngine({graphicsContext: mockedP5});
         newGameEngine.setup();
-        const spy = jest.spyOn(newGameEngine.battleOrchestrator, "mouseMoved").mockImplementation(() => {});
+        const spy = jest.spyOn(newGameEngine.battleOrchestrator, "mouseMoved").mockImplementation(() => {
+        });
         newGameEngine.mouseMoved(100, 200);
         expect(spy).toBeCalledWith(newGameEngine.battleOrchestratorState, 100, 200);
     });

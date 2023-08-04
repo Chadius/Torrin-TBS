@@ -1,5 +1,4 @@
 import {config} from "../configuration/config";
-import {KeyButtonName} from "./keyboardConfig";
 
 export enum StartupModeEnum {
     UNKNOWN = "UNKNOWN",
