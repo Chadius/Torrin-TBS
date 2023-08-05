@@ -19,8 +19,38 @@ import {BattleMapDisplay} from "../battle/orchestratorComponents/battleMapDispla
 import {BattlePhaseController} from "../battle/orchestratorComponents/battlePhaseController";
 import {BattlePlayerSquaddieTarget} from "../battle/orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieSquaddieActivity} from "../battle/orchestratorComponents/battleSquaddieSquaddieActivity";
+import {MouseButton} from "../utils/mouseConfig";
+import {GameModeEnum} from "../utils/startupConfig";
+import {GameEngineComponent} from "./gameEngineComponent";
+import {TitleScreen} from "../titleScreen/titleScreen";
+import {TitleScreenState} from "../titleScreen/titleScreenState";
+
+export type GameEngineComponentState = OrchestratorState | TitleScreenState;
 
 export class GameEngine {
+    get titleScreenState(): TitleScreenState {
+        return this._titleScreenState;
+    }
+    get titleScreen(): TitleScreen {
+        return this._titleScreen;
+    }
+
+    private _titleScreen: TitleScreen;
+    private _titleScreenState: TitleScreenState;
+    get currentMode(): GameModeEnum {
+        return this._currentMode;
+    }
+
+    get component(): GameEngineComponent {
+        switch (this.currentMode) {
+            case GameModeEnum.TITLE_SCREEN:
+                return this._titleScreen;
+            default:
+                throw new Error(`Cannot find component for Game Engine mode ${this.currentMode}`);
+        }
+    }
+
+    private _currentMode: GameModeEnum;
     get battleOrchestrator(): Orchestrator {
         return this._battleOrchestrator;
     }
@@ -29,16 +59,16 @@ export class GameEngine {
         return this._battleOrchestratorState;
     }
 
-    private graphicsContext: p5;
+    private readonly graphicsContext: p5;
     private _battleOrchestrator: Orchestrator;
     private _battleOrchestratorState: OrchestratorState;
 
-    constructor({graphicsContext}: { graphicsContext: p5 }) {
+    constructor({graphicsContext, startupMode}: { graphicsContext: p5, startupMode: GameModeEnum }) {
         this.graphicsContext = graphicsContext;
+        this._currentMode = startupMode;
     }
 
-
-    setup() {
+    setup({graphicsContext}: { graphicsContext: p5 }) {
         this._battleOrchestratorState = new OrchestratorState({
             resourceHandler: new ResourceHandler({
                 p: this.graphicsContext,
@@ -141,7 +171,6 @@ export class GameEngine {
                 NONE: [new EndTurnTeamStrategy()],
             }
         });
-
         this._battleOrchestrator = new Orchestrator({
             missionLoader: new BattleMissionLoader(),
             cutscenePlayer: new BattleCutscenePlayer(),
@@ -154,21 +183,41 @@ export class GameEngine {
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
             squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
         });
+
+        this._titleScreen = new TitleScreen();
+        this._titleScreenState = this.titleScreen.setup({graphicsContext})
     }
 
+    // TODO draw calls update()
     draw() {
         this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
     }
 
     keyPressed(keyCode: number) {
-        this.battleOrchestrator.keyPressed(this._battleOrchestratorState, keyCode);
+        //this.battleOrchestrator.keyPressed(this.battleOrchestratorState, keyCode);
+        this.component.keyPressed(this.getComponentState(), keyCode);
     }
 
-    mouseClicked(mouseButton: "LEFT" | "CENTER" | "RIGHT", mouseX: number, mouseY: number) {
-        this.battleOrchestrator.mouseClicked(this.battleOrchestratorState, mouseX, mouseY);
+    mouseClicked(mouseButton: MouseButton, mouseX: number, mouseY: number) {
+        //this.battleOrchestrator.mouseClicked(this.battleOrchestratorState, mouseX, mouseY);
+        this.component.mouseClicked(this.getComponentState(), mouseButton, mouseX, mouseY);
     }
 
     mouseMoved(mouseX: number, mouseY: number) {
-        this.battleOrchestrator.mouseMoved(this.battleOrchestratorState, mouseX, mouseY);
+        // this.battleOrchestrator.mouseMoved(this.battleOrchestratorState, mouseX, mouseY);
+        this.component.mouseMoved(this.getComponentState(), mouseX, mouseY);
+    }
+
+    update({graphicsContext}: {graphicsContext: p5}) {
+        this.component.update(this.getComponentState(), graphicsContext);
+    }
+
+    private getComponentState(): GameEngineComponentState {
+        switch (this.currentMode) {
+            case GameModeEnum.TITLE_SCREEN:
+                return this._titleScreenState;
+            default:
+                throw new Error(`Cannot find component state for Game Engine mode ${this.currentMode}`);
+        }
     }
 }
