@@ -1,4 +1,4 @@
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
@@ -6,7 +6,7 @@ import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 
 describe('BattleCutscenePlayer', () => {
     it('is complete when there is no cutscene to play', () => {
-        const initialState: OrchestratorState = new OrchestratorState({
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieRepo: new BattleSquaddieRepository(),
             currentCutscene: undefined,
         });
@@ -25,7 +25,7 @@ describe('BattleCutscenePlayer', () => {
                 frontDoorGreeting
             ]
         });
-        const initialState: OrchestratorState = new OrchestratorState({
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieRepo: new BattleSquaddieRepository(),
             currentCutscene: dinnerDate,
         });

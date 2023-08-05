@@ -1,18 +1,19 @@
 export class UIControlSettings {
-    get displayBattleMap(): boolean {
-        return this._displayBattleMap;
+    constructor({scrollCamera, displayMap}: { scrollCamera?: boolean, displayMap?: boolean }) {
+        this._letMouseScrollCamera = scrollCamera;
+        this._displayBattleMap = displayMap;
     }
+
+    private _letMouseScrollCamera?: boolean;
 
     get letMouseScrollCamera(): boolean {
         return this._letMouseScrollCamera;
     }
 
-    private _letMouseScrollCamera?: boolean;
     private _displayBattleMap?: boolean;
 
-    constructor({scrollCamera, displayMap}: { scrollCamera?: boolean, displayMap?: boolean }) {
-        this._letMouseScrollCamera = scrollCamera;
-        this._displayBattleMap = displayMap;
+    get displayBattleMap(): boolean {
+        return this._displayBattleMap;
     }
 
     public update(other: UIControlSettings) {

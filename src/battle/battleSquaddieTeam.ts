@@ -5,12 +5,7 @@ import {unTintSquaddieMapIcon} from "./animation/drawSquaddie";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../squaddie/squaddieService";
 
 export class BattleSquaddieTeam {
-    get affiliation(): SquaddieAffiliation {
-        return this._affiliation;
-    }
-
     name: string;
-    private _affiliation: SquaddieAffiliation;
     squaddieRepo: BattleSquaddieRepository;
     dynamicSquaddieIds: string[];
 
@@ -28,6 +23,12 @@ export class BattleSquaddieTeam {
         if (options.dynamicSquaddieIds) {
             this.addDynamicSquaddieIds(options.dynamicSquaddieIds);
         }
+    }
+
+    private _affiliation: SquaddieAffiliation;
+
+    get affiliation(): SquaddieAffiliation {
+        return this._affiliation;
     }
 
     hasSquaddies(): boolean {

@@ -1,11 +1,11 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import p5 from "p5";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {
@@ -22,7 +22,7 @@ import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
-export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
+export class BattleSquaddieSquaddieActivity implements BattleOrchestratorComponent {
     animationCompleteStartTime?: number;
     clickedToCancelActivity: boolean;
     outputTextDisplay: Label;
@@ -33,6 +33,46 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
         this.resetInternalState();
     }
 
+    hasCompleted(state: BattleOrchestratorState): boolean {
+        return this.sawResultAftermath;
+    }
+
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
+            this.clickedToCancelActivity = true;
+        }
+    }
+
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    }
+
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+        return new UIControlSettings({
+            scrollCamera: false,
+            displayMap: true,
+        });
+    }
+
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+        return {
+            displayMap: true,
+        }
+    }
+
+    reset(state: BattleOrchestratorState): void {
+        this.resetInternalState();
+        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
+        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
+        MaybeEndSquaddieTurn(state);
+    }
+
+    update(state: BattleOrchestratorState, p: p5): void {
+        if (this.animationCompleteStartTime === undefined) {
+            this.animationCompleteStartTime = Date.now();
+        }
+        this.draw(state, p);
+    }
+
     private resetInternalState() {
         this.animationCompleteStartTime = undefined;
         this.clickedToCancelActivity = false;
@@ -41,51 +81,11 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
         this.outputTextDisplay = undefined;
     }
 
-    hasCompleted(state: OrchestratorState): boolean {
-        return this.sawResultAftermath;
-    }
-
     private getAnimationCompleted() {
         return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.clickedToCancelActivity = true;
-        }
-    }
-
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
-    }
-
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
-        return new UIControlSettings({
-            scrollCamera: false,
-            displayMap: true,
-        });
-    }
-
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
-        return {
-            displayMap: true,
-        }
-    }
-
-    reset(state: OrchestratorState): void {
-        this.resetInternalState();
-        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
-        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
-        MaybeEndSquaddieTurn(state);
-    }
-
-    update(state: OrchestratorState, p: p5): void {
-        if (this.animationCompleteStartTime === undefined) {
-            this.animationCompleteStartTime = Date.now();
-        }
-        this.draw(state, p);
-    }
-
-    private draw(state: OrchestratorState, p: p5) {
+    private draw(state: BattleOrchestratorState, p: p5) {
         if (this.outputTextDisplay === undefined) {
             this.prepareOutputTextDisplay(state);
             return;
@@ -101,7 +101,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
         this.sawResultAftermath = true;
     }
 
-    private prepareOutputTextDisplay(state: OrchestratorState) {
+    private prepareOutputTextDisplay(state: BattleOrchestratorState) {
         this.outputTextStrings = FormatResult({
             squaddieRepository: state.squaddieRepository,
             currentActivity: state.squaddieCurrentlyActing.currentSquaddieActivity,
@@ -130,7 +130,7 @@ export class BattleSquaddieSquaddieActivity implements OrchestratorComponent {
         });
     }
 
-    private hideDeadSquaddies(state: OrchestratorState) {
+    private hideDeadSquaddies(state: BattleOrchestratorState) {
         const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
         mostRecentResults.targetedSquaddieDynamicIds.forEach((dynamicSquaddieId) => {
             const {

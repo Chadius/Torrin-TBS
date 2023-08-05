@@ -14,6 +14,17 @@ export type TeamStrategyStateOptionalOptions = {
 };
 
 export class TeamStrategyState {
+    private readonly _missionMap: MissionMap;
+    private readonly _team: BattleSquaddieTeam;
+    private readonly _squaddieRepository: BattleSquaddieRepository;
+
+    constructor(options: TeamStrategyStateRequiredOptions & Partial<TeamStrategyStateOptionalOptions>) {
+        this._instruction = options.instruction;
+        this._missionMap = options.missionMap;
+        this._team = options.team;
+        this._squaddieRepository = options.squaddieRepository;
+    }
+
     get squaddieRepository(): BattleSquaddieRepository {
         return this._squaddieRepository;
     }
@@ -26,20 +37,10 @@ export class TeamStrategyState {
         return this._missionMap;
     }
 
+    private _instruction: SquaddieInstruction;
+
     get instruction(): SquaddieInstruction {
         return this._instruction;
-    }
-
-    private _instruction: SquaddieInstruction;
-    private readonly _missionMap: MissionMap;
-    private readonly _team: BattleSquaddieTeam;
-    private readonly _squaddieRepository: BattleSquaddieRepository;
-
-    constructor(options: TeamStrategyStateRequiredOptions & Partial<TeamStrategyStateOptionalOptions>) {
-        this._instruction = options.instruction;
-        this._missionMap = options.missionMap;
-        this._team = options.team;
-        this._squaddieRepository = options.squaddieRepository;
     }
 
     reset() {

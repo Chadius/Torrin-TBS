@@ -1,23 +1,23 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import p5 from "p5";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
-export class BattleCutscenePlayer implements OrchestratorComponent {
+export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     constructor() {
     }
 
-    hasCompleted(state: OrchestratorState): boolean {
+    hasCompleted(state: BattleOrchestratorState): boolean {
         return !(state.currentCutscene && state.currentCutscene.isInProgress());
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED && state.currentCutscene && state.currentCutscene.isInProgress()) {
             state.currentCutscene.mouseMoved(event.mouseX, event.mouseY);
             return;
@@ -28,16 +28,16 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
         }
     }
 
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
         });
     }
 
-    update(state: OrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, p: p5): void {
         if (p && state.currentCutscene && state.currentCutscene.hasLoaded() && !state.currentCutscene.isInProgress()) {
             state.currentCutscene.setResources();
             state.currentCutscene.start();
@@ -48,12 +48,12 @@ export class BattleCutscenePlayer implements OrchestratorComponent {
         }
     }
 
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
         }
     }
 
-    reset(state: OrchestratorState) {
+    reset(state: BattleOrchestratorState) {
     }
 }

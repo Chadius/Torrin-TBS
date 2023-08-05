@@ -1,9 +1,6 @@
 import {assertsInteger} from "../../utils/mathAssert";
 
 export class HexCoordinate {
-    private _q: number;
-    private _r: number;
-
     constructor(params: { q?: number, r?: number, coordinates?: [number, number] }) {
         const qIsUndefined: boolean = params.q === undefined || params.q === null;
         const rIsUndefined: boolean = params.r === undefined || params.r === null;
@@ -36,13 +33,7 @@ export class HexCoordinate {
         }
     }
 
-    get r(): number {
-        return this._r;
-    }
-
-    set r(value: number) {
-        this._r = value;
-    }
+    private _q: number;
 
     get q(): number {
         return this._q;
@@ -50,6 +41,16 @@ export class HexCoordinate {
 
     set q(value: number) {
         this._q = value;
+    }
+
+    private _r: number;
+
+    get r(): number {
+        return this._r;
+    }
+
+    set r(value: number) {
+        this._r = value;
     }
 
     toStringKey(): string {

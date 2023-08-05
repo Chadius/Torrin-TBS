@@ -21,7 +21,7 @@ import {
 import {Label} from "../ui/label";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1} from "../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 
 enum ActivityValidityCheck {
@@ -31,21 +31,19 @@ enum ActivityValidityCheck {
 
 export class BattleSquaddieSelectedHUD {
     selectedSquaddieDynamicId: string;
-    private _background: Rectangle;
     affiliateIcon?: ImageUI;
     selectedActivity: SquaddieActivity | SquaddieEndTurnActivity;
-
     activityButtons: ActivityButton[];
-
     nextSquaddieButton: Label;
     nextSquaddieDynamicIds: string[];
-
     squaddieIdTextBox: TextBox;
     invalidCommandWarningTextBox: TextBox;
 
     constructor() {
         this.reset();
     }
+
+    private _background: Rectangle;
 
     get background(): Rectangle {
         return this._background;
@@ -58,7 +56,7 @@ export class BattleSquaddieSelectedHUD {
     selectSquaddieAndDrawWindow({dynamicId, repositionWindow, state}: {
                                     dynamicId: string,
                                     repositionWindow?: { mouseX: number, mouseY: number },
-                                    state: OrchestratorState,
+                                    state: BattleOrchestratorState,
                                 }
     ) {
         this.selectedSquaddieDynamicId = dynamicId;
@@ -78,6 +76,129 @@ export class BattleSquaddieSelectedHUD {
         this.generateSquaddieActivityButtons(staticSquaddie, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
         this.generateSquaddieIdText(staticSquaddie);
+    }
+
+    createWindowPosition(mouseY: number) {
+        const windowTop: number = (mouseY < (ScreenDimensions.SCREEN_HEIGHT * 0.8)) ? ScreenDimensions.SCREEN_HEIGHT * 0.8 : 10;
+        const windowHeight: number = (ScreenDimensions.SCREEN_HEIGHT * 0.2) - 10;
+        const windowDimensions = new RectArea({
+            left: 10,
+            right: ScreenDimensions.SCREEN_WIDTH - 10,
+            top: windowTop,
+            height: windowHeight
+        });
+
+        return {
+            windowTop,
+            windowHeight,
+            windowDimensions
+        }
+    }
+
+    public isMouseInsideHUD(mouseX: number, mouseY: number): boolean {
+        return this.didMouseClickOnHUD(mouseX, mouseY);
+    }
+
+    public didMouseClickOnHUD(mouseX: number, mouseY: number): boolean {
+        return this._background.area.isInside(mouseX, mouseY);
+    }
+
+    public shouldDrawTheHUD(): boolean {
+        return !!this.selectedSquaddieDynamicId;
+    }
+
+    public getSelectedSquaddieDynamicId(): string {
+        return this.selectedSquaddieDynamicId;
+    }
+
+    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, p: p5) {
+        if (!this.shouldDrawTheHUD()) {
+            return;
+        }
+        this._background.draw(p);
+        this.drawSquaddieID(state, p);
+        this.drawSquaddieAttributes(state, p);
+        this.drawNumberOfActions(state, p);
+        this.drawSquaddieActivities(p);
+        this.invalidCommandWarningTextBox.draw(p);
+        this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state, p);
+        if (this.shouldDrawNextButton(state)) {
+            this.nextSquaddieButton.draw(p);
+        }
+    }
+
+    getActivityButtons(): ActivityButton[] {
+        return this.activityButtons ? [...this.activityButtons] : [];
+    }
+
+    wasActivitySelected(): boolean {
+        return this.selectedActivity !== undefined;
+    }
+
+    getSelectedActivity(): SquaddieActivity | SquaddieEndTurnActivity {
+        return this.selectedActivity;
+    }
+
+    keyPressed(keyCode: number, state: BattleOrchestratorState) {
+        if (this._background === undefined) {
+            this.setBackgroundWindowAndGetWindowDimensions(SquaddieAffiliation.UNKNOWN, 0);
+        }
+
+        const pressedTheNextSquaddieKey: boolean = this.shouldDrawNextButton(state) && KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, keyCode);
+        if (pressedTheNextSquaddieKey) {
+            this.selectNextSquaddie(state);
+        }
+    }
+
+    mouseClicked(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
+        const clickedActivityButton = this.activityButtons.find((button) =>
+            button.buttonArea.isInside(mouseX, mouseY)
+        );
+
+        if (clickedActivityButton) {
+            const activityValidCheck = this.checkIfActivityIsValid(clickedActivityButton.activity, state);
+            if (activityValidCheck === ActivityValidityCheck.IS_VALID) {
+                this.selectedActivity = clickedActivityButton.activity;
+                return;
+            }
+            this.warnUserNotEnoughActionsToPerformAction(clickedActivityButton.activity);
+        }
+
+        const clickedOnNextButton: boolean = this.shouldDrawNextButton(state) && this.nextSquaddieButton.rectangle.area.isInside(mouseX, mouseY);
+        if (clickedOnNextButton) {
+            this.selectNextSquaddie(state);
+        }
+    }
+
+    reset() {
+        this.selectedSquaddieDynamicId = "";
+        this.affiliateIcon = undefined;
+        this.selectedActivity = undefined;
+        this.activityButtons = undefined;
+        this.invalidCommandWarningTextBox = new TextBox({
+            text: "",
+            textSize: 0,
+            fontColor: [0, 0, 0],
+            area: new RectArea({
+                left: 0, top: 0, width: 0, height: 0,
+            }),
+            duration: 0,
+        });
+        this.nextSquaddieDynamicIds = [];
+    }
+
+    shouldDrawNextButton(state: BattleOrchestratorState): boolean {
+        const numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct: number = state.squaddieRepository.getDynamicSquaddieIterator().filter((info) => {
+            return this.isSquaddiePlayerControllableRightNow(info.dynamicSquaddieId, state) === true
+        }).length;
+
+        const selectedSquaddieIsPlayerControllableRightNow: boolean = this.selectedSquaddieDynamicId && this.isSquaddiePlayerControllableRightNow(this.selectedSquaddieDynamicId, state);
+
+        if (selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 1) {
+            return true;
+        }
+
+        return !selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 0;
     }
 
     private generateSquaddieActivityButtons(
@@ -120,7 +241,7 @@ export class BattleSquaddieSelectedHUD {
         );
     }
 
-    private generateAffiliateIcon(staticSquaddie: BattleSquaddieStatic, state: OrchestratorState) {
+    private generateAffiliateIcon(staticSquaddie: BattleSquaddieStatic, state: BattleOrchestratorState) {
         let affiliateIconImage: p5.Image;
         switch (staticSquaddie.squaddieId.affiliation) {
             case SquaddieAffiliation.PLAYER:
@@ -154,57 +275,7 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    createWindowPosition(mouseY: number) {
-        const windowTop: number = (mouseY < (ScreenDimensions.SCREEN_HEIGHT * 0.8)) ? ScreenDimensions.SCREEN_HEIGHT * 0.8 : 10;
-        const windowHeight: number = (ScreenDimensions.SCREEN_HEIGHT * 0.2) - 10;
-        const windowDimensions = new RectArea({
-            left: 10,
-            right: ScreenDimensions.SCREEN_WIDTH - 10,
-            top: windowTop,
-            height: windowHeight
-        });
-
-        return {
-            windowTop,
-            windowHeight,
-            windowDimensions
-        }
-    }
-
-
-    public isMouseInsideHUD(mouseX: number, mouseY: number): boolean {
-        return this.didMouseClickOnHUD(mouseX, mouseY);
-    }
-
-    public didMouseClickOnHUD(mouseX: number, mouseY: number): boolean {
-        return this._background.area.isInside(mouseX, mouseY);
-    }
-
-    public shouldDrawTheHUD(): boolean {
-        return !!this.selectedSquaddieDynamicId;
-    }
-
-    public getSelectedSquaddieDynamicId(): string {
-        return this.selectedSquaddieDynamicId;
-    }
-
-    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: OrchestratorState, p: p5) {
-        if (!this.shouldDrawTheHUD()) {
-            return;
-        }
-        this._background.draw(p);
-        this.drawSquaddieID(state, p);
-        this.drawSquaddieAttributes(state, p);
-        this.drawNumberOfActions(state, p);
-        this.drawSquaddieActivities(p);
-        this.invalidCommandWarningTextBox.draw(p);
-        this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state, p);
-        if (this.shouldDrawNextButton(state)) {
-            this.nextSquaddieButton.draw(p);
-        }
-    }
-
-    private drawSquaddieID(state: OrchestratorState, p: p5) {
+    private drawSquaddieID(state: BattleOrchestratorState, p: p5) {
         const {
             staticSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
@@ -216,7 +287,7 @@ export class BattleSquaddieSelectedHUD {
         this.squaddieIdTextBox.draw(p);
     }
 
-    private drawNumberOfActions(state: OrchestratorState, p: p5) {
+    private drawNumberOfActions(state: BattleOrchestratorState, p: p5) {
         const {
             staticSquaddie,
             dynamicSquaddie
@@ -268,23 +339,10 @@ export class BattleSquaddieSelectedHUD {
         p.pop();
     }
 
-
     private drawSquaddieActivities(p: p5) {
         this.activityButtons.forEach((button) => {
             button.draw(p)
         });
-    }
-
-    getActivityButtons(): ActivityButton[] {
-        return this.activityButtons ? [...this.activityButtons] : [];
-    }
-
-    wasActivitySelected(): boolean {
-        return this.selectedActivity !== undefined;
-    }
-
-    getSelectedActivity(): SquaddieActivity | SquaddieEndTurnActivity {
-        return this.selectedActivity;
     }
 
     private setBackgroundWindowAndGetWindowDimensions(affiliation: SquaddieAffiliation, mouseY?: number) {
@@ -315,55 +373,7 @@ export class BattleSquaddieSelectedHUD {
         };
     }
 
-    keyPressed(keyCode: number, state: OrchestratorState) {
-        if (this._background === undefined) {
-            this.setBackgroundWindowAndGetWindowDimensions(SquaddieAffiliation.UNKNOWN, 0);
-        }
-
-        const pressedTheNextSquaddieKey: boolean = this.shouldDrawNextButton(state) && KeyWasPressed(KeyButtonName.NEXT_SQUADDIE, keyCode);
-        if (pressedTheNextSquaddieKey) {
-            this.selectNextSquaddie(state);
-        }
-    }
-
-    mouseClicked(mouseX: number, mouseY: number, state: OrchestratorState) {
-        const clickedActivityButton = this.activityButtons.find((button) =>
-            button.buttonArea.isInside(mouseX, mouseY)
-        );
-
-        if (clickedActivityButton) {
-            const activityValidCheck = this.checkIfActivityIsValid(clickedActivityButton.activity, state);
-            if (activityValidCheck === ActivityValidityCheck.IS_VALID) {
-                this.selectedActivity = clickedActivityButton.activity;
-                return;
-            }
-            this.warnUserNotEnoughActionsToPerformAction(clickedActivityButton.activity);
-        }
-
-        const clickedOnNextButton: boolean = this.shouldDrawNextButton(state) && this.nextSquaddieButton.rectangle.area.isInside(mouseX, mouseY);
-        if (clickedOnNextButton) {
-            this.selectNextSquaddie(state);
-        }
-    }
-
-    reset() {
-        this.selectedSquaddieDynamicId = "";
-        this.affiliateIcon = undefined;
-        this.selectedActivity = undefined;
-        this.activityButtons = undefined;
-        this.invalidCommandWarningTextBox = new TextBox({
-            text: "",
-            textSize: 0,
-            fontColor: [0, 0, 0],
-            area: new RectArea({
-                left: 0, top: 0, width: 0, height: 0,
-            }),
-            duration: 0,
-        });
-        this.nextSquaddieDynamicIds = [];
-    }
-
-    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: OrchestratorState, p: p5) {
+    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, p: p5) {
         if (
             !squaddieCurrentlyActing
             || squaddieCurrentlyActing.isReadyForNewSquaddie()
@@ -436,7 +446,7 @@ export class BattleSquaddieSelectedHUD {
         );
     }
 
-    private checkIfActivityIsValid(activity: SquaddieActivity | SquaddieEndTurnActivity, state: OrchestratorState): ActivityValidityCheck {
+    private checkIfActivityIsValid(activity: SquaddieActivity | SquaddieEndTurnActivity, state: BattleOrchestratorState): ActivityValidityCheck {
         if (activity instanceof SquaddieEndTurnActivity) {
             return ActivityValidityCheck.IS_VALID;
         }
@@ -454,7 +464,7 @@ export class BattleSquaddieSelectedHUD {
         return ActivityValidityCheck.IS_VALID
     }
 
-    private drawSquaddieAttributes(state: OrchestratorState, p: p5) {
+    private drawSquaddieAttributes(state: BattleOrchestratorState, p: p5) {
         const {
             staticSquaddie,
             dynamicSquaddie
@@ -533,7 +543,7 @@ export class BattleSquaddieSelectedHUD {
                                 fontColor: number[],
                                 text: string,
                                 baseRectangle: RectArea,
-                                state: OrchestratorState,
+                                state: BattleOrchestratorState,
                                 p: p5,
                             }
     ) {
@@ -565,20 +575,6 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    shouldDrawNextButton(state: OrchestratorState): boolean {
-        const numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct: number = state.squaddieRepository.getDynamicSquaddieIterator().filter((info) => {
-            return this.isSquaddiePlayerControllableRightNow(info.dynamicSquaddieId, state) === true
-        }).length;
-
-        const selectedSquaddieIsPlayerControllableRightNow: boolean = this.selectedSquaddieDynamicId && this.isSquaddiePlayerControllableRightNow(this.selectedSquaddieDynamicId, state);
-
-        if (selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 1) {
-            return true;
-        }
-
-        return !selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 0;
-    }
-
     private generateNextSquaddieButton(windowDimensions: RectArea) {
         const nextButtonArea = new RectArea({
             top: windowDimensions.top + WINDOW_SPACING1,
@@ -600,7 +596,7 @@ export class BattleSquaddieSelectedHUD {
         });
     }
 
-    private isSquaddiePlayerControllableRightNow = (dynamicSquaddieId: string, state: OrchestratorState): boolean => {
+    private isSquaddiePlayerControllableRightNow = (dynamicSquaddieId: string, state: BattleOrchestratorState): boolean => {
         const {
             staticSquaddie,
             dynamicSquaddie,
@@ -616,7 +612,7 @@ export class BattleSquaddieSelectedHUD {
         return playerCanControlThisSquaddieRightNow;
     }
 
-    private selectNextSquaddie(state: OrchestratorState) {
+    private selectNextSquaddie(state: BattleOrchestratorState) {
         if (this.nextSquaddieDynamicIds.length === 0) {
             this.nextSquaddieDynamicIds = state.squaddieRepository.getDynamicSquaddieIterator().filter((info) => {
                 return this.isSquaddiePlayerControllableRightNow(info.dynamicSquaddieId, state) === true

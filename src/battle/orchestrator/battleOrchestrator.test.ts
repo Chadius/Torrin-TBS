@@ -1,6 +1,6 @@
-import {BattleOrchestratorMode, Orchestrator} from "./orchestrator";
+import {BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
-import {OrchestratorState} from "./orchestratorState";
+import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
@@ -14,7 +14,7 @@ import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInPro
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {OrchestratorComponent} from "./orchestratorComponent";
+import {BattleOrchestratorComponent} from "./battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
@@ -22,6 +22,7 @@ import * as mocks from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
+import {MouseButton} from "../../utils/mouseConfig";
 
 
 describe('Battle Orchestrator', () => {
@@ -39,7 +40,7 @@ describe('Battle Orchestrator', () => {
         initialMode: BattleOrchestratorMode;
     }
 
-    let orchestrator: Orchestrator;
+    let orchestrator: BattleOrchestrator;
 
     let mockBattleMissionLoader: BattleMissionLoader;
     let mockBattleCutscenePlayer: BattleCutscenePlayer;
@@ -53,7 +54,7 @@ describe('Battle Orchestrator', () => {
     let mockPhaseController: BattlePhaseController;
     let mockHud: BattleSquaddieSelectedHUD;
 
-    let nullState: OrchestratorState;
+    let nullState: BattleOrchestratorState;
     let mockedP5 = mocks.mockedP5();
 
     function setupMocks() {
@@ -146,7 +147,7 @@ describe('Battle Orchestrator', () => {
     }
 
     beforeEach(() => {
-        nullState = new OrchestratorState({
+        nullState = new BattleOrchestratorState({
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
             }),
@@ -155,8 +156,8 @@ describe('Battle Orchestrator', () => {
         setupMocks();
     });
 
-    const createOrchestrator: (overrides: Partial<OrchestratorTestOptions>) => Orchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
-        const orchestrator: Orchestrator = new Orchestrator({
+    const createOrchestrator: (overrides: Partial<OrchestratorTestOptions>) => BattleOrchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
+        const orchestrator: BattleOrchestrator = new BattleOrchestrator({
             ...{
                 missionLoader: mockBattleMissionLoader,
                 cutscenePlayer: mockBattleCutscenePlayer,
@@ -298,7 +299,7 @@ describe('Battle Orchestrator', () => {
     describe('mode switching', () => {
         const loadAndExpect = (options: {
             mode: BattleOrchestratorMode,
-            orchestratorComponent: OrchestratorComponent,
+            orchestratorComponent: BattleOrchestratorComponent,
         }) => {
             orchestrator = createOrchestrator({
                 initialMode: options.mode,
@@ -317,7 +318,7 @@ describe('Battle Orchestrator', () => {
             for (const modeStr in BattleOrchestratorMode) {
                 const mode: BattleOrchestratorMode = modeStr as BattleOrchestratorMode;
                 it(`using the ${mode} mode will use the expected component`, () => {
-                    const tests: { [mode in BattleOrchestratorMode]: OrchestratorComponent } = {
+                    const tests: { [mode in BattleOrchestratorMode]: BattleOrchestratorComponent } = {
                         [BattleOrchestratorMode.UNKNOWN]: undefined,
                         [BattleOrchestratorMode.LOADING_MISSION]: mockBattleMissionLoader,
                         [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,
@@ -408,16 +409,16 @@ describe('Battle Orchestrator', () => {
     });
 
     const expectMouseEventsWillGoToMapDisplay = (
-        squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator,
-        component: OrchestratorComponent
+        squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
+        component: BattleOrchestratorComponent
     ) => {
-        const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({});
+        const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({});
 
         squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(stateWantsToDisplayTheMap, 0, 0);
         expect(component.mouseEventHappened).toBeCalledTimes(1);
         expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(1);
 
-        squaddieSelectorOrchestratorShouldDisplayMap.mouseClicked(stateWantsToDisplayTheMap, 0, 0);
+        squaddieSelectorOrchestratorShouldDisplayMap.mouseClicked(stateWantsToDisplayTheMap, MouseButton.LEFT, 0, 0);
         expect(component.mouseEventHappened).toBeCalledTimes(2);
         expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2);
     }
@@ -439,10 +440,10 @@ describe('Battle Orchestrator', () => {
     });
 
     const expectKeyEventsWillGoToMapDisplay = (
-        squaddieSelectorOrchestratorShouldDisplayMap: Orchestrator,
-        component: OrchestratorComponent
+        squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
+        component: BattleOrchestratorComponent
     ) => {
-        const stateWantsToDisplayTheMap: OrchestratorState = new OrchestratorState({});
+        const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({});
 
         squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
         expect(component.keyEventHappened).toBeCalledTimes(1);

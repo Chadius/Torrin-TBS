@@ -20,6 +20,10 @@ export class DialogueSpeakerNameBox {
         this.createUIObjects();
     }
 
+    draw(p: p5) {
+        this.speakerNameLabel.draw(p);
+    }
+
     private createUIObjects() {
         const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
         const dialogueBoxTop = this.screenDimensions[1] * 0.7;
@@ -46,9 +50,5 @@ export class DialogueSpeakerNameBox {
             horizAlign: HORIZ_ALIGN_LEFT,
             vertAlign: VERT_ALIGN_BASELINE,
         });
-    }
-
-    draw(p: p5) {
-        this.speakerNameLabel.draw(p);
     }
 }

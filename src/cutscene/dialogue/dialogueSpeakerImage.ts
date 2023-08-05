@@ -20,6 +20,10 @@ export class DialogueSpeakerImage {
         this.createUIObjects();
     }
 
+    draw(p: p5) {
+        this.speakerImage.draw(p);
+    }
+
     private createUIObjects() {
         const dialogueBoxTop = this.screenDimensions[1] * 0.7;
         const dialogueBoxLeft = WINDOW_SPACING2
@@ -34,9 +38,5 @@ export class DialogueSpeakerImage {
                 height: this.speakerPortrait.height,
             })
         })
-    }
-
-    draw(p: p5) {
-        this.speakerImage.draw(p);
     }
 }

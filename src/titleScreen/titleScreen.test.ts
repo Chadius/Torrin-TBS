@@ -1,6 +1,7 @@
 import * as mocks from "../utils/test/mocks";
 import {TitleScreen} from "./titleScreen";
 import {TitleScreenState} from "./titleScreenState";
+import p5 from "p5";
 
 describe('Title Screen', () => {
     let titleScreen: TitleScreen;

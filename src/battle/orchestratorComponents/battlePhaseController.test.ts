@@ -1,4 +1,4 @@
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -22,7 +22,7 @@ describe('BattlePhaseController', () => {
     let enemySquaddieTeam: BattleSquaddieTeam;
     let resourceHandler: ResourceHandler;
     let diffTime: number;
-    let state: OrchestratorState;
+    let state: BattleOrchestratorState;
     let mockedP5 = mocks.mockedP5();
 
     beforeEach(() => {
@@ -93,7 +93,7 @@ describe('BattlePhaseController', () => {
         resourceHandler = new (<new (options: any) => ResourceHandler>ResourceHandler)({}) as jest.Mocked<ResourceHandler>;
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult("Hi"));
 
-        state = new OrchestratorState({
+        state = new BattleOrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             battlePhaseState: {
@@ -117,7 +117,7 @@ describe('BattlePhaseController', () => {
     });
 
     it('starts showing the player phase banner by default', () => {
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             resourceHandler,
@@ -142,7 +142,7 @@ describe('BattlePhaseController', () => {
         camera.setXVelocity(-100);
         camera.setYVelocity(-100);
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             resourceHandler,
@@ -177,7 +177,7 @@ describe('BattlePhaseController', () => {
     });
 
     it('only draws the banner while the timer is going', () => {
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             resourceHandler,
@@ -206,7 +206,7 @@ describe('BattlePhaseController', () => {
         battlePhaseController.affiliationImageUI = mocks.mockImageUI();
 
         expect(battlePhaseController.affiliationImageUI).toBeTruthy();
-        battlePhaseController.reset(new OrchestratorState({}));
+        battlePhaseController.reset(new BattleOrchestratorState({}));
         expect(battlePhaseController.affiliationImageUI).toBeFalsy();
     });
 
@@ -215,7 +215,7 @@ describe('BattlePhaseController', () => {
         dynamicSquaddie0.endTurn();
         expect(dynamicSquaddie0.canStillActThisRound()).toBeFalsy();
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             resourceHandler,

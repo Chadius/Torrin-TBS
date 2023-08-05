@@ -6,11 +6,11 @@ export enum ACTIVITY_PERFORM_FAILURE_REASON {
 }
 
 export class SquaddieTurn {
-    private _remainingNumberOfActions: number;
-
     constructor() {
         this._remainingNumberOfActions = 3;
     }
+
+    private _remainingNumberOfActions: number;
 
     get remainingNumberOfActions(): number {
         return this._remainingNumberOfActions;
@@ -42,15 +42,15 @@ export class SquaddieTurn {
         this.refreshActions();
     }
 
-    private refreshActions() {
-        this._remainingNumberOfActions = 3;
-    }
-
     hasActionsRemaining(): boolean {
         return this._remainingNumberOfActions > 0;
     }
 
     endTurn() {
         this._remainingNumberOfActions = 0;
+    }
+
+    private refreshActions() {
+        this._remainingNumberOfActions = 3;
     }
 }

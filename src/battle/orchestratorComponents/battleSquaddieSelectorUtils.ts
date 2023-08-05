@@ -1,4 +1,4 @@
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {DamageType, DealDamageToTheSquaddie, GetNumberOfActions} from "../../squaddie/squaddieService";
@@ -19,7 +19,7 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 
-export function createSearchPath(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
+export function createSearchPath(state: BattleOrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
     const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
@@ -66,7 +66,7 @@ export function createSearchPath(state: OrchestratorState, staticSquaddie: Battl
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
 
-export function AddMovementInstruction(state: OrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
+export function AddMovementInstruction(state: BattleOrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
     MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
 
     const moveActivity = new SquaddieMovementActivity({
@@ -81,7 +81,7 @@ export function AddMovementInstruction(state: OrchestratorState, staticSquaddie:
     return moveActivity;
 }
 
-export function MaybeCreateSquaddieInstruction(state: OrchestratorState, dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
+export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
     if (!(state.squaddieCurrentlyActing && state.squaddieCurrentlyActing.instruction)) {
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
@@ -99,7 +99,7 @@ export function MaybeCreateSquaddieInstruction(state: OrchestratorState, dynamic
     }
 }
 
-export function CalculateResults(state: OrchestratorState, actingSquaddieDynamic: BattleSquaddieDynamic, validTargetLocation: HexCoordinate) {
+export function CalculateResults(state: BattleOrchestratorState, actingSquaddieDynamic: BattleSquaddieDynamic, validTargetLocation: HexCoordinate) {
     const {
         dynamicSquaddieId: targetedSquaddieDynamicId,
         staticSquaddieId: targetedSquaddieStaticId
@@ -132,7 +132,7 @@ export function CalculateResults(state: OrchestratorState, actingSquaddieDynamic
     return instructionResults;
 }
 
-export function MaybeEndSquaddieTurn(state: OrchestratorState) {
+export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
     if (!state.squaddieCurrentlyActing) {
         return;
     }

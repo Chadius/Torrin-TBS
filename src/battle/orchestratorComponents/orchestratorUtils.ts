@@ -1,5 +1,5 @@
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -9,7 +9,7 @@ import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoor
 import {highlightSquaddieReach} from "../animation/mapHighlight";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 
-export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: OrchestratorState) => {
+export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
     if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
         const {dynamicSquaddie, staticSquaddie} = getResultOrThrowError(
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
@@ -21,7 +21,7 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: Orches
     }
 }
 
-export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: OrchestratorState) => {
+export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.squaddieCurrentlyActing
         && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
@@ -45,7 +45,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: Orchestra
     }
 }
 
-export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: OrchestratorState) => {
+export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.squaddieCurrentlyActing
         && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()

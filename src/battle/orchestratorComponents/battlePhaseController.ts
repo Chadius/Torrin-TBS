@@ -1,10 +1,10 @@
 import {
-    OrchestratorChanges,
-    OrchestratorComponent,
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
-} from "../orchestrator/orchestratorComponent";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+} from "../orchestrator/battleOrchestratorComponent";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import p5 from "p5";
 import {BattlePhase} from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
@@ -19,7 +19,7 @@ export type BattlePhaseState = {
     bannerPhaseToShow: BattlePhase;
 }
 
-export class BattlePhaseController implements OrchestratorComponent {
+export class BattlePhaseController implements BattleOrchestratorComponent {
     bannerImage: p5.Image;
     bannerImageUI: ImageUI;
     affiliationImage: p5.Image;
@@ -31,7 +31,7 @@ export class BattlePhaseController implements OrchestratorComponent {
         this.newBannerShown = false;
     }
 
-    hasCompleted(state: OrchestratorState): boolean {
+    hasCompleted(state: BattleOrchestratorState): boolean {
         if (!this.newBannerShown && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
             return true;
         }
@@ -47,20 +47,20 @@ export class BattlePhaseController implements OrchestratorComponent {
         return true;
     }
 
-    mouseEventHappened(state: OrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    keyEventHappened(state: OrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: OrchestratorState): UIControlSettings {
+    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
         });
     }
 
-    update(state: OrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, p: p5): void {
         if (!this.newBannerShown && state.battlePhaseTracker.getCurrentPhase() !== BattlePhase.UNKNOWN && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
             return;
         }
@@ -91,7 +91,7 @@ export class BattlePhaseController implements OrchestratorComponent {
         }
     }
 
-    setBannerImage(state: OrchestratorState) {
+    setBannerImage(state: BattleOrchestratorState) {
         state.hexMap?.stopOutlineTiles();
 
         switch (state.battlePhaseState.bannerPhaseToShow) {
@@ -144,20 +144,20 @@ export class BattlePhaseController implements OrchestratorComponent {
         });
     }
 
-    draw(state: OrchestratorState, p: p5): void {
+    draw(state: BattleOrchestratorState, p: p5): void {
         if (this.bannerImageUI) {
             this.bannerImageUI.draw(p);
             this.affiliationImageUI.draw(p);
         }
     }
 
-    recommendStateChanges(state: OrchestratorState): OrchestratorChanges | undefined {
+    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
         }
     }
 
-    reset(state: OrchestratorState) {
+    reset(state: BattleOrchestratorState) {
         this.bannerImage = undefined;
         this.bannerImageUI = undefined;
         this.affiliationImage = undefined;

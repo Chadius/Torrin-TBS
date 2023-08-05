@@ -148,42 +148,6 @@ export class BattleCamera {
         };
     }
 
-    private getCameraBoundaries(): {
-        coordinateLimits: RectArea,
-        worldLocationOfStartOfFirstRow: [number, number],
-        worldLocationOfEndOfLastRow: [number, number],
-    } {
-        if (!this.mapDimensionBoundaries) {
-            return {
-                coordinateLimits: new RectArea({
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                }),
-                worldLocationOfStartOfFirstRow: [0, 0],
-                worldLocationOfEndOfLastRow: [0, 0],
-            };
-        }
-
-        const horizontalCameraBuffer = ScreenDimensions.SCREEN_WIDTH / 10;
-        const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10;
-
-        const worldLocationOfStartOfFirstRow: [number, number] = convertMapCoordinatesToWorldCoordinates(0, 0);
-        const worldLocationOfEndOfLastRow: [number, number] = convertMapCoordinatesToWorldCoordinates(this.mapDimensionBoundaries.numberOfRows, this.mapDimensionBoundaries.widthOfWidestRow);
-
-        return {
-            coordinateLimits: new RectArea({
-                left: worldLocationOfStartOfFirstRow[0] + horizontalCameraBuffer,
-                right: worldLocationOfEndOfLastRow[0] - horizontalCameraBuffer,
-                top: worldLocationOfStartOfFirstRow[1] - verticalCameraBuffer + (ScreenDimensions.SCREEN_HEIGHT / 2),
-                bottom: worldLocationOfEndOfLastRow[1] + verticalCameraBuffer - (ScreenDimensions.SCREEN_HEIGHT / 2),
-            }),
-            worldLocationOfStartOfFirstRow,
-            worldLocationOfEndOfLastRow,
-        };
-    }
-
     pan({respectConstraints, timeToPan, xDestination, yDestination}: {
         yDestination: number;
         xDestination: number;
@@ -267,5 +231,41 @@ export class BattleCamera {
             timeToPan: 0,
             respectConstraints: cutInfo.respectConstraints,
         });
+    }
+
+    private getCameraBoundaries(): {
+        coordinateLimits: RectArea,
+        worldLocationOfStartOfFirstRow: [number, number],
+        worldLocationOfEndOfLastRow: [number, number],
+    } {
+        if (!this.mapDimensionBoundaries) {
+            return {
+                coordinateLimits: new RectArea({
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                }),
+                worldLocationOfStartOfFirstRow: [0, 0],
+                worldLocationOfEndOfLastRow: [0, 0],
+            };
+        }
+
+        const horizontalCameraBuffer = ScreenDimensions.SCREEN_WIDTH / 10;
+        const verticalCameraBuffer = ScreenDimensions.SCREEN_HEIGHT / 10;
+
+        const worldLocationOfStartOfFirstRow: [number, number] = convertMapCoordinatesToWorldCoordinates(0, 0);
+        const worldLocationOfEndOfLastRow: [number, number] = convertMapCoordinatesToWorldCoordinates(this.mapDimensionBoundaries.numberOfRows, this.mapDimensionBoundaries.widthOfWidestRow);
+
+        return {
+            coordinateLimits: new RectArea({
+                left: worldLocationOfStartOfFirstRow[0] + horizontalCameraBuffer,
+                right: worldLocationOfEndOfLastRow[0] - horizontalCameraBuffer,
+                top: worldLocationOfStartOfFirstRow[1] - verticalCameraBuffer + (ScreenDimensions.SCREEN_HEIGHT / 2),
+                bottom: worldLocationOfEndOfLastRow[1] + verticalCameraBuffer - (ScreenDimensions.SCREEN_HEIGHT / 2),
+            }),
+            worldLocationOfStartOfFirstRow,
+            worldLocationOfEndOfLastRow,
+        };
     }
 }

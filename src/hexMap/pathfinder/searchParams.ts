@@ -88,28 +88,6 @@ export class SearchParams {
         }
     }
 
-    private setUsingSearchParamsOptions(searchParamsOptions: SearchParamsOptions) {
-        this.setup = {
-            startLocation: searchParamsOptions.startLocation,
-            missionMap: searchParamsOptions.missionMap,
-            affiliation: searchParamsOptions.squaddieAffiliation ?? undefined,
-            squaddieRepository: searchParamsOptions.squaddieRepository,
-        };
-        this.movement = {
-            minimumDistanceMoved: searchParamsOptions.minimumDistanceMoved,
-            maximumDistanceMoved: searchParamsOptions.maximumDistanceMoved,
-            movementPerAction: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.movementPerAction : 0,
-            passThroughWalls: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.passThroughWalls : false,
-            crossOverPits: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.crossOverPits : false,
-            canStopOnSquaddies: searchParamsOptions.canStopOnSquaddies,
-            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(searchParamsOptions.shapeGeneratorType)),
-        }
-        this.stopConditions = {
-            numberOfActions: searchParamsOptions.numberOfActions,
-            stopLocation: searchParamsOptions.stopLocation,
-        }
-    }
-
     get shapeGenerator(): TargetingShapeGenerator {
         return this.movement.shapeGenerator;
     }
@@ -146,10 +124,6 @@ export class SearchParams {
         return this.stopConditions.stopLocation;
     }
 
-    hasSquaddieAffiliation(): boolean {
-        return this.setup.affiliation !== undefined && this.setup.affiliation !== SquaddieAffiliation.UNKNOWN;
-    }
-
     get squaddieAffiliation(): SquaddieAffiliation {
         return this.setup.affiliation;
     }
@@ -184,6 +158,32 @@ export class SearchParams {
             startLocation: this.setup.startLocation,
             stopLocation: this.stopConditions.stopLocation,
             shapeGeneratorType: this.movement.shapeGenerator.getShape(),
+        }
+    }
+
+    hasSquaddieAffiliation(): boolean {
+        return this.setup.affiliation !== undefined && this.setup.affiliation !== SquaddieAffiliation.UNKNOWN;
+    }
+
+    private setUsingSearchParamsOptions(searchParamsOptions: SearchParamsOptions) {
+        this.setup = {
+            startLocation: searchParamsOptions.startLocation,
+            missionMap: searchParamsOptions.missionMap,
+            affiliation: searchParamsOptions.squaddieAffiliation ?? undefined,
+            squaddieRepository: searchParamsOptions.squaddieRepository,
+        };
+        this.movement = {
+            minimumDistanceMoved: searchParamsOptions.minimumDistanceMoved,
+            maximumDistanceMoved: searchParamsOptions.maximumDistanceMoved,
+            movementPerAction: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.movementPerAction : 0,
+            passThroughWalls: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.passThroughWalls : false,
+            crossOverPits: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.crossOverPits : false,
+            canStopOnSquaddies: searchParamsOptions.canStopOnSquaddies,
+            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(searchParamsOptions.shapeGeneratorType)),
+        }
+        this.stopConditions = {
+            numberOfActions: searchParamsOptions.numberOfActions,
+            stopLocation: searchParamsOptions.stopLocation,
         }
     }
 }

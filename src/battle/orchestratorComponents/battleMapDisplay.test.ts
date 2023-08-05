@@ -1,10 +1,10 @@
 import {BattleMapDisplay} from "./battleMapDisplay";
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
-import {OrchestratorComponentMouseEventType} from "../orchestrator/orchestratorComponent";
+import {OrchestratorComponentMouseEventType} from "../orchestrator/battleOrchestratorComponent";
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
 import * as mocks from "../../utils/test/mocks";
@@ -31,7 +31,7 @@ describe('battleMapDisplay', () => {
         camera.setXVelocity = jest.fn();
         camera.setYVelocity = jest.fn();
 
-        const state = new OrchestratorState({
+        const state = new BattleOrchestratorState({
             camera,
         });
         battleMapDisplay.mouseEventHappened(state, {
@@ -44,7 +44,7 @@ describe('battleMapDisplay', () => {
     });
 
     describe('panning the camera', () => {
-        let state: OrchestratorState;
+        let state: BattleOrchestratorState;
         let camera: BattleCamera;
         let initialCameraCoordinates: number[];
 
@@ -52,7 +52,7 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = new OrchestratorState({
+            state = new BattleOrchestratorState({
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -94,7 +94,7 @@ describe('battleMapDisplay', () => {
     });
 
     describe('it will change the camera velocity based on the mouse location', () => {
-        let state: OrchestratorState;
+        let state: BattleOrchestratorState;
         let camera: BattleCamera;
         let initialCameraCoordinates: number[];
 
@@ -104,7 +104,7 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD.isMouseInsideHUD = jest.fn().mockReturnValue(false);
             battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
-            state = new OrchestratorState({
+            state = new BattleOrchestratorState({
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -157,7 +157,7 @@ describe('battleMapDisplay', () => {
     });
 
     describe('will not vertically scroll the camera if the HUD is open', () => {
-        let state: OrchestratorState;
+        let state: BattleOrchestratorState;
         let camera: BattleCamera;
         let initialCameraCoordinates: number[];
 
@@ -165,7 +165,7 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = new OrchestratorState({
+            state = new BattleOrchestratorState({
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -201,7 +201,7 @@ describe('battleMapDisplay', () => {
             })
         );
 
-        const stateWithOpenedHUD = new OrchestratorState({
+        const stateWithOpenedHUD = new BattleOrchestratorState({
             camera,
             squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
@@ -217,7 +217,7 @@ describe('battleMapDisplay', () => {
     });
 
     describe('will horizontally scroll the camera if the HUD is open but only at the extreme edge', () => {
-        let state: OrchestratorState;
+        let state: BattleOrchestratorState;
         let camera: BattleCamera;
         let initialCameraCoordinates: number[];
 
@@ -225,7 +225,7 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = new OrchestratorState({
+            state = new BattleOrchestratorState({
                 camera,
                 squaddieRepo,
                 battleSquaddieSelectedHUD,
@@ -274,7 +274,7 @@ describe('battleMapDisplay', () => {
             })
         );
 
-        const stateWithOpenedHUD = new OrchestratorState({
+        const stateWithOpenedHUD = new BattleOrchestratorState({
             camera,
             squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,

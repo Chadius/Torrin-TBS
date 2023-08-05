@@ -10,17 +10,18 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "./targetingShapeGenerator";
 
 export class TargetingResults {
-    private _locationsInRange: HexCoordinate[];
-    private _dynamicSquaddieIdsInRange: string[];
-
     constructor() {
         this._locationsInRange = [];
         this._dynamicSquaddieIdsInRange = [];
     }
 
+    private _locationsInRange: HexCoordinate[];
+
     get locationsInRange(): HexCoordinate[] {
         return this._locationsInRange;
     }
+
+    private _dynamicSquaddieIdsInRange: string[];
 
     get dynamicSquaddieIdsInRange(): string[] {
         return this._dynamicSquaddieIdsInRange;

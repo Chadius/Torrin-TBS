@@ -17,7 +17,7 @@ import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 
-export class OrchestratorState {
+export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
     missionMap: MissionMap;
     hexMap: TerrainTileMap;

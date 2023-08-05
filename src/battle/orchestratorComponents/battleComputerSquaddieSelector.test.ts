@@ -1,4 +1,4 @@
-import {OrchestratorState} from "../orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -6,12 +6,12 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {
-    OrchestratorChanges,
+    BattleOrchestratorChanges,
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
-} from "../orchestrator/orchestratorComponent";
+} from "../orchestrator/battleOrchestratorComponent";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {BattleOrchestratorMode} from "../orchestrator/orchestrator";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -183,7 +183,7 @@ describe('BattleComputerSquaddieSelector', () => {
             squaddieLocation[0] + (ScreenDimensions.SCREEN_WIDTH * 2),
             squaddieLocation[1] + (ScreenDimensions.SCREEN_HEIGHT * 2),
         );
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             squaddieRepo,
             camera,
@@ -225,7 +225,7 @@ describe('BattleComputerSquaddieSelector', () => {
             const enemyEndTurnStrategy = new EndTurnTeamStrategy();
             const strategySpy = jest.spyOn(enemyEndTurnStrategy, "DetermineNextInstruction");
 
-            const state: OrchestratorState = new OrchestratorState({
+            const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseTracker,
                 hexMap: new TerrainTileMap({
                     movementCost: ["1 1 "]
@@ -251,7 +251,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
             expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
 
-            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
 
             const history = state.battleEventRecording.history;
@@ -271,7 +271,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }
             }
 
-            const state: OrchestratorState = new OrchestratorState({
+            const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseTracker,
                 hexMap: new TerrainTileMap({
                     movementCost: ["1 1 "]
@@ -291,7 +291,7 @@ describe('BattleComputerSquaddieSelector', () => {
             const mostRecentActivity = endTurnActivityInstruction.getActivities().reverse()[0];
             expect(mostRecentActivity).toBeInstanceOf(SquaddieEndTurnActivity);
 
-            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
         });
     });
@@ -317,7 +317,7 @@ describe('BattleComputerSquaddieSelector', () => {
             }
         }
 
-        const state: OrchestratorState = new OrchestratorState({
+        const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseTracker,
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
@@ -339,7 +339,7 @@ describe('BattleComputerSquaddieSelector', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
-        let recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+        let recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
 
         selector.reset(state);
@@ -396,7 +396,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }
             }
 
-            const state: OrchestratorState = new OrchestratorState({
+            const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseTracker,
                 squaddieRepo,
                 camera,
@@ -411,7 +411,7 @@ describe('BattleComputerSquaddieSelector', () => {
             selector.update(state, mockedP5);
 
             expect(selector.hasCompleted(state)).toBeTruthy();
-            const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+            const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
             expect(state.squaddieMovePath.getDestination()).toStrictEqual(moveActivity.destinationLocation());
@@ -422,7 +422,7 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         describe('computer controlled squaddie acts', () => {
-            let state: OrchestratorState;
+            let state: BattleOrchestratorState;
 
             beforeEach(() => {
                 const squaddieSquaddieActivity: SquaddieInstruction = new SquaddieInstruction({
@@ -441,7 +441,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     }
                 }
 
-                state = new OrchestratorState({
+                state = new BattleOrchestratorState({
                     battlePhaseTracker,
                     squaddieRepo,
                     camera,
@@ -483,7 +483,7 @@ describe('BattleComputerSquaddieSelector', () => {
             it('waits and then will recommend squaddie squaddie activity as the next field', () => {
                 jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
                 selector.update(state, mockedP5);
-                const recommendation: OrchestratorChanges = selector.recommendStateChanges(state);
+                const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
                 expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
             });
 

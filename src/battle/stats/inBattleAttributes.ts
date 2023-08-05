@@ -3,7 +3,6 @@ import {DamageType} from "../../squaddie/squaddieService";
 
 export class InBattleAttributes {
     private _armyAttributes: ArmyAttributes;
-    private _currentHitPoints: number;
 
     constructor(statBlock?: ArmyAttributes) {
         if (!statBlock) {
@@ -13,6 +12,8 @@ export class InBattleAttributes {
         this._armyAttributes = statBlock;
         this._currentHitPoints = statBlock.maxHitPoints;
     }
+
+    private _currentHitPoints: number;
 
     get currentHitPoints(): number {
         return this._currentHitPoints;

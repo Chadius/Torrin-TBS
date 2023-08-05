@@ -17,7 +17,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../utils/test/squaddie";
 import {BattleCamera} from "./battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
-import {OrchestratorState} from "./orchestrator/orchestratorState";
+import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
 
@@ -145,7 +145,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         hud.selectSquaddieAndDrawWindow({
                 dynamicId: playerSquaddieDynamicID,
                 repositionWindow: {mouseX: 0, mouseY: 0},
-                state: new OrchestratorState({
+                state: new BattleOrchestratorState({
                     squaddieRepo: squaddieRepository,
                     missionMap,
                     resourceHandler: resourceHandler,
@@ -164,7 +164,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when an activity button is selected', () => {
-        const state = new OrchestratorState({
+        const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
             resourceHandler: resourceHandler,
@@ -193,7 +193,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('generates a Wait Turn activity button when a squaddie is selected', () => {
-        const state = new OrchestratorState({
+        const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
             resourceHandler: resourceHandler,
@@ -216,7 +216,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when a Wait Turn activity button was clicked on', () => {
-        const state = new OrchestratorState({
+        const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
             resourceHandler: resourceHandler,
@@ -246,7 +246,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('can reopen the window in the previous position if no mouse location is given', () => {
-        const state = new OrchestratorState({
+        const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
             resourceHandler: resourceHandler,
@@ -280,7 +280,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(playerSquaddieDynamicID));
         staticSquaddie.addActivity(notEnoughActionsActivity);
 
-        const state = new OrchestratorState({
+        const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
             resourceHandler: resourceHandler,
@@ -312,7 +312,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     describe("Next Squaddie button", () => {
         it('should show the button if there are at least 2 player controllable squaddies', () => {
-            const state = new OrchestratorState({
+            const state = new BattleOrchestratorState({
                 squaddieRepo: squaddieRepository,
                 missionMap,
                 resourceHandler: resourceHandler,
@@ -336,7 +336,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
             onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
 
-            const state = new OrchestratorState({
+            const state = new BattleOrchestratorState({
                 squaddieRepo: onePlayerOneEnemy,
                 missionMap,
                 resourceHandler: resourceHandler,
@@ -360,7 +360,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
             onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
 
-            const state = new OrchestratorState({
+            const state = new BattleOrchestratorState({
                 squaddieRepo: onePlayerOneEnemy,
                 missionMap,
                 resourceHandler: resourceHandler,
@@ -376,7 +376,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             const onePlayerOneEnemy = new BattleSquaddieRepository();
             onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
             onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
-            const state = new OrchestratorState({
+            const state = new BattleOrchestratorState({
                 squaddieRepo: onePlayerOneEnemy,
                 missionMap,
                 resourceHandler: resourceHandler,
@@ -406,7 +406,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 r: 1
             }));
 
-            const state = new OrchestratorState({
+            const state = new BattleOrchestratorState({
                 squaddieRepo: squaddieRepository,
                 missionMap,
                 resourceHandler: resourceHandler,
@@ -456,7 +456,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 r: 1
             }));
 
-            const state = new OrchestratorState({
+            const state = new BattleOrchestratorState({
                 squaddieRepo: squaddieRepository,
                 missionMap,
                 resourceHandler: resourceHandler,

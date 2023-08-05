@@ -84,6 +84,18 @@ export class Button {
         return false;
     }
 
+    setStatus(status: ButtonStatus): void {
+        this.buttonStatus = status;
+    }
+
+    getStatus(): ButtonStatus {
+        return this.buttonStatus;
+    }
+
+    draw(p: p5) {
+        this.getCurrentLabel().draw(p);
+    }
+
     private getCurrentLabel(): Label {
         const labelByStatus = {
             [ButtonStatus.READY]: this.readyLabel,
@@ -103,17 +115,5 @@ export class Button {
             && mouseY >= label.rectangle.area.top
             && mouseY < label.rectangle.area.bottom
         );
-    }
-
-    setStatus(status: ButtonStatus): void {
-        this.buttonStatus = status;
-    }
-
-    getStatus(): ButtonStatus {
-        return this.buttonStatus;
-    }
-
-    draw(p: p5) {
-        this.getCurrentLabel().draw(p);
     }
 }

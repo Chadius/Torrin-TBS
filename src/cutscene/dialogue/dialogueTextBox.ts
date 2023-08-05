@@ -20,6 +20,10 @@ export class DialogueTextBox {
         this.createUIObjects();
     }
 
+    draw(p: p5) {
+        this.speakerTextLabel.draw(p);
+    }
+
     private createUIObjects() {
         const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
         const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
@@ -40,9 +44,5 @@ export class DialogueTextBox {
             textSize: WINDOW_SPACING4,
             fontColor: dialogueBoxTextColor
         });
-    }
-
-    draw(p: p5) {
-        this.speakerTextLabel.draw(p);
     }
 }

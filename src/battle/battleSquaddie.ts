@@ -8,7 +8,6 @@ import {InBattleAttributes} from "./stats/inBattleAttributes";
 
 export class BattleSquaddieStatic {
     squaddieId: SquaddieId;
-    private _activities: SquaddieActivity[];
     attributes: ArmyAttributes;
 
     constructor(options: {
@@ -21,6 +20,12 @@ export class BattleSquaddieStatic {
         this.attributes = options.attributes || new ArmyAttributes();
     }
 
+    private _activities: SquaddieActivity[];
+
+    get activities(): SquaddieActivity[] {
+        return this._activities;
+    }
+
     get movement(): SquaddieMovement {
         return this.attributes.movement;
     }
@@ -29,22 +34,12 @@ export class BattleSquaddieStatic {
         return this.squaddieId.staticId;
     }
 
-    get activities(): SquaddieActivity[] {
-        return this._activities;
-    }
-
     addActivity(newActivity: SquaddieActivity) {
         this._activities.push(newActivity);
     }
 }
 
 export class BattleSquaddieDynamic {
-    private _staticSquaddieId: string;
-    private _dynamicSquaddieId: string;
-    private _squaddieTurn: SquaddieTurn;
-    private _mapIcon?: ImageUI;
-    private _inBattleAttributes: InBattleAttributes;
-
     constructor(options: {
         staticSquaddieId?: string,
         staticSquaddie?: BattleSquaddieStatic,
@@ -67,14 +62,25 @@ export class BattleSquaddieDynamic {
         this.assertBattleSquaddieDynamic();
     }
 
-    assertBattleSquaddieDynamic(): void {
-        if (!this._dynamicSquaddieId) throw new Error("Dynamic Squaddie has no Dynamic Squaddie Id");
-        if (!this._staticSquaddieId) throw new Error("Dynamic Squaddie has no Static Squaddie Id");
+    private _staticSquaddieId: string;
+
+    get staticSquaddieId(): string {
+        return this._staticSquaddieId;
     }
 
-    get inBattleAttributes(): InBattleAttributes {
-        return this._inBattleAttributes;
+    private _dynamicSquaddieId: string;
+
+    get dynamicSquaddieId(): string {
+        return this._dynamicSquaddieId;
     }
+
+    private _squaddieTurn: SquaddieTurn;
+
+    get squaddieTurn(): SquaddieTurn {
+        return this._squaddieTurn;
+    }
+
+    private _mapIcon?: ImageUI;
 
     get mapIcon(): ImageUI {
         return this._mapIcon;
@@ -84,16 +90,15 @@ export class BattleSquaddieDynamic {
         this._mapIcon = value;
     }
 
-    get squaddieTurn(): SquaddieTurn {
-        return this._squaddieTurn;
+    private _inBattleAttributes: InBattleAttributes;
+
+    get inBattleAttributes(): InBattleAttributes {
+        return this._inBattleAttributes;
     }
 
-    get dynamicSquaddieId(): string {
-        return this._dynamicSquaddieId;
-    }
-
-    get staticSquaddieId(): string {
-        return this._staticSquaddieId;
+    assertBattleSquaddieDynamic(): void {
+        if (!this._dynamicSquaddieId) throw new Error("Dynamic Squaddie has no Dynamic Squaddie Id");
+        if (!this._staticSquaddieId) throw new Error("Dynamic Squaddie has no Static Squaddie Id");
     }
 
     canStillActThisRound(): boolean {
