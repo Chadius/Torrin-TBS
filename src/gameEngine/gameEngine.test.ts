@@ -10,6 +10,25 @@ import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
 describe('Game Engine', () => {
     let mockedP5 = mocks.mockedP5();
 
+    it('Will call the new mode based on the component recommendations', () => {
+        const newGameEngine = new GameEngine({
+            startupMode: GameModeEnum.TITLE_SCREEN,
+            graphicsContext: mockedP5
+        });
+        newGameEngine.setup({graphicsContext: mockedP5});
+
+        const nextComponent = newGameEngine.component;
+        const hasCompletedSpy = jest.spyOn(nextComponent, "hasCompleted").mockReturnValue(true);
+        const recommendedSpy = jest.spyOn(nextComponent, "recommendStateChanges").mockReturnValue({nextMode: GameModeEnum.BATTLE});
+
+        newGameEngine.update({graphicsContext: mockedP5});
+
+        expect(hasCompletedSpy).toBeCalled();
+        expect(recommendedSpy).toBeCalled();
+
+        expect(newGameEngine.component).toBeInstanceOf(BattleOrchestrator);
+    });
+
     describe('Game Engine component hooks ', () => {
         function expectUpdate(newGameEngine: GameEngine, expectedStateType: GameEngineComponentState) {
             const updateSpy = jest.spyOn(newGameEngine.component, "update").mockImplementation(() => {

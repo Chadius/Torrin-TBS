@@ -19,7 +19,7 @@ import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayer
 import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
-import {GameEngineComponent} from "../../gameEngine/gameEngineComponent";
+import {GameEngineChanges, GameEngineComponent} from "../../gameEngine/gameEngineComponent";
 import {MouseButton} from "../../utils/mouseConfig";
 import {GameEngineComponentState} from "../../gameEngine/gameEngine";
 import {ResourceHandler, ResourceType} from "../../resource/resourceHandler";
@@ -99,6 +99,10 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     get uiControlSettings(): UIControlSettings {
         return this._uiControlSettings;
+    }
+
+    recommendStateChanges(state: GameEngineComponentState): GameEngineChanges {
+        return undefined;
     }
 
     public getCurrentComponent(): BattleOrchestratorComponent {

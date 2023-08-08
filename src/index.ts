@@ -1,15 +1,17 @@
 import p5 from 'p5';
 import {ScreenDimensions} from "./utils/graphicsConfig";
 import {GameEngine} from "./gameEngine/gameEngine";
+import {StartupMode} from "./utils/startupConfig";
 
 let gameEngine: GameEngine;
 
 export const sketch = (p: p5) => {
     p.setup = () => {
         p.createCanvas(ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT);
+        p.colorMode("hsb", 360, 100, 100, 255)
 
-        gameEngine = new GameEngine({graphicsContext: p});
-        gameEngine.setup();
+        gameEngine = new GameEngine({graphicsContext: p, startupMode: StartupMode});
+        gameEngine.setup({graphicsContext: p});
     }
 
     p.draw = () => {

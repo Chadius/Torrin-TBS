@@ -14,7 +14,6 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: BattleOrchestratorState, p: p5): void {
-        p.colorMode("hsb", 360, 100, 100, 255)
         p.background(50, 10, 20);
 
         if (state.hexMap) {

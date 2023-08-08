@@ -13,7 +13,7 @@ import {BattlePlayerSquaddieTarget} from "../battle/orchestratorComponents/battl
 import {BattleSquaddieSquaddieActivity} from "../battle/orchestratorComponents/battleSquaddieSquaddieActivity";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameModeEnum} from "../utils/startupConfig";
-import {GameEngineComponent} from "./gameEngineComponent";
+import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState} from "../titleScreen/titleScreenState";
 
@@ -90,6 +90,7 @@ export class GameEngine {
 
     draw() {
         this.component.update(this.getComponentState(), this.graphicsContext);
+        this.update({graphicsContext: this.graphicsContext});
     }
 
     keyPressed(keyCode: number) {
@@ -106,6 +107,12 @@ export class GameEngine {
 
     update({graphicsContext}: { graphicsContext: p5 }) {
         this.component.update(this.getComponentState(), graphicsContext);
+        if (this.component.hasCompleted(this.getComponentState())) {
+            const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
+            this.component.reset(this.getComponentState());
+            this._currentMode = orchestrationChanges.nextMode || GameModeEnum.TITLE_SCREEN;
+        }
+
     }
 
     private getComponentState(): GameEngineComponentState {
