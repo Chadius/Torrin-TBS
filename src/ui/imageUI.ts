@@ -1,6 +1,30 @@
 import {RectArea} from "./rectArea";
 import p5 from "p5";
 
+export const scaleImageWidth = ({
+                                    imageWidth,
+                                    imageHeight,
+                                    desiredHeight,
+                                }: {
+    imageWidth: number,
+    imageHeight: number,
+    desiredHeight: number,
+}): number => {
+    return imageWidth * desiredHeight / imageHeight;
+}
+
+export const scaleImageHeight = ({
+                                     imageWidth,
+                                     imageHeight,
+                                     desiredWidth,
+                                 }: {
+    imageWidth: number,
+    imageHeight: number,
+    desiredWidth: number,
+}): number => {
+    return imageHeight * desiredWidth / imageWidth;
+}
+
 export class ImageUI {
     graphic: p5.Image;
     area: RectArea;

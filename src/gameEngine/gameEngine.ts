@@ -16,6 +16,7 @@ import {GameModeEnum} from "../utils/startupConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState} from "../titleScreen/titleScreenState";
+import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
@@ -68,6 +69,12 @@ export class GameEngine {
         return this._battleOrchestratorState;
     }
 
+    private _resourceHandler: ResourceHandler;
+
+    get resourceHandler(): ResourceHandler {
+        return this._resourceHandler;
+    }
+
     setup({graphicsContext}: { graphicsContext: p5 }) {
         this._battleOrchestrator = new BattleOrchestrator({
             missionLoader: new BattleMissionLoader(),
@@ -82,9 +89,10 @@ export class GameEngine {
             squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
         });
 
-        this._battleOrchestratorState = this.battleOrchestrator.setup({graphicsContext});
+        this.lazyLoadResourceHandler({graphicsContext});
 
-        this._titleScreen = new TitleScreen();
+        this._battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
+        this._titleScreen = new TitleScreen({resourceHandler: this.resourceHandler});
         this._titleScreenState = this.titleScreen.setup({graphicsContext})
     }
 
@@ -124,5 +132,113 @@ export class GameEngine {
             default:
                 throw new Error(`Cannot find component state for Game Engine mode ${this.currentMode}`);
         }
+    }
+
+
+    private lazyLoadResourceHandler({graphicsContext}: { graphicsContext: p5 }) {
+        if (this.resourceHandler === undefined) {
+            this._resourceHandler = new ResourceHandler({
+                p: graphicsContext,
+                allResources: [
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/testPortrait0001.png",
+                        key: "crazy pete face",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-young-torrin.png",
+                        key: "map icon young torrin",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-sir-camil.png",
+                        key: "map icon sir camil",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-demon-slither.png",
+                        key: "map icon demon slither",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-move-1-action.png",
+                        key: "map icon move 1 action"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-move-2-actions.png",
+                        key: "map icon move 2 actions"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-move-3-actions.png",
+                        key: "map icon move 3 actions"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/map-icon-attack-1-action.png",
+                        key: "map icon attack 1 action"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-crusaders.png",
+                        key: "affiliate_icon_crusaders"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-infiltrators.png",
+                        key: "affiliate_icon_infiltrators"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-western.png",
+                        key: "affiliate_icon_western"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/affiliate-icon-none.png",
+                        key: "affiliate_icon_none"
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/phase-banner-player.png",
+                        key: "phase banner player",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/phase-banner-enemy.png",
+                        key: "phase banner enemy",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/icon-armor-class.png",
+                        key: "armor class icon",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/icon-hit-points.png",
+                        key: "hit points icon",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/logo-torrins-trial.png",
+                        key: "torrins trial logo",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/cutscene-portrait-young-torrin.png",
+                        key: "young torrin cutscene portrait",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/cutscene-portrait-sir-camil.png",
+                        key: "sir camil cutscene portrait",
+                    },
+                ],
+            })
+        }
+
+        return this.resourceHandler;
     }
 }

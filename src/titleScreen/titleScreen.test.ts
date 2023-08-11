@@ -7,15 +7,21 @@ import {MouseButton} from "../utils/mouseConfig";
 import {ScreenDimensions} from "../utils/graphicsConfig";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
+import {ResourceHandler} from "../resource/resourceHandler";
+import {makeResult} from "../utils/ResultOrError";
 
 describe('Title Screen', () => {
     let titleScreen: TitleScreen;
     let titleScreenState: TitleScreenState
     let mockedP5: p5;
+    let mockResourceHandler: ResourceHandler;
 
     beforeEach(() => {
         mockedP5 = mocks.mockedP5();
-        titleScreen = new TitleScreen();
+        mockResourceHandler = mocks.mockResourceHandler();
+        mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+        mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
+        titleScreen = new TitleScreen({resourceHandler: mockResourceHandler});
         titleScreenState = titleScreen.setup({graphicsContext: mockedP5});
     });
 

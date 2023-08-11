@@ -8,20 +8,21 @@ import {RectArea} from "../../ui/rectArea";
 
 jest.mock('p5', () => () => {
     return {
-        colorMode: jest.fn(),
         background: jest.fn(),
-        push: jest.fn(),
-        pop: jest.fn(),
+        colorMode: jest.fn(),
         fill: jest.fn(),
-        text: jest.fn(),
-        textSize: jest.fn(),
-        textAlign: jest.fn(),
-        tint: jest.fn(),
-        noTint: jest.fn(),
         image: jest.fn(),
+        loadImage: jest.fn(),
+        noTint: jest.fn(),
+        pop: jest.fn(),
+        push: jest.fn(),
+        rect: jest.fn(),
         stroke: jest.fn(),
         strokeWeight: jest.fn(),
-        rect: jest.fn(),
+        text: jest.fn(),
+        textAlign: jest.fn(),
+        textSize: jest.fn(),
+        tint: jest.fn(),
     }
 });
 
