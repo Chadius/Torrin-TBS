@@ -485,7 +485,7 @@ export class BattleSquaddieSelectedHUD {
         const attributeIconSize = 48;
 
         const hitPointsInfo = GetHitPoints({staticSquaddie, dynamicSquaddie});
-        const hitPointsDescription = `${hitPointsInfo.maxHitPoints}`;
+        const hitPointsDescription = `${hitPointsInfo.currentHitPoints} / ${hitPointsInfo.maxHitPoints}`;
         this.drawIconAndText({
             baseRectangle,
             fontColor,
