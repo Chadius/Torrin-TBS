@@ -1,7 +1,7 @@
 import {RectArea} from "./rectArea";
 import p5 from "p5";
 
-export const scaleImageWidth = ({
+export const ScaleImageWidth = ({
                                     imageWidth,
                                     imageHeight,
                                     desiredHeight,
@@ -13,7 +13,7 @@ export const scaleImageWidth = ({
     return imageWidth * desiredHeight / imageHeight;
 }
 
-export const scaleImageHeight = ({
+export const ScaleImageHeight = ({
                                      imageWidth,
                                      imageHeight,
                                      desiredWidth,

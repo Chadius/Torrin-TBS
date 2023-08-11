@@ -20,7 +20,7 @@ import {TextBox} from "../ui/textBox";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {Rectangle} from "../ui/rectangle";
 import {ResourceHandler} from "../resource/resourceHandler";
-import {ImageUI, scaleImageHeight, scaleImageWidth} from "../ui/imageUI";
+import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 
 const colors = {
@@ -169,7 +169,7 @@ export class TitleScreen implements GameEngineComponent {
                 left: (ScreenDimensions.SCREEN_WIDTH - image.width) * 0.5,
                 top: 20,
                 height: ScreenDimensions.SCREEN_HEIGHT * 0.25,
-                width: scaleImageWidth({
+                width: ScaleImageWidth({
                     imageWidth: image.width,
                     imageHeight: image.height,
                     desiredHeight: ScreenDimensions.SCREEN_HEIGHT * 0.25,
@@ -363,7 +363,7 @@ export class TitleScreen implements GameEngineComponent {
         this.sirCamilIconArea = new RectArea({
             left: this.sirCamilIconArea.right - 110,
             top: this.torrinIconArea.bottom + WINDOW_SPACING1,
-            height: scaleImageHeight({
+            height: ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
                 desiredWidth: 100,
@@ -381,7 +381,7 @@ export class TitleScreen implements GameEngineComponent {
         this.torrinIconArea = new RectArea({
             left: this.torrinIconArea.left,
             top: this.torrinIconArea.top,
-            height: scaleImageHeight({
+            height: ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
                 desiredWidth: 100,
