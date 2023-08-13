@@ -10,36 +10,38 @@ import {ActivityResult} from "../../history/activityResult";
 import {ActionTimer} from "./actionTimer";
 
 export class TargetTextWindow {
-    get result(): ActivityResult {
-        return this._result;
+    constructor() {
+
     }
 
     private _result: ActivityResult;
 
-    get targetAfterActionText(): string {
-        return this._targetAfterActionText;
+    get result(): ActivityResult {
+        return this._result;
     }
+
+    private _backgroundHue: number;
 
     get backgroundHue(): number {
         return this._backgroundHue;
     }
 
-    private _backgroundHue: number;
-
-    get targetLabel(): Label {
-        return this._targetLabel;
-    }
+    private _targetBeforeActionText: string;
 
     get targetBeforeActionText(): string {
         return this._targetBeforeActionText;
     }
 
-    private _targetBeforeActionText: string;
     private _targetAfterActionText: string;
+
+    get targetAfterActionText(): string {
+        return this._targetAfterActionText;
+    }
+
     private _targetLabel: Label;
 
-    constructor() {
-
+    get targetLabel(): Label {
+        return this._targetLabel;
     }
 
     reset() {

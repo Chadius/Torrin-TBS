@@ -1,7 +1,8 @@
 import {ActionTimer} from "./actionTimer";
 import {
     ACTION_ANIMATION_ATTACK_TIME,
-    ACTION_ANIMATION_DELAY_TIME, ACTION_ANIMATION_FINISH_TIME,
+    ACTION_ANIMATION_DELAY_TIME,
+    ACTION_ANIMATION_FINISH_TIME,
     ActionAnimationPhase
 } from "./actionAnimationConstants";
 

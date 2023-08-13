@@ -13,9 +13,6 @@ export type TextBoxArguments = {
 };
 
 export class TextBox {
-    set text(value: string) {
-        this._text = value;
-    }
     textSize: number;
     fontColor: number[];
     area: RectArea;
@@ -51,6 +48,10 @@ export class TextBox {
 
     get text(): string {
         return this._text;
+    }
+
+    set text(value: string) {
+        this._text = value;
     }
 
     draw(p: p5) {

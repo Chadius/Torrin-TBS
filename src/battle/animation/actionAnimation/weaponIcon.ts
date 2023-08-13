@@ -8,29 +8,31 @@ import {
 } from "./actionAnimationConstants";
 import {ScreenDimensions} from "../../../utils/graphicsConfig";
 import {RectArea} from "../../../ui/rectArea";
-import {TextBox} from "../../../ui/textBox";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ActionTimer} from "./actionTimer";
 import {Label} from "../../../ui/label";
 
 export class WeaponIcon {
+    constructor() {
+        this.reset();
+    }
+
+    private _startPosition: number;
+
     get startPosition(): number {
         return this._startPosition;
     }
-    private _startPosition: number;
-    get attackingLabel(): Label {
-        return this._attackingLabel;
-    }
+
+    private _actorIconArea: RectArea;
 
     get actorIconArea(): RectArea {
         return this._actorIconArea;
     }
 
-    private _actorIconArea: RectArea;
     private _attackingLabel: Label;
 
-    constructor() {
-        this.reset();
+    get attackingLabel(): Label {
+        return this._attackingLabel;
     }
 
     reset() {

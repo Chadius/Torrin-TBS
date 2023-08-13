@@ -1,11 +1,16 @@
 import {
     ACTION_ANIMATION_ATTACK_TIME,
-    ACTION_ANIMATION_DELAY_TIME, ACTION_ANIMATION_FINISH_TIME,
+    ACTION_ANIMATION_DELAY_TIME,
+    ACTION_ANIMATION_FINISH_TIME,
     ActionAnimationPhase,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
 
 export class ActionTimer {
+    constructor() {
+        this.reset();
+    }
+
     get currentPhase(): ActionAnimationPhase {
         if (this.startTime === undefined) {
             return ActionAnimationPhase.INITIALIZED;
@@ -28,14 +33,10 @@ export class ActionTimer {
         return ActionAnimationPhase.FINISHED_SHOWING_RESULTS;
     }
 
-    get startTime(): number {
-        return this._startTime;
-    }
-
     private _startTime: number;
 
-    constructor() {
-        this.reset();
+    get startTime(): number {
+        return this._startTime;
     }
 
     hasBeenStarted(): boolean {
