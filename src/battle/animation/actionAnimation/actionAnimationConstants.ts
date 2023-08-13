@@ -8,7 +8,7 @@ export const TimeElapsedSinceAnimationStarted = (animationStartTime: number) => 
     (ACTION_ANIMATION_DELAY_TIME + ACTION_ANIMATION_ATTACK_TIME + ACTION_ANIMATION_FINISH_TIME)
 );
 
-export enum ActionAnimationPhase{
+export enum ActionAnimationPhase {
     INITIALIZED = "INITIALIZED",
     BEFORE_ACTION = "BEFORE_ACTION",
     DURING_ACTION = "DURING_ACTION",

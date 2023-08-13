@@ -25,31 +25,37 @@ import {ActionTimer} from "../animation/actionAnimation/actionTimer";
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
 export class BattleSquaddieSquaddieActivity implements BattleOrchestratorComponent {
-    get actionAnimationTimer(): ActionTimer {
-        return this._actionAnimationTimer;
-    }
-    get weaponIcon(): WeaponIcon {
-        return this._weaponIcon;
-    }
-    get targetTextWindows(): TargetTextWindow[] {
-        return this._targetTextWindows;
-    }
-    get actorTextWindow(): ActorTextWindow {
-        return this._actorTextWindow;
-    }
     userRequestedAnimationSkip: boolean;
     outputTextDisplay: Label;
     outputTextStrings: string[];
     sawResultAftermath: boolean;
 
-    private _actionAnimationTimer: ActionTimer;
-
-    private _weaponIcon: WeaponIcon;
-    private _actorTextWindow: ActorTextWindow;
-    private _targetTextWindows: TargetTextWindow[];
-
     constructor() {
         this.resetInternalState();
+    }
+
+    private _actionAnimationTimer: ActionTimer;
+
+    get actionAnimationTimer(): ActionTimer {
+        return this._actionAnimationTimer;
+    }
+
+    private _weaponIcon: WeaponIcon;
+
+    get weaponIcon(): WeaponIcon {
+        return this._weaponIcon;
+    }
+
+    private _actorTextWindow: ActorTextWindow;
+
+    get actorTextWindow(): ActorTextWindow {
+        return this._actorTextWindow;
+    }
+
+    private _targetTextWindows: TargetTextWindow[];
+
+    get targetTextWindows(): TargetTextWindow[] {
+        return this._targetTextWindows;
     }
 
     hasCompleted(state: BattleOrchestratorState): boolean {

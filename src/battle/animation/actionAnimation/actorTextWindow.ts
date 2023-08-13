@@ -10,23 +10,26 @@ import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionTimer} from "./actionTimer";
 
 export class ActorTextWindow {
+    constructor() {
+
+    }
+
+    private _backgroundHue: number;
+
     get backgroundHue(): number {
         return this._backgroundHue;
     }
-    private _backgroundHue: number;
-    get actorLabel(): Label {
-        return this._actorLabel;
-    }
+
+    private _actorUsesActivityText: string;
 
     get actorUsesActivityText(): string {
         return this._actorUsesActivityText;
     }
 
-    private _actorUsesActivityText: string;
     private _actorLabel: Label;
 
-    constructor() {
-
+    get actorLabel(): Label {
+        return this._actorLabel;
     }
 
     reset() {
