@@ -234,7 +234,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 attributes: new ArmyAttributes({
-                    maxHitPoints: 1,
+                    maxHitPoints: 3,
                     armorClass: -5,
                     movement: new SquaddieMovement({
                         movementPerAction: 2,

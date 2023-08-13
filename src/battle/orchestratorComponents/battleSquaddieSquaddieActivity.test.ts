@@ -194,7 +194,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         });
         dynamicSquaddieBase.squaddieTurn.spendActionsOnActivity(powerAttackLongswordActivity);
         squaddieSquaddieActivity.update(state, mockedP5);
-        expect(squaddieSquaddieActivity.animationCompleteStartTime).not.toBeUndefined();
+        expect(squaddieSquaddieActivity.actionAnimationTimer.hasBeenStarted()).toBeTruthy();
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => ACTIVITY_COMPLETED_WAIT_TIME_MS);
 
@@ -206,7 +206,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         expect(stateChanges.displayMap).toBeTruthy();
 
         squaddieSquaddieActivity.reset(state);
-        expect(squaddieSquaddieActivity.animationCompleteStartTime).toBeUndefined();
+        expect(squaddieSquaddieActivity.actionAnimationTimer.hasBeenStarted()).toBeFalsy();
         expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
     });
 
@@ -256,7 +256,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         expect(stateChanges.displayMap).toBeTruthy();
 
         squaddieSquaddieActivity.reset(state);
-        expect(squaddieSquaddieActivity.animationCompleteStartTime).toBeUndefined();
+        expect(squaddieSquaddieActivity.actionAnimationTimer.hasBeenStarted()).toBeFalsy();
         expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
         expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
     });

@@ -37,7 +37,7 @@ import {FormatIntent} from "../animation/activityResultTextWriter";
 import {SquaddieInstructionActivity} from "../history/squaddieInstructionActivity";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
-export const SHOW_SELECTED_ACTIVITY_TIME = 2000;
+export const SHOW_SELECTED_ACTIVITY_TIME = 500;
 
 export class BattleComputerSquaddieSelector implements BattleOrchestratorComponent {
     private showSelectedActivityWaitTime?: number;
@@ -84,14 +84,6 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
         if (this.mostRecentActivity === undefined && currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             this.askComputerControlSquaddie(state);
-        }
-
-        const showSelectedActivity = this.isPauseToShowSquaddieSelectionRequired(state)
-            && !this.pauseToShowSquaddieSelectionCompleted(state)
-            && !this.clickedToSkipActivityDescription;
-        if (showSelectedActivity) {
-            this.drawActivityDescription(state, p);
-            return;
         }
     }
 

@@ -13,6 +13,9 @@ export type TextBoxArguments = {
 };
 
 export class TextBox {
+    set text(value: string) {
+        this._text = value;
+    }
     textSize: number;
     fontColor: number[];
     area: RectArea;

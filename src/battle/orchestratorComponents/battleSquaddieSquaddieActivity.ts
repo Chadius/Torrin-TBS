@@ -12,22 +12,41 @@ import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
     DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation
 } from "./orchestratorUtils";
-import {RectArea} from "../../ui/rectArea";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {Label} from "../../ui/label";
-import {FormatResult} from "../animation/activityResultTextWriter";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
+import {WeaponIcon} from "../animation/actionAnimation/weaponIcon";
+import {TargetTextWindow} from "../animation/actionAnimation/targetTextWindow";
+import {ActorTextWindow} from "../animation/actionAnimation/actorTextWindow";
+import {ActionAnimationPhase} from "../animation/actionAnimation/actionAnimationConstants";
+import {ActionTimer} from "../animation/actionAnimation/actionTimer";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
 export class BattleSquaddieSquaddieActivity implements BattleOrchestratorComponent {
-    animationCompleteStartTime?: number;
-    clickedToCancelActivity: boolean;
+    get actionAnimationTimer(): ActionTimer {
+        return this._actionAnimationTimer;
+    }
+    get weaponIcon(): WeaponIcon {
+        return this._weaponIcon;
+    }
+    get targetTextWindows(): TargetTextWindow[] {
+        return this._targetTextWindows;
+    }
+    get actorTextWindow(): ActorTextWindow {
+        return this._actorTextWindow;
+    }
+    userRequestedAnimationSkip: boolean;
     outputTextDisplay: Label;
     outputTextStrings: string[];
     sawResultAftermath: boolean;
+
+    private _actionAnimationTimer: ActionTimer;
+
+    private _weaponIcon: WeaponIcon;
+    private _actorTextWindow: ActorTextWindow;
+    private _targetTextWindows: TargetTextWindow[];
 
     constructor() {
         this.resetInternalState();
@@ -39,7 +58,7 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.clickedToCancelActivity = true;
+            this.userRequestedAnimationSkip = true;
         }
     }
 
@@ -67,67 +86,36 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
     }
 
     update(state: BattleOrchestratorState, p: p5): void {
-        if (this.animationCompleteStartTime === undefined) {
-            this.animationCompleteStartTime = Date.now();
+        if (this.actionAnimationTimer.currentPhase === ActionAnimationPhase.INITIALIZED) {
+            this.setupActionAnimation(state, p);
+            this.actionAnimationTimer.start();
         }
-        this.draw(state, p);
+
+        const phaseToShow: ActionAnimationPhase = this.userRequestedAnimationSkip
+            ? ActionAnimationPhase.FINISHED_SHOWING_RESULTS
+            : this.actionAnimationTimer.currentPhase;
+
+        switch (phaseToShow) {
+            case ActionAnimationPhase.INITIALIZED:
+            case ActionAnimationPhase.BEFORE_ACTION:
+            case ActionAnimationPhase.DURING_ACTION:
+            case ActionAnimationPhase.AFTER_ACTION:
+                this.drawActionAnimation(state, p);
+                break;
+            case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
+                this.drawActionAnimation(state, p);
+                this.hideDeadSquaddies(state);
+                this.sawResultAftermath = true;
+                break;
+        }
     }
 
     private resetInternalState() {
-        this.animationCompleteStartTime = undefined;
-        this.clickedToCancelActivity = false;
+        this.userRequestedAnimationSkip = false;
         this.outputTextStrings = [];
         this.sawResultAftermath = false;
         this.outputTextDisplay = undefined;
-    }
-
-    private getAnimationCompleted() {
-        return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
-    }
-
-    private draw(state: BattleOrchestratorState, p: p5) {
-        if (this.outputTextDisplay === undefined) {
-            this.prepareOutputTextDisplay(state);
-            return;
-        }
-
-        const showDamageDisplay = !this.getAnimationCompleted() && !this.clickedToCancelActivity;
-        if (this.outputTextDisplay !== undefined && showDamageDisplay) {
-            this.outputTextDisplay.draw(p);
-            return;
-        }
-
-        this.hideDeadSquaddies(state);
-        this.sawResultAftermath = true;
-    }
-
-    private prepareOutputTextDisplay(state: BattleOrchestratorState) {
-        this.outputTextStrings = FormatResult({
-            squaddieRepository: state.squaddieRepository,
-            currentActivity: state.squaddieCurrentlyActing.currentSquaddieActivity,
-            result: state.battleEventRecording.mostRecentEvent.results,
-        });
-
-        const textToDraw = this.outputTextStrings.join("\n");
-
-        this.outputTextDisplay = new Label({
-            area: new RectArea({
-                startColumn: 4,
-                endColumn: 10,
-                screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                percentTop: 40,
-                percentHeight: 20,
-            }),
-            fillColor: [0, 0, 60],
-            strokeColor: [0, 0, 0],
-            strokeWeight: 4,
-
-            text: textToDraw,
-            textSize: 24,
-            fontColor: [0, 0, 16],
-            padding: [16, 0, 0, 16],
-        });
+        this._actionAnimationTimer = new ActionTimer();
     }
 
     private hideDeadSquaddies(state: BattleOrchestratorState) {
@@ -142,5 +130,47 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
                 state.missionMap.updateSquaddieLocation(dynamicSquaddieId, undefined);
             }
         });
+    }
+
+    private setupActionAnimation(state: BattleOrchestratorState, p: p5) {
+        this._actorTextWindow = new ActorTextWindow();
+        this._weaponIcon = new WeaponIcon();
+
+        const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
+        const {
+            dynamicSquaddie: actorDynamic,
+            staticSquaddie: actorStatic,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(mostRecentResults.actingSquaddieDynamicId));
+
+        this.actorTextWindow.start({
+            actorStatic,
+            actorDynamic,
+            activity: state.battleEventRecording.mostRecentEvent.instruction.currentSquaddieActivity,
+        });
+
+        this.weaponIcon.start({
+            actorIconArea: this.actorTextWindow.actorLabel.rectangle.area,
+        });
+
+        this._targetTextWindows = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string) => {
+            const {
+                dynamicSquaddie: targetDynamic,
+                staticSquaddie: targetStatic,
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicId));
+
+            const targetTextWindow = new TargetTextWindow();
+            targetTextWindow.start({
+                targetStatic,
+                targetDynamic,
+                result: state.battleEventRecording.mostRecentEvent.results.resultPerTarget[dynamicId],
+            });
+            return targetTextWindow;
+        });
+    }
+
+    private drawActionAnimation(state: BattleOrchestratorState, p: p5) {
+        this.actorTextWindow.draw(p, this.actionAnimationTimer);
+        this.weaponIcon.draw(p, this.actionAnimationTimer);
+        this.targetTextWindows.forEach((t) => t.draw(p, this.actionAnimationTimer));
     }
 }
