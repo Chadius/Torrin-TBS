@@ -4,8 +4,6 @@ import {
     ACTION_ANIMATION_DELAY_TIME,
     ActionAnimationFontColor,
     ActionAnimationPhase,
-    ACTOR_X_SCREEN_COLUMN_END,
-    ACTOR_X_SCREEN_COLUMN_START,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
 import {ScreenDimensions} from "../../../utils/graphicsConfig";
@@ -16,6 +14,10 @@ import {ActionTimer} from "./actionTimer";
 import {Label} from "../../../ui/label";
 
 export class WeaponIcon {
+    get startPosition(): number {
+        return this._startPosition;
+    }
+    private _startPosition: number;
     get attackingLabel(): Label {
         return this._attackingLabel;
     }
@@ -33,6 +35,8 @@ export class WeaponIcon {
 
     reset() {
         this._attackingLabel = undefined;
+        this._startPosition = undefined;
+        this._actorIconArea = undefined;
     }
 
     start({actorIconArea}: { actorIconArea: RectArea }) {
@@ -43,8 +47,6 @@ export class WeaponIcon {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }
-
-        const startPosition = ScreenDimensions.SCREEN_WIDTH * ACTOR_X_SCREEN_COLUMN_START / 12;
 
         if (this.attackingLabel === undefined) {
             this.lazyLoadAttackingTextBox();
@@ -60,20 +62,20 @@ export class WeaponIcon {
             case ActionAnimationPhase.DURING_ACTION:
                 const attackTime = timeElapsed - ACTION_ANIMATION_DELAY_TIME;
                 horizontalDistance =
-                    (ACTOR_X_SCREEN_COLUMN_END - ACTOR_X_SCREEN_COLUMN_START) * (ScreenDimensions.SCREEN_WIDTH / 12)
+                    ((6 * ScreenDimensions.SCREEN_WIDTH / 12) - this.startPosition)
                     * (attackTime / ACTION_ANIMATION_ATTACK_TIME);
                 break;
             case ActionAnimationPhase.AFTER_ACTION:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                horizontalDistance = (ACTOR_X_SCREEN_COLUMN_END - ACTOR_X_SCREEN_COLUMN_START) * (ScreenDimensions.SCREEN_WIDTH / 12);
+                horizontalDistance = ((6 * ScreenDimensions.SCREEN_WIDTH / 12) - this.startPosition);
         }
 
         this.attackingLabel.rectangle.area.move({
-            left: startPosition + horizontalDistance,
+            left: this.startPosition + horizontalDistance,
             top: this.attackingLabel.rectangle.area.top,
         });
         this.attackingLabel.textBox.area.move({
-            left: startPosition + horizontalDistance,
+            left: this.startPosition + horizontalDistance,
             top: this.attackingLabel.rectangle.area.top,
         });
         this.attackingLabel.draw(graphicsContext);
@@ -86,10 +88,12 @@ export class WeaponIcon {
             80
         ];
 
+        this._startPosition = this.actorIconArea.right + WINDOW_SPACING1;
+
         this._attackingLabel = new Label({
             padding: 0,
             area: new RectArea({
-                left: this.actorIconArea.right + WINDOW_SPACING1,
+                left: this._startPosition,
                 top: this.actorIconArea.centerY,
                 height: WINDOW_SPACING2,
                 width: WINDOW_SPACING1 * 15,
