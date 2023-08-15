@@ -254,7 +254,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     resources: new SquaddieResource({
                         mapIconResourceKey: "map icon demon slither",
                         actionSpriteByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]: "crazy pete face",
+                            [SquaddieEmotion.NEUTRAL]: "action neutral demon slither",
                         },
                     }),
                     traits: new TraitStatusStorage({

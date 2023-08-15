@@ -235,6 +235,11 @@ export class GameEngine {
                         path: "assets/cutscene-portrait-sir-camil.png",
                         key: "sir camil cutscene portrait",
                     },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/action-neutral-demon-slither.png",
+                        key: "action neutral demon slither",
+                    },
                 ],
             })
         }
