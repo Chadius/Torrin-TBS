@@ -27,7 +27,7 @@ describe('end turn team strategy', () => {
             squaddieId: new SquaddieId({
                 staticId: "new_static_squaddie",
                 name: "Torrin",
-                resources: new SquaddieResource(),
+                resources: new SquaddieResource({}),
                 traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),

@@ -1,16 +1,15 @@
+import {SquaddieEmotion} from "../battle/animation/actionAnimation/actionAnimationConstants";
+
 export class SquaddieResource {
     mapIconResourceKey: string;
+    actionSpritesByEmotion: { [key in SquaddieEmotion]?: string };
 
-    constructor(options?: {
-        mapIconResourceKey: string
+    constructor({mapIconResourceKey, actionSpriteByEmotion}: {
+        mapIconResourceKey?: string,
+        actionSpriteByEmotion?: { [key in SquaddieEmotion]?: string }
     }) {
-        if (!options) {
-            options = {
-                mapIconResourceKey: ""
-            }
-        }
-
-        this.mapIconResourceKey = options.mapIconResourceKey;
+        this.mapIconResourceKey = mapIconResourceKey || "";
+        this.actionSpritesByEmotion = actionSpriteByEmotion || {};
     }
 };
 

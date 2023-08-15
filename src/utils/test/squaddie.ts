@@ -13,7 +13,7 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
     return new SquaddieId({
         staticId: id,
         name: id,
-        resources: new SquaddieResource(),
+        resources: new SquaddieResource({}),
         traits: new TraitStatusStorage(),
         affiliation
     });
@@ -54,7 +54,7 @@ export const CreateNewSquaddieAndAddToRepository: (
         squaddieId: new SquaddieId({
             staticId,
             name,
-            resources: new SquaddieResource(),
+            resources: new SquaddieResource({}),
             traits: new TraitStatusStorage(),
             affiliation
         }),

@@ -27,6 +27,7 @@ import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {DamageType} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
+import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -143,7 +144,10 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     staticId: "player_young_torrin",
                     name: "Torrin",
                     resources: new SquaddieResource({
-                        mapIconResourceKey: "map icon young torrin"
+                        mapIconResourceKey: "map icon young torrin",
+                        actionSpriteByEmotion: {
+                            [SquaddieEmotion.NEUTRAL]: "young torrin cutscene portrait",
+                        },
                     }),
                     traits: new TraitStatusStorage({
                         [Trait.HUMANOID]: true,
@@ -205,7 +209,10 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     staticId: "player_sir_camil",
                     name: "Sir Camil",
                     resources: new SquaddieResource({
-                        mapIconResourceKey: "map icon sir camil"
+                        mapIconResourceKey: "map icon sir camil",
+                        actionSpriteByEmotion: {
+                            [SquaddieEmotion.NEUTRAL]: "sir camil cutscene portrait",
+                        },
                     }),
                     traits: new TraitStatusStorage({
                         [Trait.HUMANOID]: true,
@@ -245,7 +252,10 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     staticId: "enemy_demon_slither",
                     name: "Slither Demon",
                     resources: new SquaddieResource({
-                        mapIconResourceKey: "map icon demon slither"
+                        mapIconResourceKey: "map icon demon slither",
+                        actionSpriteByEmotion: {
+                            [SquaddieEmotion.NEUTRAL]: "crazy pete face",
+                        },
                     }),
                     traits: new TraitStatusStorage({
                         [Trait.DEMON]: true,

@@ -62,6 +62,7 @@ export class TargetTextWindow {
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[targetStatic.squaddieId.affiliation];
 
         this._result = result;
+        this.createActorTextBox();
     }
 
     draw(graphicsContext: p5, timer: ActionTimer) {
@@ -69,11 +70,7 @@ export class TargetTextWindow {
             return;
         }
 
-        if (this.targetLabel === undefined) {
-            this.createActorTextBox();
-        }
-
-        if (timer.currentPhase === ActionAnimationPhase.AFTER_ACTION && this.targetAfterActionText === "") {
+        if (timer.currentPhase === ActionAnimationPhase.TARGET_REACTS && this.targetAfterActionText === "") {
             this.updateCreateActorTextBox();
         }
 

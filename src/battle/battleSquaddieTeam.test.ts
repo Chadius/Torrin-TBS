@@ -31,7 +31,7 @@ describe('Battle Squaddie Team', () => {
             squaddieId: new SquaddieId({
                 staticId: "player_young_torrin",
                 name: "Torrin",
-                resources: new SquaddieResource(),
+                resources: new SquaddieResource({}),
                 traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
@@ -74,7 +74,7 @@ describe('Battle Squaddie Team', () => {
             squaddieId: new SquaddieId({
                 staticId: "enemy_slither_demon",
                 name: "Slither",
-                resources: new SquaddieResource(),
+                resources: new SquaddieResource({}),
                 traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),

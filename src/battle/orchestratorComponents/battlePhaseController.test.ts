@@ -34,7 +34,7 @@ describe('BattlePhaseController', () => {
                 squaddieId: new SquaddieId({
                     staticId: "player_squaddie",
                     name: "Player",
-                    resources: new SquaddieResource(),
+                    resources: new SquaddieResource({}),
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -55,7 +55,7 @@ describe('BattlePhaseController', () => {
                 squaddieId: new SquaddieId({
                     staticId: "enemy_squaddie",
                     name: "Enemy",
-                    resources: new SquaddieResource(),
+                    resources: new SquaddieResource({}),
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),

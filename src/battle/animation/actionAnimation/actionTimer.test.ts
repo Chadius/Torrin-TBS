@@ -1,8 +1,9 @@
 import {ActionTimer} from "./actionTimer";
 import {
-    ACTION_ANIMATION_ATTACK_TIME,
-    ACTION_ANIMATION_DELAY_TIME,
-    ACTION_ANIMATION_FINISH_TIME,
+    ACTION_ANIMATION_ACTION_TIME,
+    ACTION_ANIMATION_BEFORE_ACTION_TIME,
+    ACTION_ANIMATION_SHOW_RESULTS_TIME,
+    ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
     ActionAnimationPhase
 } from "./actionAnimationConstants";
 
@@ -29,21 +30,28 @@ describe('ActionTimer', () => {
     it('knows when it is during action', () => {
         const timer = new ActionTimer();
         timer.start();
-        jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_DELAY_TIME + 1);
+        jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_BEFORE_ACTION_TIME + 1);
         expect(timer.currentPhase).toBe(ActionAnimationPhase.DURING_ACTION);
     });
 
-    it('knows when action is finished', () => {
+    it('knows when target is reacting', () => {
         const timer = new ActionTimer();
         timer.start();
-        jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_DELAY_TIME + ACTION_ANIMATION_ATTACK_TIME + 1);
-        expect(timer.currentPhase).toBe(ActionAnimationPhase.AFTER_ACTION);
+        jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME + 1);
+        expect(timer.currentPhase).toBe(ActionAnimationPhase.TARGET_REACTS);
+    });
+
+    it('knows when action is finished and showing results', () => {
+        const timer = new ActionTimer();
+        timer.start();
+        jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME + ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1);
+        expect(timer.currentPhase).toBe(ActionAnimationPhase.SHOWING_RESULTS);
     });
 
     it('knows when results are finished showing', () => {
         const timer = new ActionTimer();
         timer.start();
-        jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_FINISH_TIME + ACTION_ANIMATION_DELAY_TIME + ACTION_ANIMATION_ATTACK_TIME + 1);
+        jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_SHOW_RESULTS_TIME + ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME + ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1);
         expect(timer.currentPhase).toBe(ActionAnimationPhase.FINISHED_SHOWING_RESULTS);
     });
 

@@ -21,6 +21,8 @@ import {TargetTextWindow} from "../animation/actionAnimation/targetTextWindow";
 import {ActorTextWindow} from "../animation/actionAnimation/actorTextWindow";
 import {ActionAnimationPhase} from "../animation/actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "../animation/actionAnimation/actionTimer";
+import {ActorSprite} from "../animation/actionAnimation/actorSprite";
+import {TargetSprite} from "../animation/actionAnimation/targetSprite";
 
 export const ACTIVITY_COMPLETED_WAIT_TIME_MS = 5000;
 
@@ -50,6 +52,18 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
 
     get actorTextWindow(): ActorTextWindow {
         return this._actorTextWindow;
+    }
+
+    private _actorSprite: ActorSprite;
+
+    get actorSprite(): ActorSprite {
+        return this._actorSprite;
+    }
+
+    private _targetSprites: TargetSprite[];
+
+    get targetSprites(): TargetSprite[] {
+        return this._targetSprites;
     }
 
     private _targetTextWindows: TargetTextWindow[];
@@ -105,7 +119,8 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
             case ActionAnimationPhase.INITIALIZED:
             case ActionAnimationPhase.BEFORE_ACTION:
             case ActionAnimationPhase.DURING_ACTION:
-            case ActionAnimationPhase.AFTER_ACTION:
+            case ActionAnimationPhase.TARGET_REACTS:
+            case ActionAnimationPhase.SHOWING_RESULTS:
                 this.drawActionAnimation(state, p);
                 break;
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
@@ -141,6 +156,7 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
     private setupActionAnimation(state: BattleOrchestratorState, p: p5) {
         this._actorTextWindow = new ActorTextWindow();
         this._weaponIcon = new WeaponIcon();
+        this._actorSprite = new ActorSprite();
 
         const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
         const {
@@ -148,16 +164,23 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
             staticSquaddie: actorStatic,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(mostRecentResults.actingSquaddieDynamicId));
 
+        const activity = state.battleEventRecording.mostRecentEvent.instruction.currentSquaddieActivity;
         this.actorTextWindow.start({
             actorStatic,
             actorDynamic,
-            activity: state.battleEventRecording.mostRecentEvent.instruction.currentSquaddieActivity,
+            activity,
         });
 
-        this.weaponIcon.start({
-            actorIconArea: this.actorTextWindow.actorLabel.rectangle.area,
-        });
+        this.actorSprite.start({
+            actorStatic,
+            actorDynamic,
+            activity,
+            resourceHandler: state.resourceHandler,
+            windowArea: this.actorTextWindow.actorLabel.rectangle.area,
+        })
+        this.weaponIcon.start();
 
+        const resultPerTarget = state.battleEventRecording.mostRecentEvent.results.resultPerTarget;
         this._targetTextWindows = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string) => {
             const {
                 dynamicSquaddie: targetDynamic,
@@ -168,15 +191,34 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
             targetTextWindow.start({
                 targetStatic,
                 targetDynamic,
-                result: state.battleEventRecording.mostRecentEvent.results.resultPerTarget[dynamicId],
+                result: resultPerTarget[dynamicId],
             });
             return targetTextWindow;
+        });
+        this._targetSprites = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string, index: number) => {
+            const {
+                dynamicSquaddie: targetDynamic,
+                staticSquaddie: targetStatic,
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicId));
+
+            const targetSprite = new TargetSprite();
+            targetSprite.start({
+                targetStatic,
+                targetDynamic,
+                activity,
+                result: resultPerTarget[dynamicId],
+                resourceHandler: state.resourceHandler,
+                windowArea: this.targetTextWindows[index].targetLabel.rectangle.area,
+            });
+            return targetSprite;
         });
     }
 
     private drawActionAnimation(state: BattleOrchestratorState, p: p5) {
         this.actorTextWindow.draw(p, this.actionAnimationTimer);
-        this.weaponIcon.draw(p, this.actionAnimationTimer);
+        this.actorSprite.draw(this.actionAnimationTimer, p);
+        this.weaponIcon.draw(p, this.actorSprite.getSquaddieImageBasedOnTimer(this.actionAnimationTimer, p).area);
         this.targetTextWindows.forEach((t) => t.draw(p, this.actionAnimationTimer));
+        this.targetSprites.forEach((t) => t.draw(this.actionAnimationTimer, p));
     }
 }

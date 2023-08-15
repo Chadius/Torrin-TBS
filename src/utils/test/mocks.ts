@@ -10,6 +10,11 @@ jest.mock('p5', () => () => {
     return {
         background: jest.fn(),
         colorMode: jest.fn(),
+        createImage: jest.fn().mockReturnValue({
+            loadPixels: jest.fn(),
+            width: 1,
+            height: 1,
+        }),
         fill: jest.fn(),
         image: jest.fn(),
         loadImage: jest.fn(),

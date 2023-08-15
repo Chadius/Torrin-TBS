@@ -1,7 +1,8 @@
 import {
-    ACTION_ANIMATION_ATTACK_TIME,
-    ACTION_ANIMATION_DELAY_TIME,
-    ACTION_ANIMATION_FINISH_TIME,
+    ACTION_ANIMATION_ACTION_TIME,
+    ACTION_ANIMATION_BEFORE_ACTION_TIME,
+    ACTION_ANIMATION_SHOW_RESULTS_TIME,
+    ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME,
     ActionAnimationPhase,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
@@ -18,16 +19,20 @@ export class ActionTimer {
 
         const timeElapsed = TimeElapsedSinceAnimationStarted(this.startTime);
 
-        if (timeElapsed < ACTION_ANIMATION_DELAY_TIME) {
+        if (timeElapsed < ACTION_ANIMATION_BEFORE_ACTION_TIME) {
             return ActionAnimationPhase.BEFORE_ACTION;
         }
 
-        if (timeElapsed < ACTION_ANIMATION_ATTACK_TIME + ACTION_ANIMATION_DELAY_TIME) {
+        if (timeElapsed < ACTION_ANIMATION_ACTION_TIME + ACTION_ANIMATION_BEFORE_ACTION_TIME) {
             return ActionAnimationPhase.DURING_ACTION;
         }
 
-        if (timeElapsed < ACTION_ANIMATION_FINISH_TIME + ACTION_ANIMATION_ATTACK_TIME + ACTION_ANIMATION_DELAY_TIME) {
-            return ActionAnimationPhase.AFTER_ACTION;
+        if (timeElapsed < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME + ACTION_ANIMATION_BEFORE_ACTION_TIME) {
+            return ActionAnimationPhase.TARGET_REACTS;
+        }
+
+        if (timeElapsed < ACTION_ANIMATION_SHOW_RESULTS_TIME + ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME + ACTION_ANIMATION_BEFORE_ACTION_TIME) {
+            return ActionAnimationPhase.SHOWING_RESULTS;
         }
 
         return ActionAnimationPhase.FINISHED_SHOWING_RESULTS;

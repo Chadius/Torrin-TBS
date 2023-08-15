@@ -24,7 +24,7 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     staticId: "player_squaddie",
                     name: "Player",
-                    resources: new SquaddieResource(),
+                    resources: new SquaddieResource({}),
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -44,7 +44,7 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     staticId: "enemy_squaddie",
                     name: "Enemy",
-                    resources: new SquaddieResource(),
+                    resources: new SquaddieResource({}),
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
@@ -64,7 +64,7 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     staticId: "ally_squaddie",
                     name: "Ally",
-                    resources: new SquaddieResource(),
+                    resources: new SquaddieResource({}),
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ALLY,
                 }),
@@ -84,7 +84,7 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     staticId: "none_squaddie",
                     name: "None",
-                    resources: new SquaddieResource(),
+                    resources: new SquaddieResource({}),
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.NONE,
                 }),

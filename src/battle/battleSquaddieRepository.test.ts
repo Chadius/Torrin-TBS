@@ -30,7 +30,7 @@ describe('BattleSquaddieRepository', () => {
             squaddieId: new SquaddieId({
                 staticId: "player_young_torrin",
                 name: "Torrin",
-                resources: new SquaddieResource(),
+                resources: new SquaddieResource({}),
                 traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),

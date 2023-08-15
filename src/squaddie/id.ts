@@ -18,7 +18,7 @@ export class SquaddieId {
     }) {
         this.name = params.name;
         this.staticId = params.staticId;
-        this.resources = params.resources || new SquaddieResource();
+        this.resources = params.resources || new SquaddieResource({});
         this.traits = params.traits || new TraitStatusStorage();
         this._affiliation = params.affiliation;
     }
