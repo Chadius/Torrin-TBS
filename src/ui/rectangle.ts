@@ -9,6 +9,7 @@ type Options = {
     fillColor?: number[];
     strokeColor?: number[];
     strokeWeight?: number;
+    noStroke?: boolean;
 }
 
 export type RectangleArguments = RequiredOptions & Partial<Options>;
@@ -18,12 +19,27 @@ export class Rectangle {
     fillColor?: number[];
     strokeColor?: number[];
     strokeWeight?: number;
+    noStroke?: boolean;
 
-    constructor(options: RectangleArguments) {
-        this.area = options.area;
-        this.fillColor = options.fillColor;
-        this.strokeColor = options.strokeColor;
-        this.strokeWeight = options.strokeWeight;
+    constructor({
+                    area,
+                    fillColor,
+                    strokeColor,
+                    strokeWeight,
+                    noStroke,
+                }:
+                    {
+                        area: RectArea;
+                        fillColor?: number[];
+                        strokeColor?: number[];
+                        strokeWeight?: number;
+                        noStroke?: boolean;
+                    } | RectangleArguments) {
+        this.area = area;
+        this.fillColor = fillColor;
+        this.strokeColor = strokeColor;
+        this.strokeWeight = strokeWeight;
+        this.noStroke = noStroke;
     }
 
     draw(p: p5) {
@@ -36,6 +52,9 @@ export class Rectangle {
         }
         if (this.strokeWeight) {
             p.strokeWeight(this.strokeWeight);
+        }
+        if (this.noStroke) {
+            p.noStroke();
         }
         p.rect(
             this.area.left,

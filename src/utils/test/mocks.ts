@@ -18,6 +18,7 @@ jest.mock('p5', () => () => {
         fill: jest.fn(),
         image: jest.fn(),
         loadImage: jest.fn(),
+        noStroke: jest.fn(),
         noTint: jest.fn(),
         pop: jest.fn(),
         push: jest.fn(),
