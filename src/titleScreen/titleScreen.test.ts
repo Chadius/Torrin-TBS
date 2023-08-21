@@ -29,12 +29,17 @@ describe('Title Screen', () => {
         expect(titleScreenState).not.toBeUndefined();
     });
 
-    it('will declare itself complete when the user clicks on the start button', () => {
+    it('will declare itself complete when the user clicks on the start button and the button is drawn active', () => {
         expect(titleScreen.hasCompleted(titleScreenState)).toBeFalsy();
         titleScreen.update(titleScreenState, mockedP5);
         expect(titleScreen.hasCompleted(titleScreenState)).toBeFalsy();
-        titleScreen.mouseClicked(titleScreenState, MouseButton.LEFT, ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT);
+        titleScreen.mouseClicked(titleScreenState, MouseButton.LEFT, ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT - 1);
+        expect(titleScreen.hasCompleted(titleScreenState)).toBeFalsy();
+        let textSpy = jest.spyOn(mockedP5, "text");
+        titleScreen.update(titleScreenState, mockedP5);
         expect(titleScreen.hasCompleted(titleScreenState)).toBeTruthy();
+        expect(textSpy).toBeCalled();
+        expect(textSpy).toBeCalledWith("Now loading...", expect.anything(), expect.anything(), expect.anything(), expect.anything());
     });
 
     it('will declare itself complete when the user presses the enter key', () => {
@@ -42,7 +47,12 @@ describe('Title Screen', () => {
         titleScreen.update(titleScreenState, mockedP5);
         expect(titleScreen.hasCompleted(titleScreenState)).toBeFalsy();
         titleScreen.keyPressed(titleScreenState, config.KEYBOARD_SHORTCUTS[KeyButtonName.ACCEPT][0]);
+        expect(titleScreen.hasCompleted(titleScreenState)).toBeFalsy();
+        let textSpy = jest.spyOn(mockedP5, "text");
+        titleScreen.update(titleScreenState, mockedP5);
         expect(titleScreen.hasCompleted(titleScreenState)).toBeTruthy();
+        expect(textSpy).toBeCalled();
+        expect(textSpy).toBeCalledWith("Now loading...", expect.anything(), expect.anything(), expect.anything(), expect.anything());
     });
 
     it('will upon completion recommend the battle state', () => {

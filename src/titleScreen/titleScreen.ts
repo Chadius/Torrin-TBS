@@ -55,6 +55,7 @@ export class TitleScreen implements GameEngineComponent {
     private sirCamilIcon: ImageUI;
     private sirCamilIconArea: RectArea;
     private sirCamilDescriptionText: TextBox;
+    private _showingLoadingMessage: boolean;
 
     constructor({
                     resourceHandler
@@ -84,12 +85,12 @@ export class TitleScreen implements GameEngineComponent {
 
     keyPressed(state: TitleScreenState, keyCode: number): void {
         if (KeyWasPressed(KeyButtonName.ACCEPT, keyCode)) {
-            this.loadGameAndComplete();
+            this.playButton.onClickHandler(0, 0, this.playButton, this);
         }
     }
 
     mouseClicked(state: TitleScreenState, mouseButton: MouseButton, mouseX: number, mouseY: number): void {
-        this.loadGameAndComplete();
+        this.playButton.mouseClicked(mouseX, mouseY, this);
     }
 
     mouseMoved(state: TitleScreenState, mouseX: number, mouseY: number): void {
@@ -120,11 +121,14 @@ export class TitleScreen implements GameEngineComponent {
         this.lazyLoadByLine(state, p).draw(p);
         this.lazyLoadGameDescription(state, p).draw(p);
         this.lazyLoadPlayButton(state, p).draw(p);
+        if (this._showingLoadingMessage) {
+            this._newGameSelected = true;
+        }
         this.drawCharacterIntroductions(state, p);
     }
 
     private loadGameAndComplete() {
-        this._newGameSelected = true;
+        this._showingLoadingMessage = true;
     }
 
     private resetInternalState() {
@@ -144,6 +148,7 @@ export class TitleScreen implements GameEngineComponent {
         this.playButton = undefined;
         this.byLine = undefined;
         this.titleText = undefined;
+        this._showingLoadingMessage = false;
     }
 
     private drawTitleBanner(state: TitleScreenState, p: p5) {
@@ -259,7 +264,7 @@ export class TitleScreen implements GameEngineComponent {
 
             this.playButton = new Button({
                 activeLabel: new Label({
-                    text: "Starting",
+                    text: "Now loading...",
                     fillColor: colors.playButtonActive,
                     area: buttonArea,
                     textSize: WINDOW_SPACING4,

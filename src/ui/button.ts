@@ -17,10 +17,10 @@ type Options = {
 export type ButtonArguments = RequiredOptions & Partial<Options>;
 
 export enum ButtonStatus {
-    READY,
-    ACTIVE,
-    DISABLED,
-    HOVER,
+    READY = "READY",
+    ACTIVE = "ACTIVE",
+    DISABLED = "DISABLED",
+    HOVER = "HOVER",
 }
 
 export class Button {
