@@ -120,8 +120,9 @@ export class BattleSquaddieSelectedHUD {
         this.drawSquaddieAttributes(state, p);
         this.drawNumberOfActions(state, p);
         this.drawSquaddieActivities(p);
-        this.invalidCommandWarningTextBox.draw(p);
+        this.drawUncontrollableSquaddieWarning(state, p);
         this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state, p);
+        this.invalidCommandWarningTextBox.draw(p);
         if (this.shouldDrawNextButton(state)) {
             this.nextSquaddieButton.draw(p);
         }
@@ -371,6 +372,36 @@ export class BattleSquaddieSelectedHUD {
             windowDimensions,
             squaddieAffiliationHue
         };
+    }
+
+    private drawUncontrollableSquaddieWarning(state: BattleOrchestratorState, p: p5) {
+        if (!this.selectedSquaddieDynamicId) {
+            return;
+        }
+        const {
+            dynamicSquaddie,
+            staticSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
+
+        const {
+            squaddieHasThePlayerControlledAffiliation,
+            squaddieCanCurrentlyAct,
+            playerCanControlThisSquaddieRightNow,
+        } = CanPlayerControlSquaddieRightNow({dynamicSquaddie, staticSquaddie});
+
+        if (playerCanControlThisSquaddieRightNow) {
+            return;
+        }
+
+        let warningText: string = "";
+        if (!squaddieHasThePlayerControlledAffiliation) {
+            warningText = `You cannot control ${staticSquaddie.squaddieId.name}`;
+        } else if (!squaddieCanCurrentlyAct) {
+            warningText = `No actions remaining for ${staticSquaddie.squaddieId.name}`;
+        }
+
+        this.maybeCreateInvalidCommandWarningTextBox(warningText);
+
     }
 
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, p: p5) {

@@ -113,7 +113,6 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     reset(state: BattleOrchestratorState) {
         this.resetInternalState();
-        state.hexMap.stopHighlightingTiles();
         if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
             state.battleSquaddieSelectedHUD.reset();
             state.battleSquaddieUIInput.reset();
@@ -292,6 +291,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private reactToComputerSelectedActivity(state: BattleOrchestratorState, squaddieInstruction: SquaddieInstruction) {
+        state.hexMap.stopHighlightingTiles();
         const {
             staticSquaddie,
             dynamicSquaddie,

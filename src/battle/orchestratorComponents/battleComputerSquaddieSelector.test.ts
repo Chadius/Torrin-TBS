@@ -188,6 +188,7 @@ describe('BattleComputerSquaddieSelector', () => {
             squaddieRepo,
             camera,
             missionMap,
+            hexMap: new TerrainTileMap({movementCost: ["1 "]})
         });
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
