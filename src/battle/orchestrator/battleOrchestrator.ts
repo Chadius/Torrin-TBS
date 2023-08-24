@@ -30,6 +30,7 @@ import {TargetSquaddieInRange} from "../teamStrategy/targetSquaddieInRange";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MoveCloserToSquaddie} from "../teamStrategy/moveCloserToSquaddie";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
+import {Cutscene} from "../../cutscene/cutscene";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -93,6 +94,14 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.mapDisplay = mapDisplay;
         this.phaseController = phaseController;
         this.squaddieSquaddieActivity = squaddieSquaddieActivity;
+    }
+
+    get currentCutscene(): Cutscene {
+        return this.cutscenePlayer.currentCutscene;
+    }
+
+    get currentCutsceneId(): string {
+        return this.cutscenePlayer.currentCutsceneId;
     }
 
     private _uiControlSettings: UIControlSettings;

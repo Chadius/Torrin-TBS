@@ -78,7 +78,7 @@ export class GameEngine {
     setup({graphicsContext}: { graphicsContext: p5 }) {
         this._battleOrchestrator = new BattleOrchestrator({
             missionLoader: new BattleMissionLoader(),
-            cutscenePlayer: new BattleCutscenePlayer(),
+            cutscenePlayer: new BattleCutscenePlayer({cutsceneById: {}}),
             playerSquaddieSelector: new BattlePlayerSquaddieSelector(),
             computerSquaddieSelector: new BattleComputerSquaddieSelector(),
             squaddieMapActivity: new BattleSquaddieMapActivity(),
