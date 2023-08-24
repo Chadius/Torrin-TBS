@@ -15,8 +15,18 @@ import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {BattleGameBoard} from "./battleGameBoard";
 
 export class BattleOrchestratorState {
+    get gameBoard(): BattleGameBoard {
+        return this._gameBoard;
+    }
+    get objectives(): MissionObjective[] {
+        return this.gameBoard.objectives;
+    }
+
     resourceHandler: ResourceHandler;
     missionMap: MissionMap;
     hexMap: TerrainTileMap;
@@ -33,7 +43,10 @@ export class BattleOrchestratorState {
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
 
+    private _gameBoard: BattleGameBoard;
+
     constructor(options: {
+        objectives?: MissionObjective[],
         bannerDisplayAnimationStartTime?: number;
         bannerAffiliationToShow?: BattlePhase;
         resourceHandler?: ResourceHandler;
@@ -52,6 +65,29 @@ export class BattleOrchestratorState {
         battleEventRecording?: Recording;
         teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] }
     }) {
+
+        const {
+            objectives,
+            bannerDisplayAnimationStartTime,
+            bannerAffiliationToShow,
+            resourceHandler,
+            missionMap,
+            hexMap,
+            pathfinder,
+            squaddieRepo,
+            battlePhaseTracker,
+            camera,
+            currentCutscene,
+            battleSquaddieSelectedHUD,
+            battleSquaddieUIInput,
+            squaddieMovePath,
+            clickedHexCoordinate,
+            battlePhaseState,
+            squaddieCurrentlyActing,
+            battleEventRecording,
+            teamStrategyByAffiliation,
+        } = options;
+
         this.resourceHandler = options.resourceHandler;
         this.hexMap = options.hexMap;
         this.missionMap = options.missionMap;
@@ -76,6 +112,10 @@ export class BattleOrchestratorState {
         this.battleEventRecording = options.battleEventRecording || new Recording({});
 
         this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
+
+        this._gameBoard = new BattleGameBoard({
+            objectives
+        })
     }
 
     private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {

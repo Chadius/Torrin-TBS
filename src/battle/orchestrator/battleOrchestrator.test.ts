@@ -1,4 +1,4 @@
-import {BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
+import {BattleCompletionStatus, BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
@@ -23,6 +23,9 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {MouseButton} from "../../utils/mouseConfig";
+import p5 from "p5";
+import {MissionObjective} from "../missionResult/missionObjective";
+import {Cutscene} from "../../cutscene/cutscene";
 
 
 describe('Battle Orchestrator', () => {
@@ -364,6 +367,32 @@ describe('Battle Orchestrator', () => {
         expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.LOADING_MISSION);
         orchestratorJumpsToSquaddieMover.update(nullState, mockedP5);
         expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
+    });
+
+    it('will check for victory conditions once the squaddie finishes moving', () => {
+        orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
+        });
+        expect(orchestrator.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+
+        const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
+
+        // TODO
+        const mockCutscene: Cutscene = new Cutscene({});
+        nullState.cutsceneById({
+            "victory": mockCutscene
+        });
+
+        orchestrator.update(nullState, mockedP5);
+
+        expect(missionObjectiveCompleteCheck).toBeCalled();
+        expect(orchestrator.completionStatus).toBe(BattleCompletionStatus.VICTORY);
+
+        expect(nullState.currentCutscene).toBe(mockCutscene);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
+        expect(orchestrator.getCurrentComponent()).toBe(mockBattleCutscenePlayer);
+
+        // TODO: Update all other maps to have at least 1 enemy
     });
 
     it('will update its UI Control Settings after updating', () => {

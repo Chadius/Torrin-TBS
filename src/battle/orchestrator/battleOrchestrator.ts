@@ -45,6 +45,11 @@ export enum BattleOrchestratorMode {
     SQUADDIE_SQUADDIE_ACTIVITY = "SQUADDIE_SQUADDIE_ACTIVITY",
 }
 
+export enum BattleCompletionStatus {
+    IN_PROGRESS = "IN_PROGRESS",
+    VICTORY = "VICTORY",
+}
+
 export class BattleOrchestrator implements GameEngineComponent {
     mode: BattleOrchestratorMode;
     missionLoader: BattleMissionLoader;
@@ -57,6 +62,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     squaddieMover: BattleSquaddieMover;
     mapDisplay: BattleMapDisplay;
     phaseController: BattlePhaseController;
+    completionStatus: BattleCompletionStatus;
 
     constructor({
                     cutscenePlayer,
