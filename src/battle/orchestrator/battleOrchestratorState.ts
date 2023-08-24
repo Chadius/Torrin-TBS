@@ -5,7 +5,6 @@ import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePhase, BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
-import {Cutscene} from "../../cutscene/cutscene";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
@@ -25,7 +24,6 @@ export class BattleOrchestratorState {
     squaddieRepository: BattleSquaddieRepository;
     battlePhaseTracker: BattlePhaseTracker;
     camera: BattleCamera;
-    currentCutscene: Cutscene;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleSquaddieUIInput: BattleSquaddieUIInput;
     squaddieMovePath?: SearchPath;
@@ -45,7 +43,6 @@ export class BattleOrchestratorState {
         squaddieRepo?: BattleSquaddieRepository;
         battlePhaseTracker?: BattlePhaseTracker;
         camera?: BattleCamera;
-        currentCutscene?: Cutscene;
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD;
         battleSquaddieUIInput?: BattleSquaddieUIInput;
         squaddieMovePath?: SearchPath;
@@ -62,7 +59,6 @@ export class BattleOrchestratorState {
         this.squaddieRepository = options.squaddieRepo;
         this.battlePhaseTracker = options.battlePhaseTracker || new BattlePhaseTracker();
         this.camera = options.camera || new BattleCamera();
-        this.currentCutscene = options.currentCutscene;
         this.squaddieMovePath = options.squaddieMovePath || undefined;
         this.clickedHexCoordinate = options.clickedHexCoordinate || undefined;
 

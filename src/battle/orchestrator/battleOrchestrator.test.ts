@@ -66,7 +66,12 @@ describe('Battle Orchestrator', () => {
         mockBattleMissionLoader.mouseEventHappened = jest.fn();
         mockBattleMissionLoader.hasCompleted = jest.fn().mockReturnValue(true);
 
-        mockBattleCutscenePlayer = new (<new () => BattleCutscenePlayer>BattleCutscenePlayer)() as jest.Mocked<BattleCutscenePlayer>;
+        mockBattleCutscenePlayer = new (
+            <new (options: any) => BattleCutscenePlayer>BattleCutscenePlayer
+        )({
+            cutsceneById: {}
+        }) as jest.Mocked<BattleCutscenePlayer>;
+
         mockBattleCutscenePlayer.update = jest.fn();
         mockBattleCutscenePlayer.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockBattleCutscenePlayer.mouseEventHappened = jest.fn();
