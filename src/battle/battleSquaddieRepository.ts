@@ -2,17 +2,16 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 
 export class BattleSquaddieRepository {
-    private readonly squaddieStaticInfoById: {
+    private squaddieStaticInfoById: {
         [id: string]: BattleSquaddieStatic;
     }
 
-    private readonly squaddieDynamicInfoByDynamicId: {
+    private squaddieDynamicInfoByDynamicId: {
         [id: string]: BattleSquaddieDynamic;
     }
 
     constructor() {
-        this.squaddieDynamicInfoByDynamicId = {};
-        this.squaddieStaticInfoById = {};
+        this.reset();
     }
 
     addStaticSquaddie(staticSquaddie: BattleSquaddieStatic) {
@@ -77,5 +76,10 @@ export class BattleSquaddieRepository {
                 dynamicSquaddieId,
             };
         });
+    }
+
+    reset() {
+        this.squaddieDynamicInfoByDynamicId = {};
+        this.squaddieStaticInfoById = {};
     }
 }

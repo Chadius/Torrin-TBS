@@ -28,6 +28,10 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {DamageType} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";
+import {Cutscene} from "../../cutscene/cutscene";
+import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
+import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "../orchestrator/missionCutsceneCollection";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -58,6 +62,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         if (!this.startedLoading) {
             this.loadMap(state);
             this.loadSquaddies(state);
+            this.loadCutscenes(state);
             return;
         }
         if (this.startedLoading && state.resourceHandler.areAllResourcesLoaded([
@@ -347,5 +352,24 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     private initializeCameraPosition(state: BattleOrchestratorState) {
         const mapDimensions = state.hexMap.getDimensions();
         state.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
+    }
+
+    private loadCutscenes(state: BattleOrchestratorState) {
+        state.gameBoard.cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneById: {
+                [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
+                    actions: [
+                        new DialogueBox({
+                            id: "1",
+                            name: "Victory",
+                            text: "Victory! YOU WIN!",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        })
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
+            }
+        })
     }
 }

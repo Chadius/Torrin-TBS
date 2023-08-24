@@ -41,6 +41,7 @@ export class BattleSquaddieMapActivity implements BattleOrchestratorComponent {
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
+            checkMissionObjectives: true,
         }
     }
 

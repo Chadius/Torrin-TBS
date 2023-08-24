@@ -2,6 +2,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
+import {MissionCutsceneCollection} from "../orchestrator/missionCutsceneCollection";
 
 describe('BattleCutscenePlayer', () => {
     let dinnerDate: Cutscene;
@@ -31,59 +32,73 @@ describe('BattleCutscenePlayer', () => {
     });
 
     it('is complete when there is no cutscene to play', () => {
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({});
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({cutsceneById: {}});
+        const cutsceneCollection = new MissionCutsceneCollection({cutsceneById: {}});
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         expect(cutscenePlayer.hasCompleted(initialState)).toBeTruthy();
     });
     it('can start a cutscene', () => {
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({
+        const cutsceneCollection = new MissionCutsceneCollection({
             cutsceneById: {
                 "dinner_date": dinnerDate,
             }
         });
-        cutscenePlayer.startCutscene("dinner_date");
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
+        cutscenePlayer.startCutscene("dinner_date", initialState);
         expect(cutscenePlayer.currentCutsceneId).toBe("dinner_date");
         expect(cutscenePlayer.currentCutscene).toBe(dinnerDate);
         expect(dinnerDate.isInProgress()).toBeTruthy();
     });
     it('is complete when the cutscene completes', () => {
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({});
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({
+        const cutsceneCollection = new MissionCutsceneCollection({
             cutsceneById: {
                 "dinner_date": dinnerDate,
             }
         });
-        cutscenePlayer.startCutscene("dinner_date");
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
+        cutscenePlayer.startCutscene("dinner_date", initialState);
         expect(cutscenePlayer.hasCompleted(initialState)).toBeFalsy();
 
         dinnerDate.stop();
         expect(cutscenePlayer.hasCompleted(initialState)).toBeTruthy();
     });
     it('will not change the cutscene if one is playing', () => {
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({
+        const cutsceneCollection = new MissionCutsceneCollection({
             cutsceneById: {
                 "dinner_date": dinnerDate,
                 "lunch_date": lunchDate,
             }
         });
-        cutscenePlayer.startCutscene("dinner_date");
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
+        cutscenePlayer.startCutscene("dinner_date", initialState);
         expect(cutscenePlayer.currentCutsceneId).toBe("dinner_date");
         expect(cutscenePlayer.currentCutscene).toBe(dinnerDate);
 
-        cutscenePlayer.startCutscene("lunch_date");
+        cutscenePlayer.startCutscene("lunch_date", initialState);
         expect(cutscenePlayer.currentCutsceneId).toBe("dinner_date");
         expect(cutscenePlayer.currentCutscene).toBe(dinnerDate);
 
         dinnerDate.stop();
-        cutscenePlayer.startCutscene("lunch_date");
+        cutscenePlayer.startCutscene("lunch_date", initialState);
         expect(cutscenePlayer.currentCutsceneId).toBe("lunch_date");
         expect(cutscenePlayer.currentCutscene).toBe(lunchDate);
     });
     it('throws an error if the cutscene does not exist', () => {
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({cutsceneById: {}});
+        const cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneById: {}
+        });
+
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
 
         const shouldThrowError = () => {
-            cutscenePlayer.startCutscene("dinner_date");
+            cutscenePlayer.startCutscene("dinner_date", initialState);
         }
 
         expect(() => {
@@ -94,13 +109,15 @@ describe('BattleCutscenePlayer', () => {
         }).toThrow("No cutscene with Id dinner_date");
     });
     it('clears the current cutscene when it resets', () => {
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({});
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({
+        const cutsceneCollection = new MissionCutsceneCollection({
             cutsceneById: {
                 "dinner_date": dinnerDate,
             }
         });
-        cutscenePlayer.startCutscene("dinner_date");
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
+
+        cutscenePlayer.startCutscene("dinner_date", initialState);
         dinnerDate.stop();
         cutscenePlayer.reset(initialState);
         expect(cutscenePlayer.currentCutscene).toBeUndefined();

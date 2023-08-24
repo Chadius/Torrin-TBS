@@ -10,6 +10,7 @@ import {config} from "../configuration/config";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {makeResult} from "../utils/ResultOrError";
 
+
 describe('Title Screen', () => {
     let titleScreen: TitleScreen;
     let titleScreenState: TitleScreenState
@@ -56,9 +57,16 @@ describe('Title Screen', () => {
     });
 
     it('will upon completion recommend the battle state', () => {
-        jest.spyOn(titleScreen, 'hasCompleted').mockReturnValue(true);
         titleScreen.update(titleScreenState, mockedP5);
         const recommendation = titleScreen.recommendStateChanges(titleScreenState);
         expect(recommendation.nextMode).toBe(GameModeEnum.BATTLE);
+    });
+
+    it('after resetting it will not immediately complete', () => {
+        const spy = jest.spyOn(titleScreen, 'hasCompleted').mockReturnValueOnce(true);
+        expect(titleScreen.hasCompleted(titleScreen)).toBeTruthy();
+        spy.mockClear();
+        titleScreen.reset(titleScreenState);
+        expect(titleScreen.hasCompleted(titleScreen)).toBeFalsy();
     });
 });

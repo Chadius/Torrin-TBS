@@ -11,34 +11,19 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene} from "../../cutscene/cutscene";
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
-    constructor({cutsceneById}: {
-        cutsceneById: {
-            [id: string]: Cutscene
-        }
-    }) {
-        if (cutsceneById) {
-            this._cutsceneById = {...cutsceneById};
-        } else {
-            this._cutsceneById = {};
-        }
+    constructor() {
     }
 
+    private _currentCutscene: Cutscene;
+
     get currentCutscene(): Cutscene {
-        return this.cutsceneById[this.currentCutsceneId];
+        return this._currentCutscene;
     }
 
     private _currentCutsceneId: string;
 
     get currentCutsceneId(): string {
         return this._currentCutsceneId;
-    }
-
-    private _cutsceneById: {
-        [id: string]: Cutscene
-    }
-
-    get cutsceneById(): { [p: string]: Cutscene } {
-        return this._cutsceneById;
     }
 
     hasCompleted(state: BattleOrchestratorState): boolean {
@@ -84,10 +69,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
 
     reset(state: BattleOrchestratorState) {
         this._currentCutsceneId = undefined;
+        this._currentCutscene = undefined;
     }
 
-    startCutscene(cutsceneId: string) {
-        if (!this.cutsceneById[cutsceneId]) {
+    startCutscene(cutsceneId: string, state: BattleOrchestratorState) {
+        if (!state.cutsceneCollection.cutsceneById[cutsceneId]) {
             throw new Error(`No cutscene with Id ${cutsceneId}`);
         }
 
@@ -96,6 +82,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         }
 
         this._currentCutsceneId = cutsceneId;
+        this._currentCutscene = state.cutsceneCollection.cutsceneById[cutsceneId];
         this.currentCutscene.start();
     }
 }

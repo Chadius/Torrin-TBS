@@ -28,6 +28,7 @@ export type OrchestratorComponentKeyEvent = {
 export type BattleOrchestratorChanges = {
     displayMap?: boolean;
     nextMode?: BattleOrchestratorMode;
+    checkMissionObjectives?: boolean;
 }
 
 export interface BattleOrchestratorComponent {
