@@ -17,8 +17,12 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {BattleGameBoard} from "./battleGameBoard";
+import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 
 export class BattleOrchestratorState {
+    get cutsceneCollection(): MissionCutsceneCollection {
+        return this._gameBoard.cutsceneCollection;
+    }
     get gameBoard(): BattleGameBoard {
         return this._gameBoard;
     }
@@ -45,6 +49,7 @@ export class BattleOrchestratorState {
     private _gameBoard: BattleGameBoard;
 
     constructor(options: {
+        cutsceneCollection?: MissionCutsceneCollection,
         objectives?: MissionObjective[],
         bannerDisplayAnimationStartTime?: number;
         bannerAffiliationToShow?: BattlePhase;
@@ -67,6 +72,7 @@ export class BattleOrchestratorState {
 
         const {
             objectives,
+            cutsceneCollection,
             bannerDisplayAnimationStartTime,
             bannerAffiliationToShow,
             resourceHandler,
@@ -112,7 +118,8 @@ export class BattleOrchestratorState {
         this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
 
         this._gameBoard = new BattleGameBoard({
-            objectives
+            objectives,
+            cutsceneCollection,
         })
     }
 

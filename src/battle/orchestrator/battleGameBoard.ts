@@ -1,6 +1,6 @@
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestratorComponents/battleCutscenePlayer";
+import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "./missionCutsceneCollection";
 
 export enum BattleCompletionStatus {
     IN_PROGRESS = "IN_PROGRESS",
@@ -8,6 +8,12 @@ export enum BattleCompletionStatus {
 }
 
 export class BattleGameBoard {
+    set cutsceneCollection(value: MissionCutsceneCollection) {
+        this._cutsceneCollection = value;
+    }
+    get cutsceneCollection(): MissionCutsceneCollection {
+        return this._cutsceneCollection;
+    }
     set completionStatus(value: BattleCompletionStatus) {
         this._completionStatus = value;
     }
@@ -22,7 +28,10 @@ export class BattleGameBoard {
 
     private _completionStatus: BattleCompletionStatus;
 
-    constructor({objectives}: {objectives: MissionObjective[]}) {
+    private _cutsceneCollection: MissionCutsceneCollection;
+
+    constructor({objectives, cutsceneCollection}: {objectives: MissionObjective[], cutsceneCollection: MissionCutsceneCollection}) {
+        this._cutsceneCollection = cutsceneCollection || new MissionCutsceneCollection({cutsceneById: {}});
         this.constructMissionObjective(objectives);
     }
 

@@ -1,7 +1,7 @@
 import {BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {BattleOrchestratorState} from "./battleOrchestratorState";
-import {BattleCutscenePlayer, DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestratorComponents/battleCutscenePlayer";
+import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
@@ -25,7 +25,8 @@ import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleCo
 import {MouseButton} from "../../utils/mouseConfig";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {Cutscene} from "../../cutscene/cutscene";
-import {BattleCompletionStatus} from "./battleGameBoard";
+import {BattleCompletionStatus, BattleGameBoard} from "./battleGameBoard";
+import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "./missionCutsceneCollection";
 
 
 describe('Battle Orchestrator', () => {
@@ -373,13 +374,22 @@ describe('Battle Orchestrator', () => {
 
     it('will check for victory conditions once the squaddie finishes moving', () => {
         const mockCutscene: Cutscene = new Cutscene({});
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({
+        const cutsceneCollection: MissionCutsceneCollection = new MissionCutsceneCollection({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
             }
-        })
+        });
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         jest.spyOn(cutscenePlayer, "recommendStateChanges").mockReturnValue({
             completionStatus: BattleCompletionStatus.VICTORY,
+        });
+
+        nullState = new BattleOrchestratorState({
+            hexMap: new TerrainTileMap({
+                movementCost: ["1 1 "]
+            }),
+            battleSquaddieSelectedHUD: mockHud,
+            cutsceneCollection,
         });
 
         nullState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
@@ -403,8 +413,6 @@ describe('Battle Orchestrator', () => {
         orchestrator.update(nullState, mockedP5);
         expect(cutscenePlayer.hasCompleted(nullState)).toBeTruthy();
         expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.VICTORY);
-
-        // TODO: Update all other maps to have at least 1 enemy
     });
 
     it('will update its UI Control Settings after updating', () => {

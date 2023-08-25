@@ -318,7 +318,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (info) {
             if (info.cutsceneId !== "") {
-                this.cutscenePlayer.startCutscene(info.cutsceneId);
+                this.cutscenePlayer.startCutscene(info.cutsceneId, state);
             }
             if (info.nextMode) {
                 this.mode = info.nextMode;
