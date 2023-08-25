@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattleCutscenePlayer} from "./battleCutscenePlayer";
+import {BattleCutscenePlayer, DEFAULT_VICTORY_CUTSCENE_ID} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 
@@ -104,5 +104,18 @@ describe('BattleCutscenePlayer', () => {
         dinnerDate.stop();
         cutscenePlayer.reset(initialState);
         expect(cutscenePlayer.currentCutscene).toBeUndefined();
+    });
+    it('creates a default victory cutscene if it does not exist', () => {
+        const cutscenePlayerWithNoDefaultVictoryCutscene: BattleCutscenePlayer = new BattleCutscenePlayer({cutsceneById: {}});
+        expect(DEFAULT_VICTORY_CUTSCENE_ID in cutscenePlayerWithNoDefaultVictoryCutscene.cutsceneById).toBeTruthy();
+
+        const cutscenePlayerWithVictoryCutscene: BattleCutscenePlayer = new BattleCutscenePlayer({
+            cutsceneById: {
+                [DEFAULT_VICTORY_CUTSCENE_ID]: dinnerDate
+            }
+        });
+        expect(DEFAULT_VICTORY_CUTSCENE_ID in cutscenePlayerWithVictoryCutscene.cutsceneById).toBeTruthy();
+        cutscenePlayerWithVictoryCutscene.startCutscene(DEFAULT_VICTORY_CUTSCENE_ID);
+        expect(cutscenePlayerWithVictoryCutscene.currentCutscene).toBe(dinnerDate);
     });
 });

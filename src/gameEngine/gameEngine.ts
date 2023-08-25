@@ -2,7 +2,7 @@ import p5 from "p5";
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissionLoader";
-import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
+import {BattleCutscenePlayer, DEFAULT_VICTORY_CUTSCENE_ID} from "../battle/orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../battle/orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleComputerSquaddieSelector} from "../battle/orchestratorComponents/battleComputerSquaddieSelector";
 import {BattleSquaddieMapActivity} from "../battle/orchestratorComponents/battleSquaddieMapActivity";
@@ -17,6 +17,9 @@ import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
+import {Cutscene} from "../cutscene/cutscene";
+import {DialogueBox} from "../cutscene/dialogue/dialogueBox";
+import {ScreenDimensions} from "../utils/graphicsConfig";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
@@ -75,10 +78,23 @@ export class GameEngine {
         return this._resourceHandler;
     }
 
+    // todo can't define cutscenes here, dimensions is 0,0
     setup({graphicsContext}: { graphicsContext: p5 }) {
         this._battleOrchestrator = new BattleOrchestrator({
             missionLoader: new BattleMissionLoader(),
-            cutscenePlayer: new BattleCutscenePlayer({cutsceneById: {}}),
+            cutscenePlayer: new BattleCutscenePlayer({cutsceneById: {
+                [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
+                    actions: [
+                        new DialogueBox({
+                            id: "1",
+                            name: "Victory",
+                            text: "Victory! YOU WIN!",
+                            animationDuration: 0
+                        })
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
+            }}),
             playerSquaddieSelector: new BattlePlayerSquaddieSelector(),
             computerSquaddieSelector: new BattleComputerSquaddieSelector(),
             squaddieMapActivity: new BattleSquaddieMapActivity(),

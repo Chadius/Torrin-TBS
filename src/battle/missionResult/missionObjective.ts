@@ -3,6 +3,9 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {MissionCondition} from "./missionCondition";
 
 export class MissionObjective {
+    get cutsceneToPlayUponCompletion(): string {
+        return this._cutsceneToPlayUponCompletion;
+    }
     get allConditionsAreRequiredToCompleteObjective(): boolean {
         return this._allConditionsAreRequiredToCompleteObjective;
     }
@@ -39,22 +42,26 @@ export class MissionObjective {
         return this._reward;
     }
 
-    private _reward: MissionReward;
+    private readonly _reward: MissionReward;
 
     get conditions(): MissionCondition[] {
         return this._conditions;
     }
 
-    private _conditions: MissionCondition[];
+    private readonly _conditions: MissionCondition[];
 
-    constructor({reward, conditions, numberOfCompletedConditions,}: {
+    private _cutsceneToPlayUponCompletion: string;
+
+    constructor({reward, conditions, numberOfCompletedConditions, cutsceneToPlayUponCompletion}: {
         reward: MissionReward;
         conditions: MissionCondition[],
         numberOfCompletedConditions?: number | "all" | "ALL",
+        cutsceneToPlayUponCompletion?: string,
     }) {
         this._reward = reward;
         this._conditions = conditions;
         this.constructNumberOfCompletedConditions(numberOfCompletedConditions);
+        this._cutsceneToPlayUponCompletion = cutsceneToPlayUponCompletion || "";
     }
 
     private constructNumberOfCompletedConditions(numberOfCompletedConditions: number | "all" | "ALL") {
@@ -76,11 +83,9 @@ export class MissionObjective {
         if (this.isComplete !== undefined) {
             return this.isComplete;
         }
-
         const completeConditions = this.conditions.filter((condition: MissionCondition) => {
             return condition.shouldBeComplete(state);
         });
-
         return completeConditions.length >= this.numberOfRequiredConditionsToComplete;
     }
 }

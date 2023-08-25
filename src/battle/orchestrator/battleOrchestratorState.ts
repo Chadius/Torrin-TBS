@@ -16,7 +16,6 @@ import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {MissionObjective} from "../missionResult/missionObjective";
-import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {BattleGameBoard} from "./battleGameBoard";
 
 export class BattleOrchestratorState {
@@ -77,7 +76,6 @@ export class BattleOrchestratorState {
             squaddieRepo,
             battlePhaseTracker,
             camera,
-            currentCutscene,
             battleSquaddieSelectedHUD,
             battleSquaddieUIInput,
             squaddieMovePath,

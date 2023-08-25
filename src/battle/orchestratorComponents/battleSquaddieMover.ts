@@ -73,6 +73,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
+            checkMissionObjectives: true,
         }
     }
 

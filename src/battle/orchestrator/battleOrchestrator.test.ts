@@ -1,7 +1,7 @@
-import {BattleCompletionStatus, BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
+import {BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
 import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {BattleOrchestratorState} from "./battleOrchestratorState";
-import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
+import {BattleCutscenePlayer, DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
@@ -23,9 +23,9 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {MouseButton} from "../../utils/mouseConfig";
-import p5 from "p5";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {Cutscene} from "../../cutscene/cutscene";
+import {BattleCompletionStatus} from "./battleGameBoard";
 
 
 describe('Battle Orchestrator', () => {
@@ -291,6 +291,8 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will move from squaddie move mode to phase controller mode', () => {
+        jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(false);
+
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.SQUADDIE_MOVER,
         });
@@ -370,27 +372,37 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will check for victory conditions once the squaddie finishes moving', () => {
+        const mockCutscene: Cutscene = new Cutscene({});
+        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer({
+            cutsceneById: {
+                [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
+            }
+        })
+        jest.spyOn(cutscenePlayer, "recommendStateChanges").mockReturnValue({
+            completionStatus: BattleCompletionStatus.VICTORY,
+        });
+
+        nullState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
+
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
+            cutscenePlayer,
         });
-        expect(orchestrator.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+        expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
         const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
-
-        // TODO
-        const mockCutscene: Cutscene = new Cutscene({});
-        nullState.cutsceneById({
-            "victory": mockCutscene
-        });
 
         orchestrator.update(nullState, mockedP5);
 
         expect(missionObjectiveCompleteCheck).toBeCalled();
-        expect(orchestrator.completionStatus).toBe(BattleCompletionStatus.VICTORY);
 
-        expect(nullState.currentCutscene).toBe(mockCutscene);
+        expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
-        expect(orchestrator.getCurrentComponent()).toBe(mockBattleCutscenePlayer);
+        expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
+
+        orchestrator.update(nullState, mockedP5);
+        expect(cutscenePlayer.hasCompleted(nullState)).toBeTruthy();
+        expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.VICTORY);
 
         // TODO: Update all other maps to have at least 1 enemy
     });
@@ -415,6 +427,8 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will move from squaddie map activity mode to phase controller mode', () => {
+        jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(false);
+
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
         });

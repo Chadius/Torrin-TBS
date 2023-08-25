@@ -2,6 +2,7 @@ import {BattleOrchestratorState} from "./battleOrchestratorState";
 import p5 from "p5";
 import {BattleOrchestratorMode} from "./battleOrchestrator";
 import {UIControlSettings} from "./uiControlSettings";
+import {BattleCompletionStatus} from "./battleGameBoard";
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -28,6 +29,8 @@ export type OrchestratorComponentKeyEvent = {
 export type BattleOrchestratorChanges = {
     displayMap?: boolean;
     nextMode?: BattleOrchestratorMode;
+    checkMissionObjectives?: boolean;
+    completionStatus?: BattleCompletionStatus;
 }
 
 export interface BattleOrchestratorComponent {

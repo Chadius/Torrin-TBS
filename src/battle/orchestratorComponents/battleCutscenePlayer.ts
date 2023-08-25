@@ -10,6 +10,8 @@ import p5 from "p5";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene} from "../../cutscene/cutscene";
 
+export const DEFAULT_VICTORY_CUTSCENE_ID = "default_victory";
+
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     constructor({cutsceneById}: {
         cutsceneById: {
@@ -21,6 +23,8 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         } else {
             this._cutsceneById = {};
         }
+
+        this.createDefaultCutscenes();
     }
 
     get currentCutscene(): Cutscene {
@@ -97,5 +101,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
 
         this._currentCutsceneId = cutsceneId;
         this.currentCutscene.start();
+    }
+
+    private createDefaultCutscenes() {
+        if (!(DEFAULT_VICTORY_CUTSCENE_ID in this.cutsceneById)) {
+            this.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID] = new Cutscene({});
+        }
     }
 }
