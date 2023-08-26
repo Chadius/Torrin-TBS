@@ -99,9 +99,6 @@ export class DialogueBox implements CutsceneAction {
     }
 
     draw(p: p5) {
-        console.log(this.textBox);
-        console.log(this.speakerNameBox);
-
         p.push();
 
         this.textBox?.draw(p);

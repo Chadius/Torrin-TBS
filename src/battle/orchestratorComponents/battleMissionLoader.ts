@@ -355,7 +355,8 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     }
 
     private loadCutscenes(state: BattleOrchestratorState) {
-        state.gameBoard.cutsceneCollection = new MissionCutsceneCollection({cutsceneById: {
+        state.gameBoard.cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
                     actions: [
                         new DialogueBox({
@@ -368,6 +369,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
-            }})
+            }
+        })
     }
 }

@@ -39,10 +39,10 @@ describe('BattleCutscenePlayer', () => {
     });
     it('can start a cutscene', () => {
         const cutsceneCollection = new MissionCutsceneCollection({
-                cutsceneById: {
-                    "dinner_date": dinnerDate,
-                }
-            });
+            cutsceneById: {
+                "dinner_date": dinnerDate,
+            }
+        });
         const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();

@@ -30,9 +30,10 @@ import {TargetSquaddieInRange} from "../teamStrategy/targetSquaddieInRange";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MoveCloserToSquaddie} from "../teamStrategy/moveCloserToSquaddie";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
-import {Cutscene} from "../../cutscene/cutscene";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
+import {BattleCompletionStatus} from "./battleGameBoard";
+import {GameModeEnum} from "../../utils/startupConfig";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -84,9 +85,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         mapDisplay: BattleMapDisplay,
         phaseController: BattlePhaseController,
     }) {
-        this.mode = BattleOrchestratorMode.UNKNOWN;
-        this._uiControlSettings = new UIControlSettings({});
-
         this.missionLoader = missionLoader;
         this.cutscenePlayer = cutscenePlayer;
         this.playerSquaddieSelector = playerSquaddieSelector;
@@ -97,14 +95,14 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.mapDisplay = mapDisplay;
         this.phaseController = phaseController;
         this.squaddieSquaddieActivity = squaddieSquaddieActivity;
+
+        this.resetInternalState();
     }
 
-    get currentCutscene(): Cutscene {
-        return this.cutscenePlayer.currentCutscene;
-    }
+    private _battleComplete: boolean;
 
-    get currentCutsceneId(): string {
-        return this.cutscenePlayer.currentCutsceneId;
+    get battleComplete(): boolean {
+        return this._battleComplete;
     }
 
     private _uiControlSettings: UIControlSettings;
@@ -114,7 +112,9 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     recommendStateChanges(state: GameEngineComponentState): GameEngineChanges {
-        return undefined;
+        return {
+            nextMode: GameModeEnum.TITLE_SCREEN
+        };
     }
 
     public getCurrentComponent(): BattleOrchestratorComponent {
@@ -192,20 +192,28 @@ export class BattleOrchestrator implements GameEngineComponent {
         const newUIControlSettingsChanges = currentComponent.uiControlSettings(state);
         this.uiControlSettings.update(newUIControlSettingsChanges);
 
+        // TODO start extracting this away
         if (currentComponent.hasCompleted(state)) {
-            const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
-            currentComponent.reset(state);
-            let modeChanged: boolean = undefined;
-            if (orchestrationChanges.checkMissionObjectives === true) {
-                const completedObjectives: MissionObjective[] = this.findCompleteButUnrewardedMissionObjectives(state);
-                modeChanged = this.maybeChangeModeBasedOnCompletedButUnrewardedMissionObjectives(state, completedObjectives);
+            if (state.gameBoard.completionStatus === BattleCompletionStatus.VICTORY) {
+                this._battleComplete = true;
             }
 
-            if (modeChanged === undefined) {
+            const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
+            currentComponent.reset(state);
+            let nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode = undefined;
+            let completionStatus: BattleCompletionStatus;
+            if (orchestrationChanges.checkMissionObjectives === true) {
+                const completedObjectives: MissionObjective[] = this.findCompleteButUnrewardedMissionObjectives(state);
+                ({nextMode: nextModeFromUnrewardedMissionObjective, completionStatus}
+                        = this.calculateChangesBasedOnUnrewardedMissionObjectives(state, completedObjectives)
+                );
+            }
+
+            if (nextModeFromUnrewardedMissionObjective === undefined) {
                 this.mode = orchestrationChanges.nextMode || defaultNextMode;
             }
-            if (orchestrationChanges.completionStatus) {
-                state.gameBoard.completionStatus = orchestrationChanges.completionStatus;
+            if (completionStatus) {
+                state.gameBoard.completionStatus = completionStatus;
             }
         }
     }
@@ -260,10 +268,32 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     hasCompleted(state: GameEngineComponentState): boolean {
-        return false;
+        return this.battleComplete;
     }
 
     reset(state: GameEngineComponentState): void {
+        [
+            this.missionLoader,
+            this.cutscenePlayer,
+            this.playerSquaddieSelector,
+            this.playerSquaddieTarget,
+            this.computerSquaddieSelector,
+            this.squaddieMapActivity,
+            this.squaddieMover,
+            this.mapDisplay,
+            this.phaseController,
+            this.squaddieSquaddieActivity,
+        ].filter((component: BattleOrchestratorComponent) => component)
+            .forEach((component: BattleOrchestratorComponent) => {
+                component.reset(state as BattleOrchestratorState);
+            });
+
+        this.resetInternalState();
+
+        const squaddieRepo = (state as BattleOrchestratorState).squaddieRepository;
+        if (squaddieRepo) {
+            squaddieRepo.reset();
+        }
     }
 
     setup({
@@ -305,8 +335,19 @@ export class BattleOrchestrator implements GameEngineComponent {
         );
     }
 
-    private maybeChangeModeBasedOnCompletedButUnrewardedMissionObjectives(state: BattleOrchestratorState, completedObjectives: MissionObjective[]): boolean {
+    private calculateChangesBasedOnUnrewardedMissionObjectives(state: BattleOrchestratorState, completedObjectives: MissionObjective[]): {
+        completionStatus: BattleCompletionStatus,
+        nextMode: BattleOrchestratorMode,
+    } {
         const victoryObjective = completedObjectives.find((objective: MissionObjective) => objective.reward.rewardType === MissionRewardType.VICTORY);
+
+        let returnValue: {
+            nextMode: BattleOrchestratorMode,
+            completionStatus: BattleCompletionStatus
+        } = {
+            nextMode: undefined,
+            completionStatus: undefined,
+        };
 
         let info;
         if (victoryObjective) {
@@ -314,6 +355,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 nextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
                 cutsceneId: victoryObjective.cutsceneToPlayUponCompletion,
             };
+            returnValue.completionStatus = BattleCompletionStatus.VICTORY;
         }
 
         if (info) {
@@ -322,9 +364,20 @@ export class BattleOrchestrator implements GameEngineComponent {
             }
             if (info.nextMode) {
                 this.mode = info.nextMode;
-                return true;
+                returnValue.nextMode = info.nextMode;
+                return returnValue;
             }
         }
-        return undefined;
+        return {
+            nextMode: undefined,
+            completionStatus: undefined
+        };
+    }
+
+    private resetInternalState() {
+        this.mode = BattleOrchestratorMode.UNKNOWN;
+        this._uiControlSettings = new UIControlSettings({});
+
+        this._battleComplete = false;
     }
 }

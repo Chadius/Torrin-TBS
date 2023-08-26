@@ -149,6 +149,7 @@ export class TitleScreen implements GameEngineComponent {
         this.byLine = undefined;
         this.titleText = undefined;
         this._showingLoadingMessage = false;
+        this._newGameSelected = false;
     }
 
     private drawTitleBanner(state: TitleScreenState, p: p5) {

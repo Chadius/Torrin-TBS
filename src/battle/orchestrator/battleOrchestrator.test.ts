@@ -25,8 +25,9 @@ import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleCo
 import {MouseButton} from "../../utils/mouseConfig";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {Cutscene} from "../../cutscene/cutscene";
-import {BattleCompletionStatus, BattleGameBoard} from "./battleGameBoard";
+import {BattleCompletionStatus} from "./battleGameBoard";
 import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "./missionCutsceneCollection";
+import {GameModeEnum} from "../../utils/startupConfig";
 
 
 describe('Battle Orchestrator', () => {
@@ -372,47 +373,74 @@ describe('Battle Orchestrator', () => {
         expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
     });
 
-    it('will check for victory conditions once the squaddie finishes moving', () => {
-        const mockCutscene: Cutscene = new Cutscene({});
-        const cutsceneCollection: MissionCutsceneCollection = new MissionCutsceneCollection({
-            cutsceneById: {
-                [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
-            }
+    describe('End of Battle', () => {
+        let mockCutscene: Cutscene;
+        let cutsceneCollection: MissionCutsceneCollection;
+        let cutscenePlayer: BattleCutscenePlayer;
+        let missionObjectiveCompleteCheck: jest.SpyInstance;
+
+        beforeEach(() => {
+            mockCutscene = new Cutscene({});
+            cutsceneCollection = new MissionCutsceneCollection({
+                cutsceneById: {
+                    [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
+                }
+            });
+            cutscenePlayer = new BattleCutscenePlayer();
+
+            nullState = new BattleOrchestratorState({
+                hexMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
+                battleSquaddieSelectedHUD: mockHud,
+                cutsceneCollection,
+            });
+
+            nullState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
+
+            orchestrator = createOrchestrator({
+                initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
+                cutscenePlayer,
+            });
+
+            missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
         });
-        const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        jest.spyOn(cutscenePlayer, "recommendStateChanges").mockReturnValue({
-            completionStatus: BattleCompletionStatus.VICTORY,
+
+        it('will check for victory conditions once the squaddie finishes moving', () => {
+            expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+
+            orchestrator.update(nullState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(nullState)).toBeTruthy();
+
+            expect(missionObjectiveCompleteCheck).toBeCalled();
+
+            expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
+            expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
+            expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
+
+            orchestrator.update(nullState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(nullState)).toBeTruthy();
+            expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.VICTORY);
         });
 
-        nullState = new BattleOrchestratorState({
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
-            }),
-            battleSquaddieSelectedHUD: mockHud,
-            cutsceneCollection,
+        it('will mark the battle as complete once the victory cutscene ends', () => {
+            orchestrator.update(nullState, mockedP5);
+            orchestrator.update(nullState, mockedP5);
+            orchestrator.update(nullState, mockedP5);
+            expect(orchestrator.hasCompleted(nullState)).toBeTruthy();
+            expect(orchestrator.recommendStateChanges(nullState)).toStrictEqual({
+                nextMode: GameModeEnum.TITLE_SCREEN
+            });
         });
 
-        nullState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
-
-        orchestrator = createOrchestrator({
-            initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
-            cutscenePlayer,
+        it('after resetting it will not immediately complete', () => {
+            orchestrator.update(nullState, mockedP5);
+            orchestrator.update(nullState, mockedP5);
+            orchestrator.update(nullState, mockedP5);
+            expect(orchestrator.hasCompleted(nullState)).toBeTruthy();
+            orchestrator.reset(nullState);
+            expect(orchestrator.hasCompleted(nullState)).toBeFalsy();
         });
-        expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
-
-        const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
-
-        orchestrator.update(nullState, mockedP5);
-
-        expect(missionObjectiveCompleteCheck).toBeCalled();
-
-        expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
-        expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
-
-        orchestrator.update(nullState, mockedP5);
-        expect(cutscenePlayer.hasCompleted(nullState)).toBeTruthy();
-        expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.VICTORY);
     });
 
     it('will update its UI Control Settings after updating', () => {

@@ -8,31 +8,35 @@ export enum BattleCompletionStatus {
 }
 
 export class BattleGameBoard {
-    set cutsceneCollection(value: MissionCutsceneCollection) {
-        this._cutsceneCollection = value;
-    }
-    get cutsceneCollection(): MissionCutsceneCollection {
-        return this._cutsceneCollection;
-    }
-    set completionStatus(value: BattleCompletionStatus) {
-        this._completionStatus = value;
-    }
-    get completionStatus(): BattleCompletionStatus {
-        return this._completionStatus;
-    }
-    get objectives(): MissionObjective[] {
-        return this._objectives;
+    constructor({objectives, cutsceneCollection}: { objectives: MissionObjective[], cutsceneCollection: MissionCutsceneCollection }) {
+        this._cutsceneCollection = cutsceneCollection || new MissionCutsceneCollection({cutsceneById: {}});
+        this.constructMissionObjective(objectives);
     }
 
     private _objectives: MissionObjective[];
 
+    get objectives(): MissionObjective[] {
+        return this._objectives;
+    }
+
     private _completionStatus: BattleCompletionStatus;
+
+    get completionStatus(): BattleCompletionStatus {
+        return this._completionStatus;
+    }
+
+    set completionStatus(value: BattleCompletionStatus) {
+        this._completionStatus = value;
+    }
 
     private _cutsceneCollection: MissionCutsceneCollection;
 
-    constructor({objectives, cutsceneCollection}: {objectives: MissionObjective[], cutsceneCollection: MissionCutsceneCollection}) {
-        this._cutsceneCollection = cutsceneCollection || new MissionCutsceneCollection({cutsceneById: {}});
-        this.constructMissionObjective(objectives);
+    get cutsceneCollection(): MissionCutsceneCollection {
+        return this._cutsceneCollection;
+    }
+
+    set cutsceneCollection(value: MissionCutsceneCollection) {
+        this._cutsceneCollection = value;
     }
 
     private constructMissionObjective(objectives: MissionObjective[]) {

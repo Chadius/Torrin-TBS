@@ -20,16 +20,6 @@ import {BattleGameBoard} from "./battleGameBoard";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 
 export class BattleOrchestratorState {
-    get cutsceneCollection(): MissionCutsceneCollection {
-        return this._gameBoard.cutsceneCollection;
-    }
-    get gameBoard(): BattleGameBoard {
-        return this._gameBoard;
-    }
-    get objectives(): MissionObjective[] {
-        return this.gameBoard.objectives;
-    }
-
     resourceHandler: ResourceHandler;
     missionMap: MissionMap;
     hexMap: TerrainTileMap;
@@ -45,8 +35,6 @@ export class BattleOrchestratorState {
     squaddieCurrentlyActing: SquaddieInstructionInProgress;
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
-
-    private _gameBoard: BattleGameBoard;
 
     constructor(options: {
         cutsceneCollection?: MissionCutsceneCollection,
@@ -121,6 +109,20 @@ export class BattleOrchestratorState {
             objectives,
             cutsceneCollection,
         })
+    }
+
+    get cutsceneCollection(): MissionCutsceneCollection {
+        return this._gameBoard.cutsceneCollection;
+    }
+
+    get objectives(): MissionObjective[] {
+        return this.gameBoard.objectives;
+    }
+
+    private _gameBoard: BattleGameBoard;
+
+    get gameBoard(): BattleGameBoard {
+        return this._gameBoard;
     }
 
     private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {

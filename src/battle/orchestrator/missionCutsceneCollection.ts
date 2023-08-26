@@ -7,9 +7,6 @@ export class MissionCutsceneCollection {
         [id: string]: Cutscene
     }
 
-    get cutsceneById(): { [p: string]: Cutscene } {
-        return this._cutsceneById;
-    }
     constructor({cutsceneById}: {
         cutsceneById: { [id: string]: Cutscene }
     }) {
@@ -20,6 +17,10 @@ export class MissionCutsceneCollection {
         }
 
         this.createDefaultCutscenes();
+    }
+
+    get cutsceneById(): { [p: string]: Cutscene } {
+        return this._cutsceneById;
     }
 
     private createDefaultCutscenes() {

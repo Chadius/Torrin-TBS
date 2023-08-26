@@ -75,7 +75,6 @@ export class GameEngine {
         return this._resourceHandler;
     }
 
-    // todo can't define cutscenes here, dimensions is 0,0
     setup({graphicsContext}: { graphicsContext: p5 }) {
         this._battleOrchestrator = new BattleOrchestrator({
             missionLoader: new BattleMissionLoader(),
@@ -92,9 +91,8 @@ export class GameEngine {
 
         this.lazyLoadResourceHandler({graphicsContext});
 
-        this._battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
         this._titleScreen = new TitleScreen({resourceHandler: this.resourceHandler});
-        this._titleScreenState = this.titleScreen.setup({graphicsContext})
+        this.resetComponentStates(graphicsContext);
     }
 
     draw() {
@@ -119,9 +117,14 @@ export class GameEngine {
         if (this.component.hasCompleted(this.getComponentState())) {
             const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
             this.component.reset(this.getComponentState());
+            this.resetComponentStates(graphicsContext);
             this._currentMode = orchestrationChanges.nextMode || GameModeEnum.TITLE_SCREEN;
         }
+    }
 
+    private resetComponentStates(graphicsContext: p5) {
+        this._battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
+        this._titleScreenState = this.titleScreen.setup({graphicsContext})
     }
 
     private getComponentState(): GameEngineComponentState {

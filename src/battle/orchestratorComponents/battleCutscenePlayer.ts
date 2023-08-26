@@ -11,7 +11,8 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene} from "../../cutscene/cutscene";
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
-    constructor() {}
+    constructor() {
+    }
 
     private _currentCutscene: Cutscene;
 

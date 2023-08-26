@@ -36,7 +36,11 @@ export class SquaddieInstructionInProgress {
     }
 
     get dynamicSquaddieId(): string {
-        return this._instruction.dynamicSquaddieId;
+        if (this._instruction !== undefined) {
+            return this._instruction.dynamicSquaddieId;
+        }
+
+        return "";
     }
 
     isReadyForNewSquaddie(): boolean {
