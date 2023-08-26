@@ -32,6 +32,9 @@ import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "../orchestrator/missionCutsceneCollection";
+import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {MissionConditionDefeatAllEnemies} from "../missionResult/missionConditionDefeatAllEnemies";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -63,6 +66,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             this.loadMap(state);
             this.loadSquaddies(state);
             this.loadCutscenes(state);
+            this.loadObjectives(state);
             return;
         }
         if (this.startedLoading && state.resourceHandler.areAllResourcesLoaded([
@@ -371,5 +375,20 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 }),
             }
         })
+    }
+
+    private loadObjectives(state: BattleOrchestratorState) {
+        state.gameBoard.objectives = [
+            new MissionObjective({
+                reward: new MissionReward({
+                    rewardType: MissionRewardType.VICTORY,
+                }),
+                conditions: [
+                    new MissionConditionDefeatAllEnemies({squaddieRepository: state.squaddieRepository})
+                ],
+                cutsceneToPlayUponCompletion: "default_victory",
+                numberOfCompletedConditions: "all",
+            })
+        ]
     }
 }

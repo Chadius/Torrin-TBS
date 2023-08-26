@@ -8,6 +8,10 @@ export enum BattleCompletionStatus {
 }
 
 export class BattleGameBoard {
+    set objectives(value: MissionObjective[]) {
+        this.constructMissionObjective(value);
+    }
+
     constructor({objectives, cutsceneCollection}: { objectives: MissionObjective[], cutsceneCollection: MissionCutsceneCollection }) {
         this._cutsceneCollection = cutsceneCollection || new MissionCutsceneCollection({cutsceneById: {}});
         this.constructMissionObjective(objectives);
@@ -40,8 +44,9 @@ export class BattleGameBoard {
     }
 
     private constructMissionObjective(objectives: MissionObjective[]) {
-        if (objectives) {
+        if (objectives && objectives.length > 0) {
             this._objectives = objectives;
+            return;
         }
 
         this._objectives = [
