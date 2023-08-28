@@ -13,8 +13,13 @@ export class SquaddieInstructionInProgress {
         currentSquaddieActivity?: SquaddieActivity,
     }) {
         this._instruction = options.instruction;
-        this._currentSquaddieActivity = options.currentSquaddieActivity;
+        this._currentlySelectedActivity = options.currentSquaddieActivity;
         this._movingSquaddieDynamicIds = [];
+    }
+
+    get squaddieHasActedThisTurn(): boolean {
+        return this.instruction !== undefined
+            && this.instruction.activities.length > 0;
     }
 
     private _instruction?: SquaddieInstruction;
@@ -23,10 +28,10 @@ export class SquaddieInstructionInProgress {
         return this._instruction;
     }
 
-    private _currentSquaddieActivity?: SquaddieActivity;
+    private _currentlySelectedActivity?: SquaddieActivity;
 
-    get currentSquaddieActivity(): SquaddieActivity {
-        return this._currentSquaddieActivity;
+    get currentlySelectedActivity(): SquaddieActivity {
+        return this._currentlySelectedActivity;
     }
 
     private _movingSquaddieDynamicIds: string[];
@@ -43,13 +48,13 @@ export class SquaddieInstructionInProgress {
         return "";
     }
 
-    isReadyForNewSquaddie(): boolean {
-        return this._instruction === undefined && this._currentSquaddieActivity === undefined;
+    get isReadyForNewSquaddie(): boolean {
+        return !this.squaddieHasActedThisTurn && this._currentlySelectedActivity === undefined;
     }
 
     reset() {
         this._instruction = undefined;
-        this._currentSquaddieActivity = undefined;
+        this._currentlySelectedActivity = undefined;
         this._movingSquaddieDynamicIds = [];
     }
 
@@ -92,7 +97,7 @@ export class SquaddieInstructionInProgress {
             throw new Error("no squaddie found, cannot add activity");
         }
 
-        this._currentSquaddieActivity = activity;
+        this._currentlySelectedActivity = activity;
     }
 
     markSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
@@ -110,5 +115,13 @@ export class SquaddieInstructionInProgress {
         this._movingSquaddieDynamicIds = this.movingSquaddieDynamicIds.filter(
             (id) => id !== dynamicSquaddieId
         );
+    }
+
+    cancelSelectedActivity() {
+        this._currentlySelectedActivity = undefined;
+
+        if (!this.squaddieHasActedThisTurn) {
+            this.reset();
+        }
     }
 }

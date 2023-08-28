@@ -38,9 +38,9 @@ describe('Current Squaddie Instruction', () => {
             }),
         });
 
-        expect(newInstruction.isReadyForNewSquaddie()).toBeFalsy();
+        expect(newInstruction.isReadyForNewSquaddie).toBeFalsy();
         newInstruction.reset();
-        expect(newInstruction.isReadyForNewSquaddie()).toBeTruthy();
+        expect(newInstruction.isReadyForNewSquaddie).toBeTruthy();
     });
 
     it('will accept new squaddie and activity if it is reset', () => {
@@ -61,7 +61,7 @@ describe('Current Squaddie Instruction', () => {
 
         torrinInstruction.addActivity(purifyingBlastActivity);
         expect(initialInstruction).toStrictEqual(torrinInstruction);
-        expect(newInstruction.currentSquaddieActivity).toStrictEqual(purifyingBlast);
+        expect(newInstruction.currentlySelectedActivity).toStrictEqual(purifyingBlast);
 
         newInstruction.addConfirmedActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 2, r: 3}),

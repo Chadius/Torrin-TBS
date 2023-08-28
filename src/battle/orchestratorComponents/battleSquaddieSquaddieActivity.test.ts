@@ -207,7 +207,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
 
         squaddieSquaddieActivity.reset(state);
         expect(squaddieSquaddieActivity.actionAnimationTimer.hasBeenStarted()).toBeFalsy();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
     });
 
     it('can wait half a second after activity completes', () => {
@@ -257,7 +257,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
 
         squaddieSquaddieActivity.reset(state);
         expect(squaddieSquaddieActivity.actionAnimationTimer.hasBeenStarted()).toBeFalsy();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();
         expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
     });
 

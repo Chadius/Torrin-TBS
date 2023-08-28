@@ -189,7 +189,7 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
             staticSquaddie: actorStatic,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(mostRecentResults.actingSquaddieDynamicId));
 
-        const activity = state.battleEventRecording.mostRecentEvent.instruction.currentSquaddieActivity;
+        const activity = state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedActivity;
         this.actorTextWindow.start({
             actorStatic,
             actorDynamic,

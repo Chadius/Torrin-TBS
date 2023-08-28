@@ -145,7 +145,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         state: BattleOrchestratorState,
         activity: SquaddieSquaddieActivity,
     ) {
-        const ability = state.squaddieCurrentlyActing.currentSquaddieActivity;
+        const ability = state.squaddieCurrentlyActing.currentlySelectedActivity;
 
         const tilesTargeted: HexCoordinate[] = getResultOrThrowError(state.pathfinder.getAllReachableTiles(new SearchParams({
                 canStopOnSquaddies: true,
@@ -178,7 +178,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
 
         state.squaddieCurrentlyActing.addConfirmedActivity(activity);
-        dynamicSquaddie.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentSquaddieActivity);
+        dynamicSquaddie.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentlySelectedActivity);
         const instructionResults = CalculateResults(state, dynamicSquaddie, activity.targetLocation);
 
         const newEvent: BattleEvent = new BattleEvent({
@@ -234,7 +234,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         if (!state.squaddieCurrentlyActing) {
             state.squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
         }
-        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
+        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
             state.squaddieCurrentlyActing.addSquaddie({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
                 staticSquaddieId: staticSquaddie.staticId,
@@ -316,7 +316,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         if (this.activityDescription === undefined) {
             const outputTextStrings = FormatIntent({
                 squaddieRepository: state.squaddieRepository,
-                currentActivity: state.squaddieCurrentlyActing.currentSquaddieActivity,
+                currentActivity: state.squaddieCurrentlyActing.currentlySelectedActivity,
                 actingDynamicId: state.squaddieCurrentlyActing.dynamicSquaddieId,
             });
 

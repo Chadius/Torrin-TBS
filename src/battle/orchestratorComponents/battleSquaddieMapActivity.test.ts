@@ -71,6 +71,6 @@ describe('BattleSquaddieMapActivity', () => {
 
         mapActivity.reset(state);
         expect(mapActivity.animationCompleteStartTime).toBeUndefined();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
     });
 });

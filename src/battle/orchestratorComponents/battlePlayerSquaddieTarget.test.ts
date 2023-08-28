@@ -27,6 +27,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -197,6 +198,56 @@ describe('BattleSquaddieTarget', () => {
             const recommendedInfo = targetComponent.recommendStateChanges(state);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
         });
+    });
+
+    it('should clear whoever is acting if they cancel at the start of the turn', () => {
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: ScreenDimensions.SCREEN_WIDTH,
+            mouseY: ScreenDimensions.SCREEN_HEIGHT,
+        };
+
+        state.squaddieCurrentlyActing = new SquaddieInstructionInProgress({
+            instruction: new SquaddieInstruction({
+                dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+                staticSquaddieId: knightStatic.staticId,
+                startingLocation: new HexCoordinate({q: 1, r: 1}),
+            }),
+            currentSquaddieActivity: longswordActivity,
+        });
+
+        targetComponent.mouseEventHappened(state, mouseEvent);
+        expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeFalsy();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
+    });
+
+    it('should remember the squaddie is still acting if they cancel midway through their turn', () => {
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: ScreenDimensions.SCREEN_WIDTH,
+            mouseY: ScreenDimensions.SCREEN_HEIGHT,
+        };
+
+        const moveInstruction = new SquaddieInstruction({
+            dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+            staticSquaddieId: knightStatic.staticId,
+            startingLocation: new HexCoordinate({q: 1, r: 1}),
+        });
+        moveInstruction.addActivity(new SquaddieMovementActivity({
+            destination: new HexCoordinate({q: 0, r: 1}),
+            numberOfActionsSpent: 1,
+        }));
+
+        const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
+            instruction: moveInstruction,
+            currentSquaddieActivity: longswordActivity,
+        });
+        state.squaddieCurrentlyActing = squaddieInstructionInProgress;
+
+        targetComponent.mouseEventHappened(state, mouseEvent);
+        expect(state.squaddieCurrentlyActing).toStrictEqual(squaddieInstructionInProgress);
+        expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeTruthy();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();
     });
 
     it('should ignore if the user does not click off of the map', () => {

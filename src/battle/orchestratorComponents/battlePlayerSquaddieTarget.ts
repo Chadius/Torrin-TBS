@@ -52,6 +52,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > buttonTop) {
                     this.cancelAbility = true;
+                    state.squaddieCurrentlyActing.cancelSelectedActivity();
                     state.hexMap.stopHighlightingTiles();
                     return;
                 } else {
@@ -139,7 +140,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private highlightTargetRange(state: BattleOrchestratorState) {
-        const ability = state.squaddieCurrentlyActing.currentSquaddieActivity;
+        const ability = state.squaddieCurrentlyActing.currentlySelectedActivity;
 
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId);
         const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
@@ -278,6 +279,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private cancelTargetSelection(state: BattleOrchestratorState) {
+        state.squaddieCurrentlyActing.cancelSelectedActivity();
         this.hasSelectedValidTarget = false;
     }
 
@@ -287,7 +289,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
         const actingSquaddieInfo = state.missionMap.getSquaddieByDynamicId(actingSquaddieDynamic.dynamicSquaddieId);
 
-        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
+        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
             state.squaddieCurrentlyActing.addSquaddie({
                 dynamicSquaddieId: actingSquaddieDynamic.dynamicSquaddieId,
                 staticSquaddieId: actingSquaddieStatic.staticId,
@@ -298,11 +300,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         state.squaddieCurrentlyActing.addConfirmedActivity(
             new SquaddieSquaddieActivity({
                 targetLocation: this.validTargetLocation,
-                squaddieActivity: state.squaddieCurrentlyActing.currentSquaddieActivity,
+                squaddieActivity: state.squaddieCurrentlyActing.currentlySelectedActivity,
             })
         );
 
-        actingSquaddieDynamic.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentSquaddieActivity);
+        actingSquaddieDynamic.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentlySelectedActivity);
         const instructionResults = CalculateResults(state, actingSquaddieDynamic, this.validTargetLocation);
 
         const newEvent: BattleEvent = new BattleEvent({

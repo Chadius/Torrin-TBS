@@ -237,7 +237,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie();
+        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie;
         const squaddieToHighlightDynamicId: string = startOfANewSquaddieTurn
             ? squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId
             : state.battleSquaddieUIInput.selectedSquaddieDynamicID;
@@ -280,7 +280,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private isHudInstructingTheCurrentlyActingSquaddie(state: BattleOrchestratorState): boolean {
-        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie();
+        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie;
         const squaddieShownInHUD = state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId();
 
         if (
@@ -303,7 +303,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
-        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
+        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
             state.squaddieCurrentlyActing.addSquaddie({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
                 staticSquaddieId: staticSquaddie.staticId,
@@ -334,7 +334,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (
             !this.initialFocusOnSquaddie
             && state.squaddieCurrentlyActing
-            && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
+            && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
         ) {
             state.battleSquaddieUIInput.changeSelectionState(
                 BattleSquaddieUISelectionState.SELECTED_SQUADDIE,

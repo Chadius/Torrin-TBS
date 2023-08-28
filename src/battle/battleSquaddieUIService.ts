@@ -87,7 +87,7 @@ const ProcessNoSquaddieSelected = (state: BattleSquaddieUIInput): BattleSquaddie
 
     if (
         state.squaddieInstructionInProgress
-        && !state.squaddieInstructionInProgress.isReadyForNewSquaddie()
+        && !state.squaddieInstructionInProgress.isReadyForNewSquaddie
     ) {
         return BattleSquaddieUISelectionState.SELECTED_SQUADDIE;
     }

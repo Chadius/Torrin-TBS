@@ -407,7 +407,7 @@ export class BattleSquaddieSelectedHUD {
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, p: p5) {
         if (
             !squaddieCurrentlyActing
-            || squaddieCurrentlyActing.isReadyForNewSquaddie()
+            || squaddieCurrentlyActing.isReadyForNewSquaddie
         ) {
             return;
         }
@@ -487,7 +487,6 @@ export class BattleSquaddieSelectedHUD {
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
-
         if (normalActionsRemaining < activity.actionsToSpend) {
             return ActivityValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTIONS;
         }

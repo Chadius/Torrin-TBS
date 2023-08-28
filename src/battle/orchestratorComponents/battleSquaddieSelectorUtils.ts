@@ -111,9 +111,9 @@ export function CalculateResults(state: BattleOrchestratorState, actingSquaddieD
     } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(targetedSquaddieDynamicId));
     const targetedSquaddieDynamicIds: string[] = [targetedSquaddieDynamicId];
     let damageDealt = 0;
-    Object.keys(state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions).forEach((damageTypeStr: string) => {
+    Object.keys(state.squaddieCurrentlyActing.currentlySelectedActivity.damageDescriptions).forEach((damageTypeStr: string) => {
         const damageType = parseInt(damageTypeStr) as DamageType;
-        const activityDamage = state.squaddieCurrentlyActing.currentSquaddieActivity.damageDescriptions[damageType]
+        const activityDamage = state.squaddieCurrentlyActing.currentlySelectedActivity.damageDescriptions[damageType]
         const {damageTaken: damageTakenByThisType} = DealDamageToTheSquaddie({
             staticSquaddie: targetedSquaddieStatic,
             dynamicSquaddie: targetedSquaddieDynamic,

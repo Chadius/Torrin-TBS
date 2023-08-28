@@ -202,41 +202,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    private setNextComponentMode(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
-        const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
-
-        let nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode = undefined;
-        let completionStatus: BattleCompletionStatus;
-        if (orchestrationChanges.checkMissionObjectives === true) {
-            ({
-                nextModeFromUnrewardedMissionObjective,
-                    completionStatus
-            } = this.findModeChangesAndCompletionStatusFromMissionObjectives(state, nextModeFromUnrewardedMissionObjective));
-        }
-
-        if (nextModeFromUnrewardedMissionObjective === undefined) {
-            this.mode = orchestrationChanges.nextMode || defaultNextMode;
-        }
-        if (completionStatus) {
-            state.gameBoard.completionStatus = completionStatus;
-        }
-    }
-
-    private findModeChangesAndCompletionStatusFromMissionObjectives(state: BattleOrchestratorState, nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode): {
-        nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode; completionStatus: BattleCompletionStatus
-    } {
-        let completionStatus: BattleCompletionStatus;
-        const completedObjectives: MissionObjective[] = this.findCompleteButUnrewardedMissionObjectives(state);
-        ({nextMode: nextModeFromUnrewardedMissionObjective, completionStatus}
-                = this.calculateChangesBasedOnUnrewardedMissionObjectives(state, completedObjectives)
-        );
-
-        return {
-            nextModeFromUnrewardedMissionObjective,
-            completionStatus
-        }
-    }
-
     public mouseClicked(state: BattleOrchestratorState, mouseButton: MouseButton, mouseX: number, mouseY: number) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -338,6 +303,41 @@ export class BattleOrchestrator implements GameEngineComponent {
                 NONE: [new EndTurnTeamStrategy()],
             }
         });
+    }
+
+    private setNextComponentMode(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
+        const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
+
+        let nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode = undefined;
+        let completionStatus: BattleCompletionStatus;
+        if (orchestrationChanges.checkMissionObjectives === true) {
+            ({
+                nextModeFromUnrewardedMissionObjective,
+                completionStatus
+            } = this.findModeChangesAndCompletionStatusFromMissionObjectives(state, nextModeFromUnrewardedMissionObjective));
+        }
+
+        if (nextModeFromUnrewardedMissionObjective === undefined) {
+            this.mode = orchestrationChanges.nextMode || defaultNextMode;
+        }
+        if (completionStatus) {
+            state.gameBoard.completionStatus = completionStatus;
+        }
+    }
+
+    private findModeChangesAndCompletionStatusFromMissionObjectives(state: BattleOrchestratorState, nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode): {
+        nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode; completionStatus: BattleCompletionStatus
+    } {
+        let completionStatus: BattleCompletionStatus;
+        const completedObjectives: MissionObjective[] = this.findCompleteButUnrewardedMissionObjectives(state);
+        ({nextMode: nextModeFromUnrewardedMissionObjective, completionStatus}
+                = this.calculateChangesBasedOnUnrewardedMissionObjectives(state, completedObjectives)
+        );
+
+        return {
+            nextModeFromUnrewardedMissionObjective,
+            completionStatus
+        }
     }
 
     private updateUnknown(_: BattleOrchestratorState) {

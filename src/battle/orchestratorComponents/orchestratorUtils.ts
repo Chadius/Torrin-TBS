@@ -10,7 +10,7 @@ import {highlightSquaddieReach} from "../animation/mapHighlight";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
-    if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()) {
+    if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
         const {dynamicSquaddie, staticSquaddie} = getResultOrThrowError(
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
@@ -24,7 +24,7 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: Battle
 export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.squaddieCurrentlyActing
-        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
+        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
     ) {
         const {
             staticSquaddie,
@@ -48,7 +48,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
 export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.squaddieCurrentlyActing
-        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie()
+        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
     ) {
         const {
             staticSquaddie,

@@ -132,7 +132,7 @@ describe('BattleSquaddieMover', () => {
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
+        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
         expect(state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving("player_1")).toBeFalsy();
     });
 
@@ -219,7 +219,7 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5);
             mover.reset(state);
-            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeTruthy();
+            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
 
             expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
@@ -256,7 +256,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5);
             mover.reset(state);
 
-            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
+            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();
             expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
 
@@ -292,7 +292,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5);
             mover.reset(state);
 
-            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie()).toBeFalsy();
+            expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();
             expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
     });

@@ -515,7 +515,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
-        expect(state.squaddieCurrentlyActing.currentSquaddieActivity).toStrictEqual(longswordActivity);
+        expect(state.squaddieCurrentlyActing.currentlySelectedActivity).toStrictEqual(longswordActivity);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
@@ -697,7 +697,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: 0,
                 mouseY: 0
             });
-            expect(state.squaddieCurrentlyActing.currentSquaddieActivity).toBeUndefined();
+            expect(state.squaddieCurrentlyActing.currentlySelectedActivity).toBeUndefined();
 
             expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
             expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
