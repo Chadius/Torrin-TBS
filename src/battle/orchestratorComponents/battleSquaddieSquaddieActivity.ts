@@ -197,9 +197,8 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
         });
 
         this.actorSprite.start({
-            actorStatic,
-            actorDynamic,
-            activity,
+            actorDynamicSquaddieId: actorDynamic.dynamicSquaddieId,
+            squaddieRepository: state.squaddieRepository,
             resourceHandler: state.resourceHandler,
             windowArea: this.actorTextWindow.actorLabel.rectangle.area,
         })
@@ -215,15 +214,10 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
         [p: string]: ActivityResult
     }) {
         this._targetSprites = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string, index: number) => {
-            const {
-                dynamicSquaddie: targetDynamic,
-                staticSquaddie: targetStatic,
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicId));
-
             const targetSprite = new TargetSprite();
             targetSprite.start({
-                targetStatic,
-                targetDynamic,
+                targetDynamicSquaddieId: dynamicId,
+                squaddieRepository: state.squaddieRepository,
                 activity,
                 result: resultPerTarget[dynamicId],
                 resourceHandler: state.resourceHandler,

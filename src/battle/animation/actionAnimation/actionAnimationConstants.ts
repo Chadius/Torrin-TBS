@@ -20,4 +20,8 @@ export enum ActionAnimationPhase {
 
 export enum SquaddieEmotion {
     "NEUTRAL" = "NEUTRAL",
+    "ATTACK" = "ATTACK",
+    "TARGETED" = "TARGETED",
+    "DAMAGED" = "DAMAGED",
+    "DEAD" = "DEAD",
 }

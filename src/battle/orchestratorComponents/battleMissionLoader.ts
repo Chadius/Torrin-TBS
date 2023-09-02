@@ -155,7 +155,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     resources: new SquaddieResource({
                         mapIconResourceKey: "map icon young torrin",
                         actionSpriteByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]: "young torrin cutscene portrait",
+                            [SquaddieEmotion.NEUTRAL]: "combat-young-torrin-neutral",
+                            [SquaddieEmotion.ATTACK]: "combat-young-torrin-attack",
+                            [SquaddieEmotion.TARGETED]: "combat-young-torrin-targeted",
+                            [SquaddieEmotion.DAMAGED]: "combat-young-torrin-damaged",
+                            [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
                         },
                     }),
                     traits: new TraitStatusStorage({
@@ -220,7 +224,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     resources: new SquaddieResource({
                         mapIconResourceKey: "map icon sir camil",
                         actionSpriteByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]: "sir camil cutscene portrait",
+                            [SquaddieEmotion.NEUTRAL]: "combat-sir-camil-neutral",
+                            [SquaddieEmotion.ATTACK]: "combat-sir-camil-attack",
+                            [SquaddieEmotion.TARGETED]: "combat-sir-camil-targeted",
+                            [SquaddieEmotion.DAMAGED]: "combat-sir-camil-damaged",
+                            [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
                         },
                     }),
                     traits: new TraitStatusStorage({
@@ -263,7 +271,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     resources: new SquaddieResource({
                         mapIconResourceKey: "map icon demon slither",
                         actionSpriteByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]: "action neutral demon slither",
+                            [SquaddieEmotion.NEUTRAL]: "combat-demon-slither-neutral",
+                            [SquaddieEmotion.ATTACK]: "combat-demon-slither-attack",
+                            [SquaddieEmotion.TARGETED]: "combat-demon-slither-targeted",
+                            [SquaddieEmotion.DAMAGED]: "combat-demon-slither-damaged",
+                            [SquaddieEmotion.DEAD]: "combat-demon-slither-dead",
                         },
                     }),
                     traits: new TraitStatusStorage({

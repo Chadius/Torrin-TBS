@@ -244,6 +244,81 @@ export class GameEngine {
                         path: "assets/action-neutral-demon-slither.png",
                         key: "action neutral demon slither",
                     },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-demon-slither-attack.png",
+                        key: "combat-demon-slither-attack",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-demon-slither-damaged.png",
+                        key: "combat-demon-slither-damaged",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-demon-slither-dead.png",
+                        key: "combat-demon-slither-dead",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-demon-slither-neutral.png",
+                        key: "combat-demon-slither-neutral",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-demon-slither-targeted.png",
+                        key: "combat-demon-slither-targeted",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-sir-camil-attack.png",
+                        key: "combat-sir-camil-attack",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-sir-camil-damaged.png",
+                        key: "combat-sir-camil-damaged",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-sir-camil-dead.png",
+                        key: "combat-sir-camil-dead",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-sir-camil-neutral.png",
+                        key: "combat-sir-camil-neutral",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-sir-camil-targeted.png",
+                        key: "combat-sir-camil-targeted",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-young-torrin-attack.png",
+                        key: "combat-young-torrin-attack",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-young-torrin-damaged.png",
+                        key: "combat-young-torrin-damaged",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-young-torrin-dead.png",
+                        key: "combat-young-torrin-dead",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-young-torrin-neutral.png",
+                        key: "combat-young-torrin-neutral",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-young-torrin-targeted.png",
+                        key: "combat-young-torrin-targeted",
+                    }
                 ],
             })
         }

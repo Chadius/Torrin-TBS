@@ -8,14 +8,15 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battleSquaddie";
 import {SquaddieActivity} from "../../../squaddie/activity";
 import {ScreenDimensions} from "../../../utils/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
-import {ImageUI} from "../../../ui/imageUI";
 import {ActivityResult} from "../../history/activityResult";
 import {SquaddieSprite} from "./squaddieSprite";
+import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
+import {getResultOrThrowError} from "../../../utils/ResultOrError";
+import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 
 export class TargetSprite {
     constructor() {
@@ -34,13 +35,34 @@ export class TargetSprite {
         return this._sprite;
     }
 
-    reset() {
-        this._sprite = undefined;
+    private _dynamicSquaddieId: string;
+
+    get dynamicSquaddieId(): string {
+        return this._dynamicSquaddieId;
     }
 
-    start({targetStatic, targetDynamic, activity, result, windowArea, resourceHandler}: {
-        targetStatic: BattleSquaddieStatic,
-        targetDynamic: BattleSquaddieDynamic,
+    private _squaddieRepository: BattleSquaddieRepository;
+
+    get squaddieRepository(): BattleSquaddieRepository {
+        return this._squaddieRepository;
+    }
+
+    private _activityResult: ActivityResult;
+
+    get activityResult(): ActivityResult {
+        return this._activityResult;
+    }
+
+    reset() {
+        this._sprite = undefined;
+        this._dynamicSquaddieId = undefined;
+        this._squaddieRepository = undefined;
+        this._activityResult = undefined;
+    }
+
+    start({targetDynamicSquaddieId, squaddieRepository, activity, result, windowArea, resourceHandler}: {
+        targetDynamicSquaddieId: string,
+        squaddieRepository: BattleSquaddieRepository,
         activity: SquaddieActivity,
         result: ActivityResult,
         windowArea: RectArea,
@@ -49,10 +71,15 @@ export class TargetSprite {
         this.reset();
 
         this._startingPosition = windowArea.left;
+        this._squaddieRepository = squaddieRepository;
+        this._dynamicSquaddieId = targetDynamicSquaddieId;
+        this._activityResult = result;
+
+        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.dynamicSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
-            actionSpritesResourceKeysByEmotion: {...targetStatic.squaddieId.resources.actionSpritesByEmotion},
+            actionSpritesResourceKeysByEmotion: {...staticSquaddie.squaddieId.resources.actionSpritesByEmotion},
         });
         this.sprite.beginLoadingActorImages();
     }
@@ -70,10 +97,42 @@ export class TargetSprite {
         this.drawActorSprite(timer, graphicsContext);
     }
 
+    public getSquaddieEmotion({
+                                  timer,
+                                  dynamicSquaddieId,
+                                  squaddieRepository,
+                                  activityResult
+                              }: {
+        timer: ActionTimer,
+        dynamicSquaddieId: string,
+        squaddieRepository: BattleSquaddieRepository,
+        activityResult: ActivityResult
+    }): SquaddieEmotion {
+        switch (timer.currentPhase) {
+            case ActionAnimationPhase.DURING_ACTION:
+                return SquaddieEmotion.TARGETED;
+            case ActionAnimationPhase.TARGET_REACTS:
+            case ActionAnimationPhase.SHOWING_RESULTS:
+            case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
+                const {
+                    staticSquaddie,
+                    dynamicSquaddie
+                } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
+                const stillAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+                return stillAlive ? SquaddieEmotion.DAMAGED : SquaddieEmotion.DEAD;
+            default:
+                return SquaddieEmotion.NEUTRAL;
+        }
+    }
+
     getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: p5) {
-        let emotion: SquaddieEmotion = SquaddieEmotion.NEUTRAL;
-        const spriteToDraw: ImageUI = this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
-        return spriteToDraw;
+        let emotion: SquaddieEmotion = this.getSquaddieEmotion({
+            timer,
+            activityResult: this.activityResult,
+            dynamicSquaddieId: this.dynamicSquaddieId,
+            squaddieRepository: this.squaddieRepository
+        });
+        return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
     }
 
     private drawActorSprite(timer: ActionTimer, graphicsContext: p5) {
