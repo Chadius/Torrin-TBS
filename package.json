@@ -6,7 +6,8 @@
   "source": "src/index.html",
   "scripts": {
     "start": "ENV=production rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
-    "test": "ENV=development jest"
+    "test": "ENV=development jest",
+    "tsc": "tsc src/*.ts"
   },
   "author": "",
   "license": "ISC",

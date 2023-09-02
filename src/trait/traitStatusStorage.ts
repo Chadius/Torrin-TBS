@@ -8,13 +8,15 @@ export enum Trait {
     CROSS_OVER_PITS = "CROSS_OVER_PITS",
     PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
     TARGET_ARMOR = "TARGET_ARMOR",
+    SKIP_ANIMATION = "SKIP_ANIMATION",
 }
 
 export enum TraitCategory {
-    UNKNOWN,
-    ACTIVITY,
-    CREATURE,
-    MOVEMENT
+    UNKNOWN = "UNKNOWN",
+    ACTIVITY = "ACTIVITY",
+    CREATURE = "CREATURE",
+    MOVEMENT = "MOVEMENT",
+    ANIMATION = "ANIMATION",
 }
 
 const traitInformation: {
@@ -59,6 +61,10 @@ const traitInformation: {
         description: "These activities succeed based on the target's armor.",
         categories: [TraitCategory.ACTIVITY],
     },
+    [Trait.SKIP_ANIMATION]: {
+        description: "Activity does not require animation",
+        categories: [TraitCategory.ACTIVITY, TraitCategory.ANIMATION]
+    }
 }
 
 export class TraitStatusStorage {

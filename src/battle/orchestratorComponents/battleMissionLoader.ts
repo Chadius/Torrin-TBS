@@ -190,15 +190,13 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         }
                     }),
                     new SquaddieActivity({
-                        name: "too much water saber",
-                        id: "torrin_water_saber 4",
+                        name: "aquatic aura",
+                        id: "young_torrin_aquatic_aura",
                         minimumRange: 0,
                         maximumRange: 2,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
-                        actionsToSpend: 3,
-                        damageDescriptions: {
-                            [DamageType.Body]: 5
-                        }
+                        traits: new TraitStatusStorage({[Trait.SKIP_ANIMATION]: true}).filterCategory(TraitCategory.ACTIVITY),
+                        actionsToSpend: 1,
+                        damageDescriptions: {}
                     })
                 ],
             }),
