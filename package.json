@@ -7,7 +7,7 @@
   "scripts": {
     "start": "ENV=production rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
     "test": "ENV=development jest",
-    "tsc": "tsc src/*.ts"
+    "tsc": "./node_modules/.bin/tsc src/*.ts"
   },
   "author": "",
   "license": "ISC",
@@ -21,7 +21,7 @@
     "ts-jest": "^29.0.3",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4",
+    "typescript": "^4.9.5",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1"
