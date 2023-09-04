@@ -1,5 +1,5 @@
 import {SquaddieActivity} from "./activity";
-import {TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 
 describe('SquaddieActivity', () => {
     it('throws an error if non integer turns are used', () => {
@@ -60,5 +60,17 @@ describe('SquaddieActivity', () => {
         expect(() => {
             shouldThrowError()
         }).toThrow("Value must be an integer: 0.3");
+    });
+
+    it('uses the traits to determine if it is Harmful', () => {
+        const harmfulAttack = new SquaddieActivity({
+            name: "longsword",
+            id: "longsword",
+            traits: new TraitStatusStorage({
+                [Trait.ATTACK]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+        });
+        expect(harmfulAttack.isHelpful).toBeFalsy();
+        expect(harmfulAttack.isHindering).toBeTruthy();
     });
 });

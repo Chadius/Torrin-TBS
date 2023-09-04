@@ -1,5 +1,5 @@
 import {assertsInteger} from "../utils/mathAssert";
-import {TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType} from "./squaddieService";
 
@@ -83,6 +83,14 @@ export class SquaddieActivity {
 
         this._traits = options.traits;
         this._damageDescriptions = options.damageDescriptions ? {...options.damageDescriptions} : {};
+    }
+
+    get isHelpful(): boolean {
+        return false;
+    }
+
+    get isHindering(): boolean {
+        return this.traits.getStatus(Trait.ATTACK);
     }
 
     get damageDescriptions(): { [t in DamageType]?: number } {

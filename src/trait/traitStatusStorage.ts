@@ -9,6 +9,9 @@ export enum Trait {
     PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
     TARGET_ARMOR = "TARGET_ARMOR",
     SKIP_ANIMATION = "SKIP_ANIMATION",
+    TARGETS_SELF = "TARGETS_SELF",
+    TARGETS_FOE = "TARGETS_FOE",
+    TARGETS_ALLIES = "TARGETS_ALLIES",
 }
 
 export enum TraitCategory {
@@ -64,7 +67,19 @@ const traitInformation: {
     [Trait.SKIP_ANIMATION]: {
         description: "Activity does not require animation",
         categories: [TraitCategory.ACTIVITY, TraitCategory.ANIMATION]
-    }
+    },
+    [Trait.TARGETS_SELF]: {
+        description: "The acting Squaddie can target themself.",
+        categories: [TraitCategory.ACTIVITY],
+    },
+    [Trait.TARGETS_FOE]: {
+        description: "The acting Squaddie can target foes with this activity. Usually Harmful.",
+        categories: [TraitCategory.ACTIVITY],
+    },
+    [Trait.TARGETS_ALLIES]: {
+        description: "The acting Squaddie can target allies with this activity. Usually Helpful.",
+        categories: [TraitCategory.ACTIVITY],
+    },
 }
 
 export class TraitStatusStorage {
