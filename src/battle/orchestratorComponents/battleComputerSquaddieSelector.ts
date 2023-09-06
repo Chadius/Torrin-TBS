@@ -16,7 +16,7 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
-import {isCoordinateOnScreen, ScreenDimensions} from "../../utils/graphicsConfig";
+import {isCoordinateOnScreen} from "../../utils/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
@@ -31,9 +31,6 @@ import {
     createSearchPath,
     MaybeCreateSquaddieInstruction
 } from "./battleSquaddieSelectorUtils";
-import {Label} from "../../ui/label";
-import {RectArea} from "../../ui/rectArea";
-import {FormatIntent} from "../animation/activityResultTextWriter";
 import {SquaddieInstructionActivity} from "../history/squaddieInstructionActivity";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
@@ -41,7 +38,6 @@ export const SHOW_SELECTED_ACTIVITY_TIME = 500;
 
 export class BattleComputerSquaddieSelector implements BattleOrchestratorComponent {
     private showSelectedActivityWaitTime?: number;
-    private activityDescription: Label;
     private clickedToSkipActivityDescription: boolean;
     private mostRecentActivity: SquaddieInstructionActivity;
 
@@ -194,7 +190,6 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     private resetInternalState() {
         this.mostRecentActivity = undefined;
         this.showSelectedActivityWaitTime = undefined;
-        this.activityDescription = undefined;
         this.clickedToSkipActivityDescription = false;
     }
 
@@ -310,38 +305,5 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         if (newActivity instanceof SquaddieEndTurnActivity) {
             this.addEndTurnInstruction(state, squaddieInstruction.dynamicSquaddieId);
         }
-    }
-
-    private drawActivityDescription(state: BattleOrchestratorState, p: p5) {
-        if (this.activityDescription === undefined) {
-            const outputTextStrings = FormatIntent({
-                squaddieRepository: state.squaddieRepository,
-                currentActivity: state.squaddieCurrentlyActing.currentlySelectedActivity,
-                actingDynamicId: state.squaddieCurrentlyActing.dynamicSquaddieId,
-            });
-
-            const textToDraw = outputTextStrings.join("\n");
-
-            this.activityDescription = new Label({
-                area: new RectArea({
-                    startColumn: 4,
-                    endColumn: 10,
-                    screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                    screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                    percentTop: 40,
-                    percentHeight: 20,
-                }),
-                fillColor: [0, 0, 60],
-                strokeColor: [0, 0, 0],
-                strokeWeight: 4,
-
-                text: textToDraw,
-                textSize: 24,
-                fontColor: [0, 0, 16],
-                padding: [16, 0, 0, 16],
-            });
-        }
-
-        this.activityDescription.draw(p);
     }
 }

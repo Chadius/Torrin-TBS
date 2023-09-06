@@ -18,8 +18,9 @@ import {WINDOW_SPACING1} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActivityResult} from "../history/activityResult";
 import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 
-export class SquaddieTargetsOtherSquaddiesAnimator {
+export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;
     private startedShowingResults: boolean;
 

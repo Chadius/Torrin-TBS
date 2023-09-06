@@ -16,14 +16,33 @@ import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
+import {SquaddieActionAnimator} from "../animation/squaddieActionAnimator";
+import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionAnimator";
+import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
+import {Trait} from "../../trait/traitStatusStorage";
 
 export class BattleSquaddieSquaddieActivity implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
     private readonly _squaddieTargetsOtherSquaddiesAnimator: SquaddieTargetsOtherSquaddiesAnimator;
+    private readonly _squaddieSkipsAnimationAnimator: SquaddieSkipsAnimationAnimator;
 
     constructor() {
         this._squaddieTargetsOtherSquaddiesAnimator = new SquaddieTargetsOtherSquaddiesAnimator();
+        this._squaddieSkipsAnimationAnimator = new SquaddieSkipsAnimationAnimator();
         this.resetInternalState();
+    }
+
+    get squaddieSkipsAnimationAnimator(): SquaddieSkipsAnimationAnimator {
+        return this._squaddieSkipsAnimationAnimator;
+    }
+
+    private _squaddieActionAnimator: SquaddieActionAnimator
+
+    get squaddieActionAnimator(): SquaddieActionAnimator {
+        if (this._squaddieActionAnimator === undefined) {
+            this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
+        }
+        return this._squaddieActionAnimator;
     }
 
     get squaddieTargetsOtherSquaddiesAnimator(): SquaddieTargetsOtherSquaddiesAnimator {
@@ -36,7 +55,8 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.squaddieTargetsOtherSquaddiesAnimator.mouseEventHappened(state, event);
+            this.setSquaddieActionAnimatorBasedOnActivity(state);
+            this.squaddieActionAnimator.mouseEventHappened(state, event);
         }
     }
 
@@ -58,7 +78,8 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
     }
 
     reset(state: BattleOrchestratorState): void {
-        this.squaddieTargetsOtherSquaddiesAnimator.reset(state);
+        this.squaddieActionAnimator.reset(state);
+        this._squaddieActionAnimator = undefined;
         this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
@@ -66,8 +87,11 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
     }
 
     update(state: BattleOrchestratorState, p: p5): void {
-        this.squaddieTargetsOtherSquaddiesAnimator.update(state, p);
-        if (this.squaddieTargetsOtherSquaddiesAnimator.hasCompleted(state)) {
+        if (this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator) {
+            this.setSquaddieActionAnimatorBasedOnActivity(state);
+        }
+        this.squaddieActionAnimator.update(state, p);
+        if (this.squaddieActionAnimator.hasCompleted(state)) {
             this.hideDeadSquaddies(state);
             this.sawResultAftermath = true;
         }
@@ -89,5 +113,23 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
                 state.missionMap.updateSquaddieLocation(dynamicSquaddieId, undefined);
             }
         });
+    }
+
+    private setSquaddieActionAnimatorBasedOnActivity(state: BattleOrchestratorState) {
+        if (
+            state.battleEventRecording.mostRecentEvent === undefined
+            || state.battleEventRecording.mostRecentEvent.instruction === undefined
+            || state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedActivity === undefined
+        ) {
+            this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
+            return;
+        }
+
+        if (state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedActivity.traits.getStatus(Trait.SKIP_ANIMATION) === true) {
+            this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator;
+            return;
+        }
+
+        this._squaddieActionAnimator = this.squaddieTargetsOtherSquaddiesAnimator;
     }
 }
