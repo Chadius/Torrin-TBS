@@ -16,10 +16,15 @@ import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
+import {SquaddieActionAnimator} from "../animation/squaddieActionAnimator";
 
 export class BattleSquaddieSquaddieActivity implements BattleOrchestratorComponent {
+    get squaddieActionAnimator(): SquaddieActionAnimator {
+        return this._squaddieActionAnimator;
+    }
     private sawResultAftermath: boolean;
     private readonly _squaddieTargetsOtherSquaddiesAnimator: SquaddieTargetsOtherSquaddiesAnimator;
+    private _squaddieActionAnimator: SquaddieActionAnimator
 
     constructor() {
         this._squaddieTargetsOtherSquaddiesAnimator = new SquaddieTargetsOtherSquaddiesAnimator();
@@ -36,7 +41,8 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.squaddieTargetsOtherSquaddiesAnimator.mouseEventHappened(state, event);
+            this.setSquaddieActionAnimatorBasedOnActivity(state);
+            this.squaddieActionAnimator.mouseEventHappened(state, event);
         }
     }
 
@@ -58,7 +64,8 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
     }
 
     reset(state: BattleOrchestratorState): void {
-        this.squaddieTargetsOtherSquaddiesAnimator.reset(state);
+        this.squaddieActionAnimator.reset(state);
+        this._squaddieActionAnimator = undefined;
         this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
@@ -66,8 +73,11 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
     }
 
     update(state: BattleOrchestratorState, p: p5): void {
-        this.squaddieTargetsOtherSquaddiesAnimator.update(state, p);
-        if (this.squaddieTargetsOtherSquaddiesAnimator.hasCompleted(state)) {
+        if (this.squaddieActionAnimator === undefined) {
+            this.setSquaddieActionAnimatorBasedOnActivity(state);
+        }
+        this.squaddieActionAnimator.update(state, p);
+        if (this.squaddieActionAnimator.hasCompleted(state)) {
             this.hideDeadSquaddies(state);
             this.sawResultAftermath = true;
         }
@@ -89,5 +99,9 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
                 state.missionMap.updateSquaddieLocation(dynamicSquaddieId, undefined);
             }
         });
+    }
+
+    private setSquaddieActionAnimatorBasedOnActivity(state: BattleOrchestratorState) {
+        this._squaddieActionAnimator = this.squaddieTargetsOtherSquaddiesAnimator;
     }
 }
