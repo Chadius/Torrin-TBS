@@ -16,13 +16,13 @@ export class SquaddieSprite {
         this._actionSpritesByEmotion = {};
     }
 
-    private _actionSpritesByEmotion: { [key in SquaddieEmotion]?: ImageUI };
+    private readonly _actionSpritesByEmotion: { [key in SquaddieEmotion]?: ImageUI };
 
     get actionSpritesByEmotion(): { [key in SquaddieEmotion]?: ImageUI } {
         return this._actionSpritesByEmotion;
     }
 
-    private _actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string };
+    private readonly _actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string };
 
     get actionSpritesResourceKeysByEmotion(): { [key in SquaddieEmotion]?: string } {
         return this._actionSpritesResourceKeysByEmotion;
@@ -34,7 +34,7 @@ export class SquaddieSprite {
         return this._createdImages;
     }
 
-    private _resourceHandler: ResourceHandler;
+    private readonly _resourceHandler: ResourceHandler;
 
     get resourceHandler(): ResourceHandler {
         return this._resourceHandler;
@@ -90,7 +90,7 @@ export class SquaddieSprite {
         return new ImageUI({
             area: new RectArea({
                 left: 0,
-                top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - 0,
+                top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 width: emptyImage.width,
                 height: emptyImage.height,
             }),

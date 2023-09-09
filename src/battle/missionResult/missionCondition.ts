@@ -10,7 +10,7 @@ export abstract class MissionCondition {
         this._conditionType = conditionType;
     }
 
-    private _conditionType: MissionConditionType;
+    private readonly _conditionType: MissionConditionType;
 
     get conditionType(): MissionConditionType {
         return this._conditionType;
