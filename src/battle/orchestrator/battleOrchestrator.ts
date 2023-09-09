@@ -34,6 +34,7 @@ import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleCompletionStatus} from "./battleGameBoard";
 import {GameModeEnum} from "../../utils/startupConfig";
+import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -59,6 +60,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     squaddieMapActivity: BattleSquaddieMapActivity;
     squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
     squaddieMover: BattleSquaddieMover;
+    defaultBattleOrchestrator: DefaultBattleOrchestrator;
     mapDisplay: BattleMapDisplay;
     phaseController: BattlePhaseController;
 
@@ -138,7 +140,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 return this.squaddieMover;
             default:
-                return undefined;
+                return this.defaultBattleOrchestrator;
         }
     }
 
@@ -152,9 +154,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
 
         switch (this.mode) {
-            case BattleOrchestratorMode.UNKNOWN:
-                this.updateUnknown(state);
-                break;
             case BattleOrchestratorMode.LOADING_MISSION:
                 this.updateComponent(state, this.missionLoader, p, BattleOrchestratorMode.CUTSCENE_PLAYER);
                 break;
@@ -183,7 +182,8 @@ export class BattleOrchestrator implements GameEngineComponent {
                 this.updateComponent(state, this.playerSquaddieTarget, p, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
                 break;
             default:
-                throw new Error(`update does not know about ${this.mode}, cannot switch mode`);
+                this.updateComponent(state, this.defaultBattleOrchestrator, p, BattleOrchestratorMode.LOADING_MISSION);
+                break;
         }
     }
 
@@ -340,10 +340,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    private updateUnknown(_: BattleOrchestratorState) {
-        this.mode = BattleOrchestratorMode.LOADING_MISSION;
-    }
-
     private displayBattleMap(state: BattleOrchestratorState, p: p5) {
         this.mapDisplay.update(state, p);
     }
@@ -395,6 +391,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     private resetInternalState() {
         this.mode = BattleOrchestratorMode.UNKNOWN;
+        this.defaultBattleOrchestrator = new DefaultBattleOrchestrator();
         this._uiControlSettings = new UIControlSettings({});
 
         this._battleComplete = false;

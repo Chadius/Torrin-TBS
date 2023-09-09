@@ -17,6 +17,10 @@ export class UIControlSettings {
     }
 
     public update(other: UIControlSettings) {
+        if (!other) {
+            return;
+        }
+
         if (other._letMouseScrollCamera !== undefined) {
             this._letMouseScrollCamera = other._letMouseScrollCamera
         }

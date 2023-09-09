@@ -9,6 +9,7 @@ import {InBattleAttributes} from "./stats/inBattleAttributes";
 export class BattleSquaddieStatic {
     squaddieId: SquaddieId;
     attributes: ArmyAttributes;
+    private readonly _activities: SquaddieActivity[];
 
     constructor(options: {
         squaddieId: SquaddieId,
@@ -19,8 +20,6 @@ export class BattleSquaddieStatic {
         this._activities = options.activities || [];
         this.attributes = options.attributes || new ArmyAttributes();
     }
-
-    private _activities: SquaddieActivity[];
 
     get activities(): SquaddieActivity[] {
         return this._activities;
@@ -40,24 +39,30 @@ export class BattleSquaddieStatic {
 }
 
 export class BattleSquaddieDynamic {
-    constructor(options: {
+    constructor({
+                    dynamicSquaddieId,
+                    mapIcon,
+                    squaddieTurn,
+                    staticSquaddie,
+                    staticSquaddieId
+                }: {
         staticSquaddieId?: string,
         staticSquaddie?: BattleSquaddieStatic,
         dynamicSquaddieId: string,
         squaddieTurn?: SquaddieTurn,
         mapIcon?: ImageUI,
     }) {
-        this._dynamicSquaddieId = options.dynamicSquaddieId;
+        this._dynamicSquaddieId = dynamicSquaddieId;
 
-        if (options.staticSquaddie) {
-            this.copyStaticSquaddie(options.staticSquaddie);
+        if (staticSquaddie) {
+            this.copyStaticSquaddie(staticSquaddie);
         } else {
-            this._staticSquaddieId = options.staticSquaddieId;
+            this._staticSquaddieId = staticSquaddieId;
             this._inBattleAttributes = new InBattleAttributes();
         }
 
-        this._squaddieTurn = options.squaddieTurn || new SquaddieTurn();
-        this._mapIcon = options.mapIcon;
+        this._squaddieTurn = squaddieTurn || new SquaddieTurn();
+        this._mapIcon = mapIcon;
 
         this.assertBattleSquaddieDynamic();
     }

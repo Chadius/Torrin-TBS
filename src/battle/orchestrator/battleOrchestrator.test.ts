@@ -28,6 +28,7 @@ import {Cutscene} from "../../cutscene/cutscene";
 import {BattleCompletionStatus} from "./battleGameBoard";
 import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {GameModeEnum} from "../../utils/startupConfig";
+import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 
 
 describe('Battle Orchestrator', () => {
@@ -57,6 +58,7 @@ describe('Battle Orchestrator', () => {
     let mockSquaddieMover: BattleSquaddieMover;
     let mockMapDisplay: BattleMapDisplay;
     let mockPhaseController: BattlePhaseController;
+    let defaultBattleOrchestrator: DefaultBattleOrchestrator;
     let mockHud: BattleSquaddieSelectedHUD;
 
     let nullState: BattleOrchestratorState;
@@ -136,6 +138,9 @@ describe('Battle Orchestrator', () => {
         (mockSquaddieSquaddieActivity as any).consumeSquaddieActionsAndMaybeEndTheirTurn = jest.fn();
         jest.spyOn(mockSquaddieSquaddieActivity as any, "consumeSquaddieActionsAndMaybeEndTheirTurn").mockImplementation(() => {
         });
+
+        defaultBattleOrchestrator = new DefaultBattleOrchestrator();
+        defaultBattleOrchestrator.update = jest.fn();
 
         mockMapDisplay = new (<new () => BattleMapDisplay>BattleMapDisplay)() as jest.Mocked<BattleMapDisplay>;
         mockMapDisplay.update = jest.fn();
@@ -308,6 +313,22 @@ describe('Battle Orchestrator', () => {
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
     });
 
+    it('switches from default mode to mission loader', () => {
+        const mode = BattleOrchestratorMode.UNKNOWN
+        const orchestratorComponent = defaultBattleOrchestrator;
+
+        orchestrator = createOrchestrator({
+            initialMode: mode,
+        });
+
+        expect(orchestrator.getCurrentMode()).toBe(mode);
+        expect(orchestrator.getCurrentComponent()).toStrictEqual(new DefaultBattleOrchestrator());
+
+        const defaultBattleOrchestratorSpy = jest.spyOn(DefaultBattleOrchestrator.prototype, "update");
+        orchestrator.update(nullState, mockedP5);
+        expect(defaultBattleOrchestratorSpy).toBeCalled();
+    });
+
     describe('mode switching', () => {
         const loadAndExpect = (options: {
             mode: BattleOrchestratorMode,
@@ -319,19 +340,19 @@ describe('Battle Orchestrator', () => {
             expect(orchestrator.getCurrentMode()).toBe(options.mode);
             expect(orchestrator.getCurrentComponent()).toBe(options.orchestratorComponent);
 
-            if (options.orchestratorComponent === undefined) {
-                return;
-            }
             orchestrator.update(nullState, mockedP5);
             expect(options.orchestratorComponent.update).toBeCalled();
         }
 
         describe('knows which component to load based on the state', () => {
             for (const modeStr in BattleOrchestratorMode) {
-                const mode: BattleOrchestratorMode = modeStr as BattleOrchestratorMode;
+                if (modeStr === BattleOrchestratorMode.UNKNOWN) {
+                    continue;
+                }
+
+                const mode: BattleOrchestratorMode = modeStr as Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN>;
                 it(`using the ${mode} mode will use the expected component`, () => {
-                    const tests: { [mode in BattleOrchestratorMode]: BattleOrchestratorComponent } = {
-                        [BattleOrchestratorMode.UNKNOWN]: undefined,
+                    const tests: { [mode in Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN>]: BattleOrchestratorComponent } = {
                         [BattleOrchestratorMode.LOADING_MISSION]: mockBattleMissionLoader,
                         [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,
                         [BattleOrchestratorMode.PHASE_CONTROLLER]: mockPhaseController,
@@ -345,7 +366,7 @@ describe('Battle Orchestrator', () => {
 
                     loadAndExpect({
                         mode,
-                        orchestratorComponent: tests[mode]
+                        orchestratorComponent: tests[mode],
                     })
                 });
             }
