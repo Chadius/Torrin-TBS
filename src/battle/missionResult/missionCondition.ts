@@ -1,16 +1,19 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 
 export enum MissionConditionType {
-    DEFEAT_ALL_ENEMIES = "DEFEAT_ALL_ENEMIES"
+    DEFEAT_ALL_ENEMIES = "DEFEAT_ALL_ENEMIES",
+    DEFEAT_ALL_PLAYERS = "DEFEAT_ALL_PLAYERS",
+    DEFEAT_ALL_ALLIES = "DEFEAT_ALL_ALLIES",
+    DEFEAT_ALL_NO_AFFILIATIONS = "DEFEAT_ALL_NO_AFFILIATIONS",
 }
 
 export abstract class MissionCondition {
+    private readonly _conditionType: MissionConditionType;
+
     protected constructor(conditionType: MissionConditionType) {
         this.isComplete = undefined;
         this._conditionType = conditionType;
     }
-
-    private readonly _conditionType: MissionConditionType;
 
     get conditionType(): MissionConditionType {
         return this._conditionType;

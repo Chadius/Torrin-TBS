@@ -1,8 +1,8 @@
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {BattleGameBoard} from "./battleGameBoard";
-import {MissionConditionDefeatAllEnemies} from "../missionResult/missionConditionDefeatAllEnemies";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
 describe('Battle Game Board', () => {
     it('creates an instant win objective if none is given', () => {
@@ -23,7 +23,9 @@ describe('Battle Game Board', () => {
                     rewardType: MissionRewardType.VICTORY,
                 }),
                 conditions: [
-                    new MissionConditionDefeatAllEnemies({squaddieRepository: new BattleSquaddieRepository()})
+                    new MissionConditionDefeatAffiliation({
+                        affiliation: SquaddieAffiliation.ENEMY,
+                    }),
                 ],
                 cutsceneToPlayUponCompletion: "default_victory",
                 numberOfCompletedConditions: "all",

@@ -34,7 +34,7 @@ import {ScreenDimensions} from "../../utils/graphicsConfig";
 import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "../orchestrator/missionCutsceneCollection";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {MissionConditionDefeatAllEnemies} from "../missionResult/missionConditionDefeatAllEnemies";
+import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -394,7 +394,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     rewardType: MissionRewardType.VICTORY,
                 }),
                 conditions: [
-                    new MissionConditionDefeatAllEnemies({squaddieRepository: state.squaddieRepository})
+                    new MissionConditionDefeatAffiliation({
+                        affiliation: SquaddieAffiliation.ENEMY,
+                    }),
                 ],
                 cutsceneToPlayUponCompletion: "default_victory",
                 numberOfCompletedConditions: "all",

@@ -7,6 +7,10 @@ import {ImageUI} from "../../../ui/imageUI";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 
 export class SquaddieSprite {
+    private readonly _actionSpritesByEmotion: { [key in SquaddieEmotion]?: ImageUI };
+    private readonly _actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string };
+    private readonly _resourceHandler: ResourceHandler;
+
     constructor({resourceHandler, actionSpritesResourceKeysByEmotion}: {
         resourceHandler: ResourceHandler,
         actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string }
@@ -16,13 +20,9 @@ export class SquaddieSprite {
         this._actionSpritesByEmotion = {};
     }
 
-    private readonly _actionSpritesByEmotion: { [key in SquaddieEmotion]?: ImageUI };
-
     get actionSpritesByEmotion(): { [key in SquaddieEmotion]?: ImageUI } {
         return this._actionSpritesByEmotion;
     }
-
-    private readonly _actionSpritesResourceKeysByEmotion: { [key in SquaddieEmotion]?: string };
 
     get actionSpritesResourceKeysByEmotion(): { [key in SquaddieEmotion]?: string } {
         return this._actionSpritesResourceKeysByEmotion;
@@ -33,8 +33,6 @@ export class SquaddieSprite {
     get createdImages(): boolean {
         return this._createdImages;
     }
-
-    private readonly _resourceHandler: ResourceHandler;
 
     get resourceHandler(): ResourceHandler {
         return this._resourceHandler;
