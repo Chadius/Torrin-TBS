@@ -1,6 +1,7 @@
 import {Cutscene} from "../../cutscene/cutscene";
 
 export const DEFAULT_VICTORY_CUTSCENE_ID = "default_victory";
+export const DEFAULT_DEFEAT_CUTSCENE_ID = "default_defeat";
 
 export class MissionCutsceneCollection {
     private readonly _cutsceneById: {

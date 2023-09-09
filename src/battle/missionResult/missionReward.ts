@@ -1,5 +1,6 @@
 export enum MissionRewardType {
-    VICTORY = "VICTORY"
+    VICTORY = "VICTORY",
+    DEFEAT = "DEFEAT",
 }
 
 export class MissionReward {

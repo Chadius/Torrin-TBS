@@ -5,6 +5,7 @@ import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "./missionC
 export enum BattleCompletionStatus {
     IN_PROGRESS = "IN_PROGRESS",
     VICTORY = "VICTORY",
+    DEFEAT = "DEFEAT",
 }
 
 export class BattleGameBoard {

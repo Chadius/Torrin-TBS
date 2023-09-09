@@ -193,7 +193,10 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.uiControlSettings.update(newUIControlSettingsChanges);
 
         if (currentComponent.hasCompleted(state)) {
-            if (state.gameBoard.completionStatus === BattleCompletionStatus.VICTORY) {
+            if (
+                state.gameBoard.completionStatus === BattleCompletionStatus.VICTORY
+                || state.gameBoard.completionStatus === BattleCompletionStatus.DEFEAT
+            ) {
                 this._battleComplete = true;
             }
             this.setNextComponentMode(state, currentComponent, defaultNextMode);
@@ -355,6 +358,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         nextMode: BattleOrchestratorMode,
     } {
         const victoryObjective = completedObjectives.find((objective: MissionObjective) => objective.reward.rewardType === MissionRewardType.VICTORY);
+        const defeatObjective = completedObjectives.find((objective: MissionObjective) => objective.reward.rewardType === MissionRewardType.DEFEAT);
 
         let returnValue: {
             nextMode: BattleOrchestratorMode,
@@ -365,7 +369,13 @@ export class BattleOrchestrator implements GameEngineComponent {
         };
 
         let info;
-        if (victoryObjective) {
+        if (defeatObjective) {
+            info = {
+                nextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+                cutsceneId: defeatObjective.cutsceneToPlayUponCompletion,
+            };
+            returnValue.completionStatus = BattleCompletionStatus.DEFEAT;
+        } else if (victoryObjective) {
             info = {
                 nextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
                 cutsceneId: victoryObjective.cutsceneToPlayUponCompletion,

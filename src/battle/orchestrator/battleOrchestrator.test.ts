@@ -26,9 +26,15 @@ import {MouseButton} from "../../utils/mouseConfig";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {Cutscene} from "../../cutscene/cutscene";
 import {BattleCompletionStatus} from "./battleGameBoard";
-import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "./missionCutsceneCollection";
+import {
+    DEFAULT_DEFEAT_CUTSCENE_ID,
+    DEFAULT_VICTORY_CUTSCENE_ID,
+    MissionCutsceneCollection
+} from "./missionCutsceneCollection";
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
+import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
 
 
 describe('Battle Orchestrator', () => {
@@ -394,30 +400,86 @@ describe('Battle Orchestrator', () => {
         expect(orchestratorJumpsToSquaddieMover.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
     });
 
-    describe('End of Battle', () => {
+    describe('End of Battle triggers cutscenes and resets', () => {
         let mockCutscene: Cutscene;
         let cutsceneCollection: MissionCutsceneCollection;
         let cutscenePlayer: BattleCutscenePlayer;
         let missionObjectiveCompleteCheck: jest.SpyInstance;
+
+        let victoryState: BattleOrchestratorState;
+        let defeatState: BattleOrchestratorState;
+        let victoryAndDefeatState: BattleOrchestratorState;
 
         beforeEach(() => {
             mockCutscene = new Cutscene({});
             cutsceneCollection = new MissionCutsceneCollection({
                 cutsceneById: {
                     [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
+                    [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
                 }
             });
             cutscenePlayer = new BattleCutscenePlayer();
 
-            nullState = new BattleOrchestratorState({
+            victoryState = new BattleOrchestratorState({
                 hexMap: new TerrainTileMap({
                     movementCost: ["1 1 "]
                 }),
                 battleSquaddieSelectedHUD: mockHud,
+                objectives: [
+                    new MissionObjective({
+                        reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        conditions: [new MissionConditionDefeatAffiliation({
+                            affiliation: SquaddieAffiliation.ENEMY,
+                        })],
+                        cutsceneToPlayUponCompletion: DEFAULT_VICTORY_CUTSCENE_ID,
+                    })
+                ],
                 cutsceneCollection,
             });
+            victoryState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
-            nullState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
+            defeatState = new BattleOrchestratorState({
+                hexMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
+                battleSquaddieSelectedHUD: mockHud,
+                objectives: [
+                    new MissionObjective({
+                        reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                        conditions: [new MissionConditionDefeatAffiliation({
+                            affiliation: SquaddieAffiliation.PLAYER,
+                        })],
+                        cutsceneToPlayUponCompletion: DEFAULT_DEFEAT_CUTSCENE_ID,
+                    })
+                ],
+                cutsceneCollection,
+            });
+            defeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
+
+            victoryAndDefeatState = new BattleOrchestratorState({
+                hexMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
+                battleSquaddieSelectedHUD: mockHud,
+                objectives: [
+                    new MissionObjective({
+                        reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        conditions: [new MissionConditionDefeatAffiliation({
+                            affiliation: SquaddieAffiliation.ENEMY,
+                        })],
+                        cutsceneToPlayUponCompletion: DEFAULT_VICTORY_CUTSCENE_ID,
+                    }),
+                    new MissionObjective({
+                        reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                        conditions: [new MissionConditionDefeatAffiliation({
+                            affiliation: SquaddieAffiliation.PLAYER,
+                        })],
+                        cutsceneToPlayUponCompletion: DEFAULT_DEFEAT_CUTSCENE_ID,
+                    })
+                ],
+                cutsceneCollection,
+            });
+            victoryAndDefeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
             orchestrator = createOrchestrator({
                 initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
@@ -428,10 +490,10 @@ describe('Battle Orchestrator', () => {
         });
 
         it('will check for victory conditions once the squaddie finishes moving', () => {
-            expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+            expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
-            orchestrator.update(nullState, mockedP5);
-            expect(cutscenePlayer.hasCompleted(nullState)).toBeTruthy();
+            orchestrator.update(victoryState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(victoryState)).toBeTruthy();
 
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
@@ -439,28 +501,81 @@ describe('Battle Orchestrator', () => {
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
             expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
 
-            orchestrator.update(nullState, mockedP5);
-            expect(cutscenePlayer.hasCompleted(nullState)).toBeTruthy();
-            expect(nullState.gameBoard.completionStatus).toBe(BattleCompletionStatus.VICTORY);
+            orchestrator.update(victoryState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(victoryState)).toBeTruthy();
+            expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.VICTORY);
         });
 
         it('will mark the battle as complete once the victory cutscene ends', () => {
-            orchestrator.update(nullState, mockedP5);
-            orchestrator.update(nullState, mockedP5);
-            orchestrator.update(nullState, mockedP5);
-            expect(orchestrator.hasCompleted(nullState)).toBeTruthy();
-            expect(orchestrator.recommendStateChanges(nullState)).toStrictEqual({
+            orchestrator.update(victoryState, mockedP5);
+            orchestrator.update(victoryState, mockedP5);
+            orchestrator.update(victoryState, mockedP5);
+            expect(orchestrator.hasCompleted(victoryState)).toBeTruthy();
+            expect(orchestrator.recommendStateChanges(victoryState)).toStrictEqual({
                 nextMode: GameModeEnum.TITLE_SCREEN
             });
         });
 
-        it('after resetting it will not immediately complete', () => {
-            orchestrator.update(nullState, mockedP5);
-            orchestrator.update(nullState, mockedP5);
-            orchestrator.update(nullState, mockedP5);
-            expect(orchestrator.hasCompleted(nullState)).toBeTruthy();
-            orchestrator.reset(nullState);
-            expect(orchestrator.hasCompleted(nullState)).toBeFalsy();
+        it('after resetting it will not immediately trigger victory and complete', () => {
+            orchestrator.update(victoryState, mockedP5);
+            orchestrator.update(victoryState, mockedP5);
+            orchestrator.update(victoryState, mockedP5);
+            expect(orchestrator.hasCompleted(victoryState)).toBeTruthy();
+            orchestrator.reset(victoryState);
+            expect(orchestrator.hasCompleted(victoryState)).toBeFalsy();
+        });
+
+        it('will check for defeat conditions once the squaddie finishes moving', () => {
+            expect(defeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+
+            orchestrator.update(defeatState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(defeatState)).toBeTruthy();
+
+            expect(missionObjectiveCompleteCheck).toBeCalled();
+
+            expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
+            expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
+            expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
+
+            orchestrator.update(defeatState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(defeatState)).toBeTruthy();
+            expect(defeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.DEFEAT);
+        });
+
+        it('will mark the battle as complete once the defeat cutscene ends', () => {
+            orchestrator.update(defeatState, mockedP5);
+            orchestrator.update(defeatState, mockedP5);
+            orchestrator.update(defeatState, mockedP5);
+            expect(orchestrator.hasCompleted(defeatState)).toBeTruthy();
+            expect(orchestrator.recommendStateChanges(defeatState)).toStrictEqual({
+                nextMode: GameModeEnum.TITLE_SCREEN
+            });
+        });
+
+        it('after resetting it will not immediately trigger defeat and complete', () => {
+            orchestrator.update(defeatState, mockedP5);
+            orchestrator.update(defeatState, mockedP5);
+            orchestrator.update(defeatState, mockedP5);
+            expect(orchestrator.hasCompleted(defeatState)).toBeTruthy();
+            orchestrator.reset(defeatState);
+            expect(orchestrator.hasCompleted(defeatState)).toBeFalsy();
+        });
+
+        it('if you trigger victory and defeat, defeat takes precedence', () => {
+            expect(victoryAndDefeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+
+            orchestrator.update(victoryAndDefeatState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(victoryAndDefeatState)).toBeTruthy();
+
+            expect(missionObjectiveCompleteCheck).toBeCalled();
+
+            expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
+            expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
+            expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
+
+            orchestrator.update(victoryAndDefeatState, mockedP5);
+            expect(cutscenePlayer.hasCompleted(victoryAndDefeatState)).toBeTruthy();
+            expect(victoryAndDefeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.DEFEAT);
         });
     });
 

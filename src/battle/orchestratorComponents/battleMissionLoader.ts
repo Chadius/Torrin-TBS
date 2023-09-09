@@ -31,7 +31,11 @@ import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConst
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {ScreenDimensions} from "../../utils/graphicsConfig";
-import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "../orchestrator/missionCutsceneCollection";
+import {
+    DEFAULT_DEFEAT_CUTSCENE_ID,
+    DEFAULT_VICTORY_CUTSCENE_ID,
+    MissionCutsceneCollection
+} from "../orchestrator/missionCutsceneCollection";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
@@ -383,6 +387,18 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
+                [DEFAULT_DEFEAT_CUTSCENE_ID]: new Cutscene({
+                    actions: [
+                        new DialogueBox({
+                            id: "2",
+                            name: "Annihilated",
+                            text: "Game Over...",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        })
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
             }
         })
     }
@@ -399,6 +415,18 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     }),
                 ],
                 cutsceneToPlayUponCompletion: "default_victory",
+                numberOfCompletedConditions: "all",
+            }),
+            new MissionObjective({
+                reward: new MissionReward({
+                    rewardType: MissionRewardType.DEFEAT,
+                }),
+                conditions: [
+                    new MissionConditionDefeatAffiliation({
+                        affiliation: SquaddieAffiliation.PLAYER,
+                    }),
+                ],
+                cutsceneToPlayUponCompletion: "default_defeat",
                 numberOfCompletedConditions: "all",
             })
         ]
