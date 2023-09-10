@@ -4,7 +4,7 @@ import {TitleScreenState} from "./titleScreenState";
 import p5 from "p5";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MouseButton} from "../utils/mouseConfig";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
 import {ResourceHandler} from "../resource/resourceHandler";

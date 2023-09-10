@@ -9,7 +9,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import p5 from "p5";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {

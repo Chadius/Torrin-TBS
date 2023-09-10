@@ -3,7 +3,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {OrchestratorComponentMouseEventType} from "../orchestrator/battleOrchestratorComponent";
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";

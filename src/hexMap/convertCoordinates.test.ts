@@ -7,7 +7,7 @@ import {
     convertWorldCoordinatesToScreenCoordinates
 } from "./convertCoordinates";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 
 describe('convertCoordinates', () => {
     it('converts world coordinates to map coordinates', () => {

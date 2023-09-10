@@ -12,7 +12,7 @@ import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForTh
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType

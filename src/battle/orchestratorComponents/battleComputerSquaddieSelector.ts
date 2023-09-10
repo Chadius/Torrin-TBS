@@ -16,7 +16,7 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
-import {isCoordinateOnScreen} from "../../utils/graphicsConfig";
+import {isCoordinateOnScreen} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";

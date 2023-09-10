@@ -10,7 +10,7 @@ import {BattlePhase} from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 
 export const BANNER_ANIMATION_TIME = 2000;

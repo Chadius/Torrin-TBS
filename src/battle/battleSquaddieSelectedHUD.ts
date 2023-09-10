@@ -2,7 +2,7 @@ import p5 from "p5";
 import {HorizontalAnchor, RectArea, VerticalAnchor} from "../ui/rectArea";
 import {Rectangle} from "../ui/rectangle";
 import {getResultOrThrowError, isResult} from "../utils/ResultOrError";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";

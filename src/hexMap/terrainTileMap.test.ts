@@ -2,7 +2,7 @@ import {TerrainTileMap} from "./terrainTileMap";
 import {HexGridTile} from "./hexGrid";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 
 describe('hexMap', () => {

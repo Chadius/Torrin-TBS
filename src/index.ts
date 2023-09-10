@@ -1,5 +1,5 @@
 import p5 from 'p5';
-import {ScreenDimensions} from "./utils/graphicsConfig";
+import {ScreenDimensions} from "./utils/graphics/graphicsConfig";
 import {GameEngine} from "./gameEngine/gameEngine";
 import {StartupMode} from "./utils/startupConfig";
 

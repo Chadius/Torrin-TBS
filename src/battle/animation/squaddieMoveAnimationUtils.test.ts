@@ -2,7 +2,7 @@ import {getSquaddiePositionAlongPath, lerpSquaddieBetweenPath} from "./squaddieM
 import {HEX_TILE_WIDTH} from "../../graphicsConstants";
 import {BattleCamera} from "../battleCamera";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('lerpSquaddieBetweenPath', () => {

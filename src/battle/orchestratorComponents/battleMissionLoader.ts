@@ -30,7 +30,7 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,

@@ -7,7 +7,7 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {ScreenDimensions} from "../../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {WINDOW_SPACING1} from "../../../ui/constants";

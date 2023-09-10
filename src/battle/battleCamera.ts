@@ -1,6 +1,6 @@
 import {assertsInteger, assertsNonNegativeNumber} from "../utils/mathAssert";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {RectArea} from "../ui/rectArea";
 
 export type PanningInformation = {

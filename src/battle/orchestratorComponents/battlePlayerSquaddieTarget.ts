@@ -11,7 +11,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";

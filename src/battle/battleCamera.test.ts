@@ -1,7 +1,7 @@
 import {BattleCamera} from "./battleCamera";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 
 describe('BattleCamera', () => {
     it('can be constrained so it cannot scroll too high up', () => {

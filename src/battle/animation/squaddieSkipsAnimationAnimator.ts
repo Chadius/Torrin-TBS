@@ -8,7 +8,7 @@ import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {FormatResult} from "./activityResultTextWriter";
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
-import {ScreenDimensions} from "../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 

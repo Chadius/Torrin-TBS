@@ -1,5 +1,5 @@
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 
 export const convertWorldCoordinatesToMapCoordinates = (worldX: number, worldY: number, round: boolean = true): [number, number] => {
     const xScaled = worldX / HEX_TILE_WIDTH;

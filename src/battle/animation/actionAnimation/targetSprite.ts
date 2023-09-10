@@ -9,7 +9,7 @@ import {
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
 import {SquaddieActivity} from "../../../squaddie/activity";
-import {ScreenDimensions} from "../../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {ActivityResult} from "../../history/activityResult";

@@ -10,7 +10,6 @@ type RequiredOptions = {
 
 type Options = {
     animationDuration: number;
-    screenImage: p5.Image;
     screenImageResourceKey: string;
     screenDimensions: [number, number];
 }

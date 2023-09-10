@@ -4,7 +4,7 @@ import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationC
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battleSquaddie";
 import {SquaddieActivity} from "../../../squaddie/activity";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
-import {ScreenDimensions} from "../../../utils/graphicsConfig";
+import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionTimer} from "./actionTimer";

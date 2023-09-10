@@ -15,7 +15,7 @@ import {
     WINDOW_SPACING4
 } from "../ui/constants";
 import {RectArea} from "../ui/rectArea";
-import {ScreenDimensions} from "../utils/graphicsConfig";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {TextBox} from "../ui/textBox";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {Rectangle} from "../ui/rectangle";
