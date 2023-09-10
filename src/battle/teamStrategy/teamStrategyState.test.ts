@@ -1,5 +1,5 @@
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -8,7 +8,7 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('Team Strategy State', () => {
-    const createDummyState = (instruction?: SquaddieInstruction): TeamStrategyState => {
+    const createDummyState = (instruction?: SquaddieActivitiesForThisRound): TeamStrategyState => {
         return new TeamStrategyState({
             squaddieRepository: new BattleSquaddieRepository(),
             missionMap: new MissionMap({
@@ -26,7 +26,7 @@ describe('Team Strategy State', () => {
     }
 
     it('can reset state to clear the instruction', () => {
-        const newInstruction = new SquaddieInstruction({
+        const newInstruction = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
@@ -43,7 +43,7 @@ describe('Team Strategy State', () => {
         const state: TeamStrategyState = createDummyState();
         expect(state.instruction).toBeUndefined();
 
-        const newInstruction = new SquaddieInstruction({
+        const newInstruction = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),

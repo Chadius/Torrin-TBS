@@ -52,13 +52,13 @@ export class BattleSquaddieMapActivity implements BattleOrchestratorComponent {
 
     update(state: BattleOrchestratorState, p: p5): void {
         if (this.animationCompleteStartTime === undefined) {
-            const dynamicSquaddieId = state.squaddieCurrentlyActing.instruction.getDynamicSquaddieId();
+            const dynamicSquaddieId = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getDynamicSquaddieId();
             const {
                 dynamicSquaddie,
                 staticSquaddie
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
-            const mostRecentActivity = state.squaddieCurrentlyActing.instruction.getMostRecentActivity();
+            const mostRecentActivity = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity();
 
             if (mostRecentActivity instanceof SquaddieEndTurnActivity) {
                 dynamicSquaddie.endTurn();

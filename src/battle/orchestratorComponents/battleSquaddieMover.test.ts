@@ -12,7 +12,7 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
@@ -95,7 +95,7 @@ describe('BattleSquaddieMover', () => {
                 }))
             ).getRouteToStopLocation());
 
-        const moveActivity: SquaddieInstruction = new SquaddieInstruction({
+        const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "player_1",
             dynamicSquaddieId: "player_1",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
@@ -106,7 +106,7 @@ describe('BattleSquaddieMover', () => {
         }));
 
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            instruction: moveActivity
+            activitiesForThisRound: moveActivity
         });
         squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving("player_1");
 
@@ -118,7 +118,7 @@ describe('BattleSquaddieMover', () => {
             squaddieMovePath: movePath,
             hexMap: map.terrainTileMap,
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                instruction: moveActivity,
+                activitiesForThisRound: moveActivity,
             }),
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -150,7 +150,7 @@ describe('BattleSquaddieMover', () => {
                                }: {
             dynamicSquaddieId: string,
             squaddieAffiliation: SquaddieAffiliation,
-            newInstruction: SquaddieInstruction,
+            newInstruction: SquaddieActivitiesForThisRound,
         }): BattleOrchestratorState => {
             const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
                 selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
@@ -188,7 +188,7 @@ describe('BattleSquaddieMover', () => {
                 squaddieMovePath: movePath,
                 hexMap: map.terrainTileMap,
                 squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                    instruction: newInstruction,
+                    activitiesForThisRound: newInstruction,
                 }),
                 resourceHandler: mockResourceHandler,
             });
@@ -197,7 +197,7 @@ describe('BattleSquaddieMover', () => {
         it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
             map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
-            const moveActivity: SquaddieInstruction = new SquaddieInstruction({
+            const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: "player_1",
                 dynamicSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
@@ -227,7 +227,7 @@ describe('BattleSquaddieMover', () => {
         it('should open the HUD if the squaddie turn is incomplete', () => {
             map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
-            const moveActivity: SquaddieInstruction = new SquaddieInstruction({
+            const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: "player_1",
                 dynamicSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
@@ -263,7 +263,7 @@ describe('BattleSquaddieMover', () => {
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
             map.addSquaddie("enemy_1", "enemy_1", new HexCoordinate({q: 0, r: 0}));
 
-            const moveActivity: SquaddieInstruction = new SquaddieInstruction({
+            const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: "enemy_1",
                 dynamicSquaddieId: "enemy_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),

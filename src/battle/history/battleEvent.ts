@@ -26,7 +26,7 @@ export class BattleEvent {
     }
 
     get activities(): SquaddieInstructionActivity[] {
-        return [...this._instruction.instruction.activities];
+        return [...this._instruction.squaddieActivitiesForThisRound.activities];
     }
 }
 

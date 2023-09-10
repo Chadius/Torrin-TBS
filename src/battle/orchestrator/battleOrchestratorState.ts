@@ -14,7 +14,10 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    DefaultSquaddieInstructionInProgress,
+    SquaddieInstructionInProgress
+} from "../history/squaddieInstructionInProgress";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {BattleGameBoard} from "./battleGameBoard";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
@@ -32,9 +35,9 @@ export class BattleOrchestratorState {
     squaddieMovePath?: SearchPath;
     clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
-    squaddieCurrentlyActing: SquaddieInstructionInProgress;
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
+    private readonly _squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
     constructor(options: {
         cutsceneCollection?: MissionCutsceneCollection,
@@ -100,7 +103,7 @@ export class BattleOrchestratorState {
         this.battlePhaseState = options.battlePhaseState || {
             bannerPhaseToShow: BattlePhase.UNKNOWN,
         };
-        this.squaddieCurrentlyActing = options.squaddieCurrentlyActing || undefined;
+        this._squaddieCurrentlyActing = options.squaddieCurrentlyActing || DefaultSquaddieInstructionInProgress();
         this.battleEventRecording = options.battleEventRecording || new Recording({});
 
         this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
@@ -109,6 +112,10 @@ export class BattleOrchestratorState {
             objectives,
             cutsceneCollection,
         })
+    }
+
+    get squaddieCurrentlyActing(): SquaddieInstructionInProgress {
+        return this._squaddieCurrentlyActing;
     }
 
     get cutsceneCollection(): MissionCutsceneCollection {

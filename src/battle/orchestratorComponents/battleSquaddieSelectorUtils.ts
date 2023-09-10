@@ -10,8 +10,6 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {BattleEvent} from "../history/battleEvent";
 import {ActivityResult} from "../history/activityResult";
@@ -82,20 +80,19 @@ export function AddMovementInstruction(state: BattleOrchestratorState, staticSqu
 }
 
 export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {
-    if (!(state.squaddieCurrentlyActing && state.squaddieCurrentlyActing.instruction)) {
+    if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
 
-        state.squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            instruction: new SquaddieInstruction({
-                staticSquaddieId: staticSquaddie.squaddieId.staticId,
-                dynamicSquaddieId,
-                startingLocation: new HexCoordinate({
-                    q: datum.mapLocation.q,
-                    r: datum.mapLocation.r,
-                }),
+        state.squaddieCurrentlyActing.reset();
+        state.squaddieCurrentlyActing.addInitialState({
+            staticSquaddieId: staticSquaddie.squaddieId.staticId,
+            dynamicSquaddieId,
+            startingLocation: new HexCoordinate({
+                q: datum.mapLocation.q,
+                r: datum.mapLocation.r,
             }),
-        });
+        })
     }
 }
 

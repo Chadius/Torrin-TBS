@@ -4,7 +4,7 @@ import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
 
-export class SquaddieInstruction {
+export class SquaddieActivitiesForThisRound {
     staticSquaddieId: string;
     dynamicSquaddieId: string;
     startingLocation: HexCoordinate;

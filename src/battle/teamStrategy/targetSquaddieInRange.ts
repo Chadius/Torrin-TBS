@@ -1,7 +1,7 @@
 import {TeamStrategy} from "./teamStrategy";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {findValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
@@ -21,7 +21,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieActivitiesForThisRound | undefined {
         if (!this.desiredDynamicSquaddieId && !this.desiredAffiliation) {
             throw new Error("Target Squaddie In Range strategy has no target");
         }
@@ -49,7 +49,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         return actingSquaddie;
     }
 
-    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingSquaddieDynamicId: string): SquaddieInstruction | undefined {
+    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingSquaddieDynamicId: string): SquaddieActivitiesForThisRound | undefined {
         const {
             staticSquaddie,
             dynamicSquaddie
@@ -157,7 +157,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         actingSquaddieActivity: SquaddieActivity,
         targetLocation: HexCoordinate,
     }) {
-        const instruction: SquaddieInstruction = new SquaddieInstruction({
+        const instruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             dynamicSquaddieId: actingSquaddieDynamic.dynamicSquaddieId,
             staticSquaddieId: actingSquaddieStatic.staticId,
             startingLocation: actingSquaddieMapLocation,
@@ -165,7 +165,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         return this.addActivityToInstruction(instruction, actingSquaddieActivity, targetLocation);
     }
 
-    private addActivityToInstruction(instruction: SquaddieInstruction, activity: SquaddieActivity, targetLocation: HexCoordinate) {
+    private addActivityToInstruction(instruction: SquaddieActivitiesForThisRound, activity: SquaddieActivity, targetLocation: HexCoordinate) {
         instruction.addActivity(new SquaddieSquaddieActivity({
             squaddieActivity: activity,
             targetLocation: targetLocation,
@@ -185,7 +185,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         actingSquaddieDynamic: BattleSquaddieDynamic,
         actingSquaddieStatic: BattleSquaddieStatic
         activity: SquaddieActivity
-    }): SquaddieInstruction | undefined {
+    }): SquaddieActivitiesForThisRound | undefined {
         const targetingSquaddieMapDatum = state.missionMap.getSquaddieByDynamicId(actingSquaddieDynamic.dynamicSquaddieId);
         const desiredSquaddieMapDatum = state.missionMap.getSquaddieByDynamicId(squaddieToTarget);
         if (desiredSquaddieMapDatum.isValid()) {

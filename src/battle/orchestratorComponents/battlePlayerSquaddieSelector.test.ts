@@ -13,7 +13,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
@@ -238,8 +238,8 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(state.squaddieCurrentlyActing.instruction.totalActionsSpent()).toBe(1);
-        expect(state.squaddieCurrentlyActing.instruction.destinationLocation()).toStrictEqual(new HexCoordinate({
+        expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.totalActionsSpent()).toBe(1);
+        expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.destinationLocation()).toStrictEqual(new HexCoordinate({
             q: 0,
             r: 1
         }));
@@ -248,7 +248,7 @@ describe('BattleSquaddieSelector', () => {
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
         const expectedSquaddieInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
-        expectedSquaddieInstruction.addSquaddie({
+        expectedSquaddieInstruction.addInitialState({
             staticSquaddieId: "player_soldier",
             dynamicSquaddieId: "player_soldier_0",
             startingLocation: new HexCoordinate({
@@ -300,7 +300,7 @@ describe('BattleSquaddieSelector', () => {
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
-            squaddieCurrentlyActing.addSquaddie({
+            squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: "player_soldier_0",
                 staticSquaddieId: "player_soldier",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
@@ -342,12 +342,12 @@ describe('BattleSquaddieSelector', () => {
                 mouseY,
             });
             expect(selector.hasCompleted(state)).toBeTruthy();
-            expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(2);
-            expect(state.squaddieCurrentlyActing.instruction.getActivities()[1]).toStrictEqual(new SquaddieMovementActivity({
+            expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getActivities()).toHaveLength(2);
+            expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getActivities()[1]).toStrictEqual(new SquaddieMovementActivity({
                 destination: new HexCoordinate({q: 0, r: 2}),
                 numberOfActionsSpent: 1,
             }));
-            expect(state.squaddieCurrentlyActing.instruction.totalActionsSpent()).toBe(2);
+            expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.totalActionsSpent()).toBe(2);
         });
     });
 
@@ -366,7 +366,7 @@ describe('BattleSquaddieSelector', () => {
         })
 
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
-        squaddieCurrentlyActing.addSquaddie({
+        squaddieCurrentlyActing.addInitialState({
             dynamicSquaddieId: "player_soldier_0",
             staticSquaddieId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
@@ -399,9 +399,9 @@ describe('BattleSquaddieSelector', () => {
         });
         selector.update(state, mockedP5);
         expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(state.squaddieCurrentlyActing.instruction.getActivities()).toHaveLength(2);
-        expect(state.squaddieCurrentlyActing.instruction.getActivities()[1]).toStrictEqual(new SquaddieEndTurnActivity());
-        expect(state.squaddieCurrentlyActing.instruction.totalActionsSpent()).toBe(3);
+        expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getActivities()).toHaveLength(2);
+        expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getActivities()[1]).toStrictEqual(new SquaddieEndTurnActivity());
+        expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.totalActionsSpent()).toBe(3);
     });
 
     it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
@@ -440,14 +440,14 @@ describe('BattleSquaddieSelector', () => {
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
-        endTurnInstruction.addSquaddie({
+        endTurnInstruction.addInitialState({
             dynamicSquaddieId: "player_soldier_0",
             staticSquaddieId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         endTurnInstruction.addConfirmedActivity(new SquaddieEndTurnActivity());
 
-        expect(state.squaddieCurrentlyActing.instruction.getMostRecentActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
+        expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
@@ -508,13 +508,13 @@ describe('BattleSquaddieSelector', () => {
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("player_soldier_0");
 
-        const expectedInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const expectedInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             dynamicSquaddieId: "player_soldier_0",
             staticSquaddieId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
 
-        expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
+        expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound).toStrictEqual(expectedInstruction);
         expect(state.squaddieCurrentlyActing.currentlySelectedActivity).toStrictEqual(longswordActivity);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
@@ -563,7 +563,7 @@ describe('BattleSquaddieSelector', () => {
 
             const soldierSquaddieInfo = missionMap.getSquaddieByDynamicId("player_soldier_0");
 
-            const movingInstruction = new SquaddieInstruction({
+            const movingInstruction = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: soldierSquaddieInfo.staticSquaddieId,
                 dynamicSquaddieId: soldierSquaddieInfo.dynamicSquaddieId,
                 startingLocation: soldierSquaddieInfo.mapLocation,
@@ -574,7 +574,7 @@ describe('BattleSquaddieSelector', () => {
             }));
 
             soldierCurrentlyActing = new SquaddieInstructionInProgress({
-                instruction: movingInstruction
+                activitiesForThisRound: movingInstruction
             });
 
             let mockResourceHandler = mocks.mockResourceHandler();

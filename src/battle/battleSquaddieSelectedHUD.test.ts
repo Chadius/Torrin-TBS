@@ -20,7 +20,7 @@ import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
-import {SquaddieInstruction} from "./history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "./history/squaddieActivitiesForThisRound";
 import * as mocks from "../utils/test/mocks";
 import p5 from "p5";
 
@@ -301,7 +301,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             resourceHandler: resourceHandler,
             camera: new BattleCamera(0, 0),
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                instruction: new SquaddieInstruction({
+                activitiesForThisRound: new SquaddieActivitiesForThisRound({
                     dynamicSquaddieId: playerSquaddieDynamic.dynamicSquaddieId,
                     staticSquaddieId: playerSquaddieStatic.staticId,
                     startingLocation: new HexCoordinate({q: 0, r: 0}),

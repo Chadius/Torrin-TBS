@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -41,7 +41,7 @@ describe('BattleSquaddieMapActivity', () => {
     });
 
     it('can wait half a second before ending turn', () => {
-        const endTurnInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const endTurnInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
@@ -52,7 +52,7 @@ describe('BattleSquaddieMapActivity', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                instruction: endTurnInstruction,
+                activitiesForThisRound: endTurnInstruction,
             }),
             squaddieRepo: squaddieRepository,
         })

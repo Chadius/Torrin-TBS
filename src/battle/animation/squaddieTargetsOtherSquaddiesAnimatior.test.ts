@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -36,7 +36,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let longswordActivity: SquaddieActivity;
     let powerAttackLongswordActivity: SquaddieActivity;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
-    let oneActionInstruction: SquaddieInstruction;
+    let oneActionInstruction: SquaddieActivitiesForThisRound;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5 = mocks.mockedP5();
     let battleEventRecording: Recording;
@@ -82,7 +82,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
-        oneActionInstruction = new SquaddieInstruction({
+        oneActionInstruction = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
@@ -95,7 +95,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         knightHitsThiefWithLongswordInstructionInProgress = new SquaddieInstructionInProgress({
-            instruction: oneActionInstruction,
+            activitiesForThisRound: oneActionInstruction,
             currentSquaddieActivity: powerAttackLongswordActivity,
         });
         knightHitsThiefWithLongswordInstructionInProgress.addSelectedActivity(longswordActivity);

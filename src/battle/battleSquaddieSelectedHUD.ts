@@ -406,17 +406,16 @@ export class BattleSquaddieSelectedHUD {
 
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, p: p5) {
         if (
-            !squaddieCurrentlyActing
-            || squaddieCurrentlyActing.isReadyForNewSquaddie
+            squaddieCurrentlyActing.isReadyForNewSquaddie
         ) {
             return;
         }
 
-        const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieCurrentlyActing.instruction.getDynamicSquaddieId()));
+        const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieCurrentlyActing.squaddieActivitiesForThisRound.getDynamicSquaddieId()));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${staticSquaddie.squaddieId.name}`;
 
         if (
-            this.selectedSquaddieDynamicId === squaddieCurrentlyActing.instruction.getDynamicSquaddieId()
+            this.selectedSquaddieDynamicId === squaddieCurrentlyActing.squaddieActivitiesForThisRound.getDynamicSquaddieId()
         ) {
             if (
                 this.invalidCommandWarningTextBox.text === differentSquaddieWarningText

@@ -1,6 +1,6 @@
 import {TeamStrategy} from "./teamStrategy";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
@@ -24,7 +24,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieActivitiesForThisRound | undefined {
         if (!this.desiredDynamicSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
@@ -116,7 +116,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
 
             const numberOfMoveActions = searchResults.calculateNumberOfMoveActionsRequired(targetLocation);
 
-            const moveTowardsLocation: SquaddieInstruction = new SquaddieInstruction({
+            const moveTowardsLocation: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: staticSquaddie.squaddieId.staticId,
                 dynamicSquaddieId: squaddieToAct,
                 startingLocation: mapLocation,

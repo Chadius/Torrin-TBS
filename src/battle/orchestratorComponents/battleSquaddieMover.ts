@@ -56,8 +56,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
             if (
                 state.squaddieCurrentlyActing
-                && state.squaddieCurrentlyActing.instruction
-                && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
+                && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound
+                && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity() instanceof SquaddieMovementActivity
             ) {
                 state.squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
             }
@@ -84,8 +84,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
         if (
             state.squaddieCurrentlyActing
-            && state.squaddieCurrentlyActing.instruction
-            && state.squaddieCurrentlyActing.instruction.getMostRecentActivity() instanceof SquaddieMovementActivity
+            && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound
+            && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity() instanceof SquaddieMovementActivity
         ) {
             state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
         }
@@ -116,7 +116,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         ));
 
         updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap, dynamicSquaddie.dynamicSquaddieId);
-        const mostRecentActivity = state.squaddieCurrentlyActing.instruction.getMostRecentActivity();
+        const mostRecentActivity = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity();
         if (mostRecentActivity instanceof SquaddieMovementActivity) {
             spendSquaddieActions(dynamicSquaddie, mostRecentActivity.numberOfActionsSpent);
         }

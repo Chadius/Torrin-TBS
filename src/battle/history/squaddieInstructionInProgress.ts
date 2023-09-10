@@ -1,4 +1,4 @@
-import {SquaddieInstruction} from "./squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "./squaddieActivitiesForThisRound";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
@@ -6,26 +6,28 @@ import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
 import {SquaddieMovementActivity} from "./squaddieMovementActivity";
 import {SquaddieEndTurnActivity} from "./squaddieEndTurnActivity";
 
-
 export class SquaddieInstructionInProgress {
-    constructor(options: {
-        instruction?: SquaddieInstruction,
+    constructor({
+                    activitiesForThisRound,
+                    currentSquaddieActivity
+                }: {
+        activitiesForThisRound?: SquaddieActivitiesForThisRound,
         currentSquaddieActivity?: SquaddieActivity,
     }) {
-        this._instruction = options.instruction;
-        this._currentlySelectedActivity = options.currentSquaddieActivity;
+        this._squaddieActivitiesForThisRound = activitiesForThisRound;
+        this._currentlySelectedActivity = currentSquaddieActivity;
         this._movingSquaddieDynamicIds = [];
     }
 
     get squaddieHasActedThisTurn(): boolean {
-        return this.instruction !== undefined
-            && this.instruction.activities.length > 0;
+        return this.squaddieActivitiesForThisRound !== undefined
+            && this.squaddieActivitiesForThisRound.activities.length > 0;
     }
 
-    private _instruction?: SquaddieInstruction;
+    private _squaddieActivitiesForThisRound?: SquaddieActivitiesForThisRound;
 
-    get instruction(): SquaddieInstruction {
-        return this._instruction;
+    get squaddieActivitiesForThisRound(): SquaddieActivitiesForThisRound {
+        return this._squaddieActivitiesForThisRound;
     }
 
     private _currentlySelectedActivity?: SquaddieActivity;
@@ -41,8 +43,8 @@ export class SquaddieInstructionInProgress {
     }
 
     get dynamicSquaddieId(): string {
-        if (this._instruction !== undefined) {
-            return this._instruction.dynamicSquaddieId;
+        if (this._squaddieActivitiesForThisRound !== undefined) {
+            return this._squaddieActivitiesForThisRound.dynamicSquaddieId;
         }
 
         return "";
@@ -53,18 +55,18 @@ export class SquaddieInstructionInProgress {
     }
 
     reset() {
-        this._instruction = undefined;
+        this._squaddieActivitiesForThisRound = undefined;
         this._currentlySelectedActivity = undefined;
         this._movingSquaddieDynamicIds = [];
     }
 
-    addSquaddie(param: {
+    addInitialState(param: {
         staticSquaddieId: string;
         dynamicSquaddieId: string;
         startingLocation: HexCoordinate
     }) {
-        if (this._instruction === undefined) {
-            this._instruction = new SquaddieInstruction({
+        if (this._squaddieActivitiesForThisRound === undefined) {
+            this._squaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: param.staticSquaddieId,
                 dynamicSquaddieId: param.dynamicSquaddieId,
                 startingLocation: param.startingLocation,
@@ -73,7 +75,7 @@ export class SquaddieInstructionInProgress {
     }
 
     addConfirmedActivity(activity: SquaddieInstructionActivity) {
-        if (!this._instruction) {
+        if (!this._squaddieActivitiesForThisRound) {
             throw new Error("no squaddie found, cannot add activity");
         }
 
@@ -89,11 +91,11 @@ export class SquaddieInstructionInProgress {
             this.addSelectedActivity(activity.squaddieActivity);
         }
 
-        this.instruction.addActivity(activity);
+        this.squaddieActivitiesForThisRound.addActivity(activity);
     }
 
     addSelectedActivity(activity: SquaddieActivity) {
-        if (!this._instruction) {
+        if (!this._squaddieActivitiesForThisRound) {
             throw new Error("no squaddie found, cannot add activity");
         }
 
@@ -124,4 +126,11 @@ export class SquaddieInstructionInProgress {
             this.reset();
         }
     }
+}
+
+export const DefaultSquaddieInstructionInProgress = () => {
+    return new SquaddieInstructionInProgress({
+        activitiesForThisRound: undefined,
+        currentSquaddieActivity: undefined,
+    })
 }

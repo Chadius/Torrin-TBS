@@ -14,14 +14,13 @@ import p5 from "p5";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {isCoordinateOnScreen} from "../../utils/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
@@ -199,7 +198,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             const currentTeamStrategies: TeamStrategy[] = state.teamStrategyByAffiliation[currentTeam.affiliation];
 
             let strategyIndex = 0;
-            let squaddieInstruction: SquaddieInstruction = undefined;
+            let squaddieInstruction: SquaddieActivitiesForThisRound = undefined;
             while (!squaddieInstruction && strategyIndex < currentTeamStrategies.length) {
                 const nextStrategy: TeamStrategy = currentTeamStrategies[strategyIndex];
                 squaddieInstruction = this.askTeamStrategyToInstructSquaddie(state, currentTeam, nextStrategy);
@@ -226,11 +225,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId))
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        if (!state.squaddieCurrentlyActing) {
-            state.squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
-        }
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-            state.squaddieCurrentlyActing.addSquaddie({
+            state.squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
                 staticSquaddieId: staticSquaddie.staticId,
                 startingLocation: datum.mapLocation,
@@ -245,14 +241,14 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         }));
     }
 
-    private askTeamStrategyToInstructSquaddie(state: BattleOrchestratorState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): SquaddieInstruction {
+    private askTeamStrategyToInstructSquaddie(state: BattleOrchestratorState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): SquaddieActivitiesForThisRound {
         const teamStrategyState: TeamStrategyState = new TeamStrategyState({
             missionMap: state.missionMap,
             team: currentTeam,
             squaddieRepository: state.squaddieRepository,
         })
 
-        let squaddieActivity: SquaddieInstruction = currentTeamStrategy.DetermineNextInstruction(teamStrategyState);
+        let squaddieActivity: SquaddieActivitiesForThisRound = currentTeamStrategy.DetermineNextInstruction(teamStrategyState);
         if (!squaddieActivity) {
             return;
         }
@@ -285,7 +281,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         }
     }
 
-    private reactToComputerSelectedActivity(state: BattleOrchestratorState, squaddieInstruction: SquaddieInstruction) {
+    private reactToComputerSelectedActivity(state: BattleOrchestratorState, squaddieInstruction: SquaddieActivitiesForThisRound) {
         state.hexMap.stopHighlightingTiles();
         const {
             staticSquaddie,

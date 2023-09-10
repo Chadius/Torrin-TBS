@@ -1,5 +1,5 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
-import {SquaddieInstruction} from "./squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "./squaddieActivitiesForThisRound";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
 import {squaddieActivityLongsword} from "../../utils/test/squaddieActivity";
@@ -7,7 +7,7 @@ import {squaddieActivityLongsword} from "../../utils/test/squaddieActivity";
 describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {
         const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            instruction: new SquaddieInstruction({
+            activitiesForThisRound: new SquaddieActivitiesForThisRound({
                 dynamicSquaddieId: "dynamicSquaddieId",
                 staticSquaddieId: "staticId",
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
@@ -22,7 +22,7 @@ describe('SquaddieInstructionInProgress', () => {
     });
 
     it('will indicate the squaddie has acted this round if they cancel after acting', () => {
-        const longswordUsedThisRoundActivity = new SquaddieInstruction({
+        const longswordUsedThisRoundActivity = new SquaddieActivitiesForThisRound({
             dynamicSquaddieId: "dynamicSquaddieId",
             staticSquaddieId: "staticId",
             startingLocation: new HexCoordinate({q: 1, r: 1}),
@@ -33,7 +33,7 @@ describe('SquaddieInstructionInProgress', () => {
         }));
 
         const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            instruction: longswordUsedThisRoundActivity,
+            activitiesForThisRound: longswordUsedThisRoundActivity,
             currentSquaddieActivity: squaddieActivityLongsword,
         });
 

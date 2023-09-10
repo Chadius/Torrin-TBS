@@ -1,12 +1,12 @@
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 
 class TestTeamStrategy implements TeamStrategy {
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieActivitiesForThisRound | undefined {
         return undefined;
     }
 }

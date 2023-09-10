@@ -1,5 +1,5 @@
 import {Recording} from "./recording";
-import {SquaddieInstruction} from "./squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "./squaddieActivitiesForThisRound";
 import {BattleEvent} from "./battleEvent";
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -10,14 +10,14 @@ describe('Recording', () => {
     it('can add an event and retrieve it', () => {
         const recording = new Recording({});
 
-        const endTurnInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const endTurnInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "player_squaddie",
             dynamicSquaddieId: "player_squaddie_0",
         });
         endTurnInstruction.endTurn();
 
         const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
-        squaddieMovesAndEndsTurn.addSquaddie({
+        squaddieMovesAndEndsTurn.addInitialState({
             staticSquaddieId: "static",
             dynamicSquaddieId: "dynamic",
             startingLocation: new HexCoordinate({q: 2, r: 3}),

@@ -8,7 +8,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
@@ -103,7 +103,7 @@ describe('BattleSquaddieTarget', () => {
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
 
         const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            instruction: new SquaddieInstruction({
+            activitiesForThisRound: new SquaddieActivitiesForThisRound({
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 staticSquaddieId: knightStatic.staticId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
@@ -207,14 +207,13 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            instruction: new SquaddieInstruction({
-                dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-                staticSquaddieId: knightStatic.staticId,
-                startingLocation: new HexCoordinate({q: 1, r: 1}),
-            }),
-            currentSquaddieActivity: longswordActivity,
+        state.squaddieCurrentlyActing.reset();
+        state.squaddieCurrentlyActing.addInitialState({
+            dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+            staticSquaddieId: knightStatic.staticId,
+            startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
+        state.squaddieCurrentlyActing.addSelectedActivity(longswordActivity);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeFalsy();
@@ -228,24 +227,19 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        const moveInstruction = new SquaddieInstruction({
+        state.squaddieCurrentlyActing.reset();
+        state.squaddieCurrentlyActing.addInitialState({
             dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
             staticSquaddieId: knightStatic.staticId,
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
-        moveInstruction.addActivity(new SquaddieMovementActivity({
+        state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.addActivity(new SquaddieMovementActivity({
             destination: new HexCoordinate({q: 0, r: 1}),
             numberOfActionsSpent: 1,
-        }));
-
-        const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            instruction: moveInstruction,
-            currentSquaddieActivity: longswordActivity,
-        });
-        state.squaddieCurrentlyActing = squaddieInstructionInProgress;
+        }))
+        state.squaddieCurrentlyActing.addSelectedActivity(longswordActivity);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
-        expect(state.squaddieCurrentlyActing).toStrictEqual(squaddieInstructionInProgress);
         expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeTruthy();
         expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();
     });
@@ -304,7 +298,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should create a squaddie instruction', () => {
-            const expectedInstruction = new SquaddieInstruction({
+            const expectedInstruction = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
@@ -316,7 +310,7 @@ describe('BattleSquaddieTarget', () => {
                 })
             );
 
-            expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
+            expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound).toStrictEqual(expectedInstruction);
         });
 
         it('should be completed', () => {
@@ -339,7 +333,7 @@ describe('BattleSquaddieTarget', () => {
 
     describe('confirming an action mid turn', () => {
         beforeEach(() => {
-            state.squaddieCurrentlyActing.addSquaddie({
+            state.squaddieCurrentlyActing.addInitialState({
                 staticSquaddieId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
@@ -353,7 +347,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should add to existing instruction when confirmed mid turn', () => {
-            const expectedInstruction = new SquaddieInstruction({
+            const expectedInstruction = new SquaddieActivitiesForThisRound({
                 staticSquaddieId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
@@ -365,7 +359,7 @@ describe('BattleSquaddieTarget', () => {
                 })
             );
 
-            expect(state.squaddieCurrentlyActing.instruction).toStrictEqual(expectedInstruction);
+            expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound).toStrictEqual(expectedInstruction);
         });
 
         it('should spend the activity resource cost', () => {

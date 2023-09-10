@@ -11,7 +11,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
@@ -63,7 +63,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         });
 
         battleEventRecording = new Recording({});
-        const oneActionInstruction = new SquaddieInstruction({
+        const oneActionInstruction = new SquaddieActivitiesForThisRound({
             staticSquaddieId: monkStaticId,
             dynamicSquaddieId: monkDynamicId,
         });
@@ -73,7 +73,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         }));
 
         monkMeditatesInstruction = new SquaddieInstructionInProgress({
-            instruction: oneActionInstruction,
+            activitiesForThisRound: oneActionInstruction,
             currentSquaddieActivity: monkKoanActivity,
         });
         monkMeditatesInstruction.addSelectedActivity(monkKoanActivity);

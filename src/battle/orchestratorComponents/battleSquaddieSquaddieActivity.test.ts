@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -126,7 +126,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
     });
 
     function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
-        const instruction: SquaddieInstruction = new SquaddieInstruction({
+        const instruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
@@ -135,7 +135,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             squaddieActivity: monkKoanActivity,
         }))
         monkMeditatesInstruction = new SquaddieInstructionInProgress({
-            instruction: instruction,
+            activitiesForThisRound: instruction,
             currentSquaddieActivity: monkKoanActivity,
         });
         monkMeditatesInstruction.addSelectedActivity(monkKoanActivity);
@@ -170,7 +170,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
     }
 
     function usePowerAttackLongswordAndReturnState({missionMap}: { missionMap?: MissionMap }) {
-        const wholeTurnInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const wholeTurnInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
@@ -180,7 +180,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         }));
 
         const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            instruction: wholeTurnInstruction,
+            activitiesForThisRound: wholeTurnInstruction,
             currentSquaddieActivity: powerAttackLongswordActivity,
         });
 

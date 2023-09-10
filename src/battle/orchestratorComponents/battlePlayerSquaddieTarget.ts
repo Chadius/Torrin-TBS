@@ -290,7 +290,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const actingSquaddieInfo = state.missionMap.getSquaddieByDynamicId(actingSquaddieDynamic.dynamicSquaddieId);
 
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-            state.squaddieCurrentlyActing.addSquaddie({
+            state.squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: actingSquaddieDynamic.dynamicSquaddieId,
                 staticSquaddieId: actingSquaddieStatic.staticId,
                 startingLocation: actingSquaddieInfo.mapLocation,

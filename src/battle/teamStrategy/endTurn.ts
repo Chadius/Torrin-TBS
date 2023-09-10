@@ -1,10 +1,10 @@
 import {TeamStrategy} from "./teamStrategy";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export class EndTurnTeamStrategy implements TeamStrategy {
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieInstruction | undefined {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieActivitiesForThisRound | undefined {
         const squaddiesWhoCanAct: string[] = state.team.getDynamicSquaddiesThatCanAct();
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
@@ -17,7 +17,7 @@ export class EndTurnTeamStrategy implements TeamStrategy {
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToAct));
 
         const datum = state.missionMap.getSquaddieByDynamicId(squaddieToAct);
-        const endTurnActivity: SquaddieInstruction = new SquaddieInstruction({
+        const endTurnActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: staticSquaddie.squaddieId.staticId,
             dynamicSquaddieId: squaddieToAct,
             startingLocation: datum.mapLocation,

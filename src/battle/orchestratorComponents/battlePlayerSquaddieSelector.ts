@@ -115,7 +115,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!this.playerCanControlAtLeastOneSquaddie(state)) {
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR;
         } else if (this.gaveCompleteInstruction) {
-            let newActivity = state.squaddieCurrentlyActing.instruction.getMostRecentActivity();
+            let newActivity = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity();
             if (newActivity instanceof SquaddieMovementActivity) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
             }
@@ -304,7 +304,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-            state.squaddieCurrentlyActing.addSquaddie({
+            state.squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
                 staticSquaddieId: staticSquaddie.staticId,
                 startingLocation: datum.mapLocation,

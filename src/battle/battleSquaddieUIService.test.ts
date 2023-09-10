@@ -10,7 +10,7 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
-import {SquaddieInstruction} from "./history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "./history/squaddieActivitiesForThisRound";
 import {SquaddieMovementActivity} from "./history/squaddieMovementActivity";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieResource} from "../squaddie/resource";
@@ -181,7 +181,7 @@ describe('BattleSquaddieUIService', () => {
     it('goes to SQUADDIE_SELECTED phase when the squaddie is mid turn', () => {
         const missionMap = createMissionMap(["1 1 "]);
         missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
-        const moveInstruction = new SquaddieInstruction({
+        const moveInstruction = new SquaddieActivitiesForThisRound({
             staticSquaddieId: "torrin",
             dynamicSquaddieId: "torrin_0",
             startingLocation: new HexCoordinate({q: 0, r: 0})
@@ -191,7 +191,7 @@ describe('BattleSquaddieUIService', () => {
             numberOfActionsSpent: 1,
         }));
         const currentInstruction = new SquaddieInstructionInProgress({
-            instruction: moveInstruction
+            activitiesForThisRound: moveInstruction
         });
 
         expect(

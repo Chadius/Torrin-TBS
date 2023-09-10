@@ -6,7 +6,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieInstruction} from "../history/squaddieInstruction";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
@@ -98,7 +98,7 @@ describe('move towards closest squaddie in range', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        const expectedInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const expectedInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: searchingSquaddieStatic.squaddieId.staticId,
             dynamicSquaddieId: "searching_squaddie_0",
             startingLocation: new HexCoordinate({q: 0, r: 2}),
@@ -111,7 +111,7 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredDynamicSquaddieId: "target_squaddie_0",
         });
-        const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
@@ -153,7 +153,7 @@ describe('move towards closest squaddie in range', () => {
             r: 2
         }));
 
-        const startingInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const startingInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: searchingSquaddieStatic2.staticId,
             dynamicSquaddieId: searchingSquaddieDynamic2.dynamicSquaddieId,
             startingLocation: new HexCoordinate({coordinates: [0, 5]})
@@ -171,7 +171,7 @@ describe('move towards closest squaddie in range', () => {
             instruction: startingInstruction,
         });
 
-        const expectedInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const expectedInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: searchingSquaddieStatic2.squaddieId.staticId,
             dynamicSquaddieId: searchingSquaddieDynamic2.dynamicSquaddieId,
             startingLocation: new HexCoordinate({q: 0, r: 3}),
@@ -184,7 +184,7 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredDynamicSquaddieId: "target_squaddie_0",
         });
-        const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
@@ -238,7 +238,7 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredDynamicSquaddieId: "target_squaddie_0"
         });
-        const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -262,7 +262,7 @@ describe('move towards closest squaddie in range', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        const expectedInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const expectedInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: searchingSquaddieStatic.squaddieId.staticId,
             dynamicSquaddieId: "searching_squaddie_0",
             startingLocation: new HexCoordinate({q: 0, r: 8}),
@@ -272,7 +272,7 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredDynamicSquaddieId: "target_squaddie_0"
         });
-        const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -300,7 +300,7 @@ describe('move towards closest squaddie in range', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        const expectedInstruction: SquaddieInstruction = new SquaddieInstruction({
+        const expectedInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
             staticSquaddieId: searchingSquaddieStatic.squaddieId.staticId,
             dynamicSquaddieId: "searching_squaddie_0",
             startingLocation: new HexCoordinate({q: 0, r: 2}),
@@ -313,7 +313,7 @@ describe('move towards closest squaddie in range', () => {
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredAffiliation: SquaddieAffiliation.PLAYER
         });
-        const actualInstruction: SquaddieInstruction = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
