@@ -15,7 +15,6 @@ import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {calculateNewBattleSquaddieUISelectionState} from "../battleSquaddieUIService";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {highlightSquaddieReach} from "../animation/mapHighlight";
-import p5 from "p5";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
@@ -28,6 +27,7 @@ import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -101,7 +101,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         });
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             return;

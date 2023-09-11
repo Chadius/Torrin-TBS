@@ -1,15 +1,15 @@
 import {RectArea} from "../../ui/rectArea";
 import {WINDOW_SPACING2} from "../../ui/constants";
-import p5 from "p5";
 import {ImageUI} from "../../ui/imageUI";
+import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 type Options = {
-    speakerPortrait: p5.Image;
+    speakerPortrait: GraphicImage;
     screenDimensions: [number, number];
 }
 
 export class DialogueSpeakerImage {
-    speakerPortrait: p5.Image;
+    speakerPortrait: GraphicImage;
     speakerImage: ImageUI;
     screenDimensions: [number, number]
 
@@ -20,8 +20,8 @@ export class DialogueSpeakerImage {
         this.createUIObjects();
     }
 
-    draw(p: p5) {
-        this.speakerImage.draw(p);
+    draw(graphicsContext: GraphicsContext) {
+        this.speakerImage.draw(graphicsContext);
     }
 
     private createUIObjects() {

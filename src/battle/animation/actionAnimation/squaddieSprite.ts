@@ -1,10 +1,10 @@
 import {RectArea} from "../../../ui/rectArea";
-import p5 from "p5";
 import {SquaddieEmotion} from "./actionAnimationConstants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {ImageUI} from "../../../ui/imageUI";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
+import {GraphicImage, GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
 export class SquaddieSprite {
     private readonly _actionSpritesByEmotion: { [key in SquaddieEmotion]?: ImageUI };
@@ -69,7 +69,7 @@ export class SquaddieSprite {
         return {justCreatedImages: true};
     }
 
-    public getSpriteBasedOnEmotion(emotion: SquaddieEmotion, graphicsContext: p5): ImageUI {
+    public getSpriteBasedOnEmotion(emotion: SquaddieEmotion, graphicsContext: GraphicsContext): ImageUI {
         if (emotion in this.actionSpritesByEmotion) {
             return this.actionSpritesByEmotion[emotion];
         }
@@ -81,8 +81,8 @@ export class SquaddieSprite {
         return this.defaultEmptyImage(graphicsContext);
     }
 
-    private defaultEmptyImage(graphicsContext: p5): ImageUI {
-        const emptyImage: p5.Image = graphicsContext.createImage(1, 1);
+    private defaultEmptyImage(graphicsContext: GraphicsContext): ImageUI {
+        const emptyImage: GraphicImage = graphicsContext.createImage(1, 1);
         emptyImage.loadPixels();
 
         return new ImageUI({

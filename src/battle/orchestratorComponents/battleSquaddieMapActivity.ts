@@ -5,12 +5,12 @@ import {
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import p5 from "p5";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 const ACTIVITY_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -50,7 +50,7 @@ export class BattleSquaddieMapActivity implements BattleOrchestratorComponent {
         ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.animationCompleteStartTime === undefined) {
             const dynamicSquaddieId = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getDynamicSquaddieId();
             const {

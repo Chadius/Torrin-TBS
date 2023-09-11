@@ -5,13 +5,13 @@ import {
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import p5 from "p5";
 import {BattlePhase} from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
+import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -20,9 +20,9 @@ export type BattlePhaseState = {
 }
 
 export class BattlePhaseController implements BattleOrchestratorComponent {
-    bannerImage: p5.Image;
+    bannerImage: GraphicImage;
     bannerImageUI: ImageUI;
-    affiliationImage: p5.Image;
+    affiliationImage: GraphicImage;
     affiliationImageUI: ImageUI;
     bannerDisplayAnimationStartTime?: number;
     newBannerShown: boolean;
@@ -60,13 +60,13 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (!this.newBannerShown && state.battlePhaseTracker.getCurrentPhase() !== BattlePhase.UNKNOWN && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
             return;
         }
 
         if (this.bannerDisplayAnimationStartTime !== undefined && Date.now() - this.bannerDisplayAnimationStartTime < BANNER_ANIMATION_TIME) {
-            this.draw(state, p);
+            this.draw(state, graphicsContext);
             return;
         }
 
@@ -144,10 +144,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         });
     }
 
-    draw(state: BattleOrchestratorState, p: p5): void {
+    draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.bannerImageUI) {
-            this.bannerImageUI.draw(p);
-            this.affiliationImageUI.draw(p);
+            this.bannerImageUI.draw(graphicsContext);
+            this.affiliationImageUI.draw(graphicsContext);
         }
     }
 

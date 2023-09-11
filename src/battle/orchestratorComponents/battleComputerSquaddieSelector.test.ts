@@ -28,7 +28,7 @@ import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
@@ -44,15 +44,14 @@ describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let missionMap: MissionMap;
-    let mockedP5 = mocks.mockedP5();
     let enemyDemonStatic: BattleSquaddieStatic;
     let enemyDemonDynamic: BattleSquaddieDynamic;
     let enemyDemonDynamic2: BattleSquaddieDynamic;
     let demonBiteActivity: SquaddieActivity;
     let entireTurnDemonBiteActivity: SquaddieActivity;
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
         selector = new BattleComputerSquaddieSelector();
         squaddieRepo = new BattleSquaddieRepository();
         missionMap = new MissionMap({
@@ -60,6 +59,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 movementCost: ["1 1 "]
             })
         });
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
@@ -193,7 +193,7 @@ describe('BattleComputerSquaddieSelector', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
         camera.moveCamera();
-        selector.update(state, mockedP5);
+        selector.update(state, mockedP5GraphicsContext);
 
         expect(selector.hasCompleted(state)).toBeFalsy();
         expect(camera.isPanning()).toBeTruthy();
@@ -203,7 +203,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
         jest.spyOn(Date, 'now').mockImplementation(() => SQUADDIE_SELECTOR_PANNING_TIME);
         camera.moveCamera();
-        selector.update(state, mockedP5);
+        selector.update(state, mockedP5GraphicsContext);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(camera.isPanning()).toBeFalsy();
@@ -239,7 +239,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 },
             });
 
-            selector.update(state, mockedP5);
+            selector.update(state, mockedP5GraphicsContext);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
             const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
@@ -285,7 +285,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 },
             });
 
-            selector.update(state, mockedP5);
+            selector.update(state, mockedP5GraphicsContext);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
             const endTurnActivityInstruction: SquaddieActivitiesForThisRound = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound;
@@ -332,11 +332,11 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        selector.update(state, mockedP5);
+        selector.update(state, mockedP5GraphicsContext);
 
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        selector.update(state, mockedP5);
+        selector.update(state, mockedP5GraphicsContext);
         jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
         expect(selector.hasCompleted(state)).toBeTruthy();
 
@@ -344,7 +344,7 @@ describe('BattleComputerSquaddieSelector', () => {
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
 
         selector.reset(state);
-        selector.update(state, mockedP5);
+        selector.update(state, mockedP5GraphicsContext);
         expect(selector.hasCompleted(state)).toBeTruthy();
         recommendation = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
@@ -409,7 +409,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }
             });
 
-            selector.update(state, mockedP5);
+            selector.update(state, mockedP5GraphicsContext);
 
             expect(selector.hasCompleted(state)).toBeTruthy();
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
@@ -455,7 +455,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 });
 
                 jest.spyOn(Date, 'now').mockImplementation(() => 0);
-                selector.update(state, mockedP5);
+                selector.update(state, mockedP5GraphicsContext);
             });
 
             it('will indicate the next activity', () => {
@@ -474,23 +474,23 @@ describe('BattleComputerSquaddieSelector', () => {
 
             it('waits and then completes the component', () => {
                 expect(selector.hasCompleted(state)).toBeFalsy();
-                selector.update(state, mockedP5);
+                selector.update(state, mockedP5GraphicsContext);
 
                 jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
-                selector.update(state, mockedP5);
+                selector.update(state, mockedP5GraphicsContext);
                 expect(selector.hasCompleted(state)).toBeTruthy();
             })
 
             it('waits and then will recommend squaddie squaddie activity as the next field', () => {
                 jest.spyOn(Date, 'now').mockImplementation(() => SHOW_SELECTED_ACTIVITY_TIME);
-                selector.update(state, mockedP5);
+                selector.update(state, mockedP5GraphicsContext);
                 const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
                 expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
             });
 
             it('player can click to complete the component if an activity is selected', () => {
                 expect(selector.hasCompleted(state)).toBeFalsy();
-                selector.update(state, mockedP5);
+                selector.update(state, mockedP5GraphicsContext);
 
                 const mouseEvent: OrchestratorComponentMouseEvent = {
                     eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -499,7 +499,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 };
 
                 selector.mouseEventHappened(state, mouseEvent);
-                selector.update(state, mockedP5);
+                selector.update(state, mockedP5GraphicsContext);
                 expect(selector.hasCompleted(state)).toBeTruthy();
             });
 

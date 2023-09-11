@@ -6,7 +6,6 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import p5 from "p5";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -22,6 +21,7 @@ import {Label} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {CalculateResults} from "./battleSquaddieSelectorUtils";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -89,17 +89,17 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (!this.hasHighlightedTargetRange) {
             return this.highlightTargetRange(state);
         }
 
         if (this.hasHighlightedTargetRange && !this.hasSelectedValidTarget) {
-            this.drawCancelAbilityButton(state, p);
+            this.drawCancelAbilityButton(state, graphicsContext);
         }
 
         if (this.hasHighlightedTargetRange && this.hasSelectedValidTarget && !this.hasConfirmedAction) {
-            this.drawConfirmWindow(state, p);
+            this.drawConfirmWindow(state, graphicsContext);
         }
         return;
     }
@@ -169,7 +169,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.highlightedTargetRange = [...abilityRange];
     }
 
-    private drawCancelAbilityButton(state: BattleOrchestratorState, p: p5) {
+    private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.drawButton(
             new RectArea({
                 left: 0,
@@ -178,7 +178,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
             }),
             "Cancel",
-            p
+            graphicsContext,
         );
     }
 
@@ -227,7 +227,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.validTargetLocation = clickedLocation;
     }
 
-    private drawConfirmWindow(state: BattleOrchestratorState, p: p5) {
+    private drawConfirmWindow(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.drawButton(
             new RectArea({
                 left: 0,
@@ -236,7 +236,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
             }),
             "Cancel",
-            p
+            graphicsContext,
         );
 
         this.drawButton(
@@ -247,7 +247,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
             }),
             "Confirm",
-            p
+            graphicsContext,
         );
 
         this.drawButton(
@@ -258,11 +258,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
             }),
             "Forecast here",
-            p
+            graphicsContext,
         );
     }
 
-    private drawButton(area: RectArea, buttonText: string, p: p5) {
+    private drawButton(area: RectArea, buttonText: string, graphicsContext: GraphicsContext) {
         const buttonBackground = new Label({
             area,
             fillColor: [0, 0, 60],
@@ -275,7 +275,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             padding: [6, 0, 0, area.width / 2 - 50],
         });
 
-        buttonBackground.draw(p);
+        buttonBackground.draw(graphicsContext);
     }
 
     private cancelTargetSelection(state: BattleOrchestratorState) {

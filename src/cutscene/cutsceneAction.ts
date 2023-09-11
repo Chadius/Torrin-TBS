@@ -1,14 +1,14 @@
 import {ResourceLocator} from "../resource/resourceHandler";
-import p5 from "p5";
+import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 
 export interface CutsceneAction {
     getId(): string;
 
     getResourceLocators(): ResourceLocator[];
 
-    setImageResource(image: p5.Image): void;
+    setImageResource(image: GraphicImage): void;
 
-    draw(p: p5): void;
+    draw(graphicsContext: GraphicsContext): void;
 
     start(): void;
 

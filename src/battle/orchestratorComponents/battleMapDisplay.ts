@@ -6,24 +6,24 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import p5 from "p5";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
 import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
-    draw(state: BattleOrchestratorState, p: p5): void {
-        p.background(50, 10, 20);
+    draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+        graphicsContext.background(50, 10, 20);
 
         if (state.hexMap) {
-            drawHexMap(p, state.hexMap, ...state.camera.getCoordinates());
+            drawHexMap(graphicsContext, state.hexMap, ...state.camera.getCoordinates());
         }
 
-        this.drawSquaddieMapIcons(state, p);
+        this.drawSquaddieMapIcons(state, graphicsContext);
         state.camera.moveCamera();
 
-        state.battleSquaddieSelectedHUD.draw(state.squaddieCurrentlyActing, state, p);
+        state.battleSquaddieSelectedHUD.draw(state.squaddieCurrentlyActing, state, graphicsContext);
     }
 
     hasCompleted(state: BattleOrchestratorState): boolean {
@@ -113,8 +113,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
-        this.draw(state, p);
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+        this.draw(state, graphicsContext);
     }
 
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
@@ -124,7 +124,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     reset(state: BattleOrchestratorState) {
     }
 
-    private drawSquaddieMapIcons(state: BattleOrchestratorState, p: p5) {
+    private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const noSquaddieIsCurrentlyActing: boolean = state.squaddieCurrentlyActing === undefined;
         state.squaddieRepository.getDynamicSquaddieIterator()
             .filter((info) =>
@@ -139,7 +139,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     const squaddieIsOnTheMap: boolean = datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation);
                     const squaddieIsHidden: boolean = state.missionMap.isSquaddieHiddenFromDrawing(dynamicSquaddieId);
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
-                        drawSquaddieMapIconAtMapLocation(p, state.squaddieRepository, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
+                        drawSquaddieMapIconAtMapLocation(graphicsContext, state.squaddieRepository, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
                     }
                 }
             });

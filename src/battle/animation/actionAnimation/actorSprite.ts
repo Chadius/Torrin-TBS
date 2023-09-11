@@ -1,5 +1,4 @@
 import {RectArea} from "../../../ui/rectArea";
-import p5 from "p5";
 import {
     ACTION_ANIMATION_ACTION_TIME,
     ACTION_ANIMATION_BEFORE_ACTION_TIME,
@@ -14,6 +13,7 @@ import {WINDOW_SPACING1} from "../../../ui/constants";
 import {SquaddieSprite} from "./squaddieSprite";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
+import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
 export class ActorSprite {
     constructor() {
@@ -72,7 +72,7 @@ export class ActorSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw(timer: ActionTimer, graphicsContext: p5) {
+    draw(timer: ActionTimer, graphicsContext: GraphicsContext) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }
@@ -82,7 +82,7 @@ export class ActorSprite {
         this.drawActorSprite(timer, graphicsContext);
     }
 
-    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: p5) {
+    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
             dynamicSquaddieId: this.dynamicSquaddieId,
@@ -112,7 +112,7 @@ export class ActorSprite {
         }
     }
 
-    private drawActorSprite(timer: ActionTimer, graphicsContext: p5) {
+    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext);
         let horizontalDistance = this.getDistanceBasedOnTimer(timer);
         spriteToDraw.area.move({

@@ -1,9 +1,9 @@
 import {TextBox} from "../../../ui/textBox";
 import {RectArea} from "../../../ui/rectArea";
-import p5 from "p5";
 import {Rectangle} from "../../../ui/rectangle";
 import {ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME} from "./actionAnimationConstants";
 import {WINDOW_SPACING1} from "../../../ui/constants";
+import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
 export const HIT_POINT_METER_HP_WIDTH = 20;
 const HIT_POINT_METER_HEIGHT = 20;
@@ -76,7 +76,7 @@ export class HitPointMeter {
         return this._hue;
     }
 
-    draw(graphicsContext: p5) {
+    draw(graphicsContext: GraphicsContext) {
         this.drawHitPointsText(graphicsContext);
         this.drawHitPointRectangle(graphicsContext);
     }
@@ -89,7 +89,7 @@ export class HitPointMeter {
         this.changedHitPointsTimestamp = Date.now();
     }
 
-    private drawHitPointRectangle(graphicsContext: p5) {
+    private drawHitPointRectangle(graphicsContext: GraphicsContext) {
         this.maxHitPointsRectangle.draw(graphicsContext);
         this.currentHitPointsRectangle.draw(graphicsContext);
         this.updateChangedHitPointsRectangle();
@@ -98,7 +98,7 @@ export class HitPointMeter {
         }
     }
 
-    private drawHitPointsText(graphicsContext: p5) {
+    private drawHitPointsText(graphicsContext: GraphicsContext) {
         this.currentHitPointsTextBox.draw(graphicsContext);
         this.maxHitPointsTextBox.draw(graphicsContext);
     }

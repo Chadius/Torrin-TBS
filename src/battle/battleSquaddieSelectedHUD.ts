@@ -1,4 +1,3 @@
-import p5 from "p5";
 import {HorizontalAnchor, RectArea, VerticalAnchor} from "../ui/rectArea";
 import {Rectangle} from "../ui/rectangle";
 import {getResultOrThrowError, isResult} from "../utils/ResultOrError";
@@ -23,6 +22,7 @@ import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1} from "../ui/cons
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
+import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 
 enum ActivityValidityCheck {
     IS_VALID,
@@ -111,20 +111,20 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedSquaddieDynamicId;
     }
 
-    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, p: p5) {
+    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
-        this._background.draw(p);
-        this.drawSquaddieID(state, p);
-        this.drawSquaddieAttributes(state, p);
-        this.drawNumberOfActions(state, p);
-        this.drawSquaddieActivities(p);
-        this.drawUncontrollableSquaddieWarning(state, p);
-        this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state, p);
-        this.invalidCommandWarningTextBox.draw(p);
+        this._background.draw(graphicsContext);
+        this.drawSquaddieID(state, graphicsContext);
+        this.drawSquaddieAttributes(state, graphicsContext);
+        this.drawNumberOfActions(state, graphicsContext);
+        this.drawSquaddieActivities(graphicsContext);
+        this.drawUncontrollableSquaddieWarning(state);
+        this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state);
+        this.invalidCommandWarningTextBox.draw(graphicsContext);
         if (this.shouldDrawNextButton(state)) {
-            this.nextSquaddieButton.draw(p);
+            this.nextSquaddieButton.draw(graphicsContext);
         }
     }
 
@@ -243,7 +243,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private generateAffiliateIcon(staticSquaddie: BattleSquaddieStatic, state: BattleOrchestratorState) {
-        let affiliateIconImage: p5.Image;
+        let affiliateIconImage: GraphicImage;
         switch (staticSquaddie.squaddieId.affiliation) {
             case SquaddieAffiliation.PLAYER:
                 affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_crusaders"))
@@ -276,45 +276,45 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private drawSquaddieID(state: BattleOrchestratorState, p: p5) {
+    private drawSquaddieID(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
             staticSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
 
         if (this.affiliateIcon) {
-            this.affiliateIcon.draw(p);
+            this.affiliateIcon.draw(graphicsContext);
         }
 
-        this.squaddieIdTextBox.draw(p);
+        this.squaddieIdTextBox.draw(graphicsContext);
     }
 
-    private drawNumberOfActions(state: BattleOrchestratorState, p: p5) {
+    private drawNumberOfActions(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie});
 
-        p.push();
+        graphicsContext.push();
 
         const mainActionIconWidth: number = 25;
         const actionIconLeft: number = this._background.area.left + 20;
 
-        p.fill("#dedede");
-        p.stroke("#1f1f1f");
+        graphicsContext.fill({color: "#dedede"});
+        graphicsContext.stroke({color: "#1f1f1f"});
         const actionBackground: RectArea = new RectArea({
             left: actionIconLeft,
             height: mainActionIconWidth * 3,
             width: 40,
             top: this._background.area.top + 45,
         })
-        p.fill("#1f1f1f");
-        p.stroke("#1f1f1f");
-        p.strokeWeight(2);
-        p.rect(actionBackground.left, actionBackground.top, actionBackground.width, actionBackground.height);
+        graphicsContext.fill({color: "#1f1f1f"});
+        graphicsContext.stroke({color: "#1f1f1f"});
+        graphicsContext.strokeWeight(2);
+        graphicsContext.rect(actionBackground.left, actionBackground.top, actionBackground.width, actionBackground.height);
 
-        p.fill("#dedede");
-        p.rect(
+        graphicsContext.fill({color: "#dedede"});
+        graphicsContext.rect(
             actionBackground.left,
             actionBackground.bottom - mainActionIconWidth * normalActionsRemaining,
             actionBackground.width,
@@ -329,7 +329,7 @@ export class BattleSquaddieSelectedHUD {
 
         [1, 2].filter(i => normalActionsRemaining >= i).forEach(i => {
             const verticalDistance: number = i * actionBackground.height / 3;
-            p.line(
+            graphicsContext.line(
                 actionBackground.left,
                 actionLineMarking.bottom - verticalDistance,
                 actionBackground.right,
@@ -337,12 +337,12 @@ export class BattleSquaddieSelectedHUD {
             )
         });
 
-        p.pop();
+        graphicsContext.pop();
     }
 
-    private drawSquaddieActivities(p: p5) {
+    private drawSquaddieActivities(graphicsContext: GraphicsContext) {
         this.activityButtons.forEach((button) => {
-            button.draw(p)
+            button.draw(graphicsContext)
         });
     }
 
@@ -374,7 +374,7 @@ export class BattleSquaddieSelectedHUD {
         };
     }
 
-    private drawUncontrollableSquaddieWarning(state: BattleOrchestratorState, p: p5) {
+    private drawUncontrollableSquaddieWarning(state: BattleOrchestratorState) {
         if (!this.selectedSquaddieDynamicId) {
             return;
         }
@@ -404,7 +404,7 @@ export class BattleSquaddieSelectedHUD {
 
     }
 
-    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, p: p5) {
+    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState) {
         if (
             squaddieCurrentlyActing.isReadyForNewSquaddie
         ) {
@@ -493,7 +493,7 @@ export class BattleSquaddieSelectedHUD {
         return ActivityValidityCheck.IS_VALID
     }
 
-    private drawSquaddieAttributes(state: BattleOrchestratorState, p: p5) {
+    private drawSquaddieAttributes(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
             staticSquaddie,
             dynamicSquaddie
@@ -527,7 +527,7 @@ export class BattleSquaddieSelectedHUD {
             textTopMargin: attributeTextTopMargin,
             topOffset: 40,
             state,
-            p,
+            graphicsContext,
         });
 
         const armorClassInfo = GetArmorClass({staticSquaddie, dynamicSquaddie});
@@ -544,7 +544,7 @@ export class BattleSquaddieSelectedHUD {
             textTopMargin: attributeTextTopMargin,
             topOffset: 80,
             state,
-            p,
+            graphicsContext,
         });
     }
 
@@ -560,7 +560,7 @@ export class BattleSquaddieSelectedHUD {
                                 text,
                                 baseRectangle,
                                 state,
-                                p,
+                                graphicsContext,
                             }: {
                                 iconResourceKey: string,
                                 iconSize: number,
@@ -573,7 +573,7 @@ export class BattleSquaddieSelectedHUD {
                                 text: string,
                                 baseRectangle: RectArea,
                                 state: BattleOrchestratorState,
-                                p: p5,
+                                graphicsContext: GraphicsContext,
                             }
     ) {
         const textBox = new TextBox({
@@ -586,7 +586,8 @@ export class BattleSquaddieSelectedHUD {
                 left: iconLeftOffset + textLeftMargin,
             })
         });
-        textBox.draw(p);
+
+        textBox.draw(graphicsContext);
 
         const iconAttempt = state.resourceHandler.getResource(iconResourceKey);
         if (isResult(iconAttempt)) {
@@ -600,7 +601,7 @@ export class BattleSquaddieSelectedHUD {
                     height: iconSize,
                 })
             });
-            iconImage.draw(p);
+            iconImage.draw(graphicsContext);
         }
     }
 

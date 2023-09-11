@@ -1,6 +1,6 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {OrchestratorComponentMouseEvent} from "../orchestrator/battleOrchestratorComponent";
-import p5 from "p5";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export interface SquaddieActionAnimator {
     hasCompleted(state: BattleOrchestratorState): boolean;
@@ -9,7 +9,7 @@ export interface SquaddieActionAnimator {
 
     start(state: BattleOrchestratorState): void;
 
-    update(state: BattleOrchestratorState, graphicsContext: p5): void;
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void;
 
     reset(state: BattleOrchestratorState): void;
 }

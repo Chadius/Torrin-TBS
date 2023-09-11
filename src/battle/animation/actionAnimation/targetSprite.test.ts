@@ -8,8 +8,7 @@ import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import * as squaddieService from "../../../squaddie/squaddieService";
-import p5 from "p5";
-import * as mocks from "../../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 
@@ -18,8 +17,8 @@ describe('Target Sprite', () => {
     let resultTookLethalDamage: ActivityResult;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
-    let mockedP5: p5;
     const dynamicSquaddieId = "target0";
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -44,7 +43,7 @@ describe('Target Sprite', () => {
         timer = new ActionTimer();
         timer.start();
 
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
 
@@ -64,7 +63,7 @@ describe('Target Sprite', () => {
             windowArea: new RectArea({top: 0, left: 0, width: 10, height: 20})
         });
 
-        sprite.draw(timer, mockedP5);
+        sprite.draw(timer, mockedP5GraphicsContext);
 
         expect(getSquaddieEmotionSpy).toBeCalled();
         expect(getterSpy).toBeCalled();

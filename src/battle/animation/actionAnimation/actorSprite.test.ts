@@ -6,8 +6,7 @@ import {ArmyAttributes} from "../../../squaddie/armyAttributes";
 import {ActorSprite} from "./actorSprite";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants";
-import p5 from "p5";
-import * as mocks from "../../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 
@@ -15,7 +14,7 @@ describe('Actor Sprite', () => {
     let resultTookDamage: ActivityResult;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
-    let mockedP5: p5;
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
     const dynamicSquaddieId = "actor0";
 
     beforeEach(() => {
@@ -35,8 +34,7 @@ describe('Actor Sprite', () => {
 
         timer = new ActionTimer();
         timer.start();
-
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
 
@@ -54,7 +52,7 @@ describe('Actor Sprite', () => {
             windowArea: new RectArea({top: 0, left: 0, width: 10, height: 20})
         });
 
-        sprite.draw(timer, mockedP5);
+        sprite.draw(timer, mockedP5GraphicsContext);
 
         expect(getSquaddieEmotionSpy).toBeCalled();
         expect(getterSpy).toBeCalled();

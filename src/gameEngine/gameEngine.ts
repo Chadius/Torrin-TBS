@@ -1,4 +1,3 @@
-import p5 from "p5";
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissionLoader";
@@ -17,13 +16,14 @@ import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
 export class GameEngine {
-    private readonly graphicsContext: p5;
+    private readonly graphicsContext: GraphicsContext;
 
-    constructor({graphicsContext, startupMode}: { graphicsContext: p5, startupMode: GameModeEnum }) {
+    constructor({graphicsContext, startupMode}: { graphicsContext: GraphicsContext, startupMode: GameModeEnum }) {
         this.graphicsContext = graphicsContext;
         this._currentMode = startupMode;
     }
@@ -75,7 +75,7 @@ export class GameEngine {
         return this._resourceHandler;
     }
 
-    setup({graphicsContext}: { graphicsContext: p5 }) {
+    setup({graphicsContext}: { graphicsContext: GraphicsContext }) {
         this._battleOrchestrator = new BattleOrchestrator({
             missionLoader: new BattleMissionLoader(),
             cutscenePlayer: new BattleCutscenePlayer(),
@@ -112,7 +112,7 @@ export class GameEngine {
         this.component.mouseMoved(this.getComponentState(), mouseX, mouseY);
     }
 
-    update({graphicsContext}: { graphicsContext: p5 }) {
+    update({graphicsContext}: { graphicsContext: GraphicsContext }) {
         this.component.update(this.getComponentState(), graphicsContext);
         if (this.component.hasCompleted(this.getComponentState())) {
             const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
@@ -122,9 +122,9 @@ export class GameEngine {
         }
     }
 
-    private resetComponentStates(graphicsContext: p5) {
+    private resetComponentStates(graphicsContext: GraphicsContext) {
         this._battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
-        this._titleScreenState = this.titleScreen.setup({graphicsContext})
+        this._titleScreenState = this.titleScreen.setup()
     }
 
     private getComponentState(): GameEngineComponentState {
@@ -139,10 +139,10 @@ export class GameEngine {
     }
 
 
-    private lazyLoadResourceHandler({graphicsContext}: { graphicsContext: p5 }) {
+    private lazyLoadResourceHandler({graphicsContext}: { graphicsContext: GraphicsContext }) {
         if (this.resourceHandler === undefined) {
             this._resourceHandler = new ResourceHandler({
-                p: graphicsContext,
+                graphicsContext: graphicsContext,
                 allResources: [
                     {
                         type: ResourceType.IMAGE,

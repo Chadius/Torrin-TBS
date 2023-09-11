@@ -21,6 +21,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as orchestratorUtils from "./orchestratorUtils";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
@@ -43,11 +44,11 @@ describe('BattleSquaddieSquaddieActivity', () => {
     let monkMeditatesInstruction: SquaddieInstructionInProgress;
     let squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
-    let mockedP5 = mocks.mockedP5();
     let battleEventRecording: Recording;
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = new BattleSquaddieRepository();
         ({
             staticSquaddie: staticSquaddieBase,
@@ -226,7 +227,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
         const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
 
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
         expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.dynamicSquaddieId)).toBeTruthy();
     });
@@ -237,7 +238,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         const squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
         const squaddieTargetsOtherSquaddiesAnimatorResetSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "reset").mockImplementation();
         const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(false);
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
 
         expect(squaddieSquaddieActivity.squaddieActionAnimator).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator);
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled();
@@ -245,7 +246,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
 
         squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockReturnValue(true);
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled();
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();
@@ -265,7 +266,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         const squaddieSkipsAnimationAnimatorUpdateSpy = jest.spyOn(squaddieSquaddieActivity.squaddieSkipsAnimationAnimator, "update").mockImplementation();
         const squaddieSkipsAnimationAnimatorResetSpy = jest.spyOn(squaddieSquaddieActivity.squaddieSkipsAnimationAnimator, "reset").mockImplementation();
         const squaddieSkipsAnimationAnimatorHasCompletedSpy = jest.spyOn(squaddieSquaddieActivity.squaddieSkipsAnimationAnimator, "hasCompleted").mockReturnValue(false);
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
 
         expect(squaddieSquaddieActivity.squaddieActionAnimator).toBeInstanceOf(SquaddieSkipsAnimationAnimator);
         expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled();
@@ -273,7 +274,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
 
         squaddieSkipsAnimationAnimatorHasCompletedSpy.mockReturnValue(true);
-        squaddieSquaddieActivity.update(state, mockedP5);
+        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
         expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled();
         expect(squaddieSkipsAnimationAnimatorHasCompletedSpy).toBeCalled();
         expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();

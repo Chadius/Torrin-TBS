@@ -6,7 +6,6 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import p5 from "p5";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
@@ -20,6 +19,7 @@ import {SquaddieActionAnimator} from "../animation/squaddieActionAnimator";
 import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionAnimator";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {Trait} from "../../trait/traitStatusStorage";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export class BattleSquaddieSquaddieActivity implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -86,11 +86,11 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
         MaybeEndSquaddieTurn(state);
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator) {
             this.setSquaddieActionAnimatorBasedOnActivity(state);
         }
-        this.squaddieActionAnimator.update(state, p);
+        this.squaddieActionAnimator.update(state, graphicsContext);
         if (this.squaddieActionAnimator.hasCompleted(state)) {
             this.hideDeadSquaddies(state);
             this.sawResultAftermath = true;

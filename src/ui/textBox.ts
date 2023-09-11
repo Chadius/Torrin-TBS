@@ -1,6 +1,7 @@
 import {RectArea} from "./rectArea";
 import * as p5 from "p5";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE} from "./constants";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 export type TextBoxArguments = {
     text: string;
@@ -54,26 +55,27 @@ export class TextBox {
         this._text = value;
     }
 
-    draw(p: p5) {
+    draw(graphicsContext: GraphicsContext) {
         if (this.isDone()) {
             return;
         }
-        p.push();
-        p.textSize(this.textSize);
-        p.fill(this.fontColor);
-        p.textAlign(
+
+        graphicsContext.push();
+        graphicsContext.textSize(this.textSize);
+        graphicsContext.fill({hsb: this.fontColor});
+        graphicsContext.textAlign(
             this.horizAlign,
             this.vertAlign
         );
-        p.text(
+        graphicsContext.text(
             this._text,
             this.area.left,
             this.area.top,
             this.area.width,
             this.area.height,
         );
-        p.textAlign(p.LEFT, p.BASELINE);
-        p.pop();
+        graphicsContext.textAlign(HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE);
+        graphicsContext.pop();
     }
 
     isDone(): boolean {

@@ -1,5 +1,7 @@
 import p5 from "p5";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
+import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {P5GraphicsContext} from "../utils/graphics/P5GraphicsContext";
 
 export enum ResourceType {
     IMAGE,
@@ -17,7 +19,7 @@ export type ResourceLocator = {
 
 type ImageResource = {
     locator: ResourceLocator;
-    image: p5.Image;
+    image: GraphicImage;
 }
 
 type RequiredOptions = {
@@ -26,29 +28,29 @@ type RequiredOptions = {
 
 type Options = {
     imageLoader: ResourceTypeLoader;
-    p: p5;
+    graphicsContext: GraphicsContext;
 }
 
 export interface ResourceTypeLoader {
     loadResource(resourceKey: string, handler: ResourceHandler): void;
 
     setCallbacks(
-        successCallback: (key: string, handler: ResourceHandler, resource: any) => {},
+        successCallback: (key: string, handler: ResourceHandler, resource: GraphicImage) => {},
         failureCallback?: (key: string, handler: ResourceHandler, p1: Event) => any
     ): void;
 }
 
 class p5ImageLoader implements ResourceTypeLoader {
-    p: p5;
+    graphicsContext: P5GraphicsContext;
     successCallback: (resourceKey: string, handler: ResourceHandler, image: p5.Image) => {};
     failureCallback: (key: string, handler: ResourceHandler, p1: Event) => any;
 
-    constructor(p: p5) {
-        this.p = p;
+    constructor(graphicsContext: GraphicsContext) {
+        this.graphicsContext = graphicsContext as P5GraphicsContext;
     }
 
     setCallbacks(
-        successCallback: (resourceKey: string, handler: ResourceHandler, image: p5.Image) => {},
+        successCallback: (resourceKey: string, handler: ResourceHandler, image: GraphicImage) => {},
         failureCallback?: (key: string, handler: ResourceHandler, p1: Event) => any
     ) {
         this.successCallback = successCallback;
@@ -63,7 +65,7 @@ class p5ImageLoader implements ResourceTypeLoader {
         const path = handler.getResourceLocator(resourceKey).path;
         const loader = this;
 
-        this.p.loadImage(
+        this.graphicsContext.loadImage(
             path,
             (loadedImage: p5.Image) => {
                 loader.successCallback(resourceKey, handler, loadedImage);
@@ -83,7 +85,7 @@ export class ResourceHandler {
 
     constructor(options: RequiredOptions & Partial<Options>) {
         this.imageLoader = options.imageLoader || new p5ImageLoader(
-            options.p
+            options.graphicsContext
         );
         this.imageLoader.setCallbacks(
             this.imageSuccessCallback,
@@ -126,7 +128,7 @@ export class ResourceHandler {
         return undefined;
     }
 
-    getResource(resourceKey: string): ResultOrError<p5.Image, Error> {
+    getResource(resourceKey: string): ResultOrError<GraphicImage, Error> {
         const resourceType = this.resourcesByKey[resourceKey].type;
 
         if (resourceType === ResourceType.IMAGE) {
@@ -139,7 +141,7 @@ export class ResourceHandler {
         return undefined;
     }
 
-    imageSuccessCallback(resourceKey: string, resourceHandler: ResourceHandler, loadedImage: p5.Image): any {
+    imageSuccessCallback(resourceKey: string, resourceHandler: ResourceHandler, loadedImage: GraphicImage): any {
         resourceHandler.imagesByKey[resourceKey] = {
             locator: resourceHandler.resourcesByKey[resourceKey],
             image: loadedImage

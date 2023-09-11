@@ -1,12 +1,12 @@
 import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {UIControlSettings} from "./uiControlSettings";
-import p5 from "p5";
 import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "./battleOrchestratorComponent";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
     hasCompleted(state: BattleOrchestratorState): boolean {
@@ -30,6 +30,6 @@ export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
         return undefined;
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
     }
 }

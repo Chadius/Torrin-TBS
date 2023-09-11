@@ -3,7 +3,7 @@ import {SplashScreen} from "./splashScreen";
 import {Cutscene} from "./cutscene";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
-import {stubImmediateLoader} from "../resource/resourceHandlerTestUtils";
+import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 
 describe('Cutscene', () => {
     const splash1 = new SplashScreen({id: "splash1"})
@@ -410,7 +410,7 @@ describe('Cutscene', () => {
         })
 
         const handler = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,

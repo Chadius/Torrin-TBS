@@ -1,4 +1,3 @@
-import p5 from "p5";
 import {RectArea} from "../../ui/rectArea";
 import {ResourceLocator, ResourceType} from "../../resource/resourceHandler";
 import {CutsceneAction} from "../cutsceneAction";
@@ -6,6 +5,7 @@ import {DialogueTextBox} from "./dialogueTextBox";
 import {DialogueSpeakerNameBox} from "./dialogueSpeakerNameBox";
 import {DialogueSpeakerImage} from "./dialogueSpeakerImage";
 import {DialogueAnswerButton} from "./dialogueAnswerButton";
+import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 type RequiredOptions = {
     id: string;
@@ -14,7 +14,7 @@ type RequiredOptions = {
 type Options = {
     name: string;
     text: string;
-    portrait: p5.Image;
+    portrait: GraphicImage;
     portraitResourceKey: string;
     animationDuration: number;
     answers: string[];
@@ -35,7 +35,7 @@ export class DialogueBox implements CutsceneAction {
 
     textBox: DialogueTextBox;
     speakerNameBox: DialogueSpeakerNameBox;
-    speakerPortrait: p5.Image;
+    speakerPortrait: GraphicImage;
     speakerPortraitResourceKey: string;
     speakerImage: DialogueSpeakerImage;
 
@@ -89,24 +89,24 @@ export class DialogueBox implements CutsceneAction {
         ]
     }
 
-    setImageResource(image: p5.Image) {
+    setImageResource(image: GraphicImage) {
         this.setPortrait(image);
     }
 
-    setPortrait(portrait: p5.Image) {
+    setPortrait(portrait: GraphicImage) {
         this.speakerPortrait = portrait;
         this.setSpeakerUI();
     }
 
-    draw(p: p5) {
-        p.push();
+    draw(graphicsContext: GraphicsContext) {
+        graphicsContext.push();
 
-        this.textBox?.draw(p);
-        this.speakerNameBox?.draw(p);
-        this.speakerImage?.draw(p);
-        this.answerButtons.forEach((answer) => answer.draw(p));
+        this.textBox?.draw(graphicsContext);
+        this.speakerNameBox?.draw(graphicsContext);
+        this.speakerImage?.draw(graphicsContext);
+        this.answerButtons.forEach((answer) => answer.draw(graphicsContext));
 
-        p.pop();
+        graphicsContext.pop();
     }
 
     start(): void {

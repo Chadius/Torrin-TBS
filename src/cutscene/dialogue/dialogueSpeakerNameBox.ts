@@ -1,7 +1,7 @@
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE, WINDOW_SPACING2} from "../../ui/constants";
-import p5 from "p5";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 type Options = {
     name: string;
@@ -20,8 +20,8 @@ export class DialogueSpeakerNameBox {
         this.createUIObjects();
     }
 
-    draw(p: p5) {
-        this.speakerNameLabel.draw(p);
+    draw(graphicsContext: GraphicsContext) {
+        this.speakerNameLabel.draw(graphicsContext);
     }
 
     private createUIObjects() {

@@ -3,6 +3,7 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Recording} from "../history/recording";
 import {ANIMATE_TEXT_WINDOW_WAIT_TIME, SquaddieSkipsAnimationAnimator} from "./squaddieSkipsAnimationAnimator";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -24,7 +25,6 @@ import * as activityResultTextWriter from "./activityResultTextWriter";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
-    let mockedP5 = mocks.mockedP5();
 
     let squaddieRepository: BattleSquaddieRepository;
     let monkStaticId = "monk static";
@@ -36,9 +36,9 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let battleEventRecording: Recording;
 
     let animator: SquaddieSkipsAnimationAnimator;
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
@@ -89,6 +89,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         battleEventRecording.addEvent(monkMeditatesEvent);
 
         animator = new SquaddieSkipsAnimationAnimator();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
     it('will create a text window with the activity results', () => {
@@ -103,7 +104,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const drawLabelSpy = jest.spyOn(Label.prototype, "draw");
 
         animator.reset(state);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
 
         expect(animator.outputTextDisplay).not.toBeUndefined();
         expect(formatResultSpy).toBeCalled();
@@ -124,12 +125,12 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             battleEventRecording,
         })
         animator.reset(state);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeFalsy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => ANIMATE_TEXT_WINDOW_WAIT_TIME);
 
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeTruthy();
     });
 
@@ -142,7 +143,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             battleEventRecording,
         })
         animator.reset(state);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeFalsy();
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -152,7 +153,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         };
         animator.mouseEventHappened(state, mouseEvent);
 
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeTruthy();
     });
 });

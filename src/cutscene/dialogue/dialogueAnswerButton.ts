@@ -1,7 +1,7 @@
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import p5 from "p5";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 type Options = {
     answer: string;
@@ -23,8 +23,8 @@ export class DialogueAnswerButton {
         this.createUIObjects();
     }
 
-    draw(p: p5) {
-        this.answerLabel.draw(p);
+    draw(graphicsContext: GraphicsContext) {
+        this.answerLabel.draw(graphicsContext);
     }
 
     buttonWasClicked(mouseX: number, mouseY: number): boolean {

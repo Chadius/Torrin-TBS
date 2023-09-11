@@ -23,6 +23,7 @@ import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInPro
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
@@ -40,10 +41,10 @@ describe('BattleSquaddieTarget', () => {
     let longswordActivity: SquaddieActivity;
     let state: BattleOrchestratorState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
-    let mockedP5 = mocks.mockedP5();
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
         targetComponent = new BattlePlayerSquaddieTarget();
         squaddieRepo = new BattleSquaddieRepository();
         battleMap = new MissionMap({
@@ -152,7 +153,7 @@ describe('BattleSquaddieTarget', () => {
 
 
     it('should highlight the map with the ability range', () => {
-        targetComponent.update(state, mockedP5);
+        targetComponent.update(state, mockedP5GraphicsContext);
 
         expect(targetComponent.hasCompleted(state)).toBeFalsy();
 
@@ -259,7 +260,7 @@ describe('BattleSquaddieTarget', () => {
 
     it('should ignore if the target is out of range', () => {
         state.missionMap.updateSquaddieLocation(thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 0, r: 0}));
-        targetComponent.update(state, mockedP5);
+        targetComponent.update(state, mockedP5GraphicsContext);
         clickOnThief();
         expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
         expect(targetComponent.hasCompleted(state)).toBeFalsy();
@@ -267,7 +268,7 @@ describe('BattleSquaddieTarget', () => {
 
     describe('user clicks on target', () => {
         beforeEach(() => {
-            targetComponent.update(state, mockedP5);
+            targetComponent.update(state, mockedP5GraphicsContext);
             clickOnThief();
         });
 
@@ -292,7 +293,7 @@ describe('BattleSquaddieTarget', () => {
 
     describe('user confirms the target', () => {
         beforeEach(() => {
-            targetComponent.update(state, mockedP5);
+            targetComponent.update(state, mockedP5GraphicsContext);
             clickOnThief();
             clickOnConfirmTarget();
         });
@@ -340,7 +341,7 @@ describe('BattleSquaddieTarget', () => {
             });
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
-            targetComponent.update(state, mockedP5);
+            targetComponent.update(state, mockedP5GraphicsContext);
             clickOnThief();
             clickOnConfirmTarget();
             expect(targetComponent.hasCompleted(state)).toBeTruthy();

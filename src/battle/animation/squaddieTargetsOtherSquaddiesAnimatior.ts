@@ -1,4 +1,3 @@
-import p5 from "p5";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
@@ -19,6 +18,7 @@ import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActivityResult} from "../history/activityResult";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;
@@ -103,9 +103,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this._targetHitPointMeters = {};
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: p5) {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         if (this.actionAnimationTimer.currentPhase === ActionAnimationPhase.INITIALIZED) {
-            this.setupActionAnimation(state, graphicsContext);
+            this.setupActionAnimation(state);
             this.actionAnimationTimer.start();
         }
 
@@ -138,7 +138,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.resetInternalState();
     }
 
-    private setupActionAnimation(state: BattleOrchestratorState, graphicsContext: p5) {
+    private setupActionAnimation(state: BattleOrchestratorState) {
         this._actorTextWindow = new ActorTextWindow();
         this._weaponIcon = new WeaponIcon();
         this._actorSprite = new ActorSprite();
@@ -234,7 +234,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         });
     }
 
-    private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: p5) {
+    private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
         this.actorSprite.draw(this.actionAnimationTimer, graphicsContext);
         this.weaponIcon.draw(graphicsContext, this.actorSprite.getSquaddieImageBasedOnTimer(this.actionAnimationTimer, graphicsContext).area);

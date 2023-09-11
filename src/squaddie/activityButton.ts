@@ -5,7 +5,7 @@ import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieEndTurnActivity} from "../battle/history/squaddieEndTurnActivity";
 import {TextBox} from "../ui/textBox";
-import p5 from "p5";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 export class ActivityButton {
     buttonArea: RectArea;
@@ -22,7 +22,7 @@ export class ActivityButton {
         this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];
     }
 
-    draw(p: p5) {
+    draw(graphicsContext: GraphicsContext) {
         const background = new Rectangle({
             area: this.buttonArea,
             fillColor: [this.hue, 40, 60],
@@ -30,7 +30,7 @@ export class ActivityButton {
             strokeWeight: 0,
         });
 
-        background.draw(p);
+        background.draw(graphicsContext);
 
         let activityButtonText: string = "";
         if (this.activity instanceof SquaddieEndTurnActivity) {
@@ -51,6 +51,6 @@ export class ActivityButton {
             textSize: 12,
         });
 
-        buttonTextBox.draw(p);
+        buttonTextBox.draw(graphicsContext);
     }
 }

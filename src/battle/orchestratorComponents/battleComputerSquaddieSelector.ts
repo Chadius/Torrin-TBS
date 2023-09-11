@@ -10,7 +10,6 @@ import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoor
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
-import p5 from "p5";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
@@ -31,6 +30,7 @@ import {
     MaybeCreateSquaddieInstruction
 } from "./battleSquaddieSelectorUtils";
 import {SquaddieInstructionActivity} from "../history/squaddieInstructionActivity";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTIVITY_TIME = 500;
@@ -75,7 +75,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         });
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
         if (this.mostRecentActivity === undefined && currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             this.askComputerControlSquaddie(state);

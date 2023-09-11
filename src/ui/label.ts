@@ -1,7 +1,7 @@
 import {RectArea} from "./rectArea";
 import {TextBox, TextBoxArguments} from "./textBox";
 import {Rectangle, RectangleArguments} from "./rectangle";
-import p5 from "p5";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 export type Padding = {
     padding: number | [number, number] | [number, number, number] | [number, number, number, number];
@@ -27,8 +27,8 @@ export class Label {
         });
     }
 
-    draw(p: p5) {
-        this.rectangle.draw(p);
-        this.textBox.draw(p);
+    draw(graphicsContext: GraphicsContext) {
+        this.rectangle.draw(graphicsContext);
+        this.textBox.draw(graphicsContext);
     }
 }

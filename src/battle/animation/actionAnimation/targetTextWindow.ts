@@ -1,5 +1,4 @@
 import {RectArea} from "../../../ui/rectArea";
-import p5 from "p5";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battleSquaddie";
 import {WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4} from "../../../ui/constants";
@@ -8,6 +7,7 @@ import {Label} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActivityResult} from "../../history/activityResult";
 import {ActionTimer} from "./actionTimer";
+import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
 export class TargetTextWindow {
     constructor() {
@@ -65,7 +65,7 @@ export class TargetTextWindow {
         this.createActorTextBox();
     }
 
-    draw(graphicsContext: p5, timer: ActionTimer) {
+    draw(graphicsContext: GraphicsContext, timer: ActionTimer) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }

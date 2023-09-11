@@ -1,4 +1,3 @@
-import * as p5 from "p5";
 import {HEX_TILE_RADIUS, HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ResourceHandler} from "../resource/resourceHandler";
@@ -10,6 +9,7 @@ import {TerrainTileMap} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
+import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
 
@@ -39,7 +39,7 @@ export const HighlightPulseBlueColor: PulseBlendColor = {
 }
 
 type HexTileDrawOptions = {
-    p: p5;
+    graphicsContext: GraphicsContext,
     q: number;
     r: number;
     terrainType: HexGridMovementCost;
@@ -52,7 +52,7 @@ type HexTileDrawOptions = {
 
 export function drawHexTile(options: HexTileDrawOptions): void {
     const {
-        p,
+        graphicsContext,
         q,
         r,
         cameraX,
@@ -68,7 +68,7 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     // - Saturation (0-100)
     // - Brightness (0-100)
     // - Blending factor (0 = no blending, 100 = override original color)
-    p.push();
+    graphicsContext.push();
 
     const appearanceFillColor = hexGridColorByTerrainType[terrainType];
     let fillColor;
@@ -92,9 +92,9 @@ export function drawHexTile(options: HexTileDrawOptions): void {
         10
     ];
 
-    p.stroke(strokeColor);
-    p.strokeWeight(1);
-    p.fill(fillColor)
+    graphicsContext.stroke({hsb: strokeColor});
+    graphicsContext.strokeWeight(1);
+    graphicsContext.fill({hsb: fillColor})
 
     // See Axial Coordinates in:
     // https://www.redblobgames.com/grids/hexagons/
@@ -103,63 +103,63 @@ export function drawHexTile(options: HexTileDrawOptions): void {
     let worldX = r + q * 0.5
     let worldY = q * 0.866
 
-    drawHexShape(p, worldX, worldY, cameraX, cameraY);
+    drawHexShape(graphicsContext, worldX, worldY, cameraX, cameraY);
 
     if (overlayImageResourceKey && resourceHandler) {
-        let image: p5.Image;
+        let image: GraphicImage;
         const imageOrError = resourceHandler.getResource(overlayImageResourceKey);
         if (isResult(imageOrError)) {
             image = unwrapResultOrError(imageOrError);
 
-            p.pop();
+            graphicsContext.pop();
 
             let [imageWorldX, imageWorldY] = convertMapCoordinatesToWorldCoordinates(q, r);
             let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(imageWorldX, imageWorldY, cameraX, cameraY)
-            p.push();
-            p.translate(screenDrawX, screenDrawY);
+            graphicsContext.push();
+            graphicsContext.translate(screenDrawX, screenDrawY);
 
-            p.image(
+            graphicsContext.image(
                 image,
                 -image.width / 2,
                 -image.height / 2,
             );
 
-            p.pop();
+            graphicsContext.pop();
         }
     } else {
-        p.pop();
+        graphicsContext.pop();
     }
 }
 
-export function drawHexShape(p: p5, worldX: number, worldY: number, cameraX: number, cameraY: number) {
+export function drawHexShape(graphicsContext: GraphicsContext, worldX: number, worldY: number, cameraX: number, cameraY: number) {
     worldX *= HEX_TILE_WIDTH;
     worldY *= HEX_TILE_WIDTH;
 
     let [screenDrawX, screenDrawY] = convertWorldCoordinatesToScreenCoordinates(worldX, worldY, cameraX, cameraY)
 
-    p.push();
-    p.translate(screenDrawX, screenDrawY);
+    graphicsContext.push();
+    graphicsContext.translate(screenDrawX, screenDrawY);
 
     let angle = Math.PI / 3;
-    p.beginShape();
+    graphicsContext.beginShape();
     const startAngle = Math.PI / 6;
     for (let a = 0; a < 6; a += 1) {
         let sx = Math.cos(startAngle + a * angle) * HEX_TILE_RADIUS;
         let sy = Math.sin(startAngle + a * angle) * HEX_TILE_RADIUS;
-        p.vertex(sx, sy);
+        graphicsContext.vertex(sx, sy);
     }
-    p.endShape("close");
+    graphicsContext.endShape("close");
 
-    p.pop();
+    graphicsContext.pop();
 }
 
 export function drawOutlinedTile(
-    p: p5,
+    graphicsContext: GraphicsContext,
     outlineTileCoordinates: HexCoordinate,
     cameraX: number,
     cameraY: number,
 ): void {
-    p.push();
+    graphicsContext.push();
 
     const strokeColor = [
         0,
@@ -167,23 +167,23 @@ export function drawOutlinedTile(
         calculatePulseValueOverTime(50, 100, 2000)
     ];
 
-    p.stroke(strokeColor);
-    p.strokeWeight(2);
-    p.noFill();
+    graphicsContext.stroke({hsb: strokeColor});
+    graphicsContext.strokeWeight(2);
+    graphicsContext.noFill();
 
     let xPos = outlineTileCoordinates.r + outlineTileCoordinates.q * 0.5
     let yPos = outlineTileCoordinates.q * 0.866
-    drawHexShape(p, xPos, yPos, cameraX, cameraY);
-    p.pop();
+    drawHexShape(graphicsContext, xPos, yPos, cameraX, cameraY);
+    graphicsContext.pop();
 }
 
-export function drawHexMap(p: p5, map: TerrainTileMap, cameraX: number, cameraY: number): void {
+export function drawHexMap(graphicsContext: GraphicsContext, map: TerrainTileMap, cameraX: number, cameraY: number): void {
     map.tiles.forEach(
         (tile) => {
             const key = `${tile.q},${tile.r}`;
             if (map.highlightedTiles[key]) {
                 drawHexTile({
-                    p: p,
+                    graphicsContext,
                     q: tile.q,
                     r: tile.r,
                     cameraX,
@@ -195,7 +195,7 @@ export function drawHexMap(p: p5, map: TerrainTileMap, cameraX: number, cameraY:
                 });
             } else {
                 drawHexTile({
-                    p: p,
+                    graphicsContext,
                     q: tile.q,
                     r: tile.r,
                     terrainType: tile.terrainType,
@@ -207,6 +207,6 @@ export function drawHexMap(p: p5, map: TerrainTileMap, cameraX: number, cameraY:
     );
 
     if (map.outlineTileCoordinates !== undefined) {
-        drawOutlinedTile(p, map.outlineTileCoordinates, cameraX, cameraY);
+        drawOutlinedTile(graphicsContext, map.outlineTileCoordinates, cameraX, cameraY);
     }
 }

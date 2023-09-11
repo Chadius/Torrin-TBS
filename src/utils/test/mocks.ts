@@ -1,10 +1,11 @@
 import p5 from "p5";
 import {ImageUI} from "../../ui/imageUI";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {stubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
+import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/battleSquaddieSelectedHUD";
 import {SquaddieEndTurnActivity} from "../../battle/history/squaddieEndTurnActivity";
 import {RectArea} from "../../ui/rectArea";
+import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
 
 jest.mock('p5', () => () => {
     return {
@@ -48,7 +49,7 @@ export const mockResourceHandler = () => {
     const handler = new (
         <new (options: any) => ResourceHandler>ResourceHandler
     )({
-        imageLoader: new stubImmediateLoader(),
+        imageLoader: new StubImmediateLoader(),
     }) as jest.Mocked<ResourceHandler>;
 
     handler.loadResources = jest.fn();
@@ -65,4 +66,135 @@ export const battleSquaddieSelectedHUD = () => {
     hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
     hud.mouseClicked = jest.fn();
     return hud;
+}
+
+export class MockedP5GraphicsContext implements GraphicsContext {
+    mockedP5: p5;
+
+    constructor() {
+        this.mockedP5 = mockedP5();
+    }
+
+    background(hue: number, saturation: number, brightness: number): void {
+        this.mockedP5.background(hue, saturation, brightness);
+    }
+
+    beginShape(): void {
+        this.mockedP5.beginShape();
+    }
+
+    colorMode(modeKey: string, hueMaximumValue: number, saturationMaximumValue: number, brightnessMaximumValue: number, alphaMaximumValue: number): void {
+        this.mockedP5.colorMode(modeKey, hueMaximumValue, saturationMaximumValue, brightnessMaximumValue, alphaMaximumValue);
+    }
+
+    createImage(height: number, width: number): GraphicImage {
+        return this.mockedP5.createImage(width, height);
+    }
+
+    endShape(mode: string): void {
+        this.mockedP5.endShape(mode as p5.END_MODE);
+    }
+
+    fill({hsb, color}: { hsb?: number[]; color?: string }): void {
+        if (hsb) {
+            this.mockedP5.fill(hsb[0], hsb[1], hsb[2]);
+            return;
+        }
+        if (color) {
+            this.mockedP5.fill(color);
+        }
+    }
+
+    image(data: GraphicImage, left: number, top: number, width?: number, height?: number): void {
+        this.mockedP5.image(data as p5.Image, left, top, width, height);
+    }
+
+    line(x1: number, y1: number, x2: number, y2: number): void {
+        this.mockedP5.line(x1, y1, x2, y2);
+    }
+
+    loadImage(pathToImage: string, successCallback: () => {}, failureCallback: () => {}): void {
+        this.mockedP5.loadImage(pathToImage, successCallback, failureCallback);
+    }
+
+    noFill(): void {
+        this.mockedP5.noFill();
+    }
+
+    noStroke(): void {
+        this.mockedP5.noStroke();
+    }
+
+    noTint(): void {
+        this.mockedP5.noTint();
+    }
+
+    pop(): void {
+        this.mockedP5.pop();
+    }
+
+    push(): void {
+        this.mockedP5.push();
+    }
+
+    rect(left: number, top: number, width: number, height: number): void {
+        this.mockedP5.rect(left, top, width, height);
+    }
+
+    stroke({hsb, color}: { hsb?: number[]; color?: string }): void {
+        if (hsb) {
+            this.mockedP5.stroke(hsb[0], hsb[1], hsb[2]);
+            return;
+        }
+        if (color) {
+            this.mockedP5.stroke(color);
+        }
+    }
+
+    strokeWeight(weight: number): void {
+        this.mockedP5.strokeWeight(weight);
+    }
+
+    text(text: string, x1: number, y1: number, x2: number, y2: number): void {
+        this.mockedP5.text(text, x1, y1, x2, y2);
+    }
+
+    textAlign(horizontalAlignment: string, verticalAlignment: string): void {
+        this.mockedP5.textAlign(horizontalAlignment as p5.HORIZ_ALIGN, verticalAlignment as p5.VERT_ALIGN);
+    }
+
+    textSize(size: number): void {
+        this.mockedP5.textSize(size);
+    }
+
+    tint(hue: number, saturation: number, brightness: number, alpha: number): void {
+        this.mockedP5.tint(hue, saturation, brightness, alpha);
+    }
+
+    translate(x: number, y: number): void {
+        this.mockedP5.translate(x, y);
+    }
+
+    vertex(x: number, y: number): void {
+        this.mockedP5.vertex(x, y);
+    }
+}
+
+export class GraphicImageWithStringAsData implements GraphicImage {
+    data: string;
+
+    constructor(data: string) {
+        this.data = data;
+    }
+
+    get height(): number {
+        return 1;
+    }
+
+    get width(): number {
+        return 1;
+    }
+
+    loadPixels(): void {
+    }
 }

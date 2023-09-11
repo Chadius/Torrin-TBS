@@ -1,11 +1,12 @@
 import {ResourceHandler, ResourceType} from "./resourceHandler";
-import {stubImmediateLoader} from "./resourceHandlerTestUtils";
+import {StubImmediateLoader} from "./resourceHandlerTestUtils";
 import {isError, isResult, unwrapResultOrError} from "../utils/ResultOrError";
+import {GraphicImageWithStringAsData} from "../utils/test/mocks";
 
 describe('Resource Handler', () => {
     it('can load an individual resource', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -21,11 +22,11 @@ describe('Resource Handler', () => {
         expect(isResult(someImage)).toBeTruthy();
 
         const imageData = unwrapResultOrError(someImage);
-        expect(imageData).toBe("stubImage for some_image_key");
+        expect(imageData).toStrictEqual(new GraphicImageWithStringAsData("stubImage for some_image_key"));
     });
     it('can load a list of resources', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -46,17 +47,17 @@ describe('Resource Handler', () => {
         expect(isResult(image1)).toBeTruthy();
 
         const image1Data = unwrapResultOrError(image1);
-        expect(image1Data).toBe("stubImage for key1");
+        expect(image1Data).toStrictEqual(new GraphicImageWithStringAsData("stubImage for key1"));
 
         const image2 = loader.getResource("key2");
         expect(isResult(image2)).toBeTruthy();
 
         const image2Data = unwrapResultOrError(image2);
-        expect(image2Data).toBe("stubImage for key2");
+        expect(image2Data).toStrictEqual(new GraphicImageWithStringAsData("stubImage for key2"));
     });
     it('returns an error if resource key is unknown', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -74,7 +75,7 @@ describe('Resource Handler', () => {
     });
     it('returns an error if the key does not exist', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -93,7 +94,7 @@ describe('Resource Handler', () => {
 
     it('indicates when all resources have been loaded', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -109,7 +110,7 @@ describe('Resource Handler', () => {
     });
     it('indicates when a given list of resources have been loaded', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -131,7 +132,7 @@ describe('Resource Handler', () => {
     });
     it('can forget an individual resource key', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -153,7 +154,7 @@ describe('Resource Handler', () => {
     });
     it('can forget a list of resource keys', () => {
         const loader = new ResourceHandler({
-            imageLoader: new stubImmediateLoader(),
+            imageLoader: new StubImmediateLoader(),
             allResources: [
                 {
                     type: ResourceType.IMAGE,
@@ -183,6 +184,6 @@ describe('Resource Handler', () => {
         expect(isResult(image2)).toBeTruthy();
 
         const image2Data = unwrapResultOrError(image2);
-        expect(image2Data).toBe("stubImage for image2");
+        expect(image2Data).toStrictEqual(new GraphicImageWithStringAsData("stubImage for image2"));
     });
 });

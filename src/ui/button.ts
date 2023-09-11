@@ -1,5 +1,5 @@
 import {Label} from "./label";
-import p5 from "p5";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 type RequiredOptions = {
     readyLabel: Label;
@@ -92,8 +92,8 @@ export class Button {
         return this.buttonStatus;
     }
 
-    draw(p: p5) {
-        this.getCurrentLabel().draw(p);
+    draw(graphicsContext: GraphicsContext) {
+        this.getCurrentLabel().draw(graphicsContext);
     }
 
     private getCurrentLabel(): Label {

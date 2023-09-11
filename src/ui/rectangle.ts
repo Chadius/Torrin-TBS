@@ -1,5 +1,5 @@
 import {RectArea} from "./rectArea";
-import p5 from "p5";
+import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 type RequiredOptions = {
     area: RectArea;
@@ -42,26 +42,26 @@ export class Rectangle {
         this.noStroke = noStroke;
     }
 
-    draw(p: p5) {
-        p.push();
+    draw(graphicsContext: GraphicsContext) {
+        graphicsContext.push();
         if (this.fillColor) {
-            p.fill(this.fillColor);
+            graphicsContext.fill({hsb: this.fillColor});
         }
         if (this.strokeColor) {
-            p.stroke(this.strokeColor);
+            graphicsContext.stroke({hsb: this.strokeColor});
         }
         if (this.strokeWeight) {
-            p.strokeWeight(this.strokeWeight);
+            graphicsContext.strokeWeight(this.strokeWeight);
         }
         if (this.noStroke) {
-            p.noStroke();
+            graphicsContext.noStroke();
         }
-        p.rect(
+        graphicsContext.rect(
             this.area.left,
             this.area.top,
             this.area.width,
             this.area.height,
         );
-        p.pop();
+        graphicsContext.pop();
     }
 }

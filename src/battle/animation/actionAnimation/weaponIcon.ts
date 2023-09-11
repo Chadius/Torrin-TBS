@@ -1,8 +1,8 @@
-import p5 from "p5";
 import {ActionAnimationFontColor} from "./actionAnimationConstants";
 import {RectArea} from "../../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {Label} from "../../../ui/label";
+import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
 export class WeaponIcon {
     constructor() {
@@ -22,7 +22,7 @@ export class WeaponIcon {
     start() {
     }
 
-    draw(graphicsContext: p5, actorImageArea: RectArea) {
+    draw(graphicsContext: GraphicsContext, actorImageArea: RectArea) {
         if (this.attackingLabel === undefined) {
             this.lazyLoadAttackingTextBox(actorImageArea);
         }

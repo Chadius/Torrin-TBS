@@ -1,8 +1,8 @@
-import p5 from "p5";
 import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {CutsceneAction} from "./cutsceneAction";
 import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
+import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 
 type RequiredOptions = {
     id: string;
@@ -44,11 +44,11 @@ export class SplashScreen implements CutsceneAction {
         ]
     }
 
-    setImageResource(image: p5.Image) {
+    setImageResource(image: GraphicImage) {
         this.setScreenImage(image);
     }
 
-    setScreenImage(screen: p5.Image) {
+    setScreenImage(screen: GraphicImage) {
         this.screenImage = new ImageUI({
             graphic: screen,
             area: new RectArea({
@@ -83,9 +83,9 @@ export class SplashScreen implements CutsceneAction {
         return !this.isAnimating() || this.dialogFinished;
     }
 
-    draw(p: p5): void {
+    draw(graphicsContext: GraphicsContext): void {
         if (this.screenImage) {
-            this.screenImage.draw(p);
+            this.screenImage.draw(graphicsContext);
         }
     }
 }

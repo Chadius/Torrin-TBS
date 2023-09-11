@@ -5,9 +5,9 @@ export interface GraphicsContext {
 
     createImage(height: number, width: number): GraphicImage;
 
-    fill(params: {hsb?:number[], color?: string}): void;
+    fill({hsb, color}: { hsb?: number[], color?: string }): void;
 
-    image(data: GraphicImage, left: number, top: number, width: number, height: number): void;
+    image(data: GraphicImage, left: number, top: number, width?: number, height?: number): void;
 
     line(x1: number, y1: number, x2: number, y2: number): void;
 
@@ -23,21 +23,34 @@ export interface GraphicsContext {
 
     rect(left: number, top: number, width: number, height: number): void;
 
-    stroke(params: {hsb?:number[], color?: string}): void;
+    stroke({hsb, color}: { hsb?: number[], color?: string }): void;
 
     strokeWeight(weight: number): void;
 
-    text(text: string, left: number, top: number, width: number, height: number): void;
+    text(text: string, x1: number, y1: number, x2: number, y2: number): void;
 
     textAlign(horizontalAlignment: string, verticalAlignment: string): void;
 
     textSize(size: number): void;
 
     tint(hue: number, saturation: number, brightness: number, alpha: number): void;
+
+    translate(x: number, y: number): void;
+
+    beginShape(): void;
+
+    vertex(x: number, y: number): void;
+
+    endShape(mode: string): void;
+
+    noFill(): void;
 }
 
 export interface GraphicImage {
     loadPixels(): void;
+
     get width(): number;
+
     get height(): number;
 }
+

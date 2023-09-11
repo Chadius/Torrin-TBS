@@ -8,17 +8,17 @@ import {SquaddieMovement} from "../../squaddie/movement";
 import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('BattleSquaddieMapActivity', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
-    let mockedP5 = mocks.mockedP5();
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = new BattleSquaddieRepository();
         ({
             staticSquaddie: staticSquaddieBase,
@@ -57,12 +57,12 @@ describe('BattleSquaddieMapActivity', () => {
             squaddieRepo: squaddieRepository,
         })
 
-        mapActivity.update(state, mockedP5);
+        mapActivity.update(state, mockedP5GraphicsContext);
         expect(mapActivity.animationCompleteStartTime).not.toBeUndefined();
         expect(mapActivity.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => 500);
 
-        mapActivity.update(state, mockedP5);
+        mapActivity.update(state, mockedP5GraphicsContext);
         expect(mapActivity.hasCompleted(state)).toBeTruthy();
 
         const stateChanges = mapActivity.recommendStateChanges(state);

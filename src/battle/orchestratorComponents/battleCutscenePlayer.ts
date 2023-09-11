@@ -6,9 +6,9 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import p5 from "p5";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene} from "../../cutscene/cutscene";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     constructor() {
@@ -50,14 +50,14 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: BattleOrchestratorState, p: p5): void {
-        if (p && this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.isInProgress()) {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+        if (this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.isInProgress()) {
             this.currentCutscene.setResources();
             this.currentCutscene.start();
         }
-        if (p && this.currentCutscene && this.currentCutscene.isInProgress()) {
+        if (this.currentCutscene && this.currentCutscene.isInProgress()) {
             this.currentCutscene.update();
-            this.currentCutscene.draw(p);
+            this.currentCutscene.draw(graphicsContext);
         }
     }
 

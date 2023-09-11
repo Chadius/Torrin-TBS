@@ -11,6 +11,7 @@ import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
 
@@ -23,10 +24,10 @@ describe('BattlePhaseController', () => {
     let resourceHandler: ResourceHandler;
     let diffTime: number;
     let state: BattleOrchestratorState;
-    let mockedP5 = mocks.mockedP5();
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepo = new BattleSquaddieRepository();
 
         squaddieRepo.addStaticSquaddie(
@@ -110,7 +111,7 @@ describe('BattlePhaseController', () => {
         battlePhaseTracker.advanceToNextPhase();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
 
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
         expect(battlePhaseController.draw).not.toBeCalled();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
@@ -126,13 +127,13 @@ describe('BattlePhaseController', () => {
         const startTime = 0;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
 
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
         expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(startTime);
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
     });
@@ -151,7 +152,7 @@ describe('BattlePhaseController', () => {
         const startTime = 0;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
 
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
 
         expect(state.camera.getVelocity()).toStrictEqual([0, 0]);
@@ -166,12 +167,12 @@ describe('BattlePhaseController', () => {
 
         const startTime = 100;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.ENEMY);
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.ENEMY);
     });
@@ -188,16 +189,16 @@ describe('BattlePhaseController', () => {
         const startTime = 0;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
 
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.draw).not.toBeCalled();
         expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(startTime);
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME * 0.5);
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.draw).toBeCalledTimes(1);
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME * 0.75);
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.draw).toBeCalledTimes(2);
     });
 
@@ -224,7 +225,7 @@ describe('BattlePhaseController', () => {
         const startTime = 0;
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
-        battlePhaseController.update(state, mockedP5);
+        battlePhaseController.update(state, mockedP5GraphicsContext);
 
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);

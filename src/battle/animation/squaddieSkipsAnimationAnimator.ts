@@ -3,12 +3,12 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
-import p5 from "p5";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {FormatResult} from "./activityResultTextWriter";
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 
@@ -38,7 +38,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         this.maybeInitializeAnimationTimer();
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: p5): void {
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         this.maybeInitializeAnimationTimer();
         this.draw(state, graphicsContext);
     }
@@ -55,7 +55,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         }
     }
 
-    private drawActivityDescription(state: BattleOrchestratorState, p: p5) {
+    private drawActivityDescription(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
             this.outputTextStrings = FormatResult({
                 squaddieRepository: state.squaddieRepository,
@@ -85,10 +85,10 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             });
         }
 
-        this.outputTextDisplay.draw(p);
+        this.outputTextDisplay.draw(graphicsContext);
     }
 
-    private draw(state: BattleOrchestratorState, graphicsContext: p5) {
+    private draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.drawActivityDescription(state, graphicsContext);
     }
 }

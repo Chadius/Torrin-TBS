@@ -12,7 +12,6 @@ import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlay
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
-import p5 from "p5";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
@@ -35,6 +34,7 @@ import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleCompletionStatus} from "./battleGameBoard";
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -148,47 +148,47 @@ export class BattleOrchestrator implements GameEngineComponent {
         return this.mode;
     }
 
-    public update(state: BattleOrchestratorState, p: p5) {
+    public update(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         if (this.uiControlSettings.displayBattleMap === true && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
-            this.displayBattleMap(state, p);
+            this.displayBattleMap(state, graphicsContext);
         }
 
         switch (this.mode) {
             case BattleOrchestratorMode.LOADING_MISSION:
-                this.updateComponent(state, this.missionLoader, p, BattleOrchestratorMode.CUTSCENE_PLAYER);
+                this.updateComponent(state, this.missionLoader, graphicsContext, BattleOrchestratorMode.CUTSCENE_PLAYER);
                 break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
-                this.updateComponent(state, this.cutscenePlayer, p, BattleOrchestratorMode.PHASE_CONTROLLER);
+                this.updateComponent(state, this.cutscenePlayer, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.PHASE_CONTROLLER:
-                this.updateComponent(state, this.phaseController, p, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+                this.updateComponent(state, this.phaseController, graphicsContext, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
                 break;
             case BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR:
-                this.updateComponent(state, this.playerSquaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER);
+                this.updateComponent(state, this.playerSquaddieSelector, graphicsContext, BattleOrchestratorMode.SQUADDIE_MOVER);
                 break;
             case BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR:
-                this.updateComponent(state, this.computerSquaddieSelector, p, BattleOrchestratorMode.SQUADDIE_MOVER);
+                this.updateComponent(state, this.computerSquaddieSelector, graphicsContext, BattleOrchestratorMode.SQUADDIE_MOVER);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
-                this.updateComponent(state, this.squaddieMapActivity, p, BattleOrchestratorMode.PHASE_CONTROLLER);
+                this.updateComponent(state, this.squaddieMapActivity, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY:
-                this.updateComponent(state, this.squaddieSquaddieActivity, p, BattleOrchestratorMode.PHASE_CONTROLLER);
+                this.updateComponent(state, this.squaddieSquaddieActivity, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
-                this.updateComponent(state, this.squaddieMover, p, BattleOrchestratorMode.PHASE_CONTROLLER);
+                this.updateComponent(state, this.squaddieMover, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET:
-                this.updateComponent(state, this.playerSquaddieTarget, p, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+                this.updateComponent(state, this.playerSquaddieTarget, graphicsContext, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
                 break;
             default:
-                this.updateComponent(state, this.defaultBattleOrchestrator, p, BattleOrchestratorMode.LOADING_MISSION);
+                this.updateComponent(state, this.defaultBattleOrchestrator, graphicsContext, BattleOrchestratorMode.LOADING_MISSION);
                 break;
         }
     }
 
-    public updateComponent(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, p: p5 | undefined, defaultNextMode: BattleOrchestratorMode) {
-        currentComponent.update(state, p);
+    public updateComponent(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, graphicsContext: GraphicsContext, defaultNextMode: BattleOrchestratorMode) {
+        currentComponent.update(state, graphicsContext);
         const newUIControlSettingsChanges = currentComponent.uiControlSettings(state);
         this.uiControlSettings.update(newUIControlSettingsChanges);
 
@@ -343,8 +343,8 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    private displayBattleMap(state: BattleOrchestratorState, p: p5) {
-        this.mapDisplay.update(state, p);
+    private displayBattleMap(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+        this.mapDisplay.update(state, graphicsContext);
     }
 
     private findCompleteButUnrewardedMissionObjectives(state: BattleOrchestratorState): MissionObjective[] {

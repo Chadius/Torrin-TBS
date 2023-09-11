@@ -22,7 +22,7 @@ import {config} from "../configuration/config";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {SquaddieActivitiesForThisRound} from "./history/squaddieActivitiesForThisRound";
 import * as mocks from "../utils/test/mocks";
-import p5 from "p5";
+import {MockedP5GraphicsContext} from "../utils/test/mocks";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -40,7 +40,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieDynamic: BattleSquaddieDynamic;
     let longswordActivity: SquaddieActivity;
     let warnUserNotEnoughActionsToPerformActionSpy: jest.SpyInstance;
-    let mockedP5: p5;
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
         missionMap = new MissionMap({
@@ -122,7 +122,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         hud = new BattleSquaddieSelectedHUD();
         warnUserNotEnoughActionsToPerformActionSpy = jest.spyOn((hud as any), "warnUserNotEnoughActionsToPerformAction").mockReturnValue(null);
 
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
     it('generates a button for each squaddie activity', () => {
@@ -320,8 +320,8 @@ describe('BattleSquaddieSelectedHUD', () => {
             state,
         });
 
-        const textSpy = jest.spyOn(mockedP5, "text");
-        hud.draw(state.squaddieCurrentlyActing, state, mockedP5);
+        const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+        hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
 
         expect(textSpy).toBeCalled();
         expect(textSpy).toBeCalledWith(expect.stringMatching(`wait for ${playerSquaddieStatic.squaddieId.name}`),
@@ -346,8 +346,8 @@ describe('BattleSquaddieSelectedHUD', () => {
             state,
         });
 
-        const textSpy = jest.spyOn(mockedP5, "text");
-        hud.draw(state.squaddieCurrentlyActing, state, mockedP5);
+        const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+        hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
 
         expect(textSpy).toBeCalled();
         expect(textSpy).toBeCalledWith(expect.stringMatching(`cannot control ${enemySquaddieStatic.squaddieId.name}`),

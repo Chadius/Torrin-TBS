@@ -1,4 +1,4 @@
-import * as mocks from "../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {GameEngine, GameEngineComponentState} from "./gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MouseButton} from "../utils/mouseConfig";
@@ -8,20 +8,24 @@ import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestrator
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
 
 describe('Game Engine', () => {
-    let mockedP5 = mocks.mockedP5();
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+
+    beforeEach(() => {
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
+    });
 
     it('Will call the new mode based on the component recommendations', () => {
         const newGameEngine = new GameEngine({
             startupMode: GameModeEnum.TITLE_SCREEN,
-            graphicsContext: mockedP5
+            graphicsContext: mockedP5GraphicsContext,
         });
-        newGameEngine.setup({graphicsContext: mockedP5});
+        newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
 
         const nextComponent = newGameEngine.component;
         const hasCompletedSpy = jest.spyOn(nextComponent, "hasCompleted").mockReturnValue(true);
         const recommendedSpy = jest.spyOn(nextComponent, "recommendStateChanges").mockReturnValue({nextMode: GameModeEnum.BATTLE});
 
-        newGameEngine.update({graphicsContext: mockedP5});
+        newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
         expect(hasCompletedSpy).toBeCalled();
         expect(recommendedSpy).toBeCalled();
@@ -33,7 +37,7 @@ describe('Game Engine', () => {
         function expectUpdate(newGameEngine: GameEngine, expectedStateType: GameEngineComponentState) {
             const updateSpy = jest.spyOn(newGameEngine.component, "update").mockImplementation(() => {
             });
-            newGameEngine.update({graphicsContext: mockedP5});
+            newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
             expect(updateSpy).toBeCalled();
             const updateGameEngineComponentState: GameEngineComponentState = updateSpy.mock.calls[0][0];
             expect(updateGameEngineComponentState).toBeInstanceOf(expectedStateType);
@@ -83,9 +87,9 @@ describe('Game Engine', () => {
         }) => {
             const newGameEngine = new GameEngine({
                 startupMode,
-                graphicsContext: mockedP5
+                graphicsContext: mockedP5GraphicsContext
             });
-            newGameEngine.setup({graphicsContext: mockedP5});
+            newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
             expect(newGameEngine.currentMode).toBe(startupMode);
             expect(newGameEngine.component).toBeInstanceOf(componentType);
 

@@ -1,7 +1,7 @@
 import {BattleOrchestratorState} from "./battleOrchestratorState";
-import p5 from "p5";
 import {BattleOrchestratorMode} from "./battleOrchestrator";
 import {UIControlSettings} from "./uiControlSettings";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -32,7 +32,7 @@ export type BattleOrchestratorChanges = {
 }
 
 export interface BattleOrchestratorComponent {
-    update(state: BattleOrchestratorState, p: p5): void;
+    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void;
 
     uiControlSettings(state: BattleOrchestratorState): UIControlSettings;
 

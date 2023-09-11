@@ -8,21 +8,23 @@ import {OrchestratorComponentMouseEventType} from "../orchestrator/battleOrchest
 import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
     let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     let squaddieRepo: BattleSquaddieRepository;
-    let mockedP5 = mocks.mockedP5();
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
         battleSquaddieSelectedHUD = mocks.battleSquaddieSelectedHUD();
 
         squaddieRepo = new (<new (options: any) => BattleSquaddieRepository>BattleSquaddieRepository)({}) as jest.Mocked<BattleSquaddieRepository>;
         squaddieRepo.getDynamicSquaddieIterator = jest.fn().mockReturnValue([]);
 
         battleMapDisplay = new BattleMapDisplay();
+
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
     it('will move the camera if the mouse is near the edge of the screen', () => {
@@ -74,7 +76,7 @@ describe('battleMapDisplay', () => {
             });
 
             jest.spyOn(Date, 'now').mockImplementation(() => timeToPan / 2);
-            battleMapDisplay.draw(state, mockedP5);
+            battleMapDisplay.draw(state, mockedP5GraphicsContext);
             expect(camera.getCoordinates()[0]).toBeCloseTo((initialCameraCoordinates[0] + destinationCoordinates[0]) / 2);
             expect(camera.getCoordinates()[1]).toBeCloseTo((initialCameraCoordinates[1] + destinationCoordinates[1]) / 2);
 
@@ -87,7 +89,7 @@ describe('battleMapDisplay', () => {
             expect(camera.setYVelocity).not.toBeCalled();
 
             jest.spyOn(Date, 'now').mockImplementation(() => timeToPan);
-            battleMapDisplay.draw(state, mockedP5);
+            battleMapDisplay.draw(state, mockedP5GraphicsContext);
             expect(camera.getCoordinates()[0]).toBeCloseTo((destinationCoordinates[0]));
             expect(camera.getCoordinates()[1]).toBeCloseTo((destinationCoordinates[1]));
         });

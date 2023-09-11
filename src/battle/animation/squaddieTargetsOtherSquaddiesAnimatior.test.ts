@@ -14,6 +14,7 @@ import {
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
@@ -38,14 +39,15 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
     let oneActionInstruction: SquaddieActivitiesForThisRound;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
-    let mockedP5 = mocks.mockedP5();
     let battleEventRecording: Recording;
 
     let knightHitsThiefWithLongswordInstructionInProgress: SquaddieInstructionInProgress;
     let knightHitsThiefWithLongswordEvent: BattleEvent;
 
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
+
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = new BattleSquaddieRepository();
 
         ({
@@ -125,7 +127,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleEventRecording,
         })
         animator.reset(state);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
 
         expect(animator.actorSprite).not.toBeUndefined();
         expect(animator.actorSprite.dynamicSquaddieId).toBe(knightDynamicId);
@@ -145,10 +147,10 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleEventRecording,
         })
         animator.reset(state);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.DURING_ACTION);
 
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeFalsy();
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
@@ -158,7 +160,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         };
 
         animator.mouseEventHappened(state, mouseEvent);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeTruthy();
     });
 
@@ -173,11 +175,11 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleEventRecording,
         })
         animator.reset(state);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeFalsy();
 
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.FINISHED_SHOWING_RESULTS);
-        animator.update(state, mockedP5);
+        animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeTruthy();
     });
 });

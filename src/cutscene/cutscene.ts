@@ -1,5 +1,4 @@
 import {DialogueBox} from "./dialogue/dialogueBox";
-import p5 from "p5";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
@@ -8,6 +7,7 @@ import {Label} from "../ui/label";
 import {RectArea} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
+import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
@@ -64,13 +64,13 @@ export class Cutscene {
         return (this.dialogueActionIndex !== undefined && this.currentAction === undefined);
     }
 
-    draw(p: p5) {
+    draw(graphicsContext: GraphicsContext) {
         if (this.currentAction !== undefined) {
-            this.currentAction.draw(p);
+            this.currentAction.draw(graphicsContext);
         }
 
         if (this.canFastForward()) {
-            this.fastForwardButton.draw(p);
+            this.fastForwardButton.draw(graphicsContext);
         }
     }
 
@@ -124,7 +124,7 @@ export class Cutscene {
                 }
 
                 if (locator.type === ResourceType.IMAGE) {
-                    let foundImage: p5.Image;
+                    let foundImage: GraphicImage;
                     const foundResourceResultOrError = cutscene.resourceHandler.getResource(locator.key);
                     if (isResult(foundResourceResultOrError)) {
                         foundImage = unwrapResultOrError(foundResourceResultOrError);

@@ -18,7 +18,6 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
-import p5 from "p5";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
@@ -39,6 +38,7 @@ import {
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
+import {GraphicImage} from "../../utils/graphics/graphicsContext";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -345,7 +345,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             const {dynamicSquaddie, dynamicSquaddieId} = info;
             const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
-            let image: p5.Image = getResultOrThrowError(
+            let image: GraphicImage = getResultOrThrowError(
                 state.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)
             );
 

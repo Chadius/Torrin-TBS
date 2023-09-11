@@ -33,6 +33,7 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import * as mocks from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import SpyInstance = jest.SpyInstance;
@@ -41,13 +42,13 @@ describe('BattleSquaddieSelector', () => {
     let selector: BattlePlayerSquaddieSelector = new BattlePlayerSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let missionMap: MissionMap;
-    let mockedP5 = mocks.mockedP5();
     let enemyDemonStatic: BattleSquaddieStatic;
     let enemyDemonDynamic: BattleSquaddieDynamic;
     let demonBiteActivity: SquaddieActivity;
+    let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        mockedP5 = mocks.mockedP5();
+        mockedP5GraphicsContext = new MockedP5GraphicsContext();
         selector = new BattlePlayerSquaddieSelector();
         squaddieRepo = new BattleSquaddieRepository();
         missionMap = new MissionMap({
@@ -191,7 +192,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
         });
 
-        selector.update(state, mockedP5);
+        selector.update(state, mockedP5GraphicsContext);
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
@@ -397,7 +398,7 @@ describe('BattleSquaddieSelector', () => {
             mouseX: 0,
             mouseY: 0
         });
-        selector.update(state, mockedP5);
+        selector.update(state, mockedP5GraphicsContext);
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getActivities()).toHaveLength(2);
         expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getActivities()[1]).toStrictEqual(new SquaddieEndTurnActivity());

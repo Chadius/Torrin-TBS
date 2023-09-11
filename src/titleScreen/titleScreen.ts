@@ -1,4 +1,3 @@
-import p5 from "p5";
 import {TitleScreenState} from "./titleScreenState";
 import {GameEngineChanges, GameEngineComponent} from "../gameEngine/gameEngineComponent";
 import {MouseButton} from "../utils/mouseConfig";
@@ -22,6 +21,7 @@ import {Rectangle} from "../ui/rectangle";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
 import {getResultOrThrowError} from "../utils/ResultOrError";
+import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 
 const colors = {
     background: [73, 10, 46],
@@ -78,9 +78,9 @@ export class TitleScreen implements GameEngineComponent {
         return this._newGameSelected;
     }
 
-    update(state: TitleScreenState, p: p5): void {
+    update(state: TitleScreenState, graphicsContext: GraphicsContext): void {
         this.loadResourcesFromHandler();
-        this.draw(state, p);
+        this.draw(state, graphicsContext);
     }
 
     keyPressed(state: TitleScreenState, keyCode: number): void {
@@ -104,7 +104,7 @@ export class TitleScreen implements GameEngineComponent {
         this.resetInternalState();
     }
 
-    setup({graphicsContext}: { graphicsContext: p5 }): TitleScreenState {
+    setup(): TitleScreenState {
         return new TitleScreenState({});
     }
 
@@ -114,17 +114,19 @@ export class TitleScreen implements GameEngineComponent {
         }
     }
 
-    private draw(state: TitleScreenState, p: p5) {
-        this.lazyLoadBackground(p).draw(p);
-        this.drawTitleBanner(state, p);
-        this.lazyLoadTitle(state, p).draw(p);
-        this.lazyLoadByLine(state, p).draw(p);
-        this.lazyLoadGameDescription(state, p).draw(p);
-        this.lazyLoadPlayButton(state, p).draw(p);
+    private draw(state: TitleScreenState, graphicsContext: GraphicsContext) {
+        this.lazyLoadBackground().draw(graphicsContext);
+        this.drawTitleBanner(graphicsContext);
+
+        this.lazyLoadTitle().draw(graphicsContext);
+        this.lazyLoadByLine().draw(graphicsContext);
+        this.lazyLoadGameDescription().draw(graphicsContext);
+
+        this.lazyLoadPlayButton().draw(graphicsContext);
         if (this._showingLoadingMessage) {
             this._newGameSelected = true;
         }
-        this.drawCharacterIntroductions(state, p);
+        this.drawCharacterIntroductions(state, graphicsContext);
     }
 
     private loadGameAndComplete() {
@@ -152,7 +154,7 @@ export class TitleScreen implements GameEngineComponent {
         this._newGameSelected = false;
     }
 
-    private drawTitleBanner(state: TitleScreenState, p: p5) {
+    private drawTitleBanner(graphicsContext: GraphicsContext) {
         if (this.titleBanner === undefined) {
 
             this.titleBannerArea =
@@ -167,7 +169,7 @@ export class TitleScreen implements GameEngineComponent {
                 return;
             }
 
-            let image: p5.Image = getResultOrThrowError(
+            let image: GraphicImage = getResultOrThrowError(
                 this.resourceHandler.getResource("torrins trial logo")
             );
 
@@ -188,10 +190,10 @@ export class TitleScreen implements GameEngineComponent {
             })
         }
 
-        this.titleBanner.draw(p);
+        this.titleBanner.draw(graphicsContext);
     }
 
-    private lazyLoadTitle(state: TitleScreenState, p: p5) {
+    private lazyLoadTitle() {
         if (this.titleText === undefined) {
             this.titleText = new TextBox({
                 area: new RectArea({
@@ -211,7 +213,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.titleText;
     }
 
-    private lazyLoadByLine(state: TitleScreenState, p: p5) {
+    private lazyLoadByLine() {
         if (this.byLine === undefined) {
             this.byLine = new TextBox({
                 area: new RectArea({
@@ -231,7 +233,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.byLine;
     }
 
-    private lazyLoadGameDescription(state: TitleScreenState, p: p5) {
+    private lazyLoadGameDescription() {
         if (this.gameDescription === undefined) {
             this.gameDescription = new TextBox({
                 area: new RectArea({
@@ -254,7 +256,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.gameDescription;
     }
 
-    private lazyLoadPlayButton(state: TitleScreenState, p: p5) {
+    private lazyLoadPlayButton() {
         if (this.playButton === undefined) {
             const buttonArea = new RectArea({
                 left: 0,
@@ -297,7 +299,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.playButton;
     }
 
-    private lazyLoadBackground(p: p5) {
+    private lazyLoadBackground() {
         if (this.background === undefined) {
 
             this.background = new Rectangle({
@@ -321,7 +323,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.resourceHandler.areAllResourcesLoaded(resourceKeys);
     }
 
-    private drawCharacterIntroductions(state: TitleScreenState, p: p5) {
+    private drawCharacterIntroductions(state: TitleScreenState, graphicsContext: GraphicsContext) {
         if (this.torrinIcon === undefined) {
             this.createPlaceholderTorrinIconArea();
         }
@@ -330,7 +332,8 @@ export class TitleScreen implements GameEngineComponent {
         if (this.torrinDescriptionText === undefined) {
             this.setTorrinDescriptionText(torrinDescriptionText);
         }
-        this.torrinDescriptionText.draw(p);
+
+        this.torrinDescriptionText.draw(graphicsContext);
 
         if (this.sirCamilIcon === undefined) {
             this.createSirCamilPlaceholderIconAreaUnderTorrin();
@@ -340,32 +343,33 @@ export class TitleScreen implements GameEngineComponent {
         if (this.sirCamilDescriptionText === undefined) {
             this.setSirCamilDescriptionText(sirCamilDescriptionText);
         }
-        this.sirCamilDescriptionText.draw(p);
+
+        this.sirCamilDescriptionText.draw(graphicsContext);
 
         if (this.areResourcesLoaded() === false) {
             return;
         }
 
         if (this.torrinIcon === undefined) {
-            let image: p5.Image = getResultOrThrowError(
+            let image: GraphicImage = getResultOrThrowError(
                 this.resourceHandler.getResource("young torrin cutscene portrait")
             );
             this.setTorrinIconBasedOnImage(image);
             this.setTorrinDescriptionText(torrinDescriptionText);
         }
-        this.torrinIcon.draw(p);
+        this.torrinIcon.draw(graphicsContext);
 
         if (this.sirCamilIcon === undefined) {
-            let image: p5.Image = getResultOrThrowError(
+            let image: GraphicImage = getResultOrThrowError(
                 this.resourceHandler.getResource("sir camil cutscene portrait")
             );
             this.setSirCamilIconBasedOnImageAndTorrinImage(image);
             this.setSirCamilDescriptionText(sirCamilDescriptionText);
         }
-        this.sirCamilIcon.draw(p);
+        this.sirCamilIcon.draw(graphicsContext);
     }
 
-    private setSirCamilIconBasedOnImageAndTorrinImage(image: p5.Image) {
+    private setSirCamilIconBasedOnImageAndTorrinImage(image: GraphicImage) {
         this.sirCamilIconArea = new RectArea({
             left: this.sirCamilIconArea.right - 110,
             top: this.torrinIconArea.bottom + WINDOW_SPACING1,
@@ -383,7 +387,7 @@ export class TitleScreen implements GameEngineComponent {
         });
     }
 
-    private setTorrinIconBasedOnImage(image: p5.Image) {
+    private setTorrinIconBasedOnImage(image: GraphicImage) {
         this.torrinIconArea = new RectArea({
             left: this.torrinIconArea.left,
             top: this.torrinIconArea.top,

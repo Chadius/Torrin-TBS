@@ -1,7 +1,7 @@
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
 import {WINDOW_SPACING2, WINDOW_SPACING4} from "../../ui/constants";
-import p5 from "p5";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
 type Options = {
     text: string;
@@ -20,8 +20,8 @@ export class DialogueTextBox {
         this.createUIObjects();
     }
 
-    draw(p: p5) {
-        this.speakerTextLabel.draw(p);
+    draw(graphicsContext: GraphicsContext) {
+        this.speakerTextLabel.draw(graphicsContext);
     }
 
     private createUIObjects() {
