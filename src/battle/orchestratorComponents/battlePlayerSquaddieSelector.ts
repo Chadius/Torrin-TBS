@@ -11,8 +11,6 @@ import {
     convertMapCoordinatesToScreenCoordinates,
     convertScreenCoordinatesToMapCoordinates
 } from "../../hexMap/convertCoordinates";
-import {MidTurnSelectingSquaddieState} from "../playerInput/midTurnInput";
-import {calculateNewBattleSquaddieUISelectionState} from "../playerInput/battleSquaddieUIService";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {highlightSquaddieReach} from "../animation/mapHighlight";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
@@ -38,12 +36,12 @@ import {TargetingShape} from "../targeting/targetingShapeGenerator";
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
     private gaveInstructionThatNeedsATarget: boolean;
-    private initialFocusOnSquaddie: boolean;
+    private selectedSquaddieDynamicId: string;
 
     constructor() {
         this.gaveCompleteInstruction = false;
         this.gaveInstructionThatNeedsATarget = false;
-        this.initialFocusOnSquaddie = false;
+        this.selectedSquaddieDynamicId = "";
     }
 
     hasCompleted(state: BattleOrchestratorState): boolean {
@@ -112,7 +110,6 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             return;
         }
-        this.beginSelectionOnCurrentlyActingSquaddie(state);
     }
 
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
@@ -144,7 +141,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     reset(state: BattleOrchestratorState) {
         this.gaveCompleteInstruction = false;
         this.gaveInstructionThatNeedsATarget = false;
-        this.initialFocusOnSquaddie = false;
+        this.selectedSquaddieDynamicId = "";
 
         state.battleSquaddieSelectedHUD.reset();
     }
@@ -167,31 +164,14 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        switch (state.midTurnInput.selectionState) {
-            case MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED:
-                this.updateBattleSquaddieUINoSquaddieSelected(state, state.clickedHexCoordinate, mouseX, mouseY);
-                break;
-            case MidTurnSelectingSquaddieState.SELECTED_SQUADDIE:
-                this.updateBattleSquaddieUISelectedSquaddie(state, state.clickedHexCoordinate, mouseX, mouseY);
-                break;
+        if (this.selectedSquaddieDynamicId != "") {
+            this.updateBattleSquaddieUISelectedSquaddie(state, state.clickedHexCoordinate, mouseX, mouseY);
+        } else {
+            this.updateBattleSquaddieUINoSquaddieSelected(state, state.clickedHexCoordinate, mouseX, mouseY);
         }
     }
 
     private updateBattleSquaddieUINoSquaddieSelected(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
-        const newSelectionState: MidTurnSelectingSquaddieState = calculateNewBattleSquaddieUISelectionState(
-            {
-                tileClickedOn: clickedHexCoordinate,
-                selectionState: state.midTurnInput.selectionState,
-                missionMap: state.missionMap,
-                squaddieRepository: state.squaddieRepository,
-                squaddieInstructionInProgress: state.squaddieCurrentlyActing,
-            }
-        );
-        if (newSelectionState !== MidTurnSelectingSquaddieState.SELECTED_SQUADDIE) {
-            state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
-            return;
-        }
-
         const {
             staticSquaddie,
             dynamicSquaddie,
@@ -207,7 +187,6 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         }
 
         highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
-        state.midTurnInput.changeSelectionState(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE, dynamicSquaddie.dynamicSquaddieId);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             dynamicId: dynamicSquaddie.dynamicSquaddieId,
             repositionWindow: {
@@ -216,6 +195,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             },
             state,
         });
+        this.selectedSquaddieDynamicId = dynamicSquaddie.dynamicSquaddieId;
     }
 
     private updateBattleSquaddieUISelectedSquaddie(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -246,8 +226,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie;
         const squaddieToHighlightDynamicId: string = startOfANewSquaddieTurn
             ? squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId
-            : state.midTurnInput.selectedSquaddieDynamicID;
-        state.midTurnInput.changeSelectionState(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE, squaddieToHighlightDynamicId);
+            : state.squaddieCurrentlyActing.dynamicSquaddieId;
 
         const {
             staticSquaddie,
@@ -262,12 +241,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!this.isHudInstructingTheCurrentlyActingSquaddie(state)) {
             return;
         }
-
         const {
             staticSquaddie,
             dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.midTurnInput.selectedSquaddieDynamicID));
-
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
         const pathfinder: Pathfinder = new Pathfinder();
         const squaddieDatum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
@@ -340,19 +317,5 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         }
 
         state.hexMap.stopHighlightingTiles();
-    }
-
-    private beginSelectionOnCurrentlyActingSquaddie(state: BattleOrchestratorState) {
-        if (
-            !this.initialFocusOnSquaddie
-            && state.squaddieCurrentlyActing
-            && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
-        ) {
-            state.midTurnInput.changeSelectionState(
-                MidTurnSelectingSquaddieState.SELECTED_SQUADDIE,
-                state.squaddieCurrentlyActing.dynamicSquaddieId
-            );
-            this.initialFocusOnSquaddie = true;
-        }
     }
 }

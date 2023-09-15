@@ -17,7 +17,6 @@ import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForTh
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
-import {MidTurnInput, MidTurnSelectingSquaddieState} from "../playerInput/midTurnInput";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
@@ -382,15 +381,6 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const battleSquaddieUIInput: MidTurnInput = new MidTurnInput({
-            squaddieRepository: squaddieRepo,
-            selectionState: MidTurnSelectingSquaddieState.SELECTED_SQUADDIE,
-            missionMap,
-            selectedSquaddieDynamicID: "player_soldier_0",
-            tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-        });
-
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
 
@@ -435,15 +425,6 @@ describe('BattleSquaddieSelector', () => {
         const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
-
-        const battleSquaddieUIInput: MidTurnInput = new MidTurnInput({
-            squaddieRepository: squaddieRepo,
-            selectionState: MidTurnSelectingSquaddieState.SELECTED_SQUADDIE,
-            missionMap,
-            selectedSquaddieDynamicID: "player_soldier_0",
-            tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-        });
 
         const longswordActivity: SquaddieActivity = new SquaddieActivity({
             name: "longsword",
@@ -604,9 +585,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores movement commands issued to other squaddies', () => {
-
-            expect(state.midTurnInput.selectionState).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
-            expect(state.midTurnInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
                 dynamicId: interruptSquaddieDynamic.dynamicSquaddieId,
                 repositionWindow: {
@@ -627,8 +606,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: endingMouseY
             });
 
-            expect(state.midTurnInput.selectionState).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
-            expect(state.midTurnInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
 
@@ -659,9 +637,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: 0
             });
             expect(state.squaddieCurrentlyActing.currentlySelectedActivity).toBeUndefined();
-
-            expect(state.midTurnInput.selectionState).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
-            expect(state.midTurnInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
     });

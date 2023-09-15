@@ -6,7 +6,6 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePhase, BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
-import {MidTurnInput, MidTurnSelectingSquaddieState} from "../playerInput/midTurnInput";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {Recording} from "../history/recording";
@@ -31,7 +30,6 @@ export class BattleOrchestratorState {
     battlePhaseTracker: BattlePhaseTracker;
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
-    midTurnInput: MidTurnInput;
     squaddieMovePath?: SearchPath;
     clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
@@ -91,12 +89,6 @@ export class BattleOrchestratorState {
         this.squaddieMovePath = options.squaddieMovePath || undefined;
         this.clickedHexCoordinate = options.clickedHexCoordinate || undefined;
 
-        this.midTurnInput = new MidTurnInput({
-            selectionState: MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED,
-            missionMap: this.missionMap,
-            squaddieRepository: this.squaddieRepository,
-            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-        });
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
         this.battlePhaseState = options.battlePhaseState || {
             bannerPhaseToShow: BattlePhase.UNKNOWN,
