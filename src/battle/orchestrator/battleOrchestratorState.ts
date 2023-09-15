@@ -12,7 +12,6 @@ import {Recording} from "../history/recording";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     DefaultSquaddieInstructionInProgress,
     SquaddieInstructionInProgress
@@ -31,7 +30,6 @@ export class BattleOrchestratorState {
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     squaddieMovePath?: SearchPath;
-    clickedHexCoordinate?: HexCoordinate;
     battlePhaseState: BattlePhaseState;
     battleEventRecording: Recording;
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
@@ -51,7 +49,6 @@ export class BattleOrchestratorState {
         camera?: BattleCamera;
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD;
         squaddieMovePath?: SearchPath;
-        clickedHexCoordinate?: HexCoordinate;
         battlePhaseState?: BattlePhaseState;
         squaddieCurrentlyActing?: SquaddieInstructionInProgress;
         battleEventRecording?: Recording;
@@ -72,7 +69,6 @@ export class BattleOrchestratorState {
             camera,
             battleSquaddieSelectedHUD,
             squaddieMovePath,
-            clickedHexCoordinate,
             battlePhaseState,
             squaddieCurrentlyActing,
             battleEventRecording,
@@ -87,8 +83,6 @@ export class BattleOrchestratorState {
         this.battlePhaseTracker = options.battlePhaseTracker || new BattlePhaseTracker();
         this.camera = options.camera || new BattleCamera();
         this.squaddieMovePath = options.squaddieMovePath || undefined;
-        this.clickedHexCoordinate = options.clickedHexCoordinate || undefined;
-
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
         this.battlePhaseState = options.battlePhaseState || {
             bannerPhaseToShow: BattlePhase.UNKNOWN,

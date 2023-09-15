@@ -152,22 +152,22 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
     private updateBattleSquaddieUIMouseClicked(state: BattleOrchestratorState, mouseX: number, mouseY: number) {
         const clickedTileCoordinates: [number, number] = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...state.camera.getCoordinates());
-        state.clickedHexCoordinate = new HexCoordinate({
+        const clickedHexCoordinate = new HexCoordinate({
             q: clickedTileCoordinates[0],
             r: clickedTileCoordinates[1]
         });
 
         if (
-            !state.hexMap.areCoordinatesOnMap(state.clickedHexCoordinate)
+            !state.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
         ) {
             state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
 
         if (this.selectedSquaddieDynamicId != "") {
-            this.updateBattleSquaddieUISelectedSquaddie(state, state.clickedHexCoordinate, mouseX, mouseY);
+            this.updateBattleSquaddieUISelectedSquaddie(state, clickedHexCoordinate, mouseX, mouseY);
         } else {
-            this.updateBattleSquaddieUINoSquaddieSelected(state, state.clickedHexCoordinate, mouseX, mouseY);
+            this.updateBattleSquaddieUINoSquaddieSelected(state, clickedHexCoordinate, mouseX, mouseY);
         }
     }
 
