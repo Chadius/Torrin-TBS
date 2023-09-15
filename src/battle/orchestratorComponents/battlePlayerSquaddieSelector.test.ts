@@ -17,7 +17,7 @@ import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForTh
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
-import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
+import {MidTurnInput, MidTurnSelectingSquaddieState} from "../playerInput/midTurnInput";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
@@ -210,28 +210,25 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
-            squaddieRepository: squaddieRepo,
-            selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
-            missionMap,
-            selectedSquaddieDynamicID: "player_soldier_0",
-            tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-        })
-
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
             squaddieRepo,
             camera,
-            battleSquaddieUIInput,
             hexMap: missionMap.terrainTileMap,
             battlePhaseTracker,
             pathfinder: new Pathfinder(),
             battleEventRecording: new Recording({}),
+            resourceHandler: mocks.mockResourceHandler(),
         });
 
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates());
+        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY
+        });
 
+        [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates());
         selector.mouseEventHappened(state, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -270,10 +267,8 @@ describe('BattleSquaddieSelector', () => {
     });
 
     describe('adding movement mid turn instruction', () => {
-        let mockHud: BattleSquaddieSelectedHUD;
         let camera: BattleCamera;
         let battlePhaseTracker: BattlePhaseTracker;
-        let battleSquaddieUIInput: BattleSquaddieUIInput;
         let state: BattleOrchestratorState;
         let squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
@@ -287,15 +282,6 @@ describe('BattleSquaddieSelector', () => {
             battlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
             camera = new BattleCamera();
-
-            battleSquaddieUIInput = new BattleSquaddieUIInput({
-                squaddieRepository: squaddieRepo,
-                selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
-                missionMap,
-                selectedSquaddieDynamicID: "player_soldier_0",
-                tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-                squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-            })
 
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
@@ -311,13 +297,10 @@ describe('BattleSquaddieSelector', () => {
                 numberOfActionsSpent: 1
             }));
 
-            mockHud = new BattleSquaddieSelectedHUD();
             state = new BattleOrchestratorState({
                 missionMap,
                 squaddieRepo,
                 camera,
-                battleSquaddieUIInput,
-                battleSquaddieSelectedHUD: mockHud,
                 hexMap: missionMap.terrainTileMap,
                 battlePhaseTracker,
                 pathfinder: new Pathfinder(),
@@ -327,10 +310,10 @@ describe('BattleSquaddieSelector', () => {
             });
 
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
-            mockHud.selectSquaddieAndDrawWindow({
-                dynamicId: "player_soldier_0",
-                repositionWindow: {mouseX: mouseX, mouseY: mouseY},
-                state,
+            selector.mouseEventHappened(state, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX,
+                mouseY
             });
         });
 
@@ -356,16 +339,6 @@ describe('BattleSquaddieSelector', () => {
         const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
-
-        const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
-            squaddieRepository: squaddieRepo,
-            selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
-            missionMap,
-            selectedSquaddieDynamicID: "player_soldier_0",
-            tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-        })
-
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         squaddieCurrentlyActing.addInitialState({
             dynamicSquaddieId: "player_soldier_0",
@@ -384,7 +357,6 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
             squaddieRepo,
             camera,
-            battleSquaddieUIInput,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
             battlePhaseTracker,
@@ -410,9 +382,9 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
+        const battleSquaddieUIInput: MidTurnInput = new MidTurnInput({
             squaddieRepository: squaddieRepo,
-            selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+            selectionState: MidTurnSelectingSquaddieState.SELECTED_SQUADDIE,
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
             tileClickedOn: new HexCoordinate({q: 0, r: 0}),
@@ -427,7 +399,6 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepo,
             camera,
             battleSquaddieSelectedHUD: mockHud,
-            battleSquaddieUIInput,
             hexMap: missionMap.terrainTileMap,
             battlePhaseTracker,
             pathfinder: new Pathfinder(),
@@ -465,9 +436,9 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
+        const battleSquaddieUIInput: MidTurnInput = new MidTurnInput({
             squaddieRepository: squaddieRepo,
-            selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+            selectionState: MidTurnSelectingSquaddieState.SELECTED_SQUADDIE,
             missionMap,
             selectedSquaddieDynamicID: "player_soldier_0",
             tileClickedOn: new HexCoordinate({q: 0, r: 0}),
@@ -494,7 +465,6 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepo,
             camera,
             battleSquaddieSelectedHUD: mockHud,
-            battleSquaddieUIInput,
             hexMap: missionMap.terrainTileMap,
             battlePhaseTracker,
             pathfinder: new Pathfinder(),
@@ -590,29 +560,12 @@ describe('BattleSquaddieSelector', () => {
             mockHud = new BattleSquaddieSelectedHUD();
 
             camera = new BattleCamera();
-            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
-            mockHud.selectSquaddieAndDrawWindow({
-                dynamicId: "player_soldier_0",
-                repositionWindow: {mouseX: mouseX, mouseY: mouseY},
-                state: stateWithNull,
-            });
-
             selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
-
-            const battleSquaddieUIInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
-                squaddieRepository: squaddieRepo,
-                selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
-                missionMap,
-                selectedSquaddieDynamicID: "player_soldier_0",
-                tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-                squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-            })
 
             state = new BattleOrchestratorState({
                 missionMap,
                 squaddieRepo,
                 camera,
-                battleSquaddieUIInput,
                 battleSquaddieSelectedHUD: mockHud,
                 hexMap: missionMap.terrainTileMap,
                 battlePhaseTracker,
@@ -620,6 +573,13 @@ describe('BattleSquaddieSelector', () => {
                 battleEventRecording: new Recording({}),
                 squaddieCurrentlyActing: soldierCurrentlyActing,
                 resourceHandler: mockResourceHandler,
+            });
+
+            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
+            selector.mouseEventHappened(state, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX,
+                mouseY
             });
 
             const interruptSquaddieOnMap = missionMap.getSquaddieByDynamicId("interrupting squaddie");
@@ -645,8 +605,8 @@ describe('BattleSquaddieSelector', () => {
 
         it('ignores movement commands issued to other squaddies', () => {
 
-            expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
-            expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.midTurnInput.selectionState).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
+            expect(state.midTurnInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
                 dynamicId: interruptSquaddieDynamic.dynamicSquaddieId,
                 repositionWindow: {
@@ -667,8 +627,8 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: endingMouseY
             });
 
-            expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
-            expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.midTurnInput.selectionState).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
+            expect(state.midTurnInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
 
@@ -700,8 +660,8 @@ describe('BattleSquaddieSelector', () => {
             });
             expect(state.squaddieCurrentlyActing.currentlySelectedActivity).toBeUndefined();
 
-            expect(state.battleSquaddieUIInput.selectionState).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
-            expect(state.battleSquaddieUIInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.midTurnInput.selectionState).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
+            expect(state.midTurnInput.selectedSquaddieDynamicID).toBe(soldierCurrentlyActing.dynamicSquaddieId);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
     });

@@ -7,7 +7,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
-import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
+import {MidTurnSelectingSquaddieState} from "../playerInput/midTurnInput";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
@@ -43,7 +43,7 @@ export function createSearchPath(state: BattleOrchestratorState, staticSquaddie:
 
     const noDirectRouteToDestination = closestRoute === null;
     if (noDirectRouteToDestination) {
-        state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
+        state.midTurnInput.changeSelectionState(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
         return;
     }
 
@@ -60,7 +60,6 @@ export function createSearchPath(state: BattleOrchestratorState, staticSquaddie:
     state.hexMap.stopHighlightingTiles();
     state.hexMap.highlightTiles(routeTilesByDistance);
 
-    state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
 

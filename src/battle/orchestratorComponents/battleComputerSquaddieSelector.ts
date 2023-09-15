@@ -110,7 +110,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         this.resetInternalState();
         if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
             state.battleSquaddieSelectedHUD.reset();
-            state.battleSquaddieUIInput.reset();
+            state.midTurnInput.reset();
         }
     }
 

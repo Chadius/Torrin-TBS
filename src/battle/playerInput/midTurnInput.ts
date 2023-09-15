@@ -1,17 +1,16 @@
-import {MissionMap} from "../missionMap/missionMap";
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
-import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
+import {MissionMap} from "../../missionMap/missionMap";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 
-export enum BattleSquaddieUISelectionState {
+export enum MidTurnSelectingSquaddieState {
     UNKNOWN = "UNKNOWN",
     NO_SQUADDIE_SELECTED = "NO_SQUADDIE_SELECTED",
     SELECTED_SQUADDIE = "SELECTED_SQUADDIE",
-    MOVING_SQUADDIE = "MOVING_SQUADDIE",
 }
 
-export type BattleSquaddieUIInputOptions = {
-    selectionState: BattleSquaddieUISelectionState;
+export type MidTurnInputState = {
+    selectionState: MidTurnSelectingSquaddieState;
     missionMap: MissionMap;
     squaddieRepository: BattleSquaddieRepository;
     selectedSquaddieDynamicID?: string;
@@ -20,7 +19,7 @@ export type BattleSquaddieUIInputOptions = {
     squaddieInstructionInProgress: SquaddieInstructionInProgress;
 }
 
-export class BattleSquaddieUIInput {
+export class MidTurnInput {
     selectedSquaddieDynamicID?: string;
     missionMap: MissionMap;
     tileClickedOn?: HexCoordinate;
@@ -28,14 +27,14 @@ export class BattleSquaddieUIInput {
     finishedAnimating?: boolean;
 
     constructor(options: {
-        selectionState: BattleSquaddieUISelectionState;
+        selectionState: MidTurnSelectingSquaddieState;
         missionMap: MissionMap;
         squaddieRepository: BattleSquaddieRepository;
         selectedSquaddieDynamicID?: string;
         tileClickedOn?: HexCoordinate;
         finishedAnimating?: boolean;
         squaddieInstructionInProgress: SquaddieInstructionInProgress;
-    } | BattleSquaddieUIInputOptions) {
+    } | MidTurnInputState) {
         ({
             selectedSquaddieDynamicID: this.selectedSquaddieDynamicID,
             selectionState: this._selectionState,
@@ -47,9 +46,9 @@ export class BattleSquaddieUIInput {
         } = options);
     }
 
-    private _selectionState: BattleSquaddieUISelectionState;
+    private _selectionState: MidTurnSelectingSquaddieState;
 
-    get selectionState(): BattleSquaddieUISelectionState {
+    get selectionState(): MidTurnSelectingSquaddieState {
         return this._selectionState;
     }
 
@@ -60,10 +59,10 @@ export class BattleSquaddieUIInput {
     }
 
     reset() {
-        this.changeSelectionState(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
+        this.changeSelectionState(MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED);
     }
 
-    changeSelectionState(newSelectionState: BattleSquaddieUISelectionState, dynamicSquaddieId?: string) {
+    changeSelectionState(newSelectionState: MidTurnSelectingSquaddieState, dynamicSquaddieId?: string) {
         this._selectionState = newSelectionState;
         if (dynamicSquaddieId !== undefined && dynamicSquaddieId !== null) {
             this.selectedSquaddieDynamicID = dynamicSquaddieId;

@@ -124,7 +124,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     reset(state: BattleOrchestratorState) {
         this.resetObject();
         state.hexMap.stopHighlightingTiles();
-        state.battleSquaddieUIInput.reset();
+        state.midTurnInput.reset();
     }
 
     shouldDrawConfirmWindow(): boolean {

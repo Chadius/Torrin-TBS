@@ -4,7 +4,6 @@ import {SquaddieMovement} from "../../squaddie/movement";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieMover} from "./battleSquaddieMover";
-import {BattleSquaddieUIInput, BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
@@ -70,15 +69,6 @@ describe('BattleSquaddieMover', () => {
     it('is complete once enough time passes and the squaddie finishes moving', () => {
         map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
-        const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
-            selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
-            missionMap: map,
-            squaddieRepository: squaddieRepo,
-            selectedSquaddieDynamicID: "player_1",
-            tileClickedOn: new HexCoordinate({q: 1, r: 1}),
-            finishedAnimating: false,
-            squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-        });
         const pathfinder: Pathfinder = new Pathfinder();
         const movePath: SearchPath = getResultOrThrowError(
             getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
@@ -113,7 +103,6 @@ describe('BattleSquaddieMover', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieRepo,
-            battleSquaddieUIInput: uiInput,
             pathfinder,
             missionMap: map,
             squaddieMovePath: movePath,
@@ -153,15 +142,6 @@ describe('BattleSquaddieMover', () => {
             squaddieAffiliation: SquaddieAffiliation,
             newInstruction: SquaddieActivitiesForThisRound,
         }): BattleOrchestratorState => {
-            const uiInput: BattleSquaddieUIInput = new BattleSquaddieUIInput({
-                selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
-                missionMap: map,
-                squaddieRepository: squaddieRepo,
-                selectedSquaddieDynamicID: dynamicSquaddieId,
-                tileClickedOn: new HexCoordinate({q: 1, r: 1}),
-                finishedAnimating: false,
-                squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-            });
             const movePath: SearchPath = getResultOrThrowError(
                 getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
                         startLocation: new HexCoordinate({q: 0, r: 0}),
@@ -183,7 +163,6 @@ describe('BattleSquaddieMover', () => {
 
             return new BattleOrchestratorState({
                 squaddieRepo,
-                battleSquaddieUIInput: uiInput,
                 pathfinder,
                 missionMap: map,
                 squaddieMovePath: movePath,

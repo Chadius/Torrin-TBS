@@ -1,19 +1,19 @@
-import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {MissionMap} from "../missionMap/missionMap";
+import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import {MissionMap} from "../../missionMap/missionMap";
 import {calculateNewBattleSquaddieUISelectionState} from "./battleSquaddieUIService";
-import {BattleSquaddieUISelectionState} from "./battleSquaddieUIInput";
-import {SquaddieId} from "../squaddie/id";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {SquaddieTurn} from "../squaddie/turn";
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {ArmyAttributes} from "../squaddie/armyAttributes";
-import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
-import {SquaddieActivitiesForThisRound} from "./history/squaddieActivitiesForThisRound";
-import {SquaddieMovementActivity} from "./history/squaddieMovementActivity";
-import {TraitStatusStorage} from "../trait/traitStatusStorage";
-import {SquaddieResource} from "../squaddie/resource";
+import {MidTurnSelectingSquaddieState} from "./midTurnInput";
+import {SquaddieId} from "../../squaddie/id";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {SquaddieTurn} from "../../squaddie/turn";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SquaddieResource} from "../../squaddie/resource";
 
 describe('BattleSquaddieUIService', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -56,13 +56,13 @@ describe('BattleSquaddieUIService', () => {
         expect(
             calculateNewBattleSquaddieUISelectionState(
                 {
-                    selectionState: BattleSquaddieUISelectionState.UNKNOWN,
+                    selectionState: MidTurnSelectingSquaddieState.UNKNOWN,
                     missionMap,
                     squaddieRepository,
                     squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
-        ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
+        ).toBe(MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED);
     });
 
     it('should switch to SELECTED_SQUADDIE mode when clicked on', () => {
@@ -74,13 +74,13 @@ describe('BattleSquaddieUIService', () => {
             calculateNewBattleSquaddieUISelectionState(
                 {
                     tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-                    selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
+                    selectionState: MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED,
                     missionMap,
                     squaddieRepository,
                     squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
-        ).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
+        ).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
     });
 
     it('should change to NO_SQUADDIE_SELECTED when an uncontrollable squaddie is selected and you click on the map', () => {
@@ -111,14 +111,14 @@ describe('BattleSquaddieUIService', () => {
             calculateNewBattleSquaddieUISelectionState(
                 {
                     tileClickedOn: new HexCoordinate({q: 0, r: 1}),
-                    selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+                    selectionState: MidTurnSelectingSquaddieState.SELECTED_SQUADDIE,
                     missionMap,
                     selectedSquaddieDynamicID: "enemy_0",
                     squaddieRepository,
                     squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
-        ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
+        ).toBe(MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED);
     });
 
     it('should stay on SELECTED_SQUADDIE if you clicked on another squaddie', () => {
@@ -130,52 +130,13 @@ describe('BattleSquaddieUIService', () => {
             calculateNewBattleSquaddieUISelectionState(
                 {
                     tileClickedOn: new HexCoordinate({q: 0, r: 0}),
-                    selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
+                    selectionState: MidTurnSelectingSquaddieState.SELECTED_SQUADDIE,
                     missionMap,
                     squaddieRepository,
                     squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
                 }
             )
-        ).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
-    });
-
-    it('should change to MOVING_SQUADDIE when a controllable squaddie is selected and you click on the map', () => {
-        const missionMap = createMissionMap(["1 1 "]);
-
-        missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
-
-        expect(
-            calculateNewBattleSquaddieUISelectionState(
-                {
-                    tileClickedOn: new HexCoordinate({q: 0, r: 1}),
-                    selectionState: BattleSquaddieUISelectionState.SELECTED_SQUADDIE,
-                    missionMap,
-                    selectedSquaddieDynamicID: "torrin_0",
-                    squaddieRepository,
-                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-                }
-            )
-        ).toBe(BattleSquaddieUISelectionState.MOVING_SQUADDIE);
-    });
-
-    it('should change to NO_SQUADDIE_SELECTED when the moving squaddie has finished', () => {
-        const missionMap = createMissionMap(["1 1 "]);
-
-        missionMap.addSquaddie("torrin", "torrin_0", new HexCoordinate({q: 0, r: 0}));
-
-        expect(
-            calculateNewBattleSquaddieUISelectionState(
-                {
-                    tileClickedOn: new HexCoordinate({q: 0, r: 1}),
-                    selectionState: BattleSquaddieUISelectionState.MOVING_SQUADDIE,
-                    missionMap,
-                    selectedSquaddieDynamicID: "torrin_0",
-                    squaddieRepository,
-                    finishedAnimating: true,
-                    squaddieInstructionInProgress: new SquaddieInstructionInProgress({}),
-                }
-            )
-        ).toBe(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
+        ).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
     });
 
     it('goes to SQUADDIE_SELECTED phase when the squaddie is mid turn', () => {
@@ -198,13 +159,13 @@ describe('BattleSquaddieUIService', () => {
             calculateNewBattleSquaddieUISelectionState(
                 {
                     squaddieInstructionInProgress: currentInstruction,
-                    selectionState: BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED,
+                    selectionState: MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED,
                     missionMap,
                     selectedSquaddieDynamicID: "torrin_0",
                     squaddieRepository,
                     finishedAnimating: true,
                 }
             )
-        ).toBe(BattleSquaddieUISelectionState.SELECTED_SQUADDIE);
+        ).toBe(MidTurnSelectingSquaddieState.SELECTED_SQUADDIE);
     });
 });

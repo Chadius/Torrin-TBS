@@ -5,7 +5,7 @@ import {
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattleSquaddieUISelectionState} from "../battleSquaddieUIInput";
+import {MidTurnSelectingSquaddieState} from "../playerInput/midTurnInput";
 import {
     hasMovementAnimationFinished,
     moveSquaddieAlongPath,
@@ -126,7 +126,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             TintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
             dynamicSquaddie.mapIcon.draw(graphicsContext);
         }
-        state.battleSquaddieUIInput.changeSelectionState(BattleSquaddieUISelectionState.NO_SQUADDIE_SELECTED);
+        state.midTurnInput.changeSelectionState(MidTurnSelectingSquaddieState.NO_SQUADDIE_SELECTED);
         state.hexMap.stopHighlightingTiles();
     }
 }

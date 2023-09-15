@@ -6,6 +6,7 @@ import {BattleSquaddieSelectedHUD} from "../../battle/battleSquaddieSelectedHUD"
 import {SquaddieEndTurnActivity} from "../../battle/history/squaddieEndTurnActivity";
 import {RectArea} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
+import {makeResult} from "../ResultOrError";
 
 jest.mock('p5', () => () => {
     return {
@@ -31,6 +32,10 @@ jest.mock('p5', () => () => {
         textAlign: jest.fn(),
         textSize: jest.fn(),
         tint: jest.fn(),
+        translate: jest.fn(),
+        beginShape: jest.fn(),
+        endShape: jest.fn(),
+        vertex: jest.fn(),
     }
 });
 
@@ -53,6 +58,7 @@ export const mockResourceHandler = () => {
     }) as jest.Mocked<ResourceHandler>;
 
     handler.loadResources = jest.fn();
+    handler.getResource = jest.fn().mockReturnValue(makeResult(new GraphicImageWithStringAsData("data")));
     handler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(true);
     return handler;
 }

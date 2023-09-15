@@ -87,7 +87,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
             state.battlePhaseTracker.getCurrentTeam().beginNewRound();
 
-
+            state.hexMap.stopHighlightingTiles();
         }
     }
 
