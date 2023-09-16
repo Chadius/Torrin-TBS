@@ -144,7 +144,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const ability = state.squaddieCurrentlyActing.currentlySelectedActivity;
 
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId);
-        const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
         const abilityRange: HexCoordinate[] = state.pathfinder.getTilesInRange(new SearchParams({
                 canStopOnSquaddies: true,
                 missionMap: state.missionMap,
@@ -154,7 +153,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 shapeGeneratorType: ability.targetingShape,
                 squaddieRepository: state.squaddieRepository,
             }),
-            staticSquaddie.activities[0].maximumRange,
+            ability.maximumRange,
             [mapLocation],
         );
 
