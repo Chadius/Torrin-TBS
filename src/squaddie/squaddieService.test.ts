@@ -10,6 +10,8 @@ import {
     GetArmorClass,
     GetHitPoints,
     GetNumberOfActions,
+    GiveHealingToTheSquaddie,
+    HealingType,
     IsSquaddieAlive
 } from "./squaddieService";
 import {ArmyAttributes} from "./armyAttributes";
@@ -120,6 +122,50 @@ describe('Squaddie Service', () => {
 
             expect(maxHitPoints).toBe(maxHitPoints);
             expect(currentHitPoints).toBe(maxHitPoints - damageTaken);
+        });
+        it('can give healing to the squaddie', () => {
+            DealDamageToTheSquaddie({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+                damage: 2,
+                damageType: DamageType.Body,
+            });
+
+            let {healingReceived} = GiveHealingToTheSquaddie({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+                healingAmount: 1,
+                healingType: HealingType.LostHitPoints,
+            });
+            expect(healingReceived).toBe(1);
+
+            let {
+                maxHitPoints,
+                currentHitPoints,
+            } = GetHitPoints({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+            });
+
+            expect(maxHitPoints).toBe(maxHitPoints);
+            expect(currentHitPoints).toBe(maxHitPoints - 2 + 1);
+
+            ({healingReceived} = GiveHealingToTheSquaddie({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+                healingAmount: 9001,
+                healingType: HealingType.LostHitPoints,
+            }));
+            expect(healingReceived).toBe(1);
+
+            ({
+                currentHitPoints,
+            } = GetHitPoints({
+                staticSquaddie: playerStatic,
+                dynamicSquaddie: playerDynamic,
+            }));
+
+            expect(currentHitPoints).toBe(maxHitPoints);
         });
     });
 

@@ -28,7 +28,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {DamageType, IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {MissionMap} from "../../missionMap/missionMap";
-import {ActivityResult} from "../history/activityResult";
+import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 
@@ -190,7 +190,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             results: new SquaddieSquaddieResults({
                 actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId,
                 targetedSquaddieDynamicIds: ["target_dynamic_squaddie"],
-                resultPerTarget: {["target_dynamic_squaddie"]: new ActivityResult({damageTaken: 9001})}
+                resultPerTarget: {["target_dynamic_squaddie"]: new ActivityResultOnSquaddie({damageTaken: 9001})}
             })
         });
         battleEventRecording.addEvent(newEvent);

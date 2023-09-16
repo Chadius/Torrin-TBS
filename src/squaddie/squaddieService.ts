@@ -46,10 +46,15 @@ export const GetHitPoints = ({
 }
 
 export enum DamageType {
-    Unknown,
-    Body,
-    Mind,
-    Soul
+    Unknown = "Unknown",
+    Body = "Body",
+    Mind = "Mind",
+    Soul = "Soul",
+}
+
+export enum HealingType {
+    Unknown = "Unknown",
+    LostHitPoints = "LostHitPoints",
 }
 
 export const DealDamageToTheSquaddie = ({
@@ -69,6 +74,26 @@ export const DealDamageToTheSquaddie = ({
 
     return {
         damageTaken: actualHitPointLoss,
+    }
+}
+
+export const GiveHealingToTheSquaddie = ({
+                                             staticSquaddie,
+                                             dynamicSquaddie,
+                                             healingAmount,
+                                             healingType: HealingType,
+                                         }: {
+    staticSquaddie: BattleSquaddieStatic,
+    dynamicSquaddie: BattleSquaddieDynamic,
+    healingAmount: number,
+    healingType: HealingType,
+}): {
+    healingReceived: number
+} => {
+    const actualHitPointGain: number = dynamicSquaddie.inBattleAttributes.receiveHealing(healingAmount);
+
+    return {
+        healingReceived: actualHitPointGain,
     }
 }
 

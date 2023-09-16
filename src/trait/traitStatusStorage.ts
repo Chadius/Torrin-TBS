@@ -1,6 +1,7 @@
 export enum Trait {
     UNKNOWN = "UNKNOWN",
     ATTACK = "ATTACK",
+    HEALING = "HEALING",
     MOVEMENT = "MOVEMENT",
     HUMANOID = "HUMANOID",
     MONSU = "MONSU",
@@ -12,6 +13,7 @@ export enum Trait {
     TARGETS_SELF = "TARGETS_SELF",
     TARGETS_FOE = "TARGETS_FOE",
     TARGETS_ALLIES = "TARGETS_ALLIES",
+    ALWAYS_HITS = "ALWAYS_HITS",
 }
 
 export enum TraitCategory {
@@ -34,6 +36,10 @@ const traitInformation: {
     },
     [Trait.ATTACK]: {
         description: "Damage and negatively affect the target. Subject to a multiple attack penalty over repeated use.",
+        categories: [TraitCategory.ACTIVITY],
+    },
+    [Trait.HEALING]: {
+        description: "Positively affect the target by restoring hit points.",
         categories: [TraitCategory.ACTIVITY],
     },
     [Trait.MOVEMENT]: {
@@ -80,6 +86,10 @@ const traitInformation: {
         description: "The acting Squaddie can target allies with this activity. Usually Helpful.",
         categories: [TraitCategory.ACTIVITY],
     },
+    [Trait.ALWAYS_HITS]: {
+        description: "This ability always hits the target.",
+        categories: [TraitCategory.ACTIVITY],
+    }
 }
 
 export class TraitStatusStorage {

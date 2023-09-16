@@ -21,7 +21,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
-import {ActivityResult} from "../history/activityResult";
+import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
 
@@ -107,7 +107,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             results: new SquaddieSquaddieResults({
                 actingSquaddieDynamicId: knightDynamicSquaddie.dynamicSquaddieId,
                 targetedSquaddieDynamicIds: [thiefDynamicId],
-                resultPerTarget: {[thiefDynamicId]: new ActivityResult({damageTaken: 1})},
+                resultPerTarget: {[thiefDynamicId]: new ActivityResultOnSquaddie({damageTaken: 1})},
             })
         });
         battleEventRecording = new Recording({});

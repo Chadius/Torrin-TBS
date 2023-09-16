@@ -35,10 +35,15 @@ describe('BattleSquaddieTarget', () => {
     let targetComponent: BattlePlayerSquaddieTarget;
     let knightStatic: BattleSquaddieStatic;
     let knightDynamic: BattleSquaddieDynamic;
+    let citizenStatic: BattleSquaddieStatic;
+    let citizenDynamic: BattleSquaddieDynamic;
     let thiefStatic: BattleSquaddieStatic;
     let thiefDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
     let longswordActivity: SquaddieActivity;
+    let longswordActivityId: "longsword";
+    let bandageWoundsActivity: SquaddieActivity;
+    let bandageWoundsActivityId: "bandage wounds";
     let state: BattleOrchestratorState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -59,7 +64,7 @@ describe('BattleSquaddieTarget', () => {
 
         longswordActivity = new SquaddieActivity({
             name: "longsword",
-            id: "longsword",
+            id: longswordActivityId,
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
@@ -72,6 +77,18 @@ describe('BattleSquaddieTarget', () => {
             },
         });
 
+        bandageWoundsActivity = new SquaddieActivity({
+            name: "Bandage Wounds",
+            id: bandageWoundsActivityId,
+            traits: new TraitStatusStorage({
+                [Trait.HEALING]: true,
+                [Trait.TARGETS_ALLIES]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+            minimumRange: 1,
+            maximumRange: 1,
+            actionsToSpend: 2,
+        });
+
         ({
             staticSquaddie: knightStatic,
             dynamicSquaddie: knightDynamic,
@@ -81,10 +98,25 @@ describe('BattleSquaddieTarget', () => {
             dynamicId: "Knight 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
-            activities: [longswordActivity],
+            activities: [longswordActivity, bandageWoundsActivity],
         }));
-
         battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
+
+        ({
+            staticSquaddie: citizenStatic,
+            dynamicSquaddie: citizenDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Citizen",
+            staticId: "Citizen",
+            dynamicId: "Citizen 0",
+            affiliation: SquaddieAffiliation.ALLY,
+            squaddieRepository: squaddieRepo,
+            activities: [],
+        }));
+        battleMap.addSquaddie(citizenStatic.staticId, citizenDynamic.dynamicSquaddieId, new HexCoordinate({
+            q: 0,
+            r: 1
+        }));
 
         ({
             staticSquaddie: thiefStatic,
@@ -100,7 +132,6 @@ describe('BattleSquaddieTarget', () => {
                 maxHitPoints: 5,
             })
         }));
-
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
 
         const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
@@ -127,6 +158,22 @@ describe('BattleSquaddieTarget', () => {
 
     function clickOnThief() {
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(thiefDynamic.dynamicSquaddieId);
+        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
+            mapLocation.q,
+            mapLocation.r,
+            ...state.camera.getCoordinates()
+        );
+        const mouseEvent: OrchestratorComponentMouseEvent = {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY,
+        };
+
+        targetComponent.mouseEventHappened(state, mouseEvent);
+    }
+
+    function clickOnCitizen() {
+        const {mapLocation} = state.missionMap.getSquaddieByDynamicId(citizenDynamic.dynamicSquaddieId);
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
             mapLocation.q,
             mapLocation.r,
@@ -266,7 +313,7 @@ describe('BattleSquaddieTarget', () => {
         expect(targetComponent.hasCompleted(state)).toBeFalsy();
     });
 
-    describe('user clicks on target', () => {
+    describe('user clicks on target with attack', () => {
         beforeEach(() => {
             targetComponent.update(state, mockedP5GraphicsContext);
             clickOnThief();
@@ -288,6 +335,36 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
+        });
+    });
+
+    describe('user clicks on target with heal', () => {
+        beforeEach(() => {
+            const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
+                activitiesForThisRound: new SquaddieActivitiesForThisRound({
+                    dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+                    staticSquaddieId: knightStatic.staticId,
+                    startingLocation: new HexCoordinate({q: 1, r: 1}),
+                }),
+                currentSquaddieActivity: bandageWoundsActivity,
+            });
+
+            state = new BattleOrchestratorState({
+                missionMap: battleMap,
+                squaddieRepo,
+                hexMap: battleMap.terrainTileMap,
+                squaddieCurrentlyActing: currentInstruction,
+                pathfinder: new Pathfinder(),
+                resourceHandler: mockResourceHandler,
+            });
+
+            targetComponent.update(state, mockedP5GraphicsContext);
+            clickOnCitizen();
+        });
+
+        it('should show the confirm window', () => {
+            expect(targetComponent.shouldDrawConfirmWindow()).toBeTruthy();
+            expect(targetComponent.hasCompleted(state)).toBeFalsy();
         });
     });
 
@@ -397,4 +474,58 @@ describe('BattleSquaddieTarget', () => {
             expect(currentHitPoints).toBe(maxHitPoints - longswordActivity.damageDescriptions[DamageType.Body]);
         });
     });
+
+    describe('invalid target based on affiliation', () => {
+        const tests = [
+            {
+                name: 'target foe tries to attack an ally',
+                activityTraits: [Trait.ATTACK, Trait.TARGETS_FOE],
+                invalidTargetClicker: clickOnCitizen,
+            },
+            {
+                name: 'heal ally tries to heal a foe',
+                activityTraits: [Trait.HEALING, Trait.TARGETS_ALLIES],
+                invalidTargetClicker: clickOnThief,
+            }
+        ]
+        it.each(tests)(`$name do not show a confirm window`, ({
+                                                                  name,
+                                                                  activityTraits,
+                                                                  invalidTargetClicker,
+                                                              }) => {
+            const traits: { [key in Trait]?: boolean } = Object.fromEntries(
+                activityTraits.map(e => [e, true])
+            );
+            const activity = new SquaddieActivity({
+                id: name,
+                name,
+                traits: new TraitStatusStorage(traits),
+                minimumRange: 0,
+                maximumRange: 9001,
+            });
+            const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
+                activitiesForThisRound: new SquaddieActivitiesForThisRound({
+                    dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
+                    staticSquaddieId: knightStatic.staticId,
+                    startingLocation: new HexCoordinate({q: 1, r: 1}),
+                }),
+                currentSquaddieActivity: activity,
+            });
+
+            state = new BattleOrchestratorState({
+                missionMap: battleMap,
+                squaddieRepo,
+                hexMap: battleMap.terrainTileMap,
+                squaddieCurrentlyActing: currentInstruction,
+                pathfinder: new Pathfinder(),
+                resourceHandler: mockResourceHandler,
+            });
+
+            targetComponent.update(state, mockedP5GraphicsContext);
+            invalidTargetClicker();
+
+            expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
+            expect(targetComponent.hasCompleted(state)).toBeFalsy();
+        });
+    })
 });

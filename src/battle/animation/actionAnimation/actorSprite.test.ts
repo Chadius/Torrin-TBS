@@ -1,4 +1,4 @@
-import {ActivityResult} from "../../history/activityResult";
+import {ActivityResultOnSquaddie} from "../../history/activityResultOnSquaddie";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -11,7 +11,7 @@ import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 
 describe('Actor Sprite', () => {
-    let resultTookDamage: ActivityResult;
+    let resultTookDamage: ActivityResultOnSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;

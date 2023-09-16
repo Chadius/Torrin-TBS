@@ -15,7 +15,7 @@ import {HitPointMeter} from "./actionAnimation/hitPointMeter";
 import {GetHitPoints} from "../../squaddie/squaddieService";
 import {WINDOW_SPACING1} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
-import {ActivityResult} from "../history/activityResult";
+import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -171,7 +171,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     }
 
     private setupAnimationForTargetSprites(state: BattleOrchestratorState, activity: SquaddieActivity, resultPerTarget: {
-        [p: string]: ActivityResult
+        [p: string]: ActivityResultOnSquaddie
     }) {
         this._targetSprites = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string, index: number) => {
             const targetSprite = new TargetSprite();
@@ -188,7 +188,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     }
 
     private setupAnimationForTargetTextWindows(state: BattleOrchestratorState, resultPerTarget: {
-        [p: string]: ActivityResult
+        [p: string]: ActivityResultOnSquaddie
     }) {
         this._targetTextWindows = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string) => {
             const {

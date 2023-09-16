@@ -2,7 +2,7 @@ import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
 
 export class InBattleAttributes {
-    private _armyAttributes: ArmyAttributes;
+    private readonly _armyAttributes: ArmyAttributes;
 
     constructor(statBlock?: ArmyAttributes) {
         if (!statBlock) {
@@ -11,6 +11,10 @@ export class InBattleAttributes {
 
         this._armyAttributes = statBlock;
         this._currentHitPoints = statBlock.maxHitPoints;
+    }
+
+    get armyAttributes(): ArmyAttributes {
+        return this._armyAttributes;
     }
 
     private _currentHitPoints: number;
@@ -28,5 +32,16 @@ export class InBattleAttributes {
         }
 
         return startingHitPoints - this._currentHitPoints;
+    }
+
+    receiveHealing(amountHealed: number) {
+        const startingHitPoints = this.currentHitPoints;
+
+        this._currentHitPoints += amountHealed;
+        if (this._currentHitPoints > this._armyAttributes.maxHitPoints) {
+            this._currentHitPoints = this._armyAttributes.maxHitPoints;
+        }
+
+        return this._currentHitPoints - startingHitPoints;
     }
 }

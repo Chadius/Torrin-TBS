@@ -1,7 +1,7 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {DamageType, DealDamageToTheSquaddie, GetNumberOfActions} from "../../squaddie/squaddieService";
+import {GetNumberOfActions} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParams} from "../../hexMap/pathfinder/searchParams";
@@ -11,8 +11,6 @@ import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription
 import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {BattleEvent} from "../history/battleEvent";
-import {ActivityResult} from "../history/activityResult";
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 
@@ -91,39 +89,6 @@ export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, d
             }),
         })
     }
-}
-
-export function CalculateResults(state: BattleOrchestratorState, actingSquaddieDynamic: BattleSquaddieDynamic, validTargetLocation: HexCoordinate) {
-    const {
-        dynamicSquaddieId: targetedSquaddieDynamicId,
-        staticSquaddieId: targetedSquaddieStaticId
-    } = state.missionMap.getSquaddieAtLocation(validTargetLocation);
-
-    const {
-        staticSquaddie: targetedSquaddieStatic,
-        dynamicSquaddie: targetedSquaddieDynamic
-    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(targetedSquaddieDynamicId));
-    const targetedSquaddieDynamicIds: string[] = [targetedSquaddieDynamicId];
-    let damageDealt = 0;
-    Object.keys(state.squaddieCurrentlyActing.currentlySelectedActivity.damageDescriptions).forEach((damageTypeStr: string) => {
-        const damageType = parseInt(damageTypeStr) as DamageType;
-        const activityDamage = state.squaddieCurrentlyActing.currentlySelectedActivity.damageDescriptions[damageType]
-        const {damageTaken: damageTakenByThisType} = DealDamageToTheSquaddie({
-            staticSquaddie: targetedSquaddieStatic,
-            dynamicSquaddie: targetedSquaddieDynamic,
-            damage: activityDamage,
-            damageType,
-        });
-        damageDealt += damageTakenByThisType;
-    });
-    const resultPerTarget = {[targetedSquaddieDynamicId]: new ActivityResult({damageTaken: damageDealt})};
-
-    const instructionResults: SquaddieSquaddieResults = new SquaddieSquaddieResults({
-        actingSquaddieDynamicId: actingSquaddieDynamic.dynamicSquaddieId,
-        targetedSquaddieDynamicIds,
-        resultPerTarget,
-    });
-    return instructionResults;
 }
 
 export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {

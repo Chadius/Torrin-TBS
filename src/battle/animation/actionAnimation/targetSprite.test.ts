@@ -1,4 +1,4 @@
-import {ActivityResult} from "../../history/activityResult";
+import {ActivityResultOnSquaddie} from "../../history/activityResultOnSquaddie";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -13,8 +13,8 @@ import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 
 describe('Target Sprite', () => {
-    let resultTookDamage: ActivityResult;
-    let resultTookLethalDamage: ActivityResult;
+    let resultTookDamage: ActivityResultOnSquaddie;
+    let resultTookLethalDamage: ActivityResultOnSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
     const dynamicSquaddieId = "target0";
@@ -37,8 +37,8 @@ describe('Target Sprite', () => {
 
         const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
-        resultTookDamage = new ActivityResult({damageTaken: 1});
-        resultTookLethalDamage = new ActivityResult({damageTaken: staticSquaddie.attributes.maxHitPoints});
+        resultTookDamage = new ActivityResultOnSquaddie({damageTaken: 1});
+        resultTookLethalDamage = new ActivityResultOnSquaddie({damageTaken: staticSquaddie.attributes.maxHitPoints});
 
         timer = new ActionTimer();
         timer.start();

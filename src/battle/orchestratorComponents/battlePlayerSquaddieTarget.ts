@@ -20,8 +20,10 @@ import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
 import {Label} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {CalculateResults} from "./battleSquaddieSelectorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {SquaddieActivity} from "../../squaddie/activity";
+import {Trait} from "../../trait/traitStatusStorage";
+import {CalculateResults} from "../activityCalculator/calculator";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -216,7 +218,12 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
 
-        if (FriendlyAffiliationsByAffiliation[actingSquaddieStatic.squaddieId.affiliation][targetSquaddieStatic.squaddieId.affiliation]) {
+        const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieStatic.squaddieId.affiliation][targetSquaddieStatic.squaddieId.affiliation];
+        const activityConsidered: SquaddieActivity = state.squaddieCurrentlyActing.currentlySelectedActivity;
+        if (actorAndTargetAreFriends && activityConsidered.traits.getStatus(Trait.TARGETS_ALLIES) !== true) {
+            return;
+        }
+        if (!actorAndTargetAreFriends && activityConsidered.traits.getStatus(Trait.TARGETS_ALLIES) === true) {
             return;
         }
 

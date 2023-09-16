@@ -73,4 +73,16 @@ describe('SquaddieActivity', () => {
         expect(harmfulAttack.isHelpful).toBeFalsy();
         expect(harmfulAttack.isHindering).toBeTruthy();
     });
+
+    it('uses the traits to determine if it is Helpful', () => {
+        const helpfulAttack = new SquaddieActivity({
+            name: "healing word",
+            id: "healing",
+            traits: new TraitStatusStorage({
+                [Trait.HEALING]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+        });
+        expect(helpfulAttack.isHelpful).toBeTruthy();
+        expect(helpfulAttack.isHindering).toBeFalsy();
+    });
 });

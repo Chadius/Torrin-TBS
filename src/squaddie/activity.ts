@@ -1,7 +1,7 @@
 import {assertsInteger} from "../utils/mathAssert";
 import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
-import {DamageType} from "./squaddieService";
+import {DamageType, HealingType} from "./squaddieService";
 
 export class ActivityRange {
     constructor(options: {
@@ -48,45 +48,57 @@ export class SquaddieActivity {
     private readonly _actionsToSpend: number;
     private readonly _traits: TraitStatusStorage;
     private readonly _damageDescriptions: { [t in DamageType]?: number };
+    private readonly _healingDescriptions: { [t in HealingType]?: number };
 
-    constructor(options: {
+    constructor({
+                    actionsToSpend,
+                    damageDescriptions,
+                    healingDescriptions,
+                    id,
+                    maximumRange,
+                    minimumRange,
+                    name,
+                    traits,
+                }: {
         name: string;
         id: string;
         traits: TraitStatusStorage;
         actionsToSpend?: number;
         damageDescriptions?: { [t in DamageType]?: number },
+        healingDescriptions?: { [t in HealingType]?: number },
     } & Partial<ActivityRange>) {
-        this._name = options.name;
-        this._id = options.id;
+        this._name = name;
+        this._id = id;
 
-        if (options.minimumRange !== undefined) {
-            assertsInteger(options.minimumRange);
+        if (minimumRange !== undefined) {
+            assertsInteger(minimumRange);
         }
-        if (options.maximumRange !== undefined) {
-            assertsInteger(options.maximumRange);
+        if (maximumRange !== undefined) {
+            assertsInteger(maximumRange);
         }
         this._range = new ActivityRange({
-            minimumRange: options.minimumRange,
-            maximumRange: options.maximumRange,
+            minimumRange: minimumRange,
+            maximumRange: maximumRange,
         })
 
-        if (options.actionsToSpend !== undefined) {
-            assertsInteger(options.actionsToSpend);
+        if (actionsToSpend !== undefined) {
+            assertsInteger(actionsToSpend);
         }
 
-        if (options.actionsToSpend) {
-            assertsInteger(options.actionsToSpend);
-            this._actionsToSpend = options.actionsToSpend;
+        if (actionsToSpend) {
+            assertsInteger(actionsToSpend);
+            this._actionsToSpend = actionsToSpend;
         } else {
             this._actionsToSpend = 1;
         }
 
-        this._traits = options.traits;
-        this._damageDescriptions = options.damageDescriptions ? {...options.damageDescriptions} : {};
+        this._traits = traits;
+        this._damageDescriptions = damageDescriptions ? {...(damageDescriptions)} : {};
+        this._healingDescriptions = healingDescriptions ? {...(healingDescriptions)} : {};
     }
 
     get isHelpful(): boolean {
-        return false;
+        return this.traits.getStatus(Trait.HEALING);
     }
 
     get isHindering(): boolean {
@@ -95,6 +107,10 @@ export class SquaddieActivity {
 
     get damageDescriptions(): { [t in DamageType]?: number } {
         return this._damageDescriptions;
+    }
+
+    get healingDescriptions(): { [t in HealingType]?: number } {
+        return this._healingDescriptions;
     }
 
     get name(): string {

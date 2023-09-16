@@ -24,7 +24,7 @@ import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {DamageType} from "../../squaddie/squaddieService";
+import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";
 import {Cutscene} from "../../cutscene/cutscene";
@@ -194,13 +194,17 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         }
                     }),
                     new SquaddieActivity({
-                        name: "aquatic aura",
-                        id: "young_torrin_aquatic_aura",
+                        name: "healing touch",
+                        id: "young_torrin_healing_touch",
                         minimumRange: 0,
-                        maximumRange: 2,
-                        traits: new TraitStatusStorage({[Trait.SKIP_ANIMATION]: true}).filterCategory(TraitCategory.ACTIVITY),
-                        actionsToSpend: 1,
-                        damageDescriptions: {}
+                        maximumRange: 1,
+                        traits: new TraitStatusStorage({
+                            [Trait.SKIP_ANIMATION]: true,
+                            [Trait.TARGETS_ALLIES]: true,
+                            [Trait.HEALING]: true,
+                        }).filterCategory(TraitCategory.ACTIVITY),
+                        actionsToSpend: 2,
+                        healingDescriptions: {[HealingType.LostHitPoints]: 2}
                     })
                 ],
             }),

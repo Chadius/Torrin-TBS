@@ -1,5 +1,5 @@
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {ActivityResult} from "../history/activityResult";
+import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -15,12 +15,15 @@ describe('Activity Result Text Writer', () => {
     let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
     let knightStatic: BattleSquaddieStatic;
     let knightDynamic: BattleSquaddieDynamic;
+    let citizenStatic: BattleSquaddieStatic;
+    let citizenDynamic: BattleSquaddieDynamic;
     let thiefStatic: BattleSquaddieStatic;
     let thiefDynamic: BattleSquaddieDynamic;
     let rogueStatic: BattleSquaddieStatic;
     let rogueDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
     let longswordSweepActivity: SquaddieActivity;
+    let bandageWoundsActivity: SquaddieActivity;
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
@@ -46,6 +49,18 @@ describe('Activity Result Text Writer', () => {
             actionsToSpend: 1,
         });
 
+        bandageWoundsActivity = new SquaddieActivity({
+            name: "Bandage Wounds",
+            id: "Bandages",
+            traits: new TraitStatusStorage({
+                [Trait.HEALING]: true,
+                [Trait.TARGETS_ALLIES]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+            minimumRange: 1,
+            maximumRange: 1,
+            actionsToSpend: 2,
+        });
+
         ({
             staticSquaddie: knightStatic,
             dynamicSquaddie: knightDynamic,
@@ -55,10 +70,22 @@ describe('Activity Result Text Writer', () => {
             dynamicId: "Knight 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepository,
-            activities: [longswordSweepActivity],
+            activities: [longswordSweepActivity, bandageWoundsActivity],
         }));
 
         battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
+
+        ({
+            staticSquaddie: citizenStatic,
+            dynamicSquaddie: citizenDynamic,
+        } = CreateNewSquaddieAndAddToRepository({
+            name: "Citizen",
+            staticId: "Citizen",
+            dynamicId: "Citizen 0",
+            affiliation: SquaddieAffiliation.ALLY,
+            squaddieRepository: squaddieRepository,
+            activities: [],
+        }));
 
         ({
             staticSquaddie: thiefStatic,
@@ -94,10 +121,10 @@ describe('Activity Result Text Writer', () => {
             actingSquaddieDynamicId: knightDynamic.dynamicSquaddieId,
             targetedSquaddieDynamicIds: [thiefDynamic.dynamicSquaddieId, rogueDynamic.dynamicSquaddieId],
             resultPerTarget: {
-                [thiefDynamic.dynamicSquaddieId]: new ActivityResult({
+                [thiefDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
                     damageTaken: 1
                 }),
-                [rogueDynamic.dynamicSquaddieId]: new ActivityResult({
+                [rogueDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
                     damageTaken: 1
                 })
             }
@@ -113,6 +140,32 @@ describe('Activity Result Text Writer', () => {
         expect(outputStrings[0]).toBe("Knight uses Longsword Sweep")
         expect(outputStrings[1]).toBe("Thief takes 1 damage")
         expect(outputStrings[2]).toBe("Rogue takes 1 damage")
+    });
+
+    it('Explains how much healing was received', () => {
+        const healingResult = new SquaddieSquaddieResults({
+            actingSquaddieDynamicId: knightDynamic.dynamicSquaddieId,
+            targetedSquaddieDynamicIds: [knightDynamic.dynamicSquaddieId, citizenDynamic.dynamicSquaddieId],
+            resultPerTarget: {
+                [knightDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
+                    healingReceived: 1
+                }),
+                [citizenDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
+                    healingReceived: 2
+                })
+            }
+        });
+
+        const outputStrings: string[] = FormatResult({
+            currentActivity: bandageWoundsActivity,
+            result: healingResult,
+            squaddieRepository,
+        });
+
+        expect(outputStrings).toHaveLength(3);
+        expect(outputStrings[0]).toBe("Knight uses Bandage Wounds")
+        expect(outputStrings[1]).toBe("Knight receives 1 healing")
+        expect(outputStrings[2]).toBe("Citizen receives 2 healing")
     });
 
     it('Explains intent to use a power', () => {

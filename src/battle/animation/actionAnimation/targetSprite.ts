@@ -11,7 +11,7 @@ import {SquaddieActivity} from "../../../squaddie/activity";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
-import {ActivityResult} from "../../history/activityResult";
+import {ActivityResultOnSquaddie} from "../../history/activityResultOnSquaddie";
 import {SquaddieSprite} from "./squaddieSprite";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
@@ -47,9 +47,9 @@ export class TargetSprite {
         return this._squaddieRepository;
     }
 
-    private _activityResult: ActivityResult;
+    private _activityResult: ActivityResultOnSquaddie;
 
-    get activityResult(): ActivityResult {
+    get activityResult(): ActivityResultOnSquaddie {
         return this._activityResult;
     }
 
@@ -64,7 +64,7 @@ export class TargetSprite {
         targetDynamicSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
         activity: SquaddieActivity,
-        result: ActivityResult,
+        result: ActivityResultOnSquaddie,
         windowArea: RectArea,
         resourceHandler: ResourceHandler,
     }) {
@@ -106,7 +106,7 @@ export class TargetSprite {
         timer: ActionTimer,
         dynamicSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
-        activityResult: ActivityResult
+        activityResult: ActivityResultOnSquaddie
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:

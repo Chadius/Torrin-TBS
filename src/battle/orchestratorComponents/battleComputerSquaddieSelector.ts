@@ -23,14 +23,10 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {
-    AddMovementInstruction,
-    CalculateResults,
-    createSearchPath,
-    MaybeCreateSquaddieInstruction
-} from "./battleSquaddieSelectorUtils";
+import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 import {SquaddieInstructionActivity} from "../history/squaddieInstructionActivity";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {CalculateResults} from "../activityCalculator/calculator";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTIVITY_TIME = 500;
