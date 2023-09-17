@@ -23,7 +23,6 @@ import {MouseButton} from "../../utils/mouseConfig";
 import {GameEngineComponentState} from "../../gameEngine/gameEngine";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
 import {TargetSquaddieInRange} from "../teamStrategy/targetSquaddieInRange";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -291,7 +290,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         return new BattleOrchestratorState({
             resourceHandler,
             squaddieRepo: new BattleSquaddieRepository(),
-            battlePhaseTracker: new BattlePhaseTracker(),
             camera: new BattleCamera(0, 100),
             teamStrategyByAffiliation: {
                 ENEMY: [
@@ -310,19 +308,27 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     private setNextComponentMode(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
         const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
-
         let nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode = undefined;
         let completionStatus: BattleCompletionStatus;
+
         if (orchestrationChanges.checkMissionObjectives === true) {
             ({
                 nextModeFromUnrewardedMissionObjective,
                 completionStatus
             } = this.findModeChangesAndCompletionStatusFromMissionObjectives(state, nextModeFromUnrewardedMissionObjective));
-        }
-
-        if (nextModeFromUnrewardedMissionObjective === undefined) {
+            if (nextModeFromUnrewardedMissionObjective === undefined) {
+                this.mode = orchestrationChanges.nextMode || defaultNextMode;
+            }
+        } else if (
+            state.battlePhaseState.turnCount === 0
+            && state.gameBoard.cutsceneCollection.cutsceneIdAtStart
+        ) {
+            this.cutscenePlayer.startCutscene(state.gameBoard.cutsceneCollection.cutsceneIdAtStart, state);
+            this.mode = orchestrationChanges.nextMode || defaultNextMode;
+        } else {
             this.mode = orchestrationChanges.nextMode || defaultNextMode;
         }
+
         if (completionStatus) {
             state.gameBoard.completionStatus = completionStatus;
         }

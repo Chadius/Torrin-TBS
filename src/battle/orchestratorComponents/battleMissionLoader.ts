@@ -39,6 +39,7 @@ import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -103,6 +104,13 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+        if (state.gameBoard.cutsceneCollection.cutsceneIdAtStart) {
+            return {
+                nextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+                displayMap: true,
+            }
+        }
+
         return {
             displayMap: true,
         }
@@ -312,18 +320,18 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
         state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 1, r: 0}));
 
-        state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
+        state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.PLAYER,
             name: "Crusaders",
             squaddieRepo: state.squaddieRepository,
             dynamicSquaddieIds: ["player_young_torrin", "player_sir_camil"],
-        }));
-        state.battlePhaseTracker.addTeam(new BattleSquaddieTeam({
+        });
+        state.teamsByAffiliation[SquaddieAffiliation.ENEMY] = new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.ENEMY,
             name: "Infiltrators",
             squaddieRepo: state.squaddieRepository,
             dynamicSquaddieIds: ["enemy_demon_slither_0"],
-        }));
+        });
 
         this.affiliateIconResourceKeys = [
             "affiliate_icon_crusaders",
@@ -403,7 +411,20 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
-            }
+                "introduction": new Cutscene({
+                    actions: [
+                        new DialogueBox({
+                            id: "3",
+                            name: "Introduction",
+                            text: "Begin the mission!",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        })
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
+            },
+            cutsceneIdAtStart: "introduction",
         })
     }
 

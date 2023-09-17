@@ -7,17 +7,26 @@ export class MissionCutsceneCollection {
     private readonly _cutsceneById: {
         [id: string]: Cutscene
     }
+    private readonly _cutsceneIdAtStart: string;
 
-    constructor({cutsceneById}: {
-        cutsceneById: { [id: string]: Cutscene }
+    constructor({cutsceneById, cutsceneIdAtStart}: {
+        cutsceneById: {
+            [id: string]: Cutscene
+        },
+        cutsceneIdAtStart?: string,
     }) {
         if (cutsceneById) {
             this._cutsceneById = {...cutsceneById};
         } else {
             this._cutsceneById = {};
         }
+        this._cutsceneIdAtStart = cutsceneIdAtStart;
 
         this.createDefaultCutscenes();
+    }
+
+    get cutsceneIdAtStart(): string {
+        return this._cutsceneIdAtStart;
     }
 
     get cutsceneById(): { [p: string]: Cutscene } {

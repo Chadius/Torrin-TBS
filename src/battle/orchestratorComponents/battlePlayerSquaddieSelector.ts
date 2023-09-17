@@ -57,7 +57,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+            const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
             if (currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
                 let hudUsedMouseClick: boolean = false;
                 if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
@@ -81,7 +81,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
     keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
         if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
-            const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+            const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
             if (currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
                 state.battleSquaddieSelectedHUD.keyPressed(event.keyCode, state);
 
@@ -106,7 +106,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
-        const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+        const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             return;
         }
@@ -147,7 +147,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private playerCanControlAtLeastOneSquaddie(state: BattleOrchestratorState): boolean {
-        return state.battlePhaseTracker.getCurrentTeam().canPlayerControlAnySquaddieOnThisTeamRightNow();
+        return state.getCurrentTeam().canPlayerControlAnySquaddieOnThisTeamRightNow();
     }
 
     private updateBattleSquaddieUIMouseClicked(state: BattleOrchestratorState, mouseX: number, mouseY: number) {

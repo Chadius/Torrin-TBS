@@ -1,12 +1,12 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
+import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {BANNER_ANIMATION_TIME, BattlePhaseController} from "./battlePhaseController";
+import {BANNER_ANIMATION_TIME, BattlePhaseController, BattlePhaseState} from "./battlePhaseController";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
@@ -17,7 +17,6 @@ import {SquaddieResource} from "../../squaddie/resource";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: BattleSquaddieRepository;
-    let battlePhaseTracker: BattlePhaseTracker;
     let battlePhaseController: BattlePhaseController;
     let playerSquaddieTeam: BattleSquaddieTeam;
     let enemySquaddieTeam: BattleSquaddieTeam;
@@ -25,6 +24,7 @@ describe('BattlePhaseController', () => {
     let diffTime: number;
     let state: BattleOrchestratorState;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -85,9 +85,10 @@ describe('BattlePhaseController', () => {
             dynamicSquaddieIds: ["enemy_squaddie_0"]
         });
 
-        battlePhaseTracker = new BattlePhaseTracker();
-        battlePhaseTracker.addTeam(playerSquaddieTeam);
-        battlePhaseTracker.addTeam(enemySquaddieTeam);
+        teamsByAffiliation = {
+            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
+            [SquaddieAffiliation.ENEMY]: enemySquaddieTeam,
+        };
 
         diffTime = 100;
 
@@ -95,12 +96,13 @@ describe('BattlePhaseController', () => {
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult("Hi"));
 
         state = new BattleOrchestratorState({
-            battlePhaseTracker,
             squaddieRepo,
             battlePhaseState: {
-                bannerPhaseToShow: BattlePhase.UNKNOWN,
+                currentAffiliation: BattlePhase.UNKNOWN,
+                turnCount: 0,
             },
-            resourceHandler
+            resourceHandler,
+            teamsByAffiliation,
         });
 
         battlePhaseController = new BattlePhaseController();
@@ -108,34 +110,44 @@ describe('BattlePhaseController', () => {
     });
 
     it('does nothing and finishes immediately if team has not finished their turn', () => {
-        battlePhaseTracker.advanceToNextPhase();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        state.battlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        };
+        AdvanceToNextPhase(state.battlePhaseState, teamsByAffiliation);
+        expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
         battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
         expect(battlePhaseController.draw).not.toBeCalled();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
     });
 
     it('starts showing the player phase banner by default', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
             squaddieRepo,
             resourceHandler,
+            teamsByAffiliation,
         });
         battlePhaseController = new BattlePhaseController();
         const startTime = 0;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
 
+        state.battlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        };
+
         battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
+        expect(state.battlePhaseState.turnCount).toBe(1);
         expect(battlePhaseController.bannerDisplayAnimationStartTime).toBe(startTime);
 
-        jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
         battlePhaseController.update(state, mockedP5GraphicsContext);
+        jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
     });
 
     it('stops the camera when it displays the banner', () => {
@@ -144,9 +156,9 @@ describe('BattlePhaseController', () => {
         camera.setYVelocity(-100);
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
             squaddieRepo,
             resourceHandler,
+            teamsByAffiliation,
         });
         battlePhaseController = new BattlePhaseController();
         const startTime = 0;
@@ -159,8 +171,13 @@ describe('BattlePhaseController', () => {
     });
 
     it('starts the animation and completes if team has finished their turns', () => {
-        battlePhaseTracker.advanceToNextPhase();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        state.battlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        };
+
+        AdvanceToNextPhase(state.battlePhaseState, teamsByAffiliation);
+        expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
         const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId("player_squaddie_0"));
         dynamicSquaddie0.endTurn();
@@ -169,19 +186,19 @@ describe('BattlePhaseController', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
         battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.ENEMY);
+        expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
 
         jest.spyOn(Date, 'now').mockImplementation(() => startTime + BANNER_ANIMATION_TIME + diffTime);
         battlePhaseController.update(state, mockedP5GraphicsContext);
         expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.ENEMY);
+        expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
     });
 
     it('only draws the banner while the timer is going', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
             squaddieRepo,
             resourceHandler,
+            teamsByAffiliation,
         });
         battlePhaseController = new BattlePhaseController();
         battlePhaseController.draw = jest.fn();
@@ -216,10 +233,16 @@ describe('BattlePhaseController', () => {
         dynamicSquaddie0.endTurn();
         expect(dynamicSquaddie0.canStillActThisRound()).toBeFalsy();
 
+        const phase: BattlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        };
+
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
             squaddieRepo,
             resourceHandler,
+            battlePhaseState: phase,
+            teamsByAffiliation,
         });
         battlePhaseController = new BattlePhaseController();
         const startTime = 0;
@@ -228,7 +251,7 @@ describe('BattlePhaseController', () => {
         battlePhaseController.update(state, mockedP5GraphicsContext);
 
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
-        expect(battlePhaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        expect(phase.currentAffiliation).toBe(BattlePhase.PLAYER);
         expect(dynamicSquaddie0.canStillActThisRound()).toBeTruthy();
     });
 });

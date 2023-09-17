@@ -11,7 +11,7 @@ export enum BattleCompletionStatus {
 export class BattleGameBoard {
     constructor({objectives, cutsceneCollection}: {
         objectives: MissionObjective[],
-        cutsceneCollection: MissionCutsceneCollection
+        cutsceneCollection: MissionCutsceneCollection,
     }) {
         this._cutsceneCollection = cutsceneCollection || new MissionCutsceneCollection({cutsceneById: {}});
         this.constructMissionObjective(objectives);

@@ -1,6 +1,6 @@
 import {BattlePlayerSquaddieSelector} from "./battlePlayerSquaddieSelector";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
+import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -45,6 +45,7 @@ describe('BattleSquaddieSelector', () => {
     let enemyDemonDynamic: BattleSquaddieDynamic;
     let demonBiteActivity: SquaddieActivity;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -55,6 +56,7 @@ describe('BattleSquaddieSelector', () => {
                 movementCost: ["1 1 "]
             })
         });
+        teamsByAffiliation = {};
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
@@ -100,8 +102,7 @@ describe('BattleSquaddieSelector', () => {
 
         enemyTeam.addDynamicSquaddieIds(["enemy_demon_0", "enemy_demon_1"]);
 
-        const battlePhaseTracker: BattlePhaseTracker = new BattlePhaseTracker(BattlePhase.ENEMY);
-        battlePhaseTracker.addTeam(enemyTeam);
+        teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
 
         missionMap.addSquaddie(
             enemyDemonStatic.staticId,
@@ -113,12 +114,13 @@ describe('BattleSquaddieSelector', () => {
             enemyDemonDynamic.dynamicSquaddieId,
             new HexCoordinate({q: 0, r: 1})
         );
-        return battlePhaseTracker;
+        return {
+            currentAffiliation: BattlePhase.ENEMY,
+            turnCount: 1,
+        };
     }
 
     const makeBattlePhaseTrackerWithPlayerTeam = (missionMap: MissionMap) => {
-        const battlePhaseTracker: BattlePhaseTracker = new BattlePhaseTracker(BattlePhase.PLAYER);
-
         const playerTeam: BattleSquaddieTeam = new BattleSquaddieTeam(
             {
                 name: "player controlled team",
@@ -126,7 +128,7 @@ describe('BattleSquaddieSelector', () => {
                 squaddieRepo: squaddieRepo,
             }
         );
-        battlePhaseTracker.addTeam(playerTeam);
+        teamsByAffiliation[SquaddieAffiliation.PLAYER] = playerTeam;
 
         CreateNewSquaddieAndAddToRepository({
             name: "Player Soldier",
@@ -143,7 +145,10 @@ describe('BattleSquaddieSelector', () => {
             new HexCoordinate({q: 0, r: 0})
         );
 
-        return battlePhaseTracker;
+        return {
+            currentAffiliation: BattlePhase.PLAYER,
+            turnCount: 1,
+        };
     }
 
     it('ignores mouse input when the player cannot control the squaddies', () => {
@@ -153,7 +158,7 @@ describe('BattleSquaddieSelector', () => {
             })
         });
 
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+        const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
         const mockHexMap = new (
             <new (options: any) => TerrainTileMap>TerrainTileMap
         )({
@@ -162,7 +167,8 @@ describe('BattleSquaddieSelector', () => {
         mockHexMap.mouseClicked = jest.fn();
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
+            battlePhaseState,
+            teamsByAffiliation,
             hexMap: mockHexMap,
         })
 
@@ -181,11 +187,12 @@ describe('BattleSquaddieSelector', () => {
                 movementCost: ["1 1 "]
             })
         });
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+        const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
+            battlePhaseState,
+            teamsByAffiliation,
             squaddieRepo,
             camera,
             missionMap,
@@ -205,7 +212,7 @@ describe('BattleSquaddieSelector', () => {
             })
         });
 
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
 
@@ -214,7 +221,8 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepo,
             camera,
             hexMap: missionMap.terrainTileMap,
-            battlePhaseTracker,
+            battlePhaseState,
+            teamsByAffiliation,
             pathfinder: new Pathfinder(),
             battleEventRecording: new Recording({}),
             resourceHandler: mocks.mockResourceHandler(),
@@ -267,7 +275,6 @@ describe('BattleSquaddieSelector', () => {
 
     describe('adding movement mid turn instruction', () => {
         let camera: BattleCamera;
-        let battlePhaseTracker: BattlePhaseTracker;
         let state: BattleOrchestratorState;
         let squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
@@ -278,7 +285,7 @@ describe('BattleSquaddieSelector', () => {
                 })
             });
 
-            battlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
             camera = new BattleCamera();
 
@@ -301,7 +308,8 @@ describe('BattleSquaddieSelector', () => {
                 squaddieRepo,
                 camera,
                 hexMap: missionMap.terrainTileMap,
-                battlePhaseTracker,
+                battlePhaseState,
+                teamsByAffiliation,
                 pathfinder: new Pathfinder(),
                 squaddieCurrentlyActing,
                 battleEventRecording: new Recording({}),
@@ -335,7 +343,7 @@ describe('BattleSquaddieSelector', () => {
     });
 
     it('will add end turn to existing instruction', () => {
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
@@ -358,7 +366,8 @@ describe('BattleSquaddieSelector', () => {
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
-            battlePhaseTracker,
+            battlePhaseState,
+            teamsByAffiliation,
             pathfinder: new Pathfinder(),
             squaddieCurrentlyActing,
             battleEventRecording: new Recording({}),
@@ -377,7 +386,7 @@ describe('BattleSquaddieSelector', () => {
     });
 
     it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
 
@@ -390,7 +399,8 @@ describe('BattleSquaddieSelector', () => {
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
-            battlePhaseTracker,
+            battlePhaseState,
+            teamsByAffiliation,
             pathfinder: new Pathfinder(),
         });
 
@@ -422,7 +432,7 @@ describe('BattleSquaddieSelector', () => {
     });
 
     it('will recommend squaddie target if a SquaddieActivity is selected that requires a target', () => {
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
 
@@ -447,7 +457,8 @@ describe('BattleSquaddieSelector', () => {
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
-            battlePhaseTracker,
+            battlePhaseState,
+            teamsByAffiliation,
             pathfinder: new Pathfinder(),
         });
 
@@ -482,7 +493,6 @@ describe('BattleSquaddieSelector', () => {
         let interruptSquaddieDynamic: BattleSquaddieDynamic;
         let soldierCurrentlyActing: SquaddieInstructionInProgress;
         let mockHud: BattleSquaddieSelectedHUD;
-        let battlePhaseTracker: BattlePhaseTracker;
         let selectSquaddieAndDrawWindowSpy: SpyInstance;
         let camera: BattleCamera;
         let state: BattleOrchestratorState;
@@ -495,7 +505,7 @@ describe('BattleSquaddieSelector', () => {
                     movementCost: ["1 1 1 1 "]
                 })
             });
-            battlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+            const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
             ({
                 staticSquaddie: interruptSquaddieStatic,
                 dynamicSquaddie: interruptSquaddieDynamic,
@@ -532,12 +542,6 @@ describe('BattleSquaddieSelector', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            const stateWithNull = new BattleOrchestratorState({
-                missionMap,
-                resourceHandler: mockResourceHandler,
-                squaddieRepo,
-                camera: new BattleCamera(0, 0),
-            });
             mockHud = new BattleSquaddieSelectedHUD();
 
             camera = new BattleCamera();
@@ -549,7 +553,8 @@ describe('BattleSquaddieSelector', () => {
                 camera,
                 battleSquaddieSelectedHUD: mockHud,
                 hexMap: missionMap.terrainTileMap,
-                battlePhaseTracker,
+                battlePhaseState,
+                teamsByAffiliation,
                 pathfinder: new Pathfinder(),
                 battleEventRecording: new Recording({}),
                 squaddieCurrentlyActing: soldierCurrentlyActing,
@@ -643,7 +648,7 @@ describe('BattleSquaddieSelector', () => {
     });
 
     it('will send key pressed events to the HUD', () => {
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
 
@@ -656,7 +661,8 @@ describe('BattleSquaddieSelector', () => {
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
-            battlePhaseTracker,
+            battlePhaseState,
+            teamsByAffiliation,
             pathfinder: new Pathfinder(),
         });
 

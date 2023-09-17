@@ -72,8 +72,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
-        const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
-        if (this.mostRecentActivity === undefined && currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+        const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
+        if (this.mostRecentActivity === undefined && currentTeam && currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             this.askComputerControlSquaddie(state);
         }
     }
@@ -110,7 +110,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private atLeastOneSquaddieOnCurrentTeamCanAct(state: BattleOrchestratorState): boolean {
-        return state.battlePhaseTracker.getCurrentTeam() && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie();
+        const currentTeam = state.getCurrentTeam();
+        return currentTeam && currentTeam.hasAnActingSquaddie();
     }
 
     private isPauseToShowSquaddieSelectionRequired(state: BattleOrchestratorState) {
@@ -189,7 +190,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     private askComputerControlSquaddie(state: BattleOrchestratorState) {
         if (this.mostRecentActivity === undefined) {
-            const currentTeam: BattleSquaddieTeam = state.battlePhaseTracker.getCurrentTeam();
+            const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
             const currentTeamStrategies: TeamStrategy[] = state.teamStrategyByAffiliation[currentTeam.affiliation];
 
             let strategyIndex = 0;

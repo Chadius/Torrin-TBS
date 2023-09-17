@@ -231,6 +231,29 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator.getCurrentComponent()).toBe(mockBattleCutscenePlayer);
     });
 
+    it('recommends cutscene player if there is a cutscene to play at the start', () => {
+        const cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneById: {
+                "starting": new Cutscene({})
+            },
+            cutsceneIdAtStart: "starting",
+        });
+
+        orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.LOADING_MISSION,
+        });
+
+        const stateWithCutscene = new BattleOrchestratorState({
+            resourceHandler: nullState.resourceHandler,
+            squaddieRepo: new BattleSquaddieRepository(),
+            cutsceneCollection,
+        });
+
+        orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
+        expect(orchestrator.cutscenePlayer.currentCutsceneId).toBe("starting");
+    });
+
     it('will transition from cutscene playing to phase controller mode', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,

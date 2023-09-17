@@ -3,7 +3,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattlePhase, BattlePhaseTracker} from "../orchestratorComponents/battlePhaseTracker";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
@@ -19,6 +19,7 @@ import {
 import {MissionObjective} from "../missionResult/missionObjective";
 import {BattleGameBoard} from "./battleGameBoard";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -26,7 +27,7 @@ export class BattleOrchestratorState {
     hexMap: TerrainTileMap;
     pathfinder: Pathfinder;
     squaddieRepository: BattleSquaddieRepository;
-    battlePhaseTracker: BattlePhaseTracker;
+    teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     squaddieMovePath?: SearchPath;
@@ -45,7 +46,6 @@ export class BattleOrchestratorState {
         hexMap?: TerrainTileMap;
         pathfinder?: Pathfinder;
         squaddieRepo?: BattleSquaddieRepository;
-        battlePhaseTracker?: BattlePhaseTracker;
         camera?: BattleCamera;
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD;
         squaddieMovePath?: SearchPath;
@@ -53,6 +53,7 @@ export class BattleOrchestratorState {
         squaddieCurrentlyActing?: SquaddieInstructionInProgress;
         battleEventRecording?: Recording;
         teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] }
+        teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
     }) {
 
         const {
@@ -65,7 +66,6 @@ export class BattleOrchestratorState {
             hexMap,
             pathfinder,
             squaddieRepo,
-            battlePhaseTracker,
             camera,
             battleSquaddieSelectedHUD,
             squaddieMovePath,
@@ -73,6 +73,7 @@ export class BattleOrchestratorState {
             squaddieCurrentlyActing,
             battleEventRecording,
             teamStrategyByAffiliation,
+            teamsByAffiliation,
         } = options;
 
         this.resourceHandler = options.resourceHandler;
@@ -80,13 +81,14 @@ export class BattleOrchestratorState {
         this.hexMap = options.hexMap || (this.missionMap && this.missionMap.terrainTileMap) || new TerrainTileMap({movementCost: ["1 "]});
         this.pathfinder = options.pathfinder;
         this.squaddieRepository = options.squaddieRepo;
-        this.battlePhaseTracker = options.battlePhaseTracker || new BattlePhaseTracker();
         this.camera = options.camera || new BattleCamera();
         this.squaddieMovePath = options.squaddieMovePath || undefined;
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
         this.battlePhaseState = options.battlePhaseState || {
-            bannerPhaseToShow: BattlePhase.UNKNOWN,
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
         };
+        this.teamsByAffiliation = {...teamsByAffiliation};
         this._squaddieCurrentlyActing = options.squaddieCurrentlyActing || DefaultSquaddieInstructionInProgress();
         this.battleEventRecording = options.battleEventRecording || new Recording({});
 
@@ -114,6 +116,10 @@ export class BattleOrchestratorState {
 
     get gameBoard(): BattleGameBoard {
         return this._gameBoard;
+    }
+
+    getCurrentTeam(): BattleSquaddieTeam {
+        return this.teamsByAffiliation[this.battlePhaseState.currentAffiliation];
     }
 
     private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {

@@ -5,7 +5,7 @@ import {
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattlePhase} from "./battlePhaseTracker";
+import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -16,7 +16,8 @@ import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContex
 export const BANNER_ANIMATION_TIME = 2000;
 
 export type BattlePhaseState = {
-    bannerPhaseToShow: BattlePhase;
+    currentAffiliation: BattlePhase;
+    turnCount: number;
 }
 
 export class BattlePhaseController implements BattleOrchestratorComponent {
@@ -32,7 +33,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     hasCompleted(state: BattleOrchestratorState): boolean {
-        if (!this.newBannerShown && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
+        if (!this.newBannerShown && state.getCurrentTeam().hasAnActingSquaddie()) {
             return true;
         }
 
@@ -61,7 +62,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
-        if (!this.newBannerShown && state.battlePhaseTracker.getCurrentPhase() !== BattlePhase.UNKNOWN && state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
+        if (!this.newBannerShown
+            && state.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
+            && state.getCurrentTeam().hasAnActingSquaddie()
+        ) {
             return;
         }
 
@@ -70,22 +74,23 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
 
-        if (state.battlePhaseTracker.getCurrentPhase() === BattlePhase.UNKNOWN || !state.battlePhaseTracker.getCurrentTeam().hasAnActingSquaddie()) {
-            const oldTeam = state.battlePhaseTracker.getCurrentTeam();
+        if (state.battlePhaseState.currentAffiliation === BattlePhase.UNKNOWN
+            || !state.getCurrentTeam().hasAnActingSquaddie()
+        ) {
+            const oldTeam = state.getCurrentTeam();
             if (oldTeam) {
                 oldTeam.beginNewRound()
             }
 
             this.newBannerShown = true;
-            state.battlePhaseTracker.advanceToNextPhase();
+            AdvanceToNextPhase(state.battlePhaseState, state.teamsByAffiliation);
             this.bannerDisplayAnimationStartTime = Date.now();
-            state.battlePhaseState.bannerPhaseToShow = state.battlePhaseTracker.getCurrentPhase();
             this.setBannerImage(state);
 
             state.camera.setXVelocity(0);
             state.camera.setYVelocity(0);
 
-            state.battlePhaseTracker.getCurrentTeam().beginNewRound();
+            state.getCurrentTeam().beginNewRound();
 
             state.hexMap.stopHighlightingTiles();
         }
@@ -94,7 +99,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     setBannerImage(state: BattleOrchestratorState) {
         state.hexMap?.stopOutlineTiles();
 
-        switch (state.battlePhaseState.bannerPhaseToShow) {
+        switch (state.battlePhaseState.currentAffiliation) {
             case BattlePhase.PLAYER:
                 this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_crusaders"));
                 this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource("phase banner player"));

@@ -1,5 +1,6 @@
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {BattlePhaseState} from "./battlePhaseController";
 
 export enum BattlePhase {
     UNKNOWN = "UNKNOWN",
@@ -39,60 +40,49 @@ const battlePhaseToSquaddieAffiliation: (phase: BattlePhase) => SquaddieAffiliat
     }
 }
 
-export class BattlePhaseTracker {
-    teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam } = {};
-    currentPhase: BattlePhase = BattlePhase.UNKNOWN;
-
-    constructor(startingPhase: BattlePhase = BattlePhase.UNKNOWN) {
-        this.currentPhase = startingPhase;
-    }
-
-    addTeam(newSquaddieTeam: BattleSquaddieTeam) {
-        this.teamsByAffiliation[newSquaddieTeam.affiliation] = newSquaddieTeam;
-    }
-
-    getCurrentTeam(): BattleSquaddieTeam {
-        return this.teamsByAffiliation[battlePhaseToSquaddieAffiliation(this.getCurrentPhase())];
-    }
-
-    getCurrentPhase(): BattlePhase {
-        return this.currentPhase;
-    }
-
-    advanceToNextPhase() {
-        const getNextPhase: (phase: BattlePhase) => BattlePhase = (phase: BattlePhase) => {
-            switch (phase) {
-                case BattlePhase.PLAYER:
-                    return BattlePhase.ENEMY;
-                case BattlePhase.ENEMY:
-                    return BattlePhase.ALLY;
-                case BattlePhase.ALLY:
-                    return BattlePhase.NONE;
-                case BattlePhase.NONE:
-                    return BattlePhase.PLAYER;
-                case BattlePhase.UNKNOWN:
-                    return BattlePhase.PLAYER;
-                default:
-                    return BattlePhase.UNKNOWN;
-            }
-        }
-
-        const startingPhase = this.getCurrentPhase();
-        let currentPhaseToCheck = getNextPhase(startingPhase);
-
-        const done: boolean = false;
-        while (!done) {
-            let currentTeam = this.teamsByAffiliation[battlePhaseToSquaddieAffiliation(currentPhaseToCheck)];
-            if (currentTeam && currentTeam.hasSquaddies()) {
-                this.currentPhase = currentPhaseToCheck;
-                return
-            }
-
-            currentPhaseToCheck = getNextPhase(currentPhaseToCheck);
-            if (currentPhaseToCheck === startingPhase) {
-                this.currentPhase = BattlePhase.UNKNOWN;
-                return
-            }
+export const AdvanceToNextPhase = (startingPhaseState: BattlePhaseState, teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }) => {
+    const getNextPhase = (phase: BattlePhase) => {
+        switch (phase) {
+            case BattlePhase.PLAYER:
+                return {phase: BattlePhase.ENEMY, incrementTurn: false};
+            case BattlePhase.ENEMY:
+                return {phase: BattlePhase.ALLY, incrementTurn: false};
+            case BattlePhase.ALLY:
+                return {phase: BattlePhase.NONE, incrementTurn: false};
+            case BattlePhase.NONE:
+                return {phase: BattlePhase.PLAYER, incrementTurn: true};
+            case BattlePhase.UNKNOWN:
+                return {phase: BattlePhase.PLAYER, incrementTurn: true};
+            default:
+                return {phase: BattlePhase.UNKNOWN, incrementTurn: false};
         }
     }
+
+    const startingPhase = startingPhaseState.currentAffiliation;
+    let {phase, incrementTurn} = getNextPhase(startingPhase);
+
+    let numberOfAttemptedSwitches = 0;
+    while (numberOfAttemptedSwitches < 5) {
+        const currentTeam = teamsByAffiliation[battlePhaseToSquaddieAffiliation(phase)];
+        if (currentTeam && currentTeam.hasSquaddies()) {
+            startingPhaseState.currentAffiliation = phase;
+            if (incrementTurn) {
+                startingPhaseState.turnCount += 1;
+            }
+            return
+        }
+
+        ({phase, incrementTurn} = getNextPhase(phase));
+        if (phase === startingPhase) {
+            startingPhaseState.currentAffiliation = BattlePhase.UNKNOWN;
+            if (incrementTurn) {
+                startingPhaseState.turnCount += 1;
+            }
+            return;
+        }
+
+        numberOfAttemptedSwitches += 1;
+    }
+    throw new Error("No teams are available");
 }
+

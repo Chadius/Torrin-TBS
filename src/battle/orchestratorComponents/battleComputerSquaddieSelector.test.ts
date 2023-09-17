@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
+import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -39,6 +39,7 @@ import {
 } from "./battleComputerSquaddieSelector";
 import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squaddieService";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {BattlePhaseState} from "./battlePhaseController";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -50,6 +51,8 @@ describe('BattleComputerSquaddieSelector', () => {
     let demonBiteActivity: SquaddieActivity;
     let entireTurnDemonBiteActivity: SquaddieActivity;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
+    let battlePhaseState: BattlePhaseState;
+    let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
 
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector();
@@ -60,6 +63,7 @@ describe('BattleComputerSquaddieSelector', () => {
             })
         });
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        teamsByAffiliation = {};
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
@@ -141,8 +145,12 @@ describe('BattleComputerSquaddieSelector', () => {
 
         enemyTeam.addDynamicSquaddieIds([enemyDemonDynamic.dynamicSquaddieId, enemyDemonDynamic2.dynamicSquaddieId]);
 
-        const battlePhaseTracker: BattlePhaseTracker = new BattlePhaseTracker(BattlePhase.ENEMY);
-        battlePhaseTracker.addTeam(enemyTeam);
+        battlePhaseState = {
+            currentAffiliation: BattlePhase.ENEMY,
+            turnCount: 1,
+        }
+
+        teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
 
         missionMap.addSquaddie(
             enemyDemonStatic.staticId,
@@ -154,7 +162,6 @@ describe('BattleComputerSquaddieSelector', () => {
             enemyDemonDynamic2.dynamicSquaddieId,
             new HexCoordinate({q: 0, r: 1})
         );
-        return battlePhaseTracker;
     }
 
     const makeSquaddieMoveActivity = (staticSquaddieId: string, dynamicSquaddieId: string) => {
@@ -176,7 +183,8 @@ describe('BattleComputerSquaddieSelector', () => {
                 movementCost: ["1 1 "]
             })
         });
-        const battlePhaseTracker: BattlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+
+        makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
         const squaddieLocation: number[] = convertMapCoordinatesToWorldCoordinates(0, 0);
         const camera: BattleCamera = new BattleCamera(
@@ -184,10 +192,11 @@ describe('BattleComputerSquaddieSelector', () => {
             squaddieLocation[1] + (ScreenDimensions.SCREEN_HEIGHT * 2),
         );
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
+            battlePhaseState,
             squaddieRepo,
             camera,
             missionMap,
+            teamsByAffiliation,
             hexMap: new TerrainTileMap({movementCost: ["1 "]})
         });
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -210,7 +219,6 @@ describe('BattleComputerSquaddieSelector', () => {
     });
 
     describe('squaddie team strategy ends the turn', () => {
-        let battlePhaseTracker: BattlePhaseTracker;
         let missionMap: MissionMap;
 
         beforeEach(() => {
@@ -219,7 +227,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     movementCost: ["1 1 "]
                 })
             });
-            battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+            makeBattlePhaseTrackerWithEnemyTeam(missionMap);
         });
 
         it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
@@ -227,7 +235,7 @@ describe('BattleComputerSquaddieSelector', () => {
             const strategySpy = jest.spyOn(enemyEndTurnStrategy, "DetermineNextInstruction");
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
-                battlePhaseTracker,
+                battlePhaseState,
                 hexMap: new TerrainTileMap({
                     movementCost: ["1 1 "]
                 }),
@@ -237,6 +245,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 teamStrategyByAffiliation: {
                     ENEMY: [enemyEndTurnStrategy],
                 },
+                teamsByAffiliation,
             });
 
             selector.update(state, mockedP5GraphicsContext);
@@ -273,7 +282,7 @@ describe('BattleComputerSquaddieSelector', () => {
             }
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
-                battlePhaseTracker,
+                battlePhaseState,
                 hexMap: new TerrainTileMap({
                     movementCost: ["1 1 "]
                 }),
@@ -283,6 +292,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 teamStrategyByAffiliation: {
                     ENEMY: [new TestTeamStrategy()],
                 },
+                teamsByAffiliation,
             });
 
             selector.update(state, mockedP5GraphicsContext);
@@ -298,7 +308,7 @@ describe('BattleComputerSquaddieSelector', () => {
     });
 
     it('will change phase if no squaddies are able to act', () => {
-        const battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+        makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
         enemyDemonDynamic.endTurn();
 
@@ -319,7 +329,7 @@ describe('BattleComputerSquaddieSelector', () => {
         }
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseTracker,
+            battlePhaseState,
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
             }),
@@ -329,6 +339,7 @@ describe('BattleComputerSquaddieSelector', () => {
             teamStrategyByAffiliation: {
                 ENEMY: [new TestTeamStrategy()],
             },
+            teamsByAffiliation,
         });
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -351,7 +362,6 @@ describe('BattleComputerSquaddieSelector', () => {
     });
 
     describe('computer decides to act', () => {
-        let battlePhaseTracker: BattlePhaseTracker;
         let missionMap: MissionMap;
         let hexMap: TerrainTileMap;
         let hexMapHighlightTilesSpy: jest.SpyInstance;
@@ -369,7 +379,7 @@ describe('BattleComputerSquaddieSelector', () => {
             missionMap = new MissionMap({
                 terrainTileMap: hexMap
             });
-            battlePhaseTracker = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+            makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
             missionMap.addSquaddie(
                 enemyDemonStatic.staticId,
@@ -398,7 +408,7 @@ describe('BattleComputerSquaddieSelector', () => {
             }
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
-                battlePhaseTracker,
+                battlePhaseState,
                 squaddieRepo,
                 camera,
                 missionMap,
@@ -406,7 +416,8 @@ describe('BattleComputerSquaddieSelector', () => {
                 pathfinder: new Pathfinder(),
                 teamStrategyByAffiliation: {
                     ENEMY: [new TestTeamStrategy()]
-                }
+                },
+                teamsByAffiliation,
             });
 
             selector.update(state, mockedP5GraphicsContext);
@@ -443,7 +454,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }
 
                 state = new BattleOrchestratorState({
-                    battlePhaseTracker,
+                    battlePhaseState,
                     squaddieRepo,
                     camera,
                     missionMap,
@@ -451,7 +462,8 @@ describe('BattleComputerSquaddieSelector', () => {
                     pathfinder: new Pathfinder(),
                     teamStrategyByAffiliation: {
                         ENEMY: [new TestTeamStrategy()]
-                    }
+                    },
+                    teamsByAffiliation,
                 });
 
                 jest.spyOn(Date, 'now').mockImplementation(() => 0);

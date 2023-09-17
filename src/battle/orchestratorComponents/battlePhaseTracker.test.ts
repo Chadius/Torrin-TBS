@@ -4,12 +4,12 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {BattlePhase, BattlePhaseTracker} from "./battlePhaseTracker";
+import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
+import {BattlePhaseState} from "./battlePhaseController";
 
 describe('battlePhaseTracker', () => {
-    let phaseTracker: BattlePhaseTracker;
     let playerSquaddieTeam: BattleSquaddieTeam;
     let enemySquaddieTeam: BattleSquaddieTeam;
     let allySquaddieTeam: BattleSquaddieTeam;
@@ -123,56 +123,86 @@ describe('battlePhaseTracker', () => {
             squaddieRepo,
             dynamicSquaddieIds: ["none_squaddie"]
         });
-
-        phaseTracker = new BattlePhaseTracker();
     });
 
-    it('defaults to unknown phase', () => {
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.UNKNOWN);
-        expect(phaseTracker.getCurrentTeam()).toBeUndefined();
-    })
 
     it('defaults to the first added team', () => {
-        phaseTracker.addTeam(playerSquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.UNKNOWN);
-        expect(phaseTracker.getCurrentTeam()).toBeUndefined();
+        const teamsByAffiliation = {
+            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
+        }
 
-        phaseTracker.advanceToNextPhase();
-        expect(phaseTracker.getCurrentTeam()).toBe(playerSquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        const battlePhaseState: BattlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        }
+
+        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
     })
 
     it('defaults to the player team when multiple teams are added', () => {
-        phaseTracker.addTeam(playerSquaddieTeam);
-        phaseTracker.addTeam(enemySquaddieTeam);
-        phaseTracker.advanceToNextPhase();
-        expect(phaseTracker.getCurrentTeam()).toBe(playerSquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        const teamsByAffiliation = {
+            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
+            [SquaddieAffiliation.ENEMY]: enemySquaddieTeam,
+        }
+
+        const battlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        };
+        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
     })
 
     it('will rotate between teams', () => {
-        phaseTracker.addTeam(playerSquaddieTeam);
-        phaseTracker.addTeam(enemySquaddieTeam);
-        phaseTracker.addTeam(allySquaddieTeam);
-        phaseTracker.addTeam(noneSquaddieTeam);
-        phaseTracker.advanceToNextPhase();
-        expect(phaseTracker.getCurrentTeam()).toBe(playerSquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        const teamsByAffiliation = {
+            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
+            [SquaddieAffiliation.ENEMY]: enemySquaddieTeam,
+            [SquaddieAffiliation.ALLY]: allySquaddieTeam,
+            [SquaddieAffiliation.NONE]: noneSquaddieTeam,
+        }
 
-        phaseTracker.advanceToNextPhase();
-        expect(phaseTracker.getCurrentTeam()).toBe(enemySquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.ENEMY);
+        const battlePhaseState: BattlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        }
+        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
+        expect(battlePhaseState.turnCount).toBe(1);
 
-        phaseTracker.advanceToNextPhase();
-        expect(phaseTracker.getCurrentTeam()).toBe(allySquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.ALLY);
+        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
+        expect(battlePhaseState.turnCount).toBe(1);
 
-        phaseTracker.advanceToNextPhase();
-        expect(phaseTracker.getCurrentTeam()).toBe(noneSquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.NONE);
+        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ALLY);
+        expect(battlePhaseState.turnCount).toBe(1);
 
-        phaseTracker.advanceToNextPhase();
-        expect(phaseTracker.getCurrentTeam()).toBe(playerSquaddieTeam);
-        expect(phaseTracker.getCurrentPhase()).toBe(BattlePhase.PLAYER);
+        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.NONE);
+        expect(battlePhaseState.turnCount).toBe(1);
+
+        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
+        expect(battlePhaseState.turnCount).toBe(2);
+    });
+
+
+    it('throws an error if there are no available teams', () => {
+        const battlePhaseState: BattlePhaseState = {
+            currentAffiliation: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        }
+
+        const shouldThrowError = () => {
+            AdvanceToNextPhase(battlePhaseState, {});
+        }
+
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(Error);
+        expect(() => {
+            shouldThrowError()
+        }).toThrow("No teams are available");
     });
 });
