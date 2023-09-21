@@ -34,6 +34,7 @@ import {BattleCompletionStatus} from "./battleGameBoard";
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -308,101 +309,46 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     private setNextComponentMode(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
         const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
-        let nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode = undefined;
-        let completionStatus: BattleCompletionStatus;
+        const cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(state, this.mode);
 
         if (orchestrationChanges.checkMissionObjectives === true) {
-            ({
-                nextModeFromUnrewardedMissionObjective,
-                completionStatus
-            } = this.findModeChangesAndCompletionStatusFromMissionObjectives(state, nextModeFromUnrewardedMissionObjective));
-            if (nextModeFromUnrewardedMissionObjective === undefined) {
-                this.mode = orchestrationChanges.nextMode || defaultNextMode;
+            let completionStatus: BattleCompletionStatus = this.checkMissionCompleteStatus(state);
+            if (completionStatus) {
+                state.gameBoard.completionStatus = completionStatus;
             }
-        } else if (
-            state.battlePhaseState.turnCount === 0
-            && state.gameBoard.cutsceneCollection.cutsceneIdAtStart
-        ) {
-            this.cutscenePlayer.startCutscene(state.gameBoard.cutsceneCollection.cutsceneIdAtStart, state);
-            this.mode = orchestrationChanges.nextMode || defaultNextMode;
-        } else {
-            this.mode = orchestrationChanges.nextMode || defaultNextMode;
         }
 
-        if (completionStatus) {
-            state.gameBoard.completionStatus = completionStatus;
+        if (cutsceneTriggersToActivate.cutsceneTriggersToReactTo.length > 0) {
+            const nextCutscene = cutsceneTriggersToActivate.cutsceneTriggersToReactTo[0];
+            this.cutscenePlayer.startCutscene(nextCutscene.cutsceneId, state);
+            nextCutscene.systemReactedToTrigger = true;
+            this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER;
+            return;
         }
+
+        this.mode = orchestrationChanges.nextMode || defaultNextMode;
     }
 
-    private findModeChangesAndCompletionStatusFromMissionObjectives(state: BattleOrchestratorState, nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode): {
-        nextModeFromUnrewardedMissionObjective: BattleOrchestratorMode; completionStatus: BattleCompletionStatus
-    } {
-        let completionStatus: BattleCompletionStatus;
-        const completedObjectives: MissionObjective[] = this.findCompleteButUnrewardedMissionObjectives(state);
-        ({nextMode: nextModeFromUnrewardedMissionObjective, completionStatus}
-                = this.calculateChangesBasedOnUnrewardedMissionObjectives(state, completedObjectives)
+    private checkMissionCompleteStatus(state: BattleOrchestratorState): BattleCompletionStatus {
+        const defeatObjectives = state.objectives.find((objective: MissionObjective) =>
+            objective.reward.rewardType === MissionRewardType.DEFEAT && objective.shouldBeComplete(state) && !objective.hasGivenReward
         );
-
-        return {
-            nextModeFromUnrewardedMissionObjective,
-            completionStatus
+        if (defeatObjectives) {
+            return BattleCompletionStatus.DEFEAT;
         }
+
+        const victoryObjectives = state.objectives.find((objective: MissionObjective) =>
+            objective.reward.rewardType === MissionRewardType.VICTORY && objective.shouldBeComplete(state) && !objective.hasGivenReward
+        );
+        if (victoryObjectives) {
+            return BattleCompletionStatus.VICTORY;
+        }
+
+        return undefined;
     }
 
     private displayBattleMap(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.mapDisplay.update(state, graphicsContext);
-    }
-
-    private findCompleteButUnrewardedMissionObjectives(state: BattleOrchestratorState): MissionObjective[] {
-        return state.objectives.filter((objective: MissionObjective) =>
-            objective.shouldBeComplete(state) && !objective.hasGivenReward
-        );
-    }
-
-    private calculateChangesBasedOnUnrewardedMissionObjectives(state: BattleOrchestratorState, completedObjectives: MissionObjective[]): {
-        completionStatus: BattleCompletionStatus,
-        nextMode: BattleOrchestratorMode,
-    } {
-        const victoryObjective = completedObjectives.find((objective: MissionObjective) => objective.reward.rewardType === MissionRewardType.VICTORY);
-        const defeatObjective = completedObjectives.find((objective: MissionObjective) => objective.reward.rewardType === MissionRewardType.DEFEAT);
-
-        let returnValue: {
-            nextMode: BattleOrchestratorMode,
-            completionStatus: BattleCompletionStatus
-        } = {
-            nextMode: undefined,
-            completionStatus: undefined,
-        };
-
-        let info;
-        if (defeatObjective) {
-            info = {
-                nextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
-                cutsceneId: defeatObjective.cutsceneToPlayUponCompletion,
-            };
-            returnValue.completionStatus = BattleCompletionStatus.DEFEAT;
-        } else if (victoryObjective) {
-            info = {
-                nextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
-                cutsceneId: victoryObjective.cutsceneToPlayUponCompletion,
-            };
-            returnValue.completionStatus = BattleCompletionStatus.VICTORY;
-        }
-
-        if (info) {
-            if (info.cutsceneId !== "") {
-                this.cutscenePlayer.startCutscene(info.cutsceneId, state);
-            }
-            if (info.nextMode) {
-                this.mode = info.nextMode;
-                returnValue.nextMode = info.nextMode;
-                return returnValue;
-            }
-        }
-        return {
-            nextMode: undefined,
-            completionStatus: undefined
-        };
     }
 
     private resetInternalState() {

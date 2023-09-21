@@ -6,16 +6,14 @@ export class MissionObjective {
     private readonly _reward: MissionReward;
     private readonly _conditions: MissionCondition[];
 
-    constructor({reward, conditions, numberOfCompletedConditions, cutsceneToPlayUponCompletion}: {
+    constructor({reward, conditions, numberOfCompletedConditions}: {
         reward: MissionReward;
         conditions: MissionCondition[],
         numberOfCompletedConditions?: number | "all" | "ALL",
-        cutsceneToPlayUponCompletion?: string,
     }) {
         this._reward = reward;
         this._conditions = conditions;
         this.constructNumberOfCompletedConditions(numberOfCompletedConditions);
-        this._cutsceneToPlayUponCompletion = cutsceneToPlayUponCompletion || "";
     }
 
     private _allConditionsAreRequiredToCompleteObjective: boolean;
@@ -56,12 +54,6 @@ export class MissionObjective {
 
     get conditions(): MissionCondition[] {
         return this._conditions;
-    }
-
-    private _cutsceneToPlayUponCompletion: string;
-
-    get cutsceneToPlayUponCompletion(): string {
-        return this._cutsceneToPlayUponCompletion;
     }
 
     shouldBeComplete(state: BattleOrchestratorState): boolean {

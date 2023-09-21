@@ -20,6 +20,7 @@ import {MissionObjective} from "../missionResult/missionObjective";
 import {BattleGameBoard} from "./battleGameBoard";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -33,11 +34,12 @@ export class BattleOrchestratorState {
     squaddieMovePath?: SearchPath;
     battlePhaseState: BattlePhaseState;
     battleEventRecording: Recording;
-    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }
+    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
     private readonly _squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
     constructor(options: {
         cutsceneCollection?: MissionCutsceneCollection,
+        cutsceneTriggers?: CutsceneTrigger[],
         objectives?: MissionObjective[],
         bannerDisplayAnimationStartTime?: number;
         bannerAffiliationToShow?: BattlePhase;
@@ -59,6 +61,7 @@ export class BattleOrchestratorState {
         const {
             objectives,
             cutsceneCollection,
+            cutsceneTriggers,
             bannerDisplayAnimationStartTime,
             bannerAffiliationToShow,
             resourceHandler,
@@ -97,7 +100,12 @@ export class BattleOrchestratorState {
         this._gameBoard = new BattleGameBoard({
             objectives,
             cutsceneCollection,
+            cutsceneTriggers,
         })
+    }
+
+    get cutsceneTriggers(): CutsceneTrigger[] {
+        return this.gameBoard.cutsceneTriggers;
     }
 
     get squaddieCurrentlyActing(): SquaddieInstructionInProgress {

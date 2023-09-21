@@ -6,7 +6,11 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
 describe('Battle Game Board', () => {
     it('creates an instant win objective if none is given', () => {
-        const gameBoard: BattleGameBoard = new BattleGameBoard({objectives: [], cutsceneCollection: undefined});
+        const gameBoard: BattleGameBoard = new BattleGameBoard({
+            objectives: [],
+            cutsceneCollection: undefined,
+            cutsceneTriggers: []
+        });
 
         expect(gameBoard.objectives.length).toBeGreaterThanOrEqual(1);
 
@@ -16,7 +20,11 @@ describe('Battle Game Board', () => {
         expect(victory).not.toBeUndefined();
     });
     it('uses the given conditions when set later', () => {
-        const gameBoard: BattleGameBoard = new BattleGameBoard({objectives: [], cutsceneCollection: undefined});
+        const gameBoard: BattleGameBoard = new BattleGameBoard({
+            objectives: [],
+            cutsceneCollection: undefined,
+            cutsceneTriggers: []
+        });
         gameBoard.objectives = [
             new MissionObjective({
                 reward: new MissionReward({
@@ -27,7 +35,6 @@ describe('Battle Game Board', () => {
                         affiliation: SquaddieAffiliation.ENEMY,
                     }),
                 ],
-                cutsceneToPlayUponCompletion: "default_victory",
                 numberOfCompletedConditions: "all",
             })
         ];

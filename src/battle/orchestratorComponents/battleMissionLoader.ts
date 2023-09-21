@@ -40,6 +40,9 @@ import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {CutsceneTrigger, MissionDefeatCutsceneTrigger} from "../../cutscene/cutsceneTrigger";
+import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
+import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -70,8 +73,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         if (!this.startedLoading) {
             this.loadMap(state);
             this.loadSquaddies(state);
-            this.loadCutscenes(state);
-            this.loadObjectives(state);
+
+            const cutsceneInfo = this.loadCutscenes(state);
+            state.gameBoard.cutsceneTriggers = cutsceneInfo.cutsceneTriggers;
+            state.gameBoard.cutsceneCollection = cutsceneInfo.cutsceneCollection;
+            state.gameBoard.objectives = this.loadObjectives(state);
             return;
         }
         if (this.startedLoading && state.resourceHandler.areAllResourcesLoaded([
@@ -385,7 +391,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     }
 
     private loadCutscenes(state: BattleOrchestratorState) {
-        state.gameBoard.cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = new MissionCutsceneCollection({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
                     actions: [
@@ -423,13 +429,49 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
+                "turn1": new Cutscene({
+                    actions: [
+                        new DialogueBox({
+                            id: "turn1",
+                            name: "Turn 1",
+                            text: "This is the start of turn 1!",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        })
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
+                "turn2": new Cutscene({
+                    actions: [
+                        new DialogueBox({
+                            id: "turn2",
+                            name: "Turn 2",
+                            text: "This is the start of turn 2!",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        })
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
             },
             cutsceneIdAtStart: "introduction",
         })
+        const cutsceneTriggers: CutsceneTrigger[] = [
+            new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID}),
+            new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID}),
+            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "introduction", turn: 0}),
+            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn1", turn: 1}),
+            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn2", turn: 2}),
+        ];
+
+        return {
+            cutsceneCollection,
+            cutsceneTriggers,
+        }
     }
 
     private loadObjectives(state: BattleOrchestratorState) {
-        state.gameBoard.objectives = [
+        return [
             new MissionObjective({
                 reward: new MissionReward({
                     rewardType: MissionRewardType.VICTORY,
@@ -439,7 +481,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         affiliation: SquaddieAffiliation.ENEMY,
                     }),
                 ],
-                cutsceneToPlayUponCompletion: "default_victory",
                 numberOfCompletedConditions: "all",
             }),
             new MissionObjective({
@@ -451,7 +492,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         affiliation: SquaddieAffiliation.PLAYER,
                     }),
                 ],
-                cutsceneToPlayUponCompletion: "default_defeat",
                 numberOfCompletedConditions: "all",
             })
         ]

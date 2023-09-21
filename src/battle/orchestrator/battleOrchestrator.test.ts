@@ -34,6 +34,9 @@ import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
+import {MissionDefeatCutsceneTrigger,} from "../../cutscene/cutsceneTrigger";
+import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
+import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
 
 
 describe('Battle Orchestrator', () => {
@@ -236,7 +239,6 @@ describe('Battle Orchestrator', () => {
             cutsceneById: {
                 "starting": new Cutscene({})
             },
-            cutsceneIdAtStart: "starting",
         });
 
         orchestrator = createOrchestrator({
@@ -247,6 +249,9 @@ describe('Battle Orchestrator', () => {
             resourceHandler: nullState.resourceHandler,
             squaddieRepo: new BattleSquaddieRepository(),
             cutsceneCollection,
+            cutsceneTriggers: [
+                new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "starting", turn: 0}),
+            ],
         });
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
@@ -340,7 +345,6 @@ describe('Battle Orchestrator', () => {
 
     it('switches from default mode to mission loader', () => {
         const mode = BattleOrchestratorMode.UNKNOWN
-        const orchestratorComponent = defaultBattleOrchestrator;
 
         orchestrator = createOrchestrator({
             initialMode: mode,
@@ -450,10 +454,12 @@ describe('Battle Orchestrator', () => {
                         conditions: [new MissionConditionDefeatAffiliation({
                             affiliation: SquaddieAffiliation.ENEMY,
                         })],
-                        cutsceneToPlayUponCompletion: DEFAULT_VICTORY_CUTSCENE_ID,
                     })
                 ],
                 cutsceneCollection,
+                cutsceneTriggers: [
+                    new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID}),
+                ],
             });
             victoryState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
@@ -468,10 +474,12 @@ describe('Battle Orchestrator', () => {
                         conditions: [new MissionConditionDefeatAffiliation({
                             affiliation: SquaddieAffiliation.PLAYER,
                         })],
-                        cutsceneToPlayUponCompletion: DEFAULT_DEFEAT_CUTSCENE_ID,
                     })
                 ],
                 cutsceneCollection,
+                cutsceneTriggers: [
+                    new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID}),
+                ],
             });
             defeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
@@ -486,17 +494,19 @@ describe('Battle Orchestrator', () => {
                         conditions: [new MissionConditionDefeatAffiliation({
                             affiliation: SquaddieAffiliation.ENEMY,
                         })],
-                        cutsceneToPlayUponCompletion: DEFAULT_VICTORY_CUTSCENE_ID,
                     }),
                     new MissionObjective({
                         reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
                         conditions: [new MissionConditionDefeatAffiliation({
                             affiliation: SquaddieAffiliation.PLAYER,
                         })],
-                        cutsceneToPlayUponCompletion: DEFAULT_DEFEAT_CUTSCENE_ID,
                     })
                 ],
                 cutsceneCollection,
+                cutsceneTriggers: [
+                    new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID}),
+                    new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID}),
+                ],
             });
             victoryAndDefeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
@@ -517,6 +527,7 @@ describe('Battle Orchestrator', () => {
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
+            expect(victoryState.gameBoard.cutsceneTriggers[0].systemReactedToTrigger).toBeTruthy();
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
             expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
 
@@ -553,6 +564,7 @@ describe('Battle Orchestrator', () => {
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
+            expect(defeatState.gameBoard.cutsceneTriggers[0].systemReactedToTrigger).toBeTruthy();
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
             expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
 
@@ -589,6 +601,7 @@ describe('Battle Orchestrator', () => {
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
+            expect(victoryAndDefeatState.gameBoard.cutsceneTriggers[1].systemReactedToTrigger).toBeTruthy();
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
             expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
 
