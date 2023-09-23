@@ -515,7 +515,9 @@ export class Pathfinder {
                 return true;
             }
 
-            let movementCost = MovingCostByTerrainType[hexCostTerrainType];
+            let movementCost = searchParams.ignoreTerrainPenalty
+                ? 1
+                : MovingCostByTerrainType[hexCostTerrainType];
             return head.getMovementCostSinceStartOfAction() + movementCost <= searchParams.movementPerAction;
         });
     }

@@ -235,4 +235,46 @@ describe('Targeting Service', () => {
         expect(results.dynamicSquaddieIdsInRange).toHaveLength(1);
         expect(results.dynamicSquaddieIdsInRange).toContain(enemyTeamDynamic.dynamicSquaddieId);
     });
+
+    it('will ignore terrain costs when targeting', () => {
+
+        let longbowActivity: SquaddieActivity = new SquaddieActivity({
+            name: "longbow",
+            id: "longbow",
+            traits: new TraitStatusStorage({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }).filterCategory(TraitCategory.ACTIVITY),
+            minimumRange: 1,
+            maximumRange: 3,
+        });
+
+        let battleMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: [
+                    "2 2 2 2 ",
+                ]
+            })
+        });
+
+        battleMap.addSquaddie(
+            sirCamilStaticSquaddie.squaddieId.staticId,
+            sirCamilDynamicSquaddie.dynamicSquaddieId,
+            new HexCoordinate({q: 0, r: 0}),
+        );
+
+        const results: TargetingResults = findValidTargets({
+            map: battleMap,
+            activity: longbowActivity,
+            actingStaticSquaddie: sirCamilStaticSquaddie,
+            actingDynamicSquaddie: sirCamilDynamicSquaddie,
+            squaddieRepository: squaddieRepo,
+        });
+
+        expect(results.locationsInRange).toHaveLength(2);
+        expect(results.locationsInRange).toStrictEqual([
+            new HexCoordinate({q:0, r:1}),
+            new HexCoordinate({q:0, r:2}),
+        ]);
+    });
 });

@@ -56,6 +56,7 @@ export const findValidTargets = (params: {
         new SearchParams({
             startLocation: squaddieInfo.mapLocation,
             canStopOnSquaddies: true,
+            ignoreTerrainPenalty: true,
             minimumDistanceMoved: activity.minimumRange,
             maximumDistanceMoved: activity.maximumRange,
             missionMap: map,

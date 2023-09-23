@@ -23,6 +23,7 @@ export class SearchParamsOptions {
     missionMap: MissionMap;
     squaddieRepository?: BattleSquaddieRepository;
     shapeGeneratorType: TargetingShape;
+    ignoreTerrainPenalty?: boolean;
 };
 
 export class SearchParams {
@@ -39,11 +40,16 @@ export class SearchParams {
         passThroughWalls: boolean;
         crossOverPits: boolean;
         canStopOnSquaddies: boolean;
+        ignoreTerrainPenalty: boolean;
         shapeGenerator: TargetingShapeGenerator;
     }
     private stopConditions: {
         numberOfActions?: number;
         stopLocation?: HexCoordinate;
+    }
+
+    get ignoreTerrainPenalty() {
+        return this.movement.ignoreTerrainPenalty;
     }
 
     constructor(options: {
@@ -53,6 +59,7 @@ export class SearchParams {
                     squaddieAffiliation?: SquaddieAffiliation,
                     canStopOnSquaddies?: boolean,
                     numberOfActions?: number,
+                    ignoreTerrainPenalty?: boolean,
                     minimumDistanceMoved?: number,
                     maximumDistanceMoved?: number,
                     missionMap: MissionMap,
@@ -78,6 +85,7 @@ export class SearchParams {
                 movementPerAction: options.squaddieMovement ? options.squaddieMovement.movementPerAction : 0,
                 passThroughWalls: options.squaddieMovement ? options.squaddieMovement.passThroughWalls : false,
                 crossOverPits: options.squaddieMovement ? options.squaddieMovement.crossOverPits : false,
+                ignoreTerrainPenalty: options.ignoreTerrainPenalty || false,
                 canStopOnSquaddies: options.canStopOnSquaddies,
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(options.shapeGeneratorType)),
             }
@@ -145,6 +153,7 @@ export class SearchParams {
             canStopOnSquaddies: this.movement.canStopOnSquaddies,
             minimumDistanceMoved: this.movement.minimumDistanceMoved,
             missionMap: this.setup.missionMap,
+            ignoreTerrainPenalty: this.ignoreTerrainPenalty,
             squaddieRepository: this.setup.squaddieRepository,
             numberOfActions: this.stopConditions.numberOfActions,
             squaddieAffiliation: this.setup.affiliation,
@@ -179,6 +188,7 @@ export class SearchParams {
             passThroughWalls: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.passThroughWalls : false,
             crossOverPits: searchParamsOptions.squaddieMovement ? searchParamsOptions.squaddieMovement.crossOverPits : false,
             canStopOnSquaddies: searchParamsOptions.canStopOnSquaddies,
+            ignoreTerrainPenalty: searchParamsOptions.ignoreTerrainPenalty || false,
             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(searchParamsOptions.shapeGeneratorType)),
         }
         this.stopConditions = {
