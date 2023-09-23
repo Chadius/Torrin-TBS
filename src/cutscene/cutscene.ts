@@ -98,12 +98,12 @@ export class Cutscene {
         }
     }
 
-    loadResources() {
+    loadResources(): Error[] {
         if (!this.doesResourceHandlerExist()) {
             return;
         }
 
-        this.resourceHandler.loadResources(this.allResourceKeys);
+        return this.resourceHandler.loadResources(this.allResourceKeys);
     }
 
     setResources() {

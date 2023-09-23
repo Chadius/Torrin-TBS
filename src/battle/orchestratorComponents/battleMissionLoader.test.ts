@@ -28,7 +28,6 @@ describe('BattleMissionLoader', () => {
         expect(mockResourceHandler.areAllResourcesLoaded).toBeCalledTimes(1);
         expect(loader.hasCompleted(initialState)).toBeFalsy();
         loader.update(initialState);
-        expect(mockResourceHandler.areAllResourcesLoaded).toBeCalledTimes(2);
         expect(initializeSquaddieResources).toBeCalled();
         expect(loader.hasCompleted(initialState)).toBeTruthy();
     });

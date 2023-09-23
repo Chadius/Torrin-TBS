@@ -7,20 +7,6 @@ import {DialogueSpeakerImage} from "./dialogueSpeakerImage";
 import {DialogueAnswerButton} from "./dialogueAnswerButton";
 import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
 
-type RequiredOptions = {
-    id: string;
-}
-
-type Options = {
-    name: string;
-    text: string;
-    portrait: GraphicImage;
-    portraitResourceKey: string;
-    animationDuration: number;
-    answers: string[];
-    screenDimensions: [number, number];
-}
-
 export class DialogueBox implements CutsceneAction {
     id: string;
     screenDimensions: [number, number];
@@ -39,19 +25,37 @@ export class DialogueBox implements CutsceneAction {
     speakerPortraitResourceKey: string;
     speakerImage: DialogueSpeakerImage;
 
-    constructor(options: RequiredOptions & Partial<Options>) {
-        this.id = options.id;
-        this.answers = options.answers || [];
-        this.animationDuration = options.animationDuration;
-        this.speakerPortrait = options.portrait;
-        this.speakerPortraitResourceKey = options.portraitResourceKey;
-        this.screenDimensions = options.screenDimensions || [0, 0];
+    constructor({
+                    id,
+                    name,
+                    text,
+                    portrait,
+                    portraitResourceKey,
+                    animationDuration,
+                    answers,
+                    screenDimensions,
+                }: {
+        id: string;
+        name?: string;
+        text?: string;
+        portrait?: GraphicImage;
+        portraitResourceKey?: string;
+        animationDuration?: number;
+        answers?: string[];
+        screenDimensions?: [number, number];
+    }) {
+        this.id = id;
+        this.answers = answers || [];
+        this.animationDuration = animationDuration;
+        this.speakerPortrait = portrait;
+        this.speakerPortraitResourceKey = portraitResourceKey;
+        this.screenDimensions = screenDimensions || [0, 0];
 
         this.answerSelected = -1;
         this.dialogFinished = false;
 
-        this.textBox = new DialogueTextBox(options);
-        this.speakerNameBox = new DialogueSpeakerNameBox(options);
+        this.textBox = new DialogueTextBox({text, screenDimensions});
+        this.speakerNameBox = new DialogueSpeakerNameBox({name, screenDimensions});
 
         this.createUIObjects();
     }

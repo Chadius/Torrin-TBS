@@ -245,7 +245,7 @@ export class TitleScreen implements GameEngineComponent {
                     bottom: ScreenDimensions.SCREEN_HEIGHT * 0.8,
                     margin: [WINDOW_SPACING4, WINDOW_SPACING1, WINDOW_SPACING1, WINDOW_SPACING4],
                 }),
-                text: "Demons invading the Crusader base!\n\nClick on them to take turns moving around the map and attacking the enemy.\n\nDefeat all demons to win.",
+                text: "Help Torrin and Sir Camil protect their base.\n\nDefeat all the demon infiltrators!",
                 vertAlign: VERT_ALIGN_CENTER,
                 horizAlign: HORIZ_ALIGN_LEFT,
                 textSize: WINDOW_SPACING1 * 2,
@@ -328,7 +328,7 @@ export class TitleScreen implements GameEngineComponent {
             this.createPlaceholderTorrinIconArea();
         }
 
-        const torrinDescriptionText: string = "Torrin is made of water and can use it to blast enemies and heal her friends."
+        const torrinDescriptionText: string = "Torrin has two powers: \n - Water Cannon: A ranged blast\n - Healing Touch: A close ranged heal";
         if (this.torrinDescriptionText === undefined) {
             this.setTorrinDescriptionText(torrinDescriptionText);
         }
@@ -339,7 +339,7 @@ export class TitleScreen implements GameEngineComponent {
             this.createSirCamilPlaceholderIconAreaUnderTorrin();
         }
 
-        const sirCamilDescriptionText: string = "Sir Camil has great defenses, especially when he raises his shield."
+        const sirCamilDescriptionText: string = "Sir Camil has more health. \n - Longsword: Melee attack, very strong."
         if (this.sirCamilDescriptionText === undefined) {
             this.setSirCamilDescriptionText(sirCamilDescriptionText);
         }

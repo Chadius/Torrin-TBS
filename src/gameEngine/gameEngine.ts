@@ -241,6 +241,16 @@ export class GameEngine {
                     },
                     {
                         type: ResourceType.IMAGE,
+                        path: "assets/2023-09-24-TorrinTrialHUD.png",
+                        key: "tutorial-hud",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/2023-09-24-TorrinTrialMap.png",
+                        key: "tutorial-map",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
                         path: "assets/action-neutral-demon-slither.png",
                         key: "action neutral demon slither",
                     },

@@ -125,24 +125,25 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     private loadMap(state: BattleOrchestratorState) {
         state.hexMap = new TerrainTileMap({
             movementCost: [
-                "x x x x x 2 2 1 1 1 1 1 1 1 1 1 1 ",
-                " 1 1 1 1 2 2 2 1 1 1 1 1 1 1 1 1 1 ",
-                "  x x x x 2 2 1 1 1 1 1 1 1 1 1 1 1 ",
-                "   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "    1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "     1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "       1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "        1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "         1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "          1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "           1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "             1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "              1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "               1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "                1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "                 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
+                " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
+                "  x x x x 2 2 1 1 1 1 1 2 2 1 1 1 1 ",
+                "   1 1 1 x x x x x x x x x x x 1 1 1 ",
+                "    1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
+                "     1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
+                "      1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 ",
+                "       1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 1 ",
+                "        x x x x x x x x x x x 2 1 1 1 1 1 ",
+                "         1 1 1 1 1 1 x 2 2 2 1 1 1 1 2 2 2 ",
+                "          1 1 1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 ",
+                "           1 1 1 1 x 2 1 1 1 2 2 2 1 1 1 1 2 ",
+                "            1 1 1 x 2 1 1 1 1 O O 1 1 1 1 1 2 ",
+                "             1 1 1 x 2 1 1 1 O O O 1 1 1 1 1 2 ",
+                "              1 1 1 x 2 1 1 1 O O 1 1 1 1 1 1 2 ",
+                "               1 1 1 x 2 1 1 1 1 1 1 1 1 1 1 2 x ",
+                // "                0 1 2 3 4 5 6 7 8 9 101 2 3 4 5 6 7 8",
+                "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
+                "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 ",
             ],
             resourceHandler: state.resourceHandler,
         });
@@ -191,8 +192,8 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 }),
                 activities: [
                     new SquaddieActivity({
-                        name: "water saber",
-                        id: "torrin_water_saber",
+                        name: "water cannon",
+                        id: "torrin_water_cannon",
                         minimumRange: 0,
                         maximumRange: 2,
                         traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
@@ -221,6 +222,8 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieTurn: new SquaddieTurn()
             })
         );
+        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 1, r: 0}));
+
         state.squaddieRepository.addSquaddie(
             new BattleSquaddieStatic({
                 attributes: new ArmyAttributes({
@@ -257,7 +260,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         maximumRange: 1,
                         traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
                         damageDescriptions: {
-                            [DamageType.Body]: 3
+                            [DamageType.Body]: 2
                         }
                     })
                 ],
@@ -268,68 +271,168 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieTurn: new SquaddieTurn()
             })
         );
-        state.squaddieRepository.addSquaddie(
-            new BattleSquaddieStatic({
-                attributes: new ArmyAttributes({
-                    maxHitPoints: 3,
-                    armorClass: -5,
-                    movement: new SquaddieMovement({
-                        movementPerAction: 2,
-                        traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-                    }),
+        state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
+
+        const demonSlitherMold = new BattleSquaddieStatic({
+            attributes: new ArmyAttributes({
+                maxHitPoints: 3,
+                armorClass: -5,
+                movement: new SquaddieMovement({
+                    movementPerAction: 2,
+                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                 }),
-                squaddieId: new SquaddieId({
-                    staticId: "enemy_demon_slither",
-                    name: "Slither Demon",
-                    resources: new SquaddieResource({
-                        mapIconResourceKey: "map icon demon slither",
-                        actionSpriteByEmotion: {
-                            [SquaddieEmotion.NEUTRAL]: "combat-demon-slither-neutral",
-                            [SquaddieEmotion.ATTACK]: "combat-demon-slither-attack",
-                            [SquaddieEmotion.TARGETED]: "combat-demon-slither-targeted",
-                            [SquaddieEmotion.DAMAGED]: "combat-demon-slither-damaged",
-                            [SquaddieEmotion.DEAD]: "combat-demon-slither-dead",
-                        },
-                    }),
-                    traits: new TraitStatusStorage({
-                        [Trait.DEMON]: true,
-                    }).filterCategory(TraitCategory.CREATURE),
-                    affiliation: SquaddieAffiliation.ENEMY,
-                }),
-                activities: [
-                    new SquaddieActivity({
-                        name: "Bite",
-                        id: "demon_slither_bite",
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
-                        damageDescriptions: {
-                            [DamageType.Body]: 1
-                        }
-                    })
-                ],
             }),
+            squaddieId: new SquaddieId({
+                staticId: "enemy_demon_slither",
+                name: "Slither Demon",
+                resources: new SquaddieResource({
+                    mapIconResourceKey: "map icon demon slither",
+                    actionSpriteByEmotion: {
+                        [SquaddieEmotion.NEUTRAL]: "combat-demon-slither-neutral",
+                        [SquaddieEmotion.ATTACK]: "combat-demon-slither-attack",
+                        [SquaddieEmotion.TARGETED]: "combat-demon-slither-targeted",
+                        [SquaddieEmotion.DAMAGED]: "combat-demon-slither-damaged",
+                        [SquaddieEmotion.DEAD]: "combat-demon-slither-dead",
+                    },
+                }),
+                traits: new TraitStatusStorage({
+                    [Trait.DEMON]: true,
+                }).filterCategory(TraitCategory.CREATURE),
+                affiliation: SquaddieAffiliation.ENEMY,
+            }),
+            activities: [
+                new SquaddieActivity({
+                    name: "Bite",
+                    id: "demon_slither_bite",
+                    minimumRange: 0,
+                    maximumRange: 1,
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                    damageDescriptions: {
+                        [DamageType.Body]: 1
+                    }
+                })
+            ],
+        });
+        state.squaddieRepository.addSquaddie(
+            demonSlitherMold,
             new BattleSquaddieDynamic({
                 dynamicSquaddieId: "enemy_demon_slither_0",
                 staticSquaddieId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
-        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 1, r: 0}));
-        state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
         state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 1, r: 5}));
+
+        state.squaddieRepository.addDynamicSquaddie(
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_1",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_1", new HexCoordinate({q: 1, r: 9}));
+
+        state.squaddieRepository.addDynamicSquaddie(
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_2",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.missionMap.addSquaddie(
+            "enemy_demon_slither",
+            "enemy_demon_slither_2",
+            new HexCoordinate({q: 1, r: 12})
+        );
+
+        state.squaddieRepository.addDynamicSquaddie(
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_3",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.missionMap.addSquaddie(
+            "enemy_demon_slither",
+            "enemy_demon_slither_3",
+            new HexCoordinate({q: 5, r: 15})
+        );
+
+        state.squaddieRepository.addDynamicSquaddie(
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_4",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.missionMap.addSquaddie(
+            "enemy_demon_slither",
+            "enemy_demon_slither_4",
+            new HexCoordinate({q: 7, r: 13})
+        );
+
+        state.squaddieRepository.addDynamicSquaddie(
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_5",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.missionMap.addSquaddie(
+            "enemy_demon_slither",
+            "enemy_demon_slither_5",
+            new HexCoordinate({q: 10, r: 14})
+        );
+
+        state.squaddieRepository.addDynamicSquaddie(
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_6",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.missionMap.addSquaddie(
+            "enemy_demon_slither",
+            "enemy_demon_slither_6",
+            new HexCoordinate({q: 13, r: 7})
+        );
+
+        state.squaddieRepository.addDynamicSquaddie(
+            new BattleSquaddieDynamic({
+                dynamicSquaddieId: "enemy_demon_slither_7",
+                staticSquaddieId: "enemy_demon_slither",
+                squaddieTurn: new SquaddieTurn()
+            })
+        );
+        state.missionMap.addSquaddie(
+            "enemy_demon_slither",
+            "enemy_demon_slither_7",
+            new HexCoordinate({q: 15, r: 10})
+        );
 
         state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.PLAYER,
             name: "Crusaders",
             squaddieRepo: state.squaddieRepository,
-            dynamicSquaddieIds: ["player_young_torrin", "player_sir_camil"],
+            dynamicSquaddieIds: [
+                "player_young_torrin",
+                "player_sir_camil"
+            ],
         });
         state.teamsByAffiliation[SquaddieAffiliation.ENEMY] = new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.ENEMY,
             name: "Infiltrators",
             squaddieRepo: state.squaddieRepository,
-            dynamicSquaddieIds: ["enemy_demon_slither_0"],
+            dynamicSquaddieIds: [
+                "enemy_demon_slither_0",
+                "enemy_demon_slither_1",
+                "enemy_demon_slither_2",
+                "enemy_demon_slither_3",
+                "enemy_demon_slither_4",
+                "enemy_demon_slither_5",
+                "enemy_demon_slither_6",
+                "enemy_demon_slither_7",
+            ],
         });
 
         this.affiliateIconResourceKeys = [
@@ -359,7 +462,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             let image: GraphicImage = getResultOrThrowError(
                 state.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)
             );
-
             const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
             const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
                 datum.mapLocation.q, datum.mapLocation.r, ...state.camera.getCoordinates())
@@ -387,59 +489,161 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         const cutsceneCollection = new MissionCutsceneCollection({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
+                    resourceHandler: state.resourceHandler,
                     actions: [
                         new DialogueBox({
-                            id: "1",
-                            name: "Victory",
-                            text: "Victory! YOU WIN!",
+                            id: "victory_0",
+                            name: "Sir Camil",
+                            text: "That's the last of them.",
+                            portraitResourceKey: "sir camil cutscene portrait",
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                        })
+                        }),
+                        new DialogueBox({
+                            id: "victory_1",
+                            name: "Torrin",
+                            text: "Yay! We did it!",
+                            portraitResourceKey: "young torrin cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "victory_2",
+                            text: "Thanks for playing!",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
                 [DEFAULT_DEFEAT_CUTSCENE_ID]: new Cutscene({
+                    resourceHandler: state.resourceHandler,
                     actions: [
                         new DialogueBox({
-                            id: "2",
-                            name: "Annihilated",
-                            text: "Game Over...",
+                            id: "defeat_0",
+                            name: "Torrin",
+                            text: "We have to retreat!",
+                            portraitResourceKey: "young torrin cutscene portrait",
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                        })
+                        }),
+                        new DialogueBox({
+                            id: "defeat_1",
+                            name: "Sir Camil",
+                            text: "Right. When we come back, let me take the lead. Heal my injuries.",
+                            portraitResourceKey: "sir camil cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
                 "introduction": new Cutscene({
+                    resourceHandler: state.resourceHandler,
                     actions: [
                         new DialogueBox({
-                            id: "3",
-                            name: "Introduction",
-                            text: "Begin the mission!",
+                            id: "how_to_play_0",
+                            name: "How to play",
+                            text: "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
+                            portraitResourceKey: "tutorial-map",
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                        })
+                        }),
+                        new DialogueBox({
+                            id: "how_to_play_1",
+                            name: "How to play",
+                            text: "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
+                            portraitResourceKey: "tutorial-hud",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "how_to_play_2",
+                            name: "How to play",
+                            text: "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
+                            portraitResourceKey: "tutorial-hud",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "how_to_play_3",
+                            portraitResourceKey: "young torrin cutscene portrait",
+                            name: "Torrin",
+                            text: "Torrin can use her Water Cannon to attack from range.\nHealing Touch will heal herself or Sir Camil for 2, but it costs 2 action points.",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "how_to_play_4",
+                            name: "Sir Camil",
+                            text: "Sir Camil has more health.\nHe has a longsword for melee attacks.",
+                            portraitResourceKey: "sir camil cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
                 "turn1": new Cutscene({
+                    resourceHandler: state.resourceHandler,
                     actions: [
                         new DialogueBox({
-                            id: "turn1",
-                            name: "Turn 1",
-                            text: "This is the start of turn 1!",
+                            id: "turn1_0",
+                            name: "Torrin",
+                            text: "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
+                            portraitResourceKey: "young torrin cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "turn1_1",
+                            name: "Sir Camil",
+                            text: "I agree. The courtyard must be cleansed.\nI'll take the lead. Stay behind me and heal me if I get hurt.\nIf we fight one at a time we should be alright.",
+                            portraitResourceKey: "sir camil cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
+                "turn2": new Cutscene({
+                    resourceHandler: state.resourceHandler,
+                    actions: [
+                        new DialogueBox({
+                            id: "turn2_0",
+                            name: "Sir Camil",
+                            text: "And all of this sand poured in this morning... I can barely move through it.",
+                            portraitResourceKey: "sir camil cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "turn2_1",
+                            name: "Torrin",
+                            text: "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
+                            portraitResourceKey: "young torrin cutscene portrait",
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         })
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
-                "turn2": new Cutscene({
+                "turn4": new Cutscene({
+                    resourceHandler: state.resourceHandler,
                     actions: [
                         new DialogueBox({
-                            id: "turn2",
-                            name: "Turn 2",
-                            text: "This is the start of turn 2!",
+                            id: "turn4_0",
+                            name: "Sir Camil",
+                            text: "What are those demons thinking? I don't know how far they can reach.",
+                            portraitResourceKey: "sir camil cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "turn4_1",
+                            name: "Torrin",
+                            text: "I can... tell where they can move. If you just... er, click on them, I can see it.",
+                            portraitResourceKey: "young torrin cutscene portrait",
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         })

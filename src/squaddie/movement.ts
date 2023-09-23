@@ -1,10 +1,5 @@
 import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
 
-export type SquaddieMovementRequiredOptions = {
-    movementPerAction: number;
-    traits: TraitStatusStorage;
-}
-
 export class SquaddieMovement {
     movementPerAction: number;
     passThroughWalls: boolean = false;

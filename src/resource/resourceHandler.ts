@@ -64,7 +64,6 @@ class p5ImageLoader implements ResourceTypeLoader {
 
         const path = handler.getResourceLocator(resourceKey).path;
         const loader = this;
-
         this.graphicsContext.loadImage(
             path,
             (loadedImage: p5.Image) => {

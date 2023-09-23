@@ -8,7 +8,7 @@ export class MissionCutsceneCollection {
         [id: string]: Cutscene
     }
 
-    constructor({cutsceneById, cutsceneIdAtStart}: {
+    constructor({cutsceneById}: {
         cutsceneById: {
             [id: string]: Cutscene
         },
