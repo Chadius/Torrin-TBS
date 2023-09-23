@@ -3,11 +3,11 @@ import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
-import {SearchParams} from "../../hexMap/pathfinder/searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
@@ -45,13 +45,22 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         const pathfinder = new Pathfinder();
         const searchResults: SearchResults =
             pathfinder.findReachableSquaddies(new SearchParams({
-                missionMap: state.missionMap,
-                squaddieMovement: staticSquaddie.movement,
-                numberOfActions: normalActionsRemaining,
-                startLocation: mapLocation,
-                squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
-                squaddieRepository: state.squaddieRepository,
-                shapeGeneratorType: TargetingShape.Snake,
+                setup: new SearchSetup({
+
+                    missionMap: state.missionMap,
+                    squaddieRepository: state.squaddieRepository,
+                    startLocation: mapLocation,
+                    affiliation: staticSquaddie.squaddieId.affiliation,
+                }),
+                movement: new SearchMovement({
+                    movementPerAction: staticSquaddie.movement.movementPerAction,
+                    crossOverPits: staticSquaddie.movement.crossOverPits,
+                    passThroughWalls: staticSquaddie.movement.passThroughWalls,
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                }),
+                stopCondition: new SearchStopCondition({
+                    numberOfActions: normalActionsRemaining,
+                }),
             }));
         const reachableSquaddiesResults = searchResults.getReachableSquaddies();
         const reachableSquaddieLocations = reachableSquaddiesResults.getClosestSquaddies();
@@ -99,13 +108,23 @@ export class MoveCloserToSquaddie implements TeamStrategy {
 
             const routeToTargetSquaddie: SearchResults =
                 getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
-                        missionMap: state.missionMap,
-                        squaddieMovement: staticSquaddie.movement,
-                        startLocation: mapLocation,
-                        canStopOnSquaddies: true,
-                        stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
-                        shapeGeneratorType: TargetingShape.Snake,
-                        squaddieRepository: state.squaddieRepository,
+                        setup: new SearchSetup({
+
+                            missionMap: state.missionMap,
+                            startLocation: mapLocation,
+                            squaddieRepository: state.squaddieRepository,
+                        }),
+                        movement: new SearchMovement({
+                            movementPerAction: staticSquaddie.movement.movementPerAction,
+                            passThroughWalls: staticSquaddie.movement.passThroughWalls,
+                            crossOverPits: staticSquaddie.movement.crossOverPits,
+                            canStopOnSquaddies: true,
+
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        }),
+                        stopCondition: new SearchStopCondition({
+                            stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
+                        })
                     }))
                 );
 

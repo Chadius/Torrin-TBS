@@ -2,12 +2,12 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {MissionMap, MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {SearchParams} from "../../hexMap/pathfinder/searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {TargetingShape} from "./targetingShapeGenerator";
+import {GetTargetingShapeGenerator, TargetingShape} from "./targetingShapeGenerator";
 
 export class TargetingResults {
     constructor() {
@@ -54,14 +54,19 @@ export const findValidTargets = (params: {
 
     const tilesToHighlight: HexCoordinate[] = pathfinder.getTilesInRange(
         new SearchParams({
-            startLocation: squaddieInfo.mapLocation,
-            canStopOnSquaddies: true,
-            ignoreTerrainPenalty: true,
-            minimumDistanceMoved: activity.minimumRange,
-            maximumDistanceMoved: activity.maximumRange,
-            missionMap: map,
-            squaddieRepository: squaddieRepository,
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                startLocation: squaddieInfo.mapLocation,
+                missionMap: map,
+                squaddieRepository: squaddieRepository,
+            }),
+            movement: new SearchMovement({
+                canStopOnSquaddies: true,
+                ignoreTerrainPenalty: true,
+                minimumDistanceMoved: activity.minimumRange,
+                maximumDistanceMoved: activity.maximumRange,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({}),
         }),
         activity.maximumRange,
         [squaddieInfo.mapLocation],

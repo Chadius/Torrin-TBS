@@ -4,35 +4,7 @@ import {Pathfinder} from "./pathfinder";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
-import {SquaddieMovement} from "../../squaddie/movement";
-import {TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
-
-export const createSquaddieMovements = () => {
-    let squaddieMovementOneMovementPerAction = new SquaddieMovement({
-        movementPerAction: 1,
-        traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
-    });
-    let squaddieMovementTwoMovementPerAction = new SquaddieMovement({
-        movementPerAction: 2,
-        traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
-    });
-    let squaddieMovementThreeMovementPerAction = new SquaddieMovement({
-        movementPerAction: 3,
-        traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
-    });
-    let squaddieMovementHighMovementPerAction = new SquaddieMovement({
-        movementPerAction: 10,
-        traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
-    });
-
-    return {
-        squaddieMovementOneMovementPerAction,
-        squaddieMovementTwoMovementPerAction,
-        squaddieMovementThreeMovementPerAction,
-        squaddieMovementHighMovementPerAction,
-    }
-}
 
 export const createMapAndPathfinder = (movementCost: string[]) => {
     const terrainTileMap: TerrainTileMap = new TerrainTileMap({movementCost});

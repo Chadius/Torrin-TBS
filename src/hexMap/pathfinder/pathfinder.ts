@@ -1,9 +1,7 @@
 import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
 import {CreateNewNeighboringCoordinates} from "../hexGridDirection";
-import {SearchParams} from "./searchParams";
-import {SquaddieMovement} from "../../squaddie/movement";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "./searchParams";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
@@ -220,18 +218,27 @@ export class Pathfinder {
 
         sourceTiles.forEach((sourceTile) => {
             const searchParamsWithNewStartLocation = new SearchParams({
-                ...searchParams.searchParamsOptions,
-                numberOfActions: 1,
-                squaddieMovement: new SquaddieMovement(
-                    {
-                        movementPerAction: maximumDistance,
-                        traits: new TraitStatusStorage({
-                            [Trait.PASS_THROUGH_WALLS]: searchParams.passThroughWalls,
-                            [Trait.CROSS_OVER_PITS]: true,
-                        }).filterCategory(TraitCategory.MOVEMENT)
-                    }),
-                startLocation: sourceTile
-            })
+                setup: new SearchSetup({
+                    missionMap: searchParams.missionMap,
+                    startLocation: sourceTile,
+                    affiliation: searchParams.squaddieAffiliation,
+                    squaddieRepository: searchParams.squaddieRepository,
+                }),
+                movement: new SearchMovement({
+                    movementPerAction: maximumDistance,
+                    crossOverPits: true,
+                    minimumDistanceMoved: searchParams.minimumDistanceMoved,
+                    canStopOnSquaddies: searchParams.canStopOnSquaddies,
+                    ignoreTerrainPenalty: searchParams.ignoreTerrainPenalty,
+                    maximumDistanceMoved: searchParams.maximumDistanceMoved,
+                    passThroughWalls: searchParams.passThroughWalls,
+                    shapeGenerator: searchParams.shapeGenerator,
+                }),
+                stopCondition: new SearchStopCondition({
+                    numberOfActions: 1,
+                    stopLocation: searchParams.stopLocation,
+                })
+            });
 
             const reachableTiles: SearchResults = getResultOrThrowError(this.getAllReachableTiles(searchParamsWithNewStartLocation));
 

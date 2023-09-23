@@ -1,28 +1,16 @@
-import {SquaddieMovement} from "../../squaddie/movement";
-import {SearchParams} from "./searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "./searchParams";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {getResultOrThrowError, isError, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
-import {createMapAndPathfinder, createSquaddieMovements} from "./pathfinder_test_utils";
+import {createMapAndPathfinder} from "./pathfinder_test_utils";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
-import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
+import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 describe('pathfinder reaching a destination', () => {
-    let squaddieMovementOneMovementPerAction: SquaddieMovement;
-    let squaddieMovementTwoMovementPerAction: SquaddieMovement;
-    let squaddieMovementThreeMovementPerAction: SquaddieMovement;
-    let squaddieMovementHighMovementPerAction: SquaddieMovement;
     let smallMap: string[];
 
     beforeEach(() => {
-        ({
-            squaddieMovementOneMovementPerAction,
-            squaddieMovementTwoMovementPerAction,
-            squaddieMovementThreeMovementPerAction,
-            squaddieMovementHighMovementPerAction
-        } = createSquaddieMovements());
-
         smallMap = [
             "1 1 "
         ];
@@ -35,12 +23,18 @@ describe('pathfinder reaching a destination', () => {
         } = createMapAndPathfinder(smallMap);
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 1,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: new HexCoordinate({q: 0, r: 1}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 1,
+                stopLocation: new HexCoordinate({q: 0, r: 1}),
+            })
         }));
 
         let routeFound: SearchPath;
@@ -77,11 +71,17 @@ describe('pathfinder reaching a destination', () => {
         } = createMapAndPathfinder(smallMap);
 
         const somePathOrError = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 1,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 1,
+            })
         }));
 
         let errorFound: Error;
@@ -100,11 +100,17 @@ describe('pathfinder reaching a destination', () => {
         } = createMapAndPathfinder(smallMap);
 
         const allTiles = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 1,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 1,
+            })
         })));
 
         let somePathOrError = allTiles.getRouteToStopLocation();
@@ -122,12 +128,18 @@ describe('pathfinder reaching a destination', () => {
         } = createMapAndPathfinder(smallMap);
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 1,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: new HexCoordinate({q: 9000, r: 2}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 1,
+                stopLocation: new HexCoordinate({q: 9000, r: 2}),
+            })
         }));
 
         let routeFound: SearchPath;
@@ -143,12 +155,18 @@ describe('pathfinder reaching a destination', () => {
         } = createMapAndPathfinder(smallMap);
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 1,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: new HexCoordinate({q: 0, r: 0}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 1,
+                stopLocation: new HexCoordinate({q: 0, r: 0}),
+            })
         }));
 
         let routeFound: SearchPath;
@@ -185,11 +203,17 @@ describe('pathfinder reaching a destination', () => {
         ]);
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementTwoMovementPerAction,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: new HexCoordinate({q: 2, r: 2}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 2,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                stopLocation: new HexCoordinate({q: 2, r: 2}),
+            })
         }));
 
         let routeFound: SearchPath;
@@ -271,11 +295,18 @@ describe('pathfinder reaching a destination', () => {
         ]);
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementHighMovementPerAction,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: new HexCoordinate({q: 0, r: 4}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 10,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 1,
+                stopLocation: new HexCoordinate({q: 0, r: 4}),
+            })
         }));
 
         let routeFound: SearchPath;
@@ -320,12 +351,18 @@ describe('pathfinder reaching a destination', () => {
         ]);
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 2,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: new HexCoordinate({q: 0, r: 4}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 2,
+                stopLocation: new HexCoordinate({q: 0, r: 4}),
+            })
         }));
 
         let routeFound: SearchPath;
@@ -343,11 +380,18 @@ describe('pathfinder reaching a destination', () => {
         ]);
 
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementHighMovementPerAction,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            stopLocation: new HexCoordinate({q: 0, r: 4}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 10,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 1,
+                stopLocation: new HexCoordinate({q: 0, r: 4}),
+            })
         }));
 
         let closestTilesToDestination: {
@@ -388,12 +432,18 @@ describe('pathfinder reaching a destination', () => {
         ]);
 
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 3,
-            startLocation: new HexCoordinate({q: 1, r: 1}),
-            stopLocation: new HexCoordinate({q: 2, r: 2}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 1, r: 1}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 3,
+                stopLocation: new HexCoordinate({q: 2, r: 2}),
+            })
         })));
 
         let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());

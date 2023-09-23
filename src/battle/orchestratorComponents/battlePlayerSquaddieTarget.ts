@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SearchParams} from "../../hexMap/pathfinder/searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -24,6 +24,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {Trait} from "../../trait/traitStatusStorage";
 import {CalculateResults} from "../activityCalculator/calculator";
+import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -145,13 +146,18 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId);
         const abilityRange: HexCoordinate[] = state.pathfinder.getTilesInRange(new SearchParams({
-                canStopOnSquaddies: true,
-                missionMap: state.missionMap,
-                minimumDistanceMoved: ability.minimumRange,
-                maximumDistanceMoved: ability.maximumRange,
-                startLocation: mapLocation,
-                shapeGeneratorType: ability.targetingShape,
-                squaddieRepository: state.squaddieRepository,
+                setup: new SearchSetup({
+                    missionMap: state.missionMap,
+                    startLocation: mapLocation,
+                    squaddieRepository: state.squaddieRepository,
+                }),
+                movement: new SearchMovement({
+                    canStopOnSquaddies: true,
+                    minimumDistanceMoved: ability.minimumRange,
+                    maximumDistanceMoved: ability.maximumRange,
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(ability.targetingShape)),
+                }),
+                stopCondition: new SearchStopCondition({}),
             }),
             ability.maximumRange,
             [mapLocation],

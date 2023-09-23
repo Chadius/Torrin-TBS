@@ -273,8 +273,8 @@ describe('Targeting Service', () => {
 
         expect(results.locationsInRange).toHaveLength(2);
         expect(results.locationsInRange).toStrictEqual([
-            new HexCoordinate({q:0, r:1}),
-            new HexCoordinate({q:0, r:2}),
+            new HexCoordinate({q: 0, r: 1}),
+            new HexCoordinate({q: 0, r: 2}),
         ]);
     });
 });

@@ -1,31 +1,18 @@
-import {SquaddieMovement} from "../../squaddie/movement";
-import {SearchParams} from "./searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "./searchParams";
 import {SearchResults} from "./searchResults";
 import {
     createMapAndPathfinder,
-    createSquaddieMovements,
     validateTileHasExpectedNumberOfActions,
     validateTilesAreFound
 } from "./pathfinder_test_utils";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
-import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
+import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 describe('pathfinder move with multiple movement actions', () => {
-    let squaddieMovementOneMovementPerAction: SquaddieMovement;
-    let squaddieMovementTwoMovementPerAction: SquaddieMovement;
-    let squaddieMovementThreeMovementPerAction: SquaddieMovement;
-    let squaddieMovementHighMovementPerAction: SquaddieMovement;
     let mapOneRowFourColumns: string[];
 
     beforeEach(() => {
-        ({
-            squaddieMovementOneMovementPerAction,
-            squaddieMovementTwoMovementPerAction,
-            squaddieMovementThreeMovementPerAction,
-            squaddieMovementHighMovementPerAction
-        } = createSquaddieMovements());
-
         mapOneRowFourColumns = [
             "1 1 1 1 "
         ];
@@ -38,11 +25,17 @@ describe('pathfinder move with multiple movement actions', () => {
         } = createMapAndPathfinder(mapOneRowFourColumns);
 
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementOneMovementPerAction,
-            numberOfActions: 2,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 1,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 2,
+            })
         })));
         validateTilesAreFound(
             searchResults.getReachableTiles(),
@@ -70,11 +63,17 @@ describe('pathfinder move with multiple movement actions', () => {
         ]);
 
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
-            missionMap: missionMap,
-            squaddieMovement: squaddieMovementTwoMovementPerAction,
-            numberOfActions: 2,
-            startLocation: new HexCoordinate({q: 0, r: 0}),
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                missionMap: missionMap,
+                startLocation: new HexCoordinate({q: 0, r: 0}),
+            }),
+            movement: new SearchMovement({
+                movementPerAction: 2,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: 2,
+            })
         })));
         validateTilesAreFound(
             searchResults.getReachableTiles(),

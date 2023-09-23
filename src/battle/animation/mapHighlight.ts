@@ -3,12 +3,12 @@ import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
-import {SearchParams} from "../../hexMap/pathfinder/searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
 
 export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
@@ -18,13 +18,23 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
 
     const reachableTileSearchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(
         new SearchParams({
-            missionMap: missionMap,
-            startLocation: squaddieDatum.mapLocation,
-            squaddieMovement: staticSquaddie.movement,
-            squaddieAffiliation: staticSquaddie.squaddieId.affiliation,
-            squaddieRepository,
-            numberOfActions: normalActionsRemaining,
-            shapeGeneratorType: TargetingShape.Snake,
+            setup: new SearchSetup({
+                startLocation: squaddieDatum.mapLocation,
+                missionMap: missionMap,
+                affiliation: staticSquaddie.squaddieId.affiliation,
+                squaddieRepository,
+            }),
+            movement: new SearchMovement({
+                movementPerAction: staticSquaddie.movement.movementPerAction,
+                passThroughWalls: staticSquaddie.movement.passThroughWalls,
+                crossOverPits: staticSquaddie.movement.crossOverPits,
+                canStopOnSquaddies: false,
+                ignoreTerrainPenalty: false,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+            }),
+            stopCondition: new SearchStopCondition({
+                numberOfActions: normalActionsRemaining,
+            })
         }))
     );
     const movementTiles: HexCoordinate[] = reachableTileSearchResults.getReachableTiles();
@@ -36,13 +46,26 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
 
     const squaddieHasActivities: boolean = staticSquaddie.activities.length > 0
     const actionTiles: HexCoordinate[] = squaddieHasActivities ?
-        pathfinder.getTilesInRange(new SearchParams({
-                canStopOnSquaddies: true,
-                missionMap: missionMap,
-                minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
-                startLocation: datum.mapLocation,
-                shapeGeneratorType: staticSquaddie.activities[0].targetingShape,
-                squaddieRepository,
+        pathfinder.getTilesInRange(
+            new SearchParams({
+                setup: new SearchSetup({
+                    startLocation: squaddieDatum.mapLocation,
+                    missionMap: missionMap,
+                    affiliation: staticSquaddie.squaddieId.affiliation,
+                    squaddieRepository,
+                }),
+                movement: new SearchMovement({
+                    minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
+                    movementPerAction: staticSquaddie.movement.movementPerAction,
+                    passThroughWalls: staticSquaddie.movement.passThroughWalls,
+                    crossOverPits: staticSquaddie.movement.crossOverPits,
+                    canStopOnSquaddies: true,
+                    ignoreTerrainPenalty: false,
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(staticSquaddie.activities[0].targetingShape)),
+                }),
+                stopCondition: new SearchStopCondition({
+                    numberOfActions: normalActionsRemaining,
+                })
             }),
             staticSquaddie.activities[0].maximumRange,
             movementTiles,

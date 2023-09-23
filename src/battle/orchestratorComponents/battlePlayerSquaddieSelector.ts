@@ -29,9 +29,9 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
-import {SearchParams} from "../../hexMap/pathfinder/searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -250,15 +250,24 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
         const searchResults: SearchResults = getResultOrThrowError(
             pathfinder.findPathToStopLocation(new SearchParams({
-                missionMap: state.missionMap,
-                squaddieMovement: staticSquaddie.movement,
-                startLocation: squaddieDatum.mapLocation,
-                stopLocation: clickedHexCoordinate,
-                squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepository: state.squaddieRepository,
-                numberOfActions: normalActionsRemaining,
-                shapeGeneratorType: TargetingShape.Snake,
-            }))
+                    setup: new SearchSetup({
+                        startLocation: squaddieDatum.mapLocation,
+                        missionMap: state.missionMap,
+                        squaddieRepository: state.squaddieRepository,
+                        affiliation: SquaddieAffiliation.PLAYER,
+                    }),
+                    movement: new SearchMovement({
+                        movementPerAction: staticSquaddie.movement.movementPerAction,
+                        passThroughWalls: staticSquaddie.movement.passThroughWalls,
+                        crossOverPits: staticSquaddie.movement.crossOverPits,
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                    }),
+                    stopCondition: new SearchStopCondition({
+                        stopLocation: clickedHexCoordinate,
+                        numberOfActions: normalActionsRemaining,
+                    })
+                })
+            )
         );
         const closestRoute = getResultOrThrowError(searchResults.getRouteToStopLocation());
         if (closestRoute != null) {

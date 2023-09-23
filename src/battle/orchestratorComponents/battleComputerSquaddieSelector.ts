@@ -9,7 +9,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {SearchParams} from "../../hexMap/pathfinder/searchParams";
+import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
@@ -27,6 +27,7 @@ import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction
 import {SquaddieInstructionActivity} from "../history/squaddieInstructionActivity";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {CalculateResults} from "../activityCalculator/calculator";
+import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTIVITY_TIME = 500;
@@ -138,14 +139,21 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     ) {
         const ability = state.squaddieCurrentlyActing.currentlySelectedActivity;
 
-        const tilesTargeted: HexCoordinate[] = getResultOrThrowError(state.pathfinder.getAllReachableTiles(new SearchParams({
-                canStopOnSquaddies: true,
-                missionMap: state.missionMap,
-                minimumDistanceMoved: 0,
-                maximumDistanceMoved: 0,
-                startLocation: activity.targetLocation,
-                shapeGeneratorType: ability.targetingShape,
-                squaddieRepository: state.squaddieRepository,
+        const tilesTargeted: HexCoordinate[] = getResultOrThrowError(state.pathfinder.getAllReachableTiles(
+            new SearchParams({
+                setup: new SearchSetup({
+                    missionMap: state.missionMap,
+                    startLocation: activity.targetLocation,
+                    squaddieRepository: state.squaddieRepository,
+                }),
+                movement: new SearchMovement({
+                    maximumDistanceMoved: 0,
+                    minimumDistanceMoved: 0,
+                    canStopOnSquaddies: true,
+                    ignoreTerrainPenalty: false,
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(ability.targetingShape)),
+                }),
+                stopCondition: new SearchStopCondition({})
             }),
         )).getReachableTiles();
 
