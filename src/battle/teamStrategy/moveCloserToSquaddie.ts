@@ -10,7 +10,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
-import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 
 export class MoveCloserToSquaddie implements TeamStrategy {
     desiredDynamicSquaddieId: string;
@@ -41,7 +41,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie});
+        const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
         const pathfinder = new Pathfinder();
         const searchResults: SearchResults =
             pathfinder.findReachableSquaddies(new SearchParams({

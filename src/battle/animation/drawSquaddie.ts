@@ -13,7 +13,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     CanPlayerControlSquaddieRightNow,
     CanSquaddieActRightNow,
-    GetNumberOfActions
+    GetNumberOfActionPoints
 } from "../../squaddie/squaddieService";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
@@ -35,7 +35,7 @@ export const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContex
         squaddieHasThePlayerControlledAffiliation,
         squaddieCanCurrentlyAct
     } = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie})
-    const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+    const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
     if (squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct && normalActionsRemaining < 3) {
         drawSquaddieActions(graphicsContext, staticSquaddie, dynamicSquaddie, mapLocation, camera);
     }
@@ -72,7 +72,7 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, staticSqua
 
     background.draw(graphicsContext);
 
-    const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+    const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
     const heightFromRemainingActions = actionDrawingArea.height * normalActionsRemaining / 3;
     const numberOfActionsArea: RectArea = new RectArea({
         top: actionDrawingArea.bottom - heightFromRemainingActions,

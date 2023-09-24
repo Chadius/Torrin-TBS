@@ -37,7 +37,7 @@ import {
     SHOW_SELECTED_ACTIVITY_TIME,
     SQUADDIE_SELECTOR_PANNING_TIME
 } from "./battleComputerSquaddieSelector";
-import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squaddieService";
+import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {BattlePhaseState} from "./battlePhaseController";
 
@@ -516,7 +516,7 @@ describe('BattleComputerSquaddieSelector', () => {
             });
 
             it('should consume the squaddie actions', () => {
-                const {normalActionsRemaining} = GetNumberOfActions({
+                const {normalActionsRemaining} = GetNumberOfActionPoints({
                     staticSquaddie: enemyDemonStatic,
                     dynamicSquaddie: enemyDemonDynamic,
                 });

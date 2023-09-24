@@ -25,7 +25,7 @@ import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {DamageType, GetHitPoints, GetNumberOfActions} from "../../squaddie/squaddieService";
+import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
@@ -401,7 +401,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should consume the squaddie actions', () => {
-            const {normalActionsRemaining} = GetNumberOfActions({
+            const {normalActionsRemaining} = GetNumberOfActionPoints({
                 staticSquaddie: knightStatic,
                 dynamicSquaddie: knightDynamic
             });
@@ -441,7 +441,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should spend the activity resource cost', () => {
-            const {normalActionsRemaining} = GetNumberOfActions({
+            const {normalActionsRemaining} = GetNumberOfActionPoints({
                 staticSquaddie: knightStatic,
                 dynamicSquaddie: knightDynamic
             });

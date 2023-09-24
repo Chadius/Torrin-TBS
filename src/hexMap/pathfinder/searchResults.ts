@@ -71,21 +71,38 @@ export class SearchResults {
         return [...this.allReachableTiles]
     }
 
-    getReachableTilesByNumberOfMovementActions(): { [numberOfActions: number]: [{ q: number, r: number }?] } {
-        const reachables: { [numberOfActions: number]: [{ q: number, r: number }?] } = {};
+    getReachableTilesByNumberOfMovementActions(): {
+        reachableTiles: { [numberOfActionPoints: number]: [{ q: number; r: number }?] };
+        sortedMovementActionPoints: number[]
+    } {
+        const reachableTiles: { [numberOfActionPoints: number]: [{ q: number, r: number }?] } = {};
         Object.entries(this.lowestCostRoutes).forEach(([_, path]) => {
             const numberOfActions: number = path.getNumberOfMovementActions();
-            if (!reachables[numberOfActions]) {
-                reachables[numberOfActions] = [];
+            if (!reachableTiles[numberOfActions]) {
+                reachableTiles[numberOfActions] = [];
             }
 
-            reachables[numberOfActions].push({
+            reachableTiles[numberOfActions].push({
                 q: path.getMostRecentTileLocation().q,
                 r: path.getMostRecentTileLocation().r,
             })
         })
 
-        return reachables;
+        const sortedMovementActionPoints = Object.keys(reachableTiles).sort((a: string, b: string) => {
+            if (Number(a) < Number(b)) {
+                return -1;
+            }
+
+            if (Number(b) < Number(a)) {
+                return 1;
+            }
+            return 0;
+        }).map((key: string) => Number(key));
+
+        return {
+            reachableTiles: reachableTiles,
+            sortedMovementActionPoints
+        };
     }
 
     getClosestTilesToDestination(): { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] {
@@ -114,7 +131,7 @@ export class SearchResults {
     }
 
     calculateNumberOfMoveActionsRequired(targetLocation: HexCoordinate): number {
-        const reachableTilesByNumberOfMovementActions = this.getReachableTilesByNumberOfMovementActions();
+        const {reachableTiles: reachableTilesByNumberOfMovementActions} = this.getReachableTilesByNumberOfMovementActions();
         const [numberOfMoveActionsStr, _] =
             Object.entries(reachableTilesByNumberOfMovementActions)
                 .find(([_, destination]) => {

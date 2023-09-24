@@ -9,7 +9,7 @@ import {
     DealDamageToTheSquaddie,
     GetArmorClass,
     GetHitPoints,
-    GetNumberOfActions,
+    GetNumberOfActionPoints,
     GiveHealingToTheSquaddie,
     HealingType,
     IsSquaddieAlive
@@ -60,7 +60,7 @@ describe('Squaddie Service', () => {
         it('returns the number of actions', () => {
             let {
                 normalActionsRemaining
-            } = GetNumberOfActions({
+            } = GetNumberOfActionPoints({
                 staticSquaddie: playerStatic,
                 dynamicSquaddie: playerDynamic,
             });
@@ -69,7 +69,7 @@ describe('Squaddie Service', () => {
             playerDynamic.squaddieTurn.spendNumberActions(1);
             ({
                 normalActionsRemaining
-            } = GetNumberOfActions({
+            } = GetNumberOfActionPoints({
                 staticSquaddie: playerStatic,
                 dynamicSquaddie: playerDynamic,
             }));

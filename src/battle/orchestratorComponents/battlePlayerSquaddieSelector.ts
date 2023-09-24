@@ -27,7 +27,7 @@ import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
-import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -250,7 +250,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
         const pathfinder: Pathfinder = new Pathfinder();
         const squaddieDatum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+        const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
         const searchResults: SearchResults = getResultOrThrowError(
             pathfinder.findPathToStopLocation(new SearchParams({
                     setup: new SearchSetup({

@@ -1,7 +1,7 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
@@ -16,7 +16,7 @@ import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 
 export function createSearchPath(state: BattleOrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-    const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+    const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
         state.pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({

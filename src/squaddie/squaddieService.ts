@@ -1,10 +1,10 @@
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battle/battleSquaddie";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 
-export const GetNumberOfActions = ({
-                                       staticSquaddie,
-                                       dynamicSquaddie,
-                                   }: {
+export const GetNumberOfActionPoints = ({
+                                            staticSquaddie,
+                                            dynamicSquaddie,
+                                        }: {
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
@@ -112,7 +112,7 @@ export const CanSquaddieActRightNow = ({
 
     let {
         normalActionsRemaining
-    } = GetNumberOfActions({
+    } = GetNumberOfActionPoints({
         staticSquaddie,
         dynamicSquaddie,
     });
@@ -141,7 +141,7 @@ export const CanPlayerControlSquaddieRightNow = ({
 
     let {
         normalActionsRemaining
-    } = GetNumberOfActions({
+    } = GetNumberOfActionPoints({
         staticSquaddie,
         dynamicSquaddie,
     });

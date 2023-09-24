@@ -15,7 +15,7 @@ import {
     CanPlayerControlSquaddieRightNow,
     GetArmorClass,
     GetHitPoints,
-    GetNumberOfActions
+    GetNumberOfActionPoints
 } from "../squaddie/squaddieService";
 import {Label} from "../ui/label";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1} from "../ui/constants";
@@ -293,7 +293,7 @@ export class BattleSquaddieSelectedHUD {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
-        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie});
+        const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
 
         graphicsContext.push();
 
@@ -485,7 +485,7 @@ export class BattleSquaddieSelectedHUD {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
-        const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
+        const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
         if (normalActionsRemaining < activity.actionsToSpend) {
             return ActivityValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTIONS;
         }
