@@ -36,28 +36,29 @@ export class TargetingResults {
     }
 }
 
-export const findValidTargets = (params: {
+export const FindValidTargets = ({
+                                     map,
+                                     activity,
+                                     actingStaticSquaddie,
+                                     actingDynamicSquaddie,
+                                     squaddieRepository,
+                                     sourceTiles,
+                                 }: {
     map: MissionMap,
     activity: SquaddieActivity,
     actingStaticSquaddie: BattleSquaddieStatic,
     actingDynamicSquaddie: BattleSquaddieDynamic,
     squaddieRepository: BattleSquaddieRepository,
+    sourceTiles?: HexCoordinate[],
 }): TargetingResults => {
-    const map = params.map;
-    const activity = params.activity;
-    const actingStaticSquaddie = params.actingStaticSquaddie;
-    const actingDynamicSquaddie = params.actingDynamicSquaddie;
-    const squaddieRepository = params.squaddieRepository;
-
     const pathfinder: Pathfinder = new Pathfinder();
-    const squaddieInfo = map.getSquaddieByDynamicId(params.actingDynamicSquaddie.dynamicSquaddieId)
-
+    const squaddieInfo = map.getSquaddieByDynamicId(actingDynamicSquaddie.dynamicSquaddieId)
     const tilesToHighlight: HexCoordinate[] = pathfinder.getTilesInRange(
         new SearchParams({
             setup: new SearchSetup({
                 startLocation: squaddieInfo.mapLocation,
                 missionMap: map,
-                squaddieRepository: squaddieRepository,
+                squaddieRepository,
             }),
             movement: new SearchMovement({
                 canStopOnSquaddies: true,
@@ -69,7 +70,7 @@ export const findValidTargets = (params: {
             stopCondition: new SearchStopCondition({}),
         }),
         activity.maximumRange,
-        [squaddieInfo.mapLocation],
+        sourceTiles && sourceTiles.length > 0 ? sourceTiles : [squaddieInfo.mapLocation],
     )
 
     const results = new TargetingResults();

@@ -6,7 +6,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
-import {highlightSquaddieReach} from "../animation/mapHighlight";
+import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
@@ -60,7 +60,7 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
         })
         if (playerCanControlThisSquaddieRightNow) {
             state.hexMap.stopHighlightingTiles();
-            highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+            HighlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         }
     }
 }

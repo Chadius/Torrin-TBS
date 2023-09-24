@@ -39,7 +39,6 @@ import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {CutsceneTrigger, MissionDefeatCutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
@@ -110,13 +109,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
-        if (state.gameBoard.cutsceneCollection.cutsceneIdAtStart) {
-            return {
-                nextMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
-                displayMap: true,
-            }
-        }
-
         return {
             displayMap: true,
         }
@@ -130,9 +122,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     private loadMap(state: BattleOrchestratorState) {
         state.hexMap = new TerrainTileMap({
             movementCost: [
-                "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                " 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
-                "  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                "x x x x x 2 2 1 1 1 1 1 1 1 1 1 1 ",
+                " 1 1 1 1 2 2 2 1 1 1 1 1 1 1 1 1 1 ",
+                "  x x x x 2 2 1 1 1 1 1 1 1 1 1 1 1 ",
                 "   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
                 "    1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
                 "     1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ",
@@ -191,9 +183,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     armorClass: 0,
                     movement: new SquaddieMovement({
                         movementPerAction: 2,
-                        traits: new TraitStatusStorage({
-                            [Trait.PASS_THROUGH_WALLS]: true,
-                        }).filterCategory(TraitCategory.MOVEMENT)
+                        traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
                 }),
                 activities: [
@@ -322,9 +312,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieTurn: new SquaddieTurn()
             })
         );
-        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 0, r: 0}));
+        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 1, r: 0}));
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
-        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 1, r: 0}));
+        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 1, r: 5}));
 
         state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.PLAYER,

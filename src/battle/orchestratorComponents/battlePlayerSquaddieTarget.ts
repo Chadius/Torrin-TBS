@@ -7,7 +7,6 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -24,7 +23,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {Trait} from "../../trait/traitStatusStorage";
 import {CalculateResults} from "../activityCalculator/calculator";
-import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
+import {FindValidTargets} from "../targeting/targetingService";
 
 const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
 const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -142,37 +141,31 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private highlightTargetRange(state: BattleOrchestratorState) {
-        const ability = state.squaddieCurrentlyActing.currentlySelectedActivity;
+        const activity = state.squaddieCurrentlyActing.currentlySelectedActivity;
 
-        const {mapLocation} = state.missionMap.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId);
-        const abilityRange: HexCoordinate[] = state.pathfinder.getTilesInRange(new SearchParams({
-                setup: new SearchSetup({
-                    missionMap: state.missionMap,
-                    startLocation: mapLocation,
-                    squaddieRepository: state.squaddieRepository,
-                }),
-                movement: new SearchMovement({
-                    canStopOnSquaddies: true,
-                    minimumDistanceMoved: ability.minimumRange,
-                    maximumDistanceMoved: ability.maximumRange,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(ability.targetingShape)),
-                }),
-                stopCondition: new SearchStopCondition({}),
-            }),
-            ability.maximumRange,
-            [mapLocation],
-        );
+        const {
+            staticSquaddie: actingStaticSquaddie,
+            dynamicSquaddie: actingDynamicSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
+        const targetingResults = FindValidTargets({
+            map: state.missionMap,
+            activity,
+            actingStaticSquaddie,
+            actingDynamicSquaddie,
+            squaddieRepository: state.squaddieRepository,
+        })
+        const activityRange: HexCoordinate[] = targetingResults.locationsInRange;
 
         state.hexMap.stopHighlightingTiles();
         state.hexMap.highlightTiles([
                 {
-                    tiles: abilityRange,
+                    tiles: activityRange,
                     pulseColor: HighlightPulseRedColor,
                     overlayImageResourceName: "map icon attack 1 action"
                 }
             ]
         );
-        this.highlightedTargetRange = [...abilityRange];
+        this.highlightedTargetRange = [...activityRange];
     }
 
     private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {

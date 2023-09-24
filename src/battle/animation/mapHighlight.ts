@@ -10,8 +10,9 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActions} from "../../squaddie/squaddieService";
+import {FindValidTargets} from "../targeting/targetingService";
 
-export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
+export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
 
     const {normalActionsRemaining} = GetNumberOfActions({staticSquaddie, dynamicSquaddie})
@@ -37,40 +38,10 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             })
         }))
     );
-    const movementTiles: HexCoordinate[] = reachableTileSearchResults.getReachableTiles();
+
     const movementTilesByNumberOfActions: {
         [numberOfActions: number]: [{ q: number, r: number }?]
     } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
-
-    const datum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-
-    const squaddieHasActivities: boolean = staticSquaddie.activities.length > 0
-    const actionTiles: HexCoordinate[] = squaddieHasActivities ?
-        pathfinder.getTilesInRange(
-            new SearchParams({
-                setup: new SearchSetup({
-                    startLocation: squaddieDatum.mapLocation,
-                    missionMap: missionMap,
-                    affiliation: staticSquaddie.squaddieId.affiliation,
-                    squaddieRepository,
-                }),
-                movement: new SearchMovement({
-                    minimumDistanceMoved: staticSquaddie.activities[0].minimumRange,
-                    movementPerAction: staticSquaddie.movement.movementPerAction,
-                    passThroughWalls: staticSquaddie.movement.passThroughWalls,
-                    crossOverPits: staticSquaddie.movement.crossOverPits,
-                    canStopOnSquaddies: true,
-                    ignoreTerrainPenalty: false,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(staticSquaddie.activities[0].targetingShape)),
-                }),
-                stopCondition: new SearchStopCondition({
-                    numberOfActions: normalActionsRemaining,
-                })
-            }),
-            staticSquaddie.activities[0].maximumRange,
-            movementTiles,
-        )
-        : [];
 
     const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
         Object.values(movementTilesByNumberOfActions).map(
@@ -84,6 +55,20 @@ export const highlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
     tilesTraveledByNumberOfMovementActions.unshift([]);
     const highlightTileDescriptions = getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
 
+
+    const squaddieHasActivities: boolean = staticSquaddie.activities.length > 0
+    let actionTiles: HexCoordinate[] = [];
+    if (squaddieHasActivities) {
+        const targetingResults = FindValidTargets({
+            map: missionMap,
+            activity: staticSquaddie.activities[0],
+            actingStaticSquaddie: staticSquaddie,
+            actingDynamicSquaddie: dynamicSquaddie,
+            squaddieRepository,
+            sourceTiles: reachableTileSearchResults.getReachableTiles(),
+        })
+        actionTiles = targetingResults.locationsInRange;
+    }
     if (actionTiles) {
         highlightTileDescriptions.push({
                 tiles: actionTiles,

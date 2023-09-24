@@ -3,7 +3,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {findValidTargets, TargetingResults} from "../targeting/targetingService";
+import {FindValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieActivity} from "../../squaddie/activity";
 import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
@@ -124,7 +124,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         targetingResults: TargetingResults,
     } | undefined {
         let activitiesWithTargets = activities.map((activity) => {
-            const results: TargetingResults = findValidTargets({
+            const results: TargetingResults = FindValidTargets({
                 map: state.missionMap,
                 activity: activity,
                 actingStaticSquaddie: staticSquaddie,

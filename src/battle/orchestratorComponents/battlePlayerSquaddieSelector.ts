@@ -12,7 +12,7 @@ import {
     convertScreenCoordinatesToMapCoordinates
 } from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {highlightSquaddieReach} from "../animation/mapHighlight";
+import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
@@ -186,7 +186,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+        HighlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             dynamicId: dynamicSquaddie.dynamicSquaddieId,
             repositionWindow: {
@@ -234,7 +234,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToHighlightDynamicId));
 
         state.hexMap.stopHighlightingTiles();
-        highlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+        HighlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
     }
 
     private updateBattleSquaddieUISelectedSquaddieClickedOnMap(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {

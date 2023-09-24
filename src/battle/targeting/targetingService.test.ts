@@ -6,7 +6,7 @@ import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {findValidTargets, TargetingResults} from "./targetingService";
+import {FindValidTargets, TargetingResults} from "./targetingService";
 
 import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -59,7 +59,7 @@ describe('Targeting Service', () => {
             new HexCoordinate({q: 1, r: 1}),
         );
 
-        const results: TargetingResults = findValidTargets({
+        const results: TargetingResults = FindValidTargets({
             map: battleMap,
             activity: longswordActivity,
             actingStaticSquaddie: sirCamilStaticSquaddie,
@@ -89,7 +89,7 @@ describe('Targeting Service', () => {
             sirCamilDynamicSquaddie.dynamicSquaddieId,
         );
 
-        const results: TargetingResults = findValidTargets({
+        const results: TargetingResults = FindValidTargets({
             map: battleMap,
             activity: longswordActivity,
             actingStaticSquaddie: sirCamilStaticSquaddie,
@@ -141,7 +141,7 @@ describe('Targeting Service', () => {
             new HexCoordinate({q: 1, r: 1}),
         );
 
-        const results: TargetingResults = findValidTargets({
+        const results: TargetingResults = FindValidTargets({
             map: battleMap,
             activity: longbowActivity,
             actingStaticSquaddie: archerStaticSquaddie,
@@ -224,7 +224,7 @@ describe('Targeting Service', () => {
             new HexCoordinate({q: 0, r: 3}),
         );
 
-        const results: TargetingResults = findValidTargets({
+        const results: TargetingResults = FindValidTargets({
             map: battleMap,
             activity: longswordActivity,
             actingStaticSquaddie: sirCamilStaticSquaddie,
@@ -237,7 +237,6 @@ describe('Targeting Service', () => {
     });
 
     it('will ignore terrain costs when targeting', () => {
-
         let longbowActivity: SquaddieActivity = new SquaddieActivity({
             name: "longbow",
             id: "longbow",
@@ -263,7 +262,7 @@ describe('Targeting Service', () => {
             new HexCoordinate({q: 0, r: 0}),
         );
 
-        const results: TargetingResults = findValidTargets({
+        const results: TargetingResults = FindValidTargets({
             map: battleMap,
             activity: longbowActivity,
             actingStaticSquaddie: sirCamilStaticSquaddie,
@@ -271,10 +270,11 @@ describe('Targeting Service', () => {
             squaddieRepository: squaddieRepo,
         });
 
-        expect(results.locationsInRange).toHaveLength(2);
+        expect(results.locationsInRange).toHaveLength(3);
         expect(results.locationsInRange).toStrictEqual([
             new HexCoordinate({q: 0, r: 1}),
             new HexCoordinate({q: 0, r: 2}),
+            new HexCoordinate({q: 0, r: 3}),
         ]);
     });
 });

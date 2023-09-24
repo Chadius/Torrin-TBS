@@ -7,7 +7,6 @@ export class MissionCutsceneCollection {
     private readonly _cutsceneById: {
         [id: string]: Cutscene
     }
-    private readonly _cutsceneIdAtStart: string;
 
     constructor({cutsceneById, cutsceneIdAtStart}: {
         cutsceneById: {
@@ -20,13 +19,8 @@ export class MissionCutsceneCollection {
         } else {
             this._cutsceneById = {};
         }
-        this._cutsceneIdAtStart = cutsceneIdAtStart;
 
         this.createDefaultCutscenes();
-    }
-
-    get cutsceneIdAtStart(): string {
-        return this._cutsceneIdAtStart;
     }
 
     get cutsceneById(): { [p: string]: Cutscene } {

@@ -117,17 +117,20 @@ class SearchState {
         return nextPath;
     }
 
-    addNeighborSearchPathToQueue(tileInfo: TileFoundDescription, head: SearchPath): SearchPath {
+    addNeighborSearchPathToQueue(tileInfo: TileFoundDescription, head: SearchPath, searchParams: SearchParams): SearchPath {
         const neighborPath = new SearchPath(head);
+        const tileInfoMovementCost = searchParams.ignoreTerrainPenalty
+            ? 1
+            : tileInfo.movementCost;
         neighborPath.add(
             new TileFoundDescription({
                 hexCoordinate: new HexCoordinate({
                     q: tileInfo.q,
                     r: tileInfo.r,
                 }),
-                movementCost: head.getTotalMovementCost() + tileInfo.movementCost,
+                movementCost: head.getTotalMovementCost() + tileInfoMovementCost,
             }),
-            tileInfo.movementCost
+            tileInfoMovementCost
         );
         this.searchPathQueue.enqueue(neighborPath);
         return neighborPath;
@@ -204,7 +207,6 @@ export class Pathfinder {
 
     getTilesInRange(searchParams: SearchParams, maximumDistance: number, sourceTiles: HexCoordinate[]): HexCoordinate[] {
         const inRangeTilesByLocation: { [locationKey: string]: HexCoordinate } = {};
-
         if (
             sourceTiles.length < 1
             || searchParams.startLocation === undefined
@@ -241,7 +243,6 @@ export class Pathfinder {
             });
 
             const reachableTiles: SearchResults = getResultOrThrowError(this.getAllReachableTiles(searchParamsWithNewStartLocation));
-
             reachableTiles.getReachableTiles().forEach((reachableTile) => {
                 inRangeTilesByLocation[reachableTile.toStringKey()] = reachableTile;
             });
@@ -380,6 +381,7 @@ export class Pathfinder {
                     head,
                     missionMap,
                     workingSearchState,
+                    searchParams,
                 )
             );
         }
@@ -430,6 +432,7 @@ export class Pathfinder {
         head: SearchPath,
         missionMap: MissionMap,
         workingSearchState: SearchState,
+        searchParams: SearchParams,
     ): SearchPath[] {
         const newPaths: SearchPath[] = [];
         neighboringLocations.forEach((neighbor) =>
@@ -445,6 +448,7 @@ export class Pathfinder {
                 head,
                 missionMap,
                 workingSearchState,
+                searchParams,
             );
             newPaths.push(newPath);
         });
@@ -568,6 +572,7 @@ export class Pathfinder {
         head: SearchPath,
         missionMap: MissionMap,
         workingSearchState: SearchState,
+        searchParams: SearchParams,
     ): SearchPath {
         const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(new HexCoordinate({
             q: neighbor[0],
@@ -585,6 +590,7 @@ export class Pathfinder {
                 movementCost: movementCost
             }),
             head,
+            searchParams,
         );
     }
 
