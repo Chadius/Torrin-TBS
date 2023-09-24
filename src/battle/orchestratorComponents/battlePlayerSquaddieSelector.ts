@@ -228,6 +228,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             ? squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId
             : state.squaddieCurrentlyActing.dynamicSquaddieId;
 
+        if (startOfANewSquaddieTurn) {
+            this.selectedSquaddieDynamicId = squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId;
+        }
         const {
             staticSquaddie,
             dynamicSquaddie,
