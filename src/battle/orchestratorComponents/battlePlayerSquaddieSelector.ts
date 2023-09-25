@@ -110,6 +110,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             return;
         }
+        if (this.selectedSquaddieDynamicId === "" && state.squaddieCurrentlyActing.squaddieHasActedThisTurn) {
+            this.selectedSquaddieDynamicId = state.squaddieCurrentlyActing.dynamicSquaddieId;
+        }
     }
 
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
