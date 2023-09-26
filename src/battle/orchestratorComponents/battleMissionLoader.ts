@@ -62,6 +62,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     affiliateIconResourceKeys: string[];
     staticSquaddieResourceKeys: string[];
     bannerImageResourceKeys: string[];
+    cutsceneResourceKeys: string[];
 
     constructor() {
         this.startedLoading = false;
@@ -84,9 +85,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             ...this.affiliateIconResourceKeys,
             ...this.staticSquaddieResourceKeys,
             ...this.bannerImageResourceKeys,
+            ...this.cutsceneResourceKeys,
         ])) {
             this.initializeSquaddieResources(state);
             this.initializeCameraPosition(state);
+            this.initializeCutscenes(state);
             this.finishedPreparations = true;
         }
     }
@@ -444,8 +447,13 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                 }),
             },
-            cutsceneIdAtStart: "introduction",
         })
+
+        this.cutsceneResourceKeys = Object.values(cutsceneCollection.cutsceneById).map((cutscene) => {
+            return cutscene.allResourceKeys;
+        }).flat()
+        state.resourceHandler.loadResources(this.cutsceneResourceKeys);
+
         const cutsceneTriggers: CutsceneTrigger[] = [
             new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID}),
             new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID}),
@@ -458,6 +466,12 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             cutsceneCollection,
             cutsceneTriggers,
         }
+    }
+
+    private initializeCutscenes(state: BattleOrchestratorState) {
+        Object.entries(state.gameBoard.cutsceneCollection.cutsceneById).forEach(([id, cutscene]) => {
+            cutscene.setResources();
+        })
     }
 
     private loadObjectives(state: BattleOrchestratorState) {
