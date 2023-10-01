@@ -6,8 +6,13 @@
   "source": "src/index.html",
   "scripts": {
     "start": "ENV=production rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
+    "serve": "webpack serve --open",
     "test": "ENV=development jest",
-    "tsc": "./node_modules/.bin/tsc src/*.ts"
+    "tsc": "./node_modules/.bin/tsc src/*.ts",
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development",
+    "zip": "cd dist && zip -r ../build/torrins-trial.zip ./",
+    "devserve": "npm run dev && npm run serve"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +22,7 @@
   "devDependencies": {
     "@types/jest": "^29.2.2",
     "@types/p5": "^1.4.3",
+    "html-webpack-plugin": "^5.5.3",
     "jest": "^29.2.2",
     "ts-jest": "^29.0.3",
     "ts-loader": "^9.4.1",
