@@ -24,9 +24,12 @@ import {SquaddieActivity} from "../../squaddie/activity";
 import {Trait} from "../../trait/traitStatusStorage";
 import {CalculateResults} from "../activityCalculator/calculator";
 import {FindValidTargets} from "../targeting/targetingService";
+import {FormatIntent} from "../animation/activityResultTextWriter";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 
-const buttonTop = ScreenDimensions.SCREEN_HEIGHT * 0.95;
-const buttonMiddleDivider = ScreenDimensions.SCREEN_WIDTH / 2;
+const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.95;
+const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
+const MESSAGE_TEXT_SIZE = 24;
 
 export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     private cancelAbility: boolean;
@@ -52,7 +55,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             if (!this.hasSelectedValidTarget) {
-                if (event.mouseY > buttonTop) {
+                if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
                     state.squaddieCurrentlyActing.cancelSelectedActivity();
                     state.hexMap.stopHighlightingTiles();
@@ -64,14 +67,14 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
             if (!this.hasConfirmedAction) {
                 if (
-                    event.mouseX < buttonMiddleDivider
-                    && event.mouseY > buttonTop
+                    event.mouseX < BUTTON_MIDDLE_DIVIDER
+                    && event.mouseY > BUTTON_TOP
                 ) {
                     return this.cancelTargetSelection(state);
                 }
                 if (
-                    event.mouseX >= buttonMiddleDivider
-                    && event.mouseY > buttonTop
+                    event.mouseX >= BUTTON_MIDDLE_DIVIDER
+                    && event.mouseY > BUTTON_TOP
                 ) {
                     return this.confirmTargetSelection(state);
                 }
@@ -172,9 +175,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.drawButton(
             new RectArea({
                 left: 0,
-                top: buttonTop,
+                top: BUTTON_TOP,
                 width: ScreenDimensions.SCREEN_WIDTH,
-                height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
+                height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
             "Cancel",
             graphicsContext,
@@ -235,9 +238,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         this.drawButton(
             new RectArea({
                 left: 0,
-                top: buttonTop,
-                width: buttonMiddleDivider,
-                height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
+                top: BUTTON_TOP,
+                width: BUTTON_MIDDLE_DIVIDER,
+                height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
             "Cancel",
             graphicsContext,
@@ -245,23 +248,36 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         this.drawButton(
             new RectArea({
-                left: buttonMiddleDivider,
-                top: buttonTop,
-                width: buttonMiddleDivider,
-                height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
+                left: BUTTON_MIDDLE_DIVIDER,
+                top: BUTTON_TOP,
+                width: BUTTON_MIDDLE_DIVIDER,
+                height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
             "Confirm",
             graphicsContext,
         );
 
+        const intentMessages = FormatIntent({
+            currentActivity: state.squaddieCurrentlyActing.currentlySelectedActivity,
+            actingDynamicId: state.squaddieCurrentlyActing.dynamicSquaddieId,
+            squaddieRepository: state.squaddieRepository,
+        });
+
+        intentMessages.push(...[
+            "",
+            "Click on Confirm or Cancel",
+        ]);
+
+        const messageToShow = intentMessages.join("\n");
+
         this.drawButton(
             new RectArea({
-                left: 0,
+                left: ScreenDimensions.SCREEN_WIDTH / 12,
                 top: ScreenDimensions.SCREEN_HEIGHT / 2,
-                width: buttonMiddleDivider,
-                height: ScreenDimensions.SCREEN_HEIGHT - buttonTop,
+                width: BUTTON_MIDDLE_DIVIDER,
+                height: MESSAGE_TEXT_SIZE * (intentMessages.length + 2)
             }),
-            "Forecast here",
+            messageToShow,
             graphicsContext,
         );
     }
@@ -274,9 +290,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             strokeWeight: 4,
 
             text: buttonText,
-            textSize: 24,
+            textSize: MESSAGE_TEXT_SIZE,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
             fontColor: [0, 0, 16],
-            padding: [6, 0, 0, area.width / 2 - 50],
+            padding: [0, 0, 0, 0],
         });
 
         buttonBackground.draw(graphicsContext);
