@@ -23,6 +23,7 @@ import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordina
 import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {ButtonStatus} from "../ui/button";
 
 enum ActivityValidityCheck {
     IS_VALID,
@@ -171,6 +172,16 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
+    mouseMoved(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
+        this.activityButtons.forEach((button) => {
+            if (button.buttonArea.isInside(mouseX, mouseY)) {
+                button.status = ButtonStatus.HOVER;
+            } else {
+                button.status = ButtonStatus.READY;
+            }
+        });
+    }
+
     reset() {
         this.selectedSquaddieDynamicId = "";
         this.affiliateIcon = undefined;
@@ -216,9 +227,10 @@ export class BattleSquaddieSelectedHUD {
                         baseRectangle: windowDimensions,
                         anchorLeft: HorizontalAnchor.LEFT,
                         anchorTop: VerticalAnchor.CENTER,
+                        vertAlign: VERT_ALIGN_CENTER,
                         left: windowDimensions.width * (6 + index) / 12,
-                        width: 32,
-                        height: 32,
+                        width: (windowDimensions.width / 12) - 16,
+                        height: this._background.area.height * 0.5,
                     }),
                     activity,
                     hue: squaddieAffiliationHue,
@@ -233,9 +245,10 @@ export class BattleSquaddieSelectedHUD {
                     baseRectangle: windowDimensions,
                     anchorLeft: HorizontalAnchor.RIGHT,
                     anchorTop: VerticalAnchor.CENTER,
-                    left: -64,
-                    width: 32,
-                    height: 32,
+                    left: -1 * ((windowDimensions.width / 11) - 32),
+                    vertAlign: VERT_ALIGN_CENTER,
+                    width: (windowDimensions.width / 12) - 16,
+                    height: this._background.area.height - 32,
                 }),
                 activity: new SquaddieEndTurnActivity(),
             })

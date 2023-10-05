@@ -77,6 +77,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                 state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
             }
         }
+
+        if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
+            if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
+                state.battleSquaddieSelectedHUD.mouseMoved(event.mouseX, event.mouseY, state);
+            }
+        }
     }
 
     keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {

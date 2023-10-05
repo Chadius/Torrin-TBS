@@ -23,6 +23,7 @@ import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProg
 import {SquaddieActivitiesForThisRound} from "./history/squaddieActivitiesForThisRound";
 import * as mocks from "../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
+import {ButtonStatus} from "../ui/button";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -147,7 +148,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         )).toBeTruthy();
     });
 
-    it('reports when an activity button is selected', () => {
+    it('reports when an activity button is clicked', () => {
         const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
@@ -174,6 +175,30 @@ describe('BattleSquaddieSelectedHUD', () => {
         hud.reset();
         expect(hud.wasActivitySelected()).toBeFalsy();
         expect(hud.getSelectedActivity()).toBeUndefined();
+    });
+
+    it('reports when an activity button is hovered', () => {
+        const state = new BattleOrchestratorState({
+            squaddieRepo: squaddieRepository,
+            missionMap,
+            resourceHandler: resourceHandler,
+            camera: new BattleCamera(0, 0),
+        });
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: playerSquaddieDynamicID,
+            repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
+        });
+        expect(hud.wasActivitySelected()).toBeFalsy();
+        expect(hud.getSelectedActivity()).toBeUndefined();
+
+        const longswordButton = hud.getActivityButtons().find((button) =>
+            button.activity instanceof SquaddieActivity
+            && button.activity.name === longswordActivity.name
+        );
+        hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
+
+        expect(longswordButton.status).toBe(ButtonStatus.HOVER);
     });
 
     it('generates a Wait Turn activity button when a squaddie is selected', () => {

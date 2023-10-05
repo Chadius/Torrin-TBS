@@ -6,11 +6,21 @@ import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieEndTurnActivity} from "../battle/history/squaddieEndTurnActivity";
 import {TextBox} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {ButtonStatus} from "../ui/button";
 
 export class ActivityButton {
+    get status(): ButtonStatus {
+        return this._status;
+    }
+
+    set status(value: ButtonStatus) {
+        this._status = value;
+    }
+
     buttonArea: RectArea;
     activity: SquaddieActivity | SquaddieEndTurnActivity;
     hue: number;
+    private _status: ButtonStatus;
 
     constructor(options: {
         buttonArea?: RectArea;
@@ -31,6 +41,18 @@ export class ActivityButton {
         });
 
         background.draw(graphicsContext);
+
+        if (
+            this.status === ButtonStatus.HOVER
+        ) {
+            const hoverOutline = new Rectangle({
+                area: this.buttonArea,
+                strokeColor: [255, 255, 255],
+                strokeWeight: 4,
+            });
+
+            hoverOutline.draw(graphicsContext);
+        }
 
         let activityButtonText: string = "";
         if (this.activity instanceof SquaddieEndTurnActivity) {
