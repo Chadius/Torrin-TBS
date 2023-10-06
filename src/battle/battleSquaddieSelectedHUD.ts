@@ -26,8 +26,9 @@ import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 
 enum ActionValidityCheck {
-    IS_VALID,
-    SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS,
+    IS_VALID = "IS_VALID",
+    SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS = "SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS",
+    PLAYER_CANNOT_CONTROL_SQUADDIE = "PLAYER_CANNOT_CONTROL_SQUADDIE",
 }
 
 export class BattleSquaddieSelectedHUD {
@@ -490,14 +491,20 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private checkIfActionIsValid(action: SquaddieAction | SquaddieEndTurnAction, state: BattleOrchestratorState): ActionValidityCheck {
-        if (action instanceof SquaddieEndTurnAction) {
-            return ActionValidityCheck.IS_VALID;
-        }
-
         const {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
+
+        const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie});
+        if (!canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow) {
+            return ActionValidityCheck.PLAYER_CANNOT_CONTROL_SQUADDIE;
+        }
+
+        if (action instanceof SquaddieEndTurnAction) {
+            return ActionValidityCheck.IS_VALID;
+        }
+
         const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
         if (actionPointsRemaining < action.actionPointCost) {
             return ActionValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS;

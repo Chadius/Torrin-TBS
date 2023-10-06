@@ -110,11 +110,11 @@ export class TargetSquaddieInRange implements TeamStrategy {
     }
 
     private getTargetingResultsOfActionWithTargets({
-                                                         state,
-                                                         staticSquaddie,
-                                                         dynamicSquaddie,
-                                                         actions,
-                                                     }: {
+                                                       state,
+                                                       staticSquaddie,
+                                                       dynamicSquaddie,
+                                                       actions,
+                                                   }: {
         state: TeamStrategyState,
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic

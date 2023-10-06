@@ -151,34 +151,87 @@ describe('BattleSquaddieSelector', () => {
         };
     }
 
-    it('ignores mouse input when the player cannot control the squaddies', () => {
+    it('ignores mouse input when the player tries to move an uncontrollable squaddie during the player phase', () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
+                movementCost: ["1 1 1 "]
             })
         });
 
-        const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
-        const mockHexMap = new (
-            <new (options: any) => TerrainTileMap>TerrainTileMap
-        )({
-            movementCost: ["1 1 "]
-        }) as jest.Mocked<TerrainTileMap>;
-        mockHexMap.mouseClicked = jest.fn();
+        const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+
+        const enemyTeam: BattleSquaddieTeam = new BattleSquaddieTeam(
+            {
+                name: "enemies cannot be controlled by the player",
+                affiliation: SquaddieAffiliation.ENEMY,
+                squaddieRepo: squaddieRepo,
+            }
+        );
+
+        demonBiteAction = new SquaddieAction({
+            name: "demon bite",
+            id: "demon_bite",
+            traits: new TraitStatusStorage({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }).filterCategory(TraitCategory.ACTION),
+            minimumRange: 1,
+            maximumRange: 1,
+            actionPointCost: 2,
+        });
+
+        ({
+            dynamicSquaddie: enemyDemonDynamic,
+            staticSquaddie: enemyDemonStatic,
+        } = CreateNewSquaddieAndAddToRepository({
+            staticId: "enemy_demon",
+            name: "Slither Demon",
+            affiliation: SquaddieAffiliation.ENEMY,
+            dynamicId: "enemy_demon_0",
+            squaddieRepository: squaddieRepo,
+            actions: [demonBiteAction],
+        }));
+        enemyTeam.addDynamicSquaddieIds(["enemy_demon_0"]);
+        teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
+        missionMap.addSquaddie(
+            enemyDemonStatic.staticId,
+            enemyDemonDynamic.dynamicSquaddieId,
+            new HexCoordinate({q: 0, r: 1})
+        );
+
+        const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
+        let mockHud = mocks.battleSquaddieSelectedHUD();
+        mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("enemy_demon_0");
+        mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(false);
+        mockHud.wasAnyActionSelected = jest.fn().mockReturnValue(false);
+        mockHud.selectSquaddieAndDrawWindow = jest.fn();
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseState,
             teamsByAffiliation,
-            hexMap: mockHexMap,
-        })
-
-        selector.mouseEventHappened(state, {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: 0,
-            mouseY: 0,
+            missionMap,
+            camera,
+            battleSquaddieSelectedHUD: mockHud,
+            squaddieRepo: squaddieRepo,
+            pathfinder: new Pathfinder(),
         });
 
-        expect(mockHexMap.mouseClicked).not.toBeCalled();
+        const enemyLocation = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates())
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: enemyLocation[0],
+            mouseY: enemyLocation[1],
+        });
+
+        const enemyDestination = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates())
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX: enemyDestination[0],
+            mouseY: enemyDestination[1],
+        });
+
+        expect(selector.hasCompleted(state)).toBeFalsy();
+        expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("");
     });
 
     it('recommends computer squaddie selector if the player cannot control the squaddies', () => {

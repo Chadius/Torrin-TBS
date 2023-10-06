@@ -27,7 +27,7 @@ import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
-import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
+import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -253,10 +253,17 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!this.isHudInstructingTheCurrentlyActingSquaddie(state)) {
             return;
         }
+
         const {
             staticSquaddie,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
+
+        const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie});
+        if (!canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow) {
+            return;
+        }
+
         const pathfinder: Pathfinder = new Pathfinder();
         const squaddieDatum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})

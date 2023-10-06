@@ -383,6 +383,36 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
     });
 
+    it('will not let the player command uncontrollable enemy squaddies', () => {
+        const state = new BattleOrchestratorState({
+            squaddieRepo: squaddieRepository,
+            missionMap,
+            resourceHandler: resourceHandler,
+            camera: new BattleCamera(0, 0),
+        });
+
+        hud.selectSquaddieAndDrawWindow({
+            dynamicId: enemySquaddieDynamic.dynamicSquaddieId,
+            repositionWindow: {mouseX: 0, mouseY: 0},
+            state,
+        });
+
+        const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+        hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
+
+        const waitTurnButton = hud.getUseActionButtons().find((button) =>
+            button.action instanceof SquaddieEndTurnAction
+        );
+
+        hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top, state);
+
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
+    });
+
     describe("Next Squaddie button", () => {
         it('should show the button if there are at least 2 player controllable squaddies', () => {
             const state = new BattleOrchestratorState({
