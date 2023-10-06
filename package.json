@@ -12,7 +12,7 @@
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
     "zip": "cd dist && zip -r ../build/torrins-trial.zip ./",
-    "devserve": "npm run dev && npm run serve"
+    "devserve": "rsync --recursive assets/toDist/* dist/assets && npm run dev && npm run serve"
   },
   "author": "",
   "license": "ISC",

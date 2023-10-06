@@ -328,7 +328,17 @@ export class GameEngine {
                         type: ResourceType.IMAGE,
                         path: "assets/combat-young-torrin-targeted.png",
                         key: "combat-young-torrin-targeted",
-                    }
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/splash-victory-screen.png",
+                        key: "splash victory",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/splash-defeat-screen.png",
+                        key: "splash defeat",
+                    },
                 ],
             })
         }

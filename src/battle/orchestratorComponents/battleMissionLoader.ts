@@ -42,6 +42,7 @@ import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {CutsceneTrigger, MissionDefeatCutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
+import {SplashScreen} from "../../cutscene/splashScreen";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -507,10 +508,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
-                        new DialogueBox({
-                            id: "victory_2",
-                            text: "Thanks for playing!",
-                            animationDuration: 0,
+                        new SplashScreen({
+                            id: "victory_final",
+                            screenImageResourceKey: "splash victory",
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
                     ],
@@ -530,9 +530,14 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         new DialogueBox({
                             id: "defeat_1",
                             name: "Sir Camil",
-                            text: "Right. When we come back, let me take the lead. Heal my injuries.",
+                            text: "Right. When we come back, let me take the lead, and let's take it slow.",
                             portraitResourceKey: "sir camil cutscene portrait",
                             animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new SplashScreen({
+                            id: "defeat_final",
+                            screenImageResourceKey: "splash defeat",
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
                     ],
