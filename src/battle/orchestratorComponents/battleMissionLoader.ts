@@ -511,7 +511,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         new SplashScreen({
                             id: "victory_final",
                             screenImageResourceKey: "splash victory",
-                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
@@ -538,7 +537,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         new SplashScreen({
                             id: "defeat_final",
                             screenImageResourceKey: "splash defeat",
-                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
                     ],
                     screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],

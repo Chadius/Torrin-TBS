@@ -3,16 +3,7 @@ import {CutsceneAction} from "./cutsceneAction";
 import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
-
-type RequiredOptions = {
-    id: string;
-}
-
-type Options = {
-    animationDuration: number;
-    screenImageResourceKey: string;
-    screenDimensions: [number, number];
-}
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 
 export class SplashScreen implements CutsceneAction {
     id: string;
@@ -21,14 +12,20 @@ export class SplashScreen implements CutsceneAction {
     animationDuration: number;
     screenImageResourceKey: string;
     screenImage: ImageUI;
-    screenDimensions: [number, number];
 
-    constructor(options: RequiredOptions & Partial<Options>) {
-        this.id = options.id;
-        this.screenImageResourceKey = options.screenImageResourceKey;
-        this.animationDuration = options.animationDuration || 0;
+    constructor({
+                    id,
+                    animationDuration,
+                    screenImageResourceKey,
+                }: {
+        id: string;
+        animationDuration?: number;
+        screenImageResourceKey?: string;
+    }) {
+        this.id = id;
+        this.screenImageResourceKey = screenImageResourceKey;
+        this.animationDuration = animationDuration || 0;
         this.dialogFinished = false;
-        this.screenDimensions = options.screenDimensions || [0, 0];
     }
 
     getId(): string {
@@ -48,14 +45,14 @@ export class SplashScreen implements CutsceneAction {
         this.setScreenImage(image);
     }
 
-    setScreenImage(screen: GraphicImage) {
+    setScreenImage(splashImage: GraphicImage) {
         this.screenImage = new ImageUI({
-            graphic: screen,
+            graphic: splashImage,
             area: new RectArea({
-                left: (this.screenDimensions[0] - screen.width) / 2,
-                top: (this.screenDimensions[1] - screen.height) / 2,
-                width: screen.width,
-                height: screen.height,
+                left: (ScreenDimensions.SCREEN_WIDTH - splashImage.width) / 2,
+                top: (ScreenDimensions.SCREEN_HEIGHT - splashImage.height) / 2,
+                width: splashImage.width,
+                height: splashImage.height,
             })
         });
     }
