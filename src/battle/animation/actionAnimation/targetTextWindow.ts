@@ -5,7 +5,7 @@ import {WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4} from "../../../ui/con
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
-import {ActivityResultOnSquaddie} from "../../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 
@@ -14,9 +14,9 @@ export class TargetTextWindow {
 
     }
 
-    private _result: ActivityResultOnSquaddie;
+    private _result: ActionResultPerSquaddie;
 
-    get result(): ActivityResultOnSquaddie {
+    get result(): ActionResultPerSquaddie {
         return this._result;
     }
 
@@ -53,7 +53,7 @@ export class TargetTextWindow {
     start({targetStatic, targetDynamic, result}: {
         targetStatic: BattleSquaddieStatic,
         targetDynamic: BattleSquaddieDynamic,
-        result: ActivityResultOnSquaddie,
+        result: ActionResultPerSquaddie,
     }) {
         this.reset();
         const defenderName: string = targetStatic.squaddieId.name;

@@ -1,56 +1,56 @@
-import {SquaddieActivity} from "./activity";
+import {SquaddieAction} from "./action";
 
-export enum ACTIVITY_PERFORM_FAILURE_REASON {
+export enum ACTION_PERFORM_FAILURE_REASON {
     UNKNOWN,
     TOO_FEW_ACTIONS_REMAINING
 }
 
 export class SquaddieTurn {
     constructor() {
-        this._remainingNumberOfActions = 3;
+        this._remainingActionPoints = 3;
     }
 
-    private _remainingNumberOfActions: number;
+    private _remainingActionPoints: number;
 
-    get remainingNumberOfActions(): number {
-        return this._remainingNumberOfActions;
+    get remainingActionPoints(): number {
+        return this._remainingActionPoints;
     }
 
-    spendActionsOnActivity(activity: SquaddieActivity) {
-        this._remainingNumberOfActions = (this._remainingNumberOfActions - activity.actionsToSpend);
+    spendActionPointsOnAction(action: SquaddieAction) {
+        this._remainingActionPoints = (this._remainingActionPoints - action.actionPointCost);
     }
 
-    spendNumberActions(numberOfActions: number) {
-        this._remainingNumberOfActions = (this._remainingNumberOfActions - numberOfActions);
+    spendActionPoints(number: number) {
+        this._remainingActionPoints = (this._remainingActionPoints - number);
     }
 
-    canPerformActivity(activity: SquaddieActivity): { canPerform: boolean, reason: ACTIVITY_PERFORM_FAILURE_REASON } {
-        if (this._remainingNumberOfActions < activity.actionsToSpend) {
+    canPerformAction(action: SquaddieAction): { canPerform: boolean, reason: ACTION_PERFORM_FAILURE_REASON } {
+        if (this._remainingActionPoints < action.actionPointCost) {
             return {
                 canPerform: false,
-                reason: ACTIVITY_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING
+                reason: ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING
             }
         }
 
         return {
             canPerform: true,
-            reason: ACTIVITY_PERFORM_FAILURE_REASON.UNKNOWN
+            reason: ACTION_PERFORM_FAILURE_REASON.UNKNOWN
         }
     }
 
     beginNewRound() {
-        this.refreshActions();
+        this.refreshActionPoints();
     }
 
-    hasActionsRemaining(): boolean {
-        return this._remainingNumberOfActions > 0;
+    hasActionPointsRemaining(): boolean {
+        return this._remainingActionPoints > 0;
     }
 
     endTurn() {
-        this._remainingNumberOfActions = 0;
+        this._remainingActionPoints = 0;
     }
 
-    private refreshActions() {
-        this._remainingNumberOfActions = 3;
+    private refreshActionPoints() {
+        this._remainingActionPoints = 3;
     }
 }

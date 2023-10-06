@@ -1,23 +1,23 @@
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 
-export const FormatResult = ({currentActivity, result, squaddieRepository}: {
-    currentActivity: SquaddieActivity,
+export const FormatResult = ({currentAction, result, squaddieRepository}: {
+    currentAction: SquaddieAction,
     result: SquaddieSquaddieResults,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {
     const {staticSquaddie: actingStaticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(result.actingSquaddieDynamicId))
 
     let output: string[] = [];
-    output.push(`${actingStaticSquaddie.squaddieId.name} uses ${currentActivity.name}`);
+    output.push(`${actingStaticSquaddie.squaddieId.name} uses ${currentAction.name}`);
     result.targetedSquaddieDynamicIds.forEach((targetSquaddieId: string) => {
         const {staticSquaddie: targetSquaddieStatic} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(targetSquaddieId));
-        if (currentActivity.isHindering) {
+        if (currentAction.isHindering) {
             output.push(`${targetSquaddieStatic.squaddieId.name} takes ${result.resultPerTarget[targetSquaddieId].damageTaken} damage`);
         }
-        if (currentActivity.isHelpful) {
+        if (currentAction.isHelpful) {
             output.push(`${targetSquaddieStatic.squaddieId.name} receives ${result.resultPerTarget[targetSquaddieId].healingReceived} healing`);
         }
     });
@@ -25,15 +25,15 @@ export const FormatResult = ({currentActivity, result, squaddieRepository}: {
     return output;
 }
 
-export const FormatIntent = ({currentActivity, actingDynamicId, squaddieRepository}: {
-    currentActivity: SquaddieActivity,
+export const FormatIntent = ({currentAction, actingDynamicId, squaddieRepository}: {
+    currentAction: SquaddieAction,
     actingDynamicId: string,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {
     const {staticSquaddie: actingStaticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(actingDynamicId))
 
     let output: string[] = [];
-    output.push(`${actingStaticSquaddie.squaddieId.name} uses ${currentActivity.name}`);
+    output.push(`${actingStaticSquaddie.squaddieId.name} uses ${currentAction.name}`);
 
     return output;
 }

@@ -3,7 +3,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/battleSquaddieSelectedHUD";
-import {SquaddieEndTurnActivity} from "../../battle/history/squaddieEndTurnActivity";
+import {SquaddieEndTurnAction} from "../../battle/history/squaddieEndTurnAction";
 import {RectArea} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
 import {makeResult} from "../ResultOrError";
@@ -66,8 +66,8 @@ export const mockResourceHandler = () => {
 export const battleSquaddieSelectedHUD = () => {
     const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
     hud.draw = jest.fn();
-    hud.wasActivitySelected = jest.fn().mockReturnValue(true);
-    hud.getSelectedActivity = jest.fn().mockReturnValue(new SquaddieEndTurnActivity());
+    hud.wasAnyActionSelected = jest.fn().mockReturnValue(true);
+    hud.getSelectedAction = jest.fn().mockReturnValue(new SquaddieEndTurnAction());
     hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
     hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
     hud.mouseClicked = jest.fn();

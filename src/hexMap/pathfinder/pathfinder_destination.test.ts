@@ -32,7 +32,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
                 stopLocation: new HexCoordinate({q: 0, r: 1}),
             })
         }));
@@ -80,7 +80,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
             })
         }));
 
@@ -109,7 +109,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
             })
         })));
 
@@ -137,7 +137,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
                 stopLocation: new HexCoordinate({q: 9000, r: 2}),
             })
         }));
@@ -164,7 +164,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
                 stopLocation: new HexCoordinate({q: 0, r: 0}),
             })
         }));
@@ -304,7 +304,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
                 stopLocation: new HexCoordinate({q: 0, r: 4}),
             })
         }));
@@ -360,7 +360,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 2,
+                numberOfActionPoints: 2,
                 stopLocation: new HexCoordinate({q: 0, r: 4}),
             })
         }));
@@ -389,7 +389,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
                 stopLocation: new HexCoordinate({q: 0, r: 4}),
             })
         }));
@@ -441,7 +441,7 @@ describe('pathfinder reaching a destination', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 3,
+                numberOfActionPoints: 3,
                 stopLocation: new HexCoordinate({q: 2, r: 2}),
             })
         })));

@@ -1,5 +1,5 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
@@ -12,8 +12,8 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
-import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {
@@ -21,7 +21,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {Label} from "../../ui/label";
-import * as activityResultTextWriter from "./activityResultTextWriter";
+import * as actionResultTextWriter from "./actionResultTextWriter";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -29,7 +29,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let monkStaticId = "monk static";
     let monkDynamicId = "monk dynamic";
-    let monkKoanActivity: SquaddieActivity;
+    let monkKoanAction: SquaddieAction;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: SquaddieInstructionInProgress;
 
@@ -42,7 +42,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        monkKoanActivity = new SquaddieActivity({
+        monkKoanAction = new SquaddieAction({
             id: "koan",
             name: "koan",
             traits: new TraitStatusStorage({
@@ -54,7 +54,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
         squaddieRepository = new BattleSquaddieRepository();
         CreateNewSquaddieAndAddToRepository({
-            activities: [monkKoanActivity],
+            actions: [monkKoanAction],
             affiliation: SquaddieAffiliation.PLAYER,
             dynamicId: monkDynamicId,
             name: "Monk",
@@ -63,20 +63,20 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         });
 
         battleEventRecording = new Recording({});
-        const oneActionInstruction = new SquaddieActivitiesForThisRound({
+        const oneActionInstruction = new SquaddieActionsForThisRound({
             staticSquaddieId: monkStaticId,
             dynamicSquaddieId: monkDynamicId,
         });
-        oneActionInstruction.addActivity(new SquaddieSquaddieActivity({
+        oneActionInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieActivity: monkKoanActivity,
+            squaddieAction: monkKoanAction,
         }));
 
         monkMeditatesInstruction = new SquaddieInstructionInProgress({
-            activitiesForThisRound: oneActionInstruction,
-            currentSquaddieActivity: monkKoanActivity,
+            actionsForThisRound: oneActionInstruction,
+            currentSquaddieAction: monkKoanAction,
         });
-        monkMeditatesInstruction.addSelectedActivity(monkKoanActivity);
+        monkMeditatesInstruction.addSelectedAction(monkKoanAction);
 
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,
@@ -92,7 +92,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
-    it('will create a text window with the activity results', () => {
+    it('will create a text window with the action results', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: monkMeditatesInstruction,
             squaddieRepo: squaddieRepository,
@@ -100,7 +100,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             battleEventRecording,
         })
 
-        const formatResultSpy = jest.spyOn(activityResultTextWriter, "FormatResult");
+        const formatResultSpy = jest.spyOn(actionResultTextWriter, "FormatResult");
         const drawLabelSpy = jest.spyOn(Label.prototype, "draw");
 
         animator.reset(state);
@@ -109,7 +109,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         expect(animator.outputTextDisplay).not.toBeUndefined();
         expect(formatResultSpy).toBeCalled();
         expect(formatResultSpy).toBeCalledWith({
-            currentActivity: monkKoanActivity,
+            currentAction: monkKoanAction,
             result: monkMeditatesEvent.results,
             squaddieRepository,
         });

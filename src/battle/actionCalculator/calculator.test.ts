@@ -1,7 +1,7 @@
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -76,7 +76,7 @@ describe('calculator', () => {
         });
 
         it('will deal full damage to unarmored foes', () => {
-            const activityDealsBodyDamage = new SquaddieActivity({
+            const actionDealsBodyDamage = new SquaddieAction({
                 id: "deal body damage",
                 name: "deal body damage",
                 traits: new TraitStatusStorage({
@@ -89,7 +89,7 @@ describe('calculator', () => {
             });
 
             const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieActivity: activityDealsBodyDamage
+                currentSquaddieAction: actionDealsBodyDamage
             });
 
             const results = CalculateResults(
@@ -106,7 +106,7 @@ describe('calculator', () => {
         });
 
         it('will heal fully damage to allies', () => {
-            const healsLostHitPoints = new SquaddieActivity({
+            const healsLostHitPoints = new SquaddieAction({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
                 traits: new TraitStatusStorage({
@@ -121,7 +121,7 @@ describe('calculator', () => {
             ally1DynamicSquaddie.inBattleAttributes.takeDamage(ally1DynamicSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
 
             const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieActivity: healsLostHitPoints
+                currentSquaddieAction: healsLostHitPoints
             });
 
             const results = CalculateResults(

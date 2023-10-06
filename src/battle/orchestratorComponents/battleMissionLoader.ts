@@ -14,7 +14,7 @@ import {SquaddieResource} from "../../squaddie/resource";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
@@ -191,18 +191,18 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
                 }),
-                activities: [
-                    new SquaddieActivity({
+                actions: [
+                    new SquaddieAction({
                         name: "water cannon",
                         id: "torrin_water_cannon",
                         minimumRange: 0,
                         maximumRange: 2,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION),
                         damageDescriptions: {
                             [DamageType.Body]: 2
                         }
                     }),
-                    new SquaddieActivity({
+                    new SquaddieAction({
                         name: "healing touch",
                         id: "young_torrin_healing_touch",
                         minimumRange: 0,
@@ -211,8 +211,8 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             [Trait.SKIP_ANIMATION]: true,
                             [Trait.TARGETS_ALLIES]: true,
                             [Trait.HEALING]: true,
-                        }).filterCategory(TraitCategory.ACTIVITY),
-                        actionsToSpend: 2,
+                        }).filterCategory(TraitCategory.ACTION),
+                        actionPointCost: 2,
                         healingDescriptions: {[HealingType.LostHitPoints]: 2}
                     })
                 ],
@@ -253,13 +253,13 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     }).filterCategory(TraitCategory.CREATURE),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                activities: [
-                    new SquaddieActivity({
+                actions: [
+                    new SquaddieAction({
                         name: "longsword",
                         id: "sir_camil_longsword",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION),
                         damageDescriptions: {
                             [DamageType.Body]: 2
                         }
@@ -301,13 +301,13 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 }).filterCategory(TraitCategory.CREATURE),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
-            activities: [
-                new SquaddieActivity({
+            actions: [
+                new SquaddieAction({
                     name: "Bite",
                     id: "demon_slither_bite",
                     minimumRange: 0,
                     maximumRange: 1,
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY),
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION),
                     damageDescriptions: {
                         [DamageType.Body]: 1
                     }

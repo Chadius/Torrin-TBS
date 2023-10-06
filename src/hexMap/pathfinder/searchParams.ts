@@ -129,7 +129,7 @@ export class SearchMovement {
 }
 
 export type SearchStopConditionOptions = {
-    numberOfActions?: number;
+    numberOfActionPoints?: number;
     stopLocation?: HexCoordinate;
 }
 
@@ -138,11 +138,11 @@ export class SearchStopCondition {
     private readonly _stopLocation?: HexCoordinate;
 
     constructor({
-                    numberOfActions,
+                    numberOfActionPoints,
                     stopLocation,
                 }: SearchStopConditionOptions
     ) {
-        this._numberOfActions = numberOfActions;
+        this._numberOfActions = numberOfActionPoints;
         this._stopLocation = stopLocation;
     }
 

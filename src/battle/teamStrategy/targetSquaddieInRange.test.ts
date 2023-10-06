@@ -3,18 +3,18 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
-import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 
-describe('target a squaddie within reach of activities', () => {
+describe('target a squaddie within reach of actions', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let missionMap: MissionMap;
     let enemyBanditStatic: BattleSquaddieStatic;
@@ -23,22 +23,22 @@ describe('target a squaddie within reach of activities', () => {
     let playerKnightDynamic: BattleSquaddieDynamic;
     let allyClericStatic: BattleSquaddieStatic;
     let allyClericDynamic: BattleSquaddieDynamic;
-    let shortBowActivity: SquaddieActivity;
+    let shortBowAction: SquaddieAction;
     let enemyTeam: BattleSquaddieTeam;
-    let expectedInstruction: SquaddieActivitiesForThisRound;
+    let expectedInstruction: SquaddieActionsForThisRound;
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
 
-        shortBowActivity = new SquaddieActivity({
+        shortBowAction = new SquaddieAction({
             name: "short bow",
             id: "short_bow",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 2,
-            actionsToSpend: 2,
+            actionPointCost: 2,
         });
 
         ({
@@ -50,7 +50,7 @@ describe('target a squaddie within reach of activities', () => {
             name: "Bandit",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
-            activities: [shortBowActivity],
+            actions: [shortBowAction],
         }));
 
         ({
@@ -90,7 +90,7 @@ describe('target a squaddie within reach of activities', () => {
         });
         enemyTeam.addDynamicSquaddieIds([enemyBanditDynamic.dynamicSquaddieId]);
 
-        expectedInstruction = new SquaddieActivitiesForThisRound({
+        expectedInstruction = new SquaddieActionsForThisRound({
             staticSquaddieId: enemyBanditStatic.staticId,
             dynamicSquaddieId: enemyBanditDynamic.dynamicSquaddieId,
             startingLocation: new HexCoordinate({q: 0, r: 0}),
@@ -108,7 +108,7 @@ describe('target a squaddie within reach of activities', () => {
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredAffiliation: SquaddieAffiliation.PLAYER
         });
-        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -145,12 +145,12 @@ describe('target a squaddie within reach of activities', () => {
             desiredDynamicSquaddieId: playerKnightDynamic.dynamicSquaddieId,
         });
 
-        expectedInstruction.addActivity(new SquaddieSquaddieActivity({
+        expectedInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({coordinates: [0, 1]}),
-            squaddieActivity: shortBowActivity,
+            squaddieAction: shortBowAction,
         }));
 
-        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
@@ -167,12 +167,12 @@ describe('target a squaddie within reach of activities', () => {
             desiredAffiliation: SquaddieAffiliation.ALLY
         });
 
-        expectedInstruction.addActivity(new SquaddieSquaddieActivity({
+        expectedInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({coordinates: [0, 2]}),
-            squaddieActivity: shortBowActivity,
+            squaddieAction: shortBowAction,
         }));
 
-        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
@@ -188,14 +188,14 @@ describe('target a squaddie within reach of activities', () => {
             desiredAffiliation: SquaddieAffiliation.ALLY
         });
 
-        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toBeUndefined();
     });
 
-    it('will not use an activity if there are not enough actions remaining', () => {
+    it('will not use an action if there are not enough action points remaining', () => {
         missionMap.addSquaddie(playerKnightStatic.staticId, playerKnightDynamic.dynamicSquaddieId, new HexCoordinate({coordinates: [0, 1]}));
         missionMap.addSquaddie(allyClericStatic.staticId, allyClericDynamic.dynamicSquaddieId, new HexCoordinate({coordinates: [0, 2]}));
-        enemyBanditDynamic.squaddieTurn.spendNumberActions(4 - shortBowActivity.actionsToSpend);
+        enemyBanditDynamic.squaddieTurn.spendActionPoints(4 - shortBowAction.actionPointCost);
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -206,23 +206,23 @@ describe('target a squaddie within reach of activities', () => {
             desiredDynamicSquaddieId: playerKnightDynamic.dynamicSquaddieId,
         });
 
-        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toBeUndefined();
     });
 
     it('will add to existing instruction', () => {
         missionMap.addSquaddie(playerKnightStatic.staticId, playerKnightDynamic.dynamicSquaddieId, new HexCoordinate({coordinates: [0, 1]}));
 
-        const startingInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+        const startingInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             staticSquaddieId: enemyBanditStatic.staticId,
             dynamicSquaddieId: enemyBanditDynamic.dynamicSquaddieId,
             startingLocation: new HexCoordinate({coordinates: [0, 0]})
         });
-        const enemyBanditMoves = new SquaddieMovementActivity({
+        const enemyBanditMoves = new SquaddieMovementAction({
             destination: new HexCoordinate({coordinates: [0, 0]}),
-            numberOfActionsSpent: 1,
+            numberOfActionPointsSpent: 1,
         });
-        startingInstruction.addActivity(enemyBanditMoves);
+        startingInstruction.addAction(enemyBanditMoves);
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -234,28 +234,28 @@ describe('target a squaddie within reach of activities', () => {
             desiredDynamicSquaddieId: playerKnightDynamic.dynamicSquaddieId,
         });
 
-        expectedInstruction.addActivity(enemyBanditMoves);
-        expectedInstruction.addActivity(new SquaddieSquaddieActivity({
+        expectedInstruction.addAction(enemyBanditMoves);
+        expectedInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({coordinates: [0, 1]}),
-            squaddieActivity: shortBowActivity,
+            squaddieAction: shortBowAction,
         }));
 
-        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('will not change the currently acting squaddie', () => {
-        const longBowActivity = new SquaddieActivity({
+        const longBowAction = new SquaddieAction({
             name: "long bow",
             id: "long_bow",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 2,
-            actionsToSpend: 2,
+            actionPointCost: 2,
         });
 
         const {
@@ -267,22 +267,22 @@ describe('target a squaddie within reach of activities', () => {
             name: "Bandit",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
-            activities: [longBowActivity],
+            actions: [longBowAction],
         });
         enemyTeam.addDynamicSquaddieIds([enemyBanditDynamic2.dynamicSquaddieId]);
         missionMap.addSquaddie(enemyBanditStatic2.staticId, enemyBanditDynamic2.dynamicSquaddieId, new HexCoordinate({coordinates: [0, 1]}));
         missionMap.addSquaddie(playerKnightStatic.staticId, playerKnightDynamic.dynamicSquaddieId, new HexCoordinate({coordinates: [0, 2]}));
 
-        const startingInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+        const startingInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             staticSquaddieId: enemyBanditStatic.staticId,
             dynamicSquaddieId: enemyBanditDynamic.dynamicSquaddieId,
             startingLocation: new HexCoordinate({coordinates: [0, 0]})
         });
-        const enemyBanditMoves = new SquaddieMovementActivity({
+        const enemyBanditMoves = new SquaddieMovementAction({
             destination: new HexCoordinate({coordinates: [0, 0]}),
-            numberOfActionsSpent: 1,
+            numberOfActionPointsSpent: 1,
         });
-        startingInstruction.addActivity(enemyBanditMoves);
+        startingInstruction.addAction(enemyBanditMoves);
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -295,13 +295,13 @@ describe('target a squaddie within reach of activities', () => {
             desiredDynamicSquaddieId: playerKnightDynamic.dynamicSquaddieId,
         });
 
-        expectedInstruction.addActivity(enemyBanditMoves);
-        expectedInstruction.addActivity(new SquaddieSquaddieActivity({
+        expectedInstruction.addAction(enemyBanditMoves);
+        expectedInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({coordinates: [0, 2]}),
-            squaddieActivity: shortBowActivity,
+            squaddieAction: shortBowAction,
         }));
 
-        const actualInstruction: SquaddieActivitiesForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });

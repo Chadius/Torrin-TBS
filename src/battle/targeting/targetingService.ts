@@ -1,4 +1,4 @@
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {MissionMap, MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -38,14 +38,14 @@ export class TargetingResults {
 
 export const FindValidTargets = ({
                                      map,
-                                     activity,
+                                     action,
                                      actingStaticSquaddie,
                                      actingDynamicSquaddie,
                                      squaddieRepository,
                                      sourceTiles,
                                  }: {
     map: MissionMap,
-    activity: SquaddieActivity,
+    action: SquaddieAction,
     actingStaticSquaddie: BattleSquaddieStatic,
     actingDynamicSquaddie: BattleSquaddieDynamic,
     squaddieRepository: BattleSquaddieRepository,
@@ -63,13 +63,13 @@ export const FindValidTargets = ({
             movement: new SearchMovement({
                 canStopOnSquaddies: true,
                 ignoreTerrainPenalty: true,
-                minimumDistanceMoved: activity.minimumRange,
-                maximumDistanceMoved: activity.maximumRange,
+                minimumDistanceMoved: action.minimumRange,
+                maximumDistanceMoved: action.maximumRange,
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({}),
         }),
-        activity.maximumRange,
+        action.maximumRange,
         sourceTiles && sourceTiles.length > 0 ? sourceTiles : [squaddieInfo.mapLocation],
     )
 

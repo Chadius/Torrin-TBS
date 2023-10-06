@@ -1,4 +1,4 @@
-export class ActivityResultOnSquaddie {
+export class ActionResultPerSquaddie {
     private readonly _damageTaken: number;
     private readonly _healingReceived: number;
 

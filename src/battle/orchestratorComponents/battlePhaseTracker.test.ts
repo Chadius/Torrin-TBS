@@ -28,7 +28,7 @@ describe('battlePhaseTracker', () => {
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                activities: [],
+                actions: [],
             })
         );
         squaddieRepo.addDynamicSquaddie(
@@ -48,7 +48,7 @@ describe('battlePhaseTracker', () => {
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
-                activities: [],
+                actions: [],
             })
         );
         squaddieRepo.addDynamicSquaddie(
@@ -68,7 +68,7 @@ describe('battlePhaseTracker', () => {
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ALLY,
                 }),
-                activities: [],
+                actions: [],
             })
         );
         squaddieRepo.addDynamicSquaddie(
@@ -88,7 +88,7 @@ describe('battlePhaseTracker', () => {
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.NONE,
                 }),
-                activities: [],
+                actions: [],
             })
         );
         squaddieRepo.addDynamicSquaddie(

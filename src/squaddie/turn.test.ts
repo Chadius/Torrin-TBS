@@ -1,64 +1,64 @@
-import {SquaddieActivity} from "./activity";
-import {ACTIVITY_PERFORM_FAILURE_REASON, SquaddieTurn} from "./turn";
+import {SquaddieAction} from "./action";
+import {ACTION_PERFORM_FAILURE_REASON, SquaddieTurn} from "./turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 
 describe('Squaddie turn and resources', () => {
     describe('actions', () => {
         let turn: SquaddieTurn;
-        let activitySpends2Actions: SquaddieActivity;
+        let actionSpends2ActionPoints: SquaddieAction;
         beforeEach(() => {
             turn = new SquaddieTurn();
-            activitySpends2Actions = new SquaddieActivity({
-                id: "activitySpends2Actions",
+            actionSpends2ActionPoints = new SquaddieAction({
+                id: "actionSpends2ActionPoints",
                 name: "Power Attack",
-                actionsToSpend: 2,
-                traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                actionPointCost: 2,
+                traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION)
             })
         })
 
-        it('should start with 3 actions', () => {
-            expect(turn.remainingNumberOfActions).toBe(3);
+        it('should start with 3 action points', () => {
+            expect(turn.remainingActionPoints).toBe(3);
         });
         it('should spend 1 action by default', () => {
-            turn.spendActionsOnActivity(
-                new SquaddieActivity({
+            turn.spendActionPointsOnAction(
+                new SquaddieAction({
                     id: "strike",
                     name: "longsword",
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTIVITY)
+                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION)
                 })
             );
-            expect(turn.remainingNumberOfActions).toBe(2);
+            expect(turn.remainingActionPoints).toBe(2);
         });
-        it('should spend multiple actions if activity uses more', () => {
-            turn.spendActionsOnActivity(activitySpends2Actions);
-            expect(turn.remainingNumberOfActions).toBe(1);
+        it('should spend multiple actions if action uses more', () => {
+            turn.spendActionPointsOnAction(actionSpends2ActionPoints);
+            expect(turn.remainingActionPoints).toBe(1);
         });
-        it('should report when an activity cannot be spent', () => {
-            turn.spendActionsOnActivity(activitySpends2Actions);
-            const query = turn.canPerformActivity(activitySpends2Actions);
+        it('should report when an action cannot be spent', () => {
+            turn.spendActionPointsOnAction(actionSpends2ActionPoints);
+            const query = turn.canPerformAction(actionSpends2ActionPoints);
             expect(query.canPerform).toBeFalsy();
-            expect(query.reason).toBe(ACTIVITY_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING);
+            expect(query.reason).toBe(ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING);
         });
-        it('should give 3 actions upon starting a new round', () => {
-            turn.spendActionsOnActivity(activitySpends2Actions);
+        it('should give 3 action points upon starting a new round', () => {
+            turn.spendActionPointsOnAction(actionSpends2ActionPoints);
             turn.beginNewRound();
-            expect(turn.remainingNumberOfActions).toBe(3);
+            expect(turn.remainingActionPoints).toBe(3);
         });
-        it('can spend arbitrary number of actions', () => {
+        it('can spend arbitrary number of action points', () => {
             turn.beginNewRound();
-            turn.spendNumberActions(1);
-            expect(turn.remainingNumberOfActions).toBe(2);
+            turn.spendActionPoints(1);
+            expect(turn.remainingActionPoints).toBe(2);
         });
-        it('knows when it is out of actions', () => {
-            expect(turn.hasActionsRemaining()).toBeTruthy();
-            turn.spendNumberActions(3);
-            expect(turn.hasActionsRemaining()).toBeFalsy();
+        it('knows when it is out of action points', () => {
+            expect(turn.hasActionPointsRemaining()).toBeTruthy();
+            turn.spendActionPoints(3);
+            expect(turn.hasActionPointsRemaining()).toBeFalsy();
             turn.beginNewRound();
-            expect(turn.hasActionsRemaining()).toBeTruthy();
+            expect(turn.hasActionPointsRemaining()).toBeTruthy();
         });
         it('can end its turn', () => {
             turn.endTurn();
-            expect(turn.hasActionsRemaining()).toBeFalsy();
+            expect(turn.hasActionPointsRemaining()).toBeFalsy();
         });
     });
 });

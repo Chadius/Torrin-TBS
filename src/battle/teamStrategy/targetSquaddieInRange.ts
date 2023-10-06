@@ -1,12 +1,12 @@
 import {TeamStrategy} from "./teamStrategy";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FindValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
-import {SquaddieActivity} from "../../squaddie/activity";
-import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
+import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export class TargetSquaddieInRange implements TeamStrategy {
@@ -21,7 +21,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieActivitiesForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
         if (!this.desiredDynamicSquaddieId && !this.desiredAffiliation) {
             throw new Error("Target Squaddie In Range strategy has no target");
         }
@@ -49,18 +49,18 @@ export class TargetSquaddieInRange implements TeamStrategy {
         return actingSquaddie;
     }
 
-    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingSquaddieDynamicId: string): SquaddieActivitiesForThisRound | undefined {
+    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingSquaddieDynamicId: string): SquaddieActionsForThisRound | undefined {
         const {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(actingSquaddieDynamicId));
 
-        const validActivities = staticSquaddie.activities.filter((activity) => {
-            return dynamicSquaddie.squaddieTurn.canPerformActivity(activity).canPerform === true;
+        const validActions = staticSquaddie.action.filter((action) => {
+            return dynamicSquaddie.squaddieTurn.canPerformAction(action).canPerform === true;
         });
 
-        const targetingResultsInfo = this.getTargetingResultsOfActivityWithTargets({
-            activities: validActivities,
+        const targetingResultsInfo = this.getTargetingResultsOfActionWithTargets({
+            actions: validActions,
             dynamicSquaddie,
             state,
             staticSquaddie,
@@ -77,7 +77,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
                 squaddieToTarget: this.desiredDynamicSquaddieId,
                 actingSquaddieDynamic: dynamicSquaddie,
                 actingSquaddieStatic: staticSquaddie,
-                activity: targetingResultsInfo.activity,
+                action: targetingResultsInfo.action,
             });
             if (modifiedInstruction !== undefined) {
                 return modifiedInstruction;
@@ -99,7 +99,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
                 squaddieToTarget: squaddiesOfDesiredAffiliation[0],
                 actingSquaddieDynamic: dynamicSquaddie,
                 actingSquaddieStatic: staticSquaddie,
-                activity: targetingResultsInfo.activity,
+                action: targetingResultsInfo.action,
             });
             if (modifiedInstruction !== undefined) {
                 return modifiedInstruction;
@@ -109,24 +109,24 @@ export class TargetSquaddieInRange implements TeamStrategy {
         return undefined;
     }
 
-    private getTargetingResultsOfActivityWithTargets({
+    private getTargetingResultsOfActionWithTargets({
                                                          state,
                                                          staticSquaddie,
                                                          dynamicSquaddie,
-                                                         activities,
+                                                         actions,
                                                      }: {
         state: TeamStrategyState,
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic
-        activities: SquaddieActivity[]
+        actions: SquaddieAction[]
     }): {
-        activity: SquaddieActivity,
+        action: SquaddieAction,
         targetingResults: TargetingResults,
     } | undefined {
-        let activitiesWithTargets = activities.map((activity) => {
+        let actionsWithTargets = actions.map((action) => {
             const results: TargetingResults = FindValidTargets({
                 map: state.missionMap,
-                activity: activity,
+                action: action,
                 actingStaticSquaddie: staticSquaddie,
                 actingDynamicSquaddie: dynamicSquaddie,
                 squaddieRepository: state.squaddieRepository,
@@ -134,40 +134,40 @@ export class TargetSquaddieInRange implements TeamStrategy {
 
             if (results.dynamicSquaddieIdsInRange.length > 0) {
                 return {
-                    activity,
+                    action: action,
                     targetingResults: results,
                 };
             }
             return undefined;
         }).filter(x => x !== undefined);
 
-        return activitiesWithTargets[0];
+        return actionsWithTargets[0];
     }
 
     private createNewInstruction({
                                      actingSquaddieStatic,
                                      actingSquaddieDynamic,
                                      actingSquaddieMapLocation,
-                                     actingSquaddieActivity,
+                                     actingSquaddieAction,
                                      targetLocation,
                                  }: {
         actingSquaddieStatic: BattleSquaddieStatic,
         actingSquaddieDynamic: BattleSquaddieDynamic,
         actingSquaddieMapLocation: HexCoordinate | undefined,
-        actingSquaddieActivity: SquaddieActivity,
+        actingSquaddieAction: SquaddieAction,
         targetLocation: HexCoordinate,
     }) {
-        const instruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+        const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             dynamicSquaddieId: actingSquaddieDynamic.dynamicSquaddieId,
             staticSquaddieId: actingSquaddieStatic.staticId,
             startingLocation: actingSquaddieMapLocation,
         });
-        return this.addActivityToInstruction(instruction, actingSquaddieActivity, targetLocation);
+        return this.addActionToInstruction(instruction, actingSquaddieAction, targetLocation);
     }
 
-    private addActivityToInstruction(instruction: SquaddieActivitiesForThisRound, activity: SquaddieActivity, targetLocation: HexCoordinate) {
-        instruction.addActivity(new SquaddieSquaddieActivity({
-            squaddieActivity: activity,
+    private addActionToInstruction(instruction: SquaddieActionsForThisRound, action: SquaddieAction, targetLocation: HexCoordinate) {
+        instruction.addAction(new SquaddieSquaddieAction({
+            squaddieAction: action,
             targetLocation: targetLocation,
         }));
         return instruction;
@@ -178,20 +178,20 @@ export class TargetSquaddieInRange implements TeamStrategy {
                                                squaddieToTarget,
                                                actingSquaddieDynamic,
                                                actingSquaddieStatic,
-                                               activity,
+                                               action,
                                            }: {
         state: TeamStrategyState,
         squaddieToTarget: string,
         actingSquaddieDynamic: BattleSquaddieDynamic,
         actingSquaddieStatic: BattleSquaddieStatic
-        activity: SquaddieActivity
-    }): SquaddieActivitiesForThisRound | undefined {
+        action: SquaddieAction
+    }): SquaddieActionsForThisRound | undefined {
         const targetingSquaddieMapDatum = state.missionMap.getSquaddieByDynamicId(actingSquaddieDynamic.dynamicSquaddieId);
         const desiredSquaddieMapDatum = state.missionMap.getSquaddieByDynamicId(squaddieToTarget);
         if (desiredSquaddieMapDatum.isValid()) {
             if (state.instruction === undefined) {
                 const instruction = this.createNewInstruction({
-                    actingSquaddieActivity: activity,
+                    actingSquaddieAction: action,
                     actingSquaddieDynamic,
                     actingSquaddieStatic,
                     actingSquaddieMapLocation: targetingSquaddieMapDatum.mapLocation,
@@ -203,9 +203,9 @@ export class TargetSquaddieInRange implements TeamStrategy {
                     return instruction;
                 }
             } else {
-                state.instruction.addActivity(new SquaddieSquaddieActivity({
+                state.instruction.addAction(new SquaddieSquaddieAction({
                     targetLocation: desiredSquaddieMapDatum.mapLocation,
-                    squaddieActivity: activity,
+                    squaddieAction: action,
                 }));
                 return state.instruction;
             }

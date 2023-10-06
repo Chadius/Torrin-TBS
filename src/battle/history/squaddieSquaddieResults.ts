@@ -1,9 +1,9 @@
-import {ActivityResultOnSquaddie} from "./activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "./actionResultPerSquaddie";
 
 export class SquaddieSquaddieResults {
     actingSquaddieDynamicId: string;
     targetedSquaddieDynamicIds: string[];
-    resultPerTarget: { [dynamicId: string]: ActivityResultOnSquaddie }
+    resultPerTarget: { [dynamicId: string]: ActionResultPerSquaddie }
 
     constructor({
                     actingSquaddieDynamicId,
@@ -12,7 +12,7 @@ export class SquaddieSquaddieResults {
                 }: {
         actingSquaddieDynamicId?: string;
         targetedSquaddieDynamicIds?: string[];
-        resultPerTarget?: { [_: string]: ActivityResultOnSquaddie }
+        resultPerTarget?: { [_: string]: ActionResultPerSquaddie }
     }) {
         this.actingSquaddieDynamicId = actingSquaddieDynamicId ?? "";
         this.targetedSquaddieDynamicIds = targetedSquaddieDynamicIds ?? [];

@@ -43,8 +43,8 @@ export const GetCutsceneTriggersToActivate = (
 ) => {
     const squaddieActionCompleteModes = [
         BattleOrchestratorMode.SQUADDIE_MOVER,
-        BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
-        BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY,
+        BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
+        BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
     ];
 
     const startOfPhaseModes = [

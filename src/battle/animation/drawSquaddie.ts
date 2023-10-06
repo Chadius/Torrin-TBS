@@ -35,8 +35,8 @@ export const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContex
         squaddieHasThePlayerControlledAffiliation,
         squaddieCanCurrentlyAct
     } = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie})
-    const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
-    if (squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct && normalActionsRemaining < 3) {
+    const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
+    if (squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct && actionPointsRemaining < 3) {
         drawSquaddieActions(graphicsContext, staticSquaddie, dynamicSquaddie, mapLocation, camera);
     }
     dynamicSquaddie.mapIcon.draw(graphicsContext);
@@ -72,21 +72,21 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, staticSqua
 
     background.draw(graphicsContext);
 
-    const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
-    const heightFromRemainingActions = actionDrawingArea.height * normalActionsRemaining / 3;
-    const numberOfActionsArea: RectArea = new RectArea({
-        top: actionDrawingArea.bottom - heightFromRemainingActions,
+    const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
+    const heightFromRemainingActionPoints = actionDrawingArea.height * actionPointsRemaining / 3;
+    const numberOfActionPointsArea: RectArea = new RectArea({
+        top: actionDrawingArea.bottom - heightFromRemainingActionPoints,
         bottom: actionDrawingArea.bottom,
         left: actionDrawingArea.left,
         width: actionDrawingArea.width,
     });
 
-    const numberOfActionsRect: Rectangle = new Rectangle({
-        area: numberOfActionsArea,
+    const numberOfActionPointsRect: Rectangle = new Rectangle({
+        area: numberOfActionPointsArea,
         fillColor: [squaddieAffiliationHue, 50, 85],
     })
 
-    numberOfActionsRect.draw(graphicsContext);
+    numberOfActionPointsRect.draw(graphicsContext);
 }
 
 export const TintSquaddieIfTurnIsComplete = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) => {

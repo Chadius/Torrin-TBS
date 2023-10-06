@@ -1,25 +1,25 @@
 import {RectArea} from "../ui/rectArea";
-import {SquaddieActivity} from "./activity";
+import {SquaddieAction} from "./action";
 import {Rectangle} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {SquaddieEndTurnActivity} from "../battle/history/squaddieEndTurnActivity";
+import {SquaddieEndTurnAction} from "../battle/history/squaddieEndTurnAction";
 import {TextBox} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 
-export class ActivityButton {
+export class UseActionButton {
     buttonArea: RectArea;
-    activity: SquaddieActivity | SquaddieEndTurnActivity;
+    action: SquaddieAction | SquaddieEndTurnAction;
     hue: number;
 
     constructor(options: {
         buttonArea?: RectArea;
-        activity?: SquaddieActivity | SquaddieEndTurnActivity;
+        action?: SquaddieAction | SquaddieEndTurnAction;
         hue?: number;
     }) {
         this.buttonArea = options.buttonArea;
-        this.activity = options.activity;
+        this.action = options.action;
         this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];
     }
 
@@ -55,11 +55,11 @@ export class ActivityButton {
             hoverOutline.draw(graphicsContext);
         }
 
-        let activityButtonText: string;
-        if (this.activity instanceof SquaddieEndTurnActivity) {
-            activityButtonText = "End Turn";
+        let actionDescription: string;
+        if (this.action instanceof SquaddieEndTurnAction) {
+            actionDescription = "End Turn";
         } else {
-            activityButtonText = this.activity.name;
+            actionDescription = this.action.name;
         }
 
         const buttonTextBox: TextBox = new TextBox({
@@ -70,7 +70,7 @@ export class ActivityButton {
                 height: background.area.height,
             }),
             fontColor: [0, 0, 192],
-            text: activityButtonText,
+            text: actionDescription,
             textSize: 12,
         });
 

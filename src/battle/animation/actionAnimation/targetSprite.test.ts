@@ -1,4 +1,4 @@
-import {ActivityResultOnSquaddie} from "../../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -13,8 +13,8 @@ import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 
 describe('Target Sprite', () => {
-    let resultTookDamage: ActivityResultOnSquaddie;
-    let resultTookLethalDamage: ActivityResultOnSquaddie;
+    let resultTookDamage: ActionResultPerSquaddie;
+    let resultTookLethalDamage: ActionResultPerSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
     const dynamicSquaddieId = "target0";
@@ -37,8 +37,8 @@ describe('Target Sprite', () => {
 
         const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
-        resultTookDamage = new ActivityResultOnSquaddie({damageTaken: 1});
-        resultTookLethalDamage = new ActivityResultOnSquaddie({damageTaken: staticSquaddie.attributes.maxHitPoints});
+        resultTookDamage = new ActionResultPerSquaddie({damageTaken: 1});
+        resultTookLethalDamage = new ActionResultPerSquaddie({damageTaken: staticSquaddie.attributes.maxHitPoints});
 
         timer = new ActionTimer();
         timer.start();
@@ -55,7 +55,7 @@ describe('Target Sprite', () => {
         const getSquaddieEmotionSpy = jest.spyOn(sprite, "getSquaddieEmotion").mockReturnValue(SquaddieEmotion.NEUTRAL);
 
         sprite.start({
-            activity: undefined,
+            action: undefined,
             resourceHandler: undefined,
             result: resultTookDamage,
             squaddieRepository,
@@ -80,7 +80,7 @@ describe('Target Sprite', () => {
             timer,
             dynamicSquaddieId,
             squaddieRepository,
-            activityResult: resultTookDamage,
+            result: resultTookDamage,
         });
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
@@ -93,7 +93,7 @@ describe('Target Sprite', () => {
             timer,
             dynamicSquaddieId,
             squaddieRepository,
-            activityResult: resultTookDamage,
+            result: resultTookDamage,
         });
 
         expect(emotion).toBe(SquaddieEmotion.TARGETED);
@@ -106,7 +106,7 @@ describe('Target Sprite', () => {
             timer,
             dynamicSquaddieId,
             squaddieRepository,
-            activityResult: resultTookDamage,
+            result: resultTookDamage,
         });
 
         expect(emotion).toBe(SquaddieEmotion.DAMAGED);
@@ -120,7 +120,7 @@ describe('Target Sprite', () => {
             timer,
             dynamicSquaddieId,
             squaddieRepository,
-            activityResult: resultTookLethalDamage,
+            result: resultTookLethalDamage,
         });
 
         expect(emotion).toBe(SquaddieEmotion.DEAD);
@@ -131,16 +131,16 @@ describe('Target Sprite', () => {
         const tests = [
             {
                 name: 'deals nonlethal damage',
-                activityResult: resultTookDamage,
+                result: resultTookDamage,
             },
             {
                 name: 'deals lethal damage',
-                activityResult: resultTookLethalDamage,
+                result: resultTookLethalDamage,
             }
         ]
         it.each(tests)(`$name will show the same emotion`, ({
                                                                 name,
-                                                                activityResult,
+                                                                result,
                                                             }) => {
             const sprite = new TargetSprite();
             mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
@@ -148,7 +148,7 @@ describe('Target Sprite', () => {
                 timer,
                 dynamicSquaddieId,
                 squaddieRepository,
-                activityResult,
+                result,
             });
 
             const showingResultsSpy = mockActionTimerPhase(ActionAnimationPhase.SHOWING_RESULTS);
@@ -156,7 +156,7 @@ describe('Target Sprite', () => {
                 timer,
                 dynamicSquaddieId,
                 squaddieRepository,
-                activityResult,
+                result,
             })).toBe(targetReactsEmotion);
             expect(showingResultsSpy).toBeCalled();
 
@@ -165,7 +165,7 @@ describe('Target Sprite', () => {
                 timer,
                 dynamicSquaddieId,
                 squaddieRepository,
-                activityResult,
+                result,
             })).toBe(targetReactsEmotion);
             expect(finishedShowingResultsSpy).toBeCalled();
         });

@@ -9,6 +9,6 @@ export const updateSquaddieLocation = (dynamicSquaddie: BattleSquaddieDynamic, s
     }
 }
 
-export const spendSquaddieActions = (dynamicSquaddie: BattleSquaddieDynamic, numberOfActionsSpent: number) => {
-    dynamicSquaddie.squaddieTurn.spendNumberActions(numberOfActionsSpent);
+export const spendSquaddieActionPoints = (dynamicSquaddie: BattleSquaddieDynamic, numberOfActionsSpent: number) => {
+    dynamicSquaddie.squaddieTurn.spendActionPoints(numberOfActionsSpent);
 }

@@ -1,6 +1,6 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {SquaddieSquaddieResults} from "./squaddieSquaddieResults";
-import {SquaddieInstructionActivity} from "./squaddieInstructionActivity";
+import {AnySquaddieAction} from "./anySquaddieAction";
 
 export class BattleEvent {
     private readonly _instruction: SquaddieInstructionInProgress;
@@ -25,8 +25,8 @@ export class BattleEvent {
         return this._results;
     }
 
-    get activities(): SquaddieInstructionActivity[] {
-        return [...this._instruction.squaddieActivitiesForThisRound.activities];
+    get actions(): AnySquaddieAction[] {
+        return [...this._instruction.squaddieActionsForThisRound.actions];
     }
 }
 

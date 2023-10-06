@@ -6,15 +6,15 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
-import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
+import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
-const ACTIVITY_COMPLETED_WAIT_TIME_MS = 500;
+const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
-export class BattleSquaddieMapActivity implements BattleOrchestratorComponent {
+export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponent {
     animationCompleteStartTime?: number;
 
     constructor() {
@@ -22,7 +22,7 @@ export class BattleSquaddieMapActivity implements BattleOrchestratorComponent {
     }
 
     hasCompleted(state: BattleOrchestratorState): boolean {
-        return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTIVITY_COMPLETED_WAIT_TIME_MS;
+        return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTION_COMPLETED_WAIT_TIME_MS;
     }
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
@@ -52,15 +52,15 @@ export class BattleSquaddieMapActivity implements BattleOrchestratorComponent {
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.animationCompleteStartTime === undefined) {
-            const dynamicSquaddieId = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getDynamicSquaddieId();
+            const dynamicSquaddieId = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getDynamicSquaddieId();
             const {
                 dynamicSquaddie,
                 staticSquaddie
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
-            const mostRecentActivity = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity();
+            const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
 
-            if (mostRecentActivity instanceof SquaddieEndTurnActivity) {
+            if (mostRecentAction instanceof SquaddieEndTurnAction) {
                 dynamicSquaddie.endTurn();
                 TintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
             }

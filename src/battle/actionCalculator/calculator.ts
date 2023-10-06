@@ -8,7 +8,7 @@ import {
     GiveHealingToTheSquaddie,
     HealingType
 } from "../../squaddie/squaddieService";
-import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 
 export function CalculateResults(state: BattleOrchestratorState, actingSquaddieDynamic: BattleSquaddieDynamic, validTargetLocation: HexCoordinate) {
@@ -27,7 +27,7 @@ export function CalculateResults(state: BattleOrchestratorState, actingSquaddieD
     let damageDealt = calculateTotalDamageDealt(state, targetedSquaddieStatic, targetedSquaddieDynamic);
 
     const resultPerTarget = {
-        [targetedSquaddieDynamicId]: new ActivityResultOnSquaddie({
+        [targetedSquaddieDynamicId]: new ActionResultPerSquaddie({
             damageTaken: damageDealt,
             healingReceived,
         })
@@ -42,12 +42,12 @@ export function CalculateResults(state: BattleOrchestratorState, actingSquaddieD
 
 function calculateTotalDamageDealt(state: BattleOrchestratorState, targetedSquaddieStatic: BattleSquaddieStatic, targetedSquaddieDynamic: BattleSquaddieDynamic) {
     let damageDealt = 0;
-    Object.keys(state.squaddieCurrentlyActing.currentlySelectedActivity.damageDescriptions).forEach((damageType: DamageType) => {
-        const activityDamage = state.squaddieCurrentlyActing.currentlySelectedActivity.damageDescriptions[damageType]
+    Object.keys(state.squaddieCurrentlyActing.currentlySelectedAction.damageDescriptions).forEach((damageType: DamageType) => {
+        const rawDamageFromAction = state.squaddieCurrentlyActing.currentlySelectedAction.damageDescriptions[damageType]
         const {damageTaken: damageTakenByThisType} = DealDamageToTheSquaddie({
             staticSquaddie: targetedSquaddieStatic,
             dynamicSquaddie: targetedSquaddieDynamic,
-            damage: activityDamage,
+            damage: rawDamageFromAction,
             damageType,
         });
         damageDealt += damageTakenByThisType;
@@ -57,11 +57,11 @@ function calculateTotalDamageDealt(state: BattleOrchestratorState, targetedSquad
 
 function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedSquaddieStatic: BattleSquaddieStatic, targetedSquaddieDynamic: BattleSquaddieDynamic) {
     let healingReceived = 0;
-    if (state.squaddieCurrentlyActing.currentlySelectedActivity.healingDescriptions.LostHitPoints) {
+    if (state.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints) {
         ({healingReceived} = GiveHealingToTheSquaddie({
             staticSquaddie: targetedSquaddieStatic,
             dynamicSquaddie: targetedSquaddieDynamic,
-            healingAmount: state.squaddieCurrentlyActing.currentlySelectedActivity.healingDescriptions.LostHitPoints,
+            healingAmount: state.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints,
             healingType: HealingType.LostHitPoints,
         }));
     }

@@ -2,13 +2,13 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
@@ -18,7 +18,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
+import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
@@ -28,7 +28,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -40,10 +40,10 @@ describe('BattleSquaddieTarget', () => {
     let thiefStatic: BattleSquaddieStatic;
     let thiefDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
-    let longswordActivity: SquaddieActivity;
-    let longswordActivityId: "longsword";
-    let bandageWoundsActivity: SquaddieActivity;
-    let bandageWoundsActivityId: "bandage wounds";
+    let longswordAction: SquaddieAction;
+    let longswordActionId: "longsword";
+    let bandageWoundsAction: SquaddieAction;
+    let bandageWoundsActionId: "bandage wounds";
     let state: BattleOrchestratorState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -62,31 +62,31 @@ describe('BattleSquaddieTarget', () => {
             })
         });
 
-        longswordActivity = new SquaddieActivity({
+        longswordAction = new SquaddieAction({
             name: "longsword",
-            id: longswordActivityId,
+            id: longswordActionId,
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
-            actionsToSpend: 1,
+            actionPointCost: 1,
             damageDescriptions: {
                 [DamageType.Body]: 2,
             },
         });
 
-        bandageWoundsActivity = new SquaddieActivity({
+        bandageWoundsAction = new SquaddieAction({
             name: "Bandage Wounds",
-            id: bandageWoundsActivityId,
+            id: bandageWoundsActionId,
             traits: new TraitStatusStorage({
                 [Trait.HEALING]: true,
                 [Trait.TARGETS_ALLIES]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
-            actionsToSpend: 2,
+            actionPointCost: 2,
         });
 
         ({
@@ -98,7 +98,7 @@ describe('BattleSquaddieTarget', () => {
             dynamicId: "Knight 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
-            activities: [longswordActivity, bandageWoundsActivity],
+            actions: [longswordAction, bandageWoundsAction],
         }));
         battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
 
@@ -111,7 +111,7 @@ describe('BattleSquaddieTarget', () => {
             dynamicId: "Citizen 0",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository: squaddieRepo,
-            activities: [],
+            actions: [],
         }));
         battleMap.addSquaddie(citizenStatic.staticId, citizenDynamic.dynamicSquaddieId, new HexCoordinate({
             q: 0,
@@ -127,7 +127,7 @@ describe('BattleSquaddieTarget', () => {
             dynamicId: "Thief 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepo,
-            activities: [longswordActivity],
+            actions: [longswordAction],
             attributes: new ArmyAttributes({
                 maxHitPoints: 5,
             })
@@ -135,12 +135,12 @@ describe('BattleSquaddieTarget', () => {
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
 
         const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            activitiesForThisRound: new SquaddieActivitiesForThisRound({
+            actionsForThisRound: new SquaddieActionsForThisRound({
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 staticSquaddieId: knightStatic.staticId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             }),
-            currentSquaddieActivity: longswordActivity,
+            currentSquaddieAction: longswordAction,
         });
 
         mockResourceHandler = mocks.mockResourceHandler();
@@ -261,7 +261,7 @@ describe('BattleSquaddieTarget', () => {
             staticSquaddieId: knightStatic.staticId,
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
-        state.squaddieCurrentlyActing.addSelectedActivity(longswordActivity);
+        state.squaddieCurrentlyActing.addSelectedAction(longswordAction);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeFalsy();
@@ -281,11 +281,11 @@ describe('BattleSquaddieTarget', () => {
             staticSquaddieId: knightStatic.staticId,
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
-        state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.addActivity(new SquaddieMovementActivity({
+        state.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
             destination: new HexCoordinate({q: 0, r: 1}),
-            numberOfActionsSpent: 1,
+            numberOfActionPointsSpent: 1,
         }))
-        state.squaddieCurrentlyActing.addSelectedActivity(longswordActivity);
+        state.squaddieCurrentlyActing.addSelectedAction(longswordAction);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeTruthy();
@@ -341,12 +341,12 @@ describe('BattleSquaddieTarget', () => {
     describe('user clicks on target with heal', () => {
         beforeEach(() => {
             const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-                activitiesForThisRound: new SquaddieActivitiesForThisRound({
+                actionsForThisRound: new SquaddieActionsForThisRound({
                     dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                     staticSquaddieId: knightStatic.staticId,
                     startingLocation: new HexCoordinate({q: 1, r: 1}),
                 }),
-                currentSquaddieActivity: bandageWoundsActivity,
+                currentSquaddieAction: bandageWoundsAction,
             });
 
             state = new BattleOrchestratorState({
@@ -376,36 +376,36 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should create a squaddie instruction', () => {
-            const expectedInstruction = new SquaddieActivitiesForThisRound({
+            const expectedInstruction = new SquaddieActionsForThisRound({
                 staticSquaddieId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             });
-            expectedInstruction.addSquaddieSquaddieActivity(
-                new SquaddieSquaddieActivity({
+            expectedInstruction.addSquaddieSquaddieAction(
+                new SquaddieSquaddieAction({
                     targetLocation: new HexCoordinate({q: 1, r: 2}),
-                    squaddieActivity: longswordActivity,
+                    squaddieAction: longswordAction,
                 })
             );
 
-            expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound).toStrictEqual(expectedInstruction);
+            expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
         });
 
         it('should be completed', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
         });
 
-        it('should change the state to Squaddie Squaddie Activity', () => {
+        it('should change the state to Squaddie Uses Action On Squaddie', () => {
             const recommendedInfo = targetComponent.recommendStateChanges(state);
-            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
+            expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
         });
 
-        it('should consume the squaddie actions', () => {
-            const {normalActionsRemaining} = GetNumberOfActionPoints({
+        it('should consume the squaddie action points', () => {
+            const {actionPointsRemaining} = GetNumberOfActionPoints({
                 staticSquaddie: knightStatic,
                 dynamicSquaddie: knightDynamic
             });
-            expect(normalActionsRemaining).toBe(2);
+            expect(actionPointsRemaining).toBe(2);
         });
     });
 
@@ -425,36 +425,36 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should add to existing instruction when confirmed mid turn', () => {
-            const expectedInstruction = new SquaddieActivitiesForThisRound({
+            const expectedInstruction = new SquaddieActionsForThisRound({
                 staticSquaddieId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             });
-            expectedInstruction.addSquaddieSquaddieActivity(
-                new SquaddieSquaddieActivity({
+            expectedInstruction.addSquaddieSquaddieAction(
+                new SquaddieSquaddieAction({
                     targetLocation: new HexCoordinate({q: 1, r: 2}),
-                    squaddieActivity: longswordActivity,
+                    squaddieAction: longswordAction,
                 })
             );
 
-            expect(state.squaddieCurrentlyActing.squaddieActivitiesForThisRound).toStrictEqual(expectedInstruction);
+            expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
         });
 
-        it('should spend the activity resource cost', () => {
-            const {normalActionsRemaining} = GetNumberOfActionPoints({
+        it('should spend the action resource cost after confirming but before showing results', () => {
+            const {actionPointsRemaining} = GetNumberOfActionPoints({
                 staticSquaddie: knightStatic,
                 dynamicSquaddie: knightDynamic
             });
-            expect(normalActionsRemaining).toBe(3 - longswordActivity.actionsToSpend);
+            expect(actionPointsRemaining).toBe(3 - longswordAction.actionPointCost);
         });
 
         it('should add the results to the history', () => {
             expect(state.battleEventRecording.history).toHaveLength(1);
             const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
-            expect(mostRecentEvent.activities).toHaveLength(1);
+            expect(mostRecentEvent.actions).toHaveLength(1);
             expect((
-                mostRecentEvent.activities[0] as SquaddieSquaddieActivity
-            ).squaddieActivity.id).toBe(longswordActivity.id);
+                mostRecentEvent.actions[0] as SquaddieSquaddieAction
+            ).squaddieAction.id).toBe(longswordAction.id);
             const results = mostRecentEvent.results;
             expect(results.actingSquaddieDynamicId).toBe(knightDynamic.dynamicSquaddieId);
             expect(results.targetedSquaddieDynamicIds).toHaveLength(1);
@@ -465,13 +465,13 @@ describe('BattleSquaddieTarget', () => {
         it('should store the calculated results', () => {
             const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
             const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[thiefDynamic.dynamicSquaddieId];
-            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordActivity.damageDescriptions[DamageType.Body]);
+            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordAction.damageDescriptions[DamageType.Body]);
 
             const {maxHitPoints, currentHitPoints} = GetHitPoints({
                 staticSquaddie: thiefStatic,
                 dynamicSquaddie: thiefDynamic
             });
-            expect(currentHitPoints).toBe(maxHitPoints - longswordActivity.damageDescriptions[DamageType.Body]);
+            expect(currentHitPoints).toBe(maxHitPoints - longswordAction.damageDescriptions[DamageType.Body]);
         });
     });
 
@@ -479,24 +479,24 @@ describe('BattleSquaddieTarget', () => {
         const tests = [
             {
                 name: 'target foe tries to attack an ally',
-                activityTraits: [Trait.ATTACK, Trait.TARGETS_FOE],
+                actionTraits: [Trait.ATTACK, Trait.TARGETS_FOE],
                 invalidTargetClicker: clickOnCitizen,
             },
             {
                 name: 'heal ally tries to heal a foe',
-                activityTraits: [Trait.HEALING, Trait.TARGETS_ALLIES],
+                actionTraits: [Trait.HEALING, Trait.TARGETS_ALLIES],
                 invalidTargetClicker: clickOnThief,
             }
         ]
         it.each(tests)(`$name do not show a confirm window`, ({
                                                                   name,
-                                                                  activityTraits,
+                                                                  actionTraits,
                                                                   invalidTargetClicker,
                                                               }) => {
             const traits: { [key in Trait]?: boolean } = Object.fromEntries(
-                activityTraits.map(e => [e, true])
+                actionTraits.map(e => [e, true])
             );
-            const activity = new SquaddieActivity({
+            const action = new SquaddieAction({
                 id: name,
                 name,
                 traits: new TraitStatusStorage(traits),
@@ -504,12 +504,12 @@ describe('BattleSquaddieTarget', () => {
                 maximumRange: 9001,
             });
             const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-                activitiesForThisRound: new SquaddieActivitiesForThisRound({
+                actionsForThisRound: new SquaddieActionsForThisRound({
                     dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                     staticSquaddieId: knightStatic.staticId,
                     startingLocation: new HexCoordinate({q: 1, r: 1}),
                 }),
-                currentSquaddieActivity: activity,
+                currentSquaddieAction: action,
             });
 
             state = new BattleOrchestratorState({

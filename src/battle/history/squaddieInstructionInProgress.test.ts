@@ -1,43 +1,43 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
-import {SquaddieActivitiesForThisRound} from "./squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
-import {squaddieActivityLongsword} from "../../utils/test/squaddieActivity";
+import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
+import {longswordAction} from "../../utils/test/squaddieAction";
 
 describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {
         const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            activitiesForThisRound: new SquaddieActivitiesForThisRound({
+            actionsForThisRound: new SquaddieActionsForThisRound({
                 dynamicSquaddieId: "dynamicSquaddieId",
                 staticSquaddieId: "staticId",
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             }),
-            currentSquaddieActivity: squaddieActivityLongsword,
+            currentSquaddieAction: longswordAction,
         });
 
-        squaddieCurrentlyActing.cancelSelectedActivity();
+        squaddieCurrentlyActing.cancelSelectedAction();
 
         expect(squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeFalsy();
         expect(squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
     });
 
     it('will indicate the squaddie has acted this round if they cancel after acting', () => {
-        const longswordUsedThisRoundActivity = new SquaddieActivitiesForThisRound({
+        const longswordUsedThisRoundAction = new SquaddieActionsForThisRound({
             dynamicSquaddieId: "dynamicSquaddieId",
             staticSquaddieId: "staticId",
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
-        longswordUsedThisRoundActivity.addActivity(new SquaddieSquaddieActivity({
-            squaddieActivity: squaddieActivityLongsword,
+        longswordUsedThisRoundAction.addAction(new SquaddieSquaddieAction({
+            squaddieAction: longswordAction,
             targetLocation: new HexCoordinate({q: 0, r: 0}),
         }));
 
         const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            activitiesForThisRound: longswordUsedThisRoundActivity,
-            currentSquaddieActivity: squaddieActivityLongsword,
+            actionsForThisRound: longswordUsedThisRoundAction,
+            currentSquaddieAction: longswordAction,
         });
 
-        squaddieCurrentlyActing.cancelSelectedActivity();
+        squaddieCurrentlyActing.cancelSelectedAction();
 
         expect(squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeTruthy();
         expect(squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();

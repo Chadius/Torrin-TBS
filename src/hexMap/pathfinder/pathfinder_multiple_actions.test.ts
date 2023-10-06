@@ -34,7 +34,7 @@ describe('pathfinder move with multiple movement actions', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 2,
+                numberOfActionPoints: 2,
             })
         })));
         validateTilesAreFound(
@@ -72,7 +72,7 @@ describe('pathfinder move with multiple movement actions', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 2,
+                numberOfActionPoints: 2,
             })
         })));
         validateTilesAreFound(

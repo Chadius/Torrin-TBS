@@ -1,14 +1,14 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
-export class SquaddieMovementActivity {
+export class SquaddieMovementAction {
     destination: HexCoordinate;
-    numberOfActionsSpent: number;
+    numberOfActionPointsSpent: number;
 
     constructor(options: {
         destination: HexCoordinate;
-        numberOfActionsSpent: number;
+        numberOfActionPointsSpent: number;
     }) {
         this.destination = options.destination;
-        this.numberOfActionsSpent = options.numberOfActionsSpent;
+        this.numberOfActionPointsSpent = options.numberOfActionPointsSpent;
     }
 }

@@ -5,7 +5,7 @@ import {SquaddieId} from "../../squaddie/id";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battle/battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import * as mocks from "./mocks";
 import {DamageType} from "../../squaddie/squaddieService";
@@ -27,7 +27,7 @@ export const CreateNewSquaddieAndAddToRepository: (
         dynamicId: string,
         affiliation: SquaddieAffiliation,
         squaddieRepository: BattleSquaddieRepository,
-        activities?: SquaddieActivity[],
+        actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }
 ) => {
@@ -39,7 +39,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          dynamicId,
          affiliation,
          squaddieRepository,
-         activities,
+         actions,
          attributes,
      }: {
          name: string,
@@ -47,7 +47,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          dynamicId: string,
          affiliation: SquaddieAffiliation,
          squaddieRepository: BattleSquaddieRepository,
-         activities?: SquaddieActivity[],
+         actions?: SquaddieAction[],
          attributes?: ArmyAttributes,
      }
 ) => {
@@ -59,7 +59,7 @@ export const CreateNewSquaddieAndAddToRepository: (
             traits: new TraitStatusStorage(),
             affiliation
         }),
-        activities,
+        actions: actions,
         attributes,
     });
     const dynamicSquaddie = new BattleSquaddieDynamic({
@@ -83,7 +83,7 @@ export const CreateNewThiefSquaddie: (
         staticId?: string,
         dynamicId?: string,
         affiliation?: SquaddieAffiliation,
-        activities?: SquaddieActivity[],
+        actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }
 ) => {
@@ -95,7 +95,7 @@ export const CreateNewThiefSquaddie: (
          staticId,
          dynamicId,
          affiliation,
-         activities,
+         actions,
          attributes,
      }: {
          squaddieRepository: BattleSquaddieRepository,
@@ -103,22 +103,22 @@ export const CreateNewThiefSquaddie: (
          staticId?: string,
          dynamicId?: string,
          affiliation?: SquaddieAffiliation,
-         activities?: SquaddieActivity[],
+         actions?: SquaddieAction[],
          attributes?: ArmyAttributes,
      }
 ) => {
 
-    const defaultAttackActivity = new SquaddieActivity({
+    const defaultAttackAction = new SquaddieAction({
         name: "knife",
         id: "knife",
         traits: new TraitStatusStorage({
             [Trait.ATTACK]: true,
             [Trait.TARGET_ARMOR]: true,
             [Trait.TARGETS_FOE]: true,
-        }).filterCategory(TraitCategory.ACTIVITY),
+        }).filterCategory(TraitCategory.ACTION),
         minimumRange: 1,
         maximumRange: 1,
-        actionsToSpend: 1,
+        actionPointCost: 1,
         damageDescriptions: {
             [DamageType.Body]: 1,
         },
@@ -133,7 +133,7 @@ export const CreateNewThiefSquaddie: (
         dynamicId: dynamicId || "Thief 0",
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.ENEMY,
         squaddieRepository: squaddieRepository,
-        activities: activities || [defaultAttackActivity],
+        actions: actions || [defaultAttackAction],
         attributes: attributes || new ArmyAttributes({
             maxHitPoints: 5,
         })
@@ -152,7 +152,7 @@ export const CreateNewKnightSquaddie: (
         staticId?: string,
         dynamicId?: string,
         affiliation?: SquaddieAffiliation,
-        activities?: SquaddieActivity[],
+        actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }
 ) => {
@@ -164,7 +164,7 @@ export const CreateNewKnightSquaddie: (
          staticId,
          dynamicId,
          affiliation,
-         activities,
+         actions,
          attributes,
      }: {
          squaddieRepository: BattleSquaddieRepository,
@@ -172,38 +172,38 @@ export const CreateNewKnightSquaddie: (
          staticId?: string,
          dynamicId?: string,
          affiliation?: SquaddieAffiliation,
-         activities?: SquaddieActivity[],
+         actions?: SquaddieAction[],
          attributes?: ArmyAttributes,
      }
 ) => {
 
-    const defaultAttackActivity = new SquaddieActivity({
+    const defaultAttackAction = new SquaddieAction({
         name: "longsword",
         id: "longsword",
         traits: new TraitStatusStorage({
             [Trait.ATTACK]: true,
             [Trait.TARGET_ARMOR]: true,
             [Trait.TARGETS_FOE]: true,
-        }).filterCategory(TraitCategory.ACTIVITY),
+        }).filterCategory(TraitCategory.ACTION),
         minimumRange: 1,
         maximumRange: 1,
-        actionsToSpend: 1,
+        actionPointCost: 1,
         damageDescriptions: {
             [DamageType.Body]: 2,
         },
     });
 
-    const powerAttackLongswordActivity = new SquaddieActivity({
+    const powerAttacklongswordAction = new SquaddieAction({
         name: "power attack longsword",
         id: "powerAttackLongsword",
         traits: new TraitStatusStorage({
             [Trait.ATTACK]: true,
             [Trait.TARGET_ARMOR]: true,
             [Trait.TARGETS_FOE]: true,
-        }).filterCategory(TraitCategory.ACTIVITY),
+        }).filterCategory(TraitCategory.ACTION),
         minimumRange: 1,
         maximumRange: 1,
-        actionsToSpend: 3,
+        actionPointCost: 3,
         damageDescriptions: {
             [DamageType.Body]: 9001,
         },
@@ -218,7 +218,7 @@ export const CreateNewKnightSquaddie: (
         dynamicId: dynamicId || "Knight 0",
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.PLAYER,
         squaddieRepository: squaddieRepository,
-        activities: activities || [defaultAttackActivity, powerAttackLongswordActivity],
+        actions: actions || [defaultAttackAction, powerAttacklongswordAction],
         attributes: attributes || new ArmyAttributes({
             maxHitPoints: 5,
         })

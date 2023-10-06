@@ -1,37 +1,37 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
-import {SquaddieActivitiesForThisRound} from "./squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieActivity} from "../../squaddie/activity";
-import {SquaddieMovementActivity} from "./squaddieMovementActivity";
-import {SquaddieSquaddieActivity} from "./squaddieSquaddieActivity";
+import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieMovementAction} from "./squaddieMovementAction";
+import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 
-const torrinInstruction = new SquaddieActivitiesForThisRound({
+const torrinInstruction = new SquaddieActionsForThisRound({
     dynamicSquaddieId: "Torrin 0",
     staticSquaddieId: "Torrin",
     startingLocation: new HexCoordinate({q: 0, r: 0}),
 });
 
-const purifyingBlast = new SquaddieActivity({
+const purifyingBlast = new SquaddieAction({
     name: "purifying stream",
     id: "purifying_stream",
     traits: new TraitStatusStorage(),
 });
 
-const purifyingBlastActivity: SquaddieSquaddieActivity = new SquaddieSquaddieActivity({
-    squaddieActivity: purifyingBlast,
+const purifyingBlastAction: SquaddieSquaddieAction = new SquaddieSquaddieAction({
+    squaddieAction: purifyingBlast,
     targetLocation: new HexCoordinate({q: 3, r: 4})
 });
 
 describe('Current Squaddie Instruction', () => {
     it('can be reset', () => {
         const newInstruction = new SquaddieInstructionInProgress({
-            activitiesForThisRound: new SquaddieActivitiesForThisRound({
+            actionsForThisRound: new SquaddieActionsForThisRound({
                 dynamicSquaddieId: "torrin 0",
                 staticSquaddieId: "torrin",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             }),
-            currentSquaddieActivity: new SquaddieActivity({
+            currentSquaddieAction: new SquaddieAction({
                 name: "purifying stream",
                 id: "purifying_stream",
                 traits: new TraitStatusStorage(),
@@ -43,7 +43,7 @@ describe('Current Squaddie Instruction', () => {
         expect(newInstruction.isReadyForNewSquaddie).toBeTruthy();
     });
 
-    it('will accept new squaddie and activity if it is reset', () => {
+    it('will accept new squaddie and action if it is reset', () => {
         const newInstruction = new SquaddieInstructionInProgress({});
 
         newInstruction.addInitialState(
@@ -55,30 +55,30 @@ describe('Current Squaddie Instruction', () => {
         );
         expect(newInstruction.dynamicSquaddieId).toBe("Torrin 0");
 
-        newInstruction.addConfirmedActivity(purifyingBlastActivity);
+        newInstruction.addConfirmedAction(purifyingBlastAction);
 
-        const initialInstruction: SquaddieActivitiesForThisRound = newInstruction.squaddieActivitiesForThisRound;
+        const initialInstruction: SquaddieActionsForThisRound = newInstruction.squaddieActionsForThisRound;
 
-        torrinInstruction.addActivity(purifyingBlastActivity);
+        torrinInstruction.addAction(purifyingBlastAction);
         expect(initialInstruction).toStrictEqual(torrinInstruction);
-        expect(newInstruction.currentlySelectedActivity).toStrictEqual(purifyingBlast);
+        expect(newInstruction.currentlySelectedAction).toStrictEqual(purifyingBlast);
 
-        newInstruction.addConfirmedActivity(new SquaddieMovementActivity({
+        newInstruction.addConfirmedAction(new SquaddieMovementAction({
             destination: new HexCoordinate({q: 2, r: 3}),
-            numberOfActionsSpent: 2,
+            numberOfActionPointsSpent: 2,
         }));
-        expect(newInstruction.squaddieActivitiesForThisRound.getActivities()).toHaveLength(2);
-        expect(newInstruction.squaddieActivitiesForThisRound.totalActionsSpent()).toBe(3);
-        expect(newInstruction.squaddieActivitiesForThisRound.destinationLocation()).toStrictEqual(
+        expect(newInstruction.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(2);
+        expect(newInstruction.squaddieActionsForThisRound.totalActionPointsSpent()).toBe(3);
+        expect(newInstruction.squaddieActionsForThisRound.destinationLocation()).toStrictEqual(
             new HexCoordinate({q: 2, r: 3})
         );
     });
 
-    it('will throw an error if an activity is added without setting the squaddie', () => {
+    it('will throw an error if an action is added without setting the squaddie', () => {
         const newInstruction = new SquaddieInstructionInProgress({});
 
         const shouldThrowError = () => {
-            newInstruction.addConfirmedActivity(purifyingBlastActivity);
+            newInstruction.addConfirmedAction(purifyingBlastAction);
         }
 
         expect(() => {
@@ -86,7 +86,7 @@ describe('Current Squaddie Instruction', () => {
         }).toThrow(Error);
         expect(() => {
             shouldThrowError()
-        }).toThrow("no squaddie found, cannot add activity");
+        }).toThrow("no squaddie found, cannot add action");
     });
 
     describe('mark squaddie as moving', () => {

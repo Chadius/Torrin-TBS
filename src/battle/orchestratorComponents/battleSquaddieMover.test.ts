@@ -10,8 +10,8 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
@@ -87,18 +87,18 @@ describe('BattleSquaddieMover', () => {
                 }))
             ).getRouteToStopLocation());
 
-        const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+        const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             staticSquaddieId: "player_1",
             dynamicSquaddieId: "player_1",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        moveActivity.addActivity(new SquaddieMovementActivity({
+        moveAction.addAction(new SquaddieMovementAction({
             destination: new HexCoordinate({q: 1, r: 1}),
-            numberOfActionsSpent: 3,
+            numberOfActionPointsSpent: 3,
         }));
 
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            activitiesForThisRound: moveActivity
+            actionsForThisRound: moveAction
         });
         squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving("player_1");
 
@@ -109,7 +109,7 @@ describe('BattleSquaddieMover', () => {
             squaddieMovePath: movePath,
             hexMap: map.terrainTileMap,
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                activitiesForThisRound: moveActivity,
+                actionsForThisRound: moveAction,
             }),
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -141,7 +141,7 @@ describe('BattleSquaddieMover', () => {
                                }: {
             dynamicSquaddieId: string,
             squaddieAffiliation: SquaddieAffiliation,
-            newInstruction: SquaddieActivitiesForThisRound,
+            newInstruction: SquaddieActionsForThisRound,
         }): BattleOrchestratorState => {
             const movePath: SearchPath = getResultOrThrowError(
                 getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
@@ -172,7 +172,7 @@ describe('BattleSquaddieMover', () => {
                 squaddieMovePath: movePath,
                 hexMap: map.terrainTileMap,
                 squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                    activitiesForThisRound: newInstruction,
+                    actionsForThisRound: newInstruction,
                 }),
                 resourceHandler: mockResourceHandler,
             });
@@ -181,20 +181,20 @@ describe('BattleSquaddieMover', () => {
         it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
             map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
-            const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+            const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
                 staticSquaddieId: "player_1",
                 dynamicSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
-            moveActivity.addActivity(new SquaddieMovementActivity({
+            moveAction.addAction(new SquaddieMovementAction({
                 destination: new HexCoordinate({q: 1, r: 1}),
-                numberOfActionsSpent: 3,
+                numberOfActionPointsSpent: 3,
             }));
 
             const state = setupSquaddie({
                 dynamicSquaddieId: "player_1",
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                newInstruction: moveActivity,
+                newInstruction: moveAction,
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -211,20 +211,20 @@ describe('BattleSquaddieMover', () => {
         it('should open the HUD if the squaddie turn is incomplete', () => {
             map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
-            const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+            const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
                 staticSquaddieId: "player_1",
                 dynamicSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
-            moveActivity.addActivity(new SquaddieMovementActivity({
+            moveAction.addAction(new SquaddieMovementAction({
                 destination: new HexCoordinate({q: 1, r: 1}),
-                numberOfActionsSpent: 1,
+                numberOfActionPointsSpent: 1,
             }));
 
             const state = setupSquaddie({
                 dynamicSquaddieId: "player_1",
                 squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                newInstruction: moveActivity,
+                newInstruction: moveAction,
             });
 
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -247,20 +247,20 @@ describe('BattleSquaddieMover', () => {
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
             map.addSquaddie("enemy_1", "enemy_1", new HexCoordinate({q: 0, r: 0}));
 
-            const moveActivity: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+            const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
                 staticSquaddieId: "enemy_1",
                 dynamicSquaddieId: "enemy_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
-            moveActivity.addActivity(new SquaddieMovementActivity({
+            moveAction.addAction(new SquaddieMovementAction({
                 destination: new HexCoordinate({q: 1, r: 1}),
-                numberOfActionsSpent: 1,
+                numberOfActionPointsSpent: 1,
             }));
 
             const state = setupSquaddie({
                 dynamicSquaddieId: "enemy_1",
                 squaddieAffiliation: SquaddieAffiliation.ENEMY,
-                newInstruction: moveActivity,
+                newInstruction: moveAction,
             });
 
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({

@@ -8,10 +8,10 @@ export const GetNumberOfActionPoints = ({
     staticSquaddie: BattleSquaddieStatic,
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
-    normalActionsRemaining: number
+    actionPointsRemaining: number
 } => {
     return {
-        normalActionsRemaining: dynamicSquaddie.squaddieTurn.remainingNumberOfActions,
+        actionPointsRemaining: dynamicSquaddie.squaddieTurn.remainingActionPoints,
     }
 }
 
@@ -105,23 +105,23 @@ export const CanSquaddieActRightNow = ({
     dynamicSquaddie: BattleSquaddieDynamic,
 }): {
     canAct: boolean,
-    hasActionsRemaining: boolean,
+    hasActionPointsRemaining: boolean,
     isDead: boolean,
 } => {
     const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
 
     let {
-        normalActionsRemaining
+        actionPointsRemaining
     } = GetNumberOfActionPoints({
         staticSquaddie,
         dynamicSquaddie,
     });
 
-    const hasActionsRemaining: boolean = squaddieIsAlive && normalActionsRemaining > 0;
+    const hasActionPointsRemaining: boolean = squaddieIsAlive && actionPointsRemaining > 0;
 
     return {
-        canAct: hasActionsRemaining,
-        hasActionsRemaining,
+        canAct: hasActionPointsRemaining,
+        hasActionPointsRemaining: hasActionPointsRemaining,
         isDead: !squaddieIsAlive,
     }
 }
@@ -140,14 +140,14 @@ export const CanPlayerControlSquaddieRightNow = ({
     const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
 
     let {
-        normalActionsRemaining
+        actionPointsRemaining
     } = GetNumberOfActionPoints({
         staticSquaddie,
         dynamicSquaddie,
     });
 
     const playerControlledAffiliation: boolean = staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER
-    const squaddieCanCurrentlyAct: boolean = normalActionsRemaining > 0 && squaddieIsAlive
+    const squaddieCanCurrentlyAct: boolean = actionPointsRemaining > 0 && squaddieIsAlive
 
     return {
         squaddieHasThePlayerControlledAffiliation: playerControlledAffiliation,

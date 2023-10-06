@@ -1,7 +1,7 @@
 import {RectArea} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battleSquaddie";
-import {SquaddieActivity} from "../../../squaddie/activity";
+import {SquaddieAction} from "../../../squaddie/action";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label} from "../../../ui/label";
@@ -20,10 +20,10 @@ export class ActorTextWindow {
         return this._backgroundHue;
     }
 
-    private _actorUsesActivityText: string;
+    private _actorUsesActionDescriptionText: string;
 
-    get actorUsesActivityText(): string {
-        return this._actorUsesActivityText;
+    get actorUsesActionDescriptionText(): string {
+        return this._actorUsesActionDescriptionText;
     }
 
     private _actorLabel: Label;
@@ -34,20 +34,20 @@ export class ActorTextWindow {
 
     reset() {
         this._actorLabel = undefined;
-        this._actorUsesActivityText = "";
+        this._actorUsesActionDescriptionText = "";
     }
 
-    start({actorStatic, actorDynamic, activity}: {
+    start({actorStatic, actorDynamic, action}: {
         actorStatic: BattleSquaddieStatic,
         actorDynamic: BattleSquaddieDynamic,
-        activity: SquaddieActivity
+        action: SquaddieAction
     }) {
         this.reset();
 
         const actorName: string = actorStatic.squaddieId.name;
-        const activityName: string = activity.name;
+        const actionName: string = action.name;
 
-        this._actorUsesActivityText = `${actorName} uses\n${activityName}`;
+        this._actorUsesActionDescriptionText = `${actorName} uses\n${actionName}`;
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[actorStatic.squaddieId.affiliation];
 
         this.createActorLabel();
@@ -81,7 +81,7 @@ export class ActorTextWindow {
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
                 margin: [WINDOW_SPACING1, 0, 0, WINDOW_SPACING1],
             }),
-            text: this.actorUsesActivityText,
+            text: this.actorUsesActionDescriptionText,
             textSize: WINDOW_SPACING2,
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,

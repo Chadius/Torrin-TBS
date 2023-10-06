@@ -1,17 +1,17 @@
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {FormatIntent, FormatResult} from "./activityResultTextWriter";
+import {FormatIntent, FormatResult} from "./actionResultTextWriter";
 
-describe('Activity Result Text Writer', () => {
+describe('Action Result Text Writer', () => {
     let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
     let knightStatic: BattleSquaddieStatic;
     let knightDynamic: BattleSquaddieDynamic;
@@ -22,8 +22,8 @@ describe('Activity Result Text Writer', () => {
     let rogueStatic: BattleSquaddieStatic;
     let rogueDynamic: BattleSquaddieDynamic;
     let battleMap: MissionMap;
-    let longswordSweepActivity: SquaddieActivity;
-    let bandageWoundsActivity: SquaddieActivity;
+    let longswordSweepAction: SquaddieAction;
+    let bandageWoundsAction: SquaddieAction;
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
@@ -37,28 +37,28 @@ describe('Activity Result Text Writer', () => {
             })
         });
 
-        longswordSweepActivity = new SquaddieActivity({
+        longswordSweepAction = new SquaddieAction({
             name: "Longsword Sweep",
             id: "longsword",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
-            actionsToSpend: 1,
+            actionPointCost: 1,
         });
 
-        bandageWoundsActivity = new SquaddieActivity({
+        bandageWoundsAction = new SquaddieAction({
             name: "Bandage Wounds",
             id: "Bandages",
             traits: new TraitStatusStorage({
                 [Trait.HEALING]: true,
                 [Trait.TARGETS_ALLIES]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
-            actionsToSpend: 2,
+            actionPointCost: 2,
         });
 
         ({
@@ -70,7 +70,7 @@ describe('Activity Result Text Writer', () => {
             dynamicId: "Knight 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepository,
-            activities: [longswordSweepActivity, bandageWoundsActivity],
+            actions: [longswordSweepAction, bandageWoundsAction],
         }));
 
         battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
@@ -84,7 +84,7 @@ describe('Activity Result Text Writer', () => {
             dynamicId: "Citizen 0",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository: squaddieRepository,
-            activities: [],
+            actions: [],
         }));
 
         ({
@@ -96,7 +96,7 @@ describe('Activity Result Text Writer', () => {
             dynamicId: "Thief 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepository,
-            activities: [],
+            actions: [],
         }));
 
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
@@ -110,7 +110,7 @@ describe('Activity Result Text Writer', () => {
             dynamicId: "Rogue 1",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepository,
-            activities: [],
+            actions: [],
         }));
 
         battleMap.addSquaddie(rogueStatic.staticId, rogueDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
@@ -121,17 +121,17 @@ describe('Activity Result Text Writer', () => {
             actingSquaddieDynamicId: knightDynamic.dynamicSquaddieId,
             targetedSquaddieDynamicIds: [thiefDynamic.dynamicSquaddieId, rogueDynamic.dynamicSquaddieId],
             resultPerTarget: {
-                [thiefDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
+                [thiefDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
                     damageTaken: 1
                 }),
-                [rogueDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
+                [rogueDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
                     damageTaken: 1
                 })
             }
         });
 
         const outputStrings: string[] = FormatResult({
-            currentActivity: longswordSweepActivity,
+            currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });
@@ -147,17 +147,17 @@ describe('Activity Result Text Writer', () => {
             actingSquaddieDynamicId: knightDynamic.dynamicSquaddieId,
             targetedSquaddieDynamicIds: [knightDynamic.dynamicSquaddieId, citizenDynamic.dynamicSquaddieId],
             resultPerTarget: {
-                [knightDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
+                [knightDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
                     healingReceived: 1
                 }),
-                [citizenDynamic.dynamicSquaddieId]: new ActivityResultOnSquaddie({
+                [citizenDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
                     healingReceived: 2
                 })
             }
         });
 
         const outputStrings: string[] = FormatResult({
-            currentActivity: bandageWoundsActivity,
+            currentAction: bandageWoundsAction,
             result: healingResult,
             squaddieRepository,
         });
@@ -170,7 +170,7 @@ describe('Activity Result Text Writer', () => {
 
     it('Explains intent to use a power', () => {
         const outputStrings: string[] = FormatIntent({
-            currentActivity: longswordSweepActivity,
+            currentAction: longswordSweepAction,
             actingDynamicId: knightDynamic.dynamicSquaddieId,
             squaddieRepository,
         });

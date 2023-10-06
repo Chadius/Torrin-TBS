@@ -125,8 +125,8 @@ describe('Mission Cutscene Service', () => {
 
     describe('will check for victory conditions once the squaddie finishes action', () => {
         const modes = [
-            {mode: BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY},
-            {mode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY},
+            {mode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE},
+            {mode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP},
             {mode: BattleOrchestratorMode.SQUADDIE_MOVER},
         ]
 
@@ -154,7 +154,7 @@ describe('Mission Cutscene Service', () => {
     it('will not recommend already triggered cutscenes', () => {
         expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
         victoryCutsceneTrigger.systemReactedToTrigger = true;
-        const info = GetCutsceneTriggersToActivate(victoryState, BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
+        const info = GetCutsceneTriggersToActivate(victoryState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 
         expect(info.cutscenesToPlay).toStrictEqual([]);
         expect(info.cutsceneTriggersToReactTo).toHaveLength(0);
@@ -164,7 +164,7 @@ describe('Mission Cutscene Service', () => {
         const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
         expect(defeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
-        const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
+        const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 
         expect(missionObjectiveCompleteCheck).toBeCalled();
 
@@ -176,7 +176,7 @@ describe('Mission Cutscene Service', () => {
         const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
         expect(victoryAndDefeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
-        const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY);
+        const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 
         expect(missionObjectiveCompleteCheck).toBeCalled();
 
@@ -192,7 +192,7 @@ describe('Mission Cutscene Service', () => {
     });
 
     it('will not check for any turn starting cutscenes mid turn', () => {
-        const info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
+        const info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
 
         expect(info.cutscenesToPlay).toHaveLength(0);
         expect(info.cutsceneTriggersToReactTo).toHaveLength(0);

@@ -1,11 +1,11 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {SquaddieActivity} from "../../squaddie/activity";
-import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
+import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     OrchestratorComponentMouseEvent,
@@ -21,7 +21,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
-import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
 
@@ -34,10 +34,10 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
-    let longswordActivity: SquaddieActivity;
-    let powerAttackLongswordActivity: SquaddieActivity;
+    let longswordAction: SquaddieAction;
+    let powerAttacklongswordAction: SquaddieAction;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
-    let oneActionInstruction: SquaddieActivitiesForThisRound;
+    let oneActionInstruction: SquaddieActionsForThisRound;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let battleEventRecording: Recording;
 
@@ -58,16 +58,16 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             dynamicId: thiefDynamicId,
         }));
 
-        longswordActivity = new SquaddieActivity({
+        longswordAction = new SquaddieAction({
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
-            actionsToSpend: 1,
+            actionPointCost: 1,
             damageDescriptions: {
                 [DamageType.Body]: 2,
             },
@@ -79,35 +79,35 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             squaddieRepository,
             staticId: knightStaticId,
             dynamicId: knightDynamicId,
-            activities: [longswordActivity],
+            actions: [longswordAction],
         }));
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
-        oneActionInstruction = new SquaddieActivitiesForThisRound({
+        oneActionInstruction = new SquaddieActionsForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
-        oneActionInstruction.addActivity(new SquaddieSquaddieActivity({
+        oneActionInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieActivity: longswordActivity,
+            squaddieAction: longswordAction,
         }));
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         knightHitsThiefWithLongswordInstructionInProgress = new SquaddieInstructionInProgress({
-            activitiesForThisRound: oneActionInstruction,
-            currentSquaddieActivity: powerAttackLongswordActivity,
+            actionsForThisRound: oneActionInstruction,
+            currentSquaddieAction: powerAttacklongswordAction,
         });
-        knightHitsThiefWithLongswordInstructionInProgress.addSelectedActivity(longswordActivity);
+        knightHitsThiefWithLongswordInstructionInProgress.addSelectedAction(longswordAction);
 
         knightHitsThiefWithLongswordEvent = new BattleEvent({
             currentSquaddieInstruction: knightHitsThiefWithLongswordInstructionInProgress,
             results: new SquaddieSquaddieResults({
                 actingSquaddieDynamicId: knightDynamicSquaddie.dynamicSquaddieId,
                 targetedSquaddieDynamicIds: [thiefDynamicId],
-                resultPerTarget: {[thiefDynamicId]: new ActivityResultOnSquaddie({damageTaken: 1})},
+                resultPerTarget: {[thiefDynamicId]: new ActionResultPerSquaddie({damageTaken: 1})},
             })
         });
         battleEventRecording = new Recording({});

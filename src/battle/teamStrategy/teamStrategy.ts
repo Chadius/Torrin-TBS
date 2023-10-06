@@ -1,6 +1,6 @@
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {TeamStrategyState} from "./teamStrategyState";
 
 export interface TeamStrategy {
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieActivitiesForThisRound | undefined;
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined;
 }

@@ -39,7 +39,7 @@ describe('BattlePhaseController', () => {
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                activities: [],
+                actions: [],
             })
         );
         squaddieRepo.addDynamicSquaddie(
@@ -60,7 +60,7 @@ describe('BattlePhaseController', () => {
                     traits: new TraitStatusStorage(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
-                activities: [],
+                actions: [],
             })
         );
         squaddieRepo.addDynamicSquaddie(

@@ -7,11 +7,11 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {SquaddieActivity} from "../../../squaddie/activity";
+import {SquaddieAction} from "../../../squaddie/action";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
-import {ActivityResultOnSquaddie} from "../../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {SquaddieSprite} from "./squaddieSprite";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
@@ -47,24 +47,24 @@ export class TargetSprite {
         return this._squaddieRepository;
     }
 
-    private _activityResult: ActivityResultOnSquaddie;
+    private _actionResult: ActionResultPerSquaddie;
 
-    get activityResult(): ActivityResultOnSquaddie {
-        return this._activityResult;
+    get actionResult(): ActionResultPerSquaddie {
+        return this._actionResult;
     }
 
     reset() {
         this._sprite = undefined;
         this._dynamicSquaddieId = undefined;
         this._squaddieRepository = undefined;
-        this._activityResult = undefined;
+        this._actionResult = undefined;
     }
 
-    start({targetDynamicSquaddieId, squaddieRepository, activity, result, windowArea, resourceHandler}: {
+    start({targetDynamicSquaddieId, squaddieRepository, action, result, windowArea, resourceHandler}: {
         targetDynamicSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
-        activity: SquaddieActivity,
-        result: ActivityResultOnSquaddie,
+        action: SquaddieAction,
+        result: ActionResultPerSquaddie,
         windowArea: RectArea,
         resourceHandler: ResourceHandler,
     }) {
@@ -73,7 +73,7 @@ export class TargetSprite {
         this._startingPosition = windowArea.left;
         this._squaddieRepository = squaddieRepository;
         this._dynamicSquaddieId = targetDynamicSquaddieId;
-        this._activityResult = result;
+        this._actionResult = result;
 
         const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.dynamicSquaddieId));
 
@@ -101,12 +101,12 @@ export class TargetSprite {
                                   timer,
                                   dynamicSquaddieId,
                                   squaddieRepository,
-                                  activityResult
+                                  result
                               }: {
         timer: ActionTimer,
         dynamicSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
-        activityResult: ActivityResultOnSquaddie
+        result: ActionResultPerSquaddie
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
@@ -128,7 +128,7 @@ export class TargetSprite {
     getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
-            activityResult: this.activityResult,
+            result: this.actionResult,
             dynamicSquaddieId: this.dynamicSquaddieId,
             squaddieRepository: this.squaddieRepository
         });

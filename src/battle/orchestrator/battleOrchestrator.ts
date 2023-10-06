@@ -13,9 +13,9 @@ import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlay
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
-import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
+import {BattleSquaddieUsesActionOnMap} from "../orchestratorComponents/battleSquaddieUsesActionOnMap";
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
-import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
+import {BattleSquaddieUsesActionOnSquaddie} from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {GameEngineChanges, GameEngineComponent} from "../../gameEngine/gameEngineComponent";
@@ -45,8 +45,8 @@ export enum BattleOrchestratorMode {
     PLAYER_SQUADDIE_TARGET = "PLAYER_SQUADDIE_TARGET",
     COMPUTER_SQUADDIE_SELECTOR = "COMPUTER_SQUADDIE_SELECTOR",
     SQUADDIE_MOVER = "SQUADDIE_MOVER",
-    SQUADDIE_MAP_ACTIVITY = "SQUADDIE_MAP_ACTIVITY",
-    SQUADDIE_SQUADDIE_ACTIVITY = "SQUADDIE_SQUADDIE_ACTIVITY",
+    SQUADDIE_USES_ACTION_ON_MAP = "SQUADDIE_USES_ACTION_ON_MAP",
+    SQUADDIE_USES_ACTION_ON_SQUADDIE = "SQUADDIE_USES_ACTION_ON_SQUADDIE",
 }
 
 
@@ -57,8 +57,8 @@ export class BattleOrchestrator implements GameEngineComponent {
     playerSquaddieSelector: BattlePlayerSquaddieSelector;
     playerSquaddieTarget: BattlePlayerSquaddieTarget;
     computerSquaddieSelector: BattleComputerSquaddieSelector;
-    squaddieMapActivity: BattleSquaddieMapActivity;
-    squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
+    squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap;
+    squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
     squaddieMover: BattleSquaddieMover;
     defaultBattleOrchestrator: DefaultBattleOrchestrator;
     mapDisplay: BattleMapDisplay;
@@ -69,9 +69,9 @@ export class BattleOrchestrator implements GameEngineComponent {
                     mapDisplay,
                     missionLoader,
                     phaseController,
-                    squaddieMapActivity,
+                    squaddieUsesActionOnMap,
                     squaddieMover,
-                    squaddieSquaddieActivity,
+                    squaddieUsesActionOnSquaddie,
                     playerSquaddieSelector,
                     playerSquaddieTarget,
                     computerSquaddieSelector,
@@ -81,8 +81,8 @@ export class BattleOrchestrator implements GameEngineComponent {
         playerSquaddieSelector: BattlePlayerSquaddieSelector,
         playerSquaddieTarget: BattlePlayerSquaddieTarget,
         computerSquaddieSelector: BattleComputerSquaddieSelector,
-        squaddieMapActivity: BattleSquaddieMapActivity,
-        squaddieSquaddieActivity: BattleSquaddieSquaddieActivity,
+        squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap,
+        squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie,
         squaddieMover: BattleSquaddieMover,
         mapDisplay: BattleMapDisplay,
         phaseController: BattlePhaseController,
@@ -92,11 +92,11 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.playerSquaddieSelector = playerSquaddieSelector;
         this.playerSquaddieTarget = playerSquaddieTarget;
         this.computerSquaddieSelector = computerSquaddieSelector;
-        this.squaddieMapActivity = squaddieMapActivity;
+        this.squaddieUsesActionOnMap = squaddieUsesActionOnMap;
         this.squaddieMover = squaddieMover;
         this.mapDisplay = mapDisplay;
         this.phaseController = phaseController;
-        this.squaddieSquaddieActivity = squaddieSquaddieActivity;
+        this.squaddieUsesActionOnSquaddie = squaddieUsesActionOnSquaddie;
 
         this.resetInternalState();
     }
@@ -133,10 +133,10 @@ export class BattleOrchestrator implements GameEngineComponent {
                 return this.playerSquaddieTarget;
             case BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR:
                 return this.computerSquaddieSelector;
-            case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
-                return this.squaddieMapActivity;
-            case BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY:
-                return this.squaddieSquaddieActivity;
+            case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP:
+                return this.squaddieUsesActionOnMap;
+            case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE:
+                return this.squaddieUsesActionOnSquaddie;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 return this.squaddieMover;
             default:
@@ -169,11 +169,11 @@ export class BattleOrchestrator implements GameEngineComponent {
             case BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR:
                 this.updateComponent(state, this.computerSquaddieSelector, graphicsContext, BattleOrchestratorMode.SQUADDIE_MOVER);
                 break;
-            case BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY:
-                this.updateComponent(state, this.squaddieMapActivity, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
+            case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP:
+                this.updateComponent(state, this.squaddieUsesActionOnMap, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
-            case BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY:
-                this.updateComponent(state, this.squaddieSquaddieActivity, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
+            case BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE:
+                this.updateComponent(state, this.squaddieUsesActionOnSquaddie, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
             case BattleOrchestratorMode.SQUADDIE_MOVER:
                 this.updateComponent(state, this.squaddieMover, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
@@ -265,11 +265,11 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.playerSquaddieSelector,
             this.playerSquaddieTarget,
             this.computerSquaddieSelector,
-            this.squaddieMapActivity,
+            this.squaddieUsesActionOnMap,
             this.squaddieMover,
             this.mapDisplay,
             this.phaseController,
-            this.squaddieSquaddieActivity,
+            this.squaddieUsesActionOnSquaddie,
         ].filter((component: BattleOrchestratorComponent) => component)
             .forEach((component: BattleOrchestratorComponent) => {
                 component.reset(state as BattleOrchestratorState);

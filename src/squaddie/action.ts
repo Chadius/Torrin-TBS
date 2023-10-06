@@ -3,7 +3,7 @@ import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType, HealingType} from "./squaddieService";
 
-export class ActivityRange {
+export class ActionRange {
     constructor(options: {
         minimumRange?: number,
         maximumRange?: number,
@@ -41,17 +41,17 @@ export class ActivityRange {
     }
 }
 
-export class SquaddieActivity {
+export class SquaddieAction {
     private readonly _name: string;
     private readonly _id: string;
-    private _range?: ActivityRange;
-    private readonly _actionsToSpend: number;
+    private _range?: ActionRange;
+    private readonly _actionPointCost: number;
     private readonly _traits: TraitStatusStorage;
     private readonly _damageDescriptions: { [t in DamageType]?: number };
     private readonly _healingDescriptions: { [t in HealingType]?: number };
 
     constructor({
-                    actionsToSpend,
+                    actionPointCost,
                     damageDescriptions,
                     healingDescriptions,
                     id,
@@ -63,10 +63,10 @@ export class SquaddieActivity {
         name: string;
         id: string;
         traits: TraitStatusStorage;
-        actionsToSpend?: number;
+        actionPointCost?: number;
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
-    } & Partial<ActivityRange>) {
+    } & Partial<ActionRange>) {
         this._name = name;
         this._id = id;
 
@@ -76,20 +76,20 @@ export class SquaddieActivity {
         if (maximumRange !== undefined) {
             assertsInteger(maximumRange);
         }
-        this._range = new ActivityRange({
+        this._range = new ActionRange({
             minimumRange: minimumRange,
             maximumRange: maximumRange,
         })
 
-        if (actionsToSpend !== undefined) {
-            assertsInteger(actionsToSpend);
+        if (actionPointCost !== undefined) {
+            assertsInteger(actionPointCost);
         }
 
-        if (actionsToSpend) {
-            assertsInteger(actionsToSpend);
-            this._actionsToSpend = actionsToSpend;
+        if (actionPointCost) {
+            assertsInteger(actionPointCost);
+            this._actionPointCost = actionPointCost;
         } else {
-            this._actionsToSpend = 1;
+            this._actionPointCost = 1;
         }
 
         this._traits = traits;
@@ -125,8 +125,8 @@ export class SquaddieActivity {
         return this._traits;
     }
 
-    get actionsToSpend(): number {
-        return this._actionsToSpend;
+    get actionPointCost(): number {
+        return this._actionPointCost;
     }
 
     get minimumRange(): number {

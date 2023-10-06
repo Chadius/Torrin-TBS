@@ -12,30 +12,30 @@ import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
-import {SquaddieEndTurnActivity} from "../history/squaddieEndTurnActivity";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {isCoordinateOnScreen} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
+import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
-import {SquaddieInstructionActivity} from "../history/squaddieInstructionActivity";
+import {AnySquaddieAction} from "../history/anySquaddieAction";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {CalculateResults} from "../activityCalculator/calculator";
+import {CalculateResults} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
-export const SHOW_SELECTED_ACTIVITY_TIME = 500;
+export const SHOW_SELECTED_ACTION_TIME = 500;
 
 export class BattleComputerSquaddieSelector implements BattleOrchestratorComponent {
-    private showSelectedActivityWaitTime?: number;
-    private clickedToSkipActivityDescription: boolean;
-    private mostRecentActivity: SquaddieInstructionActivity;
+    private showSelectedActionWaitTime?: number;
+    private clickedToSkipActionDescription: boolean;
+    private mostRecentAction: AnySquaddieAction;
 
     constructor() {
         this.resetInternalState();
@@ -44,7 +44,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     hasCompleted(state: BattleOrchestratorState): boolean {
         if (
             this.isPauseToShowSquaddieSelectionRequired(state)
-            && !(this.pauseToShowSquaddieSelectionCompleted(state) || this.clickedToSkipActivityDescription)
+            && !(this.pauseToShowSquaddieSelectionCompleted(state) || this.clickedToSkipActionDescription)
         ) {
             return false;
         }
@@ -58,7 +58,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED && !this.pauseToShowSquaddieSelectionCompleted(state)) {
-            this.clickedToSkipActivityDescription = true;
+            this.clickedToSkipActionDescription = true;
         }
     }
 
@@ -74,7 +74,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
-        if (this.mostRecentActivity === undefined && currentTeam && currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+        if (this.mostRecentAction === undefined && currentTeam && currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             this.askComputerControlSquaddie(state);
         }
     }
@@ -82,16 +82,16 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode = undefined;
 
-        if (this.mostRecentActivity !== undefined) {
-            let newActivity = this.mostRecentActivity;
-            if (newActivity instanceof SquaddieMovementActivity) {
+        if (this.mostRecentAction !== undefined) {
+            let newAction = this.mostRecentAction;
+            if (newAction instanceof SquaddieMovementAction) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
             }
-            if (newActivity instanceof SquaddieSquaddieActivity) {
-                nextMode = BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY;
+            if (newAction instanceof SquaddieSquaddieAction) {
+                nextMode = BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE;
             }
-            if (newActivity instanceof SquaddieEndTurnActivity) {
-                nextMode = BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY;
+            if (newAction instanceof SquaddieEndTurnAction) {
+                nextMode = BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
             }
         } else if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
             nextMode = BattleOrchestratorMode.PHASE_CONTROLLER;
@@ -116,13 +116,13 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private isPauseToShowSquaddieSelectionRequired(state: BattleOrchestratorState) {
-        if (this.mostRecentActivity === undefined) {
+        if (this.mostRecentAction === undefined) {
             return false;
         }
 
-        if (this.mostRecentActivity instanceof SquaddieMovementActivity) {
+        if (this.mostRecentAction instanceof SquaddieMovementAction) {
             return false;
-        } else if (this.mostRecentActivity instanceof SquaddieEndTurnActivity) {
+        } else if (this.mostRecentAction instanceof SquaddieEndTurnAction) {
             return false;
         }
 
@@ -130,20 +130,20 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private pauseToShowSquaddieSelectionCompleted(state: BattleOrchestratorState) {
-        return this.showSelectedActivityWaitTime !== undefined && (Date.now() - this.showSelectedActivityWaitTime) >= SHOW_SELECTED_ACTIVITY_TIME;
+        return this.showSelectedActionWaitTime !== undefined && (Date.now() - this.showSelectedActionWaitTime) >= SHOW_SELECTED_ACTION_TIME;
     }
 
     private highlightTargetRange(
         state: BattleOrchestratorState,
-        activity: SquaddieSquaddieActivity,
+        action: SquaddieSquaddieAction,
     ) {
-        const ability = state.squaddieCurrentlyActing.currentlySelectedActivity;
+        const ability = state.squaddieCurrentlyActing.currentlySelectedAction;
 
         const tilesTargeted: HexCoordinate[] = getResultOrThrowError(state.pathfinder.getAllReachableTiles(
             new SearchParams({
                 setup: new SearchSetup({
                     missionMap: state.missionMap,
-                    startLocation: activity.targetLocation,
+                    startLocation: action.targetLocation,
                     squaddieRepository: state.squaddieRepository,
                 }),
                 movement: new SearchMovement({
@@ -172,13 +172,13 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         state: BattleOrchestratorState,
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic,
-        activity: SquaddieSquaddieActivity,
+        action: SquaddieSquaddieAction,
     ) {
         MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
 
-        state.squaddieCurrentlyActing.addConfirmedActivity(activity);
-        dynamicSquaddie.squaddieTurn.spendActionsOnActivity(state.squaddieCurrentlyActing.currentlySelectedActivity);
-        const instructionResults = CalculateResults(state, dynamicSquaddie, activity.targetLocation);
+        state.squaddieCurrentlyActing.addConfirmedAction(action);
+        dynamicSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
+        const instructionResults = CalculateResults(state, dynamicSquaddie, action.targetLocation);
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,
@@ -186,30 +186,30 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         });
         state.battleEventRecording.addEvent(newEvent);
 
-        this.mostRecentActivity = activity;
-        this.showSelectedActivityWaitTime = Date.now();
+        this.mostRecentAction = action;
+        this.showSelectedActionWaitTime = Date.now();
     }
 
     private resetInternalState() {
-        this.mostRecentActivity = undefined;
-        this.showSelectedActivityWaitTime = undefined;
-        this.clickedToSkipActivityDescription = false;
+        this.mostRecentAction = undefined;
+        this.showSelectedActionWaitTime = undefined;
+        this.clickedToSkipActionDescription = false;
     }
 
     private askComputerControlSquaddie(state: BattleOrchestratorState) {
-        if (this.mostRecentActivity === undefined) {
+        if (this.mostRecentAction === undefined) {
             const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
             const currentTeamStrategies: TeamStrategy[] = state.teamStrategyByAffiliation[currentTeam.affiliation];
 
             let strategyIndex = 0;
-            let squaddieInstruction: SquaddieActivitiesForThisRound = undefined;
+            let squaddieInstruction: SquaddieActionsForThisRound = undefined;
             while (!squaddieInstruction && strategyIndex < currentTeamStrategies.length) {
                 const nextStrategy: TeamStrategy = currentTeamStrategies[strategyIndex];
                 squaddieInstruction = this.askTeamStrategyToInstructSquaddie(state, currentTeam, nextStrategy);
                 strategyIndex++;
             }
             if (squaddieInstruction) {
-                this.reactToComputerSelectedActivity(state, squaddieInstruction);
+                this.reactToComputerSelectedAction(state, squaddieInstruction);
             } else {
                 this.defaultSquaddieToEndTurn(state, currentTeam);
             }
@@ -237,27 +237,27 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             });
         }
 
-        state.squaddieCurrentlyActing.addConfirmedActivity(new SquaddieEndTurnActivity());
-        this.mostRecentActivity = new SquaddieEndTurnActivity();
+        state.squaddieCurrentlyActing.addConfirmedAction(new SquaddieEndTurnAction());
+        this.mostRecentAction = new SquaddieEndTurnAction();
 
         state.battleEventRecording.addEvent(new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,
         }));
     }
 
-    private askTeamStrategyToInstructSquaddie(state: BattleOrchestratorState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): SquaddieActivitiesForThisRound {
+    private askTeamStrategyToInstructSquaddie(state: BattleOrchestratorState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): SquaddieActionsForThisRound {
         const teamStrategyState: TeamStrategyState = new TeamStrategyState({
             missionMap: state.missionMap,
             team: currentTeam,
             squaddieRepository: state.squaddieRepository,
         })
 
-        let squaddieActivity: SquaddieActivitiesForThisRound = currentTeamStrategy.DetermineNextInstruction(teamStrategyState);
-        if (!squaddieActivity) {
+        let squaddieAction: SquaddieActionsForThisRound = currentTeamStrategy.DetermineNextInstruction(teamStrategyState);
+        if (!squaddieAction) {
             return;
         }
 
-        return squaddieActivity;
+        return squaddieAction;
     }
 
     private panToSquaddieIfOffscreen(state: BattleOrchestratorState) {
@@ -285,24 +285,24 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         }
     }
 
-    private reactToComputerSelectedActivity(state: BattleOrchestratorState, squaddieInstruction: SquaddieActivitiesForThisRound) {
+    private reactToComputerSelectedAction(state: BattleOrchestratorState, squaddieInstruction: SquaddieActionsForThisRound) {
         state.hexMap.stopHighlightingTiles();
         const {
             staticSquaddie,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieInstruction.dynamicSquaddieId));
-        let newActivity = squaddieInstruction.getMostRecentActivity();
-        if (newActivity instanceof SquaddieMovementActivity) {
-            createSearchPath(state, staticSquaddie, dynamicSquaddie, newActivity.destination);
-            this.mostRecentActivity = AddMovementInstruction(state, staticSquaddie, dynamicSquaddie, newActivity.destination);
+        let newAction = squaddieInstruction.getMostRecentAction();
+        if (newAction instanceof SquaddieMovementAction) {
+            createSearchPath(state, staticSquaddie, dynamicSquaddie, newAction.destination);
+            this.mostRecentAction = AddMovementInstruction(state, staticSquaddie, dynamicSquaddie, newAction.destination);
             return;
         }
-        if (newActivity instanceof SquaddieSquaddieActivity) {
-            this.addSquaddieSquaddieInstruction(state, staticSquaddie, dynamicSquaddie, newActivity);
-            this.highlightTargetRange(state, newActivity);
+        if (newAction instanceof SquaddieSquaddieAction) {
+            this.addSquaddieSquaddieInstruction(state, staticSquaddie, dynamicSquaddie, newAction);
+            this.highlightTargetRange(state, newAction);
             return;
         }
-        if (newActivity instanceof SquaddieEndTurnActivity) {
+        if (newAction instanceof SquaddieEndTurnAction) {
             this.addEndTurnInstruction(state, squaddieInstruction.dynamicSquaddieId);
         }
     }

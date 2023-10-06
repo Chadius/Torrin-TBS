@@ -34,7 +34,7 @@ describe('BattleSquaddieRepository', () => {
                 traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            activities: [],
+            actions: [],
         });
         dynamicSquaddieBase = new BattleSquaddieDynamic({
             dynamicSquaddieId: "player_young_torrin_0",

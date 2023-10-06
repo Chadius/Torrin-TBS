@@ -35,7 +35,7 @@ describe('Battle Squaddie Team', () => {
                 traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
-            activities: [],
+            actions: [],
         });
 
         squaddieRepo.addStaticSquaddie(
@@ -78,7 +78,7 @@ describe('Battle Squaddie Team', () => {
                 traits: new TraitStatusStorage(),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
-            activities: [],
+            actions: [],
         });
 
         squaddieRepo.addStaticSquaddie(
@@ -139,7 +139,7 @@ describe('Battle Squaddie Team', () => {
         expect(twoEnemyTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled()).toBe("enemy_slither_demon_1");
     });
     describe('begin new round', () => {
-        it('can restore actions to the team upon beginning a round', () => {
+        it('can restore action points to the team upon beginning a round', () => {
             playerDynamicSquaddie0.endTurn();
             playerDynamicSquaddie1.endTurn();
             expect(twoPlayerTeam.hasAnActingSquaddie()).toBeFalsy();

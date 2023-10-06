@@ -1,6 +1,6 @@
 import {SquaddieId} from "../squaddie/id";
 import {SquaddieMovement} from "../squaddie/movement";
-import {SquaddieActivity} from "../squaddie/activity";
+import {SquaddieAction} from "../squaddie/action";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieTurn} from "../squaddie/turn";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
@@ -9,20 +9,20 @@ import {InBattleAttributes} from "./stats/inBattleAttributes";
 export class BattleSquaddieStatic {
     squaddieId: SquaddieId;
     attributes: ArmyAttributes;
-    private readonly _activities: SquaddieActivity[];
+    private readonly _action: SquaddieAction[];
 
     constructor(options: {
         squaddieId: SquaddieId,
-        activities?: SquaddieActivity[],
+        actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }) {
         this.squaddieId = options.squaddieId;
-        this._activities = options.activities || [];
+        this._action = options.actions || [];
         this.attributes = options.attributes || new ArmyAttributes();
     }
 
-    get activities(): SquaddieActivity[] {
-        return this._activities;
+    get action(): SquaddieAction[] {
+        return this._action;
     }
 
     get movement(): SquaddieMovement {
@@ -33,8 +33,8 @@ export class BattleSquaddieStatic {
         return this.squaddieId.staticId;
     }
 
-    addActivity(newActivity: SquaddieActivity) {
-        this._activities.push(newActivity);
+    addAction(action: SquaddieAction) {
+        this._action.push(action);
     }
 }
 
@@ -107,7 +107,7 @@ export class BattleSquaddieDynamic {
     }
 
     canStillActThisRound(): boolean {
-        return this._squaddieTurn.hasActionsRemaining();
+        return this._squaddieTurn.hasActionPointsRemaining();
     }
 
     beginNewRound() {

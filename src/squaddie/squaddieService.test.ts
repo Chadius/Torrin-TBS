@@ -57,23 +57,23 @@ describe('Squaddie Service', () => {
     });
 
     describe('Turns Remaining', () => {
-        it('returns the number of actions', () => {
+        it('returns the number of action points', () => {
             let {
-                normalActionsRemaining
+                actionPointsRemaining
             } = GetNumberOfActionPoints({
                 staticSquaddie: playerStatic,
                 dynamicSquaddie: playerDynamic,
             });
-            expect(normalActionsRemaining).toBe(3);
+            expect(actionPointsRemaining).toBe(3);
 
-            playerDynamic.squaddieTurn.spendNumberActions(1);
+            playerDynamic.squaddieTurn.spendActionPoints(1);
             ({
-                normalActionsRemaining
+                actionPointsRemaining: actionPointsRemaining
             } = GetNumberOfActionPoints({
                 staticSquaddie: playerStatic,
                 dynamicSquaddie: playerDynamic,
             }));
-            expect(normalActionsRemaining).toBe(2);
+            expect(actionPointsRemaining).toBe(2);
         });
     });
 
@@ -199,7 +199,7 @@ describe('Squaddie Service', () => {
         it('can act by default', () => {
             let {
                 canAct,
-                hasActionsRemaining,
+                hasActionPointsRemaining,
                 isDead,
             } = CanSquaddieActRightNow({
                 staticSquaddie: playerStatic,
@@ -207,21 +207,21 @@ describe('Squaddie Service', () => {
             });
 
             expect(canAct).toBeTruthy();
-            expect(hasActionsRemaining).toBeTruthy();
+            expect(hasActionPointsRemaining).toBeTruthy();
             expect(isDead).toBeFalsy();
         });
         it('cannot act because it is out of actions', () => {
-            playerDynamic.squaddieTurn.spendNumberActions(3);
+            playerDynamic.squaddieTurn.spendActionPoints(3);
             let {
                 canAct,
-                hasActionsRemaining,
+                hasActionPointsRemaining,
             } = CanSquaddieActRightNow({
                 staticSquaddie: playerStatic,
                 dynamicSquaddie: playerDynamic,
             });
 
             expect(canAct).toBeFalsy();
-            expect(hasActionsRemaining).toBeFalsy();
+            expect(hasActionPointsRemaining).toBeFalsy();
         });
         it('knows a squaddie without hit points cannot act', () => {
             DealDamageToTheSquaddie({
@@ -233,7 +233,7 @@ describe('Squaddie Service', () => {
 
             let {
                 canAct,
-                hasActionsRemaining,
+                hasActionPointsRemaining,
                 isDead,
             } = CanSquaddieActRightNow({
                 staticSquaddie: playerStatic,
@@ -241,7 +241,7 @@ describe('Squaddie Service', () => {
             });
 
             expect(canAct).toBeFalsy();
-            expect(hasActionsRemaining).toBeFalsy();
+            expect(hasActionPointsRemaining).toBeFalsy();
             expect(isDead).toBeTruthy();
         });
     });
@@ -262,7 +262,7 @@ describe('Squaddie Service', () => {
             expect(playerCanControlThisSquaddieRightNow).toBeTruthy();
         });
         it('checks when the player controlled squaddie has no actions', () => {
-            playerDynamic.squaddieTurn.spendNumberActions(3);
+            playerDynamic.squaddieTurn.spendActionPoints(3);
             let {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,

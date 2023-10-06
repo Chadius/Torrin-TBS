@@ -4,7 +4,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {FormatResult} from "./activityResultTextWriter";
+import {FormatResult} from "./actionResultTextWriter";
 import {Label} from "../../ui/label";
 import {RectArea} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -16,17 +16,17 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     outputTextDisplay: Label;
     outputTextStrings: string[];
     private animationCompleteStartTime: number;
-    private clickedToCancelActivity: boolean;
+    private userCanceledAction: boolean;
 
     hasCompleted(state: BattleOrchestratorState): boolean {
         const userWaited: boolean = this.animationCompleteStartTime !== undefined
             && Date.now() - this.animationCompleteStartTime >= ANIMATE_TEXT_WINDOW_WAIT_TIME;
-        return userWaited || this.clickedToCancelActivity;
+        return userWaited || this.userCanceledAction;
     }
 
     mouseEventHappened(state: BattleOrchestratorState, mouseEvent: OrchestratorComponentMouseEvent): void {
         if (mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.clickedToCancelActivity = true;
+            this.userCanceledAction = true;
         }
     }
 
@@ -46,7 +46,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     private resetInternalState() {
         this.outputTextDisplay = undefined;
         this.animationCompleteStartTime = undefined;
-        this.clickedToCancelActivity = false;
+        this.userCanceledAction = false;
     }
 
     private maybeInitializeAnimationTimer() {
@@ -55,11 +55,11 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         }
     }
 
-    private drawActivityDescription(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawActionDescription(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
             this.outputTextStrings = FormatResult({
                 squaddieRepository: state.squaddieRepository,
-                currentActivity: state.squaddieCurrentlyActing.currentlySelectedActivity,
+                currentAction: state.squaddieCurrentlyActing.currentlySelectedAction,
                 result: state.battleEventRecording.mostRecentEvent.results,
             });
 
@@ -89,6 +89,6 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     }
 
     private draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
-        this.drawActivityDescription(state, graphicsContext);
+        this.drawActionDescription(state, graphicsContext);
     }
 }

@@ -1,11 +1,11 @@
 import {TeamStrategy} from "./teamStrategy";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 
@@ -24,7 +24,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieActivitiesForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
         if (!this.desiredDynamicSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
@@ -41,7 +41,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
+        const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
         const pathfinder = new Pathfinder();
         const searchResults: SearchResults =
             pathfinder.findReachableSquaddies(new SearchParams({
@@ -59,7 +59,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: normalActionsRemaining,
+                    numberOfActionPoints: actionPointsRemaining,
                 }),
             }));
         const reachableSquaddiesResults = searchResults.getReachableSquaddies();
@@ -135,13 +135,13 @@ export class MoveCloserToSquaddie implements TeamStrategy {
 
             const numberOfMoveActions = searchResults.calculateNumberOfMoveActionsRequired(targetLocation);
 
-            const moveTowardsLocation: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+            const moveTowardsLocation: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
                 staticSquaddieId: staticSquaddie.squaddieId.staticId,
                 dynamicSquaddieId: squaddieToAct,
                 startingLocation: mapLocation,
             });
-            moveTowardsLocation.addActivity(new SquaddieMovementActivity({
-                numberOfActionsSpent: numberOfMoveActions,
+            moveTowardsLocation.addAction(new SquaddieMovementAction({
+                numberOfActionPointsSpent: numberOfMoveActions,
                 destination: targetLocation,
             }));
             state.setInstruction(moveTowardsLocation);

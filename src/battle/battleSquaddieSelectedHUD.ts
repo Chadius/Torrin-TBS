@@ -5,10 +5,10 @@ import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {ActivityButton} from "../squaddie/activityButton";
+import {UseActionButton} from "../squaddie/useActionButton";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
-import {SquaddieActivity} from "../squaddie/activity";
-import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
+import {SquaddieAction} from "../squaddie/action";
+import {SquaddieEndTurnAction} from "./history/squaddieEndTurnAction";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {TextBox} from "../ui/textBox";
 import {
@@ -25,16 +25,16 @@ import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 
-enum ActivityValidityCheck {
+enum ActionValidityCheck {
     IS_VALID,
-    SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTIONS,
+    SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS,
 }
 
 export class BattleSquaddieSelectedHUD {
     selectedSquaddieDynamicId: string;
     affiliateIcon?: ImageUI;
-    selectedActivity: SquaddieActivity | SquaddieEndTurnActivity;
-    activityButtons: ActivityButton[];
+    selectedAction: SquaddieAction | SquaddieEndTurnAction;
+    useActionButtons: UseActionButton[];
     nextSquaddieButton: Label;
     nextSquaddieDynamicIds: string[];
     squaddieIdTextBox: TextBox;
@@ -74,7 +74,7 @@ export class BattleSquaddieSelectedHUD {
         );
 
         this.generateAffiliateIcon(staticSquaddie, state);
-        this.generateSquaddieActivityButtons(staticSquaddie, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
+        this.generateUseActionButtons(staticSquaddie, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
         this.generateSquaddieIdText(staticSquaddie);
     }
@@ -119,8 +119,8 @@ export class BattleSquaddieSelectedHUD {
         this._background.draw(graphicsContext);
         this.drawSquaddieID(state, graphicsContext);
         this.drawSquaddieAttributes(state, graphicsContext);
-        this.drawNumberOfActions(state, graphicsContext);
-        this.drawSquaddieActivities(graphicsContext);
+        this.drawNumberOfActionPoints(state, graphicsContext);
+        this.drawSquaddieActions(graphicsContext);
         this.drawUncontrollableSquaddieWarning(state);
         this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state);
         this.invalidCommandWarningTextBox.draw(graphicsContext);
@@ -129,16 +129,16 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    getActivityButtons(): ActivityButton[] {
-        return this.activityButtons ? [...this.activityButtons] : [];
+    getUseActionButtons(): UseActionButton[] {
+        return this.useActionButtons ? [...this.useActionButtons] : [];
     }
 
-    wasActivitySelected(): boolean {
-        return this.selectedActivity !== undefined;
+    wasAnyActionSelected(): boolean {
+        return this.selectedAction !== undefined;
     }
 
-    getSelectedActivity(): SquaddieActivity | SquaddieEndTurnActivity {
-        return this.selectedActivity;
+    getSelectedAction(): SquaddieAction | SquaddieEndTurnAction {
+        return this.selectedAction;
     }
 
     keyPressed(keyCode: number, state: BattleOrchestratorState) {
@@ -153,17 +153,17 @@ export class BattleSquaddieSelectedHUD {
     }
 
     mouseClicked(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
-        const clickedActivityButton = this.activityButtons.find((button) =>
+        const selectedUseActionButton = this.useActionButtons.find((button) =>
             button.buttonArea.isInside(mouseX, mouseY)
         );
 
-        if (clickedActivityButton) {
-            const activityValidCheck = this.checkIfActivityIsValid(clickedActivityButton.activity, state);
-            if (activityValidCheck === ActivityValidityCheck.IS_VALID) {
-                this.selectedActivity = clickedActivityButton.activity;
+        if (selectedUseActionButton) {
+            const actionValidityCheck = this.checkIfActionIsValid(selectedUseActionButton.action, state);
+            if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
+                this.selectedAction = selectedUseActionButton.action;
                 return;
             }
-            this.warnUserNotEnoughActionsToPerformAction(clickedActivityButton.activity);
+            this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.action);
         }
 
         const clickedOnNextButton: boolean = this.shouldDrawNextButton(state) && this.nextSquaddieButton.rectangle.area.isInside(mouseX, mouseY);
@@ -173,7 +173,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     mouseMoved(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
-        this.activityButtons.forEach((button) => {
+        this.useActionButtons.forEach((button) => {
             if (button.buttonArea.isInside(mouseX, mouseY)) {
                 button.status = ButtonStatus.HOVER;
             } else {
@@ -185,8 +185,8 @@ export class BattleSquaddieSelectedHUD {
     reset() {
         this.selectedSquaddieDynamicId = "";
         this.affiliateIcon = undefined;
-        this.selectedActivity = undefined;
-        this.activityButtons = undefined;
+        this.selectedAction = undefined;
+        this.useActionButtons = undefined;
         this.invalidCommandWarningTextBox = new TextBox({
             text: "",
             textSize: 0,
@@ -213,16 +213,16 @@ export class BattleSquaddieSelectedHUD {
         return !selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 0;
     }
 
-    private generateSquaddieActivityButtons(
+    private generateUseActionButtons(
         staticSquaddie: BattleSquaddieStatic,
         dynamicSquaddie: BattleSquaddieDynamic,
         squaddieAffiliationHue: number,
         windowDimensions: RectArea
     ) {
-        this.activityButtons = [];
-        staticSquaddie.activities.forEach((activity: SquaddieActivity, index: number) => {
-            this.activityButtons.push(
-                new ActivityButton({
+        this.useActionButtons = [];
+        staticSquaddie.action.forEach((action: SquaddieAction, index: number) => {
+            this.useActionButtons.push(
+                new UseActionButton({
                     buttonArea: new RectArea({
                         baseRectangle: windowDimensions,
                         anchorLeft: HorizontalAnchor.LEFT,
@@ -232,14 +232,14 @@ export class BattleSquaddieSelectedHUD {
                         width: (windowDimensions.width / 12) - 16,
                         height: this._background.area.height * 0.5,
                     }),
-                    activity,
+                    action: action,
                     hue: squaddieAffiliationHue,
                 })
             );
         });
 
-        this.activityButtons.push(
-            new ActivityButton({
+        this.useActionButtons.push(
+            new UseActionButton({
                 hue: squaddieAffiliationHue,
                 buttonArea: new RectArea({
                     baseRectangle: windowDimensions,
@@ -250,7 +250,7 @@ export class BattleSquaddieSelectedHUD {
                     width: (windowDimensions.width / 12) - 16,
                     height: this._background.area.height - 32,
                 }),
-                activity: new SquaddieEndTurnActivity(),
+                action: new SquaddieEndTurnAction(),
             })
         );
     }
@@ -301,12 +301,12 @@ export class BattleSquaddieSelectedHUD {
         this.squaddieIdTextBox.draw(graphicsContext);
     }
 
-    private drawNumberOfActions(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawNumberOfActionPoints(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
-        const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
+        const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
 
         graphicsContext.push();
 
@@ -329,9 +329,9 @@ export class BattleSquaddieSelectedHUD {
         graphicsContext.fill({color: "#dedede"});
         graphicsContext.rect(
             actionBackground.left,
-            actionBackground.bottom - mainActionIconWidth * normalActionsRemaining,
+            actionBackground.bottom - mainActionIconWidth * actionPointsRemaining,
             actionBackground.width,
-            mainActionIconWidth * normalActionsRemaining);
+            mainActionIconWidth * actionPointsRemaining);
 
         const actionLineMarking: RectArea = new RectArea({
             left: actionBackground.left,
@@ -340,7 +340,7 @@ export class BattleSquaddieSelectedHUD {
             height: actionBackground.height,
         });
 
-        [1, 2].filter(i => normalActionsRemaining >= i).forEach(i => {
+        [1, 2].filter(i => actionPointsRemaining >= i).forEach(i => {
             const verticalDistance: number = i * actionBackground.height / 3;
             graphicsContext.line(
                 actionBackground.left,
@@ -353,8 +353,8 @@ export class BattleSquaddieSelectedHUD {
         graphicsContext.pop();
     }
 
-    private drawSquaddieActivities(graphicsContext: GraphicsContext) {
-        this.activityButtons.forEach((button) => {
+    private drawSquaddieActions(graphicsContext: GraphicsContext) {
+        this.useActionButtons.forEach((button) => {
             button.draw(graphicsContext)
         });
     }
@@ -424,11 +424,11 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieCurrentlyActing.squaddieActivitiesForThisRound.getDynamicSquaddieId()));
+        const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieCurrentlyActing.squaddieActionsForThisRound.getDynamicSquaddieId()));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${staticSquaddie.squaddieId.name}`;
 
         if (
-            this.selectedSquaddieDynamicId === squaddieCurrentlyActing.squaddieActivitiesForThisRound.getDynamicSquaddieId()
+            this.selectedSquaddieDynamicId === squaddieCurrentlyActing.squaddieActionsForThisRound.getDynamicSquaddieId()
         ) {
             if (
                 this.invalidCommandWarningTextBox.text === differentSquaddieWarningText
@@ -475,12 +475,12 @@ export class BattleSquaddieSelectedHUD {
         });
     }
 
-    private warnUserNotEnoughActionsToPerformAction(activity: SquaddieActivity | SquaddieEndTurnActivity): void {
+    private warnUserNotEnoughActionPointsToPerformAction(action: SquaddieAction | SquaddieEndTurnAction): void {
         let warningText: string = '';
-        if (activity instanceof SquaddieEndTurnActivity) {
+        if (action instanceof SquaddieEndTurnAction) {
             warningText = "Not enough actions to wait???";
         } else {
-            warningText = `Need ${activity.actionsToSpend} actions to use this ability`
+            warningText = `Need ${action.actionPointCost} action points`
         }
 
         this.maybeCreateInvalidCommandWarningTextBox(
@@ -489,21 +489,21 @@ export class BattleSquaddieSelectedHUD {
         );
     }
 
-    private checkIfActivityIsValid(activity: SquaddieActivity | SquaddieEndTurnActivity, state: BattleOrchestratorState): ActivityValidityCheck {
-        if (activity instanceof SquaddieEndTurnActivity) {
-            return ActivityValidityCheck.IS_VALID;
+    private checkIfActionIsValid(action: SquaddieAction | SquaddieEndTurnAction, state: BattleOrchestratorState): ActionValidityCheck {
+        if (action instanceof SquaddieEndTurnAction) {
+            return ActionValidityCheck.IS_VALID;
         }
 
         const {
             staticSquaddie,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
-        const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
-        if (normalActionsRemaining < activity.actionsToSpend) {
-            return ActivityValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTIONS;
+        const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
+        if (actionPointsRemaining < action.actionPointCost) {
+            return ActionValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS;
         }
 
-        return ActivityValidityCheck.IS_VALID
+        return ActionValidityCheck.IS_VALID
     }
 
     private drawSquaddieAttributes(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {

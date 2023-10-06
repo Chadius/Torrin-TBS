@@ -33,7 +33,7 @@ describe('pathfinding with a single move', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
             })
         })));
 
@@ -72,7 +72,7 @@ describe('pathfinding with a single move', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                 })
             })));
         }
@@ -104,7 +104,7 @@ describe('pathfinding with a single move', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
             })
         })));
 
@@ -140,7 +140,7 @@ describe('pathfinding with a single move', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
             })
         })));
 
@@ -175,7 +175,7 @@ describe('pathfinding with a single move', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
             })
         })));
 
@@ -223,7 +223,7 @@ describe('pathfinding with a single move', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                 })
             })));
 
@@ -257,7 +257,7 @@ describe('pathfinding with a single move', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                 })
             })));
 
@@ -297,7 +297,7 @@ describe('pathfinding with a single move', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                 })
             })));
 
@@ -331,7 +331,7 @@ describe('pathfinding with a single move', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                 })
             })));
 
@@ -365,7 +365,7 @@ describe('pathfinding with a single move', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                 })
             })));
 
@@ -437,7 +437,7 @@ describe('pathfinding with a single move', () => {
                         shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                     }),
                     stopCondition: new SearchStopCondition({
-                        numberOfActions: 1,
+                        numberOfActionPoints: 1,
                     })
                 }),
                 0,
@@ -459,7 +459,7 @@ describe('pathfinding with a single move', () => {
                         shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                     }),
                     stopCondition: new SearchStopCondition({
-                        numberOfActions: 1,
+                        numberOfActionPoints: 1,
                     })
                 }),
                 0,
@@ -489,7 +489,7 @@ describe('pathfinding with a single move', () => {
                         shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                     }),
                     stopCondition: new SearchStopCondition({
-                        numberOfActions: 1,
+                        numberOfActionPoints: 1,
                     })
                 }),
                 1,
@@ -523,7 +523,7 @@ describe('pathfinding with a single move', () => {
                         shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                     }),
                     stopCondition: new SearchStopCondition({
-                        numberOfActions: 1,
+                        numberOfActionPoints: 1,
                     })
                 }),
                 2,

@@ -21,7 +21,7 @@ import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimatio
 import {Trait} from "../../trait/traitStatusStorage";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
-export class BattleSquaddieSquaddieActivity implements BattleOrchestratorComponent {
+export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
     private readonly _squaddieTargetsOtherSquaddiesAnimator: SquaddieTargetsOtherSquaddiesAnimator;
     private readonly _squaddieSkipsAnimationAnimator: SquaddieSkipsAnimationAnimator;
@@ -55,7 +55,7 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            this.setSquaddieActionAnimatorBasedOnActivity(state);
+            this.setSquaddieActionAnimatorBasedOnAction(state);
             this.squaddieActionAnimator.mouseEventHappened(state, event);
         }
     }
@@ -88,7 +88,7 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator) {
-            this.setSquaddieActionAnimatorBasedOnActivity(state);
+            this.setSquaddieActionAnimatorBasedOnAction(state);
         }
         this.squaddieActionAnimator.update(state, graphicsContext);
         if (this.squaddieActionAnimator.hasCompleted(state)) {
@@ -115,17 +115,17 @@ export class BattleSquaddieSquaddieActivity implements BattleOrchestratorCompone
         });
     }
 
-    private setSquaddieActionAnimatorBasedOnActivity(state: BattleOrchestratorState) {
+    private setSquaddieActionAnimatorBasedOnAction(state: BattleOrchestratorState) {
         if (
             state.battleEventRecording.mostRecentEvent === undefined
             || state.battleEventRecording.mostRecentEvent.instruction === undefined
-            || state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedActivity === undefined
+            || state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedAction === undefined
         ) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
             return;
         }
 
-        if (state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedActivity.traits.getStatus(Trait.SKIP_ANIMATION) === true) {
+        if (state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedAction.traits.getStatus(Trait.SKIP_ANIMATION) === true) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator;
             return;
         }

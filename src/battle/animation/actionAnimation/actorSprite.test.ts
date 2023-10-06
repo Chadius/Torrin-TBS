@@ -1,4 +1,4 @@
-import {ActivityResultOnSquaddie} from "../../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -11,7 +11,7 @@ import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 
 describe('Actor Sprite', () => {
-    let resultTookDamage: ActivityResultOnSquaddie;
+    let resultTookDamage: ActionResultPerSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -91,12 +91,12 @@ describe('Actor Sprite', () => {
         const tests = [
             {
                 name: 'deals damage',
-                activityResult: resultTookDamage,
+                actionResult: resultTookDamage,
             }
         ]
         it.each(tests)(`$name will show the same emotion`, ({
                                                                 name,
-                                                                activityResult,
+                                                                actionResult,
                                                             }) => {
             const sprite = new ActorSprite();
             mockActionTimerPhase(ActionAnimationPhase.DURING_ACTION);

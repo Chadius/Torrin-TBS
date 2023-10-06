@@ -15,7 +15,7 @@ import {FindValidTargets} from "../targeting/targetingService";
 export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
 
-    const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
+    const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
 
     const reachableTileSearchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(
         new SearchParams({
@@ -34,7 +34,7 @@ export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: normalActionsRemaining,
+                numberOfActionPoints: actionPointsRemaining,
             })
         }))
     );
@@ -59,15 +59,15 @@ export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
     let actionTiles: HexCoordinate[] = [];
     const actionPoints = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
 
-    staticSquaddie.activities.forEach((activity) => {
+    staticSquaddie.action.forEach((action) => {
         sortedMovementActionPoints.forEach((movementActionsSpent: number) => {
-            if (activity.actionsToSpend > actionPoints.normalActionsRemaining - movementActionsSpent) {
+            if (action.actionPointCost > actionPoints.actionPointsRemaining - movementActionsSpent) {
                 return;
             }
 
             const targetingResults = FindValidTargets({
                 map: missionMap,
-                activity: activity,
+                action: action,
                 actingStaticSquaddie: staticSquaddie,
                 actingDynamicSquaddie: dynamicSquaddie,
                 squaddieRepository,

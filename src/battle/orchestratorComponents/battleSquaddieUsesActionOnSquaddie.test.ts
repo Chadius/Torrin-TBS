@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -7,9 +7,9 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {BattleSquaddieSquaddieActivity} from "./battleSquaddieSquaddieActivity";
-import {SquaddieActivity} from "../../squaddie/activity";
-import {SquaddieSquaddieActivity} from "../history/squaddieSquaddieActivity";
+import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
+import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     OrchestratorComponentMouseEvent,
@@ -28,21 +28,21 @@ import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {DamageType, IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {MissionMap} from "../../missionMap/missionMap";
-import {ActivityResultOnSquaddie} from "../history/activityResultOnSquaddie";
+import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 
-describe('BattleSquaddieSquaddieActivity', () => {
+describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
     let targetStatic: BattleSquaddieStatic;
     let targetDynamic: BattleSquaddieDynamic;
-    let powerAttackLongswordActivity: SquaddieActivity;
-    let monkKoanActivity: SquaddieActivity;
+    let powerAttackLongswordAction: SquaddieAction;
+    let monkKoanAction: SquaddieAction;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: SquaddieInstructionInProgress;
-    let squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
+    let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let battleEventRecording: Recording;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -89,22 +89,22 @@ describe('BattleSquaddieSquaddieActivity', () => {
             }),
         }));
 
-        powerAttackLongswordActivity = new SquaddieActivity({
+        powerAttackLongswordAction = new SquaddieAction({
             name: "power attack longsword",
             id: "powerAttackLongsword",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
-            actionsToSpend: 3,
+            actionPointCost: 3,
             damageDescriptions: {
                 [DamageType.Body]: 9001,
             },
         });
 
-        monkKoanActivity = new SquaddieActivity({
+        monkKoanAction = new SquaddieAction({
             id: "koan",
             name: "koan",
             traits: new TraitStatusStorage({
@@ -118,7 +118,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
         jest.spyOn(orchestratorUtils, "DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
         });
 
-        squaddieSquaddieActivity = new BattleSquaddieSquaddieActivity();
+        squaddieUsesActionOnSquaddie = new BattleSquaddieUsesActionOnSquaddie();
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
@@ -127,19 +127,19 @@ describe('BattleSquaddieSquaddieActivity', () => {
     });
 
     function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
-        const instruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+        const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
-        instruction.addActivity(new SquaddieSquaddieActivity({
+        instruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieActivity: monkKoanActivity,
+            squaddieAction: monkKoanAction,
         }))
         monkMeditatesInstruction = new SquaddieInstructionInProgress({
-            activitiesForThisRound: instruction,
-            currentSquaddieActivity: monkKoanActivity,
+            actionsForThisRound: instruction,
+            currentSquaddieAction: monkKoanAction,
         });
-        monkMeditatesInstruction.addSelectedActivity(monkKoanActivity);
+        monkMeditatesInstruction.addSelectedAction(monkKoanAction);
 
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,
@@ -166,23 +166,23 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        dynamicSquaddieBase.squaddieTurn.spendActionsOnActivity(powerAttackLongswordActivity);
+        dynamicSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
         return state;
     }
 
     function usePowerAttackLongswordAndReturnState({missionMap}: { missionMap?: MissionMap }) {
-        const wholeTurnInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+        const wholeTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
-        wholeTurnInstruction.addActivity(new SquaddieSquaddieActivity({
+        wholeTurnInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieActivity: powerAttackLongswordActivity,
+            squaddieAction: powerAttackLongswordAction,
         }));
 
         const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            activitiesForThisRound: wholeTurnInstruction,
-            currentSquaddieActivity: powerAttackLongswordActivity,
+            actionsForThisRound: wholeTurnInstruction,
+            currentSquaddieAction: powerAttackLongswordAction,
         });
 
         const newEvent: BattleEvent = new BattleEvent({
@@ -190,7 +190,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             results: new SquaddieSquaddieResults({
                 actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId,
                 targetedSquaddieDynamicIds: ["target_dynamic_squaddie"],
-                resultPerTarget: {["target_dynamic_squaddie"]: new ActivityResultOnSquaddie({damageTaken: 9001})}
+                resultPerTarget: {["target_dynamic_squaddie"]: new ActionResultPerSquaddie({damageTaken: 9001})}
             })
         });
         battleEventRecording.addEvent(newEvent);
@@ -209,7 +209,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        dynamicSquaddieBase.squaddieTurn.spendActionsOnActivity(powerAttackLongswordActivity);
+        dynamicSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
         return state;
     }
 
@@ -224,10 +224,10 @@ describe('BattleSquaddieSquaddieActivity', () => {
         targetDynamic.inBattleAttributes.takeDamage(targetStatic.attributes.maxHitPoints, DamageType.Body);
         expect(IsSquaddieAlive({dynamicSquaddie: targetDynamic, staticSquaddie: targetStatic})).toBeFalsy();
 
-        jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
+        jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
 
-        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
+        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
         expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.dynamicSquaddieId)).toBeTruthy();
     });
@@ -235,51 +235,51 @@ describe('BattleSquaddieSquaddieActivity', () => {
     it('uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes', () => {
         const state = usePowerAttackLongswordAndReturnState({});
 
-        const squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
-        const squaddieTargetsOtherSquaddiesAnimatorResetSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "reset").mockImplementation();
-        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(false);
-        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
+        const squaddieTargetsOtherSquaddiesAnimatorUpdateSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
+        const squaddieTargetsOtherSquaddiesAnimatorResetSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "reset").mockImplementation();
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(false);
+        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
 
-        expect(squaddieSquaddieActivity.squaddieActionAnimator).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator);
+        expect(squaddieUsesActionOnSquaddie.squaddieActionAnimator).toBeInstanceOf(SquaddieTargetsOtherSquaddiesAnimator);
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled();
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
-        expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
+        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeFalsy();
 
         squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy.mockReturnValue(true);
-        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
+        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
         expect(squaddieTargetsOtherSquaddiesAnimatorUpdateSpy).toBeCalled();
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
-        expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();
+        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy();
 
-        const stateChanges = squaddieSquaddieActivity.recommendStateChanges(state);
+        const stateChanges = squaddieUsesActionOnSquaddie.recommendStateChanges(state);
         expect(stateChanges.nextMode).toBeUndefined();
         expect(stateChanges.displayMap).toBeTruthy();
 
-        squaddieSquaddieActivity.reset(state);
+        squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled();
         expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
     });
 
-    it('uses the SquaddieSkipsAnimationAnimator for activities that lack animation and waits after it completes', () => {
+    it('uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes', () => {
         const state = useMonkKoanAndReturnState({});
 
-        const squaddieSkipsAnimationAnimatorUpdateSpy = jest.spyOn(squaddieSquaddieActivity.squaddieSkipsAnimationAnimator, "update").mockImplementation();
-        const squaddieSkipsAnimationAnimatorResetSpy = jest.spyOn(squaddieSquaddieActivity.squaddieSkipsAnimationAnimator, "reset").mockImplementation();
-        const squaddieSkipsAnimationAnimatorHasCompletedSpy = jest.spyOn(squaddieSquaddieActivity.squaddieSkipsAnimationAnimator, "hasCompleted").mockReturnValue(false);
-        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
+        const squaddieSkipsAnimationAnimatorUpdateSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator, "update").mockImplementation();
+        const squaddieSkipsAnimationAnimatorResetSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator, "reset").mockImplementation();
+        const squaddieSkipsAnimationAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieSkipsAnimationAnimator, "hasCompleted").mockReturnValue(false);
+        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
 
-        expect(squaddieSquaddieActivity.squaddieActionAnimator).toBeInstanceOf(SquaddieSkipsAnimationAnimator);
+        expect(squaddieUsesActionOnSquaddie.squaddieActionAnimator).toBeInstanceOf(SquaddieSkipsAnimationAnimator);
         expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled();
         expect(squaddieSkipsAnimationAnimatorHasCompletedSpy).toBeCalled();
-        expect(squaddieSquaddieActivity.hasCompleted(state)).toBeFalsy();
+        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeFalsy();
 
         squaddieSkipsAnimationAnimatorHasCompletedSpy.mockReturnValue(true);
-        squaddieSquaddieActivity.update(state, mockedP5GraphicsContext);
+        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
         expect(squaddieSkipsAnimationAnimatorUpdateSpy).toBeCalled();
         expect(squaddieSkipsAnimationAnimatorHasCompletedSpy).toBeCalled();
-        expect(squaddieSquaddieActivity.hasCompleted(state)).toBeTruthy();
+        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy();
 
-        squaddieSquaddieActivity.reset(state);
+        squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled();
         expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
     });
@@ -287,7 +287,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
     it('passes mouse events on to the animator', () => {
         const state = usePowerAttackLongswordAndReturnState({});
 
-        const squaddieTargetsOtherSquaddiesAnimatorMouseEventHappenedSpy = jest.spyOn(squaddieSquaddieActivity.squaddieTargetsOtherSquaddiesAnimator, "mouseEventHappened").mockImplementation();
+        const squaddieTargetsOtherSquaddiesAnimatorMouseEventHappenedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "mouseEventHappened").mockImplementation();
 
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -295,7 +295,7 @@ describe('BattleSquaddieSquaddieActivity', () => {
             mouseY: 0,
         };
 
-        squaddieSquaddieActivity.mouseEventHappened(state, mouseEvent);
+        squaddieUsesActionOnSquaddie.mouseEventHappened(state, mouseEvent);
         expect(squaddieTargetsOtherSquaddiesAnimatorMouseEventHappenedSpy).toBeCalled();
     });
 });

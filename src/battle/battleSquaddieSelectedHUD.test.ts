@@ -5,10 +5,10 @@ import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
-import {ActivityButton} from "../squaddie/activityButton";
-import {SquaddieActivity} from "../squaddie/activity";
+import {UseActionButton} from "../squaddie/useActionButton";
+import {SquaddieAction} from "../squaddie/action";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
-import {SquaddieEndTurnActivity} from "./history/squaddieEndTurnActivity";
+import {SquaddieEndTurnAction} from "./history/squaddieEndTurnAction";
 import {RectArea} from "../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../utils/ResultOrError";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
@@ -20,7 +20,7 @@ import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
 import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
-import {SquaddieActivitiesForThisRound} from "./history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "./history/squaddieActionsForThisRound";
 import * as mocks from "../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {ButtonStatus} from "../ui/button";
@@ -39,8 +39,8 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieDynamicId: string = "player_squaddie_2";
     let player2SquaddieStatic: BattleSquaddieStatic;
     let player2SquaddieDynamic: BattleSquaddieDynamic;
-    let longswordActivity: SquaddieActivity;
-    let warnUserNotEnoughActionsToPerformActionSpy: jest.SpyInstance;
+    let longswordAction: SquaddieAction;
+    let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
@@ -62,11 +62,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             "affiliate_icon_none",
         ]);
 
-        longswordActivity = new SquaddieActivity({
+        longswordAction = new SquaddieAction({
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage(),
-            actionsToSpend: 1,
+            actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
             targetingShape: TargetingShape.Snake,
@@ -82,8 +82,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     dynamicId: playerSquaddieDynamicID,
                     squaddieRepository,
-                    activities: [
-                        longswordActivity
+                    actions: [
+                        longswordAction
                     ],
                 })
         );
@@ -98,8 +98,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     dynamicId: player2SquaddieDynamicId,
                     squaddieRepository,
-                    activities: [
-                        longswordActivity
+                    actions: [
+                        longswordAction
                     ],
                 })
         );
@@ -114,19 +114,19 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                     dynamicId: enemySquaddieDynamicID,
                     squaddieRepository,
-                    activities: [
-                        longswordActivity
+                    actions: [
+                        longswordAction
                     ],
                 })
         );
 
         hud = new BattleSquaddieSelectedHUD();
-        warnUserNotEnoughActionsToPerformActionSpy = jest.spyOn((hud as any), "warnUserNotEnoughActionsToPerformAction").mockReturnValue(null);
+        warnUserNotEnoughActionPointsToPerformActionSpy = jest.spyOn((hud as any), "warnUserNotEnoughActionPointsToPerformAction").mockReturnValue(null);
 
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
-    it('generates a button for each squaddie activity', () => {
+    it('generates a button for each squaddie action', () => {
         hud.selectSquaddieAndDrawWindow({
                 dynamicId: playerSquaddieDynamicID,
                 repositionWindow: {mouseX: 0, mouseY: 0},
@@ -139,16 +139,16 @@ describe('BattleSquaddieSelectedHUD', () => {
             },
         );
 
-        const activityButtons: ActivityButton[] = hud.getActivityButtons();
-        expect(activityButtons).toBeTruthy();
+        const actionButtons: UseActionButton[] = hud.getUseActionButtons();
+        expect(actionButtons).toBeTruthy();
 
-        expect(activityButtons.find((button) =>
-            button.activity instanceof SquaddieActivity
-            && button.activity.name === longswordActivity.name
+        expect(actionButtons.find((button) =>
+            button.action instanceof SquaddieAction
+            && button.action.name === longswordAction.name
         )).toBeTruthy();
     });
 
-    it('reports when an activity button is clicked', () => {
+    it('reports when an action button is clicked', () => {
         const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
@@ -160,24 +160,24 @@ describe('BattleSquaddieSelectedHUD', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        expect(hud.wasActivitySelected()).toBeFalsy();
-        expect(hud.getSelectedActivity()).toBeUndefined();
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
 
-        const longswordButton = hud.getActivityButtons().find((button) =>
-            button.activity instanceof SquaddieActivity
-            && button.activity.name === longswordActivity.name
+        const longswordButton = hud.getUseActionButtons().find((button) =>
+            button.action instanceof SquaddieAction
+            && button.action.name === longswordAction.name
         );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
-        expect(hud.wasActivitySelected()).toBeTruthy();
-        expect(hud.getSelectedActivity()).toBe(longswordActivity);
+        expect(hud.wasAnyActionSelected()).toBeTruthy();
+        expect(hud.getSelectedAction()).toBe(longswordAction);
 
         hud.reset();
-        expect(hud.wasActivitySelected()).toBeFalsy();
-        expect(hud.getSelectedActivity()).toBeUndefined();
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
     });
 
-    it('reports when an activity button is hovered', () => {
+    it('reports when an action button is hovered', () => {
         const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
@@ -189,19 +189,19 @@ describe('BattleSquaddieSelectedHUD', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        expect(hud.wasActivitySelected()).toBeFalsy();
-        expect(hud.getSelectedActivity()).toBeUndefined();
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
 
-        const longswordButton = hud.getActivityButtons().find((button) =>
-            button.activity instanceof SquaddieActivity
-            && button.activity.name === longswordActivity.name
+        const longswordButton = hud.getUseActionButtons().find((button) =>
+            button.action instanceof SquaddieAction
+            && button.action.name === longswordAction.name
         );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
         expect(longswordButton.status).toBe(ButtonStatus.HOVER);
     });
 
-    it('generates a Wait Turn activity button when a squaddie is selected', () => {
+    it('generates a Wait Turn action button when a squaddie is selected', () => {
         const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
@@ -215,16 +215,16 @@ describe('BattleSquaddieSelectedHUD', () => {
             state,
         });
 
-        const activityButtons: ActivityButton[] = hud.getActivityButtons();
-        expect(activityButtons).toBeTruthy();
+        const actionButtons: UseActionButton[] = hud.getUseActionButtons();
+        expect(actionButtons).toBeTruthy();
 
-        const waitTurnButton = activityButtons.find((button) =>
-            button.activity instanceof SquaddieEndTurnActivity
+        const waitTurnButton = actionButtons.find((button) =>
+            button.action instanceof SquaddieEndTurnAction
         );
         expect(waitTurnButton).toBeTruthy();
     });
 
-    it('reports when a Wait Turn activity button was clicked on', () => {
+    it('reports when a Wait Turn action button was clicked on', () => {
         const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
             missionMap,
@@ -237,21 +237,21 @@ describe('BattleSquaddieSelectedHUD', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        expect(hud.wasActivitySelected()).toBeFalsy();
-        expect(hud.getSelectedActivity()).toBeUndefined();
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
 
-        const waitTurnButton = hud.getActivityButtons().find((button) =>
-            button.activity instanceof SquaddieEndTurnActivity
+        const waitTurnButton = hud.getUseActionButtons().find((button) =>
+            button.action instanceof SquaddieEndTurnAction
         );
 
         hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top, state);
 
-        expect(hud.wasActivitySelected()).toBeTruthy();
-        expect(hud.getSelectedActivity()).toBeInstanceOf(SquaddieEndTurnActivity);
+        expect(hud.wasAnyActionSelected()).toBeTruthy();
+        expect(hud.getSelectedAction()).toBeInstanceOf(SquaddieEndTurnAction);
 
         hud.reset();
-        expect(hud.wasActivitySelected()).toBeFalsy();
-        expect(hud.getSelectedActivity()).toBeUndefined();
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
     });
 
     it('can reopen the window in the previous position if no mouse location is given', () => {
@@ -275,19 +275,19 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.background.area).toStrictEqual(initialWindowPosition);
     });
 
-    it('will warn the user if the squaddie does not have enough actions to perform the activity', () => {
-        let notEnoughActionsActivity: SquaddieActivity;
-        notEnoughActionsActivity = new SquaddieActivity({
+    it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
+        let notEnoughActionPointsAction: SquaddieAction;
+        notEnoughActionPointsAction = new SquaddieAction({
             name: "not enough actions",
             id: "not enough actions",
             traits: new TraitStatusStorage(),
-            actionsToSpend: 9001,
+            actionPointCost: 9001,
             minimumRange: 0,
             maximumRange: 1,
             targetingShape: TargetingShape.Snake,
         });
         const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(playerSquaddieDynamicID));
-        staticSquaddie.addActivity(notEnoughActionsActivity);
+        staticSquaddie.addAction(notEnoughActionPointsAction);
 
         const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
@@ -301,22 +301,22 @@ describe('BattleSquaddieSelectedHUD', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        expect(hud.wasActivitySelected()).toBeFalsy();
-        expect(hud.getSelectedActivity()).toBeUndefined();
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
 
-        const notEnoughActionsButton = hud.getActivityButtons().find((button) =>
-            button.activity instanceof SquaddieActivity && button.activity.name === "not enough actions"
+        const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
+            button.action instanceof SquaddieAction && button.action.name === "not enough actions"
         );
 
         hud.mouseClicked(
-            notEnoughActionsButton.buttonArea.left,
-            notEnoughActionsButton.buttonArea.top,
+            notEnoughActionPointsButton.buttonArea.left,
+            notEnoughActionPointsButton.buttonArea.top,
             state,
         );
 
-        expect(hud.wasActivitySelected()).toBeFalsy();
-        expect(hud.getSelectedActivity()).toBeUndefined();
-        expect(warnUserNotEnoughActionsToPerformActionSpy).toBeCalled();
+        expect(hud.wasAnyActionSelected()).toBeFalsy();
+        expect(hud.getSelectedAction()).toBeUndefined();
+        expect(warnUserNotEnoughActionPointsToPerformActionSpy).toBeCalled();
     });
 
     it('will warn the user if another squaddie is still completing their turn', () => {
@@ -326,12 +326,12 @@ describe('BattleSquaddieSelectedHUD', () => {
             resourceHandler: resourceHandler,
             camera: new BattleCamera(0, 0),
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                activitiesForThisRound: new SquaddieActivitiesForThisRound({
+                actionsForThisRound: new SquaddieActionsForThisRound({
                     dynamicSquaddieId: playerSquaddieDynamic.dynamicSquaddieId,
                     staticSquaddieId: playerSquaddieStatic.staticId,
                     startingLocation: new HexCoordinate({q: 0, r: 0}),
                 }),
-                currentSquaddieActivity: new SquaddieActivity({
+                currentSquaddieAction: new SquaddieAction({
                     name: "purifying stream",
                     id: "purifying_stream",
                     traits: new TraitStatusStorage(),
@@ -513,7 +513,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             const selectSpy = jest.spyOn((hud as any), "selectSquaddieAndDrawWindow");
             jest.spyOn((hud as any), "generateAffiliateIcon").mockImplementation(() => {
             });
-            jest.spyOn((hud as any), "generateSquaddieActivityButtons").mockImplementation(() => {
+            jest.spyOn((hud as any), "generateUseActionButtons").mockImplementation(() => {
             });
             jest.spyOn((hud as any), "generateNextSquaddieButton").mockImplementation(() => {
             });

@@ -4,12 +4,12 @@ import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissio
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../battle/orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleComputerSquaddieSelector} from "../battle/orchestratorComponents/battleComputerSquaddieSelector";
-import {BattleSquaddieMapActivity} from "../battle/orchestratorComponents/battleSquaddieMapActivity";
+import {BattleSquaddieUsesActionOnMap} from "../battle/orchestratorComponents/battleSquaddieUsesActionOnMap";
 import {BattleSquaddieMover} from "../battle/orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../battle/orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../battle/orchestratorComponents/battlePhaseController";
 import {BattlePlayerSquaddieTarget} from "../battle/orchestratorComponents/battlePlayerSquaddieTarget";
-import {BattleSquaddieSquaddieActivity} from "../battle/orchestratorComponents/battleSquaddieSquaddieActivity";
+import {BattleSquaddieUsesActionOnSquaddie} from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameModeEnum} from "../utils/startupConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
@@ -81,12 +81,12 @@ export class GameEngine {
             cutscenePlayer: new BattleCutscenePlayer(),
             playerSquaddieSelector: new BattlePlayerSquaddieSelector(),
             computerSquaddieSelector: new BattleComputerSquaddieSelector(),
-            squaddieMapActivity: new BattleSquaddieMapActivity(),
+            squaddieUsesActionOnMap: new BattleSquaddieUsesActionOnMap(),
             squaddieMover: new BattleSquaddieMover(),
             mapDisplay: new BattleMapDisplay(),
             phaseController: new BattlePhaseController(),
             playerSquaddieTarget: new BattlePlayerSquaddieTarget(),
-            squaddieSquaddieActivity: new BattleSquaddieSquaddieActivity(),
+            squaddieUsesActionOnSquaddie: new BattleSquaddieUsesActionOnSquaddie(),
         });
 
         this.lazyLoadResourceHandler({graphicsContext});

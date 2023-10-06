@@ -12,8 +12,8 @@ import {
     updateSquaddieIconLocation
 } from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {spendSquaddieActions, updateSquaddieLocation} from "../squaddieMovementLogic";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {spendSquaddieActionPoints, updateSquaddieLocation} from "../squaddieMovementLogic";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
     DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
@@ -55,8 +55,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
             if (
                 state.squaddieCurrentlyActing
-                && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound
-                && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity() instanceof SquaddieMovementActivity
+                && state.squaddieCurrentlyActing.squaddieActionsForThisRound
+                && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction() instanceof SquaddieMovementAction
             ) {
                 state.squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
             }
@@ -83,8 +83,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
         if (
             state.squaddieCurrentlyActing
-            && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound
-            && state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity() instanceof SquaddieMovementActivity
+            && state.squaddieCurrentlyActing.squaddieActionsForThisRound
+            && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction() instanceof SquaddieMovementAction
         ) {
             state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
         }
@@ -115,9 +115,9 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         ));
 
         updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap, dynamicSquaddie.dynamicSquaddieId);
-        const mostRecentActivity = state.squaddieCurrentlyActing.squaddieActivitiesForThisRound.getMostRecentActivity();
-        if (mostRecentActivity instanceof SquaddieMovementActivity) {
-            spendSquaddieActions(dynamicSquaddie, mostRecentActivity.numberOfActionsSpent);
+        const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
+        if (mostRecentAction instanceof SquaddieMovementAction) {
+            spendSquaddieActionPoints(dynamicSquaddie, mostRecentAction.numberOfActionPointsSpent);
         }
 
         if (dynamicSquaddie.mapIcon) {

@@ -102,7 +102,7 @@ describe('pathfinder and squaddies', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                 })
             })));
             if (canPassThrough) {
@@ -301,7 +301,7 @@ describe('pathfinder and squaddies', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
             })
         })));
 
@@ -352,7 +352,7 @@ describe('pathfinder and squaddies', () => {
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: 1,
+                numberOfActionPoints: 1,
                 stopLocation: new HexCoordinate({q: 0, r: 2}),
             })
         }));
@@ -508,7 +508,7 @@ describe('pathfinder and squaddies', () => {
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 2,
+                    numberOfActionPoints: 2,
                 })
             }));
 

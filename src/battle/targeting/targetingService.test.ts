@@ -1,5 +1,5 @@
 import {MissionMap} from "../../missionMap/missionMap";
-import {SquaddieActivity} from "../../squaddie/activity";
+import {SquaddieAction} from "../../squaddie/action";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
@@ -12,19 +12,19 @@ import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoo
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('Targeting Service', () => {
-    let longswordActivity: SquaddieActivity;
+    let longswordAction: SquaddieAction;
     let sirCamilStaticSquaddie: BattleSquaddieStatic;
     let sirCamilDynamicSquaddie: BattleSquaddieDynamic;
     let squaddieRepo: BattleSquaddieRepository;
 
     beforeEach(() => {
-        longswordActivity = new SquaddieActivity({
+        longswordAction = new SquaddieAction({
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
         });
@@ -61,7 +61,7 @@ describe('Targeting Service', () => {
 
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
-            activity: longswordActivity,
+            action: longswordAction,
             actingStaticSquaddie: sirCamilStaticSquaddie,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,
@@ -91,7 +91,7 @@ describe('Targeting Service', () => {
 
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
-            activity: longswordActivity,
+            action: longswordAction,
             actingStaticSquaddie: sirCamilStaticSquaddie,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,
@@ -111,13 +111,13 @@ describe('Targeting Service', () => {
             })
         });
 
-        let longbowActivity = new SquaddieActivity({
+        let longbowAction = new SquaddieAction({
             name: "longbow",
             id: "longbow",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 2,
             maximumRange: 3,
         });
@@ -131,7 +131,7 @@ describe('Targeting Service', () => {
             staticId: "archer",
             dynamicId: "Archer 0",
             affiliation: SquaddieAffiliation.PLAYER,
-            activities: [longbowActivity],
+            actions: [longbowAction],
             squaddieRepository: squaddieRepo,
         });
 
@@ -143,7 +143,7 @@ describe('Targeting Service', () => {
 
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
-            activity: longbowActivity,
+            action: longbowAction,
             actingStaticSquaddie: archerStaticSquaddie,
             actingDynamicSquaddie: archerDynamicSquaddie,
             squaddieRepository: squaddieRepo,
@@ -226,7 +226,7 @@ describe('Targeting Service', () => {
 
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
-            activity: longswordActivity,
+            action: longswordAction,
             actingStaticSquaddie: sirCamilStaticSquaddie,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,
@@ -237,13 +237,13 @@ describe('Targeting Service', () => {
     });
 
     it('will ignore terrain costs when targeting', () => {
-        let longbowActivity: SquaddieActivity = new SquaddieActivity({
+        let longbowAction: SquaddieAction = new SquaddieAction({
             name: "longbow",
             id: "longbow",
             traits: new TraitStatusStorage({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
-            }).filterCategory(TraitCategory.ACTIVITY),
+            }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 3,
         });
@@ -264,7 +264,7 @@ describe('Targeting Service', () => {
 
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
-            activity: longbowActivity,
+            action: longbowAction,
             actingStaticSquaddie: sirCamilStaticSquaddie,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,

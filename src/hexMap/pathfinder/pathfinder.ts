@@ -237,7 +237,7 @@ export class Pathfinder {
                     shapeGenerator: searchParams.shapeGenerator,
                 }),
                 stopCondition: new SearchStopCondition({
-                    numberOfActions: 1,
+                    numberOfActionPoints: 1,
                     stopLocation: searchParams.stopLocation,
                 })
             });

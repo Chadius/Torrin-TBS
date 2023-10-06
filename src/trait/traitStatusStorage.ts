@@ -18,7 +18,7 @@ export enum Trait {
 
 export enum TraitCategory {
     UNKNOWN = "UNKNOWN",
-    ACTIVITY = "ACTIVITY",
+    ACTION = "ACTION",
     CREATURE = "CREATURE",
     MOVEMENT = "MOVEMENT",
     ANIMATION = "ANIMATION",
@@ -36,15 +36,15 @@ const traitInformation: {
     },
     [Trait.ATTACK]: {
         description: "Damage and negatively affect the target. Subject to a multiple attack penalty over repeated use.",
-        categories: [TraitCategory.ACTIVITY],
+        categories: [TraitCategory.ACTION],
     },
     [Trait.HEALING]: {
         description: "Positively affect the target by restoring hit points.",
-        categories: [TraitCategory.ACTIVITY],
+        categories: [TraitCategory.ACTION],
     },
     [Trait.MOVEMENT]: {
         description: "Moves the target across the map.",
-        categories: [TraitCategory.ACTIVITY],
+        categories: [TraitCategory.ACTION],
     },
     [Trait.HUMANOID]: {
         description: "Creatures have two legs, two arms to manipulate tools and have bilateral symmetry.",
@@ -67,28 +67,28 @@ const traitInformation: {
         categories: [TraitCategory.MOVEMENT],
     },
     [Trait.TARGET_ARMOR]: {
-        description: "These activities succeed based on the target's armor.",
-        categories: [TraitCategory.ACTIVITY],
+        description: "These actions succeed based on the target's armor.",
+        categories: [TraitCategory.ACTION],
     },
     [Trait.SKIP_ANIMATION]: {
-        description: "Activity does not require animation",
-        categories: [TraitCategory.ACTIVITY, TraitCategory.ANIMATION]
+        description: "Action does not require animation",
+        categories: [TraitCategory.ACTION, TraitCategory.ANIMATION]
     },
     [Trait.TARGETS_SELF]: {
         description: "The acting Squaddie can target themself.",
-        categories: [TraitCategory.ACTIVITY],
+        categories: [TraitCategory.ACTION],
     },
     [Trait.TARGETS_FOE]: {
-        description: "The acting Squaddie can target foes with this activity. Usually Harmful.",
-        categories: [TraitCategory.ACTIVITY],
+        description: "The acting Squaddie can target foes with this action.",
+        categories: [TraitCategory.ACTION],
     },
     [Trait.TARGETS_ALLIES]: {
-        description: "The acting Squaddie can target allies with this activity. Usually Helpful.",
-        categories: [TraitCategory.ACTIVITY],
+        description: "The acting Squaddie can target allies with this action.",
+        categories: [TraitCategory.ACTION],
     },
     [Trait.ALWAYS_HITS]: {
         description: "This ability always hits the target.",
-        categories: [TraitCategory.ACTIVITY],
+        categories: [TraitCategory.ACTION],
     }
 }
 

@@ -9,14 +9,14 @@ import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targeting
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {BattleEvent} from "../history/battleEvent";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 
 export function createSearchPath(state: BattleOrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-    const {normalActionsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
+    const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
         state.pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
@@ -36,7 +36,7 @@ export function createSearchPath(state: BattleOrchestratorState, staticSquaddie:
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                numberOfActions: normalActionsRemaining,
+                numberOfActionPoints: actionPointsRemaining,
                 stopLocation: new HexCoordinate({
                     q: clickedHexCoordinate.q,
                     r: clickedHexCoordinate.r
@@ -71,16 +71,16 @@ export function createSearchPath(state: BattleOrchestratorState, staticSquaddie:
 export function AddMovementInstruction(state: BattleOrchestratorState, staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic, destinationHexCoordinate: HexCoordinate) {
     MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
 
-    const moveActivity = new SquaddieMovementActivity({
+    const moveAction = new SquaddieMovementAction({
         destination: destinationHexCoordinate,
-        numberOfActionsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
+        numberOfActionPointsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
     });
 
-    state.squaddieCurrentlyActing.addConfirmedActivity(moveActivity);
+    state.squaddieCurrentlyActing.addConfirmedAction(moveAction);
     state.battleEventRecording.addEvent(new BattleEvent({
         currentSquaddieInstruction: state.squaddieCurrentlyActing,
     }));
-    return moveActivity;
+    return moveAction;
 }
 
 export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic) {

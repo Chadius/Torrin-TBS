@@ -6,8 +6,8 @@ import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlay
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
-import {BattleSquaddieMapActivity} from "../orchestratorComponents/battleSquaddieMapActivity";
-import {SquaddieMovementActivity} from "../history/squaddieMovementActivity";
+import {BattleSquaddieUsesActionOnMap} from "../orchestratorComponents/battleSquaddieUsesActionOnMap";
+import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -15,7 +15,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleOrchestratorComponent} from "./battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
-import {BattleSquaddieSquaddieActivity} from "../orchestratorComponents/battleSquaddieSquaddieActivity";
+import {BattleSquaddieUsesActionOnSquaddie} from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -45,8 +45,8 @@ describe('Battle Orchestrator', () => {
         cutscenePlayer: BattleCutscenePlayer;
         playerSquaddieSelector: BattlePlayerSquaddieSelector;
         computerSquaddieSelector: BattleComputerSquaddieSelector;
-        squaddieMapActivity: BattleSquaddieMapActivity;
-        squaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
+        squaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap;
+        squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
         squaddieMover: BattleSquaddieMover;
         phaseController: BattlePhaseController;
         playerSquaddieTarget: BattlePlayerSquaddieTarget;
@@ -61,8 +61,8 @@ describe('Battle Orchestrator', () => {
     let mockPlayerSquaddieSelector: BattlePlayerSquaddieSelector;
     let mockPlayerSquaddieTarget: BattlePlayerSquaddieTarget;
     let mockComputerSquaddieSelector: BattleComputerSquaddieSelector;
-    let mockSquaddieMapActivity: BattleSquaddieMapActivity;
-    let mockSquaddieSquaddieActivity: BattleSquaddieSquaddieActivity;
+    let mockSquaddieUsesActionOnMap: BattleSquaddieUsesActionOnMap;
+    let mockSquaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
     let mockSquaddieMover: BattleSquaddieMover;
     let mockMapDisplay: BattleMapDisplay;
     let mockPhaseController: BattlePhaseController;
@@ -131,21 +131,19 @@ describe('Battle Orchestrator', () => {
         mockSquaddieMover.mouseEventHappened = jest.fn();
         mockSquaddieMover.hasCompleted = jest.fn().mockReturnValue(true);
 
-        mockSquaddieMapActivity = new (<new () => BattleSquaddieMapActivity>BattleSquaddieMapActivity)() as jest.Mocked<BattleSquaddieMapActivity>;
-        mockSquaddieMapActivity.update = jest.fn();
-        mockSquaddieMapActivity.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
-        mockSquaddieMapActivity.mouseEventHappened = jest.fn();
-        mockSquaddieMapActivity.hasCompleted = jest.fn().mockReturnValue(true);
+        mockSquaddieUsesActionOnMap = new (<new () => BattleSquaddieUsesActionOnMap>BattleSquaddieUsesActionOnMap)() as jest.Mocked<BattleSquaddieUsesActionOnMap>;
+        mockSquaddieUsesActionOnMap.update = jest.fn();
+        mockSquaddieUsesActionOnMap.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
+        mockSquaddieUsesActionOnMap.mouseEventHappened = jest.fn();
+        mockSquaddieUsesActionOnMap.hasCompleted = jest.fn().mockReturnValue(true);
 
-        mockSquaddieSquaddieActivity = new (<new () => BattleSquaddieSquaddieActivity>BattleSquaddieSquaddieActivity)() as jest.Mocked<BattleSquaddieSquaddieActivity>;
-        mockSquaddieSquaddieActivity.update = jest.fn();
-        mockSquaddieSquaddieActivity.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
-        mockSquaddieSquaddieActivity.mouseEventHappened = jest.fn();
-        mockSquaddieSquaddieActivity.hasCompleted = jest.fn().mockReturnValue(true);
-        (mockSquaddieSquaddieActivity as any).maybeEndSquaddieTurn = jest.fn();
-        (mockSquaddieSquaddieActivity as any).consumeSquaddieActionsAndMaybeEndTheirTurn = jest.fn();
-        jest.spyOn(mockSquaddieSquaddieActivity as any, "consumeSquaddieActionsAndMaybeEndTheirTurn").mockImplementation(() => {
-        });
+        mockSquaddieUsesActionOnSquaddie = new (<new () => BattleSquaddieUsesActionOnSquaddie>BattleSquaddieUsesActionOnSquaddie)() as jest.Mocked<BattleSquaddieUsesActionOnSquaddie>;
+        mockSquaddieUsesActionOnSquaddie.update = jest.fn();
+        mockSquaddieUsesActionOnSquaddie.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
+        mockSquaddieUsesActionOnSquaddie.mouseEventHappened = jest.fn();
+        mockSquaddieUsesActionOnSquaddie.hasCompleted = jest.fn().mockReturnValue(true);
+        (mockSquaddieUsesActionOnSquaddie as any).maybeEndSquaddieTurn = jest.fn();
+        (mockSquaddieUsesActionOnSquaddie as any).consumeSquaddieActionPointsAndMaybeEndTheirTurn = jest.fn();
 
         defaultBattleOrchestrator = new DefaultBattleOrchestrator();
         defaultBattleOrchestrator.update = jest.fn();
@@ -186,8 +184,8 @@ describe('Battle Orchestrator', () => {
                 cutscenePlayer: mockBattleCutscenePlayer,
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 computerSquaddieSelector: mockComputerSquaddieSelector,
-                squaddieMapActivity: mockSquaddieMapActivity,
-                squaddieSquaddieActivity: mockSquaddieSquaddieActivity,
+                squaddieUsesActionOnMap: mockSquaddieUsesActionOnMap,
+                squaddieUsesActionOnSquaddie: mockSquaddieUsesActionOnSquaddie,
                 squaddieMover: mockSquaddieMover,
                 playerSquaddieTarget: mockPlayerSquaddieTarget,
                 mapDisplay: mockMapDisplay,
@@ -282,9 +280,9 @@ describe('Battle Orchestrator', () => {
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        nullState.squaddieCurrentlyActing.squaddieActivitiesForThisRound.addActivity(new SquaddieMovementActivity({
+        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
             destination: new HexCoordinate({q: 1, r: 2}),
-            numberOfActionsSpent: 2,
+            numberOfActionPointsSpent: 2,
         }));
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
@@ -314,9 +312,9 @@ describe('Battle Orchestrator', () => {
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        nullState.squaddieCurrentlyActing.squaddieActivitiesForThisRound.addActivity(new SquaddieMovementActivity({
+        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
             destination: new HexCoordinate({q: 1, r: 2}),
-            numberOfActionsSpent: 2,
+            numberOfActionPointsSpent: 2,
         }));
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
@@ -389,8 +387,8 @@ describe('Battle Orchestrator', () => {
                         [BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET]: mockPlayerSquaddieTarget,
                         [BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR]: mockComputerSquaddieSelector,
                         [BattleOrchestratorMode.SQUADDIE_MOVER]: mockSquaddieMover,
-                        [BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY]: mockSquaddieMapActivity,
-                        [BattleOrchestratorMode.SQUADDIE_SQUADDIE_ACTIVITY]: mockSquaddieSquaddieActivity,
+                        [BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP]: mockSquaddieUsesActionOnMap,
+                        [BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE]: mockSquaddieUsesActionOnSquaddie,
                     };
 
                     loadAndExpect({
@@ -511,7 +509,7 @@ describe('Battle Orchestrator', () => {
             victoryAndDefeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
             orchestrator = createOrchestrator({
-                initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
+                initialMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
                 cutscenePlayer,
             });
 
@@ -630,17 +628,17 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator1.uiControlSettings.displayBattleMap).toBe(true);
     });
 
-    it('will move from squaddie map activity mode to phase controller mode', () => {
+    it('will move from squaddie map action mode to phase controller mode', () => {
         jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(false);
 
         orchestrator = createOrchestrator({
-            initialMode: BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY,
+            initialMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
         });
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MAP_ACTIVITY);
-        expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMapActivity);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
+        expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieUsesActionOnMap);
         orchestrator.update(nullState, mockedP5GraphicsContext);
-        expect(mockSquaddieMapActivity.update).toBeCalledTimes(1);
-        expect(mockSquaddieMapActivity.hasCompleted).toBeCalledTimes(1);
+        expect(mockSquaddieUsesActionOnMap.update).toBeCalledTimes(1);
+        expect(mockSquaddieUsesActionOnMap.hasCompleted).toBeCalledTimes(1);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PHASE_CONTROLLER);
         expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController);
     });

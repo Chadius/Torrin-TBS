@@ -1,17 +1,17 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActivitiesForThisRound} from "../history/squaddieActivitiesForThisRound";
+import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
-import {BattleSquaddieMapActivity} from "./battleSquaddieMapActivity";
+import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
-describe('BattleSquaddieMapActivity', () => {
+describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let staticSquaddieBase: BattleSquaddieStatic;
     let dynamicSquaddieBase: BattleSquaddieDynamic;
@@ -41,36 +41,36 @@ describe('BattleSquaddieMapActivity', () => {
     });
 
     it('can wait half a second before ending turn', () => {
-        const endTurnInstruction: SquaddieActivitiesForThisRound = new SquaddieActivitiesForThisRound({
+        const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             staticSquaddieId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
         endTurnInstruction.endTurn();
 
-        const mapActivity: BattleSquaddieMapActivity = new BattleSquaddieMapActivity();
+        const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                activitiesForThisRound: endTurnInstruction,
+                actionsForThisRound: endTurnInstruction,
             }),
             squaddieRepo: squaddieRepository,
         })
 
-        mapActivity.update(state, mockedP5GraphicsContext);
-        expect(mapActivity.animationCompleteStartTime).not.toBeUndefined();
-        expect(mapActivity.hasCompleted(state)).toBeFalsy();
+        mapAction.update(state, mockedP5GraphicsContext);
+        expect(mapAction.animationCompleteStartTime).not.toBeUndefined();
+        expect(mapAction.hasCompleted(state)).toBeFalsy();
         jest.spyOn(Date, 'now').mockImplementation(() => 500);
 
-        mapActivity.update(state, mockedP5GraphicsContext);
-        expect(mapActivity.hasCompleted(state)).toBeTruthy();
+        mapAction.update(state, mockedP5GraphicsContext);
+        expect(mapAction.hasCompleted(state)).toBeTruthy();
 
-        const stateChanges = mapActivity.recommendStateChanges(state);
+        const stateChanges = mapAction.recommendStateChanges(state);
         expect(stateChanges.nextMode).toBeUndefined();
         expect(stateChanges.displayMap).toBeTruthy();
 
-        mapActivity.reset(state);
-        expect(mapActivity.animationCompleteStartTime).toBeUndefined();
+        mapAction.reset(state);
+        expect(mapAction.animationCompleteStartTime).toBeUndefined();
         expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
     });
 });
