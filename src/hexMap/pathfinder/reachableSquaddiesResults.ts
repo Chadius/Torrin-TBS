@@ -41,7 +41,7 @@ export class HexCoordinatesByDistance {
         }
         return parseInt(distanceStr);
     }
-};
+}
 
 export class ReachableSquaddieDescription {
     squaddieMapLocation: HexCoordinate

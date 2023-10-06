@@ -11,5 +11,5 @@ export class SquaddieResource {
         this.mapIconResourceKey = mapIconResourceKey || "";
         this.actionSpritesByEmotion = actionSpriteByEmotion || {};
     }
-};
+}
 
