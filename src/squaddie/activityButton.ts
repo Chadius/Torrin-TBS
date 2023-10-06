@@ -9,18 +9,9 @@ import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 
 export class ActivityButton {
-    get status(): ButtonStatus {
-        return this._status;
-    }
-
-    set status(value: ButtonStatus) {
-        this._status = value;
-    }
-
     buttonArea: RectArea;
     activity: SquaddieActivity | SquaddieEndTurnActivity;
     hue: number;
-    private _status: ButtonStatus;
 
     constructor(options: {
         buttonArea?: RectArea;
@@ -30,6 +21,16 @@ export class ActivityButton {
         this.buttonArea = options.buttonArea;
         this.activity = options.activity;
         this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];
+    }
+
+    private _status: ButtonStatus;
+
+    get status(): ButtonStatus {
+        return this._status;
+    }
+
+    set status(value: ButtonStatus) {
+        this._status = value;
     }
 
     draw(graphicsContext: GraphicsContext) {
@@ -54,7 +55,7 @@ export class ActivityButton {
             hoverOutline.draw(graphicsContext);
         }
 
-        let activityButtonText: string = "";
+        let activityButtonText: string;
         if (this.activity instanceof SquaddieEndTurnActivity) {
             activityButtonText = "End Turn";
         } else {
