@@ -47,7 +47,7 @@ export class BattleOrchestratorState {
         missionMap?: MissionMap;
         hexMap?: TerrainTileMap;
         pathfinder?: Pathfinder;
-        squaddieRepo?: BattleSquaddieRepository;
+        squaddieRepository?: BattleSquaddieRepository;
         camera?: BattleCamera;
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD;
         squaddieMovePath?: SearchPath;
@@ -68,7 +68,7 @@ export class BattleOrchestratorState {
             missionMap,
             hexMap,
             pathfinder,
-            squaddieRepo,
+            squaddieRepository,
             camera,
             battleSquaddieSelectedHUD,
             squaddieMovePath,
@@ -83,7 +83,7 @@ export class BattleOrchestratorState {
         this.missionMap = options.missionMap;
         this.hexMap = options.hexMap || (this.missionMap && this.missionMap.terrainTileMap) || new TerrainTileMap({movementCost: ["1 "]});
         this.pathfinder = options.pathfinder;
-        this.squaddieRepository = options.squaddieRepo;
+        this.squaddieRepository = options.squaddieRepository;
         this.camera = options.camera || new BattleCamera();
         this.squaddieMovePath = options.squaddieMovePath || undefined;
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();

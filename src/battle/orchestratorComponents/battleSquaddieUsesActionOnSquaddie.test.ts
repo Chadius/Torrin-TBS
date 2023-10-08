@@ -155,7 +155,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: monkMeditatesInstruction,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             missionMap,
             hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
@@ -198,7 +198,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: squaddieInstructionInProgress,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             missionMap,
             hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),

@@ -56,7 +56,7 @@ describe('battleMapDisplay', () => {
 
             state = new BattleOrchestratorState({
                 camera,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
             });
         });
@@ -108,7 +108,7 @@ describe('battleMapDisplay', () => {
 
             state = new BattleOrchestratorState({
                 camera,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
             });
         });
@@ -169,7 +169,7 @@ describe('battleMapDisplay', () => {
 
             state = new BattleOrchestratorState({
                 camera,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
             });
         });
@@ -205,7 +205,7 @@ describe('battleMapDisplay', () => {
 
         const stateWithOpenedHUD = new BattleOrchestratorState({
             camera,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
         });
 
@@ -229,7 +229,7 @@ describe('battleMapDisplay', () => {
 
             state = new BattleOrchestratorState({
                 camera,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
             });
         });
@@ -278,7 +278,7 @@ describe('battleMapDisplay', () => {
 
         const stateWithOpenedHUD = new BattleOrchestratorState({
             camera,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
         });
 

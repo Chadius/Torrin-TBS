@@ -149,7 +149,7 @@ describe('BattleSquaddieTarget', () => {
 
         state = new BattleOrchestratorState({
             missionMap: battleMap,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             hexMap: battleMap.terrainTileMap,
             squaddieCurrentlyActing: currentInstruction,
             pathfinder: new Pathfinder(),
@@ -352,7 +352,7 @@ describe('BattleSquaddieTarget', () => {
 
             state = new BattleOrchestratorState({
                 missionMap: battleMap,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 hexMap: battleMap.terrainTileMap,
                 squaddieCurrentlyActing: currentInstruction,
                 pathfinder: new Pathfinder(),
@@ -515,7 +515,7 @@ describe('BattleSquaddieTarget', () => {
 
             state = new BattleOrchestratorState({
                 missionMap: battleMap,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 hexMap: battleMap.terrainTileMap,
                 squaddieCurrentlyActing: currentInstruction,
                 pathfinder: new Pathfinder(),

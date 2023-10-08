@@ -97,7 +97,7 @@ describe('BattlePhaseController', () => {
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult("Hi"));
 
         state = new BattleOrchestratorState({
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             battlePhaseState: {
                 currentAffiliation: BattlePhase.UNKNOWN,
                 turnCount: 0,
@@ -126,7 +126,7 @@ describe('BattlePhaseController', () => {
 
     it('starts showing the player phase banner by default', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             resourceHandler,
             teamsByAffiliation,
         });
@@ -157,7 +157,7 @@ describe('BattlePhaseController', () => {
         camera.setYVelocity(-100);
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             resourceHandler,
             teamsByAffiliation,
         });
@@ -197,7 +197,7 @@ describe('BattlePhaseController', () => {
 
     it('only draws the banner while the timer is going', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             resourceHandler,
             teamsByAffiliation,
         });
@@ -240,7 +240,7 @@ describe('BattlePhaseController', () => {
         };
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             resourceHandler,
             battlePhaseState: phase,
             teamsByAffiliation,

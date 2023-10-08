@@ -122,7 +122,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleEventRecording,
         })
@@ -142,7 +142,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleEventRecording,
         })
@@ -170,7 +170,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleEventRecording,
         })

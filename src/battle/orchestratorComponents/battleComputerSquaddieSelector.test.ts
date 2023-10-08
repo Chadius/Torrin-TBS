@@ -194,7 +194,7 @@ describe('BattleComputerSquaddieSelector', () => {
         );
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseState,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             camera,
             missionMap,
             teamsByAffiliation,
@@ -241,7 +241,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     movementCost: ["1 1 "]
                 }),
                 missionMap,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 battleEventRecording: new Recording({}),
                 teamStrategyByAffiliation: {
                     ENEMY: [enemyEndTurnStrategy],
@@ -288,7 +288,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     movementCost: ["1 1 "]
                 }),
                 missionMap,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 battleEventRecording: new Recording({}),
                 teamStrategyByAffiliation: {
                     ENEMY: [new TestTeamStrategy()],
@@ -334,7 +334,7 @@ describe('BattleComputerSquaddieSelector', () => {
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
             }),
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             missionMap,
             pathfinder: new Pathfinder(),
             teamStrategyByAffiliation: {
@@ -410,7 +410,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseState,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 camera,
                 missionMap,
                 hexMap,
@@ -456,7 +456,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
                 state = new BattleOrchestratorState({
                     battlePhaseState,
-                    squaddieRepo,
+                    squaddieRepository: squaddieRepo,
                     camera,
                     missionMap,
                     hexMap,

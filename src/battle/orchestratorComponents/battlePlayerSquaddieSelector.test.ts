@@ -213,7 +213,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap,
             camera,
             battleSquaddieSelectedHUD: mockHud,
-            squaddieRepo: squaddieRepo,
+            squaddieRepository: squaddieRepo,
             pathfinder: new Pathfinder(),
         });
 
@@ -247,7 +247,7 @@ describe('BattleSquaddieSelector', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseState,
             teamsByAffiliation,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             camera,
             missionMap,
         });
@@ -272,7 +272,7 @@ describe('BattleSquaddieSelector', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             camera,
             hexMap: missionMap.terrainTileMap,
             battlePhaseState,
@@ -359,7 +359,7 @@ describe('BattleSquaddieSelector', () => {
 
             state = new BattleOrchestratorState({
                 missionMap,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 camera,
                 hexMap: missionMap.terrainTileMap,
                 battlePhaseState,
@@ -416,7 +416,7 @@ describe('BattleSquaddieSelector', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
@@ -449,7 +449,7 @@ describe('BattleSquaddieSelector', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
@@ -507,7 +507,7 @@ describe('BattleSquaddieSelector', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,
@@ -603,7 +603,7 @@ describe('BattleSquaddieSelector', () => {
 
             state = new BattleOrchestratorState({
                 missionMap,
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 camera,
                 battleSquaddieSelectedHUD: mockHud,
                 hexMap: missionMap.terrainTileMap,
@@ -711,7 +711,7 @@ describe('BattleSquaddieSelector', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             camera,
             battleSquaddieSelectedHUD: mockHud,
             hexMap: missionMap.terrainTileMap,

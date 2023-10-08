@@ -14,7 +14,7 @@ describe('BattleMissionLoader', () => {
 
         initialState = new BattleOrchestratorState({
             resourceHandler: mockResourceHandler,
-            squaddieRepo: new BattleSquaddieRepository(),
+            squaddieRepository: new BattleSquaddieRepository(),
         });
     });
 

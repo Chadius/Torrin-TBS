@@ -55,7 +55,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 actionsForThisRound: endTurnInstruction,
             }),
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
         })
 
         mapAction.update(state, mockedP5GraphicsContext);

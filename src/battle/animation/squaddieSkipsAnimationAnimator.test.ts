@@ -95,7 +95,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     it('will create a text window with the action results', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: monkMeditatesInstruction,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleEventRecording,
         })
@@ -120,7 +120,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: monkMeditatesInstruction,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleEventRecording,
         })
@@ -138,7 +138,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: monkMeditatesInstruction,
-            squaddieRepo: squaddieRepository,
+            squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleEventRecording,
         })

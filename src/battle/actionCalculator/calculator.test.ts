@@ -96,7 +96,7 @@ describe('calculator', () => {
                 new BattleOrchestratorState({
                     missionMap,
                     squaddieCurrentlyActing: squaddieCurrentlyInProgress,
-                    squaddieRepo: squaddieRepository,
+                    squaddieRepository: squaddieRepository,
                 }),
                 player1DynamicSquaddie,
                 new HexCoordinate({q: 0, r: 1}),
@@ -128,7 +128,7 @@ describe('calculator', () => {
                 new BattleOrchestratorState({
                     missionMap,
                     squaddieCurrentlyActing: squaddieCurrentlyInProgress,
-                    squaddieRepo: squaddieRepository,
+                    squaddieRepository: squaddieRepository,
                 }),
                 player1DynamicSquaddie,
                 new HexCoordinate({q: 0, r: 2}),

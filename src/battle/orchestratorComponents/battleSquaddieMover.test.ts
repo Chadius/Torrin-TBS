@@ -104,7 +104,7 @@ describe('BattleSquaddieMover', () => {
         squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving("player_1");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieRepo,
+            squaddieRepository: squaddieRepo,
             pathfinder,
             missionMap: map,
             squaddieMovePath: movePath,
@@ -167,7 +167,7 @@ describe('BattleSquaddieMover', () => {
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             return new BattleOrchestratorState({
-                squaddieRepo,
+                squaddieRepository: squaddieRepo,
                 pathfinder,
                 missionMap: map,
                 squaddieMovePath: movePath,

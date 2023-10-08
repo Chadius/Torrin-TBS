@@ -245,7 +245,7 @@ describe('Battle Orchestrator', () => {
 
         const stateWithCutscene = new BattleOrchestratorState({
             resourceHandler: nullState.resourceHandler,
-            squaddieRepo: new BattleSquaddieRepository(),
+            squaddieRepository: new BattleSquaddieRepository(),
             cutsceneCollection,
             cutsceneTriggers: [
                 new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "starting", turn: 0}),

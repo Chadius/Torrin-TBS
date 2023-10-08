@@ -290,7 +290,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }): BattleOrchestratorState {
         return new BattleOrchestratorState({
             resourceHandler,
-            squaddieRepo: new BattleSquaddieRepository(),
+            squaddieRepository: new BattleSquaddieRepository(),
             camera: new BattleCamera(0, 100),
             teamStrategyByAffiliation: {
                 ENEMY: [
