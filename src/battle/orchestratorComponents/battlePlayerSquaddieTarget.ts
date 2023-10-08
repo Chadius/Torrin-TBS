@@ -27,7 +27,7 @@ import {FindValidTargets} from "../targeting/targetingService";
 import {FormatIntent} from "../animation/actionResultTextWriter";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 
-const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.95;
+const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
 const MESSAGE_TEXT_SIZE = 24;
 
@@ -72,13 +72,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 ) {
                     return this.cancelTargetSelection(state);
                 }
-                if (
-                    event.mouseX >= BUTTON_MIDDLE_DIVIDER
-                    && event.mouseY > BUTTON_TOP
-                ) {
-                    return this.confirmTargetSelection(state);
-                }
 
+                return this.confirmTargetSelection(state);
             }
         }
         return;
@@ -179,7 +174,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 width: ScreenDimensions.SCREEN_WIDTH,
                 height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
-            "Cancel",
+            "Click on target or click Cancel",
             graphicsContext,
         );
     }
@@ -239,21 +234,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             new RectArea({
                 left: 0,
                 top: BUTTON_TOP,
-                width: BUTTON_MIDDLE_DIVIDER,
+                width: ScreenDimensions.SCREEN_WIDTH,
                 height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
             "Cancel",
-            graphicsContext,
-        );
-
-        this.drawButton(
-            new RectArea({
-                left: BUTTON_MIDDLE_DIVIDER,
-                top: BUTTON_TOP,
-                width: BUTTON_MIDDLE_DIVIDER,
-                height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
-            }),
-            "Confirm",
             graphicsContext,
         );
 
@@ -265,7 +249,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         intentMessages.push(...[
             "",
-            "Click on Confirm or Cancel",
+            "Click to Confirm",
+            "or click Cancel button",
         ]);
 
         const messageToShow = intentMessages.join("\n");

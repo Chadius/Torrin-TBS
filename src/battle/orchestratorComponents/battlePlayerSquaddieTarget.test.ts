@@ -193,7 +193,7 @@ describe('BattleSquaddieTarget', () => {
         const confirmSelectionClick: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX: ScreenDimensions.SCREEN_WIDTH,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
+            mouseY: ScreenDimensions.SCREEN_HEIGHT / 2,
         };
 
         targetComponent.mouseEventHappened(state, confirmSelectionClick);
