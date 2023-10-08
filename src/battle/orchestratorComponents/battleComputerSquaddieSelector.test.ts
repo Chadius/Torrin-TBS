@@ -178,7 +178,7 @@ describe('BattleComputerSquaddieSelector', () => {
         return moveAction;
     }
 
-    it('moves camera to squaddie player cannot control before before moving', () => {
+    it('moves camera to an uncontrollable squaddie before before moving', () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 "]

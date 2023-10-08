@@ -6,7 +6,10 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
+import {
+    convertMapCoordinatesToScreenCoordinates,
+    convertMapCoordinatesToWorldCoordinates
+} from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
@@ -276,10 +279,15 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             ...state.camera.getCoordinates(),
         )
 
+        const squaddieWorldLocation: number[] = convertMapCoordinatesToWorldCoordinates(
+            datum.mapLocation.q,
+            datum.mapLocation.r,
+        )
+
         if (!isCoordinateOnScreen(squaddieScreenLocation[0], squaddieScreenLocation[1])) {
             state.camera.pan({
-                xDestination: datum.mapLocation.q,
-                yDestination: datum.mapLocation.r,
+                xDestination: squaddieWorldLocation[0],
+                yDestination: squaddieWorldLocation[1],
                 timeToPan: SQUADDIE_SELECTOR_PANNING_TIME,
                 respectConstraints: true,
             });
