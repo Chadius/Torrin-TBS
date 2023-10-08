@@ -276,7 +276,7 @@ describe('Battle Orchestrator', () => {
 
         nullState.squaddieCurrentlyActing.reset();
         nullState.squaddieCurrentlyActing.addInitialState({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
@@ -308,7 +308,7 @@ describe('Battle Orchestrator', () => {
 
         nullState.squaddieCurrentlyActing.reset();
         nullState.squaddieCurrentlyActing.addInitialState({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });

@@ -38,10 +38,10 @@ export class BattleSquaddieTeam {
     hasAnActingSquaddie(): boolean {
         return this.dynamicSquaddieIds.some(dynamicSquaddieId => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
-            const {canAct} = CanSquaddieActRightNow({staticSquaddie, dynamicSquaddie,});
+            const {canAct} = CanSquaddieActRightNow({squaddietemplate, dynamicSquaddie,});
             return canAct;
         })
     }
@@ -56,11 +56,11 @@ export class BattleSquaddieTeam {
     canPlayerControlAnySquaddieOnThisTeamRightNow() {
         return this.dynamicSquaddieIds.some(dynamicSquaddieId => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie,
             });
             return playerCanControlThisSquaddieRightNow;
@@ -70,13 +70,13 @@ export class BattleSquaddieTeam {
     getDynamicSquaddieIdThatCanActButNotPlayerControlled(): string {
         return this.dynamicSquaddieIds.find(dynamicSquaddieId => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             const {
                 squaddieCanCurrentlyAct,
                 squaddieHasThePlayerControlledAffiliation
-            } = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie,});
+            } = CanPlayerControlSquaddieRightNow({squaddietemplate, dynamicSquaddie,});
             return !squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct;
         })
     }
@@ -84,9 +84,9 @@ export class BattleSquaddieTeam {
     getDynamicSquaddiesThatCanAct(): string[] {
         return this.dynamicSquaddieIds.filter(dynamicSquaddieId => {
             const {
-                staticSquaddie, dynamicSquaddie
+                squaddietemplate, dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
-            const {canAct} = CanSquaddieActRightNow({staticSquaddie, dynamicSquaddie,});
+            const {canAct} = CanSquaddieActRightNow({squaddietemplate, dynamicSquaddie,});
             return canAct;
         });
     }
@@ -94,11 +94,11 @@ export class BattleSquaddieTeam {
     beginNewRound() {
         this.dynamicSquaddieIds.forEach((dynamicSquaddieId => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie
             } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
             dynamicSquaddie.beginNewRound();
-            unTintSquaddieMapIcon(staticSquaddie, dynamicSquaddie);
+            unTintSquaddieMapIcon(squaddietemplate, dynamicSquaddie);
         }));
     }
 }

@@ -10,18 +10,18 @@ import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 describe('SquaddieInstruction', () => {
     it('can add a squaddie and location', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
 
-        expect(instruction.getStaticSquaddieId()).toBe("new static squaddie");
+        expect(instruction.getSquaddietemplateId()).toBe("new static squaddie");
         expect(instruction.getDynamicSquaddieId()).toBe("new dynamic squaddie");
         expect(instruction.getStartingLocation()).toStrictEqual(new HexCoordinate({q: 0, r: 0}));
     });
     it('can add starting location', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
         });
 
@@ -30,7 +30,7 @@ describe('SquaddieInstruction', () => {
     });
     it('will throw an error if a starting location is added a second time', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
@@ -48,7 +48,7 @@ describe('SquaddieInstruction', () => {
     });
     it('can add movement action and its results', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0})
         });
@@ -77,7 +77,7 @@ describe('SquaddieInstruction', () => {
     });
     it('can add squaddie action', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0})
         });
@@ -115,7 +115,7 @@ describe('SquaddieInstruction', () => {
     });
     it('will return the start location as the destination if no movement actions are given', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
@@ -123,14 +123,14 @@ describe('SquaddieInstruction', () => {
     });
     it('will return an undefined destination if no start location and no movement actions are given', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
         });
         expect(instruction.destinationLocation()).toBeUndefined();
     });
     it('can add end turn action', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });

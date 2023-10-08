@@ -1,7 +1,7 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
@@ -10,18 +10,19 @@ import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: BattleSquaddieRepository;
-    let staticSquaddieBase: BattleSquaddieStatic;
-    let dynamicSquaddieBase: BattleSquaddieDynamic;
+    let squaddietemplateBase: SquaddieTemplate;
+    let dynamicSquaddieBase: BattleSquaddie;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = new BattleSquaddieRepository();
         ({
-            staticSquaddie: staticSquaddieBase,
+            squaddietemplate: squaddietemplateBase,
             dynamicSquaddie: dynamicSquaddieBase,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Torrin",
@@ -42,7 +43,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
     it('can wait half a second before ending turn', () => {
         const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "static_squaddie",
+            squaddietemplateId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
         endTurnInstruction.endTurn();

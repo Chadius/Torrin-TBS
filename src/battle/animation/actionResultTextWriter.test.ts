@@ -1,7 +1,7 @@
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAction} from "../../squaddie/action";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -10,17 +10,18 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {FormatIntent, FormatResult} from "./actionResultTextWriter";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('Action Result Text Writer', () => {
     let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
-    let knightStatic: BattleSquaddieStatic;
-    let knightDynamic: BattleSquaddieDynamic;
-    let citizenStatic: BattleSquaddieStatic;
-    let citizenDynamic: BattleSquaddieDynamic;
-    let thiefStatic: BattleSquaddieStatic;
-    let thiefDynamic: BattleSquaddieDynamic;
-    let rogueStatic: BattleSquaddieStatic;
-    let rogueDynamic: BattleSquaddieDynamic;
+    let knightStatic: SquaddieTemplate;
+    let knightDynamic: BattleSquaddie;
+    let citizenStatic: SquaddieTemplate;
+    let citizenDynamic: BattleSquaddie;
+    let thiefStatic: SquaddieTemplate;
+    let thiefDynamic: BattleSquaddie;
+    let rogueStatic: SquaddieTemplate;
+    let rogueDynamic: BattleSquaddie;
     let battleMap: MissionMap;
     let longswordSweepAction: SquaddieAction;
     let bandageWoundsAction: SquaddieAction;
@@ -62,7 +63,7 @@ describe('Action Result Text Writer', () => {
         });
 
         ({
-            staticSquaddie: knightStatic,
+            squaddietemplate: knightStatic,
             dynamicSquaddie: knightDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Knight",
@@ -76,7 +77,7 @@ describe('Action Result Text Writer', () => {
         battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
 
         ({
-            staticSquaddie: citizenStatic,
+            squaddietemplate: citizenStatic,
             dynamicSquaddie: citizenDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Citizen",
@@ -88,7 +89,7 @@ describe('Action Result Text Writer', () => {
         }));
 
         ({
-            staticSquaddie: thiefStatic,
+            squaddietemplate: thiefStatic,
             dynamicSquaddie: thiefDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Thief",
@@ -102,7 +103,7 @@ describe('Action Result Text Writer', () => {
         battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
 
         ({
-            staticSquaddie: rogueStatic,
+            squaddietemplate: rogueStatic,
             dynamicSquaddie: rogueDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Rogue",

@@ -156,28 +156,28 @@ class SearchState {
     recordReachableSquaddies(searchParams: SearchParams, missionMap: MissionMap) {
         missionMap.getAllSquaddieData().forEach((datum) => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie
             } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByDynamicId(datum.dynamicSquaddieId));
-            if (!IsSquaddieAlive({staticSquaddie, dynamicSquaddie})) {
+            if (!IsSquaddieAlive({squaddietemplate, dynamicSquaddie})) {
                 return;
             }
             const {
                 mapLocation,
-                staticSquaddieId,
+                squaddietemplateId,
             } = datum;
 
             if (this.hasAlreadyMarkedLocationAsVisited(mapLocation)) {
-                this.results.reachableSquaddies.addSquaddie(staticSquaddieId, mapLocation);
-                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(staticSquaddieId, 0, mapLocation);
+                this.results.reachableSquaddies.addSquaddie(squaddietemplateId, mapLocation);
+                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddietemplateId, 0, mapLocation);
             }
 
             const adjacentLocations: HexCoordinate[] = CreateNewNeighboringCoordinates(mapLocation.q, mapLocation.r);
             this.getTilesSearchCanStopAt().forEach((description: HexCoordinate) => {
                 adjacentLocations.forEach((location: HexCoordinate) => {
                     if (description.q === location.q && description.r === location.r) {
-                        this.results.reachableSquaddies.addSquaddie(staticSquaddieId, mapLocation);
-                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(staticSquaddieId, 1, description);
+                        this.results.reachableSquaddies.addSquaddie(squaddietemplateId, mapLocation);
+                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddietemplateId, 1, description);
                     }
                 });
             });
@@ -324,11 +324,11 @@ export class Pathfinder {
             const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate);
             if (squaddieAtTileDatum.isValid()) {
                 const {
-                    staticSquaddie: occupyingSquaddieStatic,
+                    squaddietemplate: occupyingSquaddieStatic,
                     dynamicSquaddie: occupyingSquaddieDynamic,
                 } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByDynamicId(squaddieAtTileDatum.dynamicSquaddieId));
                 if (IsSquaddieAlive({
-                    staticSquaddie: occupyingSquaddieStatic,
+                    squaddietemplate: occupyingSquaddieStatic,
                     dynamicSquaddie: occupyingSquaddieDynamic,
                 })) {
                     squaddieIsOccupyingTile = true;
@@ -547,7 +547,7 @@ export class Pathfinder {
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
         return neighboringLocations.filter((neighbor) => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie,
             } = GetSquaddieAtMapLocation({
                 mapLocation: new HexCoordinate({coordinates: neighbor}),
@@ -555,15 +555,15 @@ export class Pathfinder {
                 squaddieRepository: searchParams.squaddieRepository,
             });
 
-            if (!staticSquaddie) {
+            if (!squaddietemplate) {
                 return true;
             }
 
-            if (!IsSquaddieAlive({staticSquaddie, dynamicSquaddie})) {
+            if (!IsSquaddieAlive({squaddietemplate, dynamicSquaddie})) {
                 return true;
             }
 
-            return friendlyAffiliations[staticSquaddie.squaddieId.affiliation];
+            return friendlyAffiliations[squaddietemplate.squaddieId.affiliation];
         });
     }
 

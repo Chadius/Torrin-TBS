@@ -35,10 +35,10 @@ describe('Target Sprite', () => {
             staticId: "target"
         });
 
-        const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
+        const {squaddietemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
         resultTookDamage = new ActionResultPerSquaddie({damageTaken: 1});
-        resultTookLethalDamage = new ActionResultPerSquaddie({damageTaken: staticSquaddie.attributes.maxHitPoints});
+        resultTookLethalDamage = new ActionResultPerSquaddie({damageTaken: squaddietemplate.attributes.maxHitPoints});
 
         timer = new ActionTimer();
         timer.start();

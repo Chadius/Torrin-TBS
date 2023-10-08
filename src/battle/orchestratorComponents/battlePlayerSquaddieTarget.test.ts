@@ -1,6 +1,6 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieAction} from "../../squaddie/action";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -29,16 +29,17 @@ import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/
 import {BattleEvent} from "../history/battleEvent";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let targetComponent: BattlePlayerSquaddieTarget;
-    let knightStatic: BattleSquaddieStatic;
-    let knightDynamic: BattleSquaddieDynamic;
-    let citizenStatic: BattleSquaddieStatic;
-    let citizenDynamic: BattleSquaddieDynamic;
-    let thiefStatic: BattleSquaddieStatic;
-    let thiefDynamic: BattleSquaddieDynamic;
+    let knightStatic: SquaddieTemplate;
+    let knightDynamic: BattleSquaddie;
+    let citizenStatic: SquaddieTemplate;
+    let citizenDynamic: BattleSquaddie;
+    let thiefStatic: SquaddieTemplate;
+    let thiefDynamic: BattleSquaddie;
     let battleMap: MissionMap;
     let longswordAction: SquaddieAction;
     let longswordActionId: "longsword";
@@ -90,7 +91,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         ({
-            staticSquaddie: knightStatic,
+            squaddietemplate: knightStatic,
             dynamicSquaddie: knightDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Knight",
@@ -103,7 +104,7 @@ describe('BattleSquaddieTarget', () => {
         battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
 
         ({
-            staticSquaddie: citizenStatic,
+            squaddietemplate: citizenStatic,
             dynamicSquaddie: citizenDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Citizen",
@@ -119,7 +120,7 @@ describe('BattleSquaddieTarget', () => {
         }));
 
         ({
-            staticSquaddie: thiefStatic,
+            squaddietemplate: thiefStatic,
             dynamicSquaddie: thiefDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Thief",
@@ -137,7 +138,7 @@ describe('BattleSquaddieTarget', () => {
         const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
             actionsForThisRound: new SquaddieActionsForThisRound({
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-                staticSquaddieId: knightStatic.staticId,
+                squaddietemplateId: knightStatic.staticId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             }),
             currentSquaddieAction: longswordAction,
@@ -258,7 +259,7 @@ describe('BattleSquaddieTarget', () => {
         state.squaddieCurrentlyActing.reset();
         state.squaddieCurrentlyActing.addInitialState({
             dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-            staticSquaddieId: knightStatic.staticId,
+            squaddietemplateId: knightStatic.staticId,
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
         state.squaddieCurrentlyActing.addSelectedAction(longswordAction);
@@ -278,7 +279,7 @@ describe('BattleSquaddieTarget', () => {
         state.squaddieCurrentlyActing.reset();
         state.squaddieCurrentlyActing.addInitialState({
             dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-            staticSquaddieId: knightStatic.staticId,
+            squaddietemplateId: knightStatic.staticId,
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
         state.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
@@ -343,7 +344,7 @@ describe('BattleSquaddieTarget', () => {
             const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
                 actionsForThisRound: new SquaddieActionsForThisRound({
                     dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-                    staticSquaddieId: knightStatic.staticId,
+                    squaddietemplateId: knightStatic.staticId,
                     startingLocation: new HexCoordinate({q: 1, r: 1}),
                 }),
                 currentSquaddieAction: bandageWoundsAction,
@@ -377,7 +378,7 @@ describe('BattleSquaddieTarget', () => {
 
         it('should create a squaddie instruction', () => {
             const expectedInstruction = new SquaddieActionsForThisRound({
-                staticSquaddieId: knightStatic.staticId,
+                squaddietemplateId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             });
@@ -402,7 +403,7 @@ describe('BattleSquaddieTarget', () => {
 
         it('should consume the squaddie action points', () => {
             const {actionPointsRemaining} = GetNumberOfActionPoints({
-                staticSquaddie: knightStatic,
+                squaddietemplate: knightStatic,
                 dynamicSquaddie: knightDynamic
             });
             expect(actionPointsRemaining).toBe(2);
@@ -412,7 +413,7 @@ describe('BattleSquaddieTarget', () => {
     describe('confirming an action mid turn', () => {
         beforeEach(() => {
             state.squaddieCurrentlyActing.addInitialState({
-                staticSquaddieId: knightStatic.staticId,
+                squaddietemplateId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             });
@@ -426,7 +427,7 @@ describe('BattleSquaddieTarget', () => {
 
         it('should add to existing instruction when confirmed mid turn', () => {
             const expectedInstruction = new SquaddieActionsForThisRound({
-                staticSquaddieId: knightStatic.staticId,
+                squaddietemplateId: knightStatic.staticId,
                 dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             });
@@ -442,7 +443,7 @@ describe('BattleSquaddieTarget', () => {
 
         it('should spend the action resource cost after confirming but before showing results', () => {
             const {actionPointsRemaining} = GetNumberOfActionPoints({
-                staticSquaddie: knightStatic,
+                squaddietemplate: knightStatic,
                 dynamicSquaddie: knightDynamic
             });
             expect(actionPointsRemaining).toBe(3 - longswordAction.actionPointCost);
@@ -468,7 +469,7 @@ describe('BattleSquaddieTarget', () => {
             expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordAction.damageDescriptions[DamageType.Body]);
 
             const {maxHitPoints, currentHitPoints} = GetHitPoints({
-                staticSquaddie: thiefStatic,
+                squaddietemplate: thiefStatic,
                 dynamicSquaddie: thiefDynamic
             });
             expect(currentHitPoints).toBe(maxHitPoints - longswordAction.damageDescriptions[DamageType.Body]);
@@ -506,7 +507,7 @@ describe('BattleSquaddieTarget', () => {
             const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
                 actionsForThisRound: new SquaddieActionsForThisRound({
                     dynamicSquaddieId: knightDynamic.dynamicSquaddieId,
-                    staticSquaddieId: knightStatic.staticId,
+                    squaddietemplateId: knightStatic.staticId,
                     startingLocation: new HexCoordinate({q: 1, r: 1}),
                 }),
                 currentSquaddieAction: action,

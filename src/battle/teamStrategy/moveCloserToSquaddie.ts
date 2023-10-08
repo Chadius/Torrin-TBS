@@ -37,11 +37,11 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         let squaddieToAct = this.getActingSquaddie(state, squaddiesWhoCanAct);
 
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
+        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddietemplate, dynamicSquaddie});
         const pathfinder = new Pathfinder();
         const searchResults: SearchResults =
             pathfinder.findReachableSquaddies(new SearchParams({
@@ -50,12 +50,12 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                     missionMap: state.missionMap,
                     squaddieRepository: state.squaddieRepository,
                     startLocation: mapLocation,
-                    affiliation: staticSquaddie.squaddieId.affiliation,
+                    affiliation: squaddietemplate.squaddieId.affiliation,
                 }),
                 movement: new SearchMovement({
-                    movementPerAction: staticSquaddie.movement.movementPerAction,
-                    crossOverPits: staticSquaddie.movement.crossOverPits,
-                    passThroughWalls: staticSquaddie.movement.passThroughWalls,
+                    movementPerAction: squaddietemplate.movement.movementPerAction,
+                    crossOverPits: squaddietemplate.movement.crossOverPits,
+                    passThroughWalls: squaddietemplate.movement.passThroughWalls,
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 }),
                 stopCondition: new SearchStopCondition({
@@ -67,7 +67,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
 
         const foundInfo = Object.entries(reachableSquaddieLocations).filter(([squaddieId, mapLocation]) => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie,
             } = GetSquaddieAtMapLocation({
                 mapLocation,
@@ -79,7 +79,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 return dynamicSquaddie.dynamicSquaddieId === this.desiredDynamicSquaddieId;
             }
             if (this.desiredAffiliation) {
-                return staticSquaddie.squaddieId.affiliation === this.desiredAffiliation;
+                return squaddietemplate.squaddieId.affiliation === this.desiredAffiliation;
             }
             return false;
         });
@@ -115,9 +115,9 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                             squaddieRepository: state.squaddieRepository,
                         }),
                         movement: new SearchMovement({
-                            movementPerAction: staticSquaddie.movement.movementPerAction,
-                            passThroughWalls: staticSquaddie.movement.passThroughWalls,
-                            crossOverPits: staticSquaddie.movement.crossOverPits,
+                            movementPerAction: squaddietemplate.movement.movementPerAction,
+                            passThroughWalls: squaddietemplate.movement.passThroughWalls,
+                            crossOverPits: squaddietemplate.movement.crossOverPits,
                             canStopOnSquaddies: true,
 
                             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
@@ -136,7 +136,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
             const numberOfMoveActions = searchResults.calculateNumberOfMoveActionsRequired(targetLocation);
 
             const moveTowardsLocation: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-                staticSquaddieId: staticSquaddie.squaddieId.staticId,
+                squaddietemplateId: squaddietemplate.squaddieId.staticId,
                 dynamicSquaddieId: squaddieToAct,
                 startingLocation: mapLocation,
             });

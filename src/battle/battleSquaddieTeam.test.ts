@@ -1,24 +1,25 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {SquaddieId} from "../squaddie/id";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
 import * as mocks from "../utils/test/mocks";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieResource} from "../squaddie/resource";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('Battle Squaddie Team', () => {
     let squaddieRepo: BattleSquaddieRepository;
     let twoPlayerTeam: BattleSquaddieTeam;
-    let playerStaticSquaddieBase: BattleSquaddieStatic;
-    let playerDynamicSquaddie0: BattleSquaddieDynamic;
-    let playerDynamicSquaddie1: BattleSquaddieDynamic;
+    let playerSquaddietemplateBase: SquaddieTemplate;
+    let playerDynamicSquaddie0: BattleSquaddie;
+    let playerDynamicSquaddie1: BattleSquaddie;
 
     let twoEnemyTeam: BattleSquaddieTeam;
-    let enemyStaticSquaddieBase: BattleSquaddieStatic;
-    let enemyDynamicSquaddie0: BattleSquaddieDynamic;
-    let enemyDynamicSquaddie1: BattleSquaddieDynamic;
+    let enemySquaddietemplateBase: SquaddieTemplate;
+    let enemyDynamicSquaddie0: BattleSquaddie;
+    let enemyDynamicSquaddie1: BattleSquaddie;
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
@@ -27,7 +28,7 @@ describe('Battle Squaddie Team', () => {
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepo: squaddieRepo,
         });
-        playerStaticSquaddieBase = new BattleSquaddieStatic({
+        playerSquaddietemplateBase = new SquaddieTemplate({
             squaddieId: new SquaddieId({
                 staticId: "player_young_torrin",
                 name: "Torrin",
@@ -38,14 +39,14 @@ describe('Battle Squaddie Team', () => {
             actions: [],
         });
 
-        squaddieRepo.addStaticSquaddie(
-            playerStaticSquaddieBase
+        squaddieRepo.addSquaddietemplate(
+            playerSquaddietemplateBase
         );
 
         playerDynamicSquaddie0 =
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "player_young_torrin_0",
-                staticSquaddieId: "player_young_torrin",
+                squaddieTemplateId: "player_young_torrin",
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: mocks.mockImageUI(),
             });
@@ -54,9 +55,9 @@ describe('Battle Squaddie Team', () => {
             playerDynamicSquaddie0
         );
 
-        playerDynamicSquaddie1 = new BattleSquaddieDynamic({
+        playerDynamicSquaddie1 = new BattleSquaddie({
             dynamicSquaddieId: "player_young_torrin_1",
-            staticSquaddieId: "player_young_torrin",
+            squaddieTemplateId: "player_young_torrin",
             squaddieTurn: new SquaddieTurn(),
             mapIcon: mocks.mockImageUI(),
         });
@@ -70,7 +71,7 @@ describe('Battle Squaddie Team', () => {
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepo: squaddieRepo,
         });
-        enemyStaticSquaddieBase = new BattleSquaddieStatic({
+        enemySquaddietemplateBase = new SquaddieTemplate({
             squaddieId: new SquaddieId({
                 staticId: "enemy_slither_demon",
                 name: "Slither",
@@ -81,14 +82,14 @@ describe('Battle Squaddie Team', () => {
             actions: [],
         });
 
-        squaddieRepo.addStaticSquaddie(
-            enemyStaticSquaddieBase
+        squaddieRepo.addSquaddietemplate(
+            enemySquaddietemplateBase
         );
 
         enemyDynamicSquaddie0 =
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_slither_demon_0",
-                staticSquaddieId: "enemy_slither_demon",
+                squaddieTemplateId: "enemy_slither_demon",
                 squaddieTurn: new SquaddieTurn()
             });
 
@@ -96,9 +97,9 @@ describe('Battle Squaddie Team', () => {
             enemyDynamicSquaddie0
         );
 
-        enemyDynamicSquaddie1 = new BattleSquaddieDynamic({
+        enemyDynamicSquaddie1 = new BattleSquaddie({
             dynamicSquaddieId: "enemy_slither_demon_1",
-            staticSquaddieId: "enemy_slither_demon",
+            squaddieTemplateId: "enemy_slither_demon",
             squaddieTurn: new SquaddieTurn()
         });
         squaddieRepo.addDynamicSquaddie(

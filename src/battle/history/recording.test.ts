@@ -11,14 +11,14 @@ describe('Recording', () => {
         const recording = new Recording({});
 
         const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "player_squaddie",
+            squaddietemplateId: "player_squaddie",
             dynamicSquaddieId: "player_squaddie_0",
         });
         endTurnInstruction.endTurn();
 
         const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         squaddieMovesAndEndsTurn.addInitialState({
-            staticSquaddieId: "static",
+            squaddietemplateId: "static",
             dynamicSquaddieId: "dynamic",
             startingLocation: new HexCoordinate({q: 2, r: 3}),
         });

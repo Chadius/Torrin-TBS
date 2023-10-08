@@ -1,4 +1,4 @@
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -8,10 +8,11 @@ import {BattleCamera} from "../battleCamera";
 import {convertMapCoordinatesToScreenCoordinates,} from "../../hexMap/convertCoordinates";
 import {GetSquaddieAtMapLocation, GetSquaddieAtScreenLocation} from "./orchestratorUtils";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
-    let knightSquaddieStatic: BattleSquaddieStatic;
-    let knightSquaddieDynamic: BattleSquaddieDynamic;
+    let knightSquaddieStatic: SquaddieTemplate;
+    let knightSquaddieDynamic: BattleSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let map: MissionMap;
     let camera: BattleCamera;
@@ -20,7 +21,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
         squaddieRepository = new BattleSquaddieRepository();
 
         ({
-            staticSquaddie: knightSquaddieStatic,
+            squaddietemplate: knightSquaddieStatic,
             dynamicSquaddie: knightSquaddieDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "knight",
@@ -50,7 +51,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
 
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
             squaddieMapLocation,
         } = GetSquaddieAtScreenLocation({
@@ -61,14 +62,14 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             squaddieRepository,
         });
 
-        expect(staticSquaddie).toStrictEqual(knightSquaddieStatic);
+        expect(squaddietemplate).toStrictEqual(knightSquaddieStatic);
         expect(dynamicSquaddie).toStrictEqual(knightSquaddieDynamic);
         expect(squaddieMapLocation).toStrictEqual(new HexCoordinate({q: 0, r: 2}));
     });
 
     it('can return the squaddie and information at a given map location', () => {
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
             squaddieMapLocation,
         } = GetSquaddieAtMapLocation({
@@ -77,7 +78,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             squaddieRepository,
         });
 
-        expect(staticSquaddie).toStrictEqual(knightSquaddieStatic);
+        expect(squaddietemplate).toStrictEqual(knightSquaddieStatic);
         expect(dynamicSquaddie).toStrictEqual(knightSquaddieDynamic);
         expect(squaddieMapLocation).toStrictEqual(new HexCoordinate({q: 0, r: 2}));
     });
@@ -86,7 +87,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
 
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
             squaddieMapLocation,
         } = GetSquaddieAtScreenLocation({
@@ -97,7 +98,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             squaddieRepository,
         });
 
-        expect(staticSquaddie).toBeUndefined();
+        expect(squaddietemplate).toBeUndefined();
         expect(dynamicSquaddie).toBeUndefined();
         expect(squaddieMapLocation).toBeUndefined();
     });

@@ -4,7 +4,7 @@ import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {
     BattleOrchestratorChanges,
@@ -35,14 +35,15 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
     let selector: BattlePlayerSquaddieSelector = new BattlePlayerSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let missionMap: MissionMap;
-    let enemyDemonStatic: BattleSquaddieStatic;
-    let enemyDemonDynamic: BattleSquaddieDynamic;
+    let enemyDemonStatic: SquaddieTemplate;
+    let enemyDemonDynamic: BattleSquaddie;
     let demonBiteAction: SquaddieAction;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
@@ -82,7 +83,7 @@ describe('BattleSquaddieSelector', () => {
 
         ({
             dynamicSquaddie: enemyDemonDynamic,
-            staticSquaddie: enemyDemonStatic,
+            squaddietemplate: enemyDemonStatic,
         } = CreateNewSquaddieAndAddToRepository({
             staticId: "enemy_demon",
             name: "Slither Demon",
@@ -93,9 +94,9 @@ describe('BattleSquaddieSelector', () => {
         }));
 
         squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_1",
-                staticSquaddieId: "enemy_demon",
+                squaddieTemplateId: "enemy_demon",
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -182,7 +183,7 @@ describe('BattleSquaddieSelector', () => {
 
         ({
             dynamicSquaddie: enemyDemonDynamic,
-            staticSquaddie: enemyDemonStatic,
+            squaddietemplate: enemyDemonStatic,
         } = CreateNewSquaddieAndAddToRepository({
             staticId: "enemy_demon",
             name: "Slither Demon",
@@ -307,7 +308,7 @@ describe('BattleSquaddieSelector', () => {
 
         const expectedSquaddieInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         expectedSquaddieInstruction.addInitialState({
-            staticSquaddieId: "player_soldier",
+            squaddietemplateId: "player_soldier",
             dynamicSquaddieId: "player_soldier_0",
             startingLocation: new HexCoordinate({
                 q: 0,
@@ -348,7 +349,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
             squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: "player_soldier_0",
-                staticSquaddieId: "player_soldier",
+                squaddietemplateId: "player_soldier",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
             squaddieCurrentlyActing.addConfirmedAction(new SquaddieMovementAction({
@@ -402,7 +403,7 @@ describe('BattleSquaddieSelector', () => {
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         squaddieCurrentlyActing.addInitialState({
             dynamicSquaddieId: "player_soldier_0",
-            staticSquaddieId: "player_soldier",
+            squaddietemplateId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         squaddieCurrentlyActing.addConfirmedAction(new SquaddieMovementAction({
@@ -467,7 +468,7 @@ describe('BattleSquaddieSelector', () => {
         const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         endTurnInstruction.addInitialState({
             dynamicSquaddieId: "player_soldier_0",
-            staticSquaddieId: "player_soldier",
+            squaddietemplateId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         endTurnInstruction.addConfirmedAction(new SquaddieEndTurnAction());
@@ -526,7 +527,7 @@ describe('BattleSquaddieSelector', () => {
 
         const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             dynamicSquaddieId: "player_soldier_0",
-            staticSquaddieId: "player_soldier",
+            squaddietemplateId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
 
@@ -542,8 +543,8 @@ describe('BattleSquaddieSelector', () => {
 
     describe('squaddie must complete their turn before moving other squaddies', () => {
         let missionMap: MissionMap;
-        let interruptSquaddieStatic: BattleSquaddieStatic;
-        let interruptSquaddieDynamic: BattleSquaddieDynamic;
+        let interruptSquaddieStatic: SquaddieTemplate;
+        let interruptSquaddieDynamic: BattleSquaddie;
         let soldierCurrentlyActing: SquaddieInstructionInProgress;
         let mockHud: BattleSquaddieSelectedHUD;
         let selectSquaddieAndDrawWindowSpy: SpyInstance;
@@ -560,7 +561,7 @@ describe('BattleSquaddieSelector', () => {
             });
             const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
             ({
-                staticSquaddie: interruptSquaddieStatic,
+                squaddietemplate: interruptSquaddieStatic,
                 dynamicSquaddie: interruptSquaddieDynamic,
             } = CreateNewSquaddieAndAddToRepository({
                 name: "interrupting squaddie",
@@ -579,7 +580,7 @@ describe('BattleSquaddieSelector', () => {
             const soldierSquaddieInfo = missionMap.getSquaddieByDynamicId("player_soldier_0");
 
             const movingInstruction = new SquaddieActionsForThisRound({
-                staticSquaddieId: soldierSquaddieInfo.staticSquaddieId,
+                squaddietemplateId: soldierSquaddieInfo.squaddietemplateId,
                 dynamicSquaddieId: soldierSquaddieInfo.dynamicSquaddieId,
                 startingLocation: soldierSquaddieInfo.mapLocation,
             });

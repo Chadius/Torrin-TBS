@@ -55,14 +55,14 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
             const dynamicSquaddieId = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getDynamicSquaddieId();
             const {
                 dynamicSquaddie,
-                staticSquaddie
+                squaddietemplate
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
             const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
 
             if (mostRecentAction instanceof SquaddieEndTurnAction) {
                 dynamicSquaddie.endTurn();
-                TintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
+                TintSquaddieIfTurnIsComplete(dynamicSquaddie, squaddietemplate);
             }
             this.animationCompleteStartTime = Date.now();
         }

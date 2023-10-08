@@ -1,12 +1,13 @@
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battle/battleSquaddie";
+import {BattleSquaddie} from "../battle/battleSquaddie";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 export const GetNumberOfActionPoints = ({
-                                            staticSquaddie,
+                                            squaddietemplate,
                                             dynamicSquaddie,
                                         }: {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
 }): {
     actionPointsRemaining: number
 } => {
@@ -16,32 +17,32 @@ export const GetNumberOfActionPoints = ({
 }
 
 export const GetArmorClass = ({
-                                  staticSquaddie,
+                                  squaddietemplate,
                                   dynamicSquaddie,
                               }: {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
 }): {
     normalArmorClass: number
 } => {
     return {
-        normalArmorClass: staticSquaddie.attributes.armorClass,
+        normalArmorClass: squaddietemplate.attributes.armorClass,
     }
 }
 
 export const GetHitPoints = ({
-                                 staticSquaddie,
+                                 squaddietemplate,
                                  dynamicSquaddie,
                              }: {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
 }): {
     currentHitPoints: number,
     maxHitPoints: number
 } => {
     return {
         currentHitPoints: dynamicSquaddie.inBattleAttributes.currentHitPoints,
-        maxHitPoints: staticSquaddie.attributes.maxHitPoints,
+        maxHitPoints: squaddietemplate.attributes.maxHitPoints,
     }
 }
 
@@ -58,13 +59,13 @@ export enum HealingType {
 }
 
 export const DealDamageToTheSquaddie = ({
-                                            staticSquaddie,
+                                            squaddietemplate,
                                             dynamicSquaddie,
                                             damage,
                                             damageType,
                                         }: {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
     damage: number,
     damageType: DamageType,
 }): {
@@ -78,13 +79,13 @@ export const DealDamageToTheSquaddie = ({
 }
 
 export const GiveHealingToTheSquaddie = ({
-                                             staticSquaddie,
+                                             squaddietemplate,
                                              dynamicSquaddie,
                                              healingAmount,
                                              healingType: HealingType,
                                          }: {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
     healingAmount: number,
     healingType: HealingType,
 }): {
@@ -98,22 +99,22 @@ export const GiveHealingToTheSquaddie = ({
 }
 
 export const CanSquaddieActRightNow = ({
-                                           staticSquaddie,
+                                           squaddietemplate,
                                            dynamicSquaddie,
                                        }: {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
 }): {
     canAct: boolean,
     hasActionPointsRemaining: boolean,
     isDead: boolean,
 } => {
-    const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+    const squaddieIsAlive = IsSquaddieAlive({squaddietemplate, dynamicSquaddie});
 
     let {
         actionPointsRemaining
     } = GetNumberOfActionPoints({
-        staticSquaddie,
+        squaddietemplate,
         dynamicSquaddie,
     });
 
@@ -127,26 +128,26 @@ export const CanSquaddieActRightNow = ({
 }
 
 export const CanPlayerControlSquaddieRightNow = ({
-                                                     staticSquaddie,
+                                                     squaddietemplate,
                                                      dynamicSquaddie,
                                                  }: {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
 }): {
     squaddieHasThePlayerControlledAffiliation: boolean,
     squaddieCanCurrentlyAct: boolean,
     playerCanControlThisSquaddieRightNow: boolean,
 } => {
-    const squaddieIsAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+    const squaddieIsAlive = IsSquaddieAlive({squaddietemplate, dynamicSquaddie});
 
     let {
         actionPointsRemaining
     } = GetNumberOfActionPoints({
-        staticSquaddie,
+        squaddietemplate,
         dynamicSquaddie,
     });
 
-    const playerControlledAffiliation: boolean = staticSquaddie.squaddieId.affiliation === SquaddieAffiliation.PLAYER
+    const playerControlledAffiliation: boolean = squaddietemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER
     const squaddieCanCurrentlyAct: boolean = actionPointsRemaining > 0 && squaddieIsAlive
 
     return {
@@ -156,10 +157,10 @@ export const CanPlayerControlSquaddieRightNow = ({
     }
 }
 
-export const IsSquaddieAlive = ({staticSquaddie, dynamicSquaddie}: {
-    staticSquaddie: BattleSquaddieStatic;
-    dynamicSquaddie: BattleSquaddieDynamic
+export const IsSquaddieAlive = ({squaddietemplate, dynamicSquaddie}: {
+    squaddietemplate: SquaddieTemplate;
+    dynamicSquaddie: BattleSquaddie
 }): boolean => {
-    const {currentHitPoints} = GetHitPoints({staticSquaddie, dynamicSquaddie});
+    const {currentHitPoints} = GetHitPoints({squaddietemplate, dynamicSquaddie});
     return currentHitPoints > 0;
 }

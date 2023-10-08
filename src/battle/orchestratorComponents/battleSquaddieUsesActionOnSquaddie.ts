@@ -106,9 +106,9 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         mostRecentResults.targetedSquaddieDynamicIds.forEach((dynamicSquaddieId) => {
             const {
                 dynamicSquaddie,
-                staticSquaddie
+                squaddietemplate
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
-            if (!IsSquaddieAlive({dynamicSquaddie, staticSquaddie})) {
+            if (!IsSquaddieAlive({dynamicSquaddie, squaddietemplate})) {
                 state.missionMap.hideSquaddieFromDrawing(dynamicSquaddieId);
                 state.missionMap.updateSquaddieLocation(dynamicSquaddieId, undefined);
             }

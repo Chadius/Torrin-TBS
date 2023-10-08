@@ -108,13 +108,13 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
     private updateWhenAnimationCompletes(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(
             state.squaddieCurrentlyActing.dynamicSquaddieId
         ));
 
-        updateSquaddieLocation(dynamicSquaddie, staticSquaddie, state.squaddieMovePath.getDestination(), state.missionMap, dynamicSquaddie.dynamicSquaddieId);
+        updateSquaddieLocation(dynamicSquaddie, squaddietemplate, state.squaddieMovePath.getDestination(), state.missionMap, dynamicSquaddie.dynamicSquaddieId);
         const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
         if (mostRecentAction instanceof SquaddieMovementAction) {
             spendSquaddieActionPoints(dynamicSquaddie, mostRecentAction.numberOfActionPointsSpent);
@@ -122,7 +122,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
         if (dynamicSquaddie.mapIcon) {
             updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);
-            TintSquaddieIfTurnIsComplete(dynamicSquaddie, staticSquaddie);
+            TintSquaddieIfTurnIsComplete(dynamicSquaddie, squaddietemplate);
             dynamicSquaddie.mapIcon.draw(graphicsContext);
         }
         state.hexMap.stopHighlightingTiles();

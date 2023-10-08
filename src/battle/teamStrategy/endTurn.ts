@@ -12,13 +12,13 @@ export class EndTurnTeamStrategy implements TeamStrategy {
 
         const squaddieToAct = squaddiesWhoCanAct[0];
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToAct));
 
         const datum = state.missionMap.getSquaddieByDynamicId(squaddieToAct);
         const endTurnAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: staticSquaddie.squaddieId.staticId,
+            squaddietemplateId: squaddietemplate.squaddieId.staticId,
             dynamicSquaddieId: squaddieToAct,
             startingLocation: datum.mapLocation,
         });

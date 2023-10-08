@@ -146,7 +146,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
         const {
             dynamicSquaddie: actorDynamic,
-            staticSquaddie: actorStatic,
+            squaddietemplate: actorStatic,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(mostRecentResults.actingSquaddieDynamicId));
 
         const action = state.squaddieCurrentlyActing.currentlySelectedAction;
@@ -193,7 +193,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this._targetTextWindows = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string) => {
             const {
                 dynamicSquaddie: targetDynamic,
-                staticSquaddie: targetStatic,
+                squaddietemplate: targetStatic,
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicId));
 
             const targetTextWindow = new TargetTextWindow();
@@ -211,7 +211,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.forEach((dynamicId: string, index: number) => {
             const {
                 dynamicSquaddie: targetDynamic,
-                staticSquaddie: targetStatic,
+                squaddietemplate: targetStatic,
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicId));
 
             let {
@@ -219,7 +219,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 maxHitPoints,
             } = GetHitPoints({
                 dynamicSquaddie: targetDynamic,
-                staticSquaddie: targetStatic,
+                squaddietemplate: targetStatic,
             });
 
             currentHitPoints += mostRecentResults.resultPerTarget[dynamicId].damageTaken;

@@ -1,15 +1,15 @@
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {InBattleAttributes} from "./stats/inBattleAttributes";
-import {NewDummySquaddieID} from "../utils/test/squaddie";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddie', () => {
     it('throws an error if dynamic squaddie has no static ID', () => {
         const shouldThrowError = () => {
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "dynamicSquaddieId",
             })
         }
@@ -23,8 +23,8 @@ describe('BattleSquaddie', () => {
     });
     it('throws an error if dynamic squaddie has no dynamic ID', () => {
         const shouldThrowError = () => {
-            const badDynamicSquaddie: BattleSquaddieDynamic = new BattleSquaddieDynamic({
-                staticSquaddieId: "staticSquaddieId",
+            const badDynamicSquaddie: BattleSquaddie = new BattleSquaddie({
+                squaddieTemplateId: "squaddietemplateId",
                 dynamicSquaddieId: "",
                 squaddieTurn: new SquaddieTurn(),
             })
@@ -39,11 +39,11 @@ describe('BattleSquaddie', () => {
         }).toThrow("Dynamic Squaddie has no Dynamic Squaddie Id");
     });
     describe('attributes', () => {
-        let staticSoldier: BattleSquaddieStatic;
-        let dynamicSoldier: BattleSquaddieDynamic;
+        let staticSoldier: SquaddieTemplate;
+        let dynamicSoldier: BattleSquaddie;
 
         beforeEach(() => {
-            staticSoldier = new BattleSquaddieStatic({
+            staticSoldier = new SquaddieTemplate({
                 squaddieId: new SquaddieId({
                     staticId: "soldier_static",
                     name: "Soldier",
@@ -56,20 +56,10 @@ describe('BattleSquaddie', () => {
             });
         });
 
-        it('will give static squaddie defaults', () => {
-            const squaddieWithoutAttributes: BattleSquaddieStatic = new BattleSquaddieStatic({
-                squaddieId: NewDummySquaddieID("id", SquaddieAffiliation.PLAYER),
-            });
-
-            const defaultAttributes: ArmyAttributes = new ArmyAttributes();
-
-            expect(squaddieWithoutAttributes.attributes).toStrictEqual(defaultAttributes);
-        });
-
         it('will give dynamic squaddie defaults', () => {
-            dynamicSoldier = new BattleSquaddieDynamic({
+            dynamicSoldier = new BattleSquaddie({
                 dynamicSquaddieId: "soldier_dynamic",
-                staticSquaddieId: staticSoldier.squaddieId.staticId,
+                squaddieTemplateId: staticSoldier.squaddieId.staticId,
             });
 
             const defaultInBattleAttributes: InBattleAttributes = new InBattleAttributes();
@@ -81,14 +71,14 @@ describe('BattleSquaddie', () => {
             expect(staticSoldier.attributes.maxHitPoints).toBe(5);
             expect(staticSoldier.attributes.armorClass).toBe(2);
 
-            dynamicSoldier = new BattleSquaddieDynamic({
+            dynamicSoldier = new BattleSquaddie({
                 dynamicSquaddieId: "soldier_dynamic",
-                staticSquaddieId: staticSoldier.squaddieId.staticId,
+                squaddieTemplateId: staticSoldier.squaddieId.staticId,
             });
 
             dynamicSoldier.initializeInBattleAttributes(staticSoldier.attributes);
 
-            expect(dynamicSoldier.staticSquaddieId).toBe(staticSoldier.squaddieId.staticId);
+            expect(dynamicSoldier.squaddieTemplateId).toBe(staticSoldier.squaddieId.staticId);
             expect(dynamicSoldier.inBattleAttributes.currentHitPoints).toBe(staticSoldier.attributes.maxHitPoints);
         });
 
@@ -96,12 +86,12 @@ describe('BattleSquaddie', () => {
             expect(staticSoldier.attributes.maxHitPoints).toBe(5);
             expect(staticSoldier.attributes.armorClass).toBe(2);
 
-            dynamicSoldier = new BattleSquaddieDynamic({
+            dynamicSoldier = new BattleSquaddie({
                 dynamicSquaddieId: "soldier_dynamic",
-                staticSquaddie: staticSoldier,
+                squaddieTemplate: staticSoldier,
             });
 
-            expect(dynamicSoldier.staticSquaddieId).toBe(staticSoldier.squaddieId.staticId);
+            expect(dynamicSoldier.squaddieTemplateId).toBe(staticSoldier.squaddieId.staticId);
             expect(dynamicSoldier.inBattleAttributes.currentHitPoints).toBe(staticSoldier.attributes.maxHitPoints);
         });
     });

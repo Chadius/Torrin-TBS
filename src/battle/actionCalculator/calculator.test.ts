@@ -7,7 +7,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattleSquaddieDynamic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
@@ -18,10 +18,10 @@ describe('calculator', () => {
     let missionMap: MissionMap;
     let player1DynamicId = "player 1";
     let player1StaticId = "player 1";
-    let player1DynamicSquaddie: BattleSquaddieDynamic;
+    let player1DynamicSquaddie: BattleSquaddie;
     let enemy1DynamicId = "enemy 1";
     let enemy1StaticId = "enemy 1";
-    let ally1DynamicSquaddie: BattleSquaddieDynamic;
+    let ally1DynamicSquaddie: BattleSquaddie;
     let ally1DynamicId = "ally 1";
     let ally1StaticId = "ally 1";
 

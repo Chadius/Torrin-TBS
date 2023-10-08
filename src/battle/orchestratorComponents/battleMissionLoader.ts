@@ -15,7 +15,7 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
 import {SquaddieAction} from "../../squaddie/action";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
@@ -43,6 +43,7 @@ import {CutsceneTrigger, MissionDefeatCutsceneTrigger} from "../../cutscene/cuts
 import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
 import {SplashScreen} from "../../cutscene/splashScreen";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -61,7 +62,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     finishedPreparations: boolean;
 
     affiliateIconResourceKeys: string[];
-    staticSquaddieResourceKeys: string[];
+    squaddietemplateResourceKeys: string[];
     bannerImageResourceKeys: string[];
     cutsceneResourceKeys: string[];
 
@@ -84,7 +85,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         if (this.startedLoading && state.resourceHandler.areAllResourcesLoaded([
             ...mapMovementAndAttackIcons,
             ...this.affiliateIconResourceKeys,
-            ...this.staticSquaddieResourceKeys,
+            ...this.squaddietemplateResourceKeys,
             ...this.bannerImageResourceKeys,
             ...this.cutsceneResourceKeys,
         ])) {
@@ -163,7 +164,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
 
     private loadSquaddies(state: BattleOrchestratorState) {
         state.squaddieRepository.addSquaddie(
-            new BattleSquaddieStatic({
+            new SquaddieTemplate({
                 squaddieId: new SquaddieId({
                     staticId: "player_young_torrin",
                     name: "Torrin",
@@ -217,16 +218,16 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     })
                 ],
             }),
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "player_young_torrin",
-                staticSquaddieId: "player_young_torrin",
+                squaddieTemplateId: "player_young_torrin",
                 squaddieTurn: new SquaddieTurn()
             })
         );
         state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 1, r: 0}));
 
         state.squaddieRepository.addSquaddie(
-            new BattleSquaddieStatic({
+            new SquaddieTemplate({
                 attributes: new ArmyAttributes({
                     maxHitPoints: 5,
                     armorClass: 2,
@@ -266,15 +267,15 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     })
                 ],
             }),
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "player_sir_camil",
-                staticSquaddieId: "player_sir_camil",
+                squaddieTemplateId: "player_sir_camil",
                 squaddieTurn: new SquaddieTurn()
             })
         );
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
 
-        const demonSlitherMold = new BattleSquaddieStatic({
+        const demonSlitherMold = new SquaddieTemplate({
             attributes: new ArmyAttributes({
                 maxHitPoints: 3,
                 armorClass: -5,
@@ -316,27 +317,27 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         });
         state.squaddieRepository.addSquaddie(
             demonSlitherMold,
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_0",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
         state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 1, r: 5}));
 
         state.squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_1",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
         state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_1", new HexCoordinate({q: 1, r: 9}));
 
         state.squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_2",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -347,9 +348,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         );
 
         state.squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_3",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -360,9 +361,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         );
 
         state.squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_4",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -373,9 +374,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         );
 
         state.squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_5",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -386,9 +387,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         );
 
         state.squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_6",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -399,9 +400,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         );
 
         state.squaddieRepository.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_demon_slither_7",
-                staticSquaddieId: "enemy_demon_slither",
+                squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: new SquaddieTurn()
             })
         );
@@ -444,9 +445,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         ];
         state.resourceHandler.loadResources(this.affiliateIconResourceKeys);
 
-        const staticSquaddies: BattleSquaddieStatic[] = state.squaddieRepository.getStaticSquaddieIterator().map(info => info.staticSquaddie);
-        this.staticSquaddieResourceKeys = staticSquaddies.map(staticSquaddie => staticSquaddie.squaddieId.resources.mapIconResourceKey);
-        state.resourceHandler.loadResources(this.staticSquaddieResourceKeys);
+        const squaddietemplates: SquaddieTemplate[] = state.squaddieRepository.getSquaddietemplateIterator().map(info => info.squaddietemplate);
+        this.squaddietemplateResourceKeys = squaddietemplates.map(squaddietemplate => squaddietemplate.squaddieId.resources.mapIconResourceKey);
+        state.resourceHandler.loadResources(this.squaddietemplateResourceKeys);
 
         this.bannerImageResourceKeys = [
             "phase banner player",
@@ -458,10 +459,10 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     private initializeSquaddieResources(state: BattleOrchestratorState) {
         state.squaddieRepository.getDynamicSquaddieIterator().forEach((info) => {
             const {dynamicSquaddie, dynamicSquaddieId} = info;
-            const {staticSquaddie} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
+            const {squaddietemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
 
             let image: GraphicImage = getResultOrThrowError(
-                state.resourceHandler.getResource(staticSquaddie.squaddieId.resources.mapIconResourceKey)
+                state.resourceHandler.getResource(squaddietemplate.squaddieId.resources.mapIconResourceKey)
             );
             const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
             const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(

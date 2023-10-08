@@ -64,7 +64,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
         battleEventRecording = new Recording({});
         const oneActionInstruction = new SquaddieActionsForThisRound({
-            staticSquaddieId: monkStaticId,
+            squaddietemplateId: monkStaticId,
             dynamicSquaddieId: monkDynamicId,
         });
         oneActionInstruction.addAction(new SquaddieSquaddieAction({

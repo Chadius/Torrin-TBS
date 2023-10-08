@@ -1,7 +1,7 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieMovement} from "../../squaddie/movement";
@@ -31,13 +31,14 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
-    let staticSquaddieBase: BattleSquaddieStatic;
-    let dynamicSquaddieBase: BattleSquaddieDynamic;
-    let targetStatic: BattleSquaddieStatic;
-    let targetDynamic: BattleSquaddieDynamic;
+    let squaddietemplateBase: SquaddieTemplate;
+    let dynamicSquaddieBase: BattleSquaddie;
+    let targetStatic: SquaddieTemplate;
+    let targetDynamic: BattleSquaddie;
     let powerAttackLongswordAction: SquaddieAction;
     let monkKoanAction: SquaddieAction;
     let monkMeditatesEvent: BattleEvent;
@@ -51,7 +52,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = new BattleSquaddieRepository();
         ({
-            staticSquaddie: staticSquaddieBase,
+            squaddietemplate: squaddietemplateBase,
             dynamicSquaddie: dynamicSquaddieBase,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Torrin",
@@ -70,7 +71,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         }));
 
         ({
-            staticSquaddie: targetStatic,
+            squaddietemplate: targetStatic,
             dynamicSquaddie: targetDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Target",
@@ -128,7 +129,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
     function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "static_squaddie",
+            squaddietemplateId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
         instruction.addAction(new SquaddieSquaddieAction({
@@ -172,7 +173,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
     function usePowerAttackLongswordAndReturnState({missionMap}: { missionMap?: MissionMap }) {
         const wholeTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "static_squaddie",
+            squaddietemplateId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
         wholeTurnInstruction.addAction(new SquaddieSquaddieAction({
@@ -222,7 +223,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.dynamicSquaddieId)).toBeFalsy();
 
         targetDynamic.inBattleAttributes.takeDamage(targetStatic.attributes.maxHitPoints, DamageType.Body);
-        expect(IsSquaddieAlive({dynamicSquaddie: targetDynamic, staticSquaddie: targetStatic})).toBeFalsy();
+        expect(IsSquaddieAlive({dynamicSquaddie: targetDynamic, squaddietemplate: targetStatic})).toBeFalsy();
 
         jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
         const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);

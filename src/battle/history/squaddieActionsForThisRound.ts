@@ -5,17 +5,17 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 
 export class SquaddieActionsForThisRound {
-    staticSquaddieId: string;
+    squaddietemplateId: string;
     dynamicSquaddieId: string;
     startingLocation: HexCoordinate;
     private readonly _actions: AnySquaddieAction[];
 
     constructor(options: {
-        staticSquaddieId: string;
+        squaddietemplateId: string;
         dynamicSquaddieId: string;
         startingLocation?: HexCoordinate;
     }) {
-        this.staticSquaddieId = options.staticSquaddieId;
+        this.squaddietemplateId = options.squaddietemplateId;
         this.dynamicSquaddieId = options.dynamicSquaddieId;
         this.startingLocation = options.startingLocation;
 
@@ -26,8 +26,8 @@ export class SquaddieActionsForThisRound {
         return this._actions;
     }
 
-    getStaticSquaddieId(): string {
-        return this.staticSquaddieId;
+    getSquaddietemplateId(): string {
+        return this.squaddietemplateId;
     }
 
     getDynamicSquaddieId(): string {

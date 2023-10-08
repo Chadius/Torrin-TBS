@@ -8,7 +8,7 @@ import {
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
@@ -28,6 +28,7 @@ import {AnySquaddieAction} from "../history/anySquaddieAction";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {CalculateResults} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -170,11 +171,11 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     private addSquaddieSquaddieInstruction(
         state: BattleOrchestratorState,
-        staticSquaddie: BattleSquaddieStatic,
-        dynamicSquaddie: BattleSquaddieDynamic,
+        squaddietemplate: SquaddieTemplate,
+        dynamicSquaddie: BattleSquaddie,
         action: SquaddieSquaddieAction,
     ) {
-        MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
+        MaybeCreateSquaddieInstruction(state, dynamicSquaddie, squaddietemplate);
 
         state.squaddieCurrentlyActing.addConfirmedAction(action);
         dynamicSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
@@ -225,14 +226,14 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     private addEndTurnInstruction(state: BattleOrchestratorState, dynamicSquaddieId: string) {
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId))
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
             state.squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
-                staticSquaddieId: staticSquaddie.staticId,
+                squaddietemplateId: squaddietemplate.staticId,
                 startingLocation: datum.mapLocation,
             });
         }
@@ -288,17 +289,17 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     private reactToComputerSelectedAction(state: BattleOrchestratorState, squaddieInstruction: SquaddieActionsForThisRound) {
         state.hexMap.stopHighlightingTiles();
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieInstruction.dynamicSquaddieId));
         let newAction = squaddieInstruction.getMostRecentAction();
         if (newAction instanceof SquaddieMovementAction) {
-            createSearchPath(state, staticSquaddie, dynamicSquaddie, newAction.destination);
-            this.mostRecentAction = AddMovementInstruction(state, staticSquaddie, dynamicSquaddie, newAction.destination);
+            createSearchPath(state, squaddietemplate, dynamicSquaddie, newAction.destination);
+            this.mostRecentAction = AddMovementInstruction(state, squaddietemplate, dynamicSquaddie, newAction.destination);
             return;
         }
         if (newAction instanceof SquaddieSquaddieAction) {
-            this.addSquaddieSquaddieInstruction(state, staticSquaddie, dynamicSquaddie, newAction);
+            this.addSquaddieSquaddieInstruction(state, squaddietemplate, dynamicSquaddie, newAction);
             this.highlightTargetRange(state, newAction);
             return;
         }

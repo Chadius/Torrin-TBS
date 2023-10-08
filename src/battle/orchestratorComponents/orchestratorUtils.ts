@@ -3,18 +3,19 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
     if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-        const {dynamicSquaddie, staticSquaddie} = getResultOrThrowError(
+        const {dynamicSquaddie, squaddietemplate} = getResultOrThrowError(
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
-        const actInfo = CanSquaddieActRightNow({dynamicSquaddie, staticSquaddie})
+        const actInfo = CanSquaddieActRightNow({dynamicSquaddie, squaddietemplate})
         if (!actInfo.canAct) {
             state.squaddieCurrentlyActing.reset();
         }
@@ -27,11 +28,11 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
         && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
     ) {
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         });
         if (playerCanControlThisSquaddieRightNow) {
@@ -51,16 +52,16 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
         && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
     ) {
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie
         })
         if (playerCanControlThisSquaddieRightNow) {
             state.hexMap.stopHighlightingTiles();
-            HighlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+            HighlightSquaddieReach(dynamicSquaddie, squaddietemplate, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         }
     }
 }
@@ -72,8 +73,8 @@ export function GetSquaddieAtScreenLocation(param: {
     camera: BattleCamera;
     map: MissionMap
 }): {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
     squaddieMapLocation: HexCoordinate,
 } {
     const {
@@ -103,8 +104,8 @@ export function GetSquaddieAtMapLocation(param: {
     squaddieRepository: BattleSquaddieRepository;
     map: MissionMap
 }): {
-    staticSquaddie: BattleSquaddieStatic,
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate,
+    dynamicSquaddie: BattleSquaddie,
     squaddieMapLocation: HexCoordinate,
 } {
     const {
@@ -117,19 +118,19 @@ export function GetSquaddieAtMapLocation(param: {
 
     if (!squaddieAndLocationIdentifier.isValid()) {
         return {
-            staticSquaddie: undefined,
+            squaddietemplate: undefined,
             dynamicSquaddie: undefined,
             squaddieMapLocation: undefined,
         }
     }
 
     const {
-        staticSquaddie,
+        squaddietemplate,
         dynamicSquaddie,
     } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(squaddieAndLocationIdentifier.dynamicSquaddieId))
 
     return {
-        staticSquaddie,
+        squaddietemplate,
         dynamicSquaddie,
         squaddieMapLocation: squaddieAndLocationIdentifier.mapLocation,
     }

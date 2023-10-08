@@ -1,6 +1,6 @@
 import {RectArea} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battleSquaddie";
+import {BattleSquaddie} from "../../battleSquaddie";
 import {WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label} from "../../../ui/label";
@@ -8,6 +8,7 @@ import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 
 export class TargetTextWindow {
     constructor() {
@@ -51,8 +52,8 @@ export class TargetTextWindow {
     }
 
     start({targetStatic, targetDynamic, result}: {
-        targetStatic: BattleSquaddieStatic,
-        targetDynamic: BattleSquaddieDynamic,
+        targetStatic: SquaddieTemplate,
+        targetDynamic: BattleSquaddie,
         result: ActionResultPerSquaddie,
     }) {
         this.reset();

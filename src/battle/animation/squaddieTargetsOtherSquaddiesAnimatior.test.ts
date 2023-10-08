@@ -1,7 +1,7 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieDynamic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {SquaddieAction} from "../../squaddie/action";
@@ -27,10 +27,10 @@ import {ActionTimer} from "./actionAnimation/actionTimer";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: BattleSquaddieRepository;
-    let knightDynamicSquaddie: BattleSquaddieDynamic;
+    let knightDynamicSquaddie: BattleSquaddie;
     let knightDynamicId = "knight_0";
     let knightStaticId = "knight_0";
-    let thiefDynamicSquaddie: BattleSquaddieDynamic;
+    let thiefDynamicSquaddie: BattleSquaddie;
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
@@ -85,7 +85,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
         oneActionInstruction = new SquaddieActionsForThisRound({
-            staticSquaddieId: "static_squaddie",
+            squaddietemplateId: "static_squaddie",
             dynamicSquaddieId: "dynamic_squaddie",
         });
         oneActionInstruction.addAction(new SquaddieSquaddieAction({

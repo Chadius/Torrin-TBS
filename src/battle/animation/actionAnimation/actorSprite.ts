@@ -63,11 +63,11 @@ export class ActorSprite {
         this._squaddieRepository = squaddieRepository;
         this._dynamicSquaddieId = actorDynamicSquaddieId;
 
-        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.dynamicSquaddieId));
+        const {squaddietemplate} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.dynamicSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
-            actionSpritesResourceKeysByEmotion: {...staticSquaddie.squaddieId.resources.actionSpritesByEmotion},
+            actionSpritesResourceKeysByEmotion: {...squaddietemplate.squaddieId.resources.actionSpritesByEmotion},
         });
         this.sprite.beginLoadingActorImages();
     }

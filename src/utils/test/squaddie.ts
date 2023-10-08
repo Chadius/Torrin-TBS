@@ -3,12 +3,13 @@ import {SquaddieResource} from "../../squaddie/resource";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieId} from "../../squaddie/id";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../../battle/battleSquaddie";
+import {BattleSquaddie} from "../../battle/battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {SquaddieAction} from "../../squaddie/action";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import * as mocks from "./mocks";
 import {DamageType} from "../../squaddie/squaddieService";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation) => {
     return new SquaddieId({
@@ -31,8 +32,8 @@ export const CreateNewSquaddieAndAddToRepository: (
         attributes?: ArmyAttributes,
     }
 ) => {
-    staticSquaddie: BattleSquaddieStatic
-    dynamicSquaddie: BattleSquaddieDynamic,
+    squaddietemplate: SquaddieTemplate
+    dynamicSquaddie: BattleSquaddie,
 } = ({
          name,
          staticId,
@@ -51,7 +52,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          attributes?: ArmyAttributes,
      }
 ) => {
-    const staticSquaddie = new BattleSquaddieStatic({
+    const squaddietemplate = new SquaddieTemplate({
         squaddieId: new SquaddieId({
             staticId,
             name,
@@ -62,16 +63,16 @@ export const CreateNewSquaddieAndAddToRepository: (
         actions: actions,
         attributes,
     });
-    const dynamicSquaddie = new BattleSquaddieDynamic({
-        staticSquaddieId: staticId,
+    const dynamicSquaddie = new BattleSquaddie({
+        squaddieTemplateId: staticId,
         dynamicSquaddieId: dynamicId,
         squaddieTurn: new SquaddieTurn(),
         mapIcon: mocks.mockImageUI(),
     });
-    squaddieRepository.addSquaddie(staticSquaddie, dynamicSquaddie);
+    squaddieRepository.addSquaddie(squaddietemplate, dynamicSquaddie);
 
     return {
-        staticSquaddie,
+        squaddietemplate,
         dynamicSquaddie,
     }
 }
@@ -87,8 +88,8 @@ export const CreateNewThiefSquaddie: (
         attributes?: ArmyAttributes,
     }
 ) => {
-    thiefStaticSquaddie: BattleSquaddieStatic
-    thiefDynamicSquaddie: BattleSquaddieDynamic,
+    thiefSquaddietemplate: SquaddieTemplate
+    thiefDynamicSquaddie: BattleSquaddie,
 } = ({
          squaddieRepository,
          name,
@@ -125,7 +126,7 @@ export const CreateNewThiefSquaddie: (
     });
 
     const {
-        staticSquaddie: thiefStaticSquaddie,
+        squaddietemplate: thiefSquaddietemplate,
         dynamicSquaddie: thiefDynamicSquaddie,
     } = CreateNewSquaddieAndAddToRepository({
         name: name || "Thief",
@@ -140,7 +141,7 @@ export const CreateNewThiefSquaddie: (
     });
 
     return {
-        thiefStaticSquaddie,
+        thiefSquaddietemplate,
         thiefDynamicSquaddie,
     }
 }
@@ -156,8 +157,8 @@ export const CreateNewKnightSquaddie: (
         attributes?: ArmyAttributes,
     }
 ) => {
-    knightStaticSquaddie: BattleSquaddieStatic
-    knightDynamicSquaddie: BattleSquaddieDynamic,
+    knightSquaddietemplate: SquaddieTemplate
+    knightDynamicSquaddie: BattleSquaddie,
 } = ({
          squaddieRepository,
          name,
@@ -210,7 +211,7 @@ export const CreateNewKnightSquaddie: (
     });
 
     const {
-        staticSquaddie: knightStaticSquaddie,
+        squaddietemplate: knightSquaddietemplate,
         dynamicSquaddie: knightDynamicSquaddie,
     } = CreateNewSquaddieAndAddToRepository({
         name: name || "Knight",
@@ -225,7 +226,7 @@ export const CreateNewKnightSquaddie: (
     });
 
     return {
-        knightStaticSquaddie,
+        knightSquaddietemplate,
         knightDynamicSquaddie,
     }
 }

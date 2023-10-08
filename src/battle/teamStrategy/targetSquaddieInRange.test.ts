@@ -1,6 +1,6 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieAction} from "../../squaddie/action";
@@ -13,16 +13,17 @@ import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRoun
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
 import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('target a squaddie within reach of actions', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let missionMap: MissionMap;
-    let enemyBanditStatic: BattleSquaddieStatic;
-    let enemyBanditDynamic: BattleSquaddieDynamic;
-    let playerKnightStatic: BattleSquaddieStatic;
-    let playerKnightDynamic: BattleSquaddieDynamic;
-    let allyClericStatic: BattleSquaddieStatic;
-    let allyClericDynamic: BattleSquaddieDynamic;
+    let enemyBanditStatic: SquaddieTemplate;
+    let enemyBanditDynamic: BattleSquaddie;
+    let playerKnightStatic: SquaddieTemplate;
+    let playerKnightDynamic: BattleSquaddie;
+    let allyClericStatic: SquaddieTemplate;
+    let allyClericDynamic: BattleSquaddie;
     let shortBowAction: SquaddieAction;
     let enemyTeam: BattleSquaddieTeam;
     let expectedInstruction: SquaddieActionsForThisRound;
@@ -42,7 +43,7 @@ describe('target a squaddie within reach of actions', () => {
         });
 
         ({
-            staticSquaddie: enemyBanditStatic,
+            squaddietemplate: enemyBanditStatic,
             dynamicSquaddie: enemyBanditDynamic
         } = CreateNewSquaddieAndAddToRepository({
             staticId: "enemy_bandit",
@@ -54,7 +55,7 @@ describe('target a squaddie within reach of actions', () => {
         }));
 
         ({
-            staticSquaddie: playerKnightStatic,
+            squaddietemplate: playerKnightStatic,
             dynamicSquaddie: playerKnightDynamic
         } = CreateNewSquaddieAndAddToRepository({
             staticId: "player_knight",
@@ -65,7 +66,7 @@ describe('target a squaddie within reach of actions', () => {
         }));
 
         ({
-            staticSquaddie: allyClericStatic,
+            squaddietemplate: allyClericStatic,
             dynamicSquaddie: allyClericDynamic
         } = CreateNewSquaddieAndAddToRepository({
             staticId: "ally_cleric",
@@ -91,7 +92,7 @@ describe('target a squaddie within reach of actions', () => {
         enemyTeam.addDynamicSquaddieIds([enemyBanditDynamic.dynamicSquaddieId]);
 
         expectedInstruction = new SquaddieActionsForThisRound({
-            staticSquaddieId: enemyBanditStatic.staticId,
+            squaddietemplateId: enemyBanditStatic.staticId,
             dynamicSquaddieId: enemyBanditDynamic.dynamicSquaddieId,
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
@@ -214,7 +215,7 @@ describe('target a squaddie within reach of actions', () => {
         missionMap.addSquaddie(playerKnightStatic.staticId, playerKnightDynamic.dynamicSquaddieId, new HexCoordinate({coordinates: [0, 1]}));
 
         const startingInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: enemyBanditStatic.staticId,
+            squaddietemplateId: enemyBanditStatic.staticId,
             dynamicSquaddieId: enemyBanditDynamic.dynamicSquaddieId,
             startingLocation: new HexCoordinate({coordinates: [0, 0]})
         });
@@ -259,7 +260,7 @@ describe('target a squaddie within reach of actions', () => {
         });
 
         const {
-            staticSquaddie: enemyBanditStatic2,
+            squaddietemplate: enemyBanditStatic2,
             dynamicSquaddie: enemyBanditDynamic2
         } = CreateNewSquaddieAndAddToRepository({
             staticId: "enemy_bandit_2",
@@ -274,7 +275,7 @@ describe('target a squaddie within reach of actions', () => {
         missionMap.addSquaddie(playerKnightStatic.staticId, playerKnightDynamic.dynamicSquaddieId, new HexCoordinate({coordinates: [0, 2]}));
 
         const startingInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: enemyBanditStatic.staticId,
+            squaddietemplateId: enemyBanditStatic.staticId,
             dynamicSquaddieId: enemyBanditDynamic.dynamicSquaddieId,
             startingLocation: new HexCoordinate({coordinates: [0, 0]})
         });

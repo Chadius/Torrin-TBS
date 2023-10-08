@@ -8,7 +8,7 @@ import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 const torrinInstruction = new SquaddieActionsForThisRound({
     dynamicSquaddieId: "Torrin 0",
-    staticSquaddieId: "Torrin",
+    squaddietemplateId: "Torrin",
     startingLocation: new HexCoordinate({q: 0, r: 0}),
 });
 
@@ -28,7 +28,7 @@ describe('Current Squaddie Instruction', () => {
         const newInstruction = new SquaddieInstructionInProgress({
             actionsForThisRound: new SquaddieActionsForThisRound({
                 dynamicSquaddieId: "torrin 0",
-                staticSquaddieId: "torrin",
+                squaddietemplateId: "torrin",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             }),
             currentSquaddieAction: new SquaddieAction({
@@ -48,7 +48,7 @@ describe('Current Squaddie Instruction', () => {
 
         newInstruction.addInitialState(
             {
-                staticSquaddieId: "Torrin",
+                squaddietemplateId: "Torrin",
                 dynamicSquaddieId: "Torrin 0",
                 startingLocation: new HexCoordinate({q: 0, r: 0})
             }
@@ -94,7 +94,7 @@ describe('Current Squaddie Instruction', () => {
             const newInstruction = new SquaddieInstructionInProgress({});
             newInstruction.addInitialState(
                 {
-                    staticSquaddieId: "Torrin",
+                    squaddietemplateId: "Torrin",
                     dynamicSquaddieId: "Torrin 0",
                     startingLocation: new HexCoordinate({q: 0, r: 0})
                 }

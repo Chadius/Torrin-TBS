@@ -1,6 +1,6 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -18,13 +18,14 @@ import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInPro
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
-    let player1Static: BattleSquaddieStatic;
-    let player1Dynamic: BattleSquaddieDynamic;
-    let enemy1Static: BattleSquaddieStatic;
-    let enemy1Dynamic: BattleSquaddieDynamic;
+    let player1Static: SquaddieTemplate;
+    let player1Dynamic: BattleSquaddie;
+    let enemy1Static: SquaddieTemplate;
+    let enemy1Dynamic: BattleSquaddie;
     let map: MissionMap;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -41,7 +42,7 @@ describe('BattleSquaddieMover', () => {
         });
 
         ({
-            staticSquaddie: player1Static,
+            squaddietemplate: player1Static,
             dynamicSquaddie: player1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Player1",
@@ -52,7 +53,7 @@ describe('BattleSquaddieMover', () => {
         }));
 
         ({
-            staticSquaddie: enemy1Static,
+            squaddietemplate: enemy1Static,
             dynamicSquaddie: enemy1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Enemy1",
@@ -88,7 +89,7 @@ describe('BattleSquaddieMover', () => {
             ).getRouteToStopLocation());
 
         const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "player_1",
+            squaddietemplateId: "player_1",
             dynamicSquaddieId: "player_1",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
@@ -182,7 +183,7 @@ describe('BattleSquaddieMover', () => {
             map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
             const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-                staticSquaddieId: "player_1",
+                squaddietemplateId: "player_1",
                 dynamicSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
@@ -212,7 +213,7 @@ describe('BattleSquaddieMover', () => {
             map.addSquaddie("player_1", "player_1", new HexCoordinate({q: 0, r: 0}));
 
             const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-                staticSquaddieId: "player_1",
+                squaddietemplateId: "player_1",
                 dynamicSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
@@ -248,7 +249,7 @@ describe('BattleSquaddieMover', () => {
             map.addSquaddie("enemy_1", "enemy_1", new HexCoordinate({q: 0, r: 0}));
 
             const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-                staticSquaddieId: "enemy_1",
+                squaddietemplateId: "enemy_1",
                 dynamicSquaddieId: "enemy_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });

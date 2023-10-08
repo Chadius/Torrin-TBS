@@ -61,13 +61,13 @@ export class SquaddieInstructionInProgress {
     }
 
     addInitialState(param: {
-        staticSquaddieId: string;
+        squaddietemplateId: string;
         dynamicSquaddieId: string;
         startingLocation: HexCoordinate
     }) {
         if (this._squaddieActionsForThisRound === undefined) {
             this._squaddieActionsForThisRound = new SquaddieActionsForThisRound({
-                staticSquaddieId: param.staticSquaddieId,
+                squaddietemplateId: param.squaddietemplateId,
                 dynamicSquaddieId: param.dynamicSquaddieId,
                 startingLocation: param.startingLocation,
             });

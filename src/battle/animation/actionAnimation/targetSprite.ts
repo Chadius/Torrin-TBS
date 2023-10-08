@@ -75,11 +75,11 @@ export class TargetSprite {
         this._dynamicSquaddieId = targetDynamicSquaddieId;
         this._actionResult = result;
 
-        const {staticSquaddie} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.dynamicSquaddieId));
+        const {squaddietemplate} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.dynamicSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
-            actionSpritesResourceKeysByEmotion: {...staticSquaddie.squaddieId.resources.actionSpritesByEmotion},
+            actionSpritesResourceKeysByEmotion: {...squaddietemplate.squaddieId.resources.actionSpritesByEmotion},
         });
         this.sprite.beginLoadingActorImages();
     }
@@ -115,10 +115,10 @@ export class TargetSprite {
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
                 const {
-                    staticSquaddie,
+                    squaddietemplate,
                     dynamicSquaddie
                 } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
-                const stillAlive = IsSquaddieAlive({staticSquaddie, dynamicSquaddie});
+                const stillAlive = IsSquaddieAlive({squaddietemplate, dynamicSquaddie});
                 return stillAlive ? SquaddieEmotion.DAMAGED : SquaddieEmotion.DEAD;
             default:
                 return SquaddieEmotion.NEUTRAL;

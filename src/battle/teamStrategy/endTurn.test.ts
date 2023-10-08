@@ -1,7 +1,7 @@
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {TeamStrategyState} from "./teamStrategyState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
@@ -13,17 +13,18 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import * as mocks from "../../utils/test/mocks";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('end turn team strategy', () => {
-    let playerStaticSquaddie: BattleSquaddieStatic;
-    let playerDynamicSquaddie: BattleSquaddieDynamic;
+    let playerSquaddietemplate: SquaddieTemplate;
+    let playerDynamicSquaddie: BattleSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let squaddieTeam: BattleSquaddieTeam;
     let missionMap: MissionMap;
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
-        playerStaticSquaddie = new BattleSquaddieStatic({
+        playerSquaddietemplate = new SquaddieTemplate({
             squaddieId: new SquaddieId({
                 staticId: "new_static_squaddie",
                 name: "Torrin",
@@ -34,14 +35,14 @@ describe('end turn team strategy', () => {
             actions: [],
         });
 
-        squaddieRepository.addStaticSquaddie(
-            playerStaticSquaddie
+        squaddieRepository.addSquaddietemplate(
+            playerSquaddietemplate
         );
 
         playerDynamicSquaddie =
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "new_dynamic_squaddie",
-                staticSquaddieId: "new_static_squaddie",
+                squaddieTemplateId: "new_static_squaddie",
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: mocks.mockImageUI(),
             });
@@ -71,7 +72,7 @@ describe('end turn team strategy', () => {
         missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", new HexCoordinate({q: 0, r: 0}));
 
         const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new_static_squaddie",
+            squaddietemplateId: "new_static_squaddie",
             dynamicSquaddieId: "new_dynamic_squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });

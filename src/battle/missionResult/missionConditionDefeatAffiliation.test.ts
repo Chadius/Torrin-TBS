@@ -1,5 +1,5 @@
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -10,26 +10,27 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {MissionConditionDefeatAffiliation} from "./missionConditionDefeatAffiliation";
 import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService";
 import {MissionConditionType} from "./missionCondition";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () => {
     let missionMap: MissionMap;
 
-    let player1Static: BattleSquaddieStatic;
-    let player1Dynamic: BattleSquaddieDynamic;
+    let player1Static: SquaddieTemplate;
+    let player1Dynamic: BattleSquaddie;
     let conditionDefeatAllPlayers: MissionConditionDefeatAffiliation;
 
-    let ally1Static: BattleSquaddieStatic;
-    let ally1Dynamic: BattleSquaddieDynamic;
+    let ally1Static: SquaddieTemplate;
+    let ally1Dynamic: BattleSquaddie;
     let conditionDefeatAllAllies: MissionConditionDefeatAffiliation;
 
-    let noAffiliation1Static: BattleSquaddieStatic;
-    let noAffiliation1Dynamic: BattleSquaddieDynamic;
+    let noAffiliation1Static: SquaddieTemplate;
+    let noAffiliation1Dynamic: BattleSquaddie;
     let conditionDefeatAllNoAffiliation: MissionConditionDefeatAffiliation;
 
-    let enemy1Static: BattleSquaddieStatic;
-    let enemy1Dynamic: BattleSquaddieDynamic;
-    let enemy2Static: BattleSquaddieStatic;
-    let enemy2Dynamic: BattleSquaddieDynamic;
+    let enemy1Static: SquaddieTemplate;
+    let enemy1Dynamic: BattleSquaddie;
+    let enemy2Static: SquaddieTemplate;
+    let enemy2Dynamic: BattleSquaddie;
     let conditionDefeatAllEnemies: MissionConditionDefeatAffiliation;
     let state: BattleOrchestratorState;
     let squaddieRepository = new BattleSquaddieRepository();
@@ -44,7 +45,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         squaddieRepository = new BattleSquaddieRepository();
 
         ({
-            staticSquaddie: enemy1Static,
+            squaddietemplate: enemy1Static,
             dynamicSquaddie: enemy1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "enemy 1",
@@ -58,7 +59,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         }));
 
         ({
-            staticSquaddie: enemy2Static,
+            squaddietemplate: enemy2Static,
             dynamicSquaddie: enemy2Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "enemy 2",
@@ -76,7 +77,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
 
         ({
-            staticSquaddie: player1Static,
+            squaddietemplate: player1Static,
             dynamicSquaddie: player1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "player 1",
@@ -94,7 +95,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
 
         ({
-            staticSquaddie: ally1Static,
+            squaddietemplate: ally1Static,
             dynamicSquaddie: ally1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "ally 1",
@@ -112,7 +113,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
 
         ({
-            staticSquaddie: noAffiliation1Static,
+            squaddietemplate: noAffiliation1Static,
             dynamicSquaddie: noAffiliation1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "no affiliation 1",
@@ -164,7 +165,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
         const {
             isDead
-        } = CanSquaddieActRightNow({staticSquaddie: enemy1Static, dynamicSquaddie: enemy1Dynamic})
+        } = CanSquaddieActRightNow({squaddietemplate: enemy1Static, dynamicSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
         expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeFalsy();
     });
@@ -193,7 +194,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
         const {
             isDead
-        } = CanSquaddieActRightNow({staticSquaddie: enemy1Static, dynamicSquaddie: enemy1Dynamic})
+        } = CanSquaddieActRightNow({squaddietemplate: enemy1Static, dynamicSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
         expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeTruthy();
         expect(conditionDefeatAllPlayers.shouldBeComplete(state)).toBeFalsy();

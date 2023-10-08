@@ -182,7 +182,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
     private updateBattleSquaddieUINoSquaddieSelected(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = GetSquaddieAtMapLocation({
             mapLocation: clickedHexCoordinate,
@@ -190,12 +190,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             squaddieRepository: state.squaddieRepository,
         });
 
-        if (!staticSquaddie) {
+        if (!squaddietemplate) {
             state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
 
-        HighlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+        HighlightSquaddieReach(dynamicSquaddie, squaddietemplate, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             dynamicId: dynamicSquaddie.dynamicSquaddieId,
             repositionWindow: {
@@ -241,12 +241,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             this.selectedSquaddieDynamicId = squaddieClickedOnInfoAndMapLocation.dynamicSquaddieId;
         }
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieToHighlightDynamicId));
 
         state.hexMap.stopHighlightingTiles();
-        HighlightSquaddieReach(dynamicSquaddie, staticSquaddie, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+        HighlightSquaddieReach(dynamicSquaddie, squaddietemplate, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
     }
 
     private updateBattleSquaddieUISelectedSquaddieClickedOnMap(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -255,18 +255,18 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         }
 
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
 
-        const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({staticSquaddie, dynamicSquaddie});
+        const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({squaddietemplate, dynamicSquaddie});
         if (!canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow) {
             return;
         }
 
         const pathfinder: Pathfinder = new Pathfinder();
         const squaddieDatum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
+        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddietemplate, dynamicSquaddie})
         const searchResults: SearchResults = getResultOrThrowError(
             pathfinder.findPathToStopLocation(new SearchParams({
                     setup: new SearchSetup({
@@ -276,9 +276,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                         affiliation: SquaddieAffiliation.PLAYER,
                     }),
                     movement: new SearchMovement({
-                        movementPerAction: staticSquaddie.movement.movementPerAction,
-                        passThroughWalls: staticSquaddie.movement.passThroughWalls,
-                        crossOverPits: staticSquaddie.movement.crossOverPits,
+                        movementPerAction: squaddietemplate.movement.movementPerAction,
+                        passThroughWalls: squaddietemplate.movement.passThroughWalls,
+                        crossOverPits: squaddietemplate.movement.crossOverPits,
                         shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                     }),
                     stopCondition: new SearchStopCondition({
@@ -290,8 +290,8 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         );
         const closestRoute = getResultOrThrowError(searchResults.getRouteToStopLocation());
         if (closestRoute != null) {
-            createSearchPath(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
-            AddMovementInstruction(state, staticSquaddie, dynamicSquaddie, clickedHexCoordinate);
+            createSearchPath(state, squaddietemplate, dynamicSquaddie, clickedHexCoordinate);
+            AddMovementInstruction(state, squaddietemplate, dynamicSquaddie, clickedHexCoordinate);
             this.gaveCompleteInstruction = true;
         }
     }
@@ -315,15 +315,15 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         }
 
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.battleSquaddieSelectedHUD.getSelectedSquaddieDynamicId()));
         const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        MaybeCreateSquaddieInstruction(state, dynamicSquaddie, staticSquaddie);
+        MaybeCreateSquaddieInstruction(state, dynamicSquaddie, squaddietemplate);
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
             state.squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
-                staticSquaddieId: staticSquaddie.staticId,
+                squaddietemplateId: squaddietemplate.staticId,
                 startingLocation: datum.mapLocation,
             });
         }

@@ -1,4 +1,4 @@
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -11,24 +11,25 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {FindValidTargets} from "../targeting/targetingService";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
-export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, staticSquaddie: BattleSquaddieStatic, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
+export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddie, squaddietemplate: SquaddieTemplate, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
 
-    const {actionPointsRemaining} = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie})
+    const {actionPointsRemaining} = GetNumberOfActionPoints({squaddietemplate, dynamicSquaddie})
 
     const reachableTileSearchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(
         new SearchParams({
             setup: new SearchSetup({
                 startLocation: squaddieDatum.mapLocation,
                 missionMap: missionMap,
-                affiliation: staticSquaddie.squaddieId.affiliation,
+                affiliation: squaddietemplate.squaddieId.affiliation,
                 squaddieRepository,
             }),
             movement: new SearchMovement({
-                movementPerAction: staticSquaddie.movement.movementPerAction,
-                passThroughWalls: staticSquaddie.movement.passThroughWalls,
-                crossOverPits: staticSquaddie.movement.crossOverPits,
+                movementPerAction: squaddietemplate.movement.movementPerAction,
+                passThroughWalls: squaddietemplate.movement.passThroughWalls,
+                crossOverPits: squaddietemplate.movement.crossOverPits,
                 canStopOnSquaddies: false,
                 ignoreTerrainPenalty: false,
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
@@ -57,9 +58,9 @@ export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
     const highlightTileDescriptions = getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
 
     let actionTiles: HexCoordinate[] = [];
-    const actionPoints = GetNumberOfActionPoints({staticSquaddie, dynamicSquaddie});
+    const actionPoints = GetNumberOfActionPoints({squaddietemplate, dynamicSquaddie});
 
-    staticSquaddie.action.forEach((action) => {
+    squaddietemplate.action.forEach((action) => {
         sortedMovementActionPoints.forEach((movementActionsSpent: number) => {
             if (action.actionPointCost > actionPoints.actionPointsRemaining - movementActionsSpent) {
                 return;
@@ -68,7 +69,7 @@ export const HighlightSquaddieReach = (dynamicSquaddie: BattleSquaddieDynamic, s
             const targetingResults = FindValidTargets({
                 map: missionMap,
                 action: action,
-                actingStaticSquaddie: staticSquaddie,
+                actingSquaddietemplate: squaddietemplate,
                 actingDynamicSquaddie: dynamicSquaddie,
                 squaddieRepository,
                 sourceTiles: tilesTraveledByNumberOfMovementActions[movementActionsSpent],

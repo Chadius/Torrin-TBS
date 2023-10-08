@@ -397,7 +397,7 @@ describe('pathfinder and squaddies', () => {
 
         let squaddieRepository = new BattleSquaddieRepository();
 
-        const {dynamicSquaddie: enemyDynamic, staticSquaddie: enemyStatic}
+        const {dynamicSquaddie: enemyDynamic, squaddietemplate: enemyStatic}
             = CreateNewSquaddieAndAddToRepository({
             staticId: "enemy",
             dynamicId: "dynamic_0",
@@ -406,7 +406,7 @@ describe('pathfinder and squaddies', () => {
             squaddieRepository
         });
         DealDamageToTheSquaddie({
-            staticSquaddie: enemyStatic,
+            squaddietemplate: enemyStatic,
             dynamicSquaddie: enemyDynamic,
             damage: enemyDynamic.inBattleAttributes.currentHitPoints,
             damageType: DamageType.Body,

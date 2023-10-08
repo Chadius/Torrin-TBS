@@ -1,6 +1,6 @@
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAction} from "../../squaddie/action";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -10,11 +10,12 @@ import {FindValidTargets, TargetingResults} from "./targetingService";
 
 import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('Targeting Service', () => {
     let longswordAction: SquaddieAction;
-    let sirCamilStaticSquaddie: BattleSquaddieStatic;
-    let sirCamilDynamicSquaddie: BattleSquaddieDynamic;
+    let sirCamilSquaddietemplate: SquaddieTemplate;
+    let sirCamilDynamicSquaddie: BattleSquaddie;
     let squaddieRepo: BattleSquaddieRepository;
 
     beforeEach(() => {
@@ -31,7 +32,7 @@ describe('Targeting Service', () => {
 
         squaddieRepo = new BattleSquaddieRepository();
         ({
-            staticSquaddie: sirCamilStaticSquaddie,
+            squaddietemplate: sirCamilSquaddietemplate,
             dynamicSquaddie: sirCamilDynamicSquaddie,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Sir Camil",
@@ -54,7 +55,7 @@ describe('Targeting Service', () => {
         });
 
         battleMap.addSquaddie(
-            sirCamilStaticSquaddie.squaddieId.staticId,
+            sirCamilSquaddietemplate.squaddieId.staticId,
             sirCamilDynamicSquaddie.dynamicSquaddieId,
             new HexCoordinate({q: 1, r: 1}),
         );
@@ -62,7 +63,7 @@ describe('Targeting Service', () => {
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
             action: longswordAction,
-            actingStaticSquaddie: sirCamilStaticSquaddie,
+            actingSquaddietemplate: sirCamilSquaddietemplate,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,
         });
@@ -85,14 +86,14 @@ describe('Targeting Service', () => {
         });
 
         battleMap.addSquaddie(
-            sirCamilStaticSquaddie.squaddieId.staticId,
+            sirCamilSquaddietemplate.squaddieId.staticId,
             sirCamilDynamicSquaddie.dynamicSquaddieId,
         );
 
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
             action: longswordAction,
-            actingStaticSquaddie: sirCamilStaticSquaddie,
+            actingSquaddietemplate: sirCamilSquaddietemplate,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,
         });
@@ -124,7 +125,7 @@ describe('Targeting Service', () => {
 
         squaddieRepo = new BattleSquaddieRepository();
         let {
-            staticSquaddie: archerStaticSquaddie,
+            squaddietemplate: archerSquaddietemplate,
             dynamicSquaddie: archerDynamicSquaddie,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Archer",
@@ -136,7 +137,7 @@ describe('Targeting Service', () => {
         });
 
         battleMap.addSquaddie(
-            archerStaticSquaddie.squaddieId.staticId,
+            archerSquaddietemplate.squaddieId.staticId,
             archerDynamicSquaddie.dynamicSquaddieId,
             new HexCoordinate({q: 1, r: 1}),
         );
@@ -144,7 +145,7 @@ describe('Targeting Service', () => {
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
             action: longbowAction,
-            actingStaticSquaddie: archerStaticSquaddie,
+            actingSquaddietemplate: archerSquaddietemplate,
             actingDynamicSquaddie: archerDynamicSquaddie,
             squaddieRepository: squaddieRepo,
         });
@@ -168,13 +169,13 @@ describe('Targeting Service', () => {
         });
 
         battleMap.addSquaddie(
-            sirCamilStaticSquaddie.squaddieId.staticId,
+            sirCamilSquaddietemplate.squaddieId.staticId,
             sirCamilDynamicSquaddie.dynamicSquaddieId,
             new HexCoordinate({q: 1, r: 1}),
         );
 
         let {
-            staticSquaddie: playerTeamStatic,
+            squaddietemplate: playerTeamStatic,
             dynamicSquaddie: playerTeamDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Player",
@@ -191,7 +192,7 @@ describe('Targeting Service', () => {
         );
 
         let {
-            staticSquaddie: enemyTeamStatic,
+            squaddietemplate: enemyTeamStatic,
             dynamicSquaddie: enemyTeamDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Enemy",
@@ -208,7 +209,7 @@ describe('Targeting Service', () => {
         );
 
         let {
-            staticSquaddie: enemyFarAwayTeamStatic,
+            squaddietemplate: enemyFarAwayTeamStatic,
             dynamicSquaddie: enemyFarAwayTeamDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Enemy far away",
@@ -227,7 +228,7 @@ describe('Targeting Service', () => {
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
             action: longswordAction,
-            actingStaticSquaddie: sirCamilStaticSquaddie,
+            actingSquaddietemplate: sirCamilSquaddietemplate,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,
         });
@@ -257,7 +258,7 @@ describe('Targeting Service', () => {
         });
 
         battleMap.addSquaddie(
-            sirCamilStaticSquaddie.squaddieId.staticId,
+            sirCamilSquaddietemplate.squaddieId.staticId,
             sirCamilDynamicSquaddie.dynamicSquaddieId,
             new HexCoordinate({q: 0, r: 0}),
         );
@@ -265,7 +266,7 @@ describe('Targeting Service', () => {
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
             action: longbowAction,
-            actingStaticSquaddie: sirCamilStaticSquaddie,
+            actingSquaddietemplate: sirCamilSquaddietemplate,
             actingDynamicSquaddie: sirCamilDynamicSquaddie,
             squaddieRepository: squaddieRepo,
         });

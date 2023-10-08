@@ -1,75 +1,76 @@
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddie} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 export class BattleSquaddieRepository {
     private squaddieStaticInfoById: {
-        [id: string]: BattleSquaddieStatic;
+        [id: string]: SquaddieTemplate;
     }
 
     private squaddieDynamicInfoByDynamicId: {
-        [id: string]: BattleSquaddieDynamic;
+        [id: string]: BattleSquaddie;
     }
 
     constructor() {
         this.reset();
     }
 
-    addStaticSquaddie(staticSquaddie: BattleSquaddieStatic) {
-        if (this.squaddieStaticInfoById[staticSquaddie.squaddieId.staticId]) {
-            throw new Error(`cannot addStaticSquaddie '${staticSquaddie.squaddieId.staticId}', is already added`);
+    addSquaddietemplate(squaddietemplate: SquaddieTemplate) {
+        if (this.squaddieStaticInfoById[squaddietemplate.squaddieId.staticId]) {
+            throw new Error(`cannot addSquaddietemplate '${squaddietemplate.squaddieId.staticId}', is already added`);
         }
 
-        this.squaddieStaticInfoById[staticSquaddie.squaddieId.staticId] = staticSquaddie;
+        this.squaddieStaticInfoById[squaddietemplate.squaddieId.staticId] = squaddietemplate;
     }
 
-    addDynamicSquaddie(dynamicSquaddie: BattleSquaddieDynamic) {
+    addDynamicSquaddie(dynamicSquaddie: BattleSquaddie) {
         dynamicSquaddie.assertBattleSquaddieDynamic();
-        if (!this.squaddieStaticInfoById[dynamicSquaddie.staticSquaddieId]) {
-            throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddie.dynamicSquaddieId}', no static squaddie '${dynamicSquaddie.staticSquaddieId}' exists`);
+        if (!this.squaddieStaticInfoById[dynamicSquaddie.squaddieTemplateId]) {
+            throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddie.dynamicSquaddieId}', no static squaddie '${dynamicSquaddie.squaddieTemplateId}' exists`);
         }
 
         if (this.squaddieDynamicInfoByDynamicId[dynamicSquaddie.dynamicSquaddieId]) {
             throw new Error(`cannot addDynamicSquaddie '${dynamicSquaddie.dynamicSquaddieId}', again, it already exists`);
         }
 
-        const staticSquaddie: BattleSquaddieStatic = this.squaddieStaticInfoById[dynamicSquaddie.staticSquaddieId];
-        dynamicSquaddie.initializeInBattleAttributes(staticSquaddie.attributes);
+        const squaddietemplate: SquaddieTemplate = this.squaddieStaticInfoById[dynamicSquaddie.squaddieTemplateId];
+        dynamicSquaddie.initializeInBattleAttributes(squaddietemplate.attributes);
 
         this.squaddieDynamicInfoByDynamicId[dynamicSquaddie.dynamicSquaddieId] = dynamicSquaddie;
     }
 
-    addSquaddie(staticSquaddie: BattleSquaddieStatic, dynamicSquaddie: BattleSquaddieDynamic) {
-        this.addStaticSquaddie(staticSquaddie);
+    addSquaddie(squaddietemplate: SquaddieTemplate, dynamicSquaddie: BattleSquaddie) {
+        this.addSquaddietemplate(squaddietemplate);
         this.addDynamicSquaddie(dynamicSquaddie);
     }
 
     getSquaddieByDynamicId(dynamicSquaddieId: string): ResultOrError<{
-        staticSquaddie: BattleSquaddieStatic,
-        dynamicSquaddie: BattleSquaddieDynamic,
+        squaddietemplate: SquaddieTemplate,
+        dynamicSquaddie: BattleSquaddie,
     }, Error> {
-        const dynamicSquaddie: BattleSquaddieDynamic = this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId];
+        const dynamicSquaddie: BattleSquaddie = this.squaddieDynamicInfoByDynamicId[dynamicSquaddieId];
         if (!dynamicSquaddie) {
             return makeError(new Error(`cannot getDynamicSquaddieByID for '${dynamicSquaddieId}', does not exist`));
         }
 
-        const staticSquaddie: BattleSquaddieStatic = this.squaddieStaticInfoById[dynamicSquaddie.staticSquaddieId];
+        const squaddietemplate: SquaddieTemplate = this.squaddieStaticInfoById[dynamicSquaddie.squaddieTemplateId];
 
         return makeResult({
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         });
     }
 
-    getStaticSquaddieIterator(): { staticSquaddieId: string, staticSquaddie: BattleSquaddieStatic }[] {
-        return Object.entries(this.squaddieStaticInfoById).map(([staticSquaddieId, staticSquaddie]) => {
+    getSquaddietemplateIterator(): { squaddietemplateId: string, squaddietemplate: SquaddieTemplate }[] {
+        return Object.entries(this.squaddieStaticInfoById).map(([squaddietemplateId, squaddietemplate]) => {
             return {
-                staticSquaddie,
-                staticSquaddieId,
+                squaddietemplate,
+                squaddietemplateId,
             };
         });
     }
 
-    getDynamicSquaddieIterator(): { dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddieDynamic }[] {
+    getDynamicSquaddieIterator(): { dynamicSquaddieId: string, dynamicSquaddie: BattleSquaddie }[] {
         return Object.entries(this.squaddieDynamicInfoByDynamicId).map(([dynamicSquaddieId, dynamicSquaddie]) => {
             return {
                 dynamicSquaddie,

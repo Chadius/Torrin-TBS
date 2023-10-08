@@ -27,7 +27,7 @@ describe('Team Strategy State', () => {
 
     it('can reset state to clear the instruction', () => {
         const newInstruction = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
@@ -44,7 +44,7 @@ describe('Team Strategy State', () => {
         expect(state.instruction).toBeUndefined();
 
         const newInstruction = new SquaddieActionsForThisRound({
-            staticSquaddieId: "new static squaddie",
+            squaddietemplateId: "new static squaddie",
             dynamicSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });

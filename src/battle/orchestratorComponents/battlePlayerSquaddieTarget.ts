@@ -147,13 +147,13 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const action = state.squaddieCurrentlyActing.currentlySelectedAction;
 
         const {
-            staticSquaddie: actingStaticSquaddie,
+            squaddietemplate: actingSquaddietemplate,
             dynamicSquaddie: actingDynamicSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
         const targetingResults = FindValidTargets({
             map: state.missionMap,
             action: action,
-            actingStaticSquaddie,
+            actingSquaddietemplate,
             actingDynamicSquaddie,
             squaddieRepository: state.squaddieRepository,
         })
@@ -201,7 +201,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         const {
-            staticSquaddie: targetSquaddieStatic,
+            squaddietemplate: targetSquaddieStatic,
             dynamicSquaddie: targetSquaddieDynamic,
         } = GetSquaddieAtScreenLocation({
             mouseX,
@@ -215,7 +215,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return;
         }
 
-        const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
+        const {squaddietemplate: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
 
@@ -306,7 +306,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private confirmTargetSelection(state: BattleOrchestratorState) {
-        const {staticSquaddie: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
+        const {squaddietemplate: actingSquaddieStatic, dynamicSquaddie: actingSquaddieDynamic} = getResultOrThrowError(
             state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId)
         );
         const actingSquaddieInfo = state.missionMap.getSquaddieByDynamicId(actingSquaddieDynamic.dynamicSquaddieId);
@@ -314,7 +314,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
             state.squaddieCurrentlyActing.addInitialState({
                 dynamicSquaddieId: actingSquaddieDynamic.dynamicSquaddieId,
-                staticSquaddieId: actingSquaddieStatic.staticId,
+                squaddietemplateId: actingSquaddieStatic.staticId,
                 startingLocation: actingSquaddieInfo.mapLocation,
             });
         }

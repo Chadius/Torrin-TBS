@@ -2,7 +2,7 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {MissionMap} from "../missionMap/missionMap";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {UseActionButton} from "../squaddie/useActionButton";
@@ -24,6 +24,7 @@ import {SquaddieActionsForThisRound} from "./history/squaddieActionsForThisRound
 import * as mocks from "../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {ButtonStatus} from "../ui/button";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -31,14 +32,14 @@ describe('BattleSquaddieSelectedHUD', () => {
     let missionMap: MissionMap;
     let resourceHandler: ResourceHandler;
     let playerSquaddieDynamicID: string = "player_squaddie_0";
-    let playerSquaddieStatic: BattleSquaddieStatic;
-    let playerSquaddieDynamic: BattleSquaddieDynamic;
+    let playerSquaddieStatic: SquaddieTemplate;
+    let playerSquaddieDynamic: BattleSquaddie;
     let enemySquaddieDynamicID: string = "enemy_squaddie_0";
-    let enemySquaddieStatic: BattleSquaddieStatic;
-    let enemySquaddieDynamic: BattleSquaddieDynamic;
+    let enemySquaddieStatic: SquaddieTemplate;
+    let enemySquaddieDynamic: BattleSquaddie;
     let player2SquaddieDynamicId: string = "player_squaddie_2";
-    let player2SquaddieStatic: BattleSquaddieStatic;
-    let player2SquaddieDynamic: BattleSquaddieDynamic;
+    let player2SquaddieStatic: SquaddieTemplate;
+    let player2SquaddieDynamic: BattleSquaddie;
     let longswordAction: SquaddieAction;
     let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -73,7 +74,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         ({
-                staticSquaddie: playerSquaddieStatic,
+                squaddietemplate: playerSquaddieStatic,
                 dynamicSquaddie: playerSquaddieDynamic,
             } =
                 CreateNewSquaddieAndAddToRepository({
@@ -89,7 +90,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
 
         ({
-                staticSquaddie: player2SquaddieStatic,
+                squaddietemplate: player2SquaddieStatic,
                 dynamicSquaddie: player2SquaddieDynamic,
             } =
                 CreateNewSquaddieAndAddToRepository({
@@ -105,7 +106,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
 
         ({
-                staticSquaddie: enemySquaddieStatic,
+                squaddietemplate: enemySquaddieStatic,
                 dynamicSquaddie: enemySquaddieDynamic,
             } =
                 CreateNewSquaddieAndAddToRepository({
@@ -286,8 +287,8 @@ describe('BattleSquaddieSelectedHUD', () => {
             maximumRange: 1,
             targetingShape: TargetingShape.Snake,
         });
-        const {staticSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(playerSquaddieDynamicID));
-        staticSquaddie.addAction(notEnoughActionPointsAction);
+        const {squaddietemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(playerSquaddieDynamicID));
+        squaddietemplate.addAction(notEnoughActionPointsAction);
 
         const state = new BattleOrchestratorState({
             squaddieRepo: squaddieRepository,
@@ -328,7 +329,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             squaddieCurrentlyActing: new SquaddieInstructionInProgress({
                 actionsForThisRound: new SquaddieActionsForThisRound({
                     dynamicSquaddieId: playerSquaddieDynamic.dynamicSquaddieId,
-                    staticSquaddieId: playerSquaddieStatic.staticId,
+                    squaddietemplateId: playerSquaddieStatic.staticId,
                     startingLocation: new HexCoordinate({q: 0, r: 0}),
                 }),
                 currentSquaddieAction: new SquaddieAction({

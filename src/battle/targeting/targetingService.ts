@@ -1,6 +1,6 @@
 import {SquaddieAction} from "../../squaddie/action";
 import {MissionMap, MissionMapSquaddieDatum} from "../../missionMap/missionMap";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
@@ -8,6 +8,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "./targetingShapeGenerator";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export class TargetingResults {
     constructor() {
@@ -39,15 +40,15 @@ export class TargetingResults {
 export const FindValidTargets = ({
                                      map,
                                      action,
-                                     actingStaticSquaddie,
+                                     actingSquaddietemplate,
                                      actingDynamicSquaddie,
                                      squaddieRepository,
                                      sourceTiles,
                                  }: {
     map: MissionMap,
     action: SquaddieAction,
-    actingStaticSquaddie: BattleSquaddieStatic,
-    actingDynamicSquaddie: BattleSquaddieDynamic,
+    actingSquaddietemplate: SquaddieTemplate,
+    actingDynamicSquaddie: BattleSquaddie,
     squaddieRepository: BattleSquaddieRepository,
     sourceTiles?: HexCoordinate[],
 }): TargetingResults => {
@@ -78,31 +79,31 @@ export const FindValidTargets = ({
         tilesToHighlight
     );
 
-    addValidTargetsToResult(results, actingStaticSquaddie, tilesToHighlight, map, squaddieRepository);
+    addValidTargetsToResult(results, actingSquaddietemplate, tilesToHighlight, map, squaddieRepository);
 
     return results;
 };
 
 function addValidTargetsToResult(
     targetingResults: TargetingResults,
-    actingStaticSquaddie: BattleSquaddieStatic,
+    actingSquaddietemplate: SquaddieTemplate,
     tilesInRange: HexCoordinate[],
     map: MissionMap,
     squaddieRepository: BattleSquaddieRepository
 ) {
-    const actingAffiliation: SquaddieAffiliation = actingStaticSquaddie.squaddieId.affiliation;
+    const actingAffiliation: SquaddieAffiliation = actingSquaddietemplate.squaddieId.affiliation;
     const validDynamicSquaddieIds: string[] = tilesInRange.map((tile) => {
         const mapData: MissionMapSquaddieDatum = map.getSquaddieAtLocation(tile);
         if (!mapData.isValid()) {
             return undefined;
         }
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie
         } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(mapData.dynamicSquaddieId));
 
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[actingAffiliation];
-        if (friendlyAffiliations[staticSquaddie.squaddieId.affiliation]) {
+        if (friendlyAffiliations[squaddietemplate.squaddieId.affiliation]) {
             return undefined;
         }
 

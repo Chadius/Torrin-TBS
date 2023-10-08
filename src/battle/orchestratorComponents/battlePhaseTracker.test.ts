@@ -1,6 +1,6 @@
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurn} from "../../squaddie/turn";
@@ -8,6 +8,7 @@ import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
 import {BattlePhaseState} from "./battlePhaseController";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('battlePhaseTracker', () => {
     let playerSquaddieTeam: BattleSquaddieTeam;
@@ -19,8 +20,8 @@ describe('battlePhaseTracker', () => {
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
 
-        squaddieRepo.addStaticSquaddie(
-            new BattleSquaddieStatic({
+        squaddieRepo.addSquaddietemplate(
+            new SquaddieTemplate({
                 squaddieId: new SquaddieId({
                     staticId: "player_squaddie",
                     name: "Player",
@@ -32,15 +33,15 @@ describe('battlePhaseTracker', () => {
             })
         );
         squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "player_squaddie_0",
-                staticSquaddieId: "player_squaddie",
+                squaddieTemplateId: "player_squaddie",
                 squaddieTurn: new SquaddieTurn()
             })
         );
 
-        squaddieRepo.addStaticSquaddie(
-            new BattleSquaddieStatic({
+        squaddieRepo.addSquaddietemplate(
+            new SquaddieTemplate({
                 squaddieId: new SquaddieId({
                     staticId: "enemy_squaddie",
                     name: "Enemy",
@@ -52,15 +53,15 @@ describe('battlePhaseTracker', () => {
             })
         );
         squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "enemy_squaddie_0",
-                staticSquaddieId: "enemy_squaddie",
+                squaddieTemplateId: "enemy_squaddie",
                 squaddieTurn: new SquaddieTurn()
             })
         );
 
-        squaddieRepo.addStaticSquaddie(
-            new BattleSquaddieStatic({
+        squaddieRepo.addSquaddietemplate(
+            new SquaddieTemplate({
                 squaddieId: new SquaddieId({
                     staticId: "ally_squaddie",
                     name: "Ally",
@@ -72,15 +73,15 @@ describe('battlePhaseTracker', () => {
             })
         );
         squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "ally_squaddie_0",
-                staticSquaddieId: "ally_squaddie",
+                squaddieTemplateId: "ally_squaddie",
                 squaddieTurn: new SquaddieTurn()
             })
         );
 
-        squaddieRepo.addStaticSquaddie(
-            new BattleSquaddieStatic({
+        squaddieRepo.addSquaddietemplate(
+            new SquaddieTemplate({
                 squaddieId: new SquaddieId({
                     staticId: "none_squaddie",
                     name: "None",
@@ -92,9 +93,9 @@ describe('battlePhaseTracker', () => {
             })
         );
         squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddieDynamic({
+            new BattleSquaddie({
                 dynamicSquaddieId: "none_squaddie_0",
-                staticSquaddieId: "none_squaddie",
+                squaddieTemplateId: "none_squaddie",
                 squaddieTurn: new SquaddieTurn()
             })
         );

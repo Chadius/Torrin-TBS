@@ -1,4 +1,4 @@
-import {BattleSquaddieDynamic, BattleSquaddieStatic} from "./battleSquaddie";
+import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieId} from "../squaddie/id";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
@@ -8,15 +8,16 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {SquaddieResource} from "../squaddie/resource";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddieRepository', () => {
     let squaddieRepo: BattleSquaddieRepository;
-    let staticSquaddieBase: BattleSquaddieStatic;
-    let dynamicSquaddieBase: BattleSquaddieDynamic;
+    let squaddietemplateBase: SquaddieTemplate;
+    let dynamicSquaddieBase: BattleSquaddie;
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
-        staticSquaddieBase = new BattleSquaddieStatic({
+        squaddietemplateBase = new SquaddieTemplate({
             attributes: new ArmyAttributes({
                 maxHitPoints: 1,
                 armorClass: 0,
@@ -36,14 +37,14 @@ describe('BattleSquaddieRepository', () => {
             }),
             actions: [],
         });
-        dynamicSquaddieBase = new BattleSquaddieDynamic({
+        dynamicSquaddieBase = new BattleSquaddie({
             dynamicSquaddieId: "player_young_torrin_0",
-            staticSquaddieId: "player_young_torrin",
+            squaddieTemplateId: "player_young_torrin",
             squaddieTurn: new SquaddieTurn()
         });
 
-        squaddieRepo.addStaticSquaddie(
-            staticSquaddieBase
+        squaddieRepo.addSquaddietemplate(
+            squaddietemplateBase
         );
     });
 
@@ -53,18 +54,18 @@ describe('BattleSquaddieRepository', () => {
         )
 
         const {
-            staticSquaddie,
+            squaddietemplate,
             dynamicSquaddie,
         } = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId("player_young_torrin_0"))
 
-        expect(staticSquaddie).toStrictEqual(staticSquaddie);
+        expect(squaddietemplate).toStrictEqual(squaddietemplate);
         expect(dynamicSquaddie).toStrictEqual(dynamicSquaddie);
     });
 
     it('should throw error if you add already existing static squaddie', () => {
         const shouldThrowError = () => {
-            squaddieRepo.addStaticSquaddie(
-                staticSquaddieBase
+            squaddieRepo.addSquaddietemplate(
+                squaddietemplateBase
             );
         }
 
@@ -73,15 +74,15 @@ describe('BattleSquaddieRepository', () => {
         }).toThrow(Error);
         expect(() => {
             shouldThrowError()
-        }).toThrow("cannot addStaticSquaddie 'player_young_torrin', is already added");
+        }).toThrow("cannot addSquaddietemplate 'player_young_torrin', is already added");
     });
 
     it("should throw error if you add dynamic squaddie for static squaddie that doesn't exist", () => {
         const shouldThrowError = () => {
             squaddieRepo.addDynamicSquaddie(
-                new BattleSquaddieDynamic({
+                new BattleSquaddie({
                     dynamicSquaddieId: "dynamic_id",
-                    staticSquaddieId: "unknown_static_squaddie",
+                    squaddieTemplateId: "unknown_static_squaddie",
                     squaddieTurn: new SquaddieTurn()
                 })
             );
@@ -117,9 +118,9 @@ describe('BattleSquaddieRepository', () => {
     it('should throw an error if dynamic squaddie is invalid', () => {
         const shouldThrowError = () => {
             squaddieRepo.addDynamicSquaddie(
-                dynamicSquaddieBase = new BattleSquaddieDynamic({
+                dynamicSquaddieBase = new BattleSquaddie({
                     dynamicSquaddieId: "",
-                    staticSquaddieId: "static",
+                    squaddieTemplateId: "static",
                     squaddieTurn: new SquaddieTurn()
                 })
             );
@@ -148,13 +149,13 @@ describe('BattleSquaddieRepository', () => {
         )
 
         const entities: {
-            staticSquaddieId: string,
-            staticSquaddie: BattleSquaddieStatic
-        }[] = squaddieRepo.getStaticSquaddieIterator();
+            squaddietemplateId: string,
+            squaddietemplate: SquaddieTemplate
+        }[] = squaddieRepo.getSquaddietemplateIterator();
 
         expect(entities).toStrictEqual([{
-            staticSquaddieId: staticSquaddieBase.squaddieId.staticId,
-            staticSquaddie: staticSquaddieBase
+            squaddietemplateId: squaddietemplateBase.squaddieId.staticId,
+            squaddietemplate: squaddietemplateBase
         }]);
     });
 
@@ -165,7 +166,7 @@ describe('BattleSquaddieRepository', () => {
 
         const entities: {
             dynamicSquaddieId: string,
-            dynamicSquaddie: BattleSquaddieDynamic
+            dynamicSquaddie: BattleSquaddie
         }[] = squaddieRepo.getDynamicSquaddieIterator();
         expect(entities).toStrictEqual([{
             dynamicSquaddieId: "player_young_torrin_0",

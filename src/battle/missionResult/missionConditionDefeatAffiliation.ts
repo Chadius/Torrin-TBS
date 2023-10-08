@@ -44,17 +44,17 @@ export class MissionConditionDefeatAffiliation extends MissionCondition {
 
         const livingSquaddie = state.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieDatum) => {
             const {
-                staticSquaddie,
+                squaddietemplate,
                 dynamicSquaddie,
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(livingSquaddieDatum.dynamicSquaddieId));
 
-            if (staticSquaddie.squaddieId.affiliation !== this.affiliation) {
+            if (squaddietemplate.squaddieId.affiliation !== this.affiliation) {
                 return false;
             }
 
             const {
                 isDead
-            } = CanSquaddieActRightNow({staticSquaddie, dynamicSquaddie})
+            } = CanSquaddieActRightNow({squaddietemplate, dynamicSquaddie})
             return !isDead;
         });
 
