@@ -637,6 +637,28 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     actions: [
                         new DialogueBox({
                             id: "turn4_0",
+                            name: "Torrin",
+                            text: "I can barely see ahead of us. What's going on down there?",
+                            portraitResourceKey: "young torrin cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "turn4_1",
+                            name: "Sir Camil",
+                            text: "If you move the pointer to the edges of the screen, we can move the camera a bit.",
+                            portraitResourceKey: "sir camil cutscene portrait",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        })
+                    ],
+                    screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                }),
+                "turn5": new Cutscene({
+                    resourceHandler: state.resourceHandler,
+                    actions: [
+                        new DialogueBox({
+                            id: "turn5_0",
                             name: "Sir Camil",
                             text: "What are those demons thinking? I don't know how far they can reach.",
                             portraitResourceKey: "sir camil cutscene portrait",
@@ -644,7 +666,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
                         new DialogueBox({
-                            id: "turn4_1",
+                            id: "turn5_1",
                             name: "Torrin",
                             text: "I can... tell where they can move. If you just... er, click on them, I can see it.",
                             portraitResourceKey: "young torrin cutscene portrait",
@@ -668,6 +690,8 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "introduction", turn: 0}),
             new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn1", turn: 1}),
             new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn2", turn: 2}),
+            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn4", turn: 4}),
+            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn5", turn: 5}),
         ];
 
         return {
