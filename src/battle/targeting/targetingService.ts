@@ -13,7 +13,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 export class TargetingResults {
     constructor() {
         this._locationsInRange = [];
-        this._dynamicSquaddieIdsInRange = [];
+        this._battleSquaddieIdsInRange = [];
     }
 
     private _locationsInRange: HexCoordinate[];
@@ -22,38 +22,38 @@ export class TargetingResults {
         return this._locationsInRange;
     }
 
-    private _dynamicSquaddieIdsInRange: string[];
+    private _battleSquaddieIdsInRange: string[];
 
-    get dynamicSquaddieIdsInRange(): string[] {
-        return this._dynamicSquaddieIdsInRange;
+    get battleSquaddieIdsInRange(): string[] {
+        return this._battleSquaddieIdsInRange;
     }
 
     addLocationsInRange(hexCoordinates: HexCoordinate[]) {
         this._locationsInRange = [...this._locationsInRange, ...hexCoordinates];
     }
 
-    addDynamicSquaddieIdsInRange(dynamicIds: string[]) {
-        this._dynamicSquaddieIdsInRange = [...this._dynamicSquaddieIdsInRange, ...dynamicIds];
+    addBattleSquaddieIdsInRange(battleIds: string[]) {
+        this._battleSquaddieIdsInRange = [...this._battleSquaddieIdsInRange, ...battleIds];
     }
 }
 
 export const FindValidTargets = ({
                                      map,
                                      action,
-                                     actingSquaddietemplate,
-                                     actingDynamicSquaddie,
+                                     actingSquaddieTemplate,
+                                     actingBattleSquaddie,
                                      squaddieRepository,
                                      sourceTiles,
                                  }: {
     map: MissionMap,
     action: SquaddieAction,
-    actingSquaddietemplate: SquaddieTemplate,
-    actingDynamicSquaddie: BattleSquaddie,
+    actingSquaddieTemplate: SquaddieTemplate,
+    actingBattleSquaddie: BattleSquaddie,
     squaddieRepository: BattleSquaddieRepository,
     sourceTiles?: HexCoordinate[],
 }): TargetingResults => {
     const pathfinder: Pathfinder = new Pathfinder();
-    const squaddieInfo = map.getSquaddieByDynamicId(actingDynamicSquaddie.dynamicSquaddieId)
+    const squaddieInfo = map.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId)
     const tilesToHighlight: HexCoordinate[] = pathfinder.getTilesInRange(
         new SearchParams({
             setup: new SearchSetup({
@@ -79,36 +79,36 @@ export const FindValidTargets = ({
         tilesToHighlight
     );
 
-    addValidTargetsToResult(results, actingSquaddietemplate, tilesToHighlight, map, squaddieRepository);
+    addValidTargetsToResult(results, actingSquaddieTemplate, tilesToHighlight, map, squaddieRepository);
 
     return results;
 };
 
 function addValidTargetsToResult(
     targetingResults: TargetingResults,
-    actingSquaddietemplate: SquaddieTemplate,
+    actingSquaddieTemplate: SquaddieTemplate,
     tilesInRange: HexCoordinate[],
     map: MissionMap,
     squaddieRepository: BattleSquaddieRepository
 ) {
-    const actingAffiliation: SquaddieAffiliation = actingSquaddietemplate.squaddieId.affiliation;
-    const validDynamicSquaddieIds: string[] = tilesInRange.map((tile) => {
+    const actingAffiliation: SquaddieAffiliation = actingSquaddieTemplate.squaddieId.affiliation;
+    const validBattleSquaddieIds: string[] = tilesInRange.map((tile) => {
         const mapData: MissionMapSquaddieDatum = map.getSquaddieAtLocation(tile);
         if (!mapData.isValid()) {
             return undefined;
         }
         const {
-            squaddietemplate,
-            dynamicSquaddie
-        } = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(mapData.dynamicSquaddieId));
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(mapData.battleSquaddieId));
 
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[actingAffiliation];
-        if (friendlyAffiliations[squaddietemplate.squaddieId.affiliation]) {
+        if (friendlyAffiliations[squaddieTemplate.squaddieId.affiliation]) {
             return undefined;
         }
 
-        return dynamicSquaddie.dynamicSquaddieId;
+        return battleSquaddie.battleSquaddieId;
     }).filter(x => x);
 
-    targetingResults.addDynamicSquaddieIdsInRange(validDynamicSquaddieIds);
+    targetingResults.addBattleSquaddieIdsInRange(validBattleSquaddieIds);
 }

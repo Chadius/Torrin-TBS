@@ -52,17 +52,17 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.animationCompleteStartTime === undefined) {
-            const dynamicSquaddieId = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getDynamicSquaddieId();
+            const battleSquaddieId = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getBattleSquaddieId();
             const {
-                dynamicSquaddie,
-                squaddietemplate
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
+                battleSquaddie,
+                squaddieTemplate
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
             const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
 
             if (mostRecentAction instanceof SquaddieEndTurnAction) {
-                dynamicSquaddie.endTurn();
-                TintSquaddieIfTurnIsComplete(dynamicSquaddie, squaddietemplate);
+                battleSquaddie.endTurn();
+                TintSquaddieIfTurnIsComplete(battleSquaddie, squaddieTemplate);
             }
             this.animationCompleteStartTime = Date.now();
         }

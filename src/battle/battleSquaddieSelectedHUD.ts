@@ -33,12 +33,12 @@ enum ActionValidityCheck {
 }
 
 export class BattleSquaddieSelectedHUD {
-    selectedSquaddieDynamicId: string;
+    selectedBattleSquaddieId: string;
     affiliateIcon?: ImageUI;
     selectedAction: SquaddieAction | SquaddieEndTurnAction;
     useActionButtons: UseActionButton[];
     nextSquaddieButton: Label;
-    nextSquaddieDynamicIds: string[];
+    nextBattleSquaddieIds: string[];
     squaddieIdTextBox: TextBox;
     invalidCommandWarningTextBox: TextBox;
 
@@ -53,32 +53,32 @@ export class BattleSquaddieSelectedHUD {
     }
 
     mouseClickedNoSquaddieSelected() {
-        this.selectedSquaddieDynamicId = "";
+        this.selectedBattleSquaddieId = "";
     }
 
-    selectSquaddieAndDrawWindow({dynamicId, repositionWindow, state}: {
-                                    dynamicId: string,
+    selectSquaddieAndDrawWindow({battleId, repositionWindow, state}: {
+                                    battleId: string,
                                     repositionWindow?: { mouseX: number, mouseY: number },
                                     state: BattleOrchestratorState,
                                 }
     ) {
-        this.selectedSquaddieDynamicId = dynamicId;
+        this.selectedBattleSquaddieId = battleId;
         this.invalidCommandWarningTextBox.stop();
 
         const {
-            squaddietemplate,
-            dynamicSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId))
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(this.selectedBattleSquaddieId))
 
         const {windowDimensions, squaddieAffiliationHue} = this.setBackgroundWindowAndGetWindowDimensions(
-            squaddietemplate.squaddieId.affiliation,
+            squaddieTemplate.squaddieId.affiliation,
             repositionWindow ? repositionWindow.mouseY : undefined
         );
 
-        this.generateAffiliateIcon(squaddietemplate, state);
-        this.generateUseActionButtons(squaddietemplate, dynamicSquaddie, squaddieAffiliationHue, windowDimensions);
+        this.generateAffiliateIcon(squaddieTemplate, state);
+        this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
-        this.generateSquaddieIdText(squaddietemplate);
+        this.generateSquaddieIdText(squaddieTemplate);
     }
 
     createWindowPosition(mouseY: number) {
@@ -107,11 +107,11 @@ export class BattleSquaddieSelectedHUD {
     }
 
     public shouldDrawTheHUD(): boolean {
-        return !!this.selectedSquaddieDynamicId;
+        return !!this.selectedBattleSquaddieId;
     }
 
-    public getSelectedSquaddieDynamicId(): string {
-        return this.selectedSquaddieDynamicId;
+    public getSelectedBattleSquaddieId(): string {
+        return this.selectedBattleSquaddieId;
     }
 
     draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
@@ -185,7 +185,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     reset() {
-        this.selectedSquaddieDynamicId = "";
+        this.selectedBattleSquaddieId = "";
         this.affiliateIcon = undefined;
         this.selectedAction = undefined;
         this.useActionButtons = undefined;
@@ -198,15 +198,15 @@ export class BattleSquaddieSelectedHUD {
             }),
             duration: 0,
         });
-        this.nextSquaddieDynamicIds = [];
+        this.nextBattleSquaddieIds = [];
     }
 
     shouldDrawNextButton(state: BattleOrchestratorState): boolean {
-        const numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct: number = state.squaddieRepository.getDynamicSquaddieIterator().filter((info) => {
-            return this.isSquaddiePlayerControllableRightNow(info.dynamicSquaddieId, state) === true
+        const numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct: number = state.squaddieRepository.getBattleSquaddieIterator().filter((info) => {
+            return this.isSquaddiePlayerControllableRightNow(info.battleSquaddieId, state) === true
         }).length;
 
-        const selectedSquaddieIsPlayerControllableRightNow: boolean = this.selectedSquaddieDynamicId && this.isSquaddiePlayerControllableRightNow(this.selectedSquaddieDynamicId, state);
+        const selectedSquaddieIsPlayerControllableRightNow: boolean = this.selectedBattleSquaddieId && this.isSquaddiePlayerControllableRightNow(this.selectedBattleSquaddieId, state);
 
         if (selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 1) {
             return true;
@@ -216,13 +216,13 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private generateUseActionButtons(
-        squaddietemplate: SquaddieTemplate,
-        dynamicSquaddie: BattleSquaddie,
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
         squaddieAffiliationHue: number,
         windowDimensions: RectArea
     ) {
         this.useActionButtons = [];
-        squaddietemplate.action.forEach((action: SquaddieAction, index: number) => {
+        squaddieTemplate.action.forEach((action: SquaddieAction, index: number) => {
             this.useActionButtons.push(
                 new UseActionButton({
                     buttonArea: new RectArea({
@@ -257,9 +257,9 @@ export class BattleSquaddieSelectedHUD {
         );
     }
 
-    private generateAffiliateIcon(squaddietemplate: SquaddieTemplate, state: BattleOrchestratorState) {
+    private generateAffiliateIcon(squaddieTemplate: SquaddieTemplate, state: BattleOrchestratorState) {
         let affiliateIconImage: GraphicImage;
-        switch (squaddietemplate.squaddieId.affiliation) {
+        switch (squaddieTemplate.squaddieId.affiliation) {
             case SquaddieAffiliation.PLAYER:
                 affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_crusaders"))
                 break;
@@ -293,8 +293,8 @@ export class BattleSquaddieSelectedHUD {
 
     private drawSquaddieID(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
-            squaddietemplate
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
+            squaddieTemplate
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(this.selectedBattleSquaddieId));
 
         if (this.affiliateIcon) {
             this.affiliateIcon.draw(graphicsContext);
@@ -305,10 +305,10 @@ export class BattleSquaddieSelectedHUD {
 
     private drawNumberOfActionPoints(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
-            squaddietemplate,
-            dynamicSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
-        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddietemplate, dynamicSquaddie});
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(this.selectedBattleSquaddieId));
+        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
 
         graphicsContext.push();
 
@@ -390,19 +390,19 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private drawUncontrollableSquaddieWarning(state: BattleOrchestratorState) {
-        if (!this.selectedSquaddieDynamicId) {
+        if (!this.selectedBattleSquaddieId) {
             return;
         }
         const {
-            dynamicSquaddie,
-            squaddietemplate
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
+            battleSquaddie,
+            squaddieTemplate
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(this.selectedBattleSquaddieId));
 
         const {
             squaddieHasThePlayerControlledAffiliation,
             squaddieCanCurrentlyAct,
             playerCanControlThisSquaddieRightNow,
-        } = CanPlayerControlSquaddieRightNow({dynamicSquaddie, squaddietemplate});
+        } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
 
         if (playerCanControlThisSquaddieRightNow) {
             return;
@@ -410,9 +410,9 @@ export class BattleSquaddieSelectedHUD {
 
         let warningText: string = "";
         if (!squaddieHasThePlayerControlledAffiliation) {
-            warningText = `You cannot control ${squaddietemplate.squaddieId.name}`;
+            warningText = `You cannot control ${squaddieTemplate.squaddieId.name}`;
         } else if (!squaddieCanCurrentlyAct) {
-            warningText = `No actions remaining for ${squaddietemplate.squaddieId.name}`;
+            warningText = `No actions remaining for ${squaddieTemplate.squaddieId.name}`;
         }
 
         this.maybeCreateInvalidCommandWarningTextBox(warningText);
@@ -426,11 +426,11 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        const {squaddietemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieCurrentlyActing.squaddieActionsForThisRound.getDynamicSquaddieId()));
-        const differentSquaddieWarningText: string = `Cannot act, wait for ${squaddietemplate.squaddieId.name}`;
+        const {squaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieCurrentlyActing.squaddieActionsForThisRound.getBattleSquaddieId()));
+        const differentSquaddieWarningText: string = `Cannot act, wait for ${squaddieTemplate.squaddieId.name}`;
 
         if (
-            this.selectedSquaddieDynamicId === squaddieCurrentlyActing.squaddieActionsForThisRound.getDynamicSquaddieId()
+            this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieActionsForThisRound.getBattleSquaddieId()
         ) {
             if (
                 this.invalidCommandWarningTextBox.text === differentSquaddieWarningText
@@ -463,11 +463,11 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private generateSquaddieIdText(squaddietemplate: SquaddieTemplate) {
+    private generateSquaddieIdText(squaddieTemplate: SquaddieTemplate) {
         this.squaddieIdTextBox = new TextBox({
-            text: squaddietemplate.squaddieId.name,
+            text: squaddieTemplate.squaddieId.name,
             textSize: 24,
-            fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddietemplate.squaddieId.affiliation], 10, 192],
+            fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 10, 192],
             area: new RectArea({
                 baseRectangle: this._background.area,
                 anchorLeft: HorizontalAnchor.LEFT,
@@ -493,11 +493,11 @@ export class BattleSquaddieSelectedHUD {
 
     private checkIfActionIsValid(action: SquaddieAction | SquaddieEndTurnAction, state: BattleOrchestratorState): ActionValidityCheck {
         const {
-            squaddietemplate,
-            dynamicSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(this.selectedBattleSquaddieId));
 
-        const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({squaddietemplate, dynamicSquaddie});
+        const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
         if (!canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow) {
             return ActionValidityCheck.PLAYER_CANNOT_CONTROL_SQUADDIE;
         }
@@ -506,7 +506,7 @@ export class BattleSquaddieSelectedHUD {
             return ActionValidityCheck.IS_VALID;
         }
 
-        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddietemplate, dynamicSquaddie})
+        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
         if (actionPointsRemaining < action.actionPointCost) {
             return ActionValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS;
         }
@@ -516,9 +516,9 @@ export class BattleSquaddieSelectedHUD {
 
     private drawSquaddieAttributes(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
-            squaddietemplate,
-            dynamicSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(this.selectedSquaddieDynamicId));
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(this.selectedBattleSquaddieId));
 
         const textSize = 16;
         const fontColor = [100, 0, 80];
@@ -534,7 +534,7 @@ export class BattleSquaddieSelectedHUD {
         const attributeTextLeftMargin = 56;
         const attributeIconSize = 48;
 
-        const hitPointsInfo = GetHitPoints({squaddietemplate, dynamicSquaddie});
+        const hitPointsInfo = GetHitPoints({squaddieTemplate, battleSquaddie});
         const hitPointsDescription = `${hitPointsInfo.currentHitPoints} / ${hitPointsInfo.maxHitPoints}`;
         this.drawIconAndText({
             baseRectangle,
@@ -551,7 +551,7 @@ export class BattleSquaddieSelectedHUD {
             graphicsContext,
         });
 
-        const armorClassInfo = GetArmorClass({squaddietemplate, dynamicSquaddie});
+        const armorClassInfo = GetArmorClass({squaddieTemplate, battleSquaddie});
         const armorClassDescription = `${armorClassInfo.normalArmorClass}`;
         this.drawIconAndText({
             baseRectangle,
@@ -647,37 +647,37 @@ export class BattleSquaddieSelectedHUD {
         });
     }
 
-    private isSquaddiePlayerControllableRightNow = (dynamicSquaddieId: string, state: BattleOrchestratorState): boolean => {
+    private isSquaddiePlayerControllableRightNow = (battleSquaddieId: string, state: BattleOrchestratorState): boolean => {
         const {
-            squaddietemplate,
-            dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
+            squaddieTemplate,
+            battleSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
         const {
             playerCanControlThisSquaddieRightNow
         } = CanPlayerControlSquaddieRightNow({
-            squaddietemplate,
-            dynamicSquaddie,
+            squaddieTemplate,
+            battleSquaddie,
         });
 
         return playerCanControlThisSquaddieRightNow;
     }
 
     private selectNextSquaddie(state: BattleOrchestratorState) {
-        if (this.nextSquaddieDynamicIds.length === 0) {
-            this.nextSquaddieDynamicIds = state.squaddieRepository.getDynamicSquaddieIterator().filter((info) => {
-                return this.isSquaddiePlayerControllableRightNow(info.dynamicSquaddieId, state) === true
-            }).map((info) => info.dynamicSquaddieId);
+        if (this.nextBattleSquaddieIds.length === 0) {
+            this.nextBattleSquaddieIds = state.squaddieRepository.getBattleSquaddieIterator().filter((info) => {
+                return this.isSquaddiePlayerControllableRightNow(info.battleSquaddieId, state) === true
+            }).map((info) => info.battleSquaddieId);
         }
 
-        if (this.nextSquaddieDynamicIds.length === 0) {
+        if (this.nextBattleSquaddieIds.length === 0) {
             return;
         }
 
-        const nextDynamicSquaddieId: string = this.nextSquaddieDynamicIds.find(id => id !== this.selectedSquaddieDynamicId);
-        this.nextSquaddieDynamicIds = this.nextSquaddieDynamicIds.filter(id => id != nextDynamicSquaddieId);
+        const nextBattleSquaddieId: string = this.nextBattleSquaddieIds.find(id => id !== this.selectedBattleSquaddieId);
+        this.nextBattleSquaddieIds = this.nextBattleSquaddieIds.filter(id => id != nextBattleSquaddieId);
 
-        const selectedMapCoordinates = state.missionMap.getSquaddieByDynamicId(nextDynamicSquaddieId);
+        const selectedMapCoordinates = state.missionMap.getSquaddieByBattleId(nextBattleSquaddieId);
         if (selectedMapCoordinates.isValid()) {
             const selectedWorldCoordinates = convertMapCoordinatesToWorldCoordinates(
                 selectedMapCoordinates.mapLocation.q,
@@ -692,7 +692,7 @@ export class BattleSquaddieSelectedHUD {
         }
 
         this.selectSquaddieAndDrawWindow({
-            dynamicId: nextDynamicSquaddieId,
+            battleId: nextBattleSquaddieId,
             state,
         })
     }

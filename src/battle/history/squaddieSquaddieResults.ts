@@ -1,21 +1,21 @@
 import {ActionResultPerSquaddie} from "./actionResultPerSquaddie";
 
 export class SquaddieSquaddieResults {
-    actingSquaddieDynamicId: string;
-    targetedSquaddieDynamicIds: string[];
-    resultPerTarget: { [dynamicId: string]: ActionResultPerSquaddie }
+    actingBattleSquaddieId: string;
+    targetedBattleSquaddieIds: string[];
+    resultPerTarget: { [battleId: string]: ActionResultPerSquaddie }
 
     constructor({
-                    actingSquaddieDynamicId,
-                    targetedSquaddieDynamicIds,
+                    actingBattleSquaddieId,
+                    targetedBattleSquaddieIds,
                     resultPerTarget,
                 }: {
-        actingSquaddieDynamicId?: string;
-        targetedSquaddieDynamicIds?: string[];
+        actingBattleSquaddieId?: string;
+        targetedBattleSquaddieIds?: string[];
         resultPerTarget?: { [_: string]: ActionResultPerSquaddie }
     }) {
-        this.actingSquaddieDynamicId = actingSquaddieDynamicId ?? "";
-        this.targetedSquaddieDynamicIds = targetedSquaddieDynamicIds ?? [];
+        this.actingBattleSquaddieId = actingBattleSquaddieId ?? "";
+        this.targetedBattleSquaddieIds = targetedBattleSquaddieIds ?? [];
         this.resultPerTarget = resultPerTarget;
     }
 }

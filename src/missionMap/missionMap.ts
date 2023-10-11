@@ -3,29 +3,29 @@ import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 
 export class MissionMapSquaddieDatum {
-    constructor(info?: { dynamicSquaddieId: string, squaddietemplateId: string, mapLocation?: HexCoordinate }) {
+    constructor(info?: { battleSquaddieId: string, squaddieTemplateId: string, mapLocation?: HexCoordinate }) {
         if (!info) {
             info = {
-                dynamicSquaddieId: undefined,
-                squaddietemplateId: undefined,
+                battleSquaddieId: undefined,
+                squaddieTemplateId: undefined,
             };
         }
 
-        this._dynamicSquaddieId = info.dynamicSquaddieId;
-        this._squaddietemplateId = info.squaddietemplateId;
+        this._battleSquaddieId = info.battleSquaddieId;
+        this._squaddieTemplateId = info.squaddieTemplateId;
         this._mapLocation = info.mapLocation;
     }
 
-    private _dynamicSquaddieId: string;
+    private _battleSquaddieId: string;
 
-    get dynamicSquaddieId(): string {
-        return this._dynamicSquaddieId;
+    get battleSquaddieId(): string {
+        return this._battleSquaddieId;
     }
 
-    private _squaddietemplateId: string;
+    private _squaddieTemplateId: string;
 
-    get squaddietemplateId(): string {
-        return this._squaddietemplateId;
+    get squaddieTemplateId(): string {
+        return this._squaddieTemplateId;
     }
 
     private _mapLocation?: HexCoordinate;
@@ -40,14 +40,14 @@ export class MissionMapSquaddieDatum {
 
     static clone(datum: MissionMapSquaddieDatum): MissionMapSquaddieDatum {
         return new MissionMapSquaddieDatum({
-            squaddietemplateId: datum._squaddietemplateId,
-            dynamicSquaddieId: datum._dynamicSquaddieId,
+            squaddieTemplateId: datum._squaddieTemplateId,
+            battleSquaddieId: datum._battleSquaddieId,
             mapLocation: datum._mapLocation,
         });
     }
 
     isValid() {
-        return this._dynamicSquaddieId !== undefined && this._squaddietemplateId !== undefined;
+        return this._battleSquaddieId !== undefined && this._squaddieTemplateId !== undefined;
     }
 }
 
@@ -81,26 +81,26 @@ export class MissionMap {
         return this._terrainTileMap.areCoordinatesOnMap(hexCoordinate);
     }
 
-    addSquaddie(squaddietemplateId: string, dynamicSquaddieId: string, location?: HexCoordinate): Error | undefined {
+    addSquaddie(squaddieTemplateId: string, battleSquaddieId: string, location?: HexCoordinate): Error | undefined {
         if (location && !this._terrainTileMap.areCoordinatesOnMap(location)) {
-            return new Error(`cannot add ${dynamicSquaddieId} to (${location.q}, ${location.r}) is not on map`);
+            return new Error(`cannot add ${battleSquaddieId} to (${location.q}, ${location.r}) is not on map`);
         }
 
-        const squaddieWithDynamicId: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
-            datum.dynamicSquaddieId === dynamicSquaddieId
+        const battleSquaddieWithId: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
+            datum.battleSquaddieId === battleSquaddieId
         );
-        if (squaddieWithDynamicId) {
-            return new Error(`${dynamicSquaddieId} already added`);
+        if (battleSquaddieWithId) {
+            return new Error(`${battleSquaddieId} already added`);
         }
 
         const squaddieAlreadyOccupyingLocation: MissionMapSquaddieDatum = this.getSquaddieAtLocation(location);
         if (squaddieAlreadyOccupyingLocation.isValid()) {
-            return new Error(`cannot add ${dynamicSquaddieId} to (${location.q}, ${location.r}), already occupied by ${squaddieAlreadyOccupyingLocation.dynamicSquaddieId}`);
+            return new Error(`cannot add ${battleSquaddieId} to (${location.q}, ${location.r}), already occupied by ${squaddieAlreadyOccupyingLocation.battleSquaddieId}`);
         }
 
         this._squaddieInfo.push(new MissionMapSquaddieDatum({
-            squaddietemplateId,
-            dynamicSquaddieId,
+            squaddieTemplateId,
+            battleSquaddieId,
             mapLocation: location,
         }));
         return undefined;
@@ -113,9 +113,9 @@ export class MissionMap {
         return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : new MissionMapSquaddieDatum();
     }
 
-    getSquaddieByDynamicId(dynamicSquaddieId: string): MissionMapSquaddieDatum {
+    getSquaddieByBattleId(battleSquaddieId: string): MissionMapSquaddieDatum {
         const foundDatum: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
-            datum.dynamicSquaddieId === dynamicSquaddieId
+            datum.battleSquaddieId === battleSquaddieId
         );
         return foundDatum ? MissionMapSquaddieDatum.clone(foundDatum) : new MissionMapSquaddieDatum();
     }
@@ -133,22 +133,22 @@ export class MissionMap {
         ).map((datum) => MissionMapSquaddieDatum.clone(datum));
     }
 
-    updateSquaddieLocation(dynamicSquaddieId: string, location: HexCoordinate): Error | undefined {
+    updateSquaddieLocation(battleSquaddieId: string, location: HexCoordinate): Error | undefined {
         const foundDatum: MissionMapSquaddieDatum = this._squaddieInfo.find((datum) =>
-            datum.dynamicSquaddieId === dynamicSquaddieId
+            datum.battleSquaddieId === battleSquaddieId
         );
         if (!foundDatum) {
-            return new Error(`cannot update position for ${dynamicSquaddieId}, does not exist`);
+            return new Error(`cannot update position for ${battleSquaddieId}, does not exist`);
         }
 
         if (location && !this._terrainTileMap.areCoordinatesOnMap(location)) {
-            return new Error(`cannot update position for ${dynamicSquaddieId} to (${location.q}, ${location.r}) is not on map`);
+            return new Error(`cannot update position for ${battleSquaddieId} to (${location.q}, ${location.r}) is not on map`);
         }
 
         if (location) {
             const squaddieAtTheLocation = this.getSquaddieAtLocation(location);
-            if (squaddieAtTheLocation.isValid() && squaddieAtTheLocation.dynamicSquaddieId !== dynamicSquaddieId) {
-                return new Error(`cannot update position for ${dynamicSquaddieId} to (${location.q}, ${location.r}) already occupied by ${squaddieAtTheLocation.dynamicSquaddieId}`);
+            if (squaddieAtTheLocation.isValid() && squaddieAtTheLocation.battleSquaddieId !== battleSquaddieId) {
+                return new Error(`cannot update position for ${battleSquaddieId} to (${location.q}, ${location.r}) already occupied by ${squaddieAtTheLocation.battleSquaddieId}`);
             }
         }
 
@@ -160,25 +160,25 @@ export class MissionMap {
             .map((datum) => MissionMapSquaddieDatum.clone(datum));
     }
 
-    getSquaddiesByStaticId(squaddietemplateId: string): MissionMapSquaddieDatum[] {
-        return this._squaddieInfo.filter((datum) => datum.squaddietemplateId === squaddietemplateId)
+    getSquaddiesByTemplateId(squaddieTemplateId: string): MissionMapSquaddieDatum[] {
+        return this._squaddieInfo.filter((datum) => datum.squaddieTemplateId === squaddieTemplateId)
             .map((datum) => MissionMapSquaddieDatum.clone(datum));
     }
 
-    isSquaddieHiddenFromDrawing(dynamicSquaddieId: string): boolean {
-        return this._squaddiesHidden.includes(dynamicSquaddieId);
+    isSquaddieHiddenFromDrawing(battleSquaddieId: string): boolean {
+        return this._squaddiesHidden.includes(battleSquaddieId);
     }
 
-    hideSquaddieFromDrawing(dynamicSquaddieId: string) {
-        if (!this.isSquaddieHiddenFromDrawing(dynamicSquaddieId)) {
-            this._squaddiesHidden.push(dynamicSquaddieId);
+    hideSquaddieFromDrawing(battleSquaddieId: string) {
+        if (!this.isSquaddieHiddenFromDrawing(battleSquaddieId)) {
+            this._squaddiesHidden.push(battleSquaddieId);
         }
     }
 
-    revealSquaddieForDrawing(dynamicSquaddieId: string) {
-        if (this.isSquaddieHiddenFromDrawing(dynamicSquaddieId)) {
+    revealSquaddieForDrawing(battleSquaddieId: string) {
+        if (this.isSquaddieHiddenFromDrawing(battleSquaddieId)) {
             this._squaddiesHidden = this._squaddiesHidden.filter(
-                (id) => id !== dynamicSquaddieId
+                (id) => id !== battleSquaddieId
             );
         }
     }

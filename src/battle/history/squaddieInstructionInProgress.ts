@@ -16,7 +16,7 @@ export class SquaddieInstructionInProgress {
     }) {
         this._squaddieActionsForThisRound = actionsForThisRound;
         this._currentlySelectedAction = currentSquaddieAction;
-        this._movingSquaddieDynamicIds = [];
+        this._movingBattleSquaddieIds = [];
     }
 
     get squaddieHasActedThisTurn(): boolean {
@@ -36,15 +36,15 @@ export class SquaddieInstructionInProgress {
         return this._currentlySelectedAction;
     }
 
-    private _movingSquaddieDynamicIds: string[];
+    private _movingBattleSquaddieIds: string[];
 
-    get movingSquaddieDynamicIds(): string[] {
-        return this._movingSquaddieDynamicIds;
+    get movingBattleSquaddieIds(): string[] {
+        return this._movingBattleSquaddieIds;
     }
 
-    get dynamicSquaddieId(): string {
+    get battleSquaddieId(): string {
         if (this._squaddieActionsForThisRound !== undefined) {
-            return this._squaddieActionsForThisRound.dynamicSquaddieId;
+            return this._squaddieActionsForThisRound.battleSquaddieId;
         }
 
         return "";
@@ -57,18 +57,18 @@ export class SquaddieInstructionInProgress {
     reset() {
         this._squaddieActionsForThisRound = undefined;
         this._currentlySelectedAction = undefined;
-        this._movingSquaddieDynamicIds = [];
+        this._movingBattleSquaddieIds = [];
     }
 
     addInitialState(param: {
-        squaddietemplateId: string;
-        dynamicSquaddieId: string;
+        squaddieTemplateId: string;
+        battleSquaddieId: string;
         startingLocation: HexCoordinate
     }) {
         if (this._squaddieActionsForThisRound === undefined) {
             this._squaddieActionsForThisRound = new SquaddieActionsForThisRound({
-                squaddietemplateId: param.squaddietemplateId,
-                dynamicSquaddieId: param.dynamicSquaddieId,
+                squaddieTemplateId: param.squaddieTemplateId,
+                battleSquaddieId: param.battleSquaddieId,
                 startingLocation: param.startingLocation,
             });
         }
@@ -102,20 +102,20 @@ export class SquaddieInstructionInProgress {
         this._currentlySelectedAction = action;
     }
 
-    markSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
-        if (this.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
+    markBattleSquaddieIdAsMoving(battleSquaddieId: string) {
+        if (this.isBattleSquaddieIdMoving(battleSquaddieId)) {
             return;
         }
-        this._movingSquaddieDynamicIds.push(dynamicSquaddieId);
+        this._movingBattleSquaddieIds.push(battleSquaddieId);
     }
 
-    isSquaddieDynamicIdMoving(dynamicSquaddieId: string): boolean {
-        return this.movingSquaddieDynamicIds.some((id) => id === dynamicSquaddieId);
+    isBattleSquaddieIdMoving(battleSquaddieId: string): boolean {
+        return this.movingBattleSquaddieIds.some((id) => id === battleSquaddieId);
     }
 
-    removeSquaddieDynamicIdAsMoving(dynamicSquaddieId: string) {
-        this._movingSquaddieDynamicIds = this.movingSquaddieDynamicIds.filter(
-            (id) => id !== dynamicSquaddieId
+    removeBattleSquaddieIdAsMoving(battleSquaddieId: string) {
+        this._movingBattleSquaddieIds = this.movingBattleSquaddieIds.filter(
+            (id) => id !== battleSquaddieId
         );
     }
 

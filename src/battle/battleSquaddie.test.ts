@@ -7,10 +7,10 @@ import {InBattleAttributes} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddie', () => {
-    it('throws an error if dynamic squaddie has no static ID', () => {
+    it('throws an error if dynamic squaddie has no template Id', () => {
         const shouldThrowError = () => {
             new BattleSquaddie({
-                dynamicSquaddieId: "dynamicSquaddieId",
+                battleSquaddieId: "battleSquaddieId",
             })
         }
 
@@ -19,16 +19,16 @@ describe('BattleSquaddie', () => {
         }).toThrow(Error);
         expect(() => {
             shouldThrowError()
-        }).toThrow("Dynamic Squaddie has no Static Squaddie Id");
+        }).toThrow("Battle Squaddie has no Squaddie Template Id");
     });
-    it('throws an error if dynamic squaddie has no dynamic ID', () => {
+    it('throws an error if battle squaddie has no battle Id', () => {
         const shouldThrowError = () => {
-            const badDynamicSquaddie: BattleSquaddie = new BattleSquaddie({
-                squaddieTemplateId: "squaddietemplateId",
-                dynamicSquaddieId: "",
+            const badBattleSquaddie: BattleSquaddie = new BattleSquaddie({
+                squaddieTemplateId: "squaddieTemplateId",
+                battleSquaddieId: "",
                 squaddieTurn: new SquaddieTurn(),
             })
-            badDynamicSquaddie.assertBattleSquaddieDynamic();
+            badBattleSquaddie.assertBattleSquaddie();
         }
 
         expect(() => {
@@ -36,16 +36,16 @@ describe('BattleSquaddie', () => {
         }).toThrow(Error);
         expect(() => {
             shouldThrowError()
-        }).toThrow("Dynamic Squaddie has no Dynamic Squaddie Id");
+        }).toThrow("Battle Squaddie has no Id");
     });
     describe('attributes', () => {
-        let staticSoldier: SquaddieTemplate;
-        let dynamicSoldier: BattleSquaddie;
+        let soldierTemplate: SquaddieTemplate;
+        let battleSoldier: BattleSquaddie;
 
         beforeEach(() => {
-            staticSoldier = new SquaddieTemplate({
+            soldierTemplate = new SquaddieTemplate({
                 squaddieId: new SquaddieId({
-                    staticId: "soldier_static",
+                    templateId: "soldier_static",
                     name: "Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -56,43 +56,43 @@ describe('BattleSquaddie', () => {
             });
         });
 
-        it('will give dynamic squaddie defaults', () => {
-            dynamicSoldier = new BattleSquaddie({
-                dynamicSquaddieId: "soldier_dynamic",
-                squaddieTemplateId: staticSoldier.squaddieId.staticId,
+        it('will give battle squaddie defaults', () => {
+            battleSoldier = new BattleSquaddie({
+                battleSquaddieId: "soldier_dynamic",
+                squaddieTemplateId: soldierTemplate.squaddieId.templateId,
             });
 
             const defaultInBattleAttributes: InBattleAttributes = new InBattleAttributes();
 
-            expect(dynamicSoldier.inBattleAttributes).toStrictEqual(defaultInBattleAttributes);
+            expect(battleSoldier.inBattleAttributes).toStrictEqual(defaultInBattleAttributes);
         });
 
         it('will create in battle attributes based on the army attributes given', () => {
-            expect(staticSoldier.attributes.maxHitPoints).toBe(5);
-            expect(staticSoldier.attributes.armorClass).toBe(2);
+            expect(soldierTemplate.attributes.maxHitPoints).toBe(5);
+            expect(soldierTemplate.attributes.armorClass).toBe(2);
 
-            dynamicSoldier = new BattleSquaddie({
-                dynamicSquaddieId: "soldier_dynamic",
-                squaddieTemplateId: staticSoldier.squaddieId.staticId,
+            battleSoldier = new BattleSquaddie({
+                battleSquaddieId: "soldier_dynamic",
+                squaddieTemplateId: soldierTemplate.squaddieId.templateId,
             });
 
-            dynamicSoldier.initializeInBattleAttributes(staticSoldier.attributes);
+            battleSoldier.initializeInBattleAttributes(soldierTemplate.attributes);
 
-            expect(dynamicSoldier.squaddieTemplateId).toBe(staticSoldier.squaddieId.staticId);
-            expect(dynamicSoldier.inBattleAttributes.currentHitPoints).toBe(staticSoldier.attributes.maxHitPoints);
+            expect(battleSoldier.squaddieTemplateId).toBe(soldierTemplate.squaddieId.templateId);
+            expect(battleSoldier.inBattleAttributes.currentHitPoints).toBe(soldierTemplate.attributes.maxHitPoints);
         });
 
         it('will create in battle attributes based on the static squaddie army attributes upon creation', () => {
-            expect(staticSoldier.attributes.maxHitPoints).toBe(5);
-            expect(staticSoldier.attributes.armorClass).toBe(2);
+            expect(soldierTemplate.attributes.maxHitPoints).toBe(5);
+            expect(soldierTemplate.attributes.armorClass).toBe(2);
 
-            dynamicSoldier = new BattleSquaddie({
-                dynamicSquaddieId: "soldier_dynamic",
-                squaddieTemplate: staticSoldier,
+            battleSoldier = new BattleSquaddie({
+                battleSquaddieId: "soldier_dynamic",
+                squaddieTemplate: soldierTemplate,
             });
 
-            expect(dynamicSoldier.squaddieTemplateId).toBe(staticSoldier.squaddieId.staticId);
-            expect(dynamicSoldier.inBattleAttributes.currentHitPoints).toBe(staticSoldier.attributes.maxHitPoints);
+            expect(battleSoldier.squaddieTemplateId).toBe(soldierTemplate.squaddieId.templateId);
+            expect(battleSoldier.inBattleAttributes.currentHitPoints).toBe(soldierTemplate.attributes.maxHitPoints);
         });
     });
 });

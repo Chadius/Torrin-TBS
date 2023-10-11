@@ -5,18 +5,18 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 
 export class SquaddieActionsForThisRound {
-    squaddietemplateId: string;
-    dynamicSquaddieId: string;
+    squaddieTemplateId: string;
+    battleSquaddieId: string;
     startingLocation: HexCoordinate;
     private readonly _actions: AnySquaddieAction[];
 
     constructor(options: {
-        squaddietemplateId: string;
-        dynamicSquaddieId: string;
+        squaddieTemplateId: string;
+        battleSquaddieId: string;
         startingLocation?: HexCoordinate;
     }) {
-        this.squaddietemplateId = options.squaddietemplateId;
-        this.dynamicSquaddieId = options.dynamicSquaddieId;
+        this.squaddieTemplateId = options.squaddieTemplateId;
+        this.battleSquaddieId = options.battleSquaddieId;
         this.startingLocation = options.startingLocation;
 
         this._actions = [];
@@ -26,12 +26,12 @@ export class SquaddieActionsForThisRound {
         return this._actions;
     }
 
-    getSquaddietemplateId(): string {
-        return this.squaddietemplateId;
+    getSquaddieTemplateId(): string {
+        return this.squaddieTemplateId;
     }
 
-    getDynamicSquaddieId(): string {
-        return this.dynamicSquaddieId;
+    getBattleSquaddieId(): string {
+        return this.battleSquaddieId;
     }
 
     getStartingLocation(): HexCoordinate | undefined {

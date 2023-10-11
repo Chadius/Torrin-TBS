@@ -82,37 +82,37 @@ describe('BattleSquaddieSelector', () => {
         });
 
         ({
-            dynamicSquaddie: enemyDemonDynamic,
-            squaddietemplate: enemyDemonStatic,
+            battleSquaddie: enemyDemonDynamic,
+            squaddieTemplate: enemyDemonStatic,
         } = CreateNewSquaddieAndAddToRepository({
-            staticId: "enemy_demon",
+            templateId: "enemy_demon",
             name: "Slither Demon",
             affiliation: SquaddieAffiliation.ENEMY,
-            dynamicId: "enemy_demon_0",
+            battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
             actions: [demonBiteAction],
         }));
 
-        squaddieRepo.addDynamicSquaddie(
+        squaddieRepo.addBattleSquaddie(
             new BattleSquaddie({
-                dynamicSquaddieId: "enemy_demon_1",
+                battleSquaddieId: "enemy_demon_1",
                 squaddieTemplateId: "enemy_demon",
                 squaddieTurn: new SquaddieTurn()
             })
         );
 
-        enemyTeam.addDynamicSquaddieIds(["enemy_demon_0", "enemy_demon_1"]);
+        enemyTeam.addBattleSquaddieIds(["enemy_demon_0", "enemy_demon_1"]);
 
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
 
         missionMap.addSquaddie(
-            enemyDemonStatic.staticId,
-            enemyDemonDynamic.dynamicSquaddieId,
+            enemyDemonStatic.templateId,
+            enemyDemonDynamic.battleSquaddieId,
             new HexCoordinate({q: 0, r: 0})
         );
         missionMap.addSquaddie(
-            enemyDemonStatic.staticId,
-            enemyDemonDynamic.dynamicSquaddieId,
+            enemyDemonStatic.templateId,
+            enemyDemonDynamic.battleSquaddieId,
             new HexCoordinate({q: 0, r: 1})
         );
         return {
@@ -133,12 +133,12 @@ describe('BattleSquaddieSelector', () => {
 
         CreateNewSquaddieAndAddToRepository({
             name: "Player Soldier",
-            staticId: "player_soldier",
-            dynamicId: "player_soldier_0",
+            templateId: "player_soldier",
+            battleId: "player_soldier_0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
         });
-        playerTeam.addDynamicSquaddieIds(["player_soldier_0"]);
+        playerTeam.addBattleSquaddieIds(["player_soldier_0"]);
 
         missionMap.addSquaddie(
             "player_soldier",
@@ -182,27 +182,27 @@ describe('BattleSquaddieSelector', () => {
         });
 
         ({
-            dynamicSquaddie: enemyDemonDynamic,
-            squaddietemplate: enemyDemonStatic,
+            battleSquaddie: enemyDemonDynamic,
+            squaddieTemplate: enemyDemonStatic,
         } = CreateNewSquaddieAndAddToRepository({
-            staticId: "enemy_demon",
+            templateId: "enemy_demon",
             name: "Slither Demon",
             affiliation: SquaddieAffiliation.ENEMY,
-            dynamicId: "enemy_demon_0",
+            battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
             actions: [demonBiteAction],
         }));
-        enemyTeam.addDynamicSquaddieIds(["enemy_demon_0"]);
+        enemyTeam.addBattleSquaddieIds(["enemy_demon_0"]);
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
         missionMap.addSquaddie(
-            enemyDemonStatic.staticId,
-            enemyDemonDynamic.dynamicSquaddieId,
+            enemyDemonStatic.templateId,
+            enemyDemonDynamic.battleSquaddieId,
             new HexCoordinate({q: 0, r: 1})
         );
 
         const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
         let mockHud = mocks.battleSquaddieSelectedHUD();
-        mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("enemy_demon_0");
+        mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("enemy_demon_0");
         mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(false);
         mockHud.wasAnyActionSelected = jest.fn().mockReturnValue(false);
         mockHud.selectSquaddieAndDrawWindow = jest.fn();
@@ -232,7 +232,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeFalsy();
-        expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("");
+        expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe("");
     });
 
     it('recommends computer squaddie selector if the player cannot control the squaddies', () => {
@@ -308,8 +308,8 @@ describe('BattleSquaddieSelector', () => {
 
         const expectedSquaddieInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         expectedSquaddieInstruction.addInitialState({
-            squaddietemplateId: "player_soldier",
-            dynamicSquaddieId: "player_soldier_0",
+            squaddieTemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_0",
             startingLocation: new HexCoordinate({
                 q: 0,
                 r: 0,
@@ -348,8 +348,8 @@ describe('BattleSquaddieSelector', () => {
 
             squaddieCurrentlyActing = new SquaddieInstructionInProgress({});
             squaddieCurrentlyActing.addInitialState({
-                dynamicSquaddieId: "player_soldier_0",
-                squaddietemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_0",
+                squaddieTemplateId: "player_soldier",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
             squaddieCurrentlyActing.addConfirmedAction(new SquaddieMovementAction({
@@ -402,8 +402,8 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         squaddieCurrentlyActing.addInitialState({
-            dynamicSquaddieId: "player_soldier_0",
-            squaddietemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_0",
+            squaddieTemplateId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         squaddieCurrentlyActing.addConfirmedAction(new SquaddieMovementAction({
@@ -412,7 +412,7 @@ describe('BattleSquaddieSelector', () => {
         }));
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
-        mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
+        mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
@@ -445,7 +445,7 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
-        mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
+        mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
@@ -467,8 +467,8 @@ describe('BattleSquaddieSelector', () => {
         expect(selector.hasCompleted(state)).toBeTruthy();
         const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         endTurnInstruction.addInitialState({
-            dynamicSquaddieId: "player_soldier_0",
-            squaddietemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_0",
+            squaddieTemplateId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         endTurnInstruction.addConfirmedAction(new SquaddieEndTurnAction());
@@ -503,7 +503,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedAction = jest.fn().mockReturnValue(longswordAction);
         mockHud.mouseClicked = jest.fn();
-        mockHud.getSelectedSquaddieDynamicId = jest.fn().mockReturnValue("player_soldier_0");
+        mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             missionMap,
@@ -523,11 +523,11 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("player_soldier_0");
+        expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe("player_soldier_0");
 
         const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            dynamicSquaddieId: "player_soldier_0",
-            squaddietemplateId: "player_soldier",
+            battleSquaddieId: "player_soldier_0",
+            squaddieTemplateId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
 
@@ -561,27 +561,27 @@ describe('BattleSquaddieSelector', () => {
             });
             const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
             ({
-                squaddietemplate: interruptSquaddieStatic,
-                dynamicSquaddie: interruptSquaddieDynamic,
+                squaddieTemplate: interruptSquaddieStatic,
+                battleSquaddie: interruptSquaddieDynamic,
             } = CreateNewSquaddieAndAddToRepository({
                 name: "interrupting squaddie",
-                staticId: "interrupting squaddie",
-                dynamicId: "interrupting squaddie",
+                templateId: "interrupting squaddie",
+                battleId: "interrupting squaddie",
                 affiliation: SquaddieAffiliation.PLAYER,
                 squaddieRepository: squaddieRepo,
             }));
 
             missionMap.addSquaddie(
-                interruptSquaddieStatic.staticId,
-                interruptSquaddieDynamic.dynamicSquaddieId,
+                interruptSquaddieStatic.templateId,
+                interruptSquaddieDynamic.battleSquaddieId,
                 new HexCoordinate({q: 0, r: 1})
             );
 
-            const soldierSquaddieInfo = missionMap.getSquaddieByDynamicId("player_soldier_0");
+            const soldierSquaddieInfo = missionMap.getSquaddieByBattleId("player_soldier_0");
 
             const movingInstruction = new SquaddieActionsForThisRound({
-                squaddietemplateId: soldierSquaddieInfo.squaddietemplateId,
-                dynamicSquaddieId: soldierSquaddieInfo.dynamicSquaddieId,
+                squaddieTemplateId: soldierSquaddieInfo.squaddieTemplateId,
+                battleSquaddieId: soldierSquaddieInfo.battleSquaddieId,
                 startingLocation: soldierSquaddieInfo.mapLocation,
             });
             movingInstruction.addAction(new SquaddieMovementAction({
@@ -622,7 +622,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY
             });
 
-            const interruptSquaddieOnMap = missionMap.getSquaddieByDynamicId("interrupting squaddie");
+            const interruptSquaddieOnMap = missionMap.getSquaddieByBattleId("interrupting squaddie");
             [startingMouseX, startingMouseY] = convertMapCoordinatesToScreenCoordinates(
                 interruptSquaddieOnMap.mapLocation.q,
                 interruptSquaddieOnMap.mapLocation.r,
@@ -635,7 +635,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: startingMouseY
             });
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
-                dynamicId: interruptSquaddieDynamic.dynamicSquaddieId,
+                battleId: interruptSquaddieDynamic.battleSquaddieId,
                 repositionWindow: {
                     mouseX: startingMouseX, mouseY: startingMouseY
                 },
@@ -644,9 +644,9 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores movement commands issued to other squaddies', () => {
-            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe(soldierCurrentlyActing.battleSquaddieId);
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
-                dynamicId: interruptSquaddieDynamic.dynamicSquaddieId,
+                battleId: interruptSquaddieDynamic.battleSquaddieId,
                 repositionWindow: {
                     mouseX: startingMouseX, mouseY: startingMouseY
                 },
@@ -665,7 +665,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: endingMouseY
             });
 
-            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe(soldierCurrentlyActing.battleSquaddieId);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
 
@@ -696,7 +696,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: 0
             });
             expect(state.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
-            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(soldierCurrentlyActing.dynamicSquaddieId);
+            expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe(soldierCurrentlyActing.battleSquaddieId);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
     });

@@ -276,8 +276,8 @@ describe('Battle Orchestrator', () => {
 
         nullState.squaddieCurrentlyActing.reset();
         nullState.squaddieCurrentlyActing.addInitialState({
-            squaddietemplateId: "new static squaddie",
-            dynamicSquaddieId: "new dynamic squaddie",
+            squaddieTemplateId: "new static squaddie",
+            battleSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
@@ -300,16 +300,16 @@ describe('Battle Orchestrator', () => {
         nullState.squaddieRepository = new BattleSquaddieRepository();
         CreateNewSquaddieAndAddToRepository({
             name: "new static squaddie",
-            staticId: "new static squaddie",
-            dynamicId: "new dynamic squaddie",
+            templateId: "new static squaddie",
+            battleId: "new dynamic squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: nullState.squaddieRepository,
         });
 
         nullState.squaddieCurrentlyActing.reset();
         nullState.squaddieCurrentlyActing.addInitialState({
-            squaddietemplateId: "new static squaddie",
-            dynamicSquaddieId: "new dynamic squaddie",
+            squaddieTemplateId: "new static squaddie",
+            battleSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({

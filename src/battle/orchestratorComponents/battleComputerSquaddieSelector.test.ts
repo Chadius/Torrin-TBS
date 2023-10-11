@@ -122,13 +122,13 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         ({
-            dynamicSquaddie: enemyDemonDynamic,
-            squaddietemplate: enemyDemonStatic,
+            battleSquaddie: enemyDemonDynamic,
+            squaddieTemplate: enemyDemonStatic,
         } = CreateNewSquaddieAndAddToRepository({
-            staticId: "enemy_demon",
+            templateId: "enemy_demon",
             name: "Slither Demon",
             affiliation: SquaddieAffiliation.ENEMY,
-            dynamicId: "enemy_demon_0",
+            battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
             actions: [demonBiteAction],
             attributes: new ArmyAttributes({
@@ -137,14 +137,14 @@ describe('BattleComputerSquaddieSelector', () => {
         }));
 
         enemyDemonDynamic2 = new BattleSquaddie({
-            squaddieTemplateId: enemyDemonStatic.staticId,
-            dynamicSquaddieId: "enemy_demon_2",
+            squaddieTemplateId: enemyDemonStatic.templateId,
+            battleSquaddieId: "enemy_demon_2",
             squaddieTurn: new SquaddieTurn()
         });
 
-        squaddieRepo.addDynamicSquaddie(enemyDemonDynamic2);
+        squaddieRepo.addBattleSquaddie(enemyDemonDynamic2);
 
-        enemyTeam.addDynamicSquaddieIds([enemyDemonDynamic.dynamicSquaddieId, enemyDemonDynamic2.dynamicSquaddieId]);
+        enemyTeam.addBattleSquaddieIds([enemyDemonDynamic.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
 
         battlePhaseState = {
             currentAffiliation: BattlePhase.ENEMY,
@@ -154,21 +154,21 @@ describe('BattleComputerSquaddieSelector', () => {
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
 
         missionMap.addSquaddie(
-            enemyDemonStatic.staticId,
-            enemyDemonDynamic.dynamicSquaddieId,
+            enemyDemonStatic.templateId,
+            enemyDemonDynamic.battleSquaddieId,
             new HexCoordinate({q: 0, r: 0})
         );
         missionMap.addSquaddie(
             enemyDemonDynamic.squaddieTemplateId,
-            enemyDemonDynamic2.dynamicSquaddieId,
+            enemyDemonDynamic2.battleSquaddieId,
             new HexCoordinate({q: 0, r: 1})
         );
     }
 
-    const makeSquaddieMoveAction = (squaddietemplateId: string, dynamicSquaddieId: string) => {
+    const makeSquaddieMoveAction = (squaddieTemplateId: string, battleSquaddieId: string) => {
         const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            squaddietemplateId,
-            dynamicSquaddieId,
+            squaddieTemplateId,
+            battleSquaddieId,
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         moveAction.addAction(new SquaddieMovementAction({
@@ -254,8 +254,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             const endTurnInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
             endTurnInstruction.addInitialState({
-                squaddietemplateId: enemyDemonStatic.staticId,
-                dynamicSquaddieId: enemyDemonDynamic.dynamicSquaddieId,
+                squaddieTemplateId: enemyDemonStatic.templateId,
+                battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
             endTurnInstruction.addConfirmedAction(new SquaddieEndTurnAction());
@@ -314,8 +314,8 @@ describe('BattleComputerSquaddieSelector', () => {
         enemyDemonDynamic.endTurn();
 
         const squaddieSquaddieAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            squaddietemplateId: enemyDemonStatic.staticId,
-            dynamicSquaddieId: enemyDemonDynamic2.dynamicSquaddieId,
+            squaddieTemplateId: enemyDemonStatic.templateId,
+            battleSquaddieId: enemyDemonDynamic2.battleSquaddieId,
             startingLocation: new HexCoordinate({q: 0, r: 1}),
         });
         squaddieSquaddieAction.addAction(new SquaddieSquaddieAction({
@@ -383,13 +383,13 @@ describe('BattleComputerSquaddieSelector', () => {
             makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
             missionMap.addSquaddie(
-                enemyDemonStatic.staticId,
-                enemyDemonDynamic.dynamicSquaddieId,
+                enemyDemonStatic.templateId,
+                enemyDemonDynamic.battleSquaddieId,
                 new HexCoordinate({q: 0, r: 0})
             );
             missionMap.addSquaddie(
-                enemyDemonStatic.staticId,
-                enemyDemonDynamic2.dynamicSquaddieId,
+                enemyDemonStatic.templateId,
+                enemyDemonDynamic2.battleSquaddieId,
                 new HexCoordinate({q: 0, r: 1})
             );
 
@@ -398,8 +398,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
         it('will prepare to move if computer controlled squaddie wants to move', () => {
             const moveAction = makeSquaddieMoveAction(
-                enemyDemonStatic.staticId,
-                enemyDemonDynamic.dynamicSquaddieId,
+                enemyDemonStatic.templateId,
+                enemyDemonDynamic.battleSquaddieId,
             );
 
             class TestTeamStrategy implements TeamStrategy {
@@ -428,7 +428,7 @@ describe('BattleComputerSquaddieSelector', () => {
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
             expect(state.squaddieMovePath.getDestination()).toStrictEqual(moveAction.destinationLocation());
-            expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe("enemy_demon_0");
+            expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe("enemy_demon_0");
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(1);
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction()).toBeInstanceOf(SquaddieMovementAction);
             expect(hexMapHighlightTilesSpy).toBeCalled();
@@ -439,8 +439,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             beforeEach(() => {
                 const squaddieSquaddieAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-                    squaddietemplateId: enemyDemonStatic.staticId,
-                    dynamicSquaddieId: enemyDemonDynamic.dynamicSquaddieId,
+                    squaddieTemplateId: enemyDemonStatic.templateId,
+                    battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
                     startingLocation: new HexCoordinate({q: 0, r: 0}),
                 });
                 squaddieSquaddieAction.addAction(new SquaddieSquaddieAction({
@@ -472,7 +472,7 @@ describe('BattleComputerSquaddieSelector', () => {
             });
 
             it('will indicate the next action', () => {
-                expect(state.squaddieCurrentlyActing.dynamicSquaddieId).toBe(enemyDemonDynamic.dynamicSquaddieId);
+                expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe(enemyDemonDynamic.battleSquaddieId);
                 expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(1);
                 expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction()).toBeInstanceOf(SquaddieSquaddieAction);
             });
@@ -518,8 +518,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             it('should consume the squaddie action points', () => {
                 const {actionPointsRemaining} = GetNumberOfActionPoints({
-                    squaddietemplate: enemyDemonStatic,
-                    dynamicSquaddie: enemyDemonDynamic,
+                    squaddieTemplate: enemyDemonStatic,
+                    battleSquaddie: enemyDemonDynamic,
                 });
                 expect(actionPointsRemaining).toBe(3 - demonBiteAction.actionPointCost);
             });
@@ -532,20 +532,20 @@ describe('BattleComputerSquaddieSelector', () => {
                     mostRecentEvent.actions[0] as SquaddieSquaddieAction
                 ).squaddieAction.id).toBe(demonBiteAction.id);
                 const results = mostRecentEvent.results;
-                expect(results.actingSquaddieDynamicId).toBe(enemyDemonDynamic.dynamicSquaddieId);
-                expect(results.targetedSquaddieDynamicIds).toHaveLength(1);
-                expect(results.targetedSquaddieDynamicIds[0]).toBe(enemyDemonDynamic2.dynamicSquaddieId);
-                expect(results.resultPerTarget[enemyDemonDynamic2.dynamicSquaddieId]).toBeTruthy();
+                expect(results.actingBattleSquaddieId).toBe(enemyDemonDynamic.battleSquaddieId);
+                expect(results.targetedBattleSquaddieIds).toHaveLength(1);
+                expect(results.targetedBattleSquaddieIds[0]).toBe(enemyDemonDynamic2.battleSquaddieId);
+                expect(results.resultPerTarget[enemyDemonDynamic2.battleSquaddieId]).toBeTruthy();
             });
 
             it('should store the calculated results', () => {
                 const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
-                const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[enemyDemonDynamic2.dynamicSquaddieId];
+                const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[enemyDemonDynamic2.battleSquaddieId];
                 expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(demonBiteAction.damageDescriptions[DamageType.Body]);
 
                 const {maxHitPoints, currentHitPoints} = GetHitPoints({
-                    squaddietemplate: enemyDemonStatic,
-                    dynamicSquaddie: enemyDemonDynamic2
+                    squaddieTemplate: enemyDemonStatic,
+                    battleSquaddie: enemyDemonDynamic2
                 });
                 expect(currentHitPoints).toBe(maxHitPoints - demonBiteAction.damageDescriptions[DamageType.Body]);
             });

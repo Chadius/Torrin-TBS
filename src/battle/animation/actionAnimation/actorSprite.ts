@@ -26,10 +26,10 @@ export class ActorSprite {
         return this._squaddieRepository;
     }
 
-    private _dynamicSquaddieId: string;
+    private _battleSquaddieId: string;
 
-    get dynamicSquaddieId(): string {
-        return this._dynamicSquaddieId;
+    get battleSquaddieId(): string {
+        return this._battleSquaddieId;
     }
 
     private _sprite: SquaddieSprite;
@@ -47,12 +47,12 @@ export class ActorSprite {
     reset() {
         this._startingPosition = undefined;
         this._sprite = undefined;
-        this._dynamicSquaddieId = undefined;
+        this._battleSquaddieId = undefined;
         this._squaddieRepository = undefined;
     }
 
-    start({actorDynamicSquaddieId, squaddieRepository, windowArea, resourceHandler}: {
-        actorDynamicSquaddieId: string,
+    start({actorBattleSquaddieId, squaddieRepository, windowArea, resourceHandler}: {
+        actorBattleSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
         windowArea: RectArea,
         resourceHandler: ResourceHandler,
@@ -61,13 +61,13 @@ export class ActorSprite {
 
         this._startingPosition = windowArea.right + WINDOW_SPACING1;
         this._squaddieRepository = squaddieRepository;
-        this._dynamicSquaddieId = actorDynamicSquaddieId;
+        this._battleSquaddieId = actorBattleSquaddieId;
 
-        const {squaddietemplate} = getResultOrThrowError(this.squaddieRepository.getSquaddieByDynamicId(this.dynamicSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(this.squaddieRepository.getSquaddieByBattleId(this.battleSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
-            actionSpritesResourceKeysByEmotion: {...squaddietemplate.squaddieId.resources.actionSpritesByEmotion},
+            actionSpritesResourceKeysByEmotion: {...squaddieTemplate.squaddieId.resources.actionSpritesByEmotion},
         });
         this.sprite.beginLoadingActorImages();
     }
@@ -85,7 +85,7 @@ export class ActorSprite {
     getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
-            dynamicSquaddieId: this.dynamicSquaddieId,
+            battleSquaddieId: this.battleSquaddieId,
             squaddieRepository: this.squaddieRepository
         });
 
@@ -94,11 +94,11 @@ export class ActorSprite {
 
     public getSquaddieEmotion({
                                   timer,
-                                  dynamicSquaddieId,
+                                  battleSquaddieId,
                                   squaddieRepository,
                               }: {
         timer: ActionTimer,
-        dynamicSquaddieId: string,
+        battleSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {

@@ -14,20 +14,20 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: BattleSquaddieRepository;
-    let squaddietemplateBase: SquaddieTemplate;
-    let dynamicSquaddieBase: BattleSquaddie;
+    let squaddieTemplateBase: SquaddieTemplate;
+    let battleSquaddieBase: BattleSquaddie;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = new BattleSquaddieRepository();
         ({
-            squaddietemplate: squaddietemplateBase,
-            dynamicSquaddie: dynamicSquaddieBase,
+            squaddieTemplate: squaddieTemplateBase,
+            battleSquaddie: battleSquaddieBase,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Torrin",
-            staticId: "static_squaddie",
-            dynamicId: "dynamic_squaddie",
+            templateId: "static_squaddie",
+            battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepository,
             attributes: new ArmyAttributes({
@@ -43,8 +43,8 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
     it('can wait half a second before ending turn', () => {
         const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            squaddietemplateId: "static_squaddie",
-            dynamicSquaddieId: "dynamic_squaddie",
+            squaddieTemplateId: "static_squaddie",
+            battleSquaddieId: "dynamic_squaddie",
         });
         endTurnInstruction.endTurn();
 

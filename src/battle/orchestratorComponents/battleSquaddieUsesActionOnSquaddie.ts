@@ -103,14 +103,14 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
 
     private hideDeadSquaddies(state: BattleOrchestratorState) {
         const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
-        mostRecentResults.targetedSquaddieDynamicIds.forEach((dynamicSquaddieId) => {
+        mostRecentResults.targetedBattleSquaddieIds.forEach((battleSquaddieId) => {
             const {
-                dynamicSquaddie,
-                squaddietemplate
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
-            if (!IsSquaddieAlive({dynamicSquaddie, squaddietemplate})) {
-                state.missionMap.hideSquaddieFromDrawing(dynamicSquaddieId);
-                state.missionMap.updateSquaddieLocation(dynamicSquaddieId, undefined);
+                battleSquaddie,
+                squaddieTemplate
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+            if (!IsSquaddieAlive({battleSquaddie, squaddieTemplate})) {
+                state.missionMap.hideSquaddieFromDrawing(battleSquaddieId);
+                state.missionMap.updateSquaddieLocation(battleSquaddieId, undefined);
             }
         });
     }

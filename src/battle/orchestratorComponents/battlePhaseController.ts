@@ -185,14 +185,14 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         }
 
         const playerTeam = state.teamsByAffiliation[SquaddieAffiliation.PLAYER];
-        let squaddieToPanToBattleId = playerTeam.dynamicSquaddieIds.find((id) => {
+        let squaddieToPanToBattleId = playerTeam.battleSquaddieIds.find((id) => {
             const {
-                squaddietemplate,
-                dynamicSquaddie
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(id));
+                squaddieTemplate,
+                battleSquaddie
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(id));
             const {
                 playerCanControlThisSquaddieRightNow,
-            } = CanPlayerControlSquaddieRightNow({dynamicSquaddie, squaddietemplate});
+            } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
 
             return playerCanControlThisSquaddieRightNow;
         });
@@ -201,7 +201,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
 
-        const mapDatum = state.missionMap.getSquaddieByDynamicId(squaddieToPanToBattleId);
+        const mapDatum = state.missionMap.getSquaddieByBattleId(squaddieToPanToBattleId);
         if (mapDatum.isValid()) {
             const squaddieScreenLocation = convertMapCoordinatesToScreenCoordinates(
                 mapDatum.mapLocation.q,

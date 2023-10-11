@@ -18,10 +18,10 @@ describe('calculator', () => {
     let missionMap: MissionMap;
     let player1DynamicId = "player 1";
     let player1StaticId = "player 1";
-    let player1DynamicSquaddie: BattleSquaddie;
+    let player1BattleSquaddie: BattleSquaddie;
     let enemy1DynamicId = "enemy 1";
     let enemy1StaticId = "enemy 1";
-    let ally1DynamicSquaddie: BattleSquaddie;
+    let ally1BattleSquaddie: BattleSquaddie;
     let ally1DynamicId = "ally 1";
     let ally1StaticId = "ally 1";
 
@@ -33,11 +33,11 @@ describe('calculator', () => {
             })
         });
 
-        ({dynamicSquaddie: player1DynamicSquaddie} =
+        ({battleSquaddie: player1BattleSquaddie} =
                 CreateNewSquaddieAndAddToRepository({
                     affiliation: SquaddieAffiliation.PLAYER,
-                    dynamicId: player1DynamicId,
-                    staticId: player1StaticId,
+                    battleId: player1DynamicId,
+                    templateId: player1StaticId,
                     name: "player",
                     squaddieRepository,
                 })
@@ -45,8 +45,8 @@ describe('calculator', () => {
 
         CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ENEMY,
-            dynamicId: enemy1DynamicId,
-            staticId: enemy1StaticId,
+            battleId: enemy1DynamicId,
+            templateId: enemy1StaticId,
             name: "enemy",
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -54,11 +54,11 @@ describe('calculator', () => {
             })
         });
 
-        ({dynamicSquaddie: ally1DynamicSquaddie} =
+        ({battleSquaddie: ally1BattleSquaddie} =
                 CreateNewSquaddieAndAddToRepository({
                     affiliation: SquaddieAffiliation.ALLY,
-                    dynamicId: ally1DynamicId,
-                    staticId: ally1StaticId,
+                    battleId: ally1DynamicId,
+                    templateId: ally1StaticId,
                     name: "ally",
                     squaddieRepository,
                     attributes: new ArmyAttributes({
@@ -98,7 +98,7 @@ describe('calculator', () => {
                     squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                     squaddieRepository: squaddieRepository,
                 }),
-                player1DynamicSquaddie,
+                player1BattleSquaddie,
                 new HexCoordinate({q: 0, r: 1}),
             );
 
@@ -118,7 +118,7 @@ describe('calculator', () => {
                 healingDescriptions: {[HealingType.LostHitPoints]: 2},
             });
 
-            ally1DynamicSquaddie.inBattleAttributes.takeDamage(ally1DynamicSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
+            ally1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
 
             const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
                 currentSquaddieAction: healsLostHitPoints
@@ -130,7 +130,7 @@ describe('calculator', () => {
                     squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                     squaddieRepository: squaddieRepository,
                 }),
-                player1DynamicSquaddie,
+                player1BattleSquaddie,
                 new HexCoordinate({q: 0, r: 2}),
             );
 

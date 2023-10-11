@@ -51,16 +51,16 @@ export class TargetTextWindow {
         this._targetAfterActionText = "";
     }
 
-    start({targetStatic, targetDynamic, result}: {
-        targetStatic: SquaddieTemplate,
-        targetDynamic: BattleSquaddie,
+    start({targetTemplate, targetBattle, result}: {
+        targetTemplate: SquaddieTemplate,
+        targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
     }) {
         this.reset();
-        const defenderName: string = targetStatic.squaddieId.name;
+        const defenderName: string = targetTemplate.squaddieId.name;
 
         this._targetBeforeActionText = `${defenderName}`;
-        this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[targetStatic.squaddieId.affiliation];
+        this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[targetTemplate.squaddieId.affiliation];
 
         this._result = result;
         this.createActorTextBox();

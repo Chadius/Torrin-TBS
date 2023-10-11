@@ -11,15 +11,15 @@ describe('Recording', () => {
         const recording = new Recording({});
 
         const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            squaddietemplateId: "player_squaddie",
-            dynamicSquaddieId: "player_squaddie_0",
+            squaddieTemplateId: "player_squaddie",
+            battleSquaddieId: "player_squaddie_0",
         });
         endTurnInstruction.endTurn();
 
         const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
         squaddieMovesAndEndsTurn.addInitialState({
-            squaddietemplateId: "static",
-            dynamicSquaddieId: "dynamic",
+            squaddieTemplateId: "static",
+            battleSquaddieId: "dynamic",
             startingLocation: new HexCoordinate({q: 2, r: 3}),
         });
         squaddieMovesAndEndsTurn.addConfirmedAction(new SquaddieMovementAction({

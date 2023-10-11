@@ -27,10 +27,10 @@ import {ActionTimer} from "./actionAnimation/actionTimer";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: BattleSquaddieRepository;
-    let knightDynamicSquaddie: BattleSquaddie;
+    let knightBattleSquaddie: BattleSquaddie;
     let knightDynamicId = "knight_0";
-    let knightStaticId = "knight_0";
-    let thiefDynamicSquaddie: BattleSquaddie;
+    let knightTemplateId = "knight_0";
+    let thiefBattleSquaddie: BattleSquaddie;
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
@@ -51,11 +51,11 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         squaddieRepository = new BattleSquaddieRepository();
 
         ({
-            thiefDynamicSquaddie,
+            thiefBattleSquaddie,
         } = CreateNewThiefSquaddie({
             squaddieRepository,
-            staticId: thiefStaticId,
-            dynamicId: thiefDynamicId,
+            templateId: thiefStaticId,
+            battleId: thiefDynamicId,
         }));
 
         longswordAction = new SquaddieAction({
@@ -74,19 +74,19 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         });
 
         ({
-            knightDynamicSquaddie,
+            knightBattleSquaddie,
         } = CreateNewKnightSquaddie({
             squaddieRepository,
-            staticId: knightStaticId,
-            dynamicId: knightDynamicId,
+            templateId: knightTemplateId,
+            battleId: knightDynamicId,
             actions: [longswordAction],
         }));
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
         oneActionInstruction = new SquaddieActionsForThisRound({
-            squaddietemplateId: "static_squaddie",
-            dynamicSquaddieId: "dynamic_squaddie",
+            squaddieTemplateId: "static_squaddie",
+            battleSquaddieId: "dynamic_squaddie",
         });
         oneActionInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
@@ -105,8 +105,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         knightHitsThiefWithLongswordEvent = new BattleEvent({
             currentSquaddieInstruction: knightHitsThiefWithLongswordInstructionInProgress,
             results: new SquaddieSquaddieResults({
-                actingSquaddieDynamicId: knightDynamicSquaddie.dynamicSquaddieId,
-                targetedSquaddieDynamicIds: [thiefDynamicId],
+                actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                targetedBattleSquaddieIds: [thiefDynamicId],
                 resultPerTarget: {[thiefDynamicId]: new ActionResultPerSquaddie({damageTaken: 1})},
             })
         });
@@ -130,11 +130,11 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         animator.update(state, mockedP5GraphicsContext);
 
         expect(animator.actorSprite).not.toBeUndefined();
-        expect(animator.actorSprite.dynamicSquaddieId).toBe(knightDynamicId);
+        expect(animator.actorSprite.battleSquaddieId).toBe(knightDynamicId);
 
         expect(animator.targetSprites).not.toBeUndefined();
         expect(animator.targetSprites).toHaveLength(1);
-        expect(animator.targetSprites[0].dynamicSquaddieId).toBe(thiefDynamicId);
+        expect(animator.targetSprites[0].battleSquaddieId).toBe(thiefDynamicId);
     });
 
     it('will skip displaying the results if the user clicks', () => {

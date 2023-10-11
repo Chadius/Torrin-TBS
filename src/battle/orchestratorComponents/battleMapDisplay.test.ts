@@ -20,7 +20,7 @@ describe('battleMapDisplay', () => {
         battleSquaddieSelectedHUD = mocks.battleSquaddieSelectedHUD();
 
         squaddieRepo = new (<new (options: any) => BattleSquaddieRepository>BattleSquaddieRepository)({}) as jest.Mocked<BattleSquaddieRepository>;
-        squaddieRepo.getDynamicSquaddieIterator = jest.fn().mockReturnValue([]);
+        squaddieRepo.getBattleSquaddieIterator = jest.fn().mockReturnValue([]);
 
         battleMapDisplay = new BattleMapDisplay();
 

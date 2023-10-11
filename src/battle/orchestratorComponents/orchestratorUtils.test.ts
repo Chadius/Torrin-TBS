@@ -21,12 +21,12 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
         squaddieRepository = new BattleSquaddieRepository();
 
         ({
-            squaddietemplate: knightSquaddieStatic,
-            dynamicSquaddie: knightSquaddieDynamic,
+            squaddieTemplate: knightSquaddieStatic,
+            battleSquaddie: knightSquaddieDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "knight",
-            staticId: "knight_static",
-            dynamicId: "knight_dynamic",
+            templateId: "knight_static",
+            battleId: "knight_dynamic",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
         }));
@@ -39,8 +39,8 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             })
         });
         map.addSquaddie(
-            knightSquaddieStatic.staticId,
-            knightSquaddieDynamic.dynamicSquaddieId,
+            knightSquaddieStatic.templateId,
+            knightSquaddieDynamic.battleSquaddieId,
             new HexCoordinate({q: 0, r: 2})
         );
 
@@ -51,8 +51,8 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
 
         const {
-            squaddietemplate,
-            dynamicSquaddie,
+            squaddieTemplate,
+            battleSquaddie,
             squaddieMapLocation,
         } = GetSquaddieAtScreenLocation({
             mouseX,
@@ -62,15 +62,15 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             squaddieRepository,
         });
 
-        expect(squaddietemplate).toStrictEqual(knightSquaddieStatic);
-        expect(dynamicSquaddie).toStrictEqual(knightSquaddieDynamic);
+        expect(squaddieTemplate).toStrictEqual(knightSquaddieStatic);
+        expect(battleSquaddie).toStrictEqual(knightSquaddieDynamic);
         expect(squaddieMapLocation).toStrictEqual(new HexCoordinate({q: 0, r: 2}));
     });
 
     it('can return the squaddie and information at a given map location', () => {
         const {
-            squaddietemplate,
-            dynamicSquaddie,
+            squaddieTemplate,
+            battleSquaddie,
             squaddieMapLocation,
         } = GetSquaddieAtMapLocation({
             mapLocation: new HexCoordinate({q: 0, r: 2}),
@@ -78,8 +78,8 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             squaddieRepository,
         });
 
-        expect(squaddietemplate).toStrictEqual(knightSquaddieStatic);
-        expect(dynamicSquaddie).toStrictEqual(knightSquaddieDynamic);
+        expect(squaddieTemplate).toStrictEqual(knightSquaddieStatic);
+        expect(battleSquaddie).toStrictEqual(knightSquaddieDynamic);
         expect(squaddieMapLocation).toStrictEqual(new HexCoordinate({q: 0, r: 2}));
     });
 
@@ -87,8 +87,8 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
 
         const {
-            squaddietemplate,
-            dynamicSquaddie,
+            squaddieTemplate,
+            battleSquaddie,
             squaddieMapLocation,
         } = GetSquaddieAtScreenLocation({
             mouseX,
@@ -98,8 +98,8 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             squaddieRepository,
         });
 
-        expect(squaddietemplate).toBeUndefined();
-        expect(dynamicSquaddie).toBeUndefined();
+        expect(squaddieTemplate).toBeUndefined();
+        expect(battleSquaddie).toBeUndefined();
         expect(squaddieMapLocation).toBeUndefined();
     });
 

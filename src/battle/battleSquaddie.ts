@@ -5,11 +5,11 @@ import {InBattleAttributes} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 export class BattleSquaddie {
-    private readonly _dynamicSquaddieId: string;
+    private readonly _battleSquaddieId: string;
     private readonly _squaddieTurn: SquaddieTurn;
 
     constructor({
-                    dynamicSquaddieId,
+                    battleSquaddieId,
                     mapIcon,
                     squaddieTurn,
                     squaddieTemplate,
@@ -17,14 +17,14 @@ export class BattleSquaddie {
                 }: {
         squaddieTemplateId?: string,
         squaddieTemplate?: SquaddieTemplate,
-        dynamicSquaddieId: string,
+        battleSquaddieId: string,
         squaddieTurn?: SquaddieTurn,
         mapIcon?: ImageUI,
     }) {
-        this._dynamicSquaddieId = dynamicSquaddieId;
+        this._battleSquaddieId = battleSquaddieId;
 
         if (squaddieTemplate) {
-            this.copySquaddietemplate(squaddieTemplate);
+            this.copySquaddieTemplate(squaddieTemplate);
         } else {
             this._squaddieTemplateId = squaddieTemplateId;
             this._inBattleAttributes = new InBattleAttributes();
@@ -33,7 +33,7 @@ export class BattleSquaddie {
         this._squaddieTurn = squaddieTurn || new SquaddieTurn();
         this._mapIcon = mapIcon;
 
-        this.assertBattleSquaddieDynamic();
+        this.assertBattleSquaddie();
     }
 
     private _squaddieTemplateId: string;
@@ -42,8 +42,8 @@ export class BattleSquaddie {
         return this._squaddieTemplateId;
     }
 
-    get dynamicSquaddieId(): string {
-        return this._dynamicSquaddieId;
+    get battleSquaddieId(): string {
+        return this._battleSquaddieId;
     }
 
     get squaddieTurn(): SquaddieTurn {
@@ -66,9 +66,9 @@ export class BattleSquaddie {
         return this._inBattleAttributes;
     }
 
-    assertBattleSquaddieDynamic(): void {
-        if (!this._dynamicSquaddieId) throw new Error("Dynamic Squaddie has no Dynamic Squaddie Id");
-        if (!this._squaddieTemplateId) throw new Error("Dynamic Squaddie has no Static Squaddie Id");
+    assertBattleSquaddie(): void {
+        if (!this._battleSquaddieId) throw new Error("Battle Squaddie has no Id");
+        if (!this._squaddieTemplateId) throw new Error("Battle Squaddie has no Squaddie Template Id");
     }
 
     canStillActThisRound(): boolean {
@@ -87,8 +87,8 @@ export class BattleSquaddie {
         this._inBattleAttributes = new InBattleAttributes(attributes);
     }
 
-    private copySquaddietemplate(squaddietemplate: SquaddieTemplate) {
-        this._squaddieTemplateId = squaddietemplate.squaddieId.staticId;
-        this.initializeInBattleAttributes(squaddietemplate.attributes);
+    private copySquaddieTemplate(squaddieTemplate: SquaddieTemplate) {
+        this._squaddieTemplateId = squaddieTemplate.squaddieId.templateId;
+        this.initializeInBattleAttributes(squaddieTemplate.attributes);
     }
 }

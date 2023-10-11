@@ -8,8 +8,8 @@ describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {
         const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
             actionsForThisRound: new SquaddieActionsForThisRound({
-                dynamicSquaddieId: "dynamicSquaddieId",
-                squaddietemplateId: "staticId",
+                battleSquaddieId: "battleSquaddieId",
+                squaddieTemplateId: "templateId",
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             }),
             currentSquaddieAction: longswordAction,
@@ -23,8 +23,8 @@ describe('SquaddieInstructionInProgress', () => {
 
     it('will indicate the squaddie has acted this round if they cancel after acting', () => {
         const longswordUsedThisRoundAction = new SquaddieActionsForThisRound({
-            dynamicSquaddieId: "dynamicSquaddieId",
-            squaddietemplateId: "staticId",
+            battleSquaddieId: "battleSquaddieId",
+            squaddieTemplateId: "templateId",
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
         longswordUsedThisRoundAction.addAction(new SquaddieSquaddieAction({

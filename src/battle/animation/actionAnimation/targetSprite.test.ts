@@ -17,7 +17,7 @@ describe('Target Sprite', () => {
     let resultTookLethalDamage: ActionResultPerSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
-    const dynamicSquaddieId = "target0";
+    const battleSquaddieId = "target0";
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
@@ -29,16 +29,16 @@ describe('Target Sprite', () => {
             attributes: new ArmyAttributes({
                 maxHitPoints: 5,
             }),
-            dynamicId: dynamicSquaddieId,
+            battleId: battleSquaddieId,
             name: "Target",
             squaddieRepository,
-            staticId: "target"
+            templateId: "target"
         });
 
-        const {squaddietemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
         resultTookDamage = new ActionResultPerSquaddie({damageTaken: 1});
-        resultTookLethalDamage = new ActionResultPerSquaddie({damageTaken: squaddietemplate.attributes.maxHitPoints});
+        resultTookLethalDamage = new ActionResultPerSquaddie({damageTaken: squaddieTemplate.attributes.maxHitPoints});
 
         timer = new ActionTimer();
         timer.start();
@@ -59,7 +59,7 @@ describe('Target Sprite', () => {
             resourceHandler: undefined,
             result: resultTookDamage,
             squaddieRepository,
-            targetDynamicSquaddieId: dynamicSquaddieId,
+            targetBattleSquaddieId: battleSquaddieId,
             windowArea: new RectArea({top: 0, left: 0, width: 10, height: 20})
         });
 
@@ -78,7 +78,7 @@ describe('Target Sprite', () => {
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
             timer,
-            dynamicSquaddieId,
+            battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
         });
@@ -91,7 +91,7 @@ describe('Target Sprite', () => {
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
             timer,
-            dynamicSquaddieId,
+            battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
         });
@@ -104,7 +104,7 @@ describe('Target Sprite', () => {
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
             timer,
-            dynamicSquaddieId,
+            battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
         });
@@ -118,7 +118,7 @@ describe('Target Sprite', () => {
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
             timer,
-            dynamicSquaddieId,
+            battleSquaddieId,
             squaddieRepository,
             result: resultTookLethalDamage,
         });
@@ -146,7 +146,7 @@ describe('Target Sprite', () => {
             mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
             const targetReactsEmotion = sprite.getSquaddieEmotion({
                 timer,
-                dynamicSquaddieId,
+                battleSquaddieId,
                 squaddieRepository,
                 result,
             });
@@ -154,7 +154,7 @@ describe('Target Sprite', () => {
             const showingResultsSpy = mockActionTimerPhase(ActionAnimationPhase.SHOWING_RESULTS);
             expect(sprite.getSquaddieEmotion({
                 timer,
-                dynamicSquaddieId,
+                battleSquaddieId,
                 squaddieRepository,
                 result,
             })).toBe(targetReactsEmotion);
@@ -163,7 +163,7 @@ describe('Target Sprite', () => {
             const finishedShowingResultsSpy = mockActionTimerPhase(ActionAnimationPhase.FINISHED_SHOWING_RESULTS);
             expect(sprite.getSquaddieEmotion({
                 timer,
-                dynamicSquaddieId,
+                battleSquaddieId,
                 squaddieRepository,
                 result,
             })).toBe(targetReactsEmotion);

@@ -58,7 +58,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
                 && state.squaddieCurrentlyActing.squaddieActionsForThisRound
                 && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction() instanceof SquaddieMovementAction
             ) {
-                state.squaddieCurrentlyActing.markSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
+                state.squaddieCurrentlyActing.markBattleSquaddieIdAsMoving(state.squaddieCurrentlyActing.battleSquaddieId);
             }
         }
 
@@ -86,7 +86,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             && state.squaddieCurrentlyActing.squaddieActionsForThisRound
             && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction() instanceof SquaddieMovementAction
         ) {
-            state.squaddieCurrentlyActing.removeSquaddieDynamicIdAsMoving(state.squaddieCurrentlyActing.dynamicSquaddieId);
+            state.squaddieCurrentlyActing.removeBattleSquaddieIdAsMoving(state.squaddieCurrentlyActing.battleSquaddieId);
         }
 
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
@@ -95,35 +95,35 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
     private updateWhileAnimationIsInProgress(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
-            dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(
-            state.squaddieCurrentlyActing.dynamicSquaddieId
+            battleSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+            state.squaddieCurrentlyActing.battleSquaddieId
         ));
 
-        moveSquaddieAlongPath(dynamicSquaddie, this.animationStartTime, state.squaddieMovePath, state.camera);
-        if (dynamicSquaddie.mapIcon) {
-            dynamicSquaddie.mapIcon.draw(graphicsContext);
+        moveSquaddieAlongPath(battleSquaddie, this.animationStartTime, state.squaddieMovePath, state.camera);
+        if (battleSquaddie.mapIcon) {
+            battleSquaddie.mapIcon.draw(graphicsContext);
         }
     }
 
     private updateWhenAnimationCompletes(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
-            squaddietemplate,
-            dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(
-            state.squaddieCurrentlyActing.dynamicSquaddieId
+            squaddieTemplate,
+            battleSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+            state.squaddieCurrentlyActing.battleSquaddieId
         ));
 
-        updateSquaddieLocation(dynamicSquaddie, squaddietemplate, state.squaddieMovePath.getDestination(), state.missionMap, dynamicSquaddie.dynamicSquaddieId);
+        updateSquaddieLocation(battleSquaddie, squaddieTemplate, state.squaddieMovePath.getDestination(), state.missionMap, battleSquaddie.battleSquaddieId);
         const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
         if (mostRecentAction instanceof SquaddieMovementAction) {
-            spendSquaddieActionPoints(dynamicSquaddie, mostRecentAction.numberOfActionPointsSpent);
+            spendSquaddieActionPoints(battleSquaddie, mostRecentAction.numberOfActionPointsSpent);
         }
 
-        if (dynamicSquaddie.mapIcon) {
-            updateSquaddieIconLocation(dynamicSquaddie, state.squaddieMovePath.getDestination(), state.camera);
-            TintSquaddieIfTurnIsComplete(dynamicSquaddie, squaddietemplate);
-            dynamicSquaddie.mapIcon.draw(graphicsContext);
+        if (battleSquaddie.mapIcon) {
+            updateSquaddieIconLocation(battleSquaddie, state.squaddieMovePath.getDestination(), state.camera);
+            TintSquaddieIfTurnIsComplete(battleSquaddie, squaddieTemplate);
+            battleSquaddie.mapIcon.draw(graphicsContext);
         }
         state.hexMap.stopHighlightingTiles();
     }

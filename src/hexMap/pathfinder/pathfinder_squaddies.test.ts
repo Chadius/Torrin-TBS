@@ -75,16 +75,16 @@ describe('pathfinder and squaddies', () => {
         ) => {
             const blockingSquaddie = new SquaddieId({
                 name: "blocker",
-                staticId: "blocker",
+                templateId: "blocker",
                 resources: new SquaddieResource({mapIconResourceKey: "map_icon_blocker"}),
                 traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
                 affiliation: blockingAffiliation,
             });
-            missionMap.addSquaddie(blockingSquaddie.staticId, "dynamic_0", new HexCoordinate({q: 0, r: 1}));
+            missionMap.addSquaddie(blockingSquaddie.templateId, "dynamic_0", new HexCoordinate({q: 0, r: 1}));
             let squaddieRepository = new BattleSquaddieRepository();
             CreateNewSquaddieAndAddToRepository({
-                staticId: "blocker",
-                dynamicId: "dynamic_0",
+                templateId: "blocker",
+                battleId: "dynamic_0",
                 name: "blocker",
                 affiliation: blockingAffiliation,
                 squaddieRepository
@@ -256,32 +256,32 @@ describe('pathfinder and squaddies', () => {
         missionMap.addSquaddie("none", "none_dynamic_0", new HexCoordinate({q: 0, r: 3}));
 
         CreateNewSquaddieAndAddToRepository({
-            staticId: "player",
-            dynamicId: "player_dynamic_0",
+            templateId: "player",
+            battleId: "player_dynamic_0",
             name: "player",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
         });
 
         CreateNewSquaddieAndAddToRepository({
-            staticId: "enemy",
-            dynamicId: "enemy_dynamic_0",
+            templateId: "enemy",
+            battleId: "enemy_dynamic_0",
             name: "enemy",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
         });
 
         CreateNewSquaddieAndAddToRepository({
-            staticId: "ally",
-            dynamicId: "ally_dynamic_0",
+            templateId: "ally",
+            battleId: "ally_dynamic_0",
             name: "ally",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository,
         });
 
         CreateNewSquaddieAndAddToRepository({
-            staticId: "none",
-            dynamicId: "none_dynamic_0",
+            templateId: "none",
+            battleId: "none_dynamic_0",
             name: "none",
             affiliation: SquaddieAffiliation.NONE,
             squaddieRepository,
@@ -333,8 +333,8 @@ describe('pathfinder and squaddies', () => {
         let squaddieRepository = new BattleSquaddieRepository();
 
         CreateNewSquaddieAndAddToRepository({
-            staticId: "enemy",
-            dynamicId: "dynamic_0",
+            templateId: "enemy",
+            battleId: "dynamic_0",
             name: "enemy",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository
@@ -397,17 +397,17 @@ describe('pathfinder and squaddies', () => {
 
         let squaddieRepository = new BattleSquaddieRepository();
 
-        const {dynamicSquaddie: enemyDynamic, squaddietemplate: enemyStatic}
+        const {battleSquaddie: enemyDynamic, squaddieTemplate: enemyStatic}
             = CreateNewSquaddieAndAddToRepository({
-            staticId: "enemy",
-            dynamicId: "dynamic_0",
+            templateId: "enemy",
+            battleId: "dynamic_0",
             name: "enemy",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository
         });
         DealDamageToTheSquaddie({
-            squaddietemplate: enemyStatic,
-            dynamicSquaddie: enemyDynamic,
+            squaddieTemplate: enemyStatic,
+            battleSquaddie: enemyDynamic,
             damage: enemyDynamic.inBattleAttributes.currentHitPoints,
             damageType: DamageType.Body,
         });
@@ -466,29 +466,29 @@ describe('pathfinder and squaddies', () => {
 
         let squaddieRepository = new BattleSquaddieRepository();
         CreateNewSquaddieAndAddToRepository({
-            staticId: "enemy_nearby",
-            dynamicId: "enemy_nearby_dynamic_0",
+            templateId: "enemy_nearby",
+            battleId: "enemy_nearby_dynamic_0",
             name: "enemy_nearby_enemy",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository
         });
         CreateNewSquaddieAndAddToRepository({
-            staticId: "ally_flanking",
-            dynamicId: "ally_flanking_dynamic_0",
+            templateId: "ally_flanking",
+            battleId: "ally_flanking_dynamic_0",
             name: "ally_flanking_enemy",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository
         });
         CreateNewSquaddieAndAddToRepository({
-            staticId: "ally_at_the_edge",
-            dynamicId: "ally_at_the_edge_dynamic_0",
+            templateId: "ally_at_the_edge",
+            battleId: "ally_at_the_edge_dynamic_0",
             name: "ally_at_the_edge_enemy",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository
         });
         CreateNewSquaddieAndAddToRepository({
-            staticId: "ally_far_away",
-            dynamicId: "ally_far_away_dynamic_0",
+            templateId: "ally_far_away",
+            battleId: "ally_far_away_dynamic_0",
             name: "ally_far_away_enemy",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository

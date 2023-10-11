@@ -156,28 +156,28 @@ class SearchState {
     recordReachableSquaddies(searchParams: SearchParams, missionMap: MissionMap) {
         missionMap.getAllSquaddieData().forEach((datum) => {
             const {
-                squaddietemplate,
-                dynamicSquaddie
-            } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByDynamicId(datum.dynamicSquaddieId));
-            if (!IsSquaddieAlive({squaddietemplate, dynamicSquaddie})) {
+                squaddieTemplate,
+                battleSquaddie
+            } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByBattleId(datum.battleSquaddieId));
+            if (!IsSquaddieAlive({squaddieTemplate, battleSquaddie})) {
                 return;
             }
             const {
                 mapLocation,
-                squaddietemplateId,
+                squaddieTemplateId,
             } = datum;
 
             if (this.hasAlreadyMarkedLocationAsVisited(mapLocation)) {
-                this.results.reachableSquaddies.addSquaddie(squaddietemplateId, mapLocation);
-                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddietemplateId, 0, mapLocation);
+                this.results.reachableSquaddies.addSquaddie(squaddieTemplateId, mapLocation);
+                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieTemplateId, 0, mapLocation);
             }
 
             const adjacentLocations: HexCoordinate[] = CreateNewNeighboringCoordinates(mapLocation.q, mapLocation.r);
             this.getTilesSearchCanStopAt().forEach((description: HexCoordinate) => {
                 adjacentLocations.forEach((location: HexCoordinate) => {
                     if (description.q === location.q && description.r === location.r) {
-                        this.results.reachableSquaddies.addSquaddie(squaddietemplateId, mapLocation);
-                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddietemplateId, 1, description);
+                        this.results.reachableSquaddies.addSquaddie(squaddieTemplateId, mapLocation);
+                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieTemplateId, 1, description);
                     }
                 });
             });
@@ -324,12 +324,12 @@ export class Pathfinder {
             const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate);
             if (squaddieAtTileDatum.isValid()) {
                 const {
-                    squaddietemplate: occupyingSquaddieStatic,
-                    dynamicSquaddie: occupyingSquaddieDynamic,
-                } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByDynamicId(squaddieAtTileDatum.dynamicSquaddieId));
+                    squaddieTemplate: occupyingSquaddieTemplate,
+                    battleSquaddie: occupyingBattleSquaddie,
+                } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByBattleId(squaddieAtTileDatum.battleSquaddieId));
                 if (IsSquaddieAlive({
-                    squaddietemplate: occupyingSquaddieStatic,
-                    dynamicSquaddie: occupyingSquaddieDynamic,
+                    squaddieTemplate: occupyingSquaddieTemplate,
+                    battleSquaddie: occupyingBattleSquaddie,
                 })) {
                     squaddieIsOccupyingTile = true;
                 }
@@ -547,23 +547,23 @@ export class Pathfinder {
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
         return neighboringLocations.filter((neighbor) => {
             const {
-                squaddietemplate,
-                dynamicSquaddie,
+                squaddieTemplate,
+                battleSquaddie,
             } = GetSquaddieAtMapLocation({
                 mapLocation: new HexCoordinate({coordinates: neighbor}),
                 map: searchParams.missionMap,
                 squaddieRepository: searchParams.squaddieRepository,
             });
 
-            if (!squaddietemplate) {
+            if (!squaddieTemplate) {
                 return true;
             }
 
-            if (!IsSquaddieAlive({squaddietemplate, dynamicSquaddie})) {
+            if (!IsSquaddieAlive({squaddieTemplate, battleSquaddie})) {
                 return true;
             }
 
-            return friendlyAffiliations[squaddietemplate.squaddieId.affiliation];
+            return friendlyAffiliations[squaddieTemplate.squaddieId.affiliation];
         });
     }
 

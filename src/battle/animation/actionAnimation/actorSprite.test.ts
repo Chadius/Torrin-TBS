@@ -15,7 +15,7 @@ describe('Actor Sprite', () => {
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
-    const dynamicSquaddieId = "actor0";
+    const battleSquaddieId = "actor0";
 
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -26,10 +26,10 @@ describe('Actor Sprite', () => {
             attributes: new ArmyAttributes({
                 maxHitPoints: 5,
             }),
-            dynamicId: dynamicSquaddieId,
+            battleId: battleSquaddieId,
             name: "actor",
             squaddieRepository,
-            staticId: "actor"
+            templateId: "actor"
         });
 
         timer = new ActionTimer();
@@ -48,7 +48,7 @@ describe('Actor Sprite', () => {
         sprite.start({
             resourceHandler: undefined,
             squaddieRepository,
-            actorDynamicSquaddieId: dynamicSquaddieId,
+            actorBattleSquaddieId: battleSquaddieId,
             windowArea: new RectArea({top: 0, left: 0, width: 10, height: 20})
         });
 
@@ -67,7 +67,7 @@ describe('Actor Sprite', () => {
         const sprite = new ActorSprite();
         const emotion = sprite.getSquaddieEmotion({
             timer,
-            dynamicSquaddieId,
+            battleSquaddieId,
             squaddieRepository,
         });
 
@@ -79,7 +79,7 @@ describe('Actor Sprite', () => {
         const sprite = new ActorSprite();
         const emotion = sprite.getSquaddieEmotion({
             timer,
-            dynamicSquaddieId,
+            battleSquaddieId,
             squaddieRepository,
         });
 
@@ -102,14 +102,14 @@ describe('Actor Sprite', () => {
             mockActionTimerPhase(ActionAnimationPhase.DURING_ACTION);
             const duringActionEmotion = sprite.getSquaddieEmotion({
                 timer,
-                dynamicSquaddieId,
+                battleSquaddieId,
                 squaddieRepository,
             });
 
             const targetReactsSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
             expect(sprite.getSquaddieEmotion({
                 timer,
-                dynamicSquaddieId,
+                battleSquaddieId,
                 squaddieRepository,
             })).toBe(duringActionEmotion);
             expect(targetReactsSpy).toBeCalled();
@@ -117,7 +117,7 @@ describe('Actor Sprite', () => {
             const showingResultsSpy = mockActionTimerPhase(ActionAnimationPhase.SHOWING_RESULTS);
             expect(sprite.getSquaddieEmotion({
                 timer,
-                dynamicSquaddieId,
+                battleSquaddieId,
                 squaddieRepository,
             })).toBe(duringActionEmotion);
             expect(showingResultsSpy).toBeCalled();
@@ -125,7 +125,7 @@ describe('Actor Sprite', () => {
             const finishedShowingResultsSpy = mockActionTimerPhase(ActionAnimationPhase.FINISHED_SHOWING_RESULTS);
             expect(sprite.getSquaddieEmotion({
                 timer,
-                dynamicSquaddieId,
+                battleSquaddieId,
                 squaddieRepository,
             })).toBe(duringActionEmotion);
             expect(finishedShowingResultsSpy).toBeCalled();

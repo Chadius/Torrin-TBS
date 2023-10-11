@@ -56,16 +56,16 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         CreateNewSquaddieAndAddToRepository({
             actions: [monkKoanAction],
             affiliation: SquaddieAffiliation.PLAYER,
-            dynamicId: monkDynamicId,
+            battleId: monkDynamicId,
             name: "Monk",
-            staticId: monkStaticId,
+            templateId: monkStaticId,
             squaddieRepository,
         });
 
         battleEventRecording = new Recording({});
         const oneActionInstruction = new SquaddieActionsForThisRound({
-            squaddietemplateId: monkStaticId,
-            dynamicSquaddieId: monkDynamicId,
+            squaddieTemplateId: monkStaticId,
+            battleSquaddieId: monkDynamicId,
         });
         oneActionInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
@@ -81,8 +81,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,
             results: new SquaddieSquaddieResults({
-                actingSquaddieDynamicId: monkDynamicId,
-                targetedSquaddieDynamicIds: [],
+                actingBattleSquaddieId: monkDynamicId,
+                targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
             })
         });

@@ -63,69 +63,69 @@ describe('Action Result Text Writer', () => {
         });
 
         ({
-            squaddietemplate: knightStatic,
-            dynamicSquaddie: knightDynamic,
+            squaddieTemplate: knightStatic,
+            battleSquaddie: knightDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Knight",
-            staticId: "Knight",
-            dynamicId: "Knight 0",
+            templateId: "Knight",
+            battleId: "Knight 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepository,
             actions: [longswordSweepAction, bandageWoundsAction],
         }));
 
-        battleMap.addSquaddie(knightStatic.staticId, knightDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 1}));
+        battleMap.addSquaddie(knightStatic.templateId, knightDynamic.battleSquaddieId, new HexCoordinate({q: 1, r: 1}));
 
         ({
-            squaddietemplate: citizenStatic,
-            dynamicSquaddie: citizenDynamic,
+            squaddieTemplate: citizenStatic,
+            battleSquaddie: citizenDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Citizen",
-            staticId: "Citizen",
-            dynamicId: "Citizen 0",
+            templateId: "Citizen",
+            battleId: "Citizen 0",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository: squaddieRepository,
             actions: [],
         }));
 
         ({
-            squaddietemplate: thiefStatic,
-            dynamicSquaddie: thiefDynamic,
+            squaddieTemplate: thiefStatic,
+            battleSquaddie: thiefDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Thief",
-            staticId: "Thief",
-            dynamicId: "Thief 0",
+            templateId: "Thief",
+            battleId: "Thief 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepository,
             actions: [],
         }));
 
-        battleMap.addSquaddie(thiefStatic.staticId, thiefDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
+        battleMap.addSquaddie(thiefStatic.templateId, thiefDynamic.battleSquaddieId, new HexCoordinate({q: 1, r: 2}));
 
         ({
-            squaddietemplate: rogueStatic,
-            dynamicSquaddie: rogueDynamic,
+            squaddieTemplate: rogueStatic,
+            battleSquaddie: rogueDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Rogue",
-            staticId: "Rogue",
-            dynamicId: "Rogue 1",
+            templateId: "Rogue",
+            battleId: "Rogue 1",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepository,
             actions: [],
         }));
 
-        battleMap.addSquaddie(rogueStatic.staticId, rogueDynamic.dynamicSquaddieId, new HexCoordinate({q: 1, r: 2}));
+        battleMap.addSquaddie(rogueStatic.templateId, rogueDynamic.battleSquaddieId, new HexCoordinate({q: 1, r: 2}));
     });
 
     it('Explains how much damage occurred', () => {
         const damagingResult = new SquaddieSquaddieResults({
-            actingSquaddieDynamicId: knightDynamic.dynamicSquaddieId,
-            targetedSquaddieDynamicIds: [thiefDynamic.dynamicSquaddieId, rogueDynamic.dynamicSquaddieId],
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+            targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId, rogueDynamic.battleSquaddieId],
             resultPerTarget: {
-                [thiefDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
+                [thiefDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
                     damageTaken: 1
                 }),
-                [rogueDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
+                [rogueDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
                     damageTaken: 1
                 })
             }
@@ -145,13 +145,13 @@ describe('Action Result Text Writer', () => {
 
     it('Explains how much healing was received', () => {
         const healingResult = new SquaddieSquaddieResults({
-            actingSquaddieDynamicId: knightDynamic.dynamicSquaddieId,
-            targetedSquaddieDynamicIds: [knightDynamic.dynamicSquaddieId, citizenDynamic.dynamicSquaddieId],
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+            targetedBattleSquaddieIds: [knightDynamic.battleSquaddieId, citizenDynamic.battleSquaddieId],
             resultPerTarget: {
-                [knightDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
+                [knightDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
                     healingReceived: 1
                 }),
-                [citizenDynamic.dynamicSquaddieId]: new ActionResultPerSquaddie({
+                [citizenDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
                     healingReceived: 2
                 })
             }
@@ -172,7 +172,7 @@ describe('Action Result Text Writer', () => {
     it('Explains intent to use a power', () => {
         const outputStrings: string[] = FormatIntent({
             currentAction: longswordSweepAction,
-            actingDynamicId: knightDynamic.dynamicSquaddieId,
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieRepository,
         });
 

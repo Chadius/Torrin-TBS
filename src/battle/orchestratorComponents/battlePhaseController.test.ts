@@ -40,7 +40,7 @@ describe('BattlePhaseController', () => {
 
         playerSquaddieTemplate = new SquaddieTemplate({
             squaddieId: new SquaddieId({
-                staticId: "player_squaddie",
+                templateId: "player_squaddie",
                 name: "Player",
                 resources: new SquaddieResource({}),
                 traits: new TraitStatusStorage(),
@@ -49,23 +49,23 @@ describe('BattlePhaseController', () => {
             actions: [],
         });
         playerBattleSquaddie = new BattleSquaddie({
-            dynamicSquaddieId: "player_squaddie_0",
+            battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
             squaddieTurn: new SquaddieTurn(),
             mapIcon: mocks.mockImageUI(),
         });
 
-        squaddieRepo.addSquaddietemplate(
+        squaddieRepo.addSquaddieTemplate(
             playerSquaddieTemplate,
         );
-        squaddieRepo.addDynamicSquaddie(
+        squaddieRepo.addBattleSquaddie(
             playerBattleSquaddie,
         );
 
-        squaddieRepo.addSquaddietemplate(
+        squaddieRepo.addSquaddieTemplate(
             new SquaddieTemplate({
                 squaddieId: new SquaddieId({
-                    staticId: "enemy_squaddie",
+                    templateId: "enemy_squaddie",
                     name: "Enemy",
                     resources: new SquaddieResource({}),
                     traits: new TraitStatusStorage(),
@@ -74,9 +74,9 @@ describe('BattlePhaseController', () => {
                 actions: [],
             })
         );
-        squaddieRepo.addDynamicSquaddie(
+        squaddieRepo.addBattleSquaddie(
             new BattleSquaddie({
-                dynamicSquaddieId: "enemy_squaddie_0",
+                battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: mocks.mockImageUI(),
@@ -87,13 +87,13 @@ describe('BattlePhaseController', () => {
             name: "Player Team",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepo,
-            dynamicSquaddieIds: ["player_squaddie_0"]
+            battleSquaddieIds: ["player_squaddie_0"]
         });
         enemySquaddieTeam = new BattleSquaddieTeam({
             name: "Enemy Team",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepo,
-            dynamicSquaddieIds: ["enemy_squaddie_0"]
+            battleSquaddieIds: ["enemy_squaddie_0"]
         });
 
         teamsByAffiliation = {
@@ -227,8 +227,8 @@ describe('BattlePhaseController', () => {
 
         it('pans the camera to the first player when it is the player phase and the player is offscreen', () => {
             const state = initializeState({
-                squaddieTemplateIdToAdd: playerSquaddieTemplate.staticId,
-                battleSquaddieIdToAdd: playerBattleSquaddie.dynamicSquaddieId,
+                squaddieTemplateIdToAdd: playerSquaddieTemplate.templateId,
+                battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
                 camera: new BattleCamera(
                     ScreenDimensions.SCREEN_WIDTH * 10,
                     ScreenDimensions.SCREEN_HEIGHT * 10,
@@ -238,7 +238,7 @@ describe('BattlePhaseController', () => {
             battlePhaseController.update(state, mockedP5GraphicsContext);
             expect(state.camera.isPanning()).toBeTruthy();
 
-            const datum = state.missionMap.getSquaddieByDynamicId(playerSquaddieTeam.dynamicSquaddieIds[0])
+            const datum = state.missionMap.getSquaddieByBattleId(playerSquaddieTeam.battleSquaddieIds[0])
             const playerSquaddieLocation = convertMapCoordinatesToWorldCoordinates(datum.mapLocation.q, datum.mapLocation.r);
             expect(state.camera.panningInformation.xDestination).toBe(playerSquaddieLocation[0]);
             expect(state.camera.panningInformation.yDestination).toBe(playerSquaddieLocation[1]);
@@ -246,14 +246,14 @@ describe('BattlePhaseController', () => {
 
         it('does not pan the camera to the first player when it is the player phase and the player is onscreen', () => {
             const state = initializeState({
-                squaddieTemplateIdToAdd: playerSquaddieTemplate.staticId,
-                battleSquaddieIdToAdd: playerBattleSquaddie.dynamicSquaddieId,
+                squaddieTemplateIdToAdd: playerSquaddieTemplate.templateId,
+                battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
                 camera: new BattleCamera(
                     ...convertMapCoordinatesToWorldCoordinates(0, 0)
                 ),
             });
 
-            const datum = state.missionMap.getSquaddieByDynamicId(playerSquaddieTeam.dynamicSquaddieIds[0])
+            const datum = state.missionMap.getSquaddieByBattleId(playerSquaddieTeam.battleSquaddieIds[0])
             const playerSquaddieLocation = convertMapCoordinatesToWorldCoordinates(datum.mapLocation.q, datum.mapLocation.r);
             state.camera.xCoord = playerSquaddieLocation[0];
             state.camera.yCoord = playerSquaddieLocation[1];
@@ -276,8 +276,8 @@ describe('BattlePhaseController', () => {
         AdvanceToNextPhase(state.battlePhaseState, teamsByAffiliation);
         expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
-        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId("player_squaddie_0"));
-        dynamicSquaddie0.endTurn();
+        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_squaddie_0"));
+        battleSquaddie0.endTurn();
 
         const startTime = 100;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
@@ -331,9 +331,9 @@ describe('BattlePhaseController', () => {
     });
 
     it('restores team squaddie turns once the banner appears starts', () => {
-        const {dynamicSquaddie: dynamicSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByDynamicId("player_squaddie_0"));
-        dynamicSquaddie0.endTurn();
-        expect(dynamicSquaddie0.canStillActThisRound()).toBeFalsy();
+        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_squaddie_0"));
+        battleSquaddie0.endTurn();
+        expect(battleSquaddie0.canStillActThisRound()).toBeFalsy();
 
         const phase: BattlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
@@ -354,6 +354,6 @@ describe('BattlePhaseController', () => {
 
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(phase.currentAffiliation).toBe(BattlePhase.PLAYER);
-        expect(dynamicSquaddie0.canStillActThisRound()).toBeTruthy();
+        expect(battleSquaddie0.canStillActThisRound()).toBeTruthy();
     });
 });

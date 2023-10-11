@@ -7,8 +7,8 @@ import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 const torrinInstruction = new SquaddieActionsForThisRound({
-    dynamicSquaddieId: "Torrin 0",
-    squaddietemplateId: "Torrin",
+    battleSquaddieId: "Torrin 0",
+    squaddieTemplateId: "Torrin",
     startingLocation: new HexCoordinate({q: 0, r: 0}),
 });
 
@@ -27,8 +27,8 @@ describe('Current Squaddie Instruction', () => {
     it('can be reset', () => {
         const newInstruction = new SquaddieInstructionInProgress({
             actionsForThisRound: new SquaddieActionsForThisRound({
-                dynamicSquaddieId: "torrin 0",
-                squaddietemplateId: "torrin",
+                battleSquaddieId: "torrin 0",
+                squaddieTemplateId: "torrin",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             }),
             currentSquaddieAction: new SquaddieAction({
@@ -48,12 +48,12 @@ describe('Current Squaddie Instruction', () => {
 
         newInstruction.addInitialState(
             {
-                squaddietemplateId: "Torrin",
-                dynamicSquaddieId: "Torrin 0",
+                squaddieTemplateId: "Torrin",
+                battleSquaddieId: "Torrin 0",
                 startingLocation: new HexCoordinate({q: 0, r: 0})
             }
         );
-        expect(newInstruction.dynamicSquaddieId).toBe("Torrin 0");
+        expect(newInstruction.battleSquaddieId).toBe("Torrin 0");
 
         newInstruction.addConfirmedAction(purifyingBlastAction);
 
@@ -94,16 +94,16 @@ describe('Current Squaddie Instruction', () => {
             const newInstruction = new SquaddieInstructionInProgress({});
             newInstruction.addInitialState(
                 {
-                    squaddietemplateId: "Torrin",
-                    dynamicSquaddieId: "Torrin 0",
+                    squaddieTemplateId: "Torrin",
+                    battleSquaddieId: "Torrin 0",
                     startingLocation: new HexCoordinate({q: 0, r: 0})
                 }
             );
-            newInstruction.markSquaddieDynamicIdAsMoving("Torrin 0");
-            expect(newInstruction.isSquaddieDynamicIdMoving("Torrin 0")).toBeTruthy();
+            newInstruction.markBattleSquaddieIdAsMoving("Torrin 0");
+            expect(newInstruction.isBattleSquaddieIdMoving("Torrin 0")).toBeTruthy();
 
-            newInstruction.removeSquaddieDynamicIdAsMoving("Torrin 0");
-            expect(newInstruction.isSquaddieDynamicIdMoving("Torrin 0")).toBeFalsy();
+            newInstruction.removeBattleSquaddieIdAsMoving("Torrin 0");
+            expect(newInstruction.isBattleSquaddieIdMoving("Torrin 0")).toBeFalsy();
         });
     });
 });

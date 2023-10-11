@@ -64,9 +64,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         return this._targetTextWindows;
     }
 
-    private _targetHitPointMeters: { [dynamicId: string]: HitPointMeter };
+    private _targetHitPointMeters: { [battleId: string]: HitPointMeter };
 
-    get targetHitPointMeters(): { [dynamicId: string]: HitPointMeter } {
+    get targetHitPointMeters(): { [battleId: string]: HitPointMeter } {
         return this._targetHitPointMeters;
     }
 
@@ -145,19 +145,19 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
 
         const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
         const {
-            dynamicSquaddie: actorDynamic,
-            squaddietemplate: actorStatic,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(mostRecentResults.actingSquaddieDynamicId));
+            battleSquaddie: actorBattle,
+            squaddieTemplate: actorTemplate,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(mostRecentResults.actingBattleSquaddieId));
 
         const action = state.squaddieCurrentlyActing.currentlySelectedAction;
         this.actorTextWindow.start({
-            actorStatic,
-            actorDynamic,
+            actorTemplate: actorTemplate,
+            actorBattle: actorBattle,
             action: action,
         });
 
         this.actorSprite.start({
-            actorDynamicSquaddieId: actorDynamic.dynamicSquaddieId,
+            actorBattleSquaddieId: actorBattle.battleSquaddieId,
             squaddieRepository: state.squaddieRepository,
             resourceHandler: state.resourceHandler,
             windowArea: this.actorTextWindow.actorLabel.rectangle.area,
@@ -173,13 +173,13 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     private setupAnimationForTargetSprites(state: BattleOrchestratorState, action: SquaddieAction, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
-        this._targetSprites = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string, index: number) => {
+        this._targetSprites = state.battleEventRecording.mostRecentEvent.results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
             const targetSprite = new TargetSprite();
             targetSprite.start({
-                targetDynamicSquaddieId: dynamicId,
+                targetBattleSquaddieId: battleId,
                 squaddieRepository: state.squaddieRepository,
                 action: action,
-                result: resultPerTarget[dynamicId],
+                result: resultPerTarget[battleId],
                 resourceHandler: state.resourceHandler,
                 windowArea: this.targetTextWindows[index].targetLabel.rectangle.area,
             });
@@ -190,17 +190,17 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     private setupAnimationForTargetTextWindows(state: BattleOrchestratorState, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
-        this._targetTextWindows = state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.map((dynamicId: string) => {
+        this._targetTextWindows = state.battleEventRecording.mostRecentEvent.results.targetedBattleSquaddieIds.map((battleId: string) => {
             const {
-                dynamicSquaddie: targetDynamic,
-                squaddietemplate: targetStatic,
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicId));
+                battleSquaddie: targetBattle,
+                squaddieTemplate: targetTemplate,
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId));
 
             const targetTextWindow = new TargetTextWindow();
             targetTextWindow.start({
-                targetStatic,
-                targetDynamic,
-                result: resultPerTarget[dynamicId],
+                targetTemplate: targetTemplate,
+                targetBattle: targetBattle,
+                result: resultPerTarget[battleId],
             });
             return targetTextWindow;
         });
@@ -208,28 +208,28 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
 
     private setupAnimationForTargetHitPointMeters(state: BattleOrchestratorState) {
         const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
-        state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.forEach((dynamicId: string, index: number) => {
+        state.battleEventRecording.mostRecentEvent.results.targetedBattleSquaddieIds.forEach((battleId: string, index: number) => {
             const {
-                dynamicSquaddie: targetDynamic,
-                squaddietemplate: targetStatic,
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicId));
+                battleSquaddie: targetBattle,
+                squaddieTemplate: targetTemplate,
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId));
 
             let {
                 currentHitPoints,
                 maxHitPoints,
             } = GetHitPoints({
-                dynamicSquaddie: targetDynamic,
-                squaddietemplate: targetStatic,
+                battleSquaddie: targetBattle,
+                squaddieTemplate: targetTemplate,
             });
 
-            currentHitPoints += mostRecentResults.resultPerTarget[dynamicId].damageTaken;
+            currentHitPoints += mostRecentResults.resultPerTarget[battleId].damageTaken;
 
-            this._targetHitPointMeters[dynamicId] = new HitPointMeter({
+            this._targetHitPointMeters[battleId] = new HitPointMeter({
                 currentHitPoints,
                 maxHitPoints,
                 left: this._targetTextWindows[index].targetLabel.rectangle.area.left + WINDOW_SPACING1,
                 top: this._targetTextWindows[index].targetLabel.rectangle.area.top + 100,
-                hue: HUE_BY_SQUADDIE_AFFILIATION[targetStatic.squaddieId.affiliation]
+                hue: HUE_BY_SQUADDIE_AFFILIATION[targetTemplate.squaddieId.affiliation]
             });
         });
     }
@@ -245,9 +245,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
 
     private updateHitPointMeters(state: BattleOrchestratorState) {
         const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
-        state.battleEventRecording.mostRecentEvent.results.targetedSquaddieDynamicIds.forEach((dynamicId: string) => {
-            const hitPointMeter = this.targetHitPointMeters[dynamicId];
-            hitPointMeter.changeHitPoints(-1 * mostRecentResults.resultPerTarget[dynamicId].damageTaken);
+        state.battleEventRecording.mostRecentEvent.results.targetedBattleSquaddieIds.forEach((battleId: string) => {
+            const hitPointMeter = this.targetHitPointMeters[battleId];
+            hitPointMeter.changeHitPoints(-1 * mostRecentResults.resultPerTarget[battleId].damageTaken);
         });
     }
 }

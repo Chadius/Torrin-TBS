@@ -16,17 +16,17 @@ import {SquaddieResource} from "../../squaddie/resource";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('end turn team strategy', () => {
-    let playerSquaddietemplate: SquaddieTemplate;
-    let playerDynamicSquaddie: BattleSquaddie;
+    let playerSquaddieTemplate: SquaddieTemplate;
+    let playerBattleSquaddie: BattleSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let squaddieTeam: BattleSquaddieTeam;
     let missionMap: MissionMap;
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
-        playerSquaddietemplate = new SquaddieTemplate({
+        playerSquaddieTemplate = new SquaddieTemplate({
             squaddieId: new SquaddieId({
-                staticId: "new_static_squaddie",
+                templateId: "new_static_squaddie",
                 name: "Torrin",
                 resources: new SquaddieResource({}),
                 traits: new TraitStatusStorage(),
@@ -35,20 +35,20 @@ describe('end turn team strategy', () => {
             actions: [],
         });
 
-        squaddieRepository.addSquaddietemplate(
-            playerSquaddietemplate
+        squaddieRepository.addSquaddieTemplate(
+            playerSquaddieTemplate
         );
 
-        playerDynamicSquaddie =
+        playerBattleSquaddie =
             new BattleSquaddie({
-                dynamicSquaddieId: "new_dynamic_squaddie",
+                battleSquaddieId: "new_dynamic_squaddie",
                 squaddieTemplateId: "new_static_squaddie",
                 squaddieTurn: new SquaddieTurn(),
                 mapIcon: mocks.mockImageUI(),
             });
 
-        squaddieRepository.addDynamicSquaddie(
-            playerDynamicSquaddie
+        squaddieRepository.addBattleSquaddie(
+            playerBattleSquaddie
         );
 
         squaddieTeam = new BattleSquaddieTeam({
@@ -56,7 +56,7 @@ describe('end turn team strategy', () => {
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepo: squaddieRepository,
         });
-        squaddieTeam.addDynamicSquaddieIds(["new_dynamic_squaddie"]);
+        squaddieTeam.addBattleSquaddieIds(["new_dynamic_squaddie"]);
 
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 "]})
@@ -72,8 +72,8 @@ describe('end turn team strategy', () => {
         missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", new HexCoordinate({q: 0, r: 0}));
 
         const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            squaddietemplateId: "new_static_squaddie",
-            dynamicSquaddieId: "new_dynamic_squaddie",
+            squaddieTemplateId: "new_static_squaddie",
+            battleSquaddieId: "new_dynamic_squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
         expectedInstruction.endTurn();
@@ -109,7 +109,7 @@ describe('end turn team strategy', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        playerDynamicSquaddie.endTurn();
+        playerBattleSquaddie.endTurn();
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);

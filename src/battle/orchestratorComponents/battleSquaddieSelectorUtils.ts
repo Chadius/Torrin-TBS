@@ -15,9 +15,9 @@ import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestrator
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
-export function createSearchPath(state: BattleOrchestratorState, squaddietemplate: SquaddieTemplate, dynamicSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
-    const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-    const {actionPointsRemaining} = GetNumberOfActionPoints({squaddietemplate, dynamicSquaddie})
+export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
+    const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
+    const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
         state.pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
@@ -26,14 +26,14 @@ export function createSearchPath(state: BattleOrchestratorState, squaddietemplat
                     q: datum.mapLocation.q,
                     r: datum.mapLocation.r,
                 }),
-                affiliation: squaddietemplate.squaddieId.affiliation,
+                affiliation: squaddieTemplate.squaddieId.affiliation,
                 squaddieRepository: state.squaddieRepository,
 
             }),
             movement: new SearchMovement({
-                movementPerAction: squaddietemplate.movement.movementPerAction,
-                passThroughWalls: squaddietemplate.movement.passThroughWalls,
-                crossOverPits: squaddietemplate.movement.crossOverPits,
+                movementPerAction: squaddieTemplate.movement.movementPerAction,
+                passThroughWalls: squaddieTemplate.movement.passThroughWalls,
+                crossOverPits: squaddieTemplate.movement.crossOverPits,
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
@@ -69,8 +69,8 @@ export function createSearchPath(state: BattleOrchestratorState, squaddietemplat
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
 
-export function AddMovementInstruction(state: BattleOrchestratorState, squaddietemplate: SquaddieTemplate, dynamicSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinate) {
-    MaybeCreateSquaddieInstruction(state, dynamicSquaddie, squaddietemplate);
+export function AddMovementInstruction(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinate) {
+    MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
 
     const moveAction = new SquaddieMovementAction({
         destination: destinationHexCoordinate,
@@ -84,15 +84,15 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddiet
     return moveAction;
 }
 
-export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, dynamicSquaddie: BattleSquaddie, squaddietemplate: SquaddieTemplate) {
+export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) {
     if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-        const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
-        const dynamicSquaddieId = dynamicSquaddie.dynamicSquaddieId;
+        const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
+        const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
         state.squaddieCurrentlyActing.reset();
         state.squaddieCurrentlyActing.addInitialState({
-            squaddietemplateId: squaddietemplate.squaddieId.staticId,
-            dynamicSquaddieId,
+            squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
+            battleSquaddieId,
             startingLocation: new HexCoordinate({
                 q: datum.mapLocation.q,
                 r: datum.mapLocation.r,
@@ -106,14 +106,14 @@ export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
         return;
     }
 
-    if (!state.squaddieCurrentlyActing.dynamicSquaddieId) {
+    if (!state.squaddieCurrentlyActing.battleSquaddieId) {
         return;
     }
 
     const {
-        dynamicSquaddie: actingSquaddieDynamic,
-        squaddietemplate: actingSquaddieStatic
-    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(state.squaddieCurrentlyActing.dynamicSquaddieId));
+        battleSquaddie: actingBattleSquaddie,
+        squaddieTemplate: actingSquaddieTemplate
+    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-    TintSquaddieIfTurnIsComplete(actingSquaddieDynamic, actingSquaddieStatic);
+    TintSquaddieIfTurnIsComplete(actingBattleSquaddie, actingSquaddieTemplate);
 }

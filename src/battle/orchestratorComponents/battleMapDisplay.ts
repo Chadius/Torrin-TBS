@@ -126,20 +126,20 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
     private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const noSquaddieIsCurrentlyActing: boolean = state.squaddieCurrentlyActing === undefined;
-        state.squaddieRepository.getDynamicSquaddieIterator()
+        state.squaddieRepository.getBattleSquaddieIterator()
             .filter((info) =>
-                info.dynamicSquaddie.mapIcon
+                info.battleSquaddie.mapIcon
             )
             .forEach((info) => {
-                const {dynamicSquaddie, dynamicSquaddieId} = info;
+                const {battleSquaddie, battleSquaddieId} = info;
 
-                if (noSquaddieIsCurrentlyActing || !state.squaddieCurrentlyActing.isSquaddieDynamicIdMoving(dynamicSquaddieId)) {
-                    const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
+                if (noSquaddieIsCurrentlyActing || !state.squaddieCurrentlyActing.isBattleSquaddieIdMoving(battleSquaddieId)) {
+                    const datum = state.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
                     const squaddieIsOnTheMap: boolean = datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation);
-                    const squaddieIsHidden: boolean = state.missionMap.isSquaddieHiddenFromDrawing(dynamicSquaddieId);
+                    const squaddieIsHidden: boolean = state.missionMap.isSquaddieHiddenFromDrawing(battleSquaddieId);
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
-                        drawSquaddieMapIconAtMapLocation(graphicsContext, state.squaddieRepository, dynamicSquaddie, dynamicSquaddieId, datum.mapLocation, state.camera);
+                        drawSquaddieMapIconAtMapLocation(graphicsContext, state.squaddieRepository, battleSquaddie, battleSquaddieId, datum.mapLocation, state.camera);
                     }
                 }
             });

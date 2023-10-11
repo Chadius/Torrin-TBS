@@ -45,12 +45,12 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         squaddieRepository = new BattleSquaddieRepository();
 
         ({
-            squaddietemplate: enemy1Static,
-            dynamicSquaddie: enemy1Dynamic,
+            squaddieTemplate: enemy1Static,
+            battleSquaddie: enemy1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "enemy 1",
-            staticId: "enemy 1",
-            dynamicId: "enemy 1",
+            templateId: "enemy 1",
+            battleId: "enemy 1",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -59,12 +59,12 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         }));
 
         ({
-            squaddietemplate: enemy2Static,
-            dynamicSquaddie: enemy2Dynamic,
+            squaddieTemplate: enemy2Static,
+            battleSquaddie: enemy2Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "enemy 2",
-            staticId: "enemy 2",
-            dynamicId: "enemy 2",
+            templateId: "enemy 2",
+            battleId: "enemy 2",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -77,12 +77,12 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
 
         ({
-            squaddietemplate: player1Static,
-            dynamicSquaddie: player1Dynamic,
+            squaddieTemplate: player1Static,
+            battleSquaddie: player1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "player 1",
-            staticId: "player 1",
-            dynamicId: "player 1",
+            templateId: "player 1",
+            battleId: "player 1",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -95,12 +95,12 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
 
         ({
-            squaddietemplate: ally1Static,
-            dynamicSquaddie: ally1Dynamic,
+            squaddieTemplate: ally1Static,
+            battleSquaddie: ally1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "ally 1",
-            staticId: "ally 1",
-            dynamicId: "ally 1",
+            templateId: "ally 1",
+            battleId: "ally 1",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -113,12 +113,12 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
 
         ({
-            squaddietemplate: noAffiliation1Static,
-            dynamicSquaddie: noAffiliation1Dynamic,
+            squaddieTemplate: noAffiliation1Static,
+            battleSquaddie: noAffiliation1Dynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "no affiliation 1",
-            staticId: "no affiliation 1",
-            dynamicId: "no affiliation 1",
+            templateId: "no affiliation 1",
+            battleId: "no affiliation 1",
             affiliation: SquaddieAffiliation.NONE,
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -160,20 +160,20 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     });
 
     it('is not complete if squaddies of the given affiliation are alive and on the map', () => {
-        missionMap.addSquaddie(enemy1Static.staticId, enemy1Dynamic.dynamicSquaddieId, new HexCoordinate({q: 0, r: 0}));
-        missionMap.addSquaddie(enemy2Static.staticId, enemy2Dynamic.dynamicSquaddieId, new HexCoordinate({q: 0, r: 1}));
+        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, new HexCoordinate({q: 0, r: 0}));
+        missionMap.addSquaddie(enemy2Static.templateId, enemy2Dynamic.battleSquaddieId, new HexCoordinate({q: 0, r: 1}));
         enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
         const {
             isDead
-        } = CanSquaddieActRightNow({squaddietemplate: enemy1Static, dynamicSquaddie: enemy1Dynamic})
+        } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
         expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeFalsy();
     });
 
     it('is complete if it was already marked complete', () => {
         conditionDefeatAllEnemies.isComplete = true;
-        missionMap.addSquaddie(enemy1Static.staticId, enemy1Dynamic.dynamicSquaddieId, new HexCoordinate({q: 0, r: 0}));
-        missionMap.addSquaddie(player1Static.staticId, player1Dynamic.dynamicSquaddieId, new HexCoordinate({
+        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, new HexCoordinate({q: 0, r: 0}));
+        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, new HexCoordinate({
             q: 0,
             r: 1
         }));
@@ -186,15 +186,15 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     });
 
     it('is complete if all squaddies of the given affiliation are dead', () => {
-        missionMap.addSquaddie(enemy1Static.staticId, enemy1Dynamic.dynamicSquaddieId, new HexCoordinate({q: 0, r: 0}));
-        missionMap.addSquaddie(player1Static.staticId, player1Dynamic.dynamicSquaddieId, new HexCoordinate({
+        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, new HexCoordinate({q: 0, r: 0}));
+        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, new HexCoordinate({
             q: 0,
             r: 1
         }));
         enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
         const {
             isDead
-        } = CanSquaddieActRightNow({squaddietemplate: enemy1Static, dynamicSquaddie: enemy1Dynamic})
+        } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
         expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeTruthy();
         expect(conditionDefeatAllPlayers.shouldBeComplete(state)).toBeFalsy();

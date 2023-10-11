@@ -13,7 +13,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation) => {
     return new SquaddieId({
-        staticId: id,
+        templateId: id,
         name: id,
         resources: new SquaddieResource({}),
         traits: new TraitStatusStorage(),
@@ -24,37 +24,37 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
 export const CreateNewSquaddieAndAddToRepository: (
     params: {
         name: string,
-        staticId: string,
-        dynamicId: string,
+        templateId: string,
+        battleId: string,
         affiliation: SquaddieAffiliation,
         squaddieRepository: BattleSquaddieRepository,
         actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }
 ) => {
-    squaddietemplate: SquaddieTemplate
-    dynamicSquaddie: BattleSquaddie,
+    squaddieTemplate: SquaddieTemplate
+    battleSquaddie: BattleSquaddie,
 } = ({
          name,
-         staticId,
-         dynamicId,
+         templateId,
+         battleId,
          affiliation,
          squaddieRepository,
          actions,
          attributes,
      }: {
          name: string,
-         staticId: string,
-         dynamicId: string,
+         templateId: string,
+         battleId: string,
          affiliation: SquaddieAffiliation,
          squaddieRepository: BattleSquaddieRepository,
          actions?: SquaddieAction[],
          attributes?: ArmyAttributes,
      }
 ) => {
-    const squaddietemplate = new SquaddieTemplate({
+    const squaddieTemplate = new SquaddieTemplate({
         squaddieId: new SquaddieId({
-            staticId,
+            templateId,
             name,
             resources: new SquaddieResource({}),
             traits: new TraitStatusStorage(),
@@ -63,17 +63,17 @@ export const CreateNewSquaddieAndAddToRepository: (
         actions: actions,
         attributes,
     });
-    const dynamicSquaddie = new BattleSquaddie({
-        squaddieTemplateId: staticId,
-        dynamicSquaddieId: dynamicId,
+    const battleSquaddie = new BattleSquaddie({
+        squaddieTemplateId: templateId,
+        battleSquaddieId: battleId,
         squaddieTurn: new SquaddieTurn(),
         mapIcon: mocks.mockImageUI(),
     });
-    squaddieRepository.addSquaddie(squaddietemplate, dynamicSquaddie);
+    squaddieRepository.addSquaddie(squaddieTemplate, battleSquaddie);
 
     return {
-        squaddietemplate,
-        dynamicSquaddie,
+        squaddieTemplate,
+        battleSquaddie,
     }
 }
 
@@ -81,28 +81,28 @@ export const CreateNewThiefSquaddie: (
     params: {
         squaddieRepository: BattleSquaddieRepository,
         name?: string,
-        staticId?: string,
-        dynamicId?: string,
+        templateId?: string,
+        battleId?: string,
         affiliation?: SquaddieAffiliation,
         actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }
 ) => {
-    thiefSquaddietemplate: SquaddieTemplate
-    thiefDynamicSquaddie: BattleSquaddie,
+    thiefSquaddieTemplate: SquaddieTemplate
+    thiefBattleSquaddie: BattleSquaddie,
 } = ({
          squaddieRepository,
          name,
-         staticId,
-         dynamicId,
+         templateId,
+         battleId,
          affiliation,
          actions,
          attributes,
      }: {
          squaddieRepository: BattleSquaddieRepository,
          name?: string,
-         staticId?: string,
-         dynamicId?: string,
+         templateId?: string,
+         battleId?: string,
          affiliation?: SquaddieAffiliation,
          actions?: SquaddieAction[],
          attributes?: ArmyAttributes,
@@ -126,12 +126,12 @@ export const CreateNewThiefSquaddie: (
     });
 
     const {
-        squaddietemplate: thiefSquaddietemplate,
-        dynamicSquaddie: thiefDynamicSquaddie,
+        squaddieTemplate: thiefSquaddieTemplate,
+        battleSquaddie: thiefBattleSquaddie,
     } = CreateNewSquaddieAndAddToRepository({
         name: name || "Thief",
-        staticId: staticId || "Thief",
-        dynamicId: dynamicId || "Thief 0",
+        templateId: templateId || "Thief",
+        battleId: battleId || "Thief 0",
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.ENEMY,
         squaddieRepository: squaddieRepository,
         actions: actions || [defaultAttackAction],
@@ -141,8 +141,8 @@ export const CreateNewThiefSquaddie: (
     });
 
     return {
-        thiefSquaddietemplate,
-        thiefDynamicSquaddie,
+        thiefSquaddieTemplate,
+        thiefBattleSquaddie,
     }
 }
 
@@ -150,28 +150,28 @@ export const CreateNewKnightSquaddie: (
     params: {
         squaddieRepository: BattleSquaddieRepository,
         name?: string,
-        staticId?: string,
-        dynamicId?: string,
+        templateId?: string,
+        battleId?: string,
         affiliation?: SquaddieAffiliation,
         actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }
 ) => {
-    knightSquaddietemplate: SquaddieTemplate
-    knightDynamicSquaddie: BattleSquaddie,
+    knightSquaddieTemplate: SquaddieTemplate
+    knightBattleSquaddie: BattleSquaddie,
 } = ({
          squaddieRepository,
          name,
-         staticId,
-         dynamicId,
+         templateId,
+         battleId,
          affiliation,
          actions,
          attributes,
      }: {
          squaddieRepository: BattleSquaddieRepository,
          name?: string,
-         staticId?: string,
-         dynamicId?: string,
+         templateId?: string,
+         battleId?: string,
          affiliation?: SquaddieAffiliation,
          actions?: SquaddieAction[],
          attributes?: ArmyAttributes,
@@ -211,12 +211,12 @@ export const CreateNewKnightSquaddie: (
     });
 
     const {
-        squaddietemplate: knightSquaddietemplate,
-        dynamicSquaddie: knightDynamicSquaddie,
+        squaddieTemplate: knightSquaddieTemplate,
+        battleSquaddie: knightBattleSquaddie,
     } = CreateNewSquaddieAndAddToRepository({
         name: name || "Knight",
-        staticId: staticId || "Knight",
-        dynamicId: dynamicId || "Knight 0",
+        templateId: templateId || "Knight",
+        battleId: battleId || "Knight 0",
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.PLAYER,
         squaddieRepository: squaddieRepository,
         actions: actions || [defaultAttackAction, powerAttacklongswordAction],
@@ -226,7 +226,7 @@ export const CreateNewKnightSquaddie: (
     });
 
     return {
-        knightSquaddietemplate,
-        knightDynamicSquaddie,
+        knightSquaddieTemplate,
+        knightBattleSquaddie,
     }
 }

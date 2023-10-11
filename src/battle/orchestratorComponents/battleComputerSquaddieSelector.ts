@@ -174,15 +174,15 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     private addSquaddieSquaddieInstruction(
         state: BattleOrchestratorState,
-        squaddietemplate: SquaddieTemplate,
-        dynamicSquaddie: BattleSquaddie,
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
         action: SquaddieSquaddieAction,
     ) {
-        MaybeCreateSquaddieInstruction(state, dynamicSquaddie, squaddietemplate);
+        MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
 
         state.squaddieCurrentlyActing.addConfirmedAction(action);
-        dynamicSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
-        const instructionResults = CalculateResults(state, dynamicSquaddie, action.targetLocation);
+        battleSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
+        const instructionResults = CalculateResults(state, battleSquaddie, action.targetLocation);
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,
@@ -223,20 +223,20 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private defaultSquaddieToEndTurn(state: BattleOrchestratorState, currentTeam: BattleSquaddieTeam) {
-        const dynamicSquaddieId: string = currentTeam.getDynamicSquaddieIdThatCanActButNotPlayerControlled();
-        return this.addEndTurnInstruction(state, dynamicSquaddieId);
+        const battleSquaddieId: string = currentTeam.getBattleSquaddieIdThatCanActButNotPlayerControlled();
+        return this.addEndTurnInstruction(state, battleSquaddieId);
     }
 
-    private addEndTurnInstruction(state: BattleOrchestratorState, dynamicSquaddieId: string) {
+    private addEndTurnInstruction(state: BattleOrchestratorState, battleSquaddieId: string) {
         const {
-            squaddietemplate,
-            dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId))
-        const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddie.dynamicSquaddieId);
+            squaddieTemplate,
+            battleSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId))
+        const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
             state.squaddieCurrentlyActing.addInitialState({
-                dynamicSquaddieId: dynamicSquaddie.dynamicSquaddieId,
-                squaddietemplateId: squaddietemplate.staticId,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                squaddieTemplateId: squaddieTemplate.templateId,
                 startingLocation: datum.mapLocation,
             });
         }
@@ -265,13 +265,13 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private panToSquaddieIfOffscreen(state: BattleOrchestratorState) {
-        const dynamicSquaddieId: string = state.squaddieCurrentlyActing.dynamicSquaddieId;
+        const battleSquaddieId: string = state.squaddieCurrentlyActing.battleSquaddieId;
 
         const {
-            dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(dynamicSquaddieId));
+            battleSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
-        const datum = state.missionMap.getSquaddieByDynamicId(dynamicSquaddieId);
+        const datum = state.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
         const squaddieScreenLocation: number[] = convertMapCoordinatesToScreenCoordinates(
             datum.mapLocation.q,
@@ -297,22 +297,22 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     private reactToComputerSelectedAction(state: BattleOrchestratorState, squaddieInstruction: SquaddieActionsForThisRound) {
         state.hexMap.stopHighlightingTiles();
         const {
-            squaddietemplate,
-            dynamicSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(squaddieInstruction.dynamicSquaddieId));
+            squaddieTemplate,
+            battleSquaddie,
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieInstruction.battleSquaddieId));
         let newAction = squaddieInstruction.getMostRecentAction();
         if (newAction instanceof SquaddieMovementAction) {
-            createSearchPath(state, squaddietemplate, dynamicSquaddie, newAction.destination);
-            this.mostRecentAction = AddMovementInstruction(state, squaddietemplate, dynamicSquaddie, newAction.destination);
+            createSearchPath(state, squaddieTemplate, battleSquaddie, newAction.destination);
+            this.mostRecentAction = AddMovementInstruction(state, squaddieTemplate, battleSquaddie, newAction.destination);
             return;
         }
         if (newAction instanceof SquaddieSquaddieAction) {
-            this.addSquaddieSquaddieInstruction(state, squaddietemplate, dynamicSquaddie, newAction);
+            this.addSquaddieSquaddieInstruction(state, squaddieTemplate, battleSquaddie, newAction);
             this.highlightTargetRange(state, newAction);
             return;
         }
         if (newAction instanceof SquaddieEndTurnAction) {
-            this.addEndTurnInstruction(state, squaddieInstruction.dynamicSquaddieId);
+            this.addEndTurnInstruction(state, squaddieInstruction.battleSquaddieId);
         }
     }
 }

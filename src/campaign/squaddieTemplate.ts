@@ -26,8 +26,8 @@ export class SquaddieTemplate {
         return this.attributes.movement;
     }
 
-    get staticId(): string {
-        return this.squaddieId.staticId;
+    get templateId(): string {
+        return this.squaddieId.templateId;
     }
 
     addAction(action: SquaddieAction) {

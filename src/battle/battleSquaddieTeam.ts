@@ -7,21 +7,21 @@ import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../squad
 export class BattleSquaddieTeam {
     name: string;
     squaddieRepo: BattleSquaddieRepository;
-    dynamicSquaddieIds: string[];
+    battleSquaddieIds: string[];
 
     constructor(options: {
         name: string;
         affiliation: SquaddieAffiliation;
         squaddieRepo: BattleSquaddieRepository;
-        dynamicSquaddieIds?: string[];
+        battleSquaddieIds?: string[];
     }) {
         this.name = options.name;
         this._affiliation = options.affiliation;
         this.squaddieRepo = options.squaddieRepo;
 
-        this.dynamicSquaddieIds = [];
-        if (options.dynamicSquaddieIds) {
-            this.addDynamicSquaddieIds(options.dynamicSquaddieIds);
+        this.battleSquaddieIds = [];
+        if (options.battleSquaddieIds) {
+            this.addBattleSquaddieIds(options.battleSquaddieIds);
         }
     }
 
@@ -32,73 +32,73 @@ export class BattleSquaddieTeam {
     }
 
     hasSquaddies(): boolean {
-        return this.dynamicSquaddieIds.length > 0;
+        return this.battleSquaddieIds.length > 0;
     }
 
     hasAnActingSquaddie(): boolean {
-        return this.dynamicSquaddieIds.some(dynamicSquaddieId => {
+        return this.battleSquaddieIds.some(battleSquaddieId => {
             const {
-                squaddietemplate,
-                dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
-            const {canAct} = CanSquaddieActRightNow({squaddietemplate, dynamicSquaddie,});
+                squaddieTemplate,
+                battleSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
+            const {canAct} = CanSquaddieActRightNow({squaddieTemplate, battleSquaddie,});
             return canAct;
         })
     }
 
-    addDynamicSquaddieIds(dynamicSquaddieIds: string[]) {
-        this.dynamicSquaddieIds = [
-            ...this.dynamicSquaddieIds,
-            ...dynamicSquaddieIds.filter(notEmptyString => notEmptyString),
+    addBattleSquaddieIds(battleSquaddieIds: string[]) {
+        this.battleSquaddieIds = [
+            ...this.battleSquaddieIds,
+            ...battleSquaddieIds.filter(notEmptyString => notEmptyString),
         ]
     }
 
     canPlayerControlAnySquaddieOnThisTeamRightNow() {
-        return this.dynamicSquaddieIds.some(dynamicSquaddieId => {
+        return this.battleSquaddieIds.some(battleSquaddieId => {
             const {
-                squaddietemplate,
-                dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
+                squaddieTemplate,
+                battleSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
             const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
-                squaddietemplate,
-                dynamicSquaddie,
+                squaddieTemplate,
+                battleSquaddie,
             });
             return playerCanControlThisSquaddieRightNow;
         })
     }
 
-    getDynamicSquaddieIdThatCanActButNotPlayerControlled(): string {
-        return this.dynamicSquaddieIds.find(dynamicSquaddieId => {
+    getBattleSquaddieIdThatCanActButNotPlayerControlled(): string {
+        return this.battleSquaddieIds.find(battleSquaddieId => {
             const {
-                squaddietemplate,
-                dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
+                squaddieTemplate,
+                battleSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
             const {
                 squaddieCanCurrentlyAct,
                 squaddieHasThePlayerControlledAffiliation
-            } = CanPlayerControlSquaddieRightNow({squaddietemplate, dynamicSquaddie,});
+            } = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie,});
             return !squaddieHasThePlayerControlledAffiliation && squaddieCanCurrentlyAct;
         })
     }
 
-    getDynamicSquaddiesThatCanAct(): string[] {
-        return this.dynamicSquaddieIds.filter(dynamicSquaddieId => {
+    getBattleSquaddiesThatCanAct(): string[] {
+        return this.battleSquaddieIds.filter(battleSquaddieId => {
             const {
-                squaddietemplate, dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
-            const {canAct} = CanSquaddieActRightNow({squaddietemplate, dynamicSquaddie,});
+                squaddieTemplate, battleSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
+            const {canAct} = CanSquaddieActRightNow({squaddieTemplate, battleSquaddie,});
             return canAct;
         });
     }
 
     beginNewRound() {
-        this.dynamicSquaddieIds.forEach((dynamicSquaddieId => {
+        this.battleSquaddieIds.forEach((battleSquaddieId => {
             const {
-                squaddietemplate,
-                dynamicSquaddie
-            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByDynamicId(dynamicSquaddieId));
-            dynamicSquaddie.beginNewRound();
-            unTintSquaddieMapIcon(squaddietemplate, dynamicSquaddie);
+                squaddieTemplate,
+                battleSquaddie
+            } = getResultOrThrowError(this.squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
+            battleSquaddie.beginNewRound();
+            unTintSquaddieMapIcon(squaddieTemplate, battleSquaddie);
         }));
     }
 }

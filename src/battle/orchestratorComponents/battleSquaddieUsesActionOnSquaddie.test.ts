@@ -35,8 +35,8 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
-    let squaddietemplateBase: SquaddieTemplate;
-    let dynamicSquaddieBase: BattleSquaddie;
+    let squaddieTemplateBase: SquaddieTemplate;
+    let battleSquaddieBase: BattleSquaddie;
     let targetStatic: SquaddieTemplate;
     let targetDynamic: BattleSquaddie;
     let powerAttackLongswordAction: SquaddieAction;
@@ -52,12 +52,12 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepository = new BattleSquaddieRepository();
         ({
-            squaddietemplate: squaddietemplateBase,
-            dynamicSquaddie: dynamicSquaddieBase,
+            squaddieTemplate: squaddieTemplateBase,
+            battleSquaddie: battleSquaddieBase,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Torrin",
-            staticId: "static_squaddie",
-            dynamicId: "dynamic_squaddie",
+            templateId: "static_squaddie",
+            battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -71,12 +71,12 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         }));
 
         ({
-            squaddietemplate: targetStatic,
-            dynamicSquaddie: targetDynamic,
+            squaddieTemplate: targetStatic,
+            battleSquaddie: targetDynamic,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Target",
-            staticId: "target_static_squaddie",
-            dynamicId: "target_dynamic_squaddie",
+            templateId: "target_static_squaddie",
+            battleId: "target_dynamic_squaddie",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
             attributes: new ArmyAttributes({
@@ -129,8 +129,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
     function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            squaddietemplateId: "static_squaddie",
-            dynamicSquaddieId: "dynamic_squaddie",
+            squaddieTemplateId: "static_squaddie",
+            battleSquaddieId: "dynamic_squaddie",
         });
         instruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
@@ -145,8 +145,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,
             results: new SquaddieSquaddieResults({
-                actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId,
-                targetedSquaddieDynamicIds: [],
+                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
             })
         });
@@ -163,18 +163,18 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicId: dynamicSquaddieBase.dynamicSquaddieId,
+            battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        dynamicSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
+        battleSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
         return state;
     }
 
     function usePowerAttackLongswordAndReturnState({missionMap}: { missionMap?: MissionMap }) {
         const wholeTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
-            squaddietemplateId: "static_squaddie",
-            dynamicSquaddieId: "dynamic_squaddie",
+            squaddieTemplateId: "static_squaddie",
+            battleSquaddieId: "dynamic_squaddie",
         });
         wholeTurnInstruction.addAction(new SquaddieSquaddieAction({
             targetLocation: new HexCoordinate({q: 0, r: 0}),
@@ -189,8 +189,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: squaddieInstructionInProgress,
             results: new SquaddieSquaddieResults({
-                actingSquaddieDynamicId: dynamicSquaddieBase.dynamicSquaddieId,
-                targetedSquaddieDynamicIds: ["target_dynamic_squaddie"],
+                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
                 resultPerTarget: {["target_dynamic_squaddie"]: new ActionResultPerSquaddie({damageTaken: 9001})}
             })
         });
@@ -206,11 +206,11 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            dynamicId: dynamicSquaddieBase.dynamicSquaddieId,
+            battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        dynamicSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
+        battleSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
         return state;
     }
 
@@ -220,17 +220,17 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         })
 
         const state = usePowerAttackLongswordAndReturnState({missionMap});
-        expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.dynamicSquaddieId)).toBeFalsy();
+        expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.battleSquaddieId)).toBeFalsy();
 
         targetDynamic.inBattleAttributes.takeDamage(targetStatic.attributes.maxHitPoints, DamageType.Body);
-        expect(IsSquaddieAlive({dynamicSquaddie: targetDynamic, squaddietemplate: targetStatic})).toBeFalsy();
+        expect(IsSquaddieAlive({battleSquaddie: targetDynamic, squaddieTemplate: targetStatic})).toBeFalsy();
 
         jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
         const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
 
         squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
-        expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.dynamicSquaddieId)).toBeTruthy();
+        expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.battleSquaddieId)).toBeTruthy();
     });
 
     it('uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes', () => {

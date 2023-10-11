@@ -8,32 +8,32 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
     result: SquaddieSquaddieResults,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {
-    const {squaddietemplate: actingSquaddietemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(result.actingSquaddieDynamicId))
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(result.actingBattleSquaddieId))
 
     let output: string[] = [];
-    output.push(`${actingSquaddietemplate.squaddieId.name} uses ${currentAction.name}`);
-    result.targetedSquaddieDynamicIds.forEach((targetSquaddieId: string) => {
-        const {squaddietemplate: targetSquaddieStatic} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(targetSquaddieId));
+    output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentAction.name}`);
+    result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
+        const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(targetSquaddieId));
         if (currentAction.isHindering) {
-            output.push(`${targetSquaddieStatic.squaddieId.name} takes ${result.resultPerTarget[targetSquaddieId].damageTaken} damage`);
+            output.push(`${targetSquaddieTemplate.squaddieId.name} takes ${result.resultPerTarget[targetSquaddieId].damageTaken} damage`);
         }
         if (currentAction.isHelpful) {
-            output.push(`${targetSquaddieStatic.squaddieId.name} receives ${result.resultPerTarget[targetSquaddieId].healingReceived} healing`);
+            output.push(`${targetSquaddieTemplate.squaddieId.name} receives ${result.resultPerTarget[targetSquaddieId].healingReceived} healing`);
         }
     });
 
     return output;
 }
 
-export const FormatIntent = ({currentAction, actingDynamicId, squaddieRepository}: {
+export const FormatIntent = ({currentAction, actingBattleSquaddieId, squaddieRepository}: {
     currentAction: SquaddieAction,
-    actingDynamicId: string,
+    actingBattleSquaddieId: string,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {
-    const {squaddietemplate: actingSquaddietemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByDynamicId(actingDynamicId))
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(actingBattleSquaddieId))
 
     let output: string[] = [];
-    output.push(`${actingSquaddietemplate.squaddieId.name} uses ${currentAction.name}`);
+    output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentAction.name}`);
 
     return output;
 }
