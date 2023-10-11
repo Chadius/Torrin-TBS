@@ -15,6 +15,11 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {MissionMap} from "../../missionMap/missionMap";
+import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -26,30 +31,35 @@ describe('BattlePhaseController', () => {
     let state: BattleOrchestratorState;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
+    let playerSquaddieTemplate: SquaddieTemplate;
+    let playerBattleSquaddie: BattleSquaddie;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepo = new BattleSquaddieRepository();
 
+        playerSquaddieTemplate = new SquaddieTemplate({
+            squaddieId: new SquaddieId({
+                staticId: "player_squaddie",
+                name: "Player",
+                resources: new SquaddieResource({}),
+                traits: new TraitStatusStorage(),
+                affiliation: SquaddieAffiliation.PLAYER,
+            }),
+            actions: [],
+        });
+        playerBattleSquaddie = new BattleSquaddie({
+            dynamicSquaddieId: "player_squaddie_0",
+            squaddieTemplateId: "player_squaddie",
+            squaddieTurn: new SquaddieTurn(),
+            mapIcon: mocks.mockImageUI(),
+        });
+
         squaddieRepo.addSquaddietemplate(
-            new SquaddieTemplate({
-                squaddieId: new SquaddieId({
-                    staticId: "player_squaddie",
-                    name: "Player",
-                    resources: new SquaddieResource({}),
-                    traits: new TraitStatusStorage(),
-                    affiliation: SquaddieAffiliation.PLAYER,
-                }),
-                actions: [],
-            })
+            playerSquaddieTemplate,
         );
         squaddieRepo.addDynamicSquaddie(
-            new BattleSquaddie({
-                dynamicSquaddieId: "player_squaddie_0",
-                squaddieTemplateId: "player_squaddie",
-                squaddieTurn: new SquaddieTurn(),
-                mapIcon: mocks.mockImageUI(),
-            })
+            playerBattleSquaddie,
         );
 
         squaddieRepo.addSquaddietemplate(
@@ -129,6 +139,11 @@ describe('BattlePhaseController', () => {
             squaddieRepository: squaddieRepo,
             resourceHandler,
             teamsByAffiliation,
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "],
+                })
+            })
         });
         battlePhaseController = new BattlePhaseController();
         const startTime = 0;
@@ -151,15 +166,16 @@ describe('BattlePhaseController', () => {
         expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
     });
 
-    it('stops the camera when it displays the banner', () => {
-        const camera: BattleCamera = new BattleCamera();
-        camera.setXVelocity(-100);
-        camera.setYVelocity(-100);
-
+    it('stops the camera when it displays the banner if it is not the player phase', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieRepository: squaddieRepo,
             resourceHandler,
             teamsByAffiliation,
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "],
+                })
+            })
         });
         battlePhaseController = new BattlePhaseController();
         const startTime = 0;
@@ -169,6 +185,86 @@ describe('BattlePhaseController', () => {
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
 
         expect(state.camera.getVelocity()).toStrictEqual([0, 0]);
+    });
+
+    describe('Pan camera at the start of Player Phase', () => {
+        let missionMap: MissionMap;
+
+        beforeEach(() => {
+            missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "]
+                })
+            });
+        });
+
+        const initializeState = ({
+                                     squaddieTemplateIdToAdd,
+                                     battleSquaddieIdToAdd,
+                                     camera,
+                                 }: {
+            squaddieTemplateIdToAdd: string,
+            battleSquaddieIdToAdd: string,
+            camera: BattleCamera,
+        }) => {
+            missionMap.addSquaddie(squaddieTemplateIdToAdd, battleSquaddieIdToAdd, new HexCoordinate({q: 0, r: 0}));
+            const state: BattleOrchestratorState = new BattleOrchestratorState({
+                squaddieRepository: squaddieRepo,
+                resourceHandler,
+                teamsByAffiliation,
+                missionMap,
+                camera,
+            });
+
+            state.battlePhaseState = {
+                currentAffiliation: BattlePhase.UNKNOWN,
+                turnCount: 0,
+            };
+
+            battlePhaseController = new BattlePhaseController();
+            return state;
+        }
+
+        it('pans the camera to the first player when it is the player phase and the player is offscreen', () => {
+            const state = initializeState({
+                squaddieTemplateIdToAdd: playerSquaddieTemplate.staticId,
+                battleSquaddieIdToAdd: playerBattleSquaddie.dynamicSquaddieId,
+                camera: new BattleCamera(
+                    ScreenDimensions.SCREEN_WIDTH * 10,
+                    ScreenDimensions.SCREEN_HEIGHT * 10,
+                ),
+            });
+
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(state.camera.isPanning()).toBeTruthy();
+
+            const datum = state.missionMap.getSquaddieByDynamicId(playerSquaddieTeam.dynamicSquaddieIds[0])
+            const playerSquaddieLocation = convertMapCoordinatesToWorldCoordinates(datum.mapLocation.q, datum.mapLocation.r);
+            expect(state.camera.panningInformation.xDestination).toBe(playerSquaddieLocation[0]);
+            expect(state.camera.panningInformation.yDestination).toBe(playerSquaddieLocation[1]);
+        });
+
+        it('does not pan the camera to the first player when it is the player phase and the player is onscreen', () => {
+            const state = initializeState({
+                squaddieTemplateIdToAdd: playerSquaddieTemplate.staticId,
+                battleSquaddieIdToAdd: playerBattleSquaddie.dynamicSquaddieId,
+                camera: new BattleCamera(
+                    ...convertMapCoordinatesToWorldCoordinates(0, 0)
+                ),
+            });
+
+            const datum = state.missionMap.getSquaddieByDynamicId(playerSquaddieTeam.dynamicSquaddieIds[0])
+            const playerSquaddieLocation = convertMapCoordinatesToWorldCoordinates(datum.mapLocation.q, datum.mapLocation.r);
+            state.camera.xCoord = playerSquaddieLocation[0];
+            state.camera.yCoord = playerSquaddieLocation[1];
+
+            battlePhaseController = new BattlePhaseController();
+            const startTime = 0;
+            jest.spyOn(Date, 'now').mockImplementation(() => startTime);
+
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(state.camera.isPanning()).toBeFalsy();
+        });
     });
 
     it('starts the animation and completes if team has finished their turns', () => {
@@ -200,6 +296,11 @@ describe('BattlePhaseController', () => {
             squaddieRepository: squaddieRepo,
             resourceHandler,
             teamsByAffiliation,
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 1 "],
+                })
+            })
         });
         battlePhaseController = new BattlePhaseController();
         battlePhaseController.draw = jest.fn();

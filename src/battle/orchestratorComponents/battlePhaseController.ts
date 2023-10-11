@@ -9,9 +9,15 @@ import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {isCoordinateOnScreen, ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {CanPlayerControlSquaddieRightNow} from "../../squaddie/squaddieService";
+import {
+    convertMapCoordinatesToScreenCoordinates,
+    convertMapCoordinatesToWorldCoordinates
+} from "../../hexMap/convertCoordinates";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -89,6 +95,8 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
             state.camera.setXVelocity(0);
             state.camera.setYVelocity(0);
+
+            this.panToControllablePlayerSquaddieIfPlayerPhase(state);
 
             state.getCurrentTeam().beginNewRound();
 
@@ -169,5 +177,49 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         this.affiliationImageUI = undefined;
         this.bannerDisplayAnimationStartTime = undefined;
         this.newBannerShown = false;
+    }
+
+    private panToControllablePlayerSquaddieIfPlayerPhase(state: BattleOrchestratorState) {
+        if (state.battlePhaseState.currentAffiliation !== BattlePhase.PLAYER) {
+            return;
+        }
+
+        const playerTeam = state.teamsByAffiliation[SquaddieAffiliation.PLAYER];
+        let squaddieToPanToBattleId = playerTeam.dynamicSquaddieIds.find((id) => {
+            const {
+                squaddietemplate,
+                dynamicSquaddie
+            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByDynamicId(id));
+            const {
+                playerCanControlThisSquaddieRightNow,
+            } = CanPlayerControlSquaddieRightNow({dynamicSquaddie, squaddietemplate});
+
+            return playerCanControlThisSquaddieRightNow;
+        });
+
+        if (squaddieToPanToBattleId === undefined) {
+            return;
+        }
+
+        const mapDatum = state.missionMap.getSquaddieByDynamicId(squaddieToPanToBattleId);
+        if (mapDatum.isValid()) {
+            const squaddieScreenLocation = convertMapCoordinatesToScreenCoordinates(
+                mapDatum.mapLocation.q,
+                mapDatum.mapLocation.r,
+                ...state.camera.getCoordinates()
+            );
+            if (isCoordinateOnScreen(...squaddieScreenLocation)) {
+                return;
+            }
+
+            const squaddieWorldLocation = convertMapCoordinatesToWorldCoordinates(mapDatum.mapLocation.q, mapDatum.mapLocation.r);
+            state.camera.pan({
+                xDestination: squaddieWorldLocation[0],
+                yDestination: squaddieWorldLocation[1],
+                timeToPan: BANNER_ANIMATION_TIME - 500,
+                respectConstraints: true,
+            });
+            return;
+        }
     }
 }
