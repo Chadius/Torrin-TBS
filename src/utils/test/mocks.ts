@@ -36,6 +36,8 @@ jest.mock('p5', () => () => {
         beginShape: jest.fn(),
         endShape: jest.fn(),
         vertex: jest.fn(),
+        windowWidth: jest.fn().mockReturnValue(16 * 12),
+        windowHeight: jest.fn().mockReturnValue(9 * 12),
     }
 });
 
@@ -183,6 +185,14 @@ export class MockedP5GraphicsContext implements GraphicsContext {
 
     vertex(x: number, y: number): void {
         this.mockedP5.vertex(x, y);
+    }
+
+    windowHeight(): number {
+        return this.mockedP5.windowHeight;
+    }
+
+    windowWidth(): number {
+        return this.mockedP5.windowWidth;
     }
 }
 

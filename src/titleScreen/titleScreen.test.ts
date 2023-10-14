@@ -19,6 +19,8 @@ describe('Title Screen', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
+        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
@@ -44,6 +46,8 @@ describe('Title Screen', () => {
     });
 
     it('will declare itself complete when the user presses the enter key', () => {
+        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
+        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
         expect(titleScreen.hasCompleted(titleScreenState)).toBeFalsy();
         titleScreen.update(titleScreenState, mockedP5GraphicsContext);
         expect(titleScreen.hasCompleted(titleScreenState)).toBeFalsy();
@@ -68,5 +72,29 @@ describe('Title Screen', () => {
         spy.mockClear();
         titleScreen.reset(titleScreenState);
         expect(titleScreen.hasCompleted(titleScreen)).toBeFalsy();
+    });
+
+    it('will update the start game button if the window is too small', () => {
+        const [mockedWidth, mockedHeight] = [ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT / 2];
+        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+        titleScreen.reset(titleScreenState);
+        titleScreen.update(titleScreenState, mockedP5GraphicsContext);
+
+        const expectedButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${mockedWidth}x${mockedHeight}`;
+        expect(textSpy).toBeCalledWith(expectedButtonLabel, expect.anything(), expect.anything(), expect.anything(), expect.anything());
+    });
+
+    it('will say the window is too small if the window is too small', () => {
+        const [mockedWidth, mockedHeight] = [1, 1];
+        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+        titleScreen.reset(titleScreenState);
+        titleScreen.update(titleScreenState, mockedP5GraphicsContext);
+
+        const expectedButtonLabel = `Window is too small`;
+        expect(textSpy).toBeCalledWith(expectedButtonLabel, expect.anything(), expect.anything(), expect.anything(), expect.anything());
     });
 });

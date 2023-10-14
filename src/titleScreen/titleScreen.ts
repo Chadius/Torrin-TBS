@@ -122,7 +122,7 @@ export class TitleScreen implements GameEngineComponent {
         this.lazyLoadByLine().draw(graphicsContext);
         this.lazyLoadGameDescription().draw(graphicsContext);
 
-        this.lazyLoadPlayButton().draw(graphicsContext);
+        this.updatePlayButton(graphicsContext).draw(graphicsContext);
         if (this._showingLoadingMessage) {
             this._newGameSelected = true;
         }
@@ -256,21 +256,44 @@ export class TitleScreen implements GameEngineComponent {
         return this.gameDescription;
     }
 
-    private lazyLoadPlayButton() {
-        if (this.playButton === undefined) {
-            const buttonArea = new RectArea({
-                left: 0,
-                width: ScreenDimensions.SCREEN_WIDTH,
-                top: ScreenDimensions.SCREEN_HEIGHT * 0.8,
-                bottom: ScreenDimensions.SCREEN_HEIGHT,
-            })
+    private updatePlayButton(graphicsContext: GraphicsContext) {
+        const windowIsTooSmall: boolean = graphicsContext.windowWidth() < ScreenDimensions.SCREEN_WIDTH
+            || graphicsContext.windowHeight() < ScreenDimensions.SCREEN_HEIGHT;
 
+        const buttonWidth = graphicsContext.windowWidth() > ScreenDimensions.SCREEN_WIDTH
+            ? ScreenDimensions.SCREEN_WIDTH
+            : graphicsContext.windowWidth();
+
+        let playButtonLabel = "Click here to Play Demo";
+        let buttonTextSize = WINDOW_SPACING4;
+        if (windowIsTooSmall) {
+            buttonTextSize = buttonWidth / 35;
+            playButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
+
+            const buttonTextMinimumSize = 18;
+            if (buttonTextSize < buttonTextMinimumSize) {
+                buttonTextSize = buttonTextMinimumSize;
+                playButtonLabel = "Window is too small";
+            }
+        }
+        const playButtonHorizontalAlignment = windowIsTooSmall
+            ? HORIZ_ALIGN_LEFT
+            : HORIZ_ALIGN_CENTER;
+
+        const buttonArea = new RectArea({
+            left: 0,
+            width: ScreenDimensions.SCREEN_WIDTH,
+            top: ScreenDimensions.SCREEN_HEIGHT * 0.8,
+            bottom: ScreenDimensions.SCREEN_HEIGHT,
+        })
+
+        if (this.playButton === undefined || windowIsTooSmall) {
             this.playButton = new Button({
                 activeLabel: new Label({
                     text: "Now loading...",
                     fillColor: colors.playButtonActive,
                     area: buttonArea,
-                    textSize: WINDOW_SPACING4,
+                    textSize: buttonTextSize,
                     fontColor: colors.playButtonText,
                     padding: WINDOW_SPACING1,
                     horizAlign: HORIZ_ALIGN_CENTER,
@@ -278,13 +301,13 @@ export class TitleScreen implements GameEngineComponent {
                     strokeColor: colors.playButtonStroke,
                 }),
                 readyLabel: new Label({
-                    text: "Click here to Play Demo",
+                    text: playButtonLabel,
                     fillColor: colors.playButton,
                     area: buttonArea,
-                    textSize: WINDOW_SPACING4,
+                    textSize: buttonTextSize,
                     fontColor: colors.playButtonText,
                     padding: WINDOW_SPACING1,
-                    horizAlign: HORIZ_ALIGN_CENTER,
+                    horizAlign: playButtonHorizontalAlignment,
                     vertAlign: VERT_ALIGN_CENTER,
                     strokeColor: colors.playButtonStroke,
                 }),
@@ -296,6 +319,7 @@ export class TitleScreen implements GameEngineComponent {
                 }
             })
         }
+
         return this.playButton;
     }
 

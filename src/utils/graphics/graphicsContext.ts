@@ -44,6 +44,10 @@ export interface GraphicsContext {
     endShape(mode: string): void;
 
     noFill(): void;
+
+    windowWidth(): number;
+
+    windowHeight(): number;
 }
 
 export interface GraphicImage {

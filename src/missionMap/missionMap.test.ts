@@ -83,14 +83,23 @@ describe('Mission Map', () => {
         })
 
         let error: Error;
-        error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", new HexCoordinate({q: 0, r: 1}));
+        error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", new HexCoordinate({
+            q: 0,
+            r: 1
+        }));
         expect(error).toBeUndefined();
 
-        error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_1", new HexCoordinate({q: 0, r: 1}));
+        error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_1", new HexCoordinate({
+            q: 0,
+            r: 1
+        }));
         expect(error).toEqual(expect.any(Error));
         expect((error as Error).message.includes("already occupied")).toBeTruthy();
 
-        error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_1", new HexCoordinate({q: 0, r: -1}));
+        error = missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_1", new HexCoordinate({
+            q: 0,
+            r: -1
+        }));
         expect(error).toBeUndefined();
     });
 

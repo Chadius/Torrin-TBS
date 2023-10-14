@@ -126,4 +126,12 @@ export class P5GraphicsContext implements GraphicsContext {
     noFill(): void {
         this.p.noFill();
     }
+
+    windowHeight(): number {
+        return this.p.windowHeight;
+    }
+
+    windowWidth(): number {
+        return this.p.windowWidth;
+    }
 }
