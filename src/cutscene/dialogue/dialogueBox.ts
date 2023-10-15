@@ -6,24 +6,25 @@ import {DialogueSpeakerNameBox} from "./dialogueSpeakerNameBox";
 import {DialogueSpeakerImage} from "./dialogueSpeakerImage";
 import {DialogueAnswerButton} from "./dialogueAnswerButton";
 import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {SubstituteText, TextSubstitutionContext} from "../../textSubstitution/textSubstitution";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 
 export class DialogueBox implements CutsceneAction {
     id: string;
     screenDimensions: [number, number];
     dialogFinished: boolean;
-
     startTime: number;
     animationDuration: number;
-
     answers: string[];
     answerSelected: number;
     answerButtons: DialogueAnswerButton[];
-
     textBox: DialogueTextBox;
     speakerNameBox: DialogueSpeakerNameBox;
     speakerPortrait: GraphicImage;
     speakerPortraitResourceKey: string;
     speakerImage: DialogueSpeakerImage;
+    private readonly _originalText: string;
+    private readonly _originalName: string;
 
     constructor({
                     id,
@@ -34,6 +35,7 @@ export class DialogueBox implements CutsceneAction {
                     animationDuration,
                     answers,
                     screenDimensions,
+                    context
                 }: {
         id: string;
         name?: string;
@@ -43,6 +45,7 @@ export class DialogueBox implements CutsceneAction {
         animationDuration?: number;
         answers?: string[];
         screenDimensions?: [number, number];
+        context?: TextSubstitutionContext;
     }) {
         this.id = id;
         this.answers = answers || [];
@@ -54,20 +57,36 @@ export class DialogueBox implements CutsceneAction {
         this.answerSelected = -1;
         this.dialogFinished = false;
 
-        this.textBox = new DialogueTextBox({text, screenDimensions});
-        this.speakerNameBox = new DialogueSpeakerNameBox({name, screenDimensions});
+        this._originalText = text;
+        this._originalName = name;
+    }
 
-        this.createUIObjects();
+    get originalText(): string {
+        return this._originalText;
+    }
+
+    get originalName(): string {
+        return this._originalName;
     }
 
     getId(): string {
         return this.id;
     }
 
-    createUIObjects() {
+    createUIObjects(context: TextSubstitutionContext) {
+        this.textBox = new DialogueTextBox({
+            text: SubstituteText(this.originalText, context),
+            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT]
+        });
+        this.speakerNameBox = new DialogueSpeakerNameBox({
+                name: this.originalName,
+                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT]
+            }
+        );
+
         const answerButtonPositions: RectArea[] = this.getAnswerButtonPositions();
         this.answerButtons = answerButtonPositions.map((position, index) => new DialogueAnswerButton({
-            answer: this.answers[index],
+            answer: SubstituteText(this.answers[index], context),
             position: position,
             screenDimensions: this.screenDimensions
         }));
@@ -113,9 +132,10 @@ export class DialogueBox implements CutsceneAction {
         graphicsContext.pop();
     }
 
-    start(): void {
+    start(context: TextSubstitutionContext): void {
         this.dialogFinished = false;
         this.startTime = Date.now();
+        this.createUIObjects(context);
     }
 
     getAnswerButtonPositions(): RectArea[] {

@@ -9,7 +9,8 @@ describe('MissionCutsceneCollection', () => {
             id: "1",
             name: "Doorman",
             text: "Welcome, come inside",
-            animationDuration: 0
+            animationDuration: 0,
+            context: {}
         });
         dinnerDate = new Cutscene({
             actions: [

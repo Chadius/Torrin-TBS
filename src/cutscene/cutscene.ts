@@ -8,6 +8,7 @@ import {RectArea} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
@@ -80,21 +81,21 @@ export class Cutscene {
         }
     }
 
-    mouseClicked(mouseX: number, mouseY: number) {
+    mouseClicked(mouseX: number, mouseY: number, context: TextSubstitutionContext) {
         if (this.fastForwardButton.mouseClicked(mouseX, mouseY, this) === true) {
             return;
         }
 
         if (this.currentAction === undefined) {
             this.gotoNextAction();
-            this.startAction();
+            this.startAction(context);
             return;
         }
 
         this.currentAction.mouseClicked(mouseX, mouseY);
         if (this.currentAction.isFinished()) {
             this.gotoNextAction();
-            this.startAction();
+            this.startAction(context);
         }
     }
 
@@ -137,19 +138,19 @@ export class Cutscene {
         });
     }
 
-    start(): Error {
+    start(context: TextSubstitutionContext): Error {
         if (!this.hasLoaded()) {
             return new Error("cutscene has not finished loading");
         }
 
         this.gotoNextAction();
-        this.startAction();
+        this.startAction(context);
         return undefined;
     }
 
-    startAction(): void {
+    startAction(context: TextSubstitutionContext): void {
         if (this.currentAction !== undefined) {
-            this.currentAction.start();
+            this.currentAction.start(context);
         }
     }
 
@@ -197,7 +198,7 @@ export class Cutscene {
         return this.fastForwardPreviousTimeTick !== undefined;
     }
 
-    update(): void {
+    update(context: TextSubstitutionContext): void {
         if (!this.canFastForward()) {
             this.deactivateFastForwardMode();
             this.fastForwardButton.setStatus(ButtonStatus.READY);
@@ -213,7 +214,7 @@ export class Cutscene {
         ) {
             if (this.getNextAction().nextAction !== undefined) {
                 this.gotoNextAction();
-                this.startAction();
+                this.startAction(context);
                 this.activateFastForwardMode();
                 this.fastForwardButton.setStatus(ButtonStatus.ACTIVE);
             } else {

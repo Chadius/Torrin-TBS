@@ -4,6 +4,7 @@ import {ImageUI} from "../ui/imageUI";
 import {RectArea} from "../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
+import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 
 export class SplashScreen implements CutsceneAction {
     id: string;
@@ -57,7 +58,7 @@ export class SplashScreen implements CutsceneAction {
         });
     }
 
-    start(): void {
+    start(context: TextSubstitutionContext): void {
         this.dialogFinished = false;
         this.startTime = Date.now();
     }

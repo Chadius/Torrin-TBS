@@ -36,7 +36,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             return;
         }
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED && this.currentCutscene && this.currentCutscene.isInProgress()) {
-            this.currentCutscene.mouseClicked(event.mouseX, event.mouseY);
+            this.currentCutscene.mouseClicked(event.mouseX, event.mouseY, {battleOrchestratorState: state});
             return;
         }
     }
@@ -53,10 +53,10 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.isInProgress()) {
             this.currentCutscene.setResources();
-            this.currentCutscene.start();
+            this.currentCutscene.start({battleOrchestratorState: state});
         }
         if (this.currentCutscene && this.currentCutscene.isInProgress()) {
-            this.currentCutscene.update();
+            this.currentCutscene.update({battleOrchestratorState: state});
             this.currentCutscene.draw(graphicsContext);
         }
     }
@@ -83,6 +83,6 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
 
         this._currentCutsceneId = cutsceneId;
         this._currentCutscene = state.cutsceneCollection.cutsceneById[cutsceneId];
-        this.currentCutscene.start();
+        this.currentCutscene.start({battleOrchestratorState: state});
     }
 }

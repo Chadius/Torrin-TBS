@@ -5,7 +5,7 @@ describe('splash screen', () => {
         const titleScreen = new SplashScreen({id: "1"});
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        titleScreen.start();
+        titleScreen.start({});
         expect(titleScreen.isAnimating()).toBeTruthy();
         expect(titleScreen.isFinished()).toBeFalsy();
 
@@ -19,7 +19,7 @@ describe('splash screen', () => {
         const titleScreen = new SplashScreen({id: "1", animationDuration: 500});
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        titleScreen.start();
+        titleScreen.start({});
         expect(titleScreen.isAnimating()).toBeTruthy();
         expect(titleScreen.isFinished()).toBeFalsy();
 

@@ -509,6 +509,13 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
+                        new DialogueBox({
+                            id: "victory_2",
+                            name: "Mission Report",
+                            text: "Turns: $$TURN_COUNT.",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
                         new SplashScreen({
                             id: "victory_final",
                             screenImageResourceKey: "splash victory",

@@ -4,6 +4,7 @@ import {Cutscene} from "./cutscene";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
+import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 
 describe('Cutscene', () => {
     const splash1 = new SplashScreen({id: "splash1"})
@@ -39,7 +40,7 @@ describe('Cutscene', () => {
             ]
         });
 
-        dinnerDate.start();
+        dinnerDate.start({});
         expect(dinnerDate.isInProgress()).toBeTruthy();
         expect(dinnerDate.getCurrentAction()).toBe(frontDoorGreeting);
     });
@@ -51,7 +52,7 @@ describe('Cutscene', () => {
             ]
         });
 
-        dinnerDate.start();
+        dinnerDate.start({});
         dinnerDate.stop();
         expect(dinnerDate.isInProgress()).toBeFalsy();
     });
@@ -64,9 +65,9 @@ describe('Cutscene', () => {
             ]
         });
 
-        dinnerDate.start();
+        dinnerDate.start({});
         expect(dinnerDate.getCurrentAction()).toBe(splash1);
-        dinnerDate.mouseClicked(100, 100);
+        dinnerDate.mouseClicked(100, 100, {});
         expect(dinnerDate.getCurrentAction()).toBe(splash2);
     });
 
@@ -78,14 +79,14 @@ describe('Cutscene', () => {
             ]
         });
 
-        dinnerDate.start();
+        dinnerDate.start({});
         expect(dinnerDate.isInProgress()).toBeTruthy();
 
         expect(dinnerDate.getCurrentAction()).toBe(frontDoorGreeting);
-        dinnerDate.mouseClicked(100, 100);
+        dinnerDate.mouseClicked(100, 100, {});
 
         expect(dinnerDate.getCurrentAction()).toBe(hostGreeting);
-        dinnerDate.mouseClicked(100, 100);
+        dinnerDate.mouseClicked(100, 100, {});
 
         expect(dinnerDate.getCurrentAction()).toBeUndefined();
         expect(dinnerDate.isInProgress()).toBeFalsy();
@@ -123,9 +124,9 @@ describe('Cutscene', () => {
                 ]
             });
 
-            purchasePrompt.start();
+            purchasePrompt.start({});
             expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(0, 800);
+            purchasePrompt.mouseClicked(0, 800, {});
 
             expect(purchasePrompt.getCurrentAction().getId()).toBe("test passes");
         });
@@ -160,9 +161,9 @@ describe('Cutscene', () => {
                 ]
             });
 
-            purchasePrompt.start();
+            purchasePrompt.start({});
             expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(0, 800);
+            purchasePrompt.mouseClicked(0, 800, {});
 
             expect(purchasePrompt.getCurrentAction().getId()).toBe("test passed");
         });
@@ -195,9 +196,9 @@ describe('Cutscene', () => {
                 ]
             });
 
-            purchasePrompt.start();
+            purchasePrompt.start({});
             expect(purchasePrompt.getCurrentAction().getId()).toBe("act serious");
-            purchasePrompt.mouseClicked(100, 100);
+            purchasePrompt.mouseClicked(100, 100, {});
 
             expect(purchasePrompt.getCurrentAction().getId()).toBe("test passes");
         });
@@ -247,15 +248,15 @@ describe('Cutscene', () => {
                 ]
             });
 
-            purchasePrompt.start();
+            purchasePrompt.start({});
             expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(900, 800);
+            purchasePrompt.mouseClicked(900, 800, {});
 
             expect(purchasePrompt.getCurrentAction().getId()).toBe("reconsider");
-            purchasePrompt.mouseClicked(0, 0);
+            purchasePrompt.mouseClicked(0, 0, {});
 
             expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(0, 0);
+            purchasePrompt.mouseClicked(0, 0, {});
             expect(purchasePrompt.getCurrentAction().getId()).toBe("buy my stuff");
         });
     });
@@ -299,8 +300,8 @@ describe('Cutscene', () => {
                 screenDimensions: [1000, 800]
             });
 
-            dinnerDate.start();
-            dinnerDate.mouseClicked(900, 100);
+            dinnerDate.start({});
+            dinnerDate.mouseClicked(900, 100, {});
             expect(dinnerDate.isFastForward()).toBeTruthy();
         });
 
@@ -313,14 +314,14 @@ describe('Cutscene', () => {
                 screenDimensions: [1000, 800]
             });
 
-            dinnerDate.start();
+            dinnerDate.start({});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
-            dinnerDate.mouseClicked(900, 100);
+            dinnerDate.mouseClicked(900, 100, {});
             expect(dinnerDate.isFastForward()).toBeTruthy();
             expect(dinnerDate.getCurrentAction()).toBe(waiterGreets);
 
             jest.spyOn(Date, 'now').mockImplementation(() => 101);
-            dinnerDate.update();
+            dinnerDate.update({});
             expect(dinnerDate.getCurrentAction()).toBe(waiterHandsMenu);
         });
 
@@ -333,14 +334,14 @@ describe('Cutscene', () => {
                 screenDimensions: [1000, 800]
             });
 
-            dinnerDate.start();
+            dinnerDate.start({});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
             expect(dinnerDate.canFastForward()).toBeTruthy();
-            dinnerDate.mouseClicked(900, 100);
+            dinnerDate.mouseClicked(900, 100, {});
             jest.spyOn(Date, 'now').mockImplementation(() => 101);
-            dinnerDate.update();
+            dinnerDate.update({});
             jest.spyOn(Date, 'now').mockImplementation(() => 202);
-            dinnerDate.update();
+            dinnerDate.update({});
             expect(dinnerDate.getCurrentAction()).toBe(waiterHandsMenu);
             expect(dinnerDate.isFastForward()).toBeFalsy();
             expect(dinnerDate.canFastForward()).toBeFalsy();
@@ -366,21 +367,21 @@ describe('Cutscene', () => {
                 ]
             });
 
-            dinnerDate.start();
+            dinnerDate.start({});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
             expect(dinnerDate.getCurrentAction().getId()).toBe("waiterGreets");
-            dinnerDate.mouseClicked(900, 100);
+            dinnerDate.mouseClicked(900, 100, {});
 
             jest.spyOn(Date, 'now').mockImplementation(() => 101);
-            dinnerDate.update();
+            dinnerDate.update({});
             expect(dinnerDate.getCurrentAction().getId()).toBe("waiterHandsMenu");
 
             jest.spyOn(Date, 'now').mockImplementation(() => 202);
-            dinnerDate.update();
+            dinnerDate.update({});
             expect(dinnerDate.getCurrentAction().getId()).toBe("waiterAsks");
 
             jest.spyOn(Date, 'now').mockImplementation(() => 303);
-            dinnerDate.update();
+            dinnerDate.update({});
             expect(dinnerDate.getCurrentAction().getId()).toBe("waiterAsks");
 
             expect(dinnerDate.isFastForward()).toBeFalsy();
@@ -398,7 +399,7 @@ describe('Cutscene', () => {
 
         dinnerDate.loadResources();
         expect(dinnerDate.hasLoaded()).toBeTruthy();
-        const error = dinnerDate.start();
+        const error = dinnerDate.start({});
         expect(error).toBeUndefined();
         expect(dinnerDate.isInProgress()).toBeTruthy();
     });
@@ -433,8 +434,24 @@ describe('Cutscene', () => {
         expect(restaurantEntrance.screenImage).toBeTruthy();
 
         expect(dinnerDate.hasLoaded()).toBeTruthy();
-        const error = dinnerDate.start();
+        const error = dinnerDate.start({});
         expect(error).toBeUndefined();
         expect(dinnerDate.isInProgress()).toBeTruthy();
+    });
+
+    it('will pass on the TextSubstitution context when starting a cutscene', () => {
+        const dinnerDate = new Cutscene({
+            actions: [
+                frontDoorGreeting
+            ]
+        });
+        const battleState: BattleOrchestratorState = new BattleOrchestratorState({});
+        const greetingSpy = jest.spyOn(frontDoorGreeting, "start");
+        dinnerDate.start({battleOrchestratorState: battleState});
+        expect(greetingSpy).toBeCalledWith(
+            {
+                battleOrchestratorState: battleState,
+            }
+        );
     });
 });

@@ -1,5 +1,6 @@
 import {ResourceLocator} from "../resource/resourceHandler";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 
 export interface CutsceneAction {
     getId(): string;
@@ -10,7 +11,7 @@ export interface CutsceneAction {
 
     draw(graphicsContext: GraphicsContext): void;
 
-    start(): void;
+    start(context: TextSubstitutionContext): void;
 
     mouseClicked(mouseX: number, mouseY: number): void;
 
