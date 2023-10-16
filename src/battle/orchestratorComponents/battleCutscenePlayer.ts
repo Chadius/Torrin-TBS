@@ -56,7 +56,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             this.currentCutscene.start();
         }
         if (this.currentCutscene && this.currentCutscene.isInProgress()) {
-            this.currentCutscene.update();
+            this.currentCutscene.update({battleOrchestratorState: state});
             this.currentCutscene.draw(graphicsContext);
         }
     }

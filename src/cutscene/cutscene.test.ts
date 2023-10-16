@@ -4,6 +4,8 @@ import {Cutscene} from "./cutscene";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
+import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 
 describe('Cutscene', () => {
     const splash1 = new SplashScreen({id: "splash1"})
@@ -436,5 +438,21 @@ describe('Cutscene', () => {
         const error = dinnerDate.start();
         expect(error).toBeUndefined();
         expect(dinnerDate.isInProgress()).toBeTruthy();
+    });
+
+    it('will pass on the TextSubstitution context when starting a cutscene', () => {
+        const dinnerDate = new Cutscene({
+            actions: [
+                frontDoorGreeting
+            ]
+        });
+        const battleState: BattleOrchestratorState = new BattleOrchestratorState({});
+        const greetingSpy = jest.spyOn(frontDoorGreeting, "start");
+        dinnerDate.start({battleOrchestratorState: battleState});
+        expect(greetingSpy).toBeCalledWith(
+            {
+                battleOrchestratorState: battleState,
+            }
+        );
     });
 });
