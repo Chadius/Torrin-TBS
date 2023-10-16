@@ -149,7 +149,7 @@ export class Cutscene {
 
     startAction(): void {
         if (this.currentAction !== undefined) {
-            this.currentAction.start();
+            this.currentAction.start(undefined);
         }
     }
 

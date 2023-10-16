@@ -1,4 +1,8 @@
 import {DialogueBox} from "./dialogueBox";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {BattleOrchestratorState} from "../../battle/orchestrator/battleOrchestratorState";
+import {BattlePhase} from "../../battle/orchestratorComponents/battlePhaseTracker";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 
 describe('dialogue box', () => {
 
@@ -88,5 +92,48 @@ describe('dialogue box', () => {
         purchasePrompt.mouseClicked(1000, 800);
 
         expect(purchasePrompt.answerSelected).toBe(1);
+    });
+
+    it('will use text substitution', () => {
+        const purchasePrompt = new DialogueBox({
+            id: "1",
+            name: "Turn count",
+            text: "How many turns did this take? $$TURN_COUNT turns",
+            answers: ["Yes, $$TURN_COUNT", "No, $$TURN_COUNT"],
+            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+        });
+
+        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+            battlePhaseState: {
+                currentAffiliation: BattlePhase.UNKNOWN,
+                turnCount: 5
+            }
+        });
+
+        purchasePrompt.start({battleOrchestratorState:battleState});
+        const mockedP5GraphicsContext = new MockedP5GraphicsContext();
+        const textSpy = jest.spyOn(mockedP5GraphicsContext, "text");
+        purchasePrompt.draw(mockedP5GraphicsContext);
+        expect(textSpy).toBeCalledWith(
+            "How many turns did this take? 5 turns",
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+        );
+        expect(textSpy).toBeCalledWith(
+            "Yes, 5",
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+        );
+        expect(textSpy).toBeCalledWith(
+            "No, 5",
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+        );
     });
 });
