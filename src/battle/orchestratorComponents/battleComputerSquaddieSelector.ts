@@ -73,6 +73,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
+            pauseTimer: true,
         });
     }
 
@@ -182,7 +183,11 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
         state.squaddieCurrentlyActing.addConfirmedAction(action);
         battleSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
-        const instructionResults = CalculateResults(state, battleSquaddie, action.targetLocation);
+        const instructionResults = CalculateResults({
+            state,
+            actingBattleSquaddie: battleSquaddie,
+            validTargetLocation: action.targetLocation,
+        });
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,

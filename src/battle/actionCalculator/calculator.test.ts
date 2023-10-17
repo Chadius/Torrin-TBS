@@ -12,6 +12,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {MissionStatistics} from "../missionStatistics/missionStatistics";
 
 describe('calculator', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -21,9 +22,10 @@ describe('calculator', () => {
     let player1BattleSquaddie: BattleSquaddie;
     let enemy1DynamicId = "enemy 1";
     let enemy1StaticId = "enemy 1";
-    let ally1BattleSquaddie: BattleSquaddie;
+    let enemy1BattleSquaddie: BattleSquaddie;
     let ally1DynamicId = "ally 1";
     let ally1StaticId = "ally 1";
+    let ally1BattleSquaddie: BattleSquaddie;
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
@@ -40,10 +42,13 @@ describe('calculator', () => {
                     templateId: player1StaticId,
                     name: "player",
                     squaddieRepository,
+                    attributes: new ArmyAttributes({
+                        maxHitPoints: 5,
+                    })
                 })
         );
 
-        CreateNewSquaddieAndAddToRepository({
+        ({battleSquaddie: enemy1BattleSquaddie} = CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: enemy1DynamicId,
             templateId: enemy1StaticId,
@@ -52,7 +57,7 @@ describe('calculator', () => {
             attributes: new ArmyAttributes({
                 maxHitPoints: 5,
             })
-        });
+        }));
 
         ({battleSquaddie: ally1BattleSquaddie} =
                 CreateNewSquaddieAndAddToRepository({
@@ -69,14 +74,15 @@ describe('calculator', () => {
     })
 
     describe('deals damage', () => {
+        let actionDealsBodyDamage: SquaddieAction;
+        let healsLostHitPoints: SquaddieAction;
+
         beforeEach(() => {
             missionMap.addSquaddie(player1StaticId, player1DynamicId, new HexCoordinate({q: 0, r: 0}));
             missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, new HexCoordinate({q: 0, r: 1}));
             missionMap.addSquaddie(ally1StaticId, ally1DynamicId, new HexCoordinate({q: 0, r: 2}));
-        });
 
-        it('will deal full damage to unarmored foes', () => {
-            const actionDealsBodyDamage = new SquaddieAction({
+            actionDealsBodyDamage = new SquaddieAction({
                 id: "deal body damage",
                 name: "deal body damage",
                 traits: new TraitStatusStorage({
@@ -87,26 +93,7 @@ describe('calculator', () => {
                 maximumRange: 9001,
                 damageDescriptions: {[DamageType.Body]: 2}
             });
-
-            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieAction: actionDealsBodyDamage
-            });
-
-            const results = CalculateResults(
-                new BattleOrchestratorState({
-                    missionMap,
-                    squaddieCurrentlyActing: squaddieCurrentlyInProgress,
-                    squaddieRepository: squaddieRepository,
-                }),
-                player1BattleSquaddie,
-                new HexCoordinate({q: 0, r: 1}),
-            );
-
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(2);
-        });
-
-        it('will heal fully damage to allies', () => {
-            const healsLostHitPoints = new SquaddieAction({
+            healsLostHitPoints = new SquaddieAction({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
                 traits: new TraitStatusStorage({
@@ -117,24 +104,122 @@ describe('calculator', () => {
                 maximumRange: 9001,
                 healingDescriptions: {[HealingType.LostHitPoints]: 2},
             });
+        });
 
+        it('will deal full damage to unarmored foes', () => {
+            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
+                currentSquaddieAction: actionDealsBodyDamage
+            });
+
+            const results = CalculateResults({
+                    state: new BattleOrchestratorState({
+                        missionMap,
+                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        squaddieRepository: squaddieRepository,
+                    }),
+                    actingBattleSquaddie: player1BattleSquaddie,
+                    validTargetLocation: new HexCoordinate({q: 0, r: 1}),
+                }
+            );
+
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(2);
+        });
+
+        it('will record the damage dealt by the player to mission statistics', () => {
+            const missionStatistics: MissionStatistics = new MissionStatistics({});
+            missionStatistics.reset();
+            missionStatistics.startRecording();
+
+            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
+                currentSquaddieAction: actionDealsBodyDamage
+            });
+
+            CalculateResults({
+                    state: new BattleOrchestratorState({
+                        missionMap,
+                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        squaddieRepository: squaddieRepository,
+                        missionStatistics,
+                    }),
+                    actingBattleSquaddie: player1BattleSquaddie,
+                    validTargetLocation: new HexCoordinate({q: 0, r: 1}),
+                }
+            );
+
+            expect(missionStatistics.damageDealtByPlayerTeam).toBe(2);
+        });
+
+        it('will record the damage dealt to the player to mission statistics', () => {
+            const missionStatistics: MissionStatistics = new MissionStatistics({});
+            missionStatistics.reset();
+            missionStatistics.startRecording();
+
+            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
+                currentSquaddieAction: actionDealsBodyDamage
+            });
+
+            CalculateResults({
+                    state: new BattleOrchestratorState({
+                        missionMap,
+                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        squaddieRepository: squaddieRepository,
+                        missionStatistics,
+                    }),
+                    actingBattleSquaddie: enemy1BattleSquaddie,
+                    validTargetLocation: new HexCoordinate({q: 0, r: 0}),
+                }
+            );
+
+            expect(missionStatistics.damageTakenByPlayerTeam).toBe(2);
+        });
+
+        it('will heal allies fully', () => {
             ally1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
 
             const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
                 currentSquaddieAction: healsLostHitPoints
             });
 
-            const results = CalculateResults(
-                new BattleOrchestratorState({
-                    missionMap,
-                    squaddieCurrentlyActing: squaddieCurrentlyInProgress,
-                    squaddieRepository: squaddieRepository,
-                }),
-                player1BattleSquaddie,
-                new HexCoordinate({q: 0, r: 2}),
+            const results = CalculateResults({
+                    state: new BattleOrchestratorState({
+                        missionMap,
+                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        squaddieRepository: squaddieRepository,
+                    }),
+
+                    actingBattleSquaddie: player1BattleSquaddie,
+                    validTargetLocation: new HexCoordinate({q: 0, r: 2}),
+                }
             );
 
             expect(results.resultPerTarget[ally1DynamicId].healingReceived).toBe(2);
+        });
+
+        it('will record the healing received by a player to mission statistics', () => {
+            const missionStatistics: MissionStatistics = new MissionStatistics({});
+            missionStatistics.reset();
+            missionStatistics.startRecording();
+
+            player1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
+
+            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
+                currentSquaddieAction: healsLostHitPoints
+            });
+
+            CalculateResults({
+                    state: new BattleOrchestratorState({
+                        missionMap,
+                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        squaddieRepository: squaddieRepository,
+                        missionStatistics,
+                    }),
+
+                    actingBattleSquaddie: player1BattleSquaddie,
+                    validTargetLocation: new HexCoordinate({q: 0, r: 0}),
+                }
+            );
+
+            expect(missionStatistics.healingReceivedByPlayerTeam).toBe(2);
         });
     });
 });

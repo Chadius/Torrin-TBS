@@ -46,6 +46,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
+            pauseTimer: true,
         });
     }
 

@@ -21,20 +21,21 @@ import {BattleGameBoard} from "./battleGameBoard";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
+import {MissionStatistics} from "../missionStatistics/missionStatistics";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
+    squaddieRepository: BattleSquaddieRepository;
     missionMap: MissionMap;
     hexMap: TerrainTileMap;
-    pathfinder: Pathfinder;
-    squaddieRepository: BattleSquaddieRepository;
     teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
+    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+    battlePhaseState: BattlePhaseState;
+    pathfinder: Pathfinder;
+    squaddieMovePath?: SearchPath;
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
-    squaddieMovePath?: SearchPath;
-    battlePhaseState: BattlePhaseState;
     battleEventRecording: Recording;
-    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
     private readonly _squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
     constructor(options: {
@@ -54,8 +55,10 @@ export class BattleOrchestratorState {
         battlePhaseState?: BattlePhaseState;
         squaddieCurrentlyActing?: SquaddieInstructionInProgress;
         battleEventRecording?: Recording;
-        teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] }
-        teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
+        teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+        teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
+
+        missionStatistics?: MissionStatistics;
     }) {
 
         const {
@@ -77,31 +80,43 @@ export class BattleOrchestratorState {
             battleEventRecording,
             teamStrategyByAffiliation,
             teamsByAffiliation,
+            missionStatistics
         } = options;
 
         this.resourceHandler = options.resourceHandler;
+        this.squaddieRepository = options.squaddieRepository;
+
         this.missionMap = options.missionMap;
         this.hexMap = options.hexMap || (this.missionMap && this.missionMap.terrainTileMap) || new TerrainTileMap({movementCost: ["1 "]});
-        this.pathfinder = options.pathfinder;
-        this.squaddieRepository = options.squaddieRepository;
-        this.camera = options.camera || new BattleCamera();
-        this.squaddieMovePath = options.squaddieMovePath || undefined;
-        this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
+
+        this.teamsByAffiliation = {...teamsByAffiliation};
+        this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
         this.battlePhaseState = options.battlePhaseState || {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         };
-        this.teamsByAffiliation = {...teamsByAffiliation};
-        this._squaddieCurrentlyActing = options.squaddieCurrentlyActing || DefaultSquaddieInstructionInProgress();
-        this.battleEventRecording = options.battleEventRecording || new Recording({});
 
-        this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
+        this.pathfinder = options.pathfinder;
+        this.squaddieMovePath = options.squaddieMovePath || undefined;
+        this._squaddieCurrentlyActing = options.squaddieCurrentlyActing || DefaultSquaddieInstructionInProgress();
+
+        this.camera = options.camera || new BattleCamera();
+        this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
+
+        this._missionStatistics = missionStatistics || new MissionStatistics({});
+        this.battleEventRecording = options.battleEventRecording || new Recording({});
 
         this._gameBoard = new BattleGameBoard({
             objectives,
             cutsceneCollection,
             cutsceneTriggers,
         })
+    }
+
+    private _missionStatistics: MissionStatistics;
+
+    get missionStatistics(): MissionStatistics {
+        return this._missionStatistics;
     }
 
     get cutsceneTriggers(): CutsceneTrigger[] {

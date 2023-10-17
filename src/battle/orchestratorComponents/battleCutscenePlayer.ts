@@ -47,6 +47,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
+            pauseTimer: true,
         });
     }
 

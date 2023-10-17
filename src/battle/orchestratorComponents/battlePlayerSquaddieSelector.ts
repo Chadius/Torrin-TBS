@@ -108,6 +108,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         return new UIControlSettings({
             scrollCamera: true,
             displayMap: true,
+            pauseTimer: false,
         });
     }
 

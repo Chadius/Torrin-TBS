@@ -689,6 +689,43 @@ describe('Battle Orchestrator', () => {
         );
     });
 
+    it('will update the time elapsed if the mode recommends it', () => {
+        const needsTwoUpdatesToFinishLoading = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
+        needsTwoUpdatesToFinishLoading.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: true}));
+        needsTwoUpdatesToFinishLoading.hasCompleted = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+        needsTwoUpdatesToFinishLoading.update = jest.fn();
+        needsTwoUpdatesToFinishLoading.recommendStateChanges = jest.fn().mockReturnValueOnce({
+            nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
+        });
+
+        mockPlayerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: false}));
+
+        const state = new BattleOrchestratorState({});
+
+        orchestrator = createOrchestrator({
+            missionLoader: needsTwoUpdatesToFinishLoading,
+            playerSquaddieSelector: mockPlayerSquaddieSelector,
+            initialMode: BattleOrchestratorMode.LOADING_MISSION,
+        });
+        expect(state.missionStatistics.timeElapsedInMilliseconds).toBeUndefined();
+
+        orchestrator.update(state, mockedP5GraphicsContext);
+
+        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+        orchestrator.update(state, mockedP5GraphicsContext);
+        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
+        jest.spyOn(Date, "now").mockReturnValue(0);
+        orchestrator.update(state, mockedP5GraphicsContext);
+        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+
+        jest.spyOn(Date, "now").mockReturnValue(100);
+        orchestrator.update(state, mockedP5GraphicsContext);
+        expect(state.missionStatistics.timeElapsedInMilliseconds).toBeGreaterThan(0);
+    });
+
     const expectKeyEventsWillGoToMapDisplay = (
         squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
         component: BattleOrchestratorComponent

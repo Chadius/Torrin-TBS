@@ -11,8 +11,18 @@ import {
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
-export function CalculateResults(state: BattleOrchestratorState, actingBattleSquaddie: BattleSquaddie, validTargetLocation: HexCoordinate) {
+export function CalculateResults({
+                                     state,
+                                     actingBattleSquaddie,
+                                     validTargetLocation,
+                                 }: {
+                                     state: BattleOrchestratorState,
+                                     actingBattleSquaddie: BattleSquaddie,
+                                     validTargetLocation: HexCoordinate
+                                 }
+) {
     const {
         battleSquaddieId: targetedBattleSquaddieId,
         squaddieTemplateId: targetedSquaddieTemplateId
@@ -33,6 +43,8 @@ export function CalculateResults(state: BattleOrchestratorState, actingBattleSqu
             healingReceived,
         })
     };
+
+    maybeUpdateMissionStatistics(targetedSquaddieTemplate, state, healingReceived, damageDealt, actingBattleSquaddie);
 
     return new SquaddieSquaddieResults({
         actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
@@ -67,4 +79,16 @@ function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedS
         }));
     }
     return healingReceived;
+}
+
+function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate, state: BattleOrchestratorState, healingReceived: number, damageDealt: number, actingBattleSquaddie: BattleSquaddie) {
+    if (targetedSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
+        state.missionStatistics.addHealingReceivedByPlayerTeam(healingReceived);
+        state.missionStatistics.adddamageTakenByPlayerTeam(damageDealt);
+    }
+
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId));
+    if (actingSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
+        state.missionStatistics.addDamageDealtByPlayerTeam(damageDealt);
+    }
 }

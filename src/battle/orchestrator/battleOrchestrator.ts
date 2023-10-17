@@ -101,6 +101,12 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.resetInternalState();
     }
 
+    private _previousUpdateTimestamp: number;
+
+    get previousUpdateTimestamp(): number {
+        return this._previousUpdateTimestamp;
+    }
+
     private _battleComplete: boolean;
 
     get battleComplete(): boolean {
@@ -184,6 +190,15 @@ export class BattleOrchestrator implements GameEngineComponent {
             default:
                 this.updateComponent(state, this.defaultBattleOrchestrator, graphicsContext, BattleOrchestratorMode.LOADING_MISSION);
                 break;
+        }
+
+        if (!state.missionStatistics.hasStarted) {
+            state.missionStatistics.startRecording();
+        } else if (this.uiControlSettings.pauseTimer === false) {
+            if (this.previousUpdateTimestamp != undefined) {
+                state.missionStatistics.addTimeElapsed(Date.now() - this.previousUpdateTimestamp);
+            }
+            this._previousUpdateTimestamp = Date.now();
         }
     }
 
@@ -357,5 +372,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         this._uiControlSettings = new UIControlSettings({});
 
         this._battleComplete = false;
+        this._previousUpdateTimestamp = undefined;
     }
 }

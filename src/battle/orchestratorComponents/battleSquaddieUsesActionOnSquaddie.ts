@@ -67,6 +67,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
+            pauseTimer: true,
         });
     }
 

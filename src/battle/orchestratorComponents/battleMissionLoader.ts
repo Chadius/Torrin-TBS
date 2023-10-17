@@ -106,6 +106,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: false,
+            pauseTimer: false,
         });
     }
 
@@ -143,7 +144,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 "             1 1 1 x 2 1 1 1 O O O 1 1 1 1 1 2 ",
                 "              1 1 1 x 2 1 1 1 O O 1 1 1 1 1 1 2 ",
                 "               1 1 1 x 2 1 1 1 1 1 1 1 1 1 1 2 x ",
-                // "                0 1 2 3 4 5 6 7 8 9 101 2 3 4 5 6 7 8",
                 "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
                 "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 ",
             ],
@@ -274,7 +274,38 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             })
         );
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
+        this.addEnemyTeam(state);
 
+        state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = new BattleSquaddieTeam({
+            affiliation: SquaddieAffiliation.PLAYER,
+            name: "Crusaders",
+            squaddieRepo: state.squaddieRepository,
+            battleSquaddieIds: [
+                "player_young_torrin",
+                "player_sir_camil"
+            ],
+        });
+
+        this.affiliateIconResourceKeys = [
+            "affiliate_icon_crusaders",
+            "affiliate_icon_infiltrators",
+            "affiliate_icon_western",
+            "affiliate_icon_none",
+        ];
+        state.resourceHandler.loadResources(this.affiliateIconResourceKeys);
+
+        const squaddieTemplates: SquaddieTemplate[] = state.squaddieRepository.getSquaddieTemplateIterator().map(info => info.squaddieTemplate);
+        this.squaddieTemplateResourceKeys = squaddieTemplates.map(squaddieTemplate => squaddieTemplate.squaddieId.resources.mapIconResourceKey);
+        state.resourceHandler.loadResources(this.squaddieTemplateResourceKeys);
+
+        this.bannerImageResourceKeys = [
+            "phase banner player",
+            "phase banner enemy",
+        ];
+        state.resourceHandler.loadResources(this.bannerImageResourceKeys);
+    }
+
+    private addEnemyTeam(state: BattleOrchestratorState) {
         const demonSlitherMold = new SquaddieTemplate({
             attributes: new ArmyAttributes({
                 maxHitPoints: 3,
@@ -412,15 +443,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new HexCoordinate({q: 15, r: 10})
         );
 
-        state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = new BattleSquaddieTeam({
-            affiliation: SquaddieAffiliation.PLAYER,
-            name: "Crusaders",
-            squaddieRepo: state.squaddieRepository,
-            battleSquaddieIds: [
-                "player_young_torrin",
-                "player_sir_camil"
-            ],
-        });
         state.teamsByAffiliation[SquaddieAffiliation.ENEMY] = new BattleSquaddieTeam({
             affiliation: SquaddieAffiliation.ENEMY,
             name: "Infiltrators",
@@ -436,24 +458,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 "enemy_demon_slither_7",
             ],
         });
-
-        this.affiliateIconResourceKeys = [
-            "affiliate_icon_crusaders",
-            "affiliate_icon_infiltrators",
-            "affiliate_icon_western",
-            "affiliate_icon_none",
-        ];
-        state.resourceHandler.loadResources(this.affiliateIconResourceKeys);
-
-        const squaddieTemplates: SquaddieTemplate[] = state.squaddieRepository.getSquaddieTemplateIterator().map(info => info.squaddieTemplate);
-        this.squaddieTemplateResourceKeys = squaddieTemplates.map(squaddieTemplate => squaddieTemplate.squaddieId.resources.mapIconResourceKey);
-        state.resourceHandler.loadResources(this.squaddieTemplateResourceKeys);
-
-        this.bannerImageResourceKeys = [
-            "phase banner player",
-            "phase banner enemy",
-        ];
-        state.resourceHandler.loadResources(this.bannerImageResourceKeys);
     }
 
     private initializeSquaddieResources(state: BattleOrchestratorState) {
@@ -510,9 +514,16 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
                         new DialogueBox({
-                            id: "victory_2",
+                            id: "victory_report_0",
                             name: "Mission Report",
-                            text: "Turns: $$TURN_COUNT.",
+                            text: "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
+                            animationDuration: 0,
+                            screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                        }),
+                        new DialogueBox({
+                            id: "victory_report_1",
+                            name: "Mission Report",
+                            text: "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
                             animationDuration: 0,
                             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                         }),
