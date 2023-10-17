@@ -32,15 +32,19 @@ export class MissionStatistics {
         this._healingReceivedByPlayerTeam = undefined;
     }
 
+    get hasStarted() {
+        return this._timeElapsedInMilliseconds != undefined;
+    }
+
     public startRecording() {
-        this._timeElapsedInMilliseconds = this._timeElapsedInMilliseconds || Date.now();
+        this._timeElapsedInMilliseconds = this._timeElapsedInMilliseconds || 0;
         this._damageDealtByPlayerTeam = this._damageDealtByPlayerTeam || 0;
         this._damageReceivedByPlayerTeam = this._damageReceivedByPlayerTeam || 0;
         this._healingReceivedByPlayerTeam = this._healingReceivedByPlayerTeam || 0;
     }
 
-    public updateTimeElapsed() {
-        this._timeElapsedInMilliseconds += Date.now() - this._timeElapsedInMilliseconds;
+    public addTimeElapsed(milliseconds: number) {
+        this._timeElapsedInMilliseconds += milliseconds;
     }
 
     public addDamageDealtByPlayerTeam(damage: number) {

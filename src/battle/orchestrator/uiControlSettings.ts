@@ -1,7 +1,12 @@
 export class UIControlSettings {
-    constructor({scrollCamera, displayMap}: { scrollCamera?: boolean, displayMap?: boolean }) {
+    constructor({scrollCamera, displayMap, pauseTimer}: {
+        scrollCamera?: boolean,
+        displayMap?: boolean,
+        pauseTimer?: boolean
+    }) {
         this._letMouseScrollCamera = scrollCamera;
         this._displayBattleMap = displayMap;
+        this._pauseTimer = pauseTimer;
     }
 
     private _letMouseScrollCamera?: boolean;
@@ -11,9 +16,14 @@ export class UIControlSettings {
     }
 
     private _displayBattleMap?: boolean;
+    private _pauseTimer?: boolean;
 
     get displayBattleMap(): boolean {
         return this._displayBattleMap;
+    }
+
+    get pauseTimer(): boolean {
+        return this._pauseTimer;
     }
 
     public update(other: UIControlSettings) {
@@ -27,6 +37,10 @@ export class UIControlSettings {
 
         if (other._displayBattleMap !== undefined) {
             this._displayBattleMap = other._displayBattleMap
+        }
+
+        if (other._pauseTimer !== undefined) {
+            this._pauseTimer = other._pauseTimer
         }
     }
 }

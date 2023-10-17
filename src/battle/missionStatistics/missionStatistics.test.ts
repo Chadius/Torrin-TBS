@@ -1,15 +1,13 @@
 import {MissionStatistics} from "./missionStatistics";
 
 describe("MissionStatistics", () => {
-    it('starts the timer', () => {
+    it('can track time elapsed', () => {
         const stats = new MissionStatistics({});
         expect(stats.timeElapsedInMilliseconds).toBeUndefined();
-        jest.spyOn(Date, 'now').mockImplementation(() => 0);
         stats.reset();
         stats.startRecording();
         expect(stats.timeElapsedInMilliseconds).toBe(0);
-        jest.spyOn(Date, 'now').mockImplementation(() => 100);
-        stats.updateTimeElapsed();
+        stats.addTimeElapsed(100);
         expect(stats.timeElapsedInMilliseconds).toBe(100);
     });
 
