@@ -710,13 +710,18 @@ describe('Battle Orchestrator', () => {
         expect(state.missionStatistics.timeElapsedInMilliseconds).toBeUndefined();
 
         orchestrator.update(state, mockedP5GraphicsContext);
-        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
 
+        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
         orchestrator.update(state, mockedP5GraphicsContext);
         expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
 
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
         expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
+        jest.spyOn(Date, "now").mockReturnValue(0);
+        orchestrator.update(state, mockedP5GraphicsContext);
+        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+
+        jest.spyOn(Date, "now").mockReturnValue(100);
         orchestrator.update(state, mockedP5GraphicsContext);
         expect(state.missionStatistics.timeElapsedInMilliseconds).toBeGreaterThan(0);
     });

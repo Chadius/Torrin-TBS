@@ -7,13 +7,21 @@ export type BattleOrchestratorStateSubstitution = TextSubstitution & {
 
 const substitutions: BattleOrchestratorStateSubstitution[] = [
     {
-        name: "TURN_COUNT",
+        name: "Turn count",
         token: "$$TURN_COUNT",
         description: "Gets the turn count of the current battle.",
         substitute: (state: BattleOrchestratorState) => state.battlePhaseState
             ? `${state.battlePhaseState.turnCount}`
             : "MISSING BATTLE PHASE"
-    }
+    },
+    {
+        name: "Time elapsed (Milliseconds)",
+        token: "$$TIME_ELAPSED_IN_MILLISECONDS",
+        description: "The amount of time spent in combat.",
+        substitute: (state: BattleOrchestratorState) => state.missionStatistics
+            ? `${state.missionStatistics.timeElapsedInMilliseconds}`
+            : "MISSING MISSION STATISTICS"
+    },
 ]
 
 export const SubstituteTextUsingBattleOrchestraState = (

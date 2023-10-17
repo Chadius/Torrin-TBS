@@ -20,10 +20,14 @@ export class MissionStatistics {
     private _damageReceivedByPlayerTeam: number;
     private _healingReceivedByPlayerTeam: number;
 
-    constructor({}:{}) {
+    constructor({
+                    timeElapsedInMilliseconds
+    }:{
+        timeElapsedInMilliseconds?: number
+    }) {
         this.reset();
+        this._timeElapsedInMilliseconds = timeElapsedInMilliseconds;
     }
-
 
     public reset() {
         this._timeElapsedInMilliseconds = undefined;
