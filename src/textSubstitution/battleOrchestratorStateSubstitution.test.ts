@@ -75,7 +75,48 @@ describe("BattleOrchestratorStateSubstitution", () => {
                 "How many time has passed? $$TIME_ELAPSED",
                 battleState
             );
-            expect(newText).toBe(`How many time has passed? 0${hours}:${minutes}:${seconds}.057`);
+            expect(newText).toBe(`How many time has passed? 0${hours}:${minutes}:0${seconds}.057`);
         });
+    });
+
+    it('can substitute damage dealt by player team', () => {
+        const battleState = new BattleOrchestratorState({
+            missionStatistics: new MissionStatistics({
+                damageDealtByPlayerTeam: 9001,
+                // damageReceivedByPlayerTeam
+                // healingReceivedByPlayerTeam
+            })
+        });
+        const newText = SubstituteTextUsingBattleOrchestraState(
+            "How much damage did the player team deal? $$DAMAGE_DEALT_BY_PLAYER_TEAM",
+            battleState
+        );
+        expect(newText).toBe(`How much damage did the player team deal? 9001`);
+    });
+
+    it('can substitute damage received by player team', () => {
+        const battleState = new BattleOrchestratorState({
+            missionStatistics: new MissionStatistics({
+                damageReceivedByPlayerTeam: 42,
+            })
+        });
+        const newText = SubstituteTextUsingBattleOrchestraState(
+            "How much damage did the player team receive? $$DAMAGE_RECEIVED_BY_PLAYER_TEAM",
+            battleState
+        );
+        expect(newText).toBe(`How much damage did the player team receive? 42`);
+    });
+
+    it('can substitute healing received by player team', () => {
+        const battleState = new BattleOrchestratorState({
+            missionStatistics: new MissionStatistics({
+                healingReceivedByPlayerTeam: 1024,
+            })
+        });
+        const newText = SubstituteTextUsingBattleOrchestraState(
+            "How much healing did the player team receive? $$HEALING_RECEIVED_BY_PLAYER_TEAM",
+            battleState
+        );
+        expect(newText).toBe(`How much healing did the player team receive? 1024`);
     });
 });

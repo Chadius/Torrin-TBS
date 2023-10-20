@@ -22,6 +22,54 @@ const substitutions: BattleOrchestratorStateSubstitution[] = [
             ? `${state.missionStatistics.timeElapsedInMilliseconds}`
             : "MISSING MISSION STATISTICS"
     },
+    {
+        name: "Time elapsed (HH:MM:SS.mmm)",
+        token: "$$TIME_ELAPSED",
+        description: "The amount of time spent in a mission. Written with hours, minutes, seconds and milliseconds",
+        substitute: (state: BattleOrchestratorState) => {
+            if (!state.missionStatistics) {
+                return "MISSING MISSION STATISTICS";
+            }
+
+            const milliseconds = state.missionStatistics.timeElapsedInMilliseconds % 1000;
+            const totalSeconds = Math.floor(state.missionStatistics.timeElapsedInMilliseconds / 1000);
+
+            const seconds = totalSeconds % 60;
+            const minutes = Math.floor(totalSeconds / 60) % 60;
+            const hours = Math.floor(totalSeconds / 60 / 60);
+
+            const millisecondsPad = String(milliseconds).padStart(3, '0');
+            const secondsPad = String(seconds).padStart(2, '0');
+            const minutesPad = String(minutes).padStart(2, '0');
+            const hoursPad = String(hours).padStart(2, '0');
+
+            return `${hoursPad}:${minutesPad}:${secondsPad}.${millisecondsPad}`;
+        }
+    },
+    {
+        name: "Damage dealt by player team",
+        token: "$$DAMAGE_DEALT_BY_PLAYER_TEAM",
+        description: "The amount of damage player squaddies dealt.",
+        substitute: (state: BattleOrchestratorState) => state.missionStatistics
+            ? `${state.missionStatistics.damageDealtByPlayerTeam}`
+            : "MISSING MISSION STATISTICS"
+    },
+    {
+        name: "Damage received by player team",
+        token: "$$DAMAGE_RECEIVED_BY_PLAYER_TEAM",
+        description: "The amount of damage player squaddies took.",
+        substitute: (state: BattleOrchestratorState) => state.missionStatistics
+            ? `${state.missionStatistics.damageReceivedByPlayerTeam}`
+            : "MISSING MISSION STATISTICS"
+    },
+    {
+        name: "Healing received by player team",
+        token: "$$HEALING_RECEIVED_BY_PLAYER_TEAM",
+        description: "The amount of healing player squaddies received.",
+        substitute: (state: BattleOrchestratorState) => state.missionStatistics
+            ? `${state.missionStatistics.healingReceivedByPlayerTeam}`
+            : "MISSING MISSION STATISTICS"
+    },
 ]
 
 export const SubstituteTextUsingBattleOrchestraState = (

@@ -21,12 +21,21 @@ export class MissionStatistics {
     private _healingReceivedByPlayerTeam: number;
 
     constructor({
-                    timeElapsedInMilliseconds
+                    timeElapsedInMilliseconds,
+                    damageDealtByPlayerTeam,
+                    damageReceivedByPlayerTeam,
+                    healingReceivedByPlayerTeam,
     }:{
-        timeElapsedInMilliseconds?: number
+        timeElapsedInMilliseconds?: number,
+        damageDealtByPlayerTeam?: number,
+        damageReceivedByPlayerTeam?: number,
+        healingReceivedByPlayerTeam?: number,
     }) {
         this.reset();
         this._timeElapsedInMilliseconds = timeElapsedInMilliseconds;
+        this._damageDealtByPlayerTeam = damageDealtByPlayerTeam;
+        this._damageReceivedByPlayerTeam = damageReceivedByPlayerTeam;
+        this._healingReceivedByPlayerTeam = healingReceivedByPlayerTeam;
     }
 
     public reset() {
