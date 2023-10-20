@@ -312,7 +312,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         actingBattleSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
-        const instructionResults = CalculateResults(state, actingBattleSquaddie, this.validTargetLocation);
+        const instructionResults = CalculateResults({
+            state,
+            actingBattleSquaddie,
+            validTargetLocation: this.validTargetLocation,
+        });
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: state.squaddieCurrentlyActing,

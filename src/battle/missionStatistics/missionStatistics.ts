@@ -59,7 +59,7 @@ export class MissionStatistics {
         this._damageReceivedByPlayerTeam += damage;
     }
 
-    public addHealingReceivedByPlayerTeam(damage: number) {
-        this._healingReceivedByPlayerTeam += damage;
+    public addHealingReceivedByPlayerTeam(healing: number) {
+        this._healingReceivedByPlayerTeam += healing;
     }
 }

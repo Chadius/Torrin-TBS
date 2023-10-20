@@ -28,10 +28,6 @@ export class BattleOrchestratorState {
         return this._missionStatistics;
     }
 
-    set missionStatistics(value: MissionStatistics) {
-        this._missionStatistics = value;
-    }
-
     resourceHandler: ResourceHandler;
     squaddieRepository: BattleSquaddieRepository;
 
