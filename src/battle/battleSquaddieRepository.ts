@@ -44,6 +44,15 @@ export class BattleSquaddieRepository {
         this.addBattleSquaddie(battleSquaddie);
     }
 
+    updateBattleSquaddie(battleSquaddie: BattleSquaddie) {
+        battleSquaddie.assertBattleSquaddie();
+        if (!this.squaddieTemplates[battleSquaddie.squaddieTemplateId]) {
+            throw new Error(`cannot updateBattleSquaddie '${battleSquaddie.battleSquaddieId}', no squaddie template with id '${battleSquaddie.squaddieTemplateId}' exists`);
+        }
+
+        this.battleSquaddies[battleSquaddie.battleSquaddieId] = battleSquaddie;
+    }
+
     getSquaddieByBattleId(battleSquaddieId: string): ResultOrError<{
         squaddieTemplate: SquaddieTemplate,
         battleSquaddie: BattleSquaddie,

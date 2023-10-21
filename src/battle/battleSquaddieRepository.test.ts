@@ -48,7 +48,7 @@ describe('BattleSquaddieRepository', () => {
         );
     });
 
-    it('retrieves squaddie info by dynamic id', () => {
+    it('retrieves squaddie info by battle id', () => {
         squaddieRepo.addBattleSquaddie(
             battleSquaddieBase
         )
@@ -77,11 +77,11 @@ describe('BattleSquaddieRepository', () => {
         }).toThrow("cannot addSquaddieTemplate 'player_young_torrin', is already added");
     });
 
-    it("should throw error if you add dynamic squaddie for static squaddie that doesn't exist", () => {
+    it("should throw error if you add battle squaddie for static squaddie that doesn't exist", () => {
         const shouldThrowError = () => {
             squaddieRepo.addBattleSquaddie(
                 new BattleSquaddie({
-                    battleSquaddieId: "dynamic_id",
+                    battleSquaddieId: "battle_id",
                     squaddieTemplateId: "unknown_static_squaddie",
                     squaddieTurn: new SquaddieTurn()
                 })
@@ -93,10 +93,10 @@ describe('BattleSquaddieRepository', () => {
         }).toThrow(Error);
         expect(() => {
             shouldThrowError()
-        }).toThrow("cannot addBattleSquaddie 'dynamic_id', no squaddie template with Id 'unknown_static_squaddie' exists");
+        }).toThrow("cannot addBattleSquaddie 'battle_id', no squaddie template with Id 'unknown_static_squaddie' exists");
     });
 
-    it("should throw error if you add dynamic squaddie for dynamic squaddie that already exists", () => {
+    it("should throw error if you add battle squaddie for battle squaddie that already exists", () => {
         squaddieRepo.addBattleSquaddie(
             battleSquaddieBase
         )
@@ -115,7 +115,7 @@ describe('BattleSquaddieRepository', () => {
         }).toThrow("cannot addBattleSquaddie 'player_young_torrin_0', again, it already exists");
     });
 
-    it('should throw an error if dynamic squaddie is invalid', () => {
+    it('should throw an error if battle squaddie is invalid', () => {
         const shouldThrowError = () => {
             squaddieRepo.addBattleSquaddie(
                 battleSquaddieBase = new BattleSquaddie({
@@ -134,7 +134,7 @@ describe('BattleSquaddieRepository', () => {
         }).toThrow("Battle Squaddie has no Id");
     })
 
-    it("getBattleSquaddieByID should return error if dynamic squaddie doesn't exist", () => {
+    it("getBattleSquaddieByID should return error if battle squaddie doesn't exist", () => {
         const resultOrError = squaddieRepo.getSquaddieByBattleId("player_young_torrin_0")
 
         expect(isError(resultOrError)).toBeTruthy();
@@ -159,7 +159,7 @@ describe('BattleSquaddieRepository', () => {
         }]);
     });
 
-    it('should get an iterator across all dynamic ids', () => {
+    it('should get an iterator across all battle ids', () => {
         squaddieRepo.addBattleSquaddie(
             battleSquaddieBase
         )
@@ -172,5 +172,58 @@ describe('BattleSquaddieRepository', () => {
             battleSquaddieId: "player_young_torrin_0",
             battleSquaddie: battleSquaddieBase
         }]);
+    });
+
+    it("should update existing battle squaddie", () => {
+        squaddieRepo.addBattleSquaddie(
+            battleSquaddieBase
+        )
+        expect(battleSquaddieBase.squaddieTurn.hasActionPointsRemaining()).toBeTruthy();
+
+        const turnEnded = new SquaddieTurn();
+        turnEnded.endTurn();
+        squaddieRepo.updateBattleSquaddie(
+            new BattleSquaddie({
+                battleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                squaddieTemplateId: battleSquaddieBase.squaddieTemplateId,
+                squaddieTurn: turnEnded,
+                squaddieTemplate: squaddieTemplateBase,
+                mapIcon: battleSquaddieBase.mapIcon,
+            })
+        );
+
+        const {
+            squaddieTemplate,
+            battleSquaddie,
+        } = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_young_torrin_0"))
+
+        expect(squaddieTemplate).toStrictEqual(squaddieTemplate);
+        expect(battleSquaddie.squaddieTurn.hasActionPointsRemaining()).toBeFalsy();
+    });
+
+    it("should throw error if you update a battle squaddie to a non existent template", () => {
+        squaddieRepo.addBattleSquaddie(
+            battleSquaddieBase
+        )
+
+        const shouldThrowError = () => {
+            const badBattleSquaddie = new BattleSquaddie({
+                battleSquaddieId: battleSquaddieBase.battleSquaddieId,
+                squaddieTemplateId: "does not exist",
+                squaddieTurn: new SquaddieTurn(),
+                mapIcon: battleSquaddieBase.mapIcon,
+            });
+
+            squaddieRepo.updateBattleSquaddie(
+                badBattleSquaddie
+            );
+        }
+
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(Error);
+        expect(() => {
+            shouldThrowError()
+        }).toThrow(`cannot updateBattleSquaddie '${battleSquaddieBase.battleSquaddieId}', no squaddie template with id 'does not exist' exists`);
     });
 });
