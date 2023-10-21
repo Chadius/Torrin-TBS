@@ -36,13 +36,12 @@ export class BattleOrchestratorState {
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleEventRecording: Recording;
+    private readonly _missionStatistics: MissionStatistics;
 
     constructor(options: {
         cutsceneCollection?: MissionCutsceneCollection,
         cutsceneTriggers?: CutsceneTrigger[],
         objectives?: MissionObjective[],
-        bannerDisplayAnimationStartTime?: number;
-        bannerAffiliationToShow?: BattlePhase;
         resourceHandler?: ResourceHandler;
         missionMap?: MissionMap;
         hexMap?: TerrainTileMap;
@@ -64,8 +63,6 @@ export class BattleOrchestratorState {
             objectives,
             cutsceneCollection,
             cutsceneTriggers,
-            bannerDisplayAnimationStartTime,
-            bannerAffiliationToShow,
             resourceHandler,
             missionMap,
             hexMap,
@@ -121,8 +118,6 @@ export class BattleOrchestratorState {
     set squaddieCurrentlyActing(value: SquaddieInstructionInProgress) {
         this._squaddieCurrentlyActing = value;
     }
-
-    private _missionStatistics: MissionStatistics;
 
     get missionStatistics(): MissionStatistics {
         return this._missionStatistics;

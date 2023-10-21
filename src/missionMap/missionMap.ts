@@ -6,6 +6,7 @@ import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "./s
 export class MissionMap {
     private readonly _terrainTileMap: TerrainTileMap;
     private readonly _squaddieInfo: MissionMapSquaddieLocation[];
+    private _squaddiesHidden: string[];
 
     constructor({terrainTileMap}: {
         terrainTileMap: TerrainTileMap;
@@ -21,12 +22,6 @@ export class MissionMap {
 
     get squaddieInfo(): MissionMapSquaddieLocation[] {
         return this._squaddieInfo;
-    }
-
-    private _squaddiesHidden: string[];
-
-    get squaddiesHidden(): string[] {
-        return this._squaddiesHidden;
     }
 
     areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {
