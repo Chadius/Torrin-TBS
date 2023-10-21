@@ -7,7 +7,7 @@ import {InBattleAttributes} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddie', () => {
-    it('throws an error if dynamic squaddie has no template Id', () => {
+    it('throws an error if battle squaddie has no template Id', () => {
         const shouldThrowError = () => {
             new BattleSquaddie({
                 battleSquaddieId: "battleSquaddieId",
@@ -93,6 +93,20 @@ describe('BattleSquaddie', () => {
 
             expect(battleSoldier.squaddieTemplateId).toBe(soldierTemplate.squaddieId.templateId);
             expect(battleSoldier.inBattleAttributes.currentHitPoints).toBe(soldierTemplate.attributes.maxHitPoints);
+        });
+
+        it('Can be created with inBattleAttributes', () => {
+            const newBattleSoldier = new BattleSquaddie({
+                battleSquaddieId: "soldier_dynamic",
+                squaddieTemplateId: soldierTemplate.squaddieId.templateId,
+                inBattleAttributes: new InBattleAttributes(
+                    new ArmyAttributes({
+                        maxHitPoints: 9001,
+                    })
+                )
+            });
+
+            expect(newBattleSoldier.inBattleAttributes.armyAttributes.maxHitPoints).toBe(9001);
         });
     });
 });

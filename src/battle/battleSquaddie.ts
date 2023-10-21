@@ -13,13 +13,15 @@ export class BattleSquaddie {
                     mapIcon,
                     squaddieTurn,
                     squaddieTemplate,
-                    squaddieTemplateId
+                    squaddieTemplateId,
+                    inBattleAttributes,
                 }: {
         squaddieTemplateId?: string,
         squaddieTemplate?: SquaddieTemplate,
         battleSquaddieId: string,
         squaddieTurn?: SquaddieTurn,
         mapIcon?: ImageUI,
+        inBattleAttributes?: InBattleAttributes,
     }) {
         this._battleSquaddieId = battleSquaddieId;
 
@@ -28,6 +30,10 @@ export class BattleSquaddie {
         } else {
             this._squaddieTemplateId = squaddieTemplateId;
             this._inBattleAttributes = new InBattleAttributes();
+        }
+
+        if (inBattleAttributes) {
+            this._inBattleAttributes = inBattleAttributes;
         }
 
         this._squaddieTurn = squaddieTurn || new SquaddieTurn();
