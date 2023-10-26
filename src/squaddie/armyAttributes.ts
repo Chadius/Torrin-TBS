@@ -6,17 +6,23 @@ export class ArmyAttributes {
         armorClass?: number,
         movement?: SquaddieMovement,
     }) {
+        const defaultMovement: SquaddieMovement = new SquaddieMovement({
+            movementPerAction: 2,
+            crossOverPits: false,
+            passThroughWalls: false,
+        });
+
         if (!params) {
             params = {
                 maxHitPoints: 1,
                 armorClass: 0,
-                movement: new SquaddieMovement(),
+                movement: defaultMovement,
             };
         }
 
         this._maxHitPoints = params.maxHitPoints ?? 1;
         this._armorClass = params.armorClass ?? 0;
-        this._movement = params.movement ?? new SquaddieMovement();
+        this._movement = params.movement ?? defaultMovement;
     }
 
     private _maxHitPoints: number;

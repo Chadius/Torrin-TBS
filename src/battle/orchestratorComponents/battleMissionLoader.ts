@@ -13,7 +13,7 @@ import {SquaddieId} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieMovement} from "../../squaddie/movement";
+import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {SquaddieAction} from "../../squaddie/action";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
@@ -189,7 +189,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 attributes: new ArmyAttributes({
                     maxHitPoints: 3,
                     armorClass: 0,
-                    movement: new SquaddieMovement({
+                    movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
                         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
@@ -239,7 +239,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 attributes: new ArmyAttributes({
                     maxHitPoints: 5,
                     armorClass: 2,
-                    movement: new SquaddieMovement({
+                    movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
                         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
@@ -324,7 +324,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             attributes: new ArmyAttributes({
                 maxHitPoints: 3,
                 armorClass: -5,
-                movement: new SquaddieMovement({
+                movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                 }),

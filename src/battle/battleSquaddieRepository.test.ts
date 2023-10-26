@@ -2,7 +2,7 @@ import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieId} from "../squaddie/id";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {SquaddieMovement} from "../squaddie/movement";
+import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
@@ -21,7 +21,7 @@ describe('BattleSquaddieRepository', () => {
             attributes: new ArmyAttributes({
                 maxHitPoints: 1,
                 armorClass: 0,
-                movement: new SquaddieMovement({
+                movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
                         initialTraitValues: {

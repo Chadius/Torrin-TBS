@@ -4,7 +4,7 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieMovement} from "../../squaddie/movement";
+import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
@@ -61,7 +61,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
             attributes: new ArmyAttributes({
-                movement: new SquaddieMovement({
+                movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
                         initialTraitValues: {
@@ -82,7 +82,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
             attributes: new ArmyAttributes({
-                movement: new SquaddieMovement({
+                movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
                         initialTraitValues: {
