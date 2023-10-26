@@ -1,8 +1,23 @@
-export class ActionResultPerSquaddie {
+export interface ActionResultPerSquaddieData {
+    damageTaken: number;
+    healingReceived: number;
+}
+
+export class ActionResultPerSquaddie implements ActionResultPerSquaddieData {
     private readonly _damageTaken: number;
     private readonly _healingReceived: number;
 
-    constructor({damageTaken, healingReceived}: { damageTaken?: number, healingReceived?: number }) {
+    constructor({damageTaken, healingReceived, data}: {
+        damageTaken?: number,
+        healingReceived?: number,
+        data?: ActionResultPerSquaddieData
+    }) {
+        if (data) {
+            this._damageTaken = data.damageTaken;
+            this._healingReceived = data.healingReceived;
+            return;
+        }
+
         this._damageTaken = damageTaken || 0;
         this._healingReceived = healingReceived || 0;
     }

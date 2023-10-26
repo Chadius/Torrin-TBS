@@ -39,8 +39,10 @@ export function CalculateResults({
 
     const resultPerTarget = {
         [targetedBattleSquaddieId]: new ActionResultPerSquaddie({
-            damageTaken: damageDealt,
-            healingReceived,
+            data: {
+                healingReceived,
+                damageTaken: damageDealt,
+            }
         })
     };
 
