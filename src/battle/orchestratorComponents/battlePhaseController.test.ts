@@ -51,7 +51,7 @@ describe('BattlePhaseController', () => {
         playerBattleSquaddie = new BattleSquaddie({
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
-            squaddieTurn: new SquaddieTurn(),
+            squaddieTurn: new SquaddieTurn({}),
             mapIcon: mocks.mockImageUI(),
         });
 
@@ -78,7 +78,7 @@ describe('BattlePhaseController', () => {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
-                squaddieTurn: new SquaddieTurn(),
+                squaddieTurn: new SquaddieTurn({}),
                 mapIcon: mocks.mockImageUI(),
             })
         );

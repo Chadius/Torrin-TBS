@@ -47,7 +47,7 @@ describe('Battle Squaddie Team', () => {
             new BattleSquaddie({
                 battleSquaddieId: "player_young_torrin_0",
                 squaddieTemplateId: "player_young_torrin",
-                squaddieTurn: new SquaddieTurn(),
+                squaddieTurn: new SquaddieTurn({}),
                 mapIcon: mocks.mockImageUI(),
             });
 
@@ -58,7 +58,7 @@ describe('Battle Squaddie Team', () => {
         playerBattleSquaddie1 = new BattleSquaddie({
             battleSquaddieId: "player_young_torrin_1",
             squaddieTemplateId: "player_young_torrin",
-            squaddieTurn: new SquaddieTurn(),
+            squaddieTurn: new SquaddieTurn({}),
             mapIcon: mocks.mockImageUI(),
         });
         squaddieRepo.addBattleSquaddie(
@@ -90,7 +90,7 @@ describe('Battle Squaddie Team', () => {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_slither_demon_0",
                 squaddieTemplateId: "enemy_slither_demon",
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn({})
             });
 
         squaddieRepo.addBattleSquaddie(
@@ -100,7 +100,7 @@ describe('Battle Squaddie Team', () => {
         enemyBattleSquaddie1 = new BattleSquaddie({
             battleSquaddieId: "enemy_slither_demon_1",
             squaddieTemplateId: "enemy_slither_demon",
-            squaddieTurn: new SquaddieTurn()
+            squaddieTurn: new SquaddieTurn({})
         });
         squaddieRepo.addBattleSquaddie(
             enemyBattleSquaddie1

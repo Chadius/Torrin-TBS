@@ -100,7 +100,7 @@ describe('BattleSquaddieSelector', () => {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_1",
                 squaddieTemplateId: "enemy_demon",
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn({})
             })
         );
 

@@ -26,7 +26,7 @@ describe('BattleSquaddie', () => {
             const badBattleSquaddie: BattleSquaddie = new BattleSquaddie({
                 squaddieTemplateId: "squaddieTemplateId",
                 battleSquaddieId: "",
-                squaddieTurn: new SquaddieTurn(),
+                squaddieTurn: new SquaddieTurn({}),
             })
             badBattleSquaddie.assertBattleSquaddie();
         }

@@ -7,7 +7,7 @@ describe('Squaddie turn and resources', () => {
         let turn: SquaddieTurn;
         let actionSpends2ActionPoints: SquaddieAction;
         beforeEach(() => {
-            turn = new SquaddieTurn();
+            turn = new SquaddieTurn({});
             actionSpends2ActionPoints = new SquaddieAction({
                 id: "actionSpends2ActionPoints",
                 name: "Power Attack",
@@ -59,6 +59,15 @@ describe('Squaddie turn and resources', () => {
         it('can end its turn', () => {
             turn.endTurn();
             expect(turn.hasActionPointsRemaining()).toBeFalsy();
+        });
+        it('can be constructed with data', () => {
+            const turn: SquaddieTurn = new SquaddieTurn({
+                data: {
+                    remainingActionPoints: 2,
+                }
+            });
+
+            expect(turn.remainingActionPoints).toBe(2);
         });
     });
 });

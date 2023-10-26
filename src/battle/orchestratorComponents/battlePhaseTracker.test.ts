@@ -36,7 +36,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "player_squaddie_0",
                 squaddieTemplateId: "player_squaddie",
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn({})
             })
         );
 
@@ -56,7 +56,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn({})
             })
         );
 
@@ -76,7 +76,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "ally_squaddie_0",
                 squaddieTemplateId: "ally_squaddie",
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn({})
             })
         );
 
@@ -96,7 +96,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "none_squaddie_0",
                 squaddieTemplateId: "none_squaddie",
-                squaddieTurn: new SquaddieTurn()
+                squaddieTurn: new SquaddieTurn({})
             })
         );
 

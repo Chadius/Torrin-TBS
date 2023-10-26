@@ -66,7 +66,7 @@ export const CreateNewSquaddieAndAddToRepository: (
     const battleSquaddie = new BattleSquaddie({
         squaddieTemplateId: templateId,
         battleSquaddieId: battleId,
-        squaddieTurn: new SquaddieTurn(),
+        squaddieTurn: new SquaddieTurn({}),
         mapIcon: mocks.mockImageUI(),
     });
     squaddieRepository.addSquaddie(squaddieTemplate, battleSquaddie);

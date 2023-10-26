@@ -36,7 +36,7 @@ export class BattleSquaddie {
             this._inBattleAttributes = inBattleAttributes;
         }
 
-        this._squaddieTurn = squaddieTurn || new SquaddieTurn();
+        this._squaddieTurn = squaddieTurn || new SquaddieTurn({});
         this._mapIcon = mapIcon;
 
         this.assertBattleSquaddie();

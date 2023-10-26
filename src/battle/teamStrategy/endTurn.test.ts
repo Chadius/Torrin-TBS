@@ -43,7 +43,7 @@ describe('end turn team strategy', () => {
             new BattleSquaddie({
                 battleSquaddieId: "new_dynamic_squaddie",
                 squaddieTemplateId: "new_static_squaddie",
-                squaddieTurn: new SquaddieTurn(),
+                squaddieTurn: new SquaddieTurn({}),
                 mapIcon: mocks.mockImageUI(),
             });
 

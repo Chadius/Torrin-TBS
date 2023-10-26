@@ -42,7 +42,7 @@ describe('BattleSquaddieRepository', () => {
         battleSquaddieBase = new BattleSquaddie({
             battleSquaddieId: "player_young_torrin_0",
             squaddieTemplateId: "player_young_torrin",
-            squaddieTurn: new SquaddieTurn()
+            squaddieTurn: new SquaddieTurn({})
         });
 
         squaddieRepo.addSquaddieTemplate(
@@ -85,7 +85,7 @@ describe('BattleSquaddieRepository', () => {
                 new BattleSquaddie({
                     battleSquaddieId: "battle_id",
                     squaddieTemplateId: "unknown_static_squaddie",
-                    squaddieTurn: new SquaddieTurn()
+                    squaddieTurn: new SquaddieTurn({})
                 })
             );
         }
@@ -123,7 +123,7 @@ describe('BattleSquaddieRepository', () => {
                 battleSquaddieBase = new BattleSquaddie({
                     battleSquaddieId: "",
                     squaddieTemplateId: "static",
-                    squaddieTurn: new SquaddieTurn()
+                    squaddieTurn: new SquaddieTurn({})
                 })
             );
         }
@@ -182,7 +182,7 @@ describe('BattleSquaddieRepository', () => {
         )
         expect(battleSquaddieBase.squaddieTurn.hasActionPointsRemaining()).toBeTruthy();
 
-        const turnEnded = new SquaddieTurn();
+        const turnEnded = new SquaddieTurn({});
         turnEnded.endTurn();
         squaddieRepo.updateBattleSquaddie(
             new BattleSquaddie({
@@ -212,7 +212,7 @@ describe('BattleSquaddieRepository', () => {
             const badBattleSquaddie = new BattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: "does not exist",
-                squaddieTurn: new SquaddieTurn(),
+                squaddieTurn: new SquaddieTurn({}),
                 mapIcon: battleSquaddieBase.mapIcon,
             });
 

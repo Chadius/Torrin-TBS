@@ -5,8 +5,18 @@ export enum ACTION_PERFORM_FAILURE_REASON {
     TOO_FEW_ACTIONS_REMAINING
 }
 
-export class SquaddieTurn {
-    constructor() {
+export interface SquaddieTurnData {
+    remainingActionPoints: number;
+}
+
+export class SquaddieTurn implements SquaddieTurnData {
+
+    constructor({data}: { data?: SquaddieTurnData }) {
+        if (data) {
+            this._remainingActionPoints = data.remainingActionPoints;
+            return;
+        }
+
         this._remainingActionPoints = 3;
     }
 

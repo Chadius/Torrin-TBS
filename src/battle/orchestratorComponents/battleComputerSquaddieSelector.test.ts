@@ -145,7 +145,7 @@ describe('BattleComputerSquaddieSelector', () => {
         enemyDemonDynamic2 = new BattleSquaddie({
             squaddieTemplateId: enemyDemonStatic.templateId,
             battleSquaddieId: "enemy_demon_2",
-            squaddieTurn: new SquaddieTurn()
+            squaddieTurn: new SquaddieTurn({})
         });
 
         squaddieRepo.addBattleSquaddie(enemyDemonDynamic2);
