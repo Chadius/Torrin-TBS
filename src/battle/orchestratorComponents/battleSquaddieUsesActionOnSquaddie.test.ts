@@ -9,7 +9,6 @@ import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
 import {SquaddieAction} from "../../squaddie/action";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     OrchestratorComponentMouseEvent,
@@ -32,6 +31,7 @@ import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -64,7 +64,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 movement: new SquaddieMovement({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
-                        [Trait.PASS_THROUGH_WALLS]: true,
+                        initialTraitValues: {
+                            [Trait.PASS_THROUGH_WALLS]: true,
+                        }
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
             }),
@@ -83,7 +85,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 movement: new SquaddieMovement({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
-                        [Trait.PASS_THROUGH_WALLS]: true,
+                        initialTraitValues: {
+                            [Trait.PASS_THROUGH_WALLS]: true,
+                        }
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
                 maxHitPoints: 3,
@@ -94,8 +98,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             name: "power attack longsword",
             id: "powerAttackLongsword",
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
@@ -109,7 +115,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             id: "koan",
             name: "koan",
             traits: new TraitStatusStorage({
-                [Trait.SKIP_ANIMATION]: true
+                initialTraitValues: {
+                    [Trait.SKIP_ANIMATION]: true
+                }
             }),
             maximumRange: 0,
             minimumRange: 0,
@@ -132,10 +140,14 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
         });
-        instruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieAction: monkKoanAction,
-        }))
+        instruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                targetLocation: new HexCoordinate({q: 0, r: 0}),
+                squaddieAction: monkKoanAction,
+            }
+        });
+
         monkMeditatesInstruction = new SquaddieInstructionInProgress({
             actionsForThisRound: instruction,
             currentSquaddieAction: monkKoanAction,
@@ -176,10 +188,13 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
         });
-        wholeTurnInstruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieAction: powerAttackLongswordAction,
-        }));
+        wholeTurnInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                targetLocation: new HexCoordinate({q: 0, r: 0}),
+                squaddieAction: powerAttackLongswordAction,
+            }
+        });
 
         const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
             actionsForThisRound: wholeTurnInstruction,

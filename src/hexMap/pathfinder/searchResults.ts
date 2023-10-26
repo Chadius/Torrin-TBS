@@ -2,16 +2,16 @@ import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {ReachableSquaddiesResults} from "./reachableSquaddiesResults";
-import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
+import {HexCoordinate, HexCoordinateData, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 
 export type SearchResultOptions = {
-    stopLocation?: HexCoordinate;
+    stopLocation?: HexCoordinateData;
 };
 
 export class SearchResults {
     allReachableTiles: HexCoordinate[];
     lowestCostRoutes: { [key: string]: SearchPath };
-    stopLocation?: HexCoordinate;
+    stopLocation?: HexCoordinateData;
     reachableSquaddies: ReachableSquaddiesResults;
 
     constructor(options?: SearchResultOptions) {

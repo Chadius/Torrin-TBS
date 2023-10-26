@@ -29,7 +29,7 @@ describe('end turn team strategy', () => {
                 templateId: "new_static_squaddie",
                 name: "Torrin",
                 resources: new SquaddieResource({}),
-                traits: new TraitStatusStorage(),
+                traits: new TraitStatusStorage({}),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             actions: [],

@@ -9,7 +9,7 @@ describe('SquaddieAction', () => {
         const longswordAction: SquaddieAction = new SquaddieAction({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage(),
+            traits: new TraitStatusStorage({}),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,

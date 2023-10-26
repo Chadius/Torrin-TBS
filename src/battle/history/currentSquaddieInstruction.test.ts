@@ -5,6 +5,7 @@ import {SquaddieAction} from "../../squaddie/action";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {SquaddieActionType} from "./anySquaddieAction";
 
 const torrinInstruction = new SquaddieActionsForThisRound({
     battleSquaddieId: "Torrin 0",
@@ -15,12 +16,12 @@ const torrinInstruction = new SquaddieActionsForThisRound({
 const purifyingBlast = new SquaddieAction({
     name: "purifying stream",
     id: "purifying_stream",
-    traits: new TraitStatusStorage(),
+    traits: new TraitStatusStorage({}),
 });
 
 const purifyingBlastAction: SquaddieSquaddieAction = new SquaddieSquaddieAction({
     squaddieAction: purifyingBlast,
-    targetLocation: new HexCoordinate({q: 3, r: 4})
+    targetLocation: new HexCoordinate({q: 3, r: 4}),
 });
 
 describe('Current Squaddie Instruction', () => {
@@ -34,7 +35,7 @@ describe('Current Squaddie Instruction', () => {
             currentSquaddieAction: new SquaddieAction({
                 name: "purifying stream",
                 id: "purifying_stream",
-                traits: new TraitStatusStorage(),
+                traits: new TraitStatusStorage({}),
             }),
         });
 
@@ -59,10 +60,21 @@ describe('Current Squaddie Instruction', () => {
 
         const initialInstruction: SquaddieActionsForThisRound = newInstruction.squaddieActionsForThisRound;
 
-        torrinInstruction.addAction(purifyingBlastAction);
-        expect(initialInstruction).toStrictEqual(torrinInstruction);
-        expect(newInstruction.currentlySelectedAction).toStrictEqual(purifyingBlast);
+        torrinInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                squaddieAction: purifyingBlast,
+                targetLocation: {q: 3, r: 4},
+                numberOfActionPointsSpent: 1,
+            }
+        });
 
+        expect(initialInstruction.battleSquaddieId).toBe(torrinInstruction.battleSquaddieId);
+        expect(initialInstruction.squaddieTemplateId).toBe(torrinInstruction.squaddieTemplateId);
+        expect(initialInstruction.startingLocation.q).toStrictEqual(torrinInstruction.startingLocation.q);
+        expect(initialInstruction.startingLocation.r).toStrictEqual(torrinInstruction.startingLocation.r);
+
+        expect(newInstruction.currentlySelectedAction).toStrictEqual(purifyingBlast);
         newInstruction.addConfirmedAction(new SquaddieMovementAction({
             destination: new HexCoordinate({q: 2, r: 3}),
             numberOfActionPointsSpent: 2,

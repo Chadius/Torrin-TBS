@@ -77,7 +77,7 @@ describe('pathfinder and squaddies', () => {
                 name: "blocker",
                 templateId: "blocker",
                 resources: new SquaddieResource({mapIconResourceKey: "map_icon_blocker"}),
-                traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
+                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT),
                 affiliation: blockingAffiliation,
             });
             missionMap.addSquaddie(blockingSquaddie.templateId, "dynamic_0", new HexCoordinate({q: 0, r: 1}));

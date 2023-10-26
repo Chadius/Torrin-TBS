@@ -1,4 +1,5 @@
 import {PriorityQueue} from "./priorityQueue";
+import {CostReportable} from "./costReportable";
 
 class PathWithCost implements CostReportable {
     cost: number;

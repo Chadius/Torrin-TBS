@@ -179,8 +179,10 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         },
                     }),
                     traits: new TraitStatusStorage({
-                        [Trait.HUMANOID]: true,
-                        [Trait.MONSU]: true,
+                        initialTraitValues: {
+                            [Trait.HUMANOID]: true,
+                            [Trait.MONSU]: true
+                        }
                     }).filterCategory(TraitCategory.CREATURE),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -198,7 +200,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         id: "torrin_water_cannon",
                         minimumRange: 0,
                         maximumRange: 2,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION),
+                        traits: new TraitStatusStorage({
+                            initialTraitValues: {
+                                [Trait.ATTACK]: true,
+                            }
+                        }).filterCategory(TraitCategory.ACTION),
                         damageDescriptions: {
                             [DamageType.Body]: 2
                         }
@@ -209,9 +215,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         minimumRange: 0,
                         maximumRange: 1,
                         traits: new TraitStatusStorage({
-                            [Trait.SKIP_ANIMATION]: true,
-                            [Trait.TARGETS_ALLIES]: true,
-                            [Trait.HEALING]: true,
+                            initialTraitValues: {
+                                [Trait.SKIP_ANIMATION]: true,
+                                [Trait.TARGETS_ALLIES]: true,
+                                [Trait.HEALING]: true,
+                            }
                         }).filterCategory(TraitCategory.ACTION),
                         actionPointCost: 2,
                         healingDescriptions: {[HealingType.LostHitPoints]: 2}
@@ -250,7 +258,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         },
                     }),
                     traits: new TraitStatusStorage({
-                        [Trait.HUMANOID]: true,
+                        initialTraitValues: {
+                            [Trait.HUMANOID]: true,
+                        }
                     }).filterCategory(TraitCategory.CREATURE),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -260,7 +270,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         id: "sir_camil_longsword",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION),
+                        traits: new TraitStatusStorage({
+                            initialTraitValues: {
+                                [Trait.ATTACK]: true,
+                            }
+                        }).filterCategory(TraitCategory.ACTION),
                         damageDescriptions: {
                             [DamageType.Body]: 2
                         }
@@ -329,7 +343,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     },
                 }),
                 traits: new TraitStatusStorage({
-                    [Trait.DEMON]: true,
+                    initialTraitValues: {
+                        [Trait.DEMON]: true,
+                    }
                 }).filterCategory(TraitCategory.CREATURE),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
@@ -339,7 +355,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     id: "demon_slither_bite",
                     minimumRange: 0,
                     maximumRange: 1,
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION),
+                    traits: new TraitStatusStorage({initialTraitValues: {[Trait.ATTACK]: true}}).filterCategory(TraitCategory.ACTION),
                     damageDescriptions: {
                         [DamageType.Body]: 1
                     }

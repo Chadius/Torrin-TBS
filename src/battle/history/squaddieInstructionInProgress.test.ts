@@ -1,8 +1,8 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 import {longswordAction} from "../../utils/test/squaddieAction";
+import {SquaddieActionType} from "./anySquaddieAction";
 
 describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {
@@ -27,10 +27,14 @@ describe('SquaddieInstructionInProgress', () => {
             squaddieTemplateId: "templateId",
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
-        longswordUsedThisRoundAction.addAction(new SquaddieSquaddieAction({
-            squaddieAction: longswordAction,
-            targetLocation: new HexCoordinate({q: 0, r: 0}),
-        }));
+
+        longswordUsedThisRoundAction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                squaddieAction: longswordAction,
+                targetLocation: {q: 0, r: 0},
+            }
+        });
 
         const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
             actionsForThisRound: longswordUsedThisRoundAction,

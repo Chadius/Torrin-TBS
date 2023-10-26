@@ -5,12 +5,12 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 export class MoveCloserToSquaddie implements TeamStrategy {
     desiredBattleSquaddieId: string;
@@ -140,10 +140,13 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 battleSquaddieId: squaddieToAct,
                 startingLocation: mapLocation,
             });
-            moveTowardsLocation.addAction(new SquaddieMovementAction({
-                numberOfActionPointsSpent: numberOfMoveActions,
-                destination: targetLocation,
-            }));
+            moveTowardsLocation.addAction({
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: targetLocation,
+                    numberOfActionPointsSpent: numberOfMoveActions,
+                }
+            });
             state.setInstruction(moveTowardsLocation);
             return moveTowardsLocation;
         }

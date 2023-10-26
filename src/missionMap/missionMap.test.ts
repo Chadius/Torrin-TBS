@@ -26,7 +26,7 @@ describe('Mission Map', () => {
             resources: new SquaddieResource({
                 mapIconResourceKey: "map_icon_torrin"
             }),
-            traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT),
+            traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT),
             affiliation: SquaddieAffiliation.PLAYER,
         });
     });

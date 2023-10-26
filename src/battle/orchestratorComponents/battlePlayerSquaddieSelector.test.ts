@@ -36,6 +36,7 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -73,8 +74,10 @@ describe('BattleSquaddieSelector', () => {
             name: "demon bite",
             id: "demon_bite",
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
@@ -173,8 +176,10 @@ describe('BattleSquaddieSelector', () => {
             name: "demon bite",
             id: "demon_bite",
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
@@ -388,10 +393,13 @@ describe('BattleSquaddieSelector', () => {
             });
             expect(selector.hasCompleted(state)).toBeTruthy();
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(2);
-            expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()[1]).toStrictEqual(new SquaddieMovementAction({
-                destination: new HexCoordinate({q: 0, r: 2}),
-                numberOfActionPointsSpent: 1,
-            }));
+            expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()[1]).toStrictEqual({
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: new HexCoordinate({q: 0, r: 2}),
+                    numberOfActionPointsSpent: 1,
+                }
+            });
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.totalActionPointsSpent()).toBe(2);
         });
     });
@@ -435,7 +443,7 @@ describe('BattleSquaddieSelector', () => {
         selector.update(state, mockedP5GraphicsContext);
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(2);
-        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()[1]).toStrictEqual(new SquaddieEndTurnAction());
+        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()[1].type).toBe(SquaddieActionType.END_TURN);
         expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.totalActionPointsSpent()).toBe(3);
     });
 
@@ -471,9 +479,9 @@ describe('BattleSquaddieSelector', () => {
             squaddieTemplateId: "player_soldier",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        endTurnInstruction.addConfirmedAction(new SquaddieEndTurnAction());
+        endTurnInstruction.addConfirmedAction(new SquaddieEndTurnAction({}));
 
-        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction()).toBeInstanceOf(SquaddieEndTurnAction);
+        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction().type).toBe(SquaddieActionType.END_TURN);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
@@ -493,7 +501,7 @@ describe('BattleSquaddieSelector', () => {
         const longswordAction: SquaddieAction = new SquaddieAction({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage(),
+            traits: new TraitStatusStorage({}),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -584,10 +592,14 @@ describe('BattleSquaddieSelector', () => {
                 battleSquaddieId: soldierSquaddieInfo.battleSquaddieId,
                 startingLocation: soldierSquaddieInfo.mapLocation,
             });
-            movingInstruction.addAction(new SquaddieMovementAction({
-                destination: new HexCoordinate({q: 0, r: 2}),
-                numberOfActionPointsSpent: 1,
-            }));
+
+            movingInstruction.addAction({
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: {q: 0, r: 2},
+                    numberOfActionPointsSpent: 1,
+                }
+            });
 
             soldierCurrentlyActing = new SquaddieInstructionInProgress({
                 actionsForThisRound: movingInstruction
@@ -673,7 +685,7 @@ describe('BattleSquaddieSelector', () => {
             const longswordAction: SquaddieAction = new SquaddieAction({
                 name: "longsword",
                 id: "longsword",
-                traits: new TraitStatusStorage(),
+                traits: new TraitStatusStorage({}),
                 actionPointCost: 1,
                 minimumRange: 0,
                 maximumRange: 1,

@@ -13,7 +13,6 @@ import {
 } from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {spendSquaddieActionPoints, updateSquaddieLocation} from "../squaddieMovementLogic";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
     DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
@@ -21,6 +20,8 @@ import {
 } from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {SquaddieActionType} from "../history/anySquaddieAction";
+import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -57,7 +58,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             if (
                 state.squaddieCurrentlyActing
                 && state.squaddieCurrentlyActing.squaddieActionsForThisRound
-                && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction() instanceof SquaddieMovementAction
+                && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction().type === SquaddieActionType.MOVEMENT
             ) {
                 state.squaddieCurrentlyActing.markBattleSquaddieIdAsMoving(state.squaddieCurrentlyActing.battleSquaddieId);
             }
@@ -85,7 +86,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         if (
             state.squaddieCurrentlyActing
             && state.squaddieCurrentlyActing.squaddieActionsForThisRound
-            && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction() instanceof SquaddieMovementAction
+            && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction().type === SquaddieActionType.MOVEMENT
         ) {
             state.squaddieCurrentlyActing.removeBattleSquaddieIdAsMoving(state.squaddieCurrentlyActing.battleSquaddieId);
         }
@@ -117,8 +118,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
         updateSquaddieLocation(battleSquaddie, squaddieTemplate, state.squaddieMovePath.getDestination(), state.missionMap, battleSquaddie.battleSquaddieId);
         const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
-        if (mostRecentAction instanceof SquaddieMovementAction) {
-            spendSquaddieActionPoints(battleSquaddie, mostRecentAction.numberOfActionPointsSpent);
+        if (mostRecentAction.type === SquaddieActionType.MOVEMENT) {
+            spendSquaddieActionPoints(battleSquaddie, (mostRecentAction.data as SquaddieSquaddieActionData).numberOfActionPointsSpent);
         }
 
         if (battleSquaddie.mapIcon) {

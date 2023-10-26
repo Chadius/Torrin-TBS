@@ -6,9 +6,11 @@ export const longswordAction = new SquaddieAction({
     name: "longsword",
     id: "longsword",
     traits: new TraitStatusStorage({
-        [Trait.ATTACK]: true,
-        [Trait.TARGET_ARMOR]: true,
-        [Trait.TARGETS_FOE]: true,
+        initialTraitValues: {
+            [Trait.ATTACK]: true,
+            [Trait.TARGET_ARMOR]: true,
+            [Trait.TARGETS_FOE]: true,
+        }
     }).filterCategory(TraitCategory.ACTION),
     minimumRange: 1,
     maximumRange: 1,

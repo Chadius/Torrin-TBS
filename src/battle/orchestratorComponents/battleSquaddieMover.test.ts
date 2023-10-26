@@ -11,7 +11,6 @@ import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "..
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
@@ -19,6 +18,7 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -93,10 +93,13 @@ describe('BattleSquaddieMover', () => {
             battleSquaddieId: "player_1",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        moveAction.addAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 1, r: 1}),
-            numberOfActionPointsSpent: 3,
-        }));
+        moveAction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: {q: 1, r: 1},
+                numberOfActionPointsSpent: 3,
+            }
+        });
 
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
             actionsForThisRound: moveAction
@@ -187,10 +190,13 @@ describe('BattleSquaddieMover', () => {
                 battleSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
-            moveAction.addAction(new SquaddieMovementAction({
-                destination: new HexCoordinate({q: 1, r: 1}),
-                numberOfActionPointsSpent: 3,
-            }));
+            moveAction.addAction({
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: {q: 1, r: 1},
+                    numberOfActionPointsSpent: 3,
+                }
+            });
 
             const state = setupSquaddie({
                 battleSquaddieId: "player_1",
@@ -217,10 +223,13 @@ describe('BattleSquaddieMover', () => {
                 battleSquaddieId: "player_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
-            moveAction.addAction(new SquaddieMovementAction({
-                destination: new HexCoordinate({q: 1, r: 1}),
-                numberOfActionPointsSpent: 1,
-            }));
+            moveAction.addAction({
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: {q: 1, r: 1},
+                    numberOfActionPointsSpent: 1,
+                }
+            });
 
             const state = setupSquaddie({
                 battleSquaddieId: "player_1",
@@ -253,10 +262,13 @@ describe('BattleSquaddieMover', () => {
                 battleSquaddieId: "enemy_1",
                 startingLocation: new HexCoordinate({q: 0, r: 0}),
             });
-            moveAction.addAction(new SquaddieMovementAction({
-                destination: new HexCoordinate({q: 1, r: 1}),
-                numberOfActionPointsSpent: 1,
-            }));
+            moveAction.addAction({
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: {q: 1, r: 1},
+                    numberOfActionPointsSpent: 1,
+                }
+            });
 
             const state = setupSquaddie({
                 battleSquaddieId: "enemy_1",

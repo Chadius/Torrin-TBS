@@ -12,7 +12,7 @@ describe('Squaddie turn and resources', () => {
                 id: "actionSpends2ActionPoints",
                 name: "Power Attack",
                 actionPointCost: 2,
-                traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION)
+                traits: new TraitStatusStorage({initialTraitValues: {[Trait.ATTACK]: true}}).filterCategory(TraitCategory.ACTION)
             })
         })
 
@@ -24,7 +24,7 @@ describe('Squaddie turn and resources', () => {
                 new SquaddieAction({
                     id: "strike",
                     name: "longsword",
-                    traits: new TraitStatusStorage({[Trait.ATTACK]: true}).filterCategory(TraitCategory.ACTION)
+                    traits: new TraitStatusStorage({initialTraitValues: {[Trait.ATTACK]: true}}).filterCategory(TraitCategory.ACTION)
                 })
             );
             expect(turn.remainingActionPoints).toBe(2);

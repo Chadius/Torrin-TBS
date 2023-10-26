@@ -86,8 +86,10 @@ describe('calculator', () => {
                 id: "deal body damage",
                 name: "deal body damage",
                 traits: new TraitStatusStorage({
-                    [Trait.ATTACK]: true,
-                    [Trait.ALWAYS_HITS]: true,
+                    initialTraitValues: {
+                        [Trait.ATTACK]: true,
+                        [Trait.ALWAYS_HITS]: true,
+                    }
                 }),
                 minimumRange: 0,
                 maximumRange: 9001,
@@ -97,8 +99,10 @@ describe('calculator', () => {
                 id: "heals lost hit points",
                 name: "heals lost hit points",
                 traits: new TraitStatusStorage({
-                    [Trait.HEALING]: true,
-                    [Trait.ALWAYS_HITS]: true,
+                    initialTraitValues: {
+                        [Trait.HEALING]: true,
+                        [Trait.ALWAYS_HITS]: true,
+                    }
                 }),
                 minimumRange: 0,
                 maximumRange: 9001,

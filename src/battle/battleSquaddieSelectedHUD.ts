@@ -252,7 +252,7 @@ export class BattleSquaddieSelectedHUD {
                     width: (windowDimensions.width / 12) - 16,
                     height: this._background.area.height - 32,
                 }),
-                action: new SquaddieEndTurnAction(),
+                action: new SquaddieEndTurnAction({}),
             })
         );
     }
@@ -426,11 +426,11 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        const {squaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieCurrentlyActing.squaddieActionsForThisRound.getBattleSquaddieId()));
+        const {squaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${squaddieTemplate.squaddieId.name}`;
 
         if (
-            this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieActionsForThisRound.getBattleSquaddieId()
+            this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId
         ) {
             if (
                 this.invalidCommandWarningTextBox.text === differentSquaddieWarningText

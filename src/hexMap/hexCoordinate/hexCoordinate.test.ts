@@ -13,14 +13,30 @@ describe('HexCoordinates', () => {
         expect(hexCoordinate.r).toBe(10);
     });
 
+    it('creates HexCoordinates given data', () => {
+        const hexCoordinate: HexCoordinate = new HexCoordinate({data: {q: 3, r: 10}});
+        expect(hexCoordinate.q).toBe(3);
+        expect(hexCoordinate.r).toBe(10);
+    });
+
     it('throws an error if a HexCoordinate is made without arguments', () => {
+        const noArguments = () => {
+            new HexCoordinate({});
+        };
+        expect(() => {
+            noArguments()
+        }).toThrow(Error);
+        expect(() => {
+            noArguments()
+        }).toThrow("HexCoordinate requires q & r variables");
+
         const qIsMissing = () => {
             new HexCoordinate({r: 3});
         };
-
         expect(() => {
             qIsMissing()
         }).toThrow(Error);
+
         expect(() => {
             qIsMissing()
         }).toThrow("HexCoordinate requires q or coordinates");
@@ -28,23 +44,13 @@ describe('HexCoordinates', () => {
         const rIsMissing = () => {
             new HexCoordinate({q: 3});
         };
-
         expect(() => {
             rIsMissing()
         }).toThrow(Error);
+
         expect(() => {
             rIsMissing()
         }).toThrow("HexCoordinate requires r or coordinates");
-
-        const coordinatesAreMissing = () => {
-            new HexCoordinate({});
-        };
-        expect(() => {
-            coordinatesAreMissing()
-        }).toThrow(Error);
-        expect(() => {
-            coordinatesAreMissing()
-        }).toThrow("HexCoordinate requires q & r or coordinates");
     });
 
     it('throws an error if the coordinates are not integers', () => {
@@ -79,6 +85,17 @@ describe('HexCoordinates', () => {
         }).toThrow(Error);
         expect(() => {
             coordinatesDoNotHaveIntegers()
+        }).toThrow("Value must be an integer: 0.3");
+
+        const dataDoesNotHaveIntegers = () => {
+            new HexCoordinate({data: {q: 0.3, r: 0.5}});
+        };
+
+        expect(() => {
+            dataDoesNotHaveIntegers()
+        }).toThrow(Error);
+        expect(() => {
+            dataDoesNotHaveIntegers()
         }).toThrow("Value must be an integer: 0.3");
     });
 

@@ -18,7 +18,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
+import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
@@ -28,8 +28,8 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -67,8 +67,10 @@ describe('BattleSquaddieTarget', () => {
             name: "longsword",
             id: longswordActionId,
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
@@ -82,8 +84,10 @@ describe('BattleSquaddieTarget', () => {
             name: "Bandage Wounds",
             id: bandageWoundsActionId,
             traits: new TraitStatusStorage({
-                [Trait.HEALING]: true,
-                [Trait.TARGETS_ALLIES]: true,
+                initialTraitValues: {
+                    [Trait.HEALING]: true,
+                    [Trait.TARGETS_ALLIES]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
@@ -282,10 +286,13 @@ describe('BattleSquaddieTarget', () => {
             squaddieTemplateId: knightStatic.templateId,
             startingLocation: new HexCoordinate({q: 1, r: 1}),
         });
-        state.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 0, r: 1}),
-            numberOfActionPointsSpent: 1,
-        }))
+        state.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: {q: 0, r: 1},
+                numberOfActionPointsSpent: 1,
+            }
+        });
         state.squaddieCurrentlyActing.addSelectedAction(longswordAction);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
@@ -382,12 +389,14 @@ describe('BattleSquaddieTarget', () => {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             });
-            expectedInstruction.addSquaddieSquaddieAction(
-                new SquaddieSquaddieAction({
+            expectedInstruction.addAction({
+                type: SquaddieActionType.SQUADDIE,
+                data: {
                     targetLocation: new HexCoordinate({q: 1, r: 2}),
                     squaddieAction: longswordAction,
-                })
-            );
+                    numberOfActionPointsSpent: 1,
+                }
+            });
 
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
         });
@@ -431,12 +440,14 @@ describe('BattleSquaddieTarget', () => {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: new HexCoordinate({q: 1, r: 1}),
             });
-            expectedInstruction.addSquaddieSquaddieAction(
-                new SquaddieSquaddieAction({
+            expectedInstruction.addAction({
+                type: SquaddieActionType.SQUADDIE,
+                data: {
                     targetLocation: new HexCoordinate({q: 1, r: 2}),
                     squaddieAction: longswordAction,
-                })
-            );
+                    numberOfActionPointsSpent: 1,
+                }
+            });
 
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
         });
@@ -454,7 +465,7 @@ describe('BattleSquaddieTarget', () => {
             const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
             expect(mostRecentEvent.actions).toHaveLength(1);
             expect((
-                mostRecentEvent.actions[0] as SquaddieSquaddieAction
+                mostRecentEvent.actions[0].data as SquaddieSquaddieActionData
             ).squaddieAction.id).toBe(longswordAction.id);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);
@@ -500,7 +511,7 @@ describe('BattleSquaddieTarget', () => {
             const action = new SquaddieAction({
                 id: name,
                 name,
-                traits: new TraitStatusStorage(traits),
+                traits: new TraitStatusStorage({initialTraitValues: traits}),
                 minimumRange: 0,
                 maximumRange: 9001,
             });

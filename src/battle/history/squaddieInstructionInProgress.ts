@@ -1,7 +1,7 @@
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {SquaddieAction} from "../../squaddie/action";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {AnySquaddieAction} from "./anySquaddieAction";
+import {AnySquaddieAction, SquaddieActionType} from "./anySquaddieAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieEndTurnAction} from "./squaddieEndTurnAction";
@@ -89,9 +89,30 @@ export class SquaddieInstructionInProgress {
 
         if (action instanceof SquaddieSquaddieAction) {
             this.addSelectedAction(action.squaddieAction);
+            this.squaddieActionsForThisRound.addAction(
+                {
+                    type: SquaddieActionType.SQUADDIE,
+                    data: {
+                        squaddieAction: action.squaddieAction,
+                        targetLocation: action.targetLocation,
+                        numberOfActionPointsSpent: action.numberOfActionPointsSpent,
+                    }
+                }
+            );
+        } else if (action instanceof SquaddieMovementAction) {
+            this.squaddieActionsForThisRound.addAction({
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: action.destination,
+                    numberOfActionPointsSpent: action.numberOfActionPointsSpent,
+                }
+            });
+        } else {
+            this.squaddieActionsForThisRound.addAction({
+                type: SquaddieActionType.END_TURN,
+                data: {},
+            });
         }
-
-        this.squaddieActionsForThisRound.addAction(action);
     }
 
     addSelectedAction(action: SquaddieAction) {

@@ -16,7 +16,7 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
         templateId: id,
         name: id,
         resources: new SquaddieResource({}),
-        traits: new TraitStatusStorage(),
+        traits: new TraitStatusStorage({}),
         affiliation
     });
 }
@@ -57,7 +57,7 @@ export const CreateNewSquaddieAndAddToRepository: (
             templateId,
             name,
             resources: new SquaddieResource({}),
-            traits: new TraitStatusStorage(),
+            traits: new TraitStatusStorage({}),
             affiliation
         }),
         actions: actions,
@@ -113,9 +113,11 @@ export const CreateNewThiefSquaddie: (
         name: "knife",
         id: "knife",
         traits: new TraitStatusStorage({
-            [Trait.ATTACK]: true,
-            [Trait.TARGET_ARMOR]: true,
-            [Trait.TARGETS_FOE]: true,
+            initialTraitValues: {
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+                [Trait.TARGETS_FOE]: true,
+            }
         }).filterCategory(TraitCategory.ACTION),
         minimumRange: 1,
         maximumRange: 1,
@@ -182,9 +184,11 @@ export const CreateNewKnightSquaddie: (
         name: "longsword",
         id: "longsword",
         traits: new TraitStatusStorage({
-            [Trait.ATTACK]: true,
-            [Trait.TARGET_ARMOR]: true,
-            [Trait.TARGETS_FOE]: true,
+            initialTraitValues: {
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+                [Trait.TARGETS_FOE]: true,
+            }
         }).filterCategory(TraitCategory.ACTION),
         minimumRange: 1,
         maximumRange: 1,
@@ -198,9 +202,11 @@ export const CreateNewKnightSquaddie: (
         name: "power attack longsword",
         id: "powerAttackLongsword",
         traits: new TraitStatusStorage({
-            [Trait.ATTACK]: true,
-            [Trait.TARGET_ARMOR]: true,
-            [Trait.TARGETS_FOE]: true,
+            initialTraitValues: {
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+                [Trait.TARGETS_FOE]: true,
+            }
         }).filterCategory(TraitCategory.ACTION),
         minimumRange: 1,
         maximumRange: 1,

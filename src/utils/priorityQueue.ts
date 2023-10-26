@@ -1,3 +1,5 @@
+import {CostReportable} from "./costReportable";
+
 export class PriorityQueue {
     items: CostReportable[];
 

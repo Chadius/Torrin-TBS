@@ -19,7 +19,7 @@ export class SquaddieId {
         this.name = params.name;
         this.templateId = params.templateId;
         this.resources = params.resources || new SquaddieResource({});
-        this.traits = params.traits || new TraitStatusStorage();
+        this.traits = params.traits || new TraitStatusStorage({});
         this._affiliation = params.affiliation;
     }
 

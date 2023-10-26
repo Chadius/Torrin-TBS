@@ -1,6 +1,6 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {HexCoordinate, HexCoordinateData} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -15,7 +15,7 @@ import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestrator
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
-export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
+export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinateData) {
     const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
@@ -69,7 +69,7 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
 
-export function AddMovementInstruction(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinate) {
+export function AddMovementInstruction(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinateData) {
     MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
 
     const moveAction = new SquaddieMovementAction({

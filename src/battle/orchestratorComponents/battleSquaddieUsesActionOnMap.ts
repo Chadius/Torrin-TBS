@@ -6,11 +6,11 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
-import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -53,7 +53,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (this.animationCompleteStartTime === undefined) {
-            const battleSquaddieId = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getBattleSquaddieId();
+            const battleSquaddieId = state.squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId;
             const {
                 battleSquaddie,
                 squaddieTemplate
@@ -61,7 +61,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
             const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
 
-            if (mostRecentAction instanceof SquaddieEndTurnAction) {
+            if (mostRecentAction.type === SquaddieActionType.END_TURN) {
                 battleSquaddie.endTurn();
                 TintSquaddieIfTurnIsComplete(battleSquaddie, squaddieTemplate);
             }

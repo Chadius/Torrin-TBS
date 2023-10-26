@@ -7,7 +7,6 @@ import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieUsesActionOnMap} from "../orchestratorComponents/battleSquaddieUsesActionOnMap";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -37,6 +36,7 @@ import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditi
 import {MissionDefeatCutsceneTrigger,} from "../../cutscene/cutsceneTrigger";
 import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 
 describe('Battle Orchestrator', () => {
@@ -280,10 +280,13 @@ describe('Battle Orchestrator', () => {
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 1, r: 2}),
-            numberOfActionPointsSpent: 2,
-        }));
+        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: {q: 1, r: 2},
+                numberOfActionPointsSpent: 2,
+            }
+        });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
@@ -312,10 +315,13 @@ describe('Battle Orchestrator', () => {
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: new HexCoordinate({q: 0, r: 0}),
         });
-        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 1, r: 2}),
-            numberOfActionPointsSpent: 2,
-        }));
+        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: {q: 1, r: 2},
+                numberOfActionPointsSpent: 2,
+            }
+        });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);

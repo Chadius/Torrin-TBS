@@ -92,10 +92,22 @@ const traitInformation: {
     }
 }
 
-export class TraitStatusStorage {
+export interface TraitStatusStorageData {
+    booleanTraits: { [key in Trait]?: boolean };
+}
+
+export class TraitStatusStorage implements TraitStatusStorageData {
     booleanTraits: { [key in Trait]?: boolean }
 
-    constructor(initialTraitValues?: { [key in Trait]?: boolean }) {
+    constructor({initialTraitValues, data}: {
+        initialTraitValues?: { [key in Trait]?: boolean },
+        data?: TraitStatusStorageData
+    }) {
+        if (data) {
+            this.booleanTraits = data.booleanTraits;
+            return;
+        }
+
         this.booleanTraits = {};
 
         if (initialTraitValues) {

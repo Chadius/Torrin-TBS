@@ -13,8 +13,6 @@ import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
@@ -22,6 +20,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {Label} from "../../ui/label";
 import * as actionResultTextWriter from "./actionResultTextWriter";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -46,7 +45,9 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             id: "koan",
             name: "koan",
             traits: new TraitStatusStorage({
-                [Trait.SKIP_ANIMATION]: true
+                initialTraitValues: {
+                    [Trait.SKIP_ANIMATION]: true
+                }
             }),
             maximumRange: 0,
             minimumRange: 0,
@@ -67,10 +68,14 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             squaddieTemplateId: monkStaticId,
             battleSquaddieId: monkDynamicId,
         });
-        oneActionInstruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieAction: monkKoanAction,
-        }));
+
+        oneActionInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                squaddieAction: monkKoanAction,
+                targetLocation: {q: 0, r: 0},
+            }
+        });
 
         monkMeditatesInstruction = new SquaddieInstructionInProgress({
             actionsForThisRound: oneActionInstruction,

@@ -69,7 +69,7 @@ export const battleSquaddieSelectedHUD = () => {
     const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
     hud.draw = jest.fn();
     hud.wasAnyActionSelected = jest.fn().mockReturnValue(true);
-    hud.getSelectedAction = jest.fn().mockReturnValue(new SquaddieEndTurnAction());
+    hud.getSelectedAction = jest.fn().mockReturnValue(new SquaddieEndTurnAction({}));
     hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
     hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
     hud.mouseClicked = jest.fn();

@@ -15,7 +15,6 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {BattleEvent} from "../history/battleEvent";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -23,7 +22,6 @@ import {SquaddieAction} from "../../squaddie/action";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
@@ -32,6 +30,7 @@ import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -129,13 +128,13 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR;
         } else if (this.gaveCompleteInstruction) {
             let newAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
-            if (newAction instanceof SquaddieMovementAction) {
+            if (newAction.type === SquaddieActionType.MOVEMENT) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
             }
-            if (newAction instanceof SquaddieSquaddieAction) {
+            if (newAction.type === SquaddieActionType.SQUADDIE) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE;
             }
-            if (newAction instanceof SquaddieEndTurnAction) {
+            if (newAction.type === SquaddieActionType.END_TURN) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
             }
         } else if (this.gaveInstructionThatNeedsATarget) {
@@ -330,7 +329,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         }
 
         if (state.battleSquaddieSelectedHUD.getSelectedAction() instanceof SquaddieEndTurnAction) {
-            state.squaddieCurrentlyActing.addConfirmedAction(new SquaddieEndTurnAction());
+            state.squaddieCurrentlyActing.addConfirmedAction(new SquaddieEndTurnAction({}));
 
             state.hexMap.stopHighlightingTiles();
             this.gaveCompleteInstruction = true;

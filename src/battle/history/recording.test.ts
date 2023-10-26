@@ -26,7 +26,7 @@ describe('Recording', () => {
             destination: new HexCoordinate({q: 3, r: 6}),
             numberOfActionPointsSpent: 1,
         }));
-        squaddieMovesAndEndsTurn.addConfirmedAction(new SquaddieEndTurnAction());
+        squaddieMovesAndEndsTurn.addConfirmedAction(new SquaddieEndTurnAction({}));
 
         recording.addEvent(new BattleEvent({
             currentSquaddieInstruction: squaddieMovesAndEndsTurn,

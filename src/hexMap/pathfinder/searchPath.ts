@@ -1,6 +1,7 @@
 import {TileFoundDescription} from "./tileFoundDescription";
 import {assertsInteger} from "../../utils/mathAssert";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
+import {CostReportable} from "../../utils/costReportable";
 
 export class SearchPath implements CostReportable {
     tilesTraveled: TileFoundDescription[];

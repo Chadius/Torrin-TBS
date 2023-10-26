@@ -6,9 +6,9 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FindValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieAction} from "../../squaddie/action";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 export class TargetSquaddieInRange implements TeamStrategy {
     desiredBattleSquaddieId: string;
@@ -167,10 +167,13 @@ export class TargetSquaddieInRange implements TeamStrategy {
     }
 
     private addActionToInstruction(instruction: SquaddieActionsForThisRound, action: SquaddieAction, targetLocation: HexCoordinate) {
-        instruction.addAction(new SquaddieSquaddieAction({
-            squaddieAction: action,
-            targetLocation: targetLocation,
-        }));
+        instruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                squaddieAction: action,
+                targetLocation: targetLocation,
+            }
+        });
         return instruction;
     }
 
@@ -204,10 +207,13 @@ export class TargetSquaddieInRange implements TeamStrategy {
                     return instruction;
                 }
             } else {
-                state.instruction.addAction(new SquaddieSquaddieAction({
-                    targetLocation: desiredSquaddieMapDatum.mapLocation,
-                    squaddieAction: action,
-                }));
+                state.instruction.addAction({
+                    type: SquaddieActionType.SQUADDIE,
+                    data: {
+                        squaddieAction: action,
+                        targetLocation: desiredSquaddieMapDatum.mapLocation,
+                    }
+                });
                 return state.instruction;
             }
         }

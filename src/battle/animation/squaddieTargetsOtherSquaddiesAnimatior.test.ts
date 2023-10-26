@@ -5,8 +5,6 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {SquaddieAction} from "../../squaddie/action";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -24,6 +22,7 @@ import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquad
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -62,8 +61,10 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
@@ -88,10 +89,14 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
         });
-        oneActionInstruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({q: 0, r: 0}),
-            squaddieAction: longswordAction,
-        }));
+
+        oneActionInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                squaddieAction: longswordAction,
+                targetLocation: {q: 0, r: 0},
+            }
+        });
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));

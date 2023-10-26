@@ -1,17 +1,29 @@
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieAction} from "../../squaddie/action";
+import {HexCoordinate, HexCoordinateData} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {SquaddieAction, SquaddieActionData} from "../../squaddie/action";
 
-export class SquaddieSquaddieAction {
+export interface SquaddieSquaddieActionData {
+    squaddieAction: SquaddieActionData;
+    numberOfActionPointsSpent: number;
+    targetLocation: HexCoordinateData;
+}
+
+export class SquaddieSquaddieAction implements SquaddieSquaddieActionData {
     private readonly _targetLocation: HexCoordinate;
     private readonly _numberOfActionPointsSpent: number;
     private readonly _squaddieAction: SquaddieAction;
 
-    constructor(options: {
-        targetLocation: HexCoordinate;
-        squaddieAction: SquaddieAction;
+    constructor({targetLocation, squaddieAction, data}: {
+        targetLocation?: HexCoordinate;
+        squaddieAction?: SquaddieAction;
+        data?: SquaddieSquaddieActionData;
     }) {
-        this._targetLocation = options.targetLocation;
-        this._squaddieAction = options.squaddieAction;
+        if (data) {
+            this._targetLocation = new HexCoordinate({data: data.targetLocation});
+            this._squaddieAction = new SquaddieAction({data: data.squaddieAction});
+        } else {
+            this._targetLocation = targetLocation;
+            this._squaddieAction = squaddieAction;
+        }
 
         this._numberOfActionPointsSpent = this._squaddieAction.actionPointCost;
     }

@@ -11,9 +11,9 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('target a squaddie within reach of actions', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -34,8 +34,10 @@ describe('target a squaddie within reach of actions', () => {
             name: "short bow",
             id: "short_bow",
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 2,
@@ -146,10 +148,13 @@ describe('target a squaddie within reach of actions', () => {
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         });
 
-        expectedInstruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({coordinates: [0, 1]}),
-            squaddieAction: shortBowAction,
-        }));
+        expectedInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                targetLocation: new HexCoordinate({q: 0, r: 1}),
+                squaddieAction: shortBowAction,
+            }
+        });
 
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
@@ -168,10 +173,13 @@ describe('target a squaddie within reach of actions', () => {
             desiredAffiliation: SquaddieAffiliation.ALLY
         });
 
-        expectedInstruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({coordinates: [0, 2]}),
-            squaddieAction: shortBowAction,
-        }));
+        expectedInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                targetLocation: new HexCoordinate({q: 0, r: 2}),
+                squaddieAction: shortBowAction,
+            }
+        });
 
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
@@ -223,7 +231,13 @@ describe('target a squaddie within reach of actions', () => {
             destination: new HexCoordinate({coordinates: [0, 0]}),
             numberOfActionPointsSpent: 1,
         });
-        startingInstruction.addAction(enemyBanditMoves);
+        startingInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: enemyBanditMoves.destination,
+                numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
+            }
+        });
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -235,11 +249,21 @@ describe('target a squaddie within reach of actions', () => {
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         });
 
-        expectedInstruction.addAction(enemyBanditMoves);
-        expectedInstruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({coordinates: [0, 1]}),
-            squaddieAction: shortBowAction,
-        }));
+        expectedInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: enemyBanditMoves.destination,
+                numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
+            }
+        });
+
+        expectedInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                targetLocation: new HexCoordinate({q: 0, r: 1}),
+                squaddieAction: shortBowAction,
+            }
+        });
 
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
@@ -251,8 +275,10 @@ describe('target a squaddie within reach of actions', () => {
             name: "long bow",
             id: "long_bow",
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 2,
@@ -283,7 +309,13 @@ describe('target a squaddie within reach of actions', () => {
             destination: new HexCoordinate({coordinates: [0, 0]}),
             numberOfActionPointsSpent: 1,
         });
-        startingInstruction.addAction(enemyBanditMoves);
+        startingInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: enemyBanditMoves.destination,
+                numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
+            }
+        });
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -295,12 +327,20 @@ describe('target a squaddie within reach of actions', () => {
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         });
-
-        expectedInstruction.addAction(enemyBanditMoves);
-        expectedInstruction.addAction(new SquaddieSquaddieAction({
-            targetLocation: new HexCoordinate({coordinates: [0, 2]}),
-            squaddieAction: shortBowAction,
-        }));
+        expectedInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: enemyBanditMoves.destination,
+                numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
+            }
+        });
+        expectedInstruction.addAction({
+            type: SquaddieActionType.SQUADDIE,
+            data: {
+                targetLocation: new HexCoordinate({coordinates: [0, 2]}),
+                squaddieAction: shortBowAction,
+            }
+        });
 
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
         expect(actualInstruction).toStrictEqual(expectedInstruction);

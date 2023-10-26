@@ -1,4 +1,4 @@
-import {SquaddieAction} from "./action";
+import {SquaddieActionData} from "./action";
 
 export enum ACTION_PERFORM_FAILURE_REASON {
     UNKNOWN,
@@ -16,7 +16,7 @@ export class SquaddieTurn {
         return this._remainingActionPoints;
     }
 
-    spendActionPointsOnAction(action: SquaddieAction) {
+    spendActionPointsOnAction(action: SquaddieActionData) {
         this._remainingActionPoints = (this._remainingActionPoints - action.actionPointCost);
     }
 
@@ -24,7 +24,7 @@ export class SquaddieTurn {
         this._remainingActionPoints = (this._remainingActionPoints - number);
     }
 
-    canPerformAction(action: SquaddieAction): { canPerform: boolean, reason: ACTION_PERFORM_FAILURE_REASON } {
+    canPerformAction(action: SquaddieActionData): { canPerform: boolean, reason: ACTION_PERFORM_FAILURE_REASON } {
         if (this._remainingActionPoints < action.actionPointCost) {
             return {
                 canPerform: false,

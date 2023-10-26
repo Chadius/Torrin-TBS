@@ -7,13 +7,13 @@ import {SquaddieMovement} from "../../squaddie/movement";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('move towards closest squaddie in range', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -63,7 +63,7 @@ describe('move towards closest squaddie in range', () => {
             attributes: new ArmyAttributes({
                 movement: new SquaddieMovement({
                     movementPerAction: 1,
-                    traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                 })
             })
         }));
@@ -104,10 +104,13 @@ describe('move towards closest squaddie in range', () => {
             battleSquaddieId: "searching_squaddie_0",
             startingLocation: new HexCoordinate({q: 0, r: 2}),
         });
-        expectedInstruction.addAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 0, r: 1}),
-            numberOfActionPointsSpent: 1,
-        }))
+        expectedInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: new HexCoordinate({q: 0, r: 1}),
+                numberOfActionPointsSpent: 1,
+            }
+        });
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
@@ -135,7 +138,7 @@ describe('move towards closest squaddie in range', () => {
             attributes: new ArmyAttributes({
                 movement: new SquaddieMovement({
                     movementPerAction: 10,
-                    traits: new TraitStatusStorage().filterCategory(TraitCategory.MOVEMENT)
+                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                 })
             })
         });
@@ -159,11 +162,13 @@ describe('move towards closest squaddie in range', () => {
             battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
             startingLocation: new HexCoordinate({coordinates: [0, 5]})
         });
-        const searchingSquaddie2Moves = new SquaddieMovementAction({
-            destination: new HexCoordinate({coordinates: [0, 3]}),
-            numberOfActionPointsSpent: 1,
+        startingInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: {q: 0, r: 3},
+                numberOfActionPointsSpent: 1,
+            }
         });
-        startingInstruction.addAction(searchingSquaddie2Moves);
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -177,10 +182,13 @@ describe('move towards closest squaddie in range', () => {
             battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
             startingLocation: new HexCoordinate({q: 0, r: 3}),
         });
-        expectedInstruction.addAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 0, r: 1}),
-            numberOfActionPointsSpent: 1,
-        }))
+        expectedInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: new HexCoordinate({q: 0, r: 1}),
+                numberOfActionPointsSpent: 1,
+            }
+        });
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0",
@@ -306,10 +314,14 @@ describe('move towards closest squaddie in range', () => {
             battleSquaddieId: "searching_squaddie_0",
             startingLocation: new HexCoordinate({q: 0, r: 2}),
         });
-        expectedInstruction.addAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 0, r: 1}),
-            numberOfActionPointsSpent: 1,
-        }))
+
+        expectedInstruction.addAction({
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: new HexCoordinate({q: 0, r: 1}),
+                numberOfActionPointsSpent: 1,
+            }
+        });
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredAffiliation: SquaddieAffiliation.PLAYER

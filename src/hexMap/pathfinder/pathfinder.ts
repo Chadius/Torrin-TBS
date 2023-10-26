@@ -34,7 +34,7 @@ class SearchState {
         this.tileLocationsAlreadyConsideredForQueue = {};
         this.searchPathQueue = new PriorityQueue();
         this.results = new SearchResults({
-            stopLocation: searchParams.stopLocation
+            stopLocation: searchParams.stopLocation,
         });
         this.shapeGenerator = searchParams.shapeGenerator;
     }

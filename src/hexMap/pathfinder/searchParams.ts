@@ -1,7 +1,7 @@
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
-import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
+import {HexCoordinateData} from "../hexCoordinate/hexCoordinate";
 import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
 
 export class SearchParamsOptions {
@@ -11,14 +11,14 @@ export class SearchParamsOptions {
 }
 
 export type SearchSetupOptions = {
-    startLocation?: HexCoordinate;
+    startLocation?: HexCoordinateData;
     missionMap: MissionMap;
     affiliation?: SquaddieAffiliation;
     squaddieRepository?: BattleSquaddieRepository;
 }
 
 export class SearchSetup {
-    private readonly _startLocation?: HexCoordinate;
+    private readonly _startLocation?: HexCoordinateData;
     private readonly _missionMap: MissionMap;
     private readonly _affiliation?: SquaddieAffiliation;
     private readonly _squaddieRepository?: BattleSquaddieRepository;
@@ -48,7 +48,7 @@ export class SearchSetup {
         return this._missionMap;
     }
 
-    get startLocation(): HexCoordinate {
+    get startLocation(): HexCoordinateData {
         return this._startLocation;
     }
 }
@@ -130,12 +130,12 @@ export class SearchMovement {
 
 export type SearchStopConditionOptions = {
     numberOfActionPoints?: number;
-    stopLocation?: HexCoordinate;
+    stopLocation?: HexCoordinateData;
 }
 
 export class SearchStopCondition {
     private readonly _numberOfActions?: number;
-    private readonly _stopLocation?: HexCoordinate;
+    private readonly _stopLocation?: HexCoordinateData;
 
     constructor({
                     numberOfActionPoints,
@@ -146,7 +146,7 @@ export class SearchStopCondition {
         this._stopLocation = stopLocation;
     }
 
-    get stopLocation(): HexCoordinate {
+    get stopLocation(): HexCoordinateData {
         return this._stopLocation;
     }
 
@@ -183,7 +183,7 @@ export class SearchParams {
         return this.movement.shapeGenerator;
     }
 
-    get startLocation(): HexCoordinate {
+    get startLocation(): HexCoordinateData {
         return this.setup.startLocation;
     }
 
@@ -211,7 +211,7 @@ export class SearchParams {
         return this.stopConditions.numberOfActions;
     }
 
-    get stopLocation(): HexCoordinate | undefined {
+    get stopLocation(): HexCoordinateData | undefined {
         return this.stopConditions.stopLocation;
     }
 

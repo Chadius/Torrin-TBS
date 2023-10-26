@@ -20,7 +20,7 @@ import {Label} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieActionData} from "../../squaddie/action";
 import {Trait} from "../../trait/traitStatusStorage";
 import {CalculateResults} from "../actionCalculator/calculator";
 import {FindValidTargets} from "../targeting/targetingService";
@@ -216,11 +216,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
-        const actionConsidered: SquaddieAction = state.squaddieCurrentlyActing.currentlySelectedAction;
-        if (actorAndTargetAreFriends && actionConsidered.traits.getStatus(Trait.TARGETS_ALLIES) !== true) {
+        const actionConsidered: SquaddieActionData = state.squaddieCurrentlyActing.currentlySelectedAction;
+        if (actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
             return;
         }
-        if (!actorAndTargetAreFriends && actionConsidered.traits.getStatus(Trait.TARGETS_ALLIES) === true) {
+        if (!actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] === true) {
             return;
         }
 

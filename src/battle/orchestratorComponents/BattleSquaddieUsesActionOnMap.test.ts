@@ -34,7 +34,9 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 movement: new SquaddieMovement({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
-                        [Trait.PASS_THROUGH_WALLS]: true,
+                        initialTraitValues: {
+                            [Trait.PASS_THROUGH_WALLS]: true,
+                        }
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
             }),

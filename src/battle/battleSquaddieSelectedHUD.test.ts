@@ -66,7 +66,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         longswordAction = new SquaddieAction({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage(),
+            traits: new TraitStatusStorage({}),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -281,7 +281,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         notEnoughActionPointsAction = new SquaddieAction({
             name: "not enough actions",
             id: "not enough actions",
-            traits: new TraitStatusStorage(),
+            traits: new TraitStatusStorage({}),
             actionPointCost: 9001,
             minimumRange: 0,
             maximumRange: 1,
@@ -335,7 +335,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 currentSquaddieAction: new SquaddieAction({
                     name: "purifying stream",
                     id: "purifying_stream",
-                    traits: new TraitStatusStorage(),
+                    traits: new TraitStatusStorage({}),
                 })
             })
         });

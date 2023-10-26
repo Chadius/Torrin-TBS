@@ -1,14 +1,19 @@
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {HexCoordinate, HexCoordinateData} from "../../hexMap/hexCoordinate/hexCoordinate";
 
-export class SquaddieMovementAction {
+export interface SquaddieMovementActionData {
+    destination: HexCoordinateData;
+    numberOfActionPointsSpent: number;
+}
+
+export class SquaddieMovementAction implements SquaddieMovementActionData {
     destination: HexCoordinate;
     numberOfActionPointsSpent: number;
 
     constructor(options: {
-        destination: HexCoordinate;
+        destination: HexCoordinateData;
         numberOfActionPointsSpent: number;
     }) {
-        this.destination = options.destination;
+        this.destination = new HexCoordinate({data: options.destination});
         this.numberOfActionPointsSpent = options.numberOfActionPointsSpent;
     }
 }

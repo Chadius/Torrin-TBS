@@ -1,5 +1,5 @@
 import {assertsInteger} from "../utils/mathAssert";
-import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorage, TraitStatusStorageData} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType, HealingType} from "./squaddieService";
 
@@ -41,7 +41,19 @@ export class ActionRange {
     }
 }
 
-export class SquaddieAction {
+export interface SquaddieActionData {
+    damageDescriptions: { [t in DamageType]?: number };
+    healingDescriptions: { Unknown?: number; LostHitPoints?: number };
+    name: string;
+    id: string;
+    traits: TraitStatusStorageData;
+    actionPointCost: number;
+    minimumRange: number;
+    maximumRange: number;
+    targetingShape: TargetingShape;
+}
+
+export class SquaddieAction implements SquaddieActionData {
     private readonly _name: string;
     private readonly _id: string;
     private _range?: ActionRange;
@@ -59,14 +71,37 @@ export class SquaddieAction {
                     minimumRange,
                     name,
                     traits,
+                    data,
                 }: {
-        name: string;
-        id: string;
-        traits: TraitStatusStorage;
+        name?: string;
+        id?: string;
+        traits?: TraitStatusStorageData;
         actionPointCost?: number;
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
+        data?: SquaddieActionData,
     } & Partial<ActionRange>) {
+        if (data) {
+            this._id = data.id;
+            this._name = data.name;
+
+            assertsInteger(data.minimumRange);
+            assertsInteger(data.maximumRange);
+            this._range = new ActionRange({
+                minimumRange: data.minimumRange,
+                maximumRange: data.maximumRange,
+            });
+
+            assertsInteger(data.actionPointCost);
+            this._actionPointCost = data.actionPointCost;
+
+            this._damageDescriptions = data.damageDescriptions;
+            this._healingDescriptions = data.healingDescriptions;
+
+            this._traits = new TraitStatusStorage({data: data.traits});
+            return;
+        }
+
         this._name = name;
         this._id = id;
 
@@ -92,7 +127,7 @@ export class SquaddieAction {
             this._actionPointCost = 1;
         }
 
-        this._traits = traits;
+        this._traits = new TraitStatusStorage({data: traits});
         this._damageDescriptions = damageDescriptions ? {...(damageDescriptions)} : {};
         this._healingDescriptions = healingDescriptions ? {...(healingDescriptions)} : {};
     }

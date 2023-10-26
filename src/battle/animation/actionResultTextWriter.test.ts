@@ -42,8 +42,10 @@ describe('Action Result Text Writer', () => {
             name: "Longsword Sweep",
             id: "longsword",
             traits: new TraitStatusStorage({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
+                initialTraitValues: {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,
@@ -54,8 +56,10 @@ describe('Action Result Text Writer', () => {
             name: "Bandage Wounds",
             id: "Bandages",
             traits: new TraitStatusStorage({
-                [Trait.HEALING]: true,
-                [Trait.TARGETS_ALLIES]: true,
+                initialTraitValues: {
+                    [Trait.HEALING]: true,
+                    [Trait.TARGETS_ALLIES]: true,
+                }
             }).filterCategory(TraitCategory.ACTION),
             minimumRange: 1,
             maximumRange: 1,

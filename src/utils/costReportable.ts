@@ -1,3 +1,3 @@
-interface CostReportable {
+export interface CostReportable {
     getTotalMovementCost(): number;
 }

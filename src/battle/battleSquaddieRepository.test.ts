@@ -24,7 +24,9 @@ describe('BattleSquaddieRepository', () => {
                 movement: new SquaddieMovement({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
-                        [Trait.PASS_THROUGH_WALLS]: true,
+                        initialTraitValues: {
+                            [Trait.PASS_THROUGH_WALLS]: true,
+                        }
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
             }),
@@ -32,7 +34,7 @@ describe('BattleSquaddieRepository', () => {
                 templateId: "player_young_torrin",
                 name: "Torrin",
                 resources: new SquaddieResource({}),
-                traits: new TraitStatusStorage(),
+                traits: new TraitStatusStorage({}),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             actions: [],

@@ -12,7 +12,7 @@ export class SquaddieMovement {
         if (!options) {
             options = {
                 movementPerAction: 2,
-                traits: new TraitStatusStorage()
+                traits: new TraitStatusStorage({})
             };
         }
 
