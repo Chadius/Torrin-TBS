@@ -1,23 +1,36 @@
 import {AnySquaddieActionData, SquaddieActionType} from "./anySquaddieAction";
-import {HexCoordinateData} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieMovementActionData} from "./squaddieMovementAction";
 import {SquaddieSquaddieActionData} from "./squaddieSquaddieAction";
 
-export class SquaddieActionsForThisRound {
+export interface SquaddieActionsForThisRoundData {
+    squaddieTemplateId: string;
+    battleSquaddieId: string;
+    startingLocation: HexCoordinate;
+    actions: AnySquaddieActionData[];
+}
+
+export class SquaddieActionsForThisRound implements SquaddieActionsForThisRoundData {
     private readonly _squaddieTemplateId: string;
     private readonly _battleSquaddieId: string;
     private readonly _actions: AnySquaddieActionData[];
 
-    constructor(options: {
-        squaddieTemplateId: string;
-        battleSquaddieId: string;
-        startingLocation?: HexCoordinateData;
-    }) {
-        this._squaddieTemplateId = options.squaddieTemplateId;
-        this._battleSquaddieId = options.battleSquaddieId;
-        this._startingLocation = options.startingLocation;
-
-        this._actions = [];
+    constructor(
+        {
+            squaddieTemplateId,
+            battleSquaddieId,
+            startingLocation,
+            actions,
+        }: {
+            squaddieTemplateId: string;
+            battleSquaddieId: string;
+            startingLocation: HexCoordinate | undefined;
+            actions: AnySquaddieActionData[];
+        }) {
+        this._squaddieTemplateId = squaddieTemplateId;
+        this._battleSquaddieId = battleSquaddieId;
+        this._startingLocation = startingLocation;
+        this._actions = actions;
     }
 
     get battleSquaddieId(): string {
@@ -28,9 +41,9 @@ export class SquaddieActionsForThisRound {
         return this._squaddieTemplateId;
     }
 
-    private _startingLocation: HexCoordinateData;
+    private _startingLocation: HexCoordinate;
 
-    get startingLocation(): HexCoordinateData {
+    get startingLocation(): HexCoordinate {
         return this._startingLocation;
     }
 
@@ -38,8 +51,8 @@ export class SquaddieActionsForThisRound {
         return this._actions;
     }
 
-    addStartingLocation(startingLocation: HexCoordinateData) {
-        if (this._startingLocation) {
+    addStartingLocation(startingLocation: HexCoordinate) {
+        if (this._startingLocation !== undefined) {
             throw new Error(`already has starting location (${startingLocation.q}, ${startingLocation.r}), cannot add another`)
         }
         this._startingLocation = startingLocation;
@@ -84,7 +97,7 @@ export class SquaddieActionsForThisRound {
         );
     }
 
-    destinationLocation(): HexCoordinateData {
+    destinationLocation(): HexCoordinate {
         const lastMovementAction = this._actions.reverse().find(action => action.type === SquaddieActionType.MOVEMENT)
         if (lastMovementAction && lastMovementAction.type === SquaddieActionType.MOVEMENT) {
             return (lastMovementAction.data as SquaddieMovementActionData).destination;

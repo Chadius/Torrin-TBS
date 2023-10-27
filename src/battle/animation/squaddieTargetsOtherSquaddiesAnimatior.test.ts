@@ -88,6 +88,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         oneActionInstruction = new SquaddieActionsForThisRound({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
 
         oneActionInstruction.addAction({

@@ -15,7 +15,6 @@ import {TraitStatusStorage} from "../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../utils/test/squaddie";
 import {BattleCamera} from "./battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
-import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
@@ -330,7 +329,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                 actionsForThisRound: new SquaddieActionsForThisRound({
                     battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                     squaddieTemplateId: playerSquaddieStatic.templateId,
-                    startingLocation: new HexCoordinate({q: 0, r: 0}),
+                    startingLocation: {q: 0, r: 0},
+                    actions: [],
                 }),
                 currentSquaddieAction: new SquaddieAction({
                     name: "purifying stream",
@@ -501,14 +501,14 @@ describe('BattleSquaddieSelectedHUD', () => {
         it('clicking on the next button will select a different squaddie', () => {
             const battleCamera = new BattleCamera(0, 0);
             hud = new BattleSquaddieSelectedHUD();
-            missionMap.addSquaddie(playerSquaddieStatic.templateId, playerSquaddieDynamic.battleSquaddieId, new HexCoordinate({
+            missionMap.addSquaddie(playerSquaddieStatic.templateId, playerSquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 0
-            }));
-            missionMap.addSquaddie(player2SquaddieStatic.templateId, player2SquaddieDynamic.battleSquaddieId, new HexCoordinate({
+            });
+            missionMap.addSquaddie(player2SquaddieStatic.templateId, player2SquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 1
-            }));
+            });
 
             const state = new BattleOrchestratorState({
                 squaddieRepository: squaddieRepository,
@@ -551,14 +551,14 @@ describe('BattleSquaddieSelectedHUD', () => {
             jest.spyOn((hud as any), "generateSquaddieIdText").mockImplementation(() => {
             });
 
-            missionMap.addSquaddie(playerSquaddieStatic.templateId, playerSquaddieDynamic.battleSquaddieId, new HexCoordinate({
+            missionMap.addSquaddie(playerSquaddieStatic.templateId, playerSquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 0
-            }));
-            missionMap.addSquaddie(player2SquaddieStatic.templateId, player2SquaddieDynamic.battleSquaddieId, new HexCoordinate({
+            });
+            missionMap.addSquaddie(player2SquaddieStatic.templateId, player2SquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 1
-            }));
+            });
 
             const state = new BattleOrchestratorState({
                 squaddieRepository: squaddieRepository,

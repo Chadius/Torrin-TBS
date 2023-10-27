@@ -1,6 +1,6 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
-import {HexCoordinate, HexCoordinateData} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -15,17 +15,17 @@ import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestrator
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
-export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinateData) {
+export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
         state.pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: state.missionMap,
-                startLocation: new HexCoordinate({
+                startLocation: {
                     q: datum.mapLocation.q,
                     r: datum.mapLocation.r,
-                }),
+                },
                 affiliation: squaddieTemplate.squaddieId.affiliation,
                 squaddieRepository: state.squaddieRepository,
 
@@ -38,10 +38,10 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: actionPointsRemaining,
-                stopLocation: new HexCoordinate({
+                stopLocation: {
                     q: clickedHexCoordinate.q,
                     r: clickedHexCoordinate.r
-                }),
+                },
             }),
         }))
     );
@@ -69,7 +69,7 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
 
-export function AddMovementInstruction(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinateData) {
+export function AddMovementInstruction(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinate) {
     MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
 
     const moveAction = new SquaddieMovementAction({
@@ -93,10 +93,10 @@ export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, b
         state.squaddieCurrentlyActing.addInitialState({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId,
-            startingLocation: new HexCoordinate({
+            startingLocation: {
                 q: datum.mapLocation.q,
                 r: datum.mapLocation.r,
-            }),
+            },
         })
     }
 }

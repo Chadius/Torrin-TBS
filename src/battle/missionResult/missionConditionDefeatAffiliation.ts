@@ -1,7 +1,7 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionCondition, MissionConditionType} from "./missionCondition";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {MissionMapSquaddieDatum} from "../../missionMap/missionMap";
+import {MissionMapSquaddieLocation} from "../../missionMap/missionMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 
@@ -42,7 +42,7 @@ export class MissionConditionDefeatAffiliation extends MissionCondition {
             return this.isComplete;
         }
 
-        const livingSquaddie = state.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieDatum) => {
+        const livingSquaddie = state.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
             const {
                 squaddieTemplate,
                 battleSquaddie,

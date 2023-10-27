@@ -100,10 +100,10 @@ export class TerrainTileMap {
         if (
             this.tiles.some((tile) => tile.q == tileCoordinates[0] && tile.r == tileCoordinates[1])
         ) {
-            this.outlineTileCoordinates = new HexCoordinate({
+            this.outlineTileCoordinates = {
                 q: tileCoordinates[0],
                 r: tileCoordinates[1],
-            });
+            };
         } else {
             this.outlineTileCoordinates = undefined;
         }

@@ -2,16 +2,16 @@ import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {ReachableSquaddiesResults} from "./reachableSquaddiesResults";
-import {HexCoordinate, HexCoordinateData, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
+import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 
 export type SearchResultOptions = {
-    stopLocation?: HexCoordinateData;
+    stopLocation?: HexCoordinate;
 };
 
 export class SearchResults {
     allReachableTiles: HexCoordinate[];
     lowestCostRoutes: { [key: string]: SearchPath };
-    stopLocation?: HexCoordinateData;
+    stopLocation?: HexCoordinate;
     reachableSquaddies: ReachableSquaddiesResults;
 
     constructor(options?: SearchResultOptions) {
@@ -63,7 +63,7 @@ export class SearchResults {
     }
 
     getLowestCostRoute(q: number, r: number): SearchPath {
-        const locationKey: string = HexCoordinateToKey(new HexCoordinate({q, r}));
+        const locationKey: string = HexCoordinateToKey({q, r});
         return this.lowestCostRoutes[locationKey];
     }
 
@@ -107,10 +107,10 @@ export class SearchResults {
 
     getClosestTilesToDestination(): { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] {
         return Object.values(this.lowestCostRoutes).map((searchPath: SearchPath) => {
-            const coordinate: HexCoordinate = new HexCoordinate({
+            const coordinate: HexCoordinate = {
                 q: searchPath.getMostRecentTileLocation().q,
                 r: searchPath.getMostRecentTileLocation().r,
-            });
+            };
             const distance: number = Math.abs(coordinate.q - this.stopLocation.q)
                 + Math.abs(coordinate.r - this.stopLocation.r);
 

@@ -1,10 +1,10 @@
-import {HexCoordinate, HexCoordinateData} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieAction, SquaddieActionData} from "../../squaddie/action";
 
 export interface SquaddieSquaddieActionData {
     squaddieAction: SquaddieActionData;
     numberOfActionPointsSpent: number;
-    targetLocation: HexCoordinateData;
+    targetLocation: HexCoordinate;
 }
 
 export class SquaddieSquaddieAction implements SquaddieSquaddieActionData {
@@ -18,7 +18,7 @@ export class SquaddieSquaddieAction implements SquaddieSquaddieActionData {
         data?: SquaddieSquaddieActionData;
     }) {
         if (data) {
-            this._targetLocation = new HexCoordinate({data: data.targetLocation});
+            this._targetLocation = data.targetLocation;
             this._squaddieAction = new SquaddieAction({data: data.squaddieAction});
         } else {
             this._targetLocation = targetLocation;

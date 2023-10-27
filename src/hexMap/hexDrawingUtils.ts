@@ -8,8 +8,8 @@ import {
 import {TerrainTileMap} from "./terrainTileMap";
 import {BlendColor, calculatePulseValueOverTime, PulseBlendColor, pulseBlendColorToBlendColor} from "./colorUtils";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
-import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 
 type HexGridTerrainToColor = Record<HexGridMovementCost, number[]>
 

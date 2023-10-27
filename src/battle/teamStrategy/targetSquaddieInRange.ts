@@ -162,6 +162,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
             battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
             squaddieTemplateId: actingSquaddieTemplate.templateId,
             startingLocation: actingSquaddieMapLocation,
+            actions: [],
         });
         return this.addActionToInstruction(instruction, actingSquaddieAction, targetLocation);
     }

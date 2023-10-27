@@ -139,6 +139,7 @@ export class MoveCloserToSquaddie implements TeamStrategy {
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: squaddieToAct,
                 startingLocation: mapLocation,
+                actions: [],
             });
             moveTowardsLocation.addAction({
                 type: SquaddieActionType.MOVEMENT,

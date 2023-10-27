@@ -24,7 +24,6 @@ import {BattleEvent} from "../history/battleEvent";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieAction} from "../../squaddie/action";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
@@ -162,12 +161,12 @@ describe('BattleComputerSquaddieSelector', () => {
         missionMap.addSquaddie(
             enemyDemonStatic.templateId,
             enemyDemonDynamic.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 0})
+            {q: 0, r: 0}
         );
         missionMap.addSquaddie(
             enemyDemonDynamic.squaddieTemplateId,
             enemyDemonDynamic2.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 1})
+            {q: 0, r: 1}
         );
     }
 
@@ -175,7 +174,8 @@ describe('BattleComputerSquaddieSelector', () => {
         const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId,
             battleSquaddieId,
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
         moveAction.addAction({
             type: SquaddieActionType.MOVEMENT,
@@ -265,7 +265,7 @@ describe('BattleComputerSquaddieSelector', () => {
             endTurnInstruction.addInitialState({
                 squaddieTemplateId: enemyDemonStatic.templateId,
                 battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
-                startingLocation: new HexCoordinate({q: 0, r: 0}),
+                startingLocation: {q: 0, r: 0},
             });
             endTurnInstruction.addConfirmedAction(new SquaddieEndTurnAction({}));
 
@@ -325,7 +325,8 @@ describe('BattleComputerSquaddieSelector', () => {
         const squaddieSquaddieAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId: enemyDemonStatic.templateId,
             battleSquaddieId: enemyDemonDynamic2.battleSquaddieId,
-            startingLocation: new HexCoordinate({q: 0, r: 1}),
+            startingLocation: {q: 0, r: 1},
+            actions: [],
         });
         squaddieSquaddieAction.addAction({
             type: SquaddieActionType.SQUADDIE,
@@ -397,12 +398,12 @@ describe('BattleComputerSquaddieSelector', () => {
             missionMap.addSquaddie(
                 enemyDemonStatic.templateId,
                 enemyDemonDynamic.battleSquaddieId,
-                new HexCoordinate({q: 0, r: 0})
+                {q: 0, r: 0},
             );
             missionMap.addSquaddie(
                 enemyDemonStatic.templateId,
                 enemyDemonDynamic2.battleSquaddieId,
-                new HexCoordinate({q: 0, r: 1})
+                {q: 0, r: 1},
             );
 
             camera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
@@ -439,7 +440,7 @@ describe('BattleComputerSquaddieSelector', () => {
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
-            expect(state.squaddieMovePath.getDestination()).toStrictEqual(new HexCoordinate({data: moveAction.destinationLocation()}));
+            expect(state.squaddieMovePath.getDestination()).toStrictEqual(moveAction.destinationLocation());
             expect(state.squaddieCurrentlyActing.battleSquaddieId).toBe("enemy_demon_0");
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(1);
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction().type).toBe(SquaddieActionType.MOVEMENT);
@@ -453,7 +454,8 @@ describe('BattleComputerSquaddieSelector', () => {
                 const squaddieSquaddieAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
                     squaddieTemplateId: enemyDemonStatic.templateId,
                     battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
-                    startingLocation: new HexCoordinate({q: 0, r: 0}),
+                    startingLocation: {q: 0, r: 0},
+                    actions: [],
                 });
                 squaddieSquaddieAction.addAction({
                     type: SquaddieActionType.SQUADDIE,
@@ -497,7 +499,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 const actualTiles = hexMapHighlightTilesSpy.mock.calls[0][0] as HighlightTileDescription[];
                 expect(actualTiles).toHaveLength(1);
                 expect(actualTiles[0].tiles).toHaveLength(1);
-                expect(actualTiles[0].tiles[0]).toStrictEqual(new HexCoordinate({q: 0, r: 1}));
+                expect(actualTiles[0].tiles[0]).toStrictEqual({q: 0, r: 1});
             });
 
             it('waits and then completes the component', () => {

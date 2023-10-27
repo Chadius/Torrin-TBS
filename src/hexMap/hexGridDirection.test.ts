@@ -4,7 +4,7 @@ import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 describe('Move Hex Coordinate in one direction', () => {
     let origin: HexCoordinate;
     beforeEach(() => {
-        origin = new HexCoordinate({q: 0, r: 0});
+        origin = {q: 0, r: 0};
     });
 
     it('Can stay at origin', () => {

@@ -9,7 +9,6 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     CanPlayerControlSquaddieRightNow,
     CanSquaddieActRightNow,
@@ -17,6 +16,7 @@ import {
 } from "../../squaddie/squaddieService";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const tintSquaddieMapIconTurnComplete = (squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];

@@ -59,10 +59,10 @@ class SearchState {
     }
 
     markLocationAsStopped(tileLocation: TileFoundDescription) {
-        this.tilesSearchCanStopAt.push(new HexCoordinate({
+        this.tilesSearchCanStopAt.push({
                 q: tileLocation.q,
                 r: tileLocation.r,
-            })
+            }
         );
     }
 
@@ -82,16 +82,16 @@ class SearchState {
     }
 
     markLocationAsConsideredForQueue(location: HexCoordinate) {
-        this.tileLocationsAlreadyConsideredForQueue[location.toStringKey()] = true;
+        this.tileLocationsAlreadyConsideredForQueue[HexCoordinateToKey(location)] = true;
     }
 
     initializeStartPath(startLocation: HexCoordinate) {
         const startingPath = new SearchPath();
         startingPath.add(new TileFoundDescription({
-            hexCoordinate: new HexCoordinate({
+            hexCoordinate: {
                 q: startLocation.q,
                 r: startLocation.r,
-            }),
+            },
             movementCost: 0,
         }), 0);
         startingPath.startNewMovementAction();
@@ -124,10 +124,10 @@ class SearchState {
             : tileInfo.movementCost;
         neighborPath.add(
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({
+                hexCoordinate: {
                     q: tileInfo.q,
                     r: tileInfo.r,
-                }),
+                },
                 movementCost: head.getTotalMovementCost() + tileInfoMovementCost,
             }),
             tileInfoMovementCost
@@ -244,7 +244,7 @@ export class Pathfinder {
 
             const reachableTiles: SearchResults = getResultOrThrowError(this.getAllReachableTiles(searchParamsWithNewStartLocation));
             reachableTiles.getReachableTiles().forEach((reachableTile) => {
-                inRangeTilesByLocation[reachableTile.toStringKey()] = reachableTile;
+                inRangeTilesByLocation[HexCoordinateToKey(reachableTile)] = reachableTile;
             });
         });
 
@@ -258,10 +258,10 @@ export class Pathfinder {
     private searchMapForPaths(searchParams: SearchParams): SearchResults {
         const workingSearchState: SearchState = new SearchState(searchParams);
 
-        workingSearchState.initializeStartPath(new HexCoordinate({
+        workingSearchState.initializeStartPath({
             q: searchParams.startLocation.q,
             r: searchParams.startLocation.r,
-        }));
+        });
 
         let numberOfMovementActions: number = 1;
         let morePathsAdded: boolean = true;
@@ -350,10 +350,10 @@ export class Pathfinder {
 
             if (this.isPathMoreThanMaximumDistance(head, searchParams)) {
                 movementEndsOnTheseTiles.push(new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({
+                    hexCoordinate: {
                         q: mostRecentTileLocation.q,
                         r: mostRecentTileLocation.r,
-                    }),
+                    },
                     movementCost: mostRecentTileLocation.movementCost,
                 }));
                 continue;
@@ -369,10 +369,10 @@ export class Pathfinder {
             );
             if (neighboringLocations.length === 0 && this.canStopOnThisTile(head, searchParams, hexCostTerrainType, squaddieIsOccupyingTile)) {
                 movementEndsOnTheseTiles.push(new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({
+                    hexCoordinate: {
                         q: mostRecentTileLocation.q,
                         r: mostRecentTileLocation.r,
-                    }),
+                    },
                     movementCost: mostRecentTileLocation.movementCost,
                 }))
             }
@@ -437,10 +437,10 @@ export class Pathfinder {
         const newPaths: SearchPath[] = [];
         neighboringLocations.forEach((neighbor) =>
             workingSearchState.markLocationAsConsideredForQueue(
-                new HexCoordinate({
+                {
                     q: neighbor[0],
                     r: neighbor[1],
-                })
+                }
             ));
         neighboringLocations.forEach((neighbor) => {
             const newPath: SearchPath = this.addNeighborNewPath(
@@ -466,7 +466,7 @@ export class Pathfinder {
     }
 
     private createNewPathCandidates(q: number, r: number, shapeGenerator: TargetingShapeGenerator): [number, number][] {
-        const neighbors: HexCoordinate[] = shapeGenerator.createNeighboringHexCoordinates(new HexCoordinate({coordinates: [q, r]}));
+        const neighbors: HexCoordinate[] = shapeGenerator.createNeighboringHexCoordinates({q, r});
         return neighbors.map((coordinate: HexCoordinate) => {
             return [coordinate.q, coordinate.r]
         });
@@ -477,10 +477,10 @@ export class Pathfinder {
         workingSearchState: SearchState,
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
-            return !workingSearchState.hasAlreadyMarkedLocationAsVisited(new HexCoordinate({
+            return !workingSearchState.hasAlreadyMarkedLocationAsVisited({
                 q: neighbor[0],
                 r: neighbor[1],
-            }));
+            });
         });
     }
 
@@ -489,16 +489,16 @@ export class Pathfinder {
         workingSearchState: SearchState,
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
-            return !workingSearchState.hasAlreadyMarkedLocationAsEnqueued(new HexCoordinate({
+            return !workingSearchState.hasAlreadyMarkedLocationAsEnqueued({
                 q: neighbor[0],
                 r: neighbor[1],
-            }));
+            });
         });
     }
 
     private filterNeighborsOnMap(missionMap: MissionMap, neighboringLocations: [number, number][]): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
-            return missionMap.areCoordinatesOnMap(new HexCoordinate({q: neighbor[0], r: neighbor[1]}))
+            return missionMap.areCoordinatesOnMap({q: neighbor[0], r: neighbor[1]})
         });
     }
 
@@ -509,10 +509,10 @@ export class Pathfinder {
         missionMap: MissionMap,
     ): [number, number][] {
         return neighboringLocations.filter((neighbor) => {
-            const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(new HexCoordinate({
+            const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation({
                 q: neighbor[0],
                 r: neighbor[1]
-            }));
+            });
 
             if (!searchParams.passThroughWalls && hexCostTerrainType === HexGridMovementCost.wall) {
                 return false;
@@ -550,7 +550,7 @@ export class Pathfinder {
                 squaddieTemplate,
                 battleSquaddie,
             } = GetSquaddieAtMapLocation({
-                mapLocation: new HexCoordinate({coordinates: neighbor}),
+                mapLocation: {q: neighbor[0], r: neighbor[1]},
                 map: searchParams.missionMap,
                 squaddieRepository: searchParams.squaddieRepository,
             });
@@ -574,19 +574,19 @@ export class Pathfinder {
         workingSearchState: SearchState,
         searchParams: SearchParams,
     ): SearchPath {
-        const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(new HexCoordinate({
+        const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation({
             q: neighbor[0],
             r: neighbor[1]
-        }));
+        });
 
         let movementCost = MovingCostByTerrainType[hexCostTerrainType];
 
         return workingSearchState.addNeighborSearchPathToQueue(
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({
+                hexCoordinate: {
                     q: neighbor[0],
                     r: neighbor[1],
-                }),
+                },
                 movementCost: movementCost
             }),
             head,
@@ -609,7 +609,7 @@ export class Pathfinder {
         return head.getTotalDistance() >= searchParams.maximumDistanceMoved;
     }
 
-    private hasFoundStopLocation(searchParams: SearchParams, workingSearchState: SearchState,): boolean {
+    private hasFoundStopLocation(searchParams: SearchParams, workingSearchState: SearchState): boolean {
         if (searchParams.stopLocation === undefined) {
             return false;
         }

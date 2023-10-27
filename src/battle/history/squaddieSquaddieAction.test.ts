@@ -2,7 +2,6 @@ import {SquaddieSquaddieAction, SquaddieSquaddieActionData} from "./squaddieSqua
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {DamageType} from "../../squaddie/squaddieService";
 import {Trait} from "../../trait/traitStatusStorage";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieAction} from "../../squaddie/action";
 
 describe('squaddieSquaddieAction', () => {
@@ -24,7 +23,7 @@ describe('squaddieSquaddieAction', () => {
         };
 
         const coolAttackAgainstOrigin: SquaddieSquaddieAction = new SquaddieSquaddieAction({data});
-        expect(coolAttackAgainstOrigin.targetLocation).toStrictEqual(new HexCoordinate({data: data.targetLocation}));
+        expect(coolAttackAgainstOrigin.targetLocation).toStrictEqual(data.targetLocation);
         expect(coolAttackAgainstOrigin.numberOfActionPointsSpent).toStrictEqual(data.numberOfActionPointsSpent);
         expect(new SquaddieAction({data: data.squaddieAction}))
             .toStrictEqual(coolAttackAgainstOrigin.squaddieAction);

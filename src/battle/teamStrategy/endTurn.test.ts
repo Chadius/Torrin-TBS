@@ -9,7 +9,6 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import * as mocks from "../../utils/test/mocks";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
@@ -69,12 +68,13 @@ describe('end turn team strategy', () => {
             team: squaddieTeam,
             squaddieRepository: squaddieRepository,
         });
-        missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", new HexCoordinate({q: 0, r: 0}));
+        missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
 
         const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId: "new_static_squaddie",
             battleSquaddieId: "new_dynamic_squaddie",
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
         expectedInstruction.endTurn();
 

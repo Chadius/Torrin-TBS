@@ -8,7 +8,6 @@ import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
@@ -78,9 +77,9 @@ describe('calculator', () => {
         let healsLostHitPoints: SquaddieAction;
 
         beforeEach(() => {
-            missionMap.addSquaddie(player1StaticId, player1DynamicId, new HexCoordinate({q: 0, r: 0}));
-            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, new HexCoordinate({q: 0, r: 1}));
-            missionMap.addSquaddie(ally1StaticId, ally1DynamicId, new HexCoordinate({q: 0, r: 2}));
+            missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
+            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {q: 0, r: 1});
+            missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {q: 0, r: 2});
 
             actionDealsBodyDamage = new SquaddieAction({
                 id: "deal body damage",
@@ -122,7 +121,7 @@ describe('calculator', () => {
                         squaddieRepository: squaddieRepository,
                     }),
                     actingBattleSquaddie: player1BattleSquaddie,
-                    validTargetLocation: new HexCoordinate({q: 0, r: 1}),
+                    validTargetLocation: {q: 0, r: 1},
                 }
             );
 
@@ -146,7 +145,7 @@ describe('calculator', () => {
                         missionStatistics,
                     }),
                     actingBattleSquaddie: player1BattleSquaddie,
-                    validTargetLocation: new HexCoordinate({q: 0, r: 1}),
+                    validTargetLocation: {q: 0, r: 1},
                 }
             );
 
@@ -170,7 +169,7 @@ describe('calculator', () => {
                         missionStatistics,
                     }),
                     actingBattleSquaddie: enemy1BattleSquaddie,
-                    validTargetLocation: new HexCoordinate({q: 0, r: 0}),
+                    validTargetLocation: {q: 0, r: 0},
                 }
             );
 
@@ -192,7 +191,7 @@ describe('calculator', () => {
                     }),
 
                     actingBattleSquaddie: player1BattleSquaddie,
-                    validTargetLocation: new HexCoordinate({q: 0, r: 2}),
+                    validTargetLocation: {q: 0, r: 2},
                 }
             );
 
@@ -219,7 +218,7 @@ describe('calculator', () => {
                     }),
 
                     actingBattleSquaddie: player1BattleSquaddie,
-                    validTargetLocation: new HexCoordinate({q: 0, r: 0}),
+                    validTargetLocation: {q: 0, r: 0},
                 }
             );
 

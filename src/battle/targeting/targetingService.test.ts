@@ -8,7 +8,7 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {FindValidTargets, TargetingResults} from "./targetingService";
 
-import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
@@ -59,7 +59,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             sirCamilSquaddieTemplate.squaddieId.templateId,
             sirCamilBattleSquaddie.battleSquaddieId,
-            new HexCoordinate({q: 1, r: 1}),
+            {q: 1, r: 1},
         );
 
         const results: TargetingResults = FindValidTargets({
@@ -143,7 +143,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             archerSquaddieTemplate.squaddieId.templateId,
             archerBattleSquaddie.battleSquaddieId,
-            new HexCoordinate({q: 1, r: 1}),
+            {q: 1, r: 1},
         );
 
         const results: TargetingResults = FindValidTargets({
@@ -175,7 +175,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             sirCamilSquaddieTemplate.squaddieId.templateId,
             sirCamilBattleSquaddie.battleSquaddieId,
-            new HexCoordinate({q: 1, r: 1}),
+            {q: 1, r: 1},
         );
 
         let {
@@ -192,7 +192,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             playerTeamStatic.squaddieId.templateId,
             playerTeamDynamic.battleSquaddieId,
-            new HexCoordinate({q: 1, r: 0}),
+            {q: 1, r: 0},
         );
 
         let {
@@ -209,7 +209,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             enemyTeamStatic.squaddieId.templateId,
             enemyTeamDynamic.battleSquaddieId,
-            new HexCoordinate({q: 2, r: 1}),
+            {q: 2, r: 1},
         );
 
         let {
@@ -226,7 +226,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             enemyFarAwayTeamStatic.squaddieId.templateId,
             enemyFarAwayTeamDynamic.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 3}),
+            {q: 0, r: 3},
         );
 
         const results: TargetingResults = FindValidTargets({
@@ -266,7 +266,7 @@ describe('Targeting Service', () => {
         battleMap.addSquaddie(
             sirCamilSquaddieTemplate.squaddieId.templateId,
             sirCamilBattleSquaddie.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 0}),
+            {q: 0, r: 0},
         );
 
         const results: TargetingResults = FindValidTargets({
@@ -279,9 +279,9 @@ describe('Targeting Service', () => {
 
         expect(results.locationsInRange).toHaveLength(3);
         expect(results.locationsInRange).toStrictEqual([
-            new HexCoordinate({q: 0, r: 1}),
-            new HexCoordinate({q: 0, r: 2}),
-            new HexCoordinate({q: 0, r: 3}),
+            {q: 0, r: 1},
+            {q: 0, r: 2},
+            {q: 0, r: 3},
         ]);
     });
 });

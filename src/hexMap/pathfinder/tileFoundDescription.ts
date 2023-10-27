@@ -34,7 +34,3 @@ export class TileFoundDescription {
         return this.hexCoordinate.r;
     }
 }
-
-export const TileFoundDescriptionToHexCoordinate = (tile: TileFoundDescription): HexCoordinate => {
-    return new HexCoordinate({q: tile.hexCoordinate.q, r: tile.hexCoordinate.r});
-}

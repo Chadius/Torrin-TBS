@@ -21,6 +21,7 @@ export class EndTurnTeamStrategy implements TeamStrategy {
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: datum.mapLocation,
+            actions: [],
         });
         endTurnAction.endTurn();
 

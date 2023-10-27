@@ -1,7 +1,6 @@
 import {SquaddieAction} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 
 describe('SquaddieAction', () => {
@@ -17,7 +16,7 @@ describe('SquaddieAction', () => {
         })
         const action = new SquaddieSquaddieAction({
             squaddieAction: longswordAction,
-            targetLocation: new HexCoordinate({q: 1, r: 0})
+            targetLocation: {q: 1, r: 0},
         });
 
         expect(action.numberOfActionPointsSpent).toBe(1);

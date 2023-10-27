@@ -3,7 +3,6 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleCamera} from "../battleCamera";
 import {convertMapCoordinatesToScreenCoordinates,} from "../../hexMap/convertCoordinates";
 import {GetSquaddieAtMapLocation, GetSquaddieAtScreenLocation} from "./orchestratorUtils";
@@ -41,7 +40,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
         map.addSquaddie(
             knightSquaddieStatic.templateId,
             knightSquaddieDynamic.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 2})
+            {q: 0, r: 2}
         );
 
         camera = new BattleCamera();
@@ -64,7 +63,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
 
         expect(squaddieTemplate).toStrictEqual(knightSquaddieStatic);
         expect(battleSquaddie).toStrictEqual(knightSquaddieDynamic);
-        expect(squaddieMapLocation).toStrictEqual(new HexCoordinate({q: 0, r: 2}));
+        expect(squaddieMapLocation).toStrictEqual({q: 0, r: 2});
     });
 
     it('can return the squaddie and information at a given map location', () => {
@@ -73,14 +72,14 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             battleSquaddie,
             squaddieMapLocation,
         } = GetSquaddieAtMapLocation({
-            mapLocation: new HexCoordinate({q: 0, r: 2}),
+            mapLocation: {q: 0, r: 2},
             map,
             squaddieRepository,
         });
 
         expect(squaddieTemplate).toStrictEqual(knightSquaddieStatic);
         expect(battleSquaddie).toStrictEqual(knightSquaddieDynamic);
-        expect(squaddieMapLocation).toStrictEqual(new HexCoordinate({q: 0, r: 2}));
+        expect(squaddieMapLocation).toStrictEqual({q: 0, r: 2});
     });
 
     it('returns undefined information if there is no squaddie at the location', () => {
@@ -105,7 +104,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
 
     it('throws an error if squaddie repository does not have squaddie', () => {
         map.addSquaddie("static does not exist", "dynamic does not exist",
-            new HexCoordinate({q: 0, r: 0})
+            {q: 0, r: 0}
         );
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
 

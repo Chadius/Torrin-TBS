@@ -27,7 +27,6 @@ import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieAction} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
@@ -111,12 +110,12 @@ describe('BattleSquaddieSelector', () => {
         missionMap.addSquaddie(
             enemyDemonStatic.templateId,
             enemyDemonDynamic.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 0})
+            {q: 0, r: 0},
         );
         missionMap.addSquaddie(
             enemyDemonStatic.templateId,
             enemyDemonDynamic.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 1})
+            {q: 0, r: 1},
         );
         return {
             currentAffiliation: BattlePhase.ENEMY,
@@ -146,7 +145,7 @@ describe('BattleSquaddieSelector', () => {
         missionMap.addSquaddie(
             "player_soldier",
             "player_soldier_0",
-            new HexCoordinate({q: 0, r: 0})
+            {q: 0, r: 0},
         );
 
         return {
@@ -202,7 +201,7 @@ describe('BattleSquaddieSelector', () => {
         missionMap.addSquaddie(
             enemyDemonStatic.templateId,
             enemyDemonDynamic.battleSquaddieId,
-            new HexCoordinate({q: 0, r: 1})
+            {q: 0, r: 1},
         );
 
         const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
@@ -303,10 +302,10 @@ describe('BattleSquaddieSelector', () => {
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.totalActionPointsSpent()).toBe(1);
-        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.destinationLocation()).toStrictEqual(new HexCoordinate({
+        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.destinationLocation()).toStrictEqual({
             q: 0,
             r: 1
-        }));
+        });
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
@@ -315,13 +314,13 @@ describe('BattleSquaddieSelector', () => {
         expectedSquaddieInstruction.addInitialState({
             squaddieTemplateId: "player_soldier",
             battleSquaddieId: "player_soldier_0",
-            startingLocation: new HexCoordinate({
+            startingLocation: {
                 q: 0,
                 r: 0,
-            })
+            }
         });
         expectedSquaddieInstruction.addConfirmedAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 0, r: 1}),
+            destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 1,
         }))
 
@@ -355,10 +354,10 @@ describe('BattleSquaddieSelector', () => {
             squaddieCurrentlyActing.addInitialState({
                 battleSquaddieId: "player_soldier_0",
                 squaddieTemplateId: "player_soldier",
-                startingLocation: new HexCoordinate({q: 0, r: 0}),
+                startingLocation: {q: 0, r: 0},
             });
             squaddieCurrentlyActing.addConfirmedAction(new SquaddieMovementAction({
-                destination: new HexCoordinate({q: 0, r: 1}),
+                destination: {q: 0, r: 1},
                 numberOfActionPointsSpent: 1
             }));
 
@@ -396,7 +395,7 @@ describe('BattleSquaddieSelector', () => {
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.getActionsUsedThisRound()[1]).toStrictEqual({
                 type: SquaddieActionType.MOVEMENT,
                 data: {
-                    destination: new HexCoordinate({q: 0, r: 2}),
+                    destination: {q: 0, r: 2},
                     numberOfActionPointsSpent: 1,
                 }
             });
@@ -412,10 +411,10 @@ describe('BattleSquaddieSelector', () => {
         squaddieCurrentlyActing.addInitialState({
             battleSquaddieId: "player_soldier_0",
             squaddieTemplateId: "player_soldier",
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
+            startingLocation: {q: 0, r: 0},
         });
         squaddieCurrentlyActing.addConfirmedAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 0, r: 1}),
+            destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 1
         }));
 
@@ -477,7 +476,7 @@ describe('BattleSquaddieSelector', () => {
         endTurnInstruction.addInitialState({
             battleSquaddieId: "player_soldier_0",
             squaddieTemplateId: "player_soldier",
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
+            startingLocation: {q: 0, r: 0},
         });
         endTurnInstruction.addConfirmedAction(new SquaddieEndTurnAction({}));
 
@@ -536,7 +535,8 @@ describe('BattleSquaddieSelector', () => {
         const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             battleSquaddieId: "player_soldier_0",
             squaddieTemplateId: "player_soldier",
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
 
         expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
@@ -582,7 +582,7 @@ describe('BattleSquaddieSelector', () => {
             missionMap.addSquaddie(
                 interruptSquaddieStatic.templateId,
                 interruptSquaddieDynamic.battleSquaddieId,
-                new HexCoordinate({q: 0, r: 1})
+                {q: 0, r: 1},
             );
 
             const soldierSquaddieInfo = missionMap.getSquaddieByBattleId("player_soldier_0");
@@ -591,6 +591,7 @@ describe('BattleSquaddieSelector', () => {
                 squaddieTemplateId: soldierSquaddieInfo.squaddieTemplateId,
                 battleSquaddieId: soldierSquaddieInfo.battleSquaddieId,
                 startingLocation: soldierSquaddieInfo.mapLocation,
+                actions: [],
             });
 
             movingInstruction.addAction({

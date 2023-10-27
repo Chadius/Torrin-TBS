@@ -1,6 +1,6 @@
 import {TargetingShape, TargetingShapeGenerator} from "./targetingShapeGenerator";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {HexDirection, moveCoordinatesInOneDirection} from "../../hexMap/hexGridDirection";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 // Snake paths can move in any direction except backwards.
 // - They can wrap around obstacles and barricades to reach their target.

@@ -50,7 +50,7 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
             (coordinateList: [({ q: number, r: number } | undefined)]) => {
                 return coordinateList.map(
                     (coordinate) => {
-                        return new HexCoordinate({...coordinate})
+                        return {...coordinate}
                     })
             });
 

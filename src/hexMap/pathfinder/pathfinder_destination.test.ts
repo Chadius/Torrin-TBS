@@ -25,7 +25,7 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 1,
@@ -33,7 +33,7 @@ describe('pathfinder reaching a destination', () => {
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: 1,
-                stopLocation: new HexCoordinate({q: 0, r: 1}),
+                stopLocation: {q: 0, r: 1},
             })
         }));
 
@@ -42,23 +42,23 @@ describe('pathfinder reaching a destination', () => {
         routeFound = getResultOrThrowError(routeOrError);
 
         expect(routeFound.getTotalMovementCost()).toEqual(1);
-        expect(routeFound.getDestination()).toStrictEqual(new HexCoordinate({
+        expect(routeFound.getDestination()).toStrictEqual({
             q: 0,
             r: 1,
-        }));
+        });
         expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 1}),
+                hexCoordinate: {q: 0, r: 1},
                 movementCost: 1
             }),
         );
         expect(routeFound.getTilesTraveled()).toStrictEqual([
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 0}),
+                hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 1}),
+                hexCoordinate: {q: 0, r: 1},
                 movementCost: 1
             }),
         ])
@@ -73,7 +73,7 @@ describe('pathfinder reaching a destination', () => {
         const somePathOrError = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 1,
@@ -102,7 +102,7 @@ describe('pathfinder reaching a destination', () => {
         const allTiles = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 1,
@@ -130,7 +130,7 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 1,
@@ -138,7 +138,7 @@ describe('pathfinder reaching a destination', () => {
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: 1,
-                stopLocation: new HexCoordinate({q: 9000, r: 2}),
+                stopLocation: {q: 9000, r: 2},
             })
         }));
 
@@ -157,7 +157,7 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 1,
@@ -165,7 +165,7 @@ describe('pathfinder reaching a destination', () => {
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: 1,
-                stopLocation: new HexCoordinate({q: 0, r: 0}),
+                stopLocation: {q: 0, r: 0},
             })
         }));
 
@@ -174,19 +174,19 @@ describe('pathfinder reaching a destination', () => {
         routeFound = getResultOrThrowError(routeOrError);
 
         expect(routeFound.getTotalMovementCost()).toEqual(0);
-        expect(routeFound.getDestination()).toStrictEqual(new HexCoordinate({
+        expect(routeFound.getDestination()).toStrictEqual({
             q: 0,
             r: 0,
-        }));
+        });
         expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 0}),
+                hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
             }),
         );
         expect(routeFound.getTilesTraveled()).toStrictEqual([
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 0}),
+                hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
             }),
         ]);
@@ -205,14 +205,14 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 2,
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
             }),
             stopCondition: new SearchStopCondition({
-                stopLocation: new HexCoordinate({q: 2, r: 2}),
+                stopLocation: {q: 2, r: 2},
             })
         }));
 
@@ -221,36 +221,36 @@ describe('pathfinder reaching a destination', () => {
         routeFound = getResultOrThrowError(routeOrError);
 
         expect(routeFound.getTotalMovementCost()).toEqual(4);
-        expect(routeFound.getDestination()).toStrictEqual(new HexCoordinate({
+        expect(routeFound.getDestination()).toStrictEqual({
             q: 2,
             r: 2,
-        }));
+        });
         expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 2, r: 2}),
+                hexCoordinate: {q: 2, r: 2},
                 movementCost: 4
             }),
         );
 
         expect(routeFound.getTilesTraveled()).toStrictEqual([
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 0}),
+                hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 1, r: 0}),
+                hexCoordinate: {q: 1, r: 0},
                 movementCost: 1
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 2, r: 0}),
+                hexCoordinate: {q: 2, r: 0},
                 movementCost: 2
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 2, r: 1}),
+                hexCoordinate: {q: 2, r: 1},
                 movementCost: 3
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 2, r: 2}),
+                hexCoordinate: {q: 2, r: 2},
                 movementCost: 4
             }),
         ]);
@@ -258,27 +258,27 @@ describe('pathfinder reaching a destination', () => {
         expect(routeFound.getTilesTraveledByNumberOfMovementActions()).toStrictEqual([
             [
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 0, r: 0}),
+                    hexCoordinate: {q: 0, r: 0},
                     movementCost: 0
                 }),
             ],
             [
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 1, r: 0}),
+                    hexCoordinate: {q: 1, r: 0},
                     movementCost: 1
                 }),
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 2, r: 0}),
+                    hexCoordinate: {q: 2, r: 0},
                     movementCost: 2
                 }),
             ],
             [
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 2, r: 1}),
+                    hexCoordinate: {q: 2, r: 1},
                     movementCost: 3
                 }),
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 2, r: 2}),
+                    hexCoordinate: {q: 2, r: 2},
                     movementCost: 4
                 }),
             ]
@@ -297,7 +297,7 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 10,
@@ -305,7 +305,7 @@ describe('pathfinder reaching a destination', () => {
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: 1,
-                stopLocation: new HexCoordinate({q: 0, r: 4}),
+                stopLocation: {q: 0, r: 4},
             })
         }));
 
@@ -316,27 +316,27 @@ describe('pathfinder reaching a destination', () => {
         expect(routeFound.getTotalMovementCost()).toEqual(5);
         expect(routeFound.getTilesTraveled()).toStrictEqual([
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 0}),
+                hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 1, r: 0}),
+                hexCoordinate: {q: 1, r: 0},
                 movementCost: 1
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 1, r: 1}),
+                hexCoordinate: {q: 1, r: 1},
                 movementCost: 2
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 1, r: 2}),
+                hexCoordinate: {q: 1, r: 2},
                 movementCost: 3
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 1, r: 3}),
+                hexCoordinate: {q: 1, r: 3},
                 movementCost: 4
             }),
             new TileFoundDescription({
-                hexCoordinate: new HexCoordinate({q: 0, r: 4}),
+                hexCoordinate: {q: 0, r: 4},
                 movementCost: 5
             }),
         ]);
@@ -353,7 +353,7 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 1,
@@ -361,7 +361,7 @@ describe('pathfinder reaching a destination', () => {
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: 2,
-                stopLocation: new HexCoordinate({q: 0, r: 4}),
+                stopLocation: {q: 0, r: 4},
             })
         }));
 
@@ -382,7 +382,7 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: ResultOrError<SearchResults, Error> = pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 10,
@@ -390,7 +390,7 @@ describe('pathfinder reaching a destination', () => {
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: 1,
-                stopLocation: new HexCoordinate({q: 0, r: 4}),
+                stopLocation: {q: 0, r: 4},
             })
         }));
 
@@ -408,15 +408,15 @@ describe('pathfinder reaching a destination', () => {
 
         expect(closestTilesToDestination).toHaveLength(3);
         expect(closestTilesToDestination[0]).toEqual(expect.objectContaining({
-            coordinate: new HexCoordinate({q: 0, r: 2}),
+            coordinate: {q: 0, r: 2},
             distance: 2,
         }));
         expect(closestTilesToDestination[1]).toEqual(expect.objectContaining({
-            coordinate: new HexCoordinate({q: 0, r: 1}),
+            coordinate: {q: 0, r: 1},
             distance: 3,
         }));
         expect(closestTilesToDestination[2]).toEqual(expect.objectContaining({
-            coordinate: new HexCoordinate({q: 0, r: 0}),
+            coordinate: {q: 0, r: 0},
             distance: 4,
         }));
     });
@@ -434,7 +434,7 @@ describe('pathfinder reaching a destination', () => {
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 1, r: 1}),
+                startLocation: {q: 1, r: 1},
             }),
             movement: new SearchMovement({
                 movementPerAction: 1,
@@ -442,7 +442,7 @@ describe('pathfinder reaching a destination', () => {
             }),
             stopCondition: new SearchStopCondition({
                 numberOfActionPoints: 3,
-                stopLocation: new HexCoordinate({q: 2, r: 2}),
+                stopLocation: {q: 2, r: 2},
             })
         })));
 
@@ -450,19 +450,19 @@ describe('pathfinder reaching a destination', () => {
         expect(routeSortedByNumberOfMovementActions).toStrictEqual([
             [
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 1, r: 1}),
+                    hexCoordinate: {q: 1, r: 1},
                     movementCost: 0
                 }),
             ],
             [
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 2, r: 1}),
+                    hexCoordinate: {q: 2, r: 1},
                     movementCost: 1
                 }),
             ],
             [
                 new TileFoundDescription({
-                    hexCoordinate: new HexCoordinate({q: 2, r: 2}),
+                    hexCoordinate: {q: 2, r: 2},
                     movementCost: 2
                 }),
             ]

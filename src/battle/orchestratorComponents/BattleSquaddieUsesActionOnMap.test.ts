@@ -47,6 +47,8 @@ describe('BattleSquaddieUsesActionOnMap', () => {
         const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
         endTurnInstruction.endTurn();
 

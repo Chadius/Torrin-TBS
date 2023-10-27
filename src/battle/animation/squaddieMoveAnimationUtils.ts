@@ -47,14 +47,14 @@ export const getSquaddiePositionAlongPath = (
     const timeAtStepStart: number = currentStepIndex * timePerStep;
     const xyCoords: [number, number] = lerpSquaddieBetweenPath(
         [
-            new HexCoordinate({
+            {
                 q: startTile.q,
                 r: startTile.r,
-            }),
-            new HexCoordinate({
+            },
+            {
                 q: endTile.q,
                 r: endTile.r,
-            }),
+            },
         ],
         timePassed - timeAtStepStart,
         timePerStep,

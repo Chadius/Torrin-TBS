@@ -23,7 +23,6 @@ import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";
@@ -232,7 +231,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieTurn: new SquaddieTurn({})
             })
         );
-        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", new HexCoordinate({q: 1, r: 0}));
+        state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", {q: 1, r: 0});
 
         state.squaddieRepository.addSquaddie(
             new SquaddieTemplate({
@@ -287,7 +286,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieTurn: new SquaddieTurn({})
             })
         );
-        state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", new HexCoordinate({q: 1, r: 1}));
+        state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", {q: 1, r: 1});
         this.addEnemyTeam(state);
 
         state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = new BattleSquaddieTeam({
@@ -370,7 +369,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieTurn: new SquaddieTurn({})
             })
         );
-        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", new HexCoordinate({q: 1, r: 5}));
+        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", {q: 1, r: 5});
 
         state.squaddieRepository.addBattleSquaddie(
             new BattleSquaddie({
@@ -379,7 +378,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieTurn: new SquaddieTurn({})
             })
         );
-        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_1", new HexCoordinate({q: 1, r: 9}));
+        state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_1", {q: 1, r: 9});
 
         state.squaddieRepository.addBattleSquaddie(
             new BattleSquaddie({
@@ -391,7 +390,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie(
             "enemy_demon_slither",
             "enemy_demon_slither_2",
-            new HexCoordinate({q: 1, r: 12})
+            {q: 1, r: 12}
         );
 
         state.squaddieRepository.addBattleSquaddie(
@@ -404,7 +403,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie(
             "enemy_demon_slither",
             "enemy_demon_slither_3",
-            new HexCoordinate({q: 5, r: 15})
+            {q: 5, r: 15}
         );
 
         state.squaddieRepository.addBattleSquaddie(
@@ -417,7 +416,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie(
             "enemy_demon_slither",
             "enemy_demon_slither_4",
-            new HexCoordinate({q: 7, r: 13})
+            {q: 7, r: 13},
         );
 
         state.squaddieRepository.addBattleSquaddie(
@@ -430,7 +429,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie(
             "enemy_demon_slither",
             "enemy_demon_slither_5",
-            new HexCoordinate({q: 10, r: 14})
+            {q: 10, r: 14},
         );
 
         state.squaddieRepository.addBattleSquaddie(
@@ -443,7 +442,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie(
             "enemy_demon_slither",
             "enemy_demon_slither_6",
-            new HexCoordinate({q: 13, r: 7})
+            {q: 13, r: 7},
         );
 
         state.squaddieRepository.addBattleSquaddie(
@@ -456,7 +455,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie(
             "enemy_demon_slither",
             "enemy_demon_slither_7",
-            new HexCoordinate({q: 15, r: 10})
+            {q: 15, r: 10},
         );
 
         state.teamsByAffiliation[SquaddieAffiliation.ENEMY] = new BattleSquaddieTeam({

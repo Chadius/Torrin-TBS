@@ -9,7 +9,6 @@ import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
 import {SquaddieAction} from "../../squaddie/action";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -139,11 +138,13 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
         instruction.addAction({
             type: SquaddieActionType.SQUADDIE,
             data: {
-                targetLocation: new HexCoordinate({q: 0, r: 0}),
+                targetLocation: {q: 0, r: 0},
                 squaddieAction: monkKoanAction,
             }
         });
@@ -187,11 +188,13 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         const wholeTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
         wholeTurnInstruction.addAction({
             type: SquaddieActionType.SQUADDIE,
             data: {
-                targetLocation: new HexCoordinate({q: 0, r: 0}),
+                targetLocation: {q: 0, r: 0},
                 squaddieAction: powerAttackLongswordAction,
             }
         });

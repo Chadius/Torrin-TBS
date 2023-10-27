@@ -8,8 +8,8 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 describe('lerpSquaddieBetweenPath', () => {
     it('lerp between two points on a map', () => {
         const movementPathInfo: HexCoordinate[] = [
-            new HexCoordinate({q: 0, r: 0}),
-            new HexCoordinate({q: 0, r: 1}),
+            {q: 0, r: 0},
+            {q: 0, r: 1},
         ];
 
         const startLocation = lerpSquaddieBetweenPath(
@@ -47,9 +47,9 @@ describe('getSquaddiePositionAlongPath', () => {
 
     beforeEach(() => {
         movementPath = [
-            new HexCoordinate({q: 0, r: 0}),
-            new HexCoordinate({q: 0, r: 1}),
-            new HexCoordinate({q: 1, r: 1}),
+            {q: 0, r: 0},
+            {q: 0, r: 1},
+            {q: 1, r: 1},
         ];
 
         camera = new BattleCamera();

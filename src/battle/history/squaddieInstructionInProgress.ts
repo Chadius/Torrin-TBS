@@ -70,6 +70,7 @@ export class SquaddieInstructionInProgress {
                 squaddieTemplateId: param.squaddieTemplateId,
                 battleSquaddieId: param.battleSquaddieId,
                 startingLocation: param.startingLocation,
+                actions: [],
             });
         }
     }

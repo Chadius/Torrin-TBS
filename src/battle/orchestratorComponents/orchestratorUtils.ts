@@ -85,12 +85,13 @@ export function GetSquaddieAtScreenLocation(param: {
         map,
     } = param;
 
-    const clickedLocation =
-        new HexCoordinate(
-            {
-                coordinates: convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...camera.getCoordinates())
-            }
-        );
+    const coords = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...camera.getCoordinates());
+    const clickedLocation: HexCoordinate =
+        {
+            q: coords[0],
+            r: coords[1],
+        }
+    ;
 
     return GetSquaddieAtMapLocation({
         mapLocation: clickedLocation,

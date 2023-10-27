@@ -22,7 +22,6 @@ import {isCoordinateOnScreen} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
@@ -32,6 +31,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {CalculateResults} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;

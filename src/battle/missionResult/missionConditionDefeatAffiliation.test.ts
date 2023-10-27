@@ -6,7 +6,6 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {MissionConditionDefeatAffiliation} from "./missionConditionDefeatAffiliation";
 import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService";
 import {MissionConditionType} from "./missionCondition";
@@ -160,14 +159,14 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     });
 
     it('is not complete if squaddies of the given affiliation are alive and on the map', () => {
-        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, new HexCoordinate({
+        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0
-        }));
-        missionMap.addSquaddie(enemy2Static.templateId, enemy2Dynamic.battleSquaddieId, new HexCoordinate({
+        });
+        missionMap.addSquaddie(enemy2Static.templateId, enemy2Dynamic.battleSquaddieId, {
             q: 0,
             r: 1
-        }));
+        });
         enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
         const {
             isDead
@@ -178,14 +177,14 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
 
     it('is complete if it was already marked complete', () => {
         conditionDefeatAllEnemies.isComplete = true;
-        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, new HexCoordinate({
+        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0
-        }));
-        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, new HexCoordinate({
+        });
+        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, {
             q: 0,
             r: 1
-        }));
+        });
         expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeTruthy();
         expect(conditionDefeatAllPlayers.shouldBeComplete(state)).toBeFalsy();
     });
@@ -195,14 +194,14 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     });
 
     it('is complete if all squaddies of the given affiliation are dead', () => {
-        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, new HexCoordinate({
+        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0
-        }));
-        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, new HexCoordinate({
+        });
+        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, {
             q: 0,
             r: 1
-        }));
+        });
         enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
         const {
             isDead

@@ -19,7 +19,6 @@ import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoord
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -207,7 +206,7 @@ describe('BattlePhaseController', () => {
             battleSquaddieIdToAdd: string,
             camera: BattleCamera,
         }) => {
-            missionMap.addSquaddie(squaddieTemplateIdToAdd, battleSquaddieIdToAdd, new HexCoordinate({q: 0, r: 0}));
+            missionMap.addSquaddie(squaddieTemplateIdToAdd, battleSquaddieIdToAdd, {q: 0, r: 0});
             const state: BattleOrchestratorState = new BattleOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 resourceHandler,

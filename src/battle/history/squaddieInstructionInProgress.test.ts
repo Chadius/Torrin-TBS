@@ -1,6 +1,5 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {longswordAction} from "../../utils/test/squaddieAction";
 import {SquaddieActionType} from "./anySquaddieAction";
 
@@ -10,7 +9,8 @@ describe('SquaddieInstructionInProgress', () => {
             actionsForThisRound: new SquaddieActionsForThisRound({
                 battleSquaddieId: "battleSquaddieId",
                 squaddieTemplateId: "templateId",
-                startingLocation: new HexCoordinate({q: 1, r: 1}),
+                startingLocation: {q: 1, r: 1},
+                actions: [],
             }),
             currentSquaddieAction: longswordAction,
         });
@@ -25,7 +25,8 @@ describe('SquaddieInstructionInProgress', () => {
         const longswordUsedThisRoundAction = new SquaddieActionsForThisRound({
             battleSquaddieId: "battleSquaddieId",
             squaddieTemplateId: "templateId",
-            startingLocation: new HexCoordinate({q: 1, r: 1}),
+            startingLocation: {q: 1, r: 1},
+            actions: [],
         });
 
         longswordUsedThisRoundAction.addAction({

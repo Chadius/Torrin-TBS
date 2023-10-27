@@ -2,7 +2,6 @@ import {Recording} from "./recording";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {BattleEvent} from "./battleEvent";
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieEndTurnAction} from "./squaddieEndTurnAction";
 
@@ -13,6 +12,8 @@ describe('Recording', () => {
         const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId: "player_squaddie",
             battleSquaddieId: "player_squaddie_0",
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
         endTurnInstruction.endTurn();
 
@@ -20,10 +21,10 @@ describe('Recording', () => {
         squaddieMovesAndEndsTurn.addInitialState({
             squaddieTemplateId: "static",
             battleSquaddieId: "dynamic",
-            startingLocation: new HexCoordinate({q: 2, r: 3}),
+            startingLocation: {q: 2, r: 3},
         });
         squaddieMovesAndEndsTurn.addConfirmedAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 3, r: 6}),
+            destination: {q: 3, r: 6},
             numberOfActionPointsSpent: 1,
         }));
         squaddieMovesAndEndsTurn.addConfirmedAction(new SquaddieEndTurnAction({}));

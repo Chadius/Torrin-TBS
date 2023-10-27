@@ -8,7 +8,6 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {FormatIntent, FormatResult} from "./actionResultTextWriter";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
@@ -78,7 +77,7 @@ describe('Action Result Text Writer', () => {
             actions: [longswordSweepAction, bandageWoundsAction],
         }));
 
-        battleMap.addSquaddie(knightStatic.templateId, knightDynamic.battleSquaddieId, new HexCoordinate({q: 1, r: 1}));
+        battleMap.addSquaddie(knightStatic.templateId, knightDynamic.battleSquaddieId, {q: 1, r: 1});
 
         ({
             squaddieTemplate: citizenStatic,
@@ -104,7 +103,7 @@ describe('Action Result Text Writer', () => {
             actions: [],
         }));
 
-        battleMap.addSquaddie(thiefStatic.templateId, thiefDynamic.battleSquaddieId, new HexCoordinate({q: 1, r: 2}));
+        battleMap.addSquaddie(thiefStatic.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
 
         ({
             squaddieTemplate: rogueStatic,
@@ -118,7 +117,7 @@ describe('Action Result Text Writer', () => {
             actions: [],
         }));
 
-        battleMap.addSquaddie(rogueStatic.templateId, rogueDynamic.battleSquaddieId, new HexCoordinate({q: 1, r: 2}));
+        battleMap.addSquaddie(rogueStatic.templateId, rogueDynamic.battleSquaddieId, {q: 1, r: 2});
     });
 
     it('Explains how much damage occurred', () => {

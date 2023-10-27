@@ -13,17 +13,17 @@ export enum HexDirection {
 export const moveOneTileInDirection = (origin: HexCoordinate, direction: HexDirection): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
-            return new HexCoordinate({q: origin.q, r: origin.r + 1})
+            return {q: origin.q, r: origin.r + 1}
         case HexDirection.LEFT:
-            return new HexCoordinate({q: origin.q, r: origin.r - 1})
+            return {q: origin.q, r: origin.r - 1}
         case HexDirection.UP_RIGHT:
-            return new HexCoordinate({q: origin.q - 1, r: origin.r + 1})
+            return {q: origin.q - 1, r: origin.r + 1}
         case HexDirection.UP_LEFT:
-            return new HexCoordinate({q: origin.q - 1, r: origin.r})
+            return {q: origin.q - 1, r: origin.r}
         case HexDirection.DOWN_RIGHT:
-            return new HexCoordinate({q: origin.q + 1, r: origin.r})
+            return {q: origin.q + 1, r: origin.r}
         case HexDirection.DOWN_LEFT:
-            return new HexCoordinate({q: origin.q + 1, r: origin.r - 1})
+            return {q: origin.q + 1, r: origin.r - 1}
         case HexDirection.ORIGIN:
         default:
             return origin;
@@ -45,19 +45,19 @@ export const CreateNewNeighboringCoordinates = (q: number, r: number): HexCoordi
 export const moveCoordinatesInOneDirection = (origin_q: number, origin_r: number, direction: HexDirection): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
-            return new HexCoordinate({coordinates: [origin_q, origin_r + 1]});
+            return {q: origin_q, r: origin_r + 1};
         case HexDirection.LEFT:
-            return new HexCoordinate({coordinates: [origin_q, origin_r - 1]});
+            return {q: origin_q, r: origin_r - 1};
         case HexDirection.UP_RIGHT:
-            return new HexCoordinate({coordinates: [origin_q - 1, origin_r + 1]});
+            return {q: origin_q - 1, r: origin_r + 1};
         case HexDirection.UP_LEFT:
-            return new HexCoordinate({coordinates: [origin_q - 1, origin_r]});
+            return {q: origin_q - 1, r: origin_r};
         case HexDirection.DOWN_RIGHT:
-            return new HexCoordinate({coordinates: [origin_q + 1, origin_r]});
+            return {q: origin_q + 1, r: origin_r};
         case HexDirection.DOWN_LEFT:
-            return new HexCoordinate({coordinates: [origin_q + 1, origin_r - 1]});
+            return {q: origin_q + 1, r: origin_r - 1};
         case HexDirection.ORIGIN:
         default:
-            return new HexCoordinate({coordinates: [origin_q, origin_r]});
+            return {q: origin_q, r: origin_r};
     }
 }

@@ -22,7 +22,7 @@ describe('pathfinding with a single move', () => {
             "  1 1 1 ",
         ])
 
-        const origin: HexCoordinate = new HexCoordinate({q: 1, r: 1});
+        const origin: HexCoordinate = {q: 1, r: 1};
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
@@ -96,7 +96,7 @@ describe('pathfinding with a single move', () => {
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 10,
@@ -111,12 +111,12 @@ describe('pathfinding with a single move', () => {
         validateTilesAreFound(
             searchResults.getReachableTiles(),
             [
-                new HexCoordinate({q: 0, r: 2,}),
-                new HexCoordinate({q: 0, r: 3,}),
+                {q: 0, r: 2,},
+                {q: 0, r: 3,},
             ],
             [
-                new HexCoordinate({q: 0, r: 0,}),
-                new HexCoordinate({q: 0, r: 1,}),
+                {q: 0, r: 0,},
+                {q: 0, r: 1,},
             ]
         );
     });
@@ -132,7 +132,7 @@ describe('pathfinding with a single move', () => {
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 0}),
+                startLocation: {q: 0, r: 0},
             }),
             movement: new SearchMovement({
                 movementPerAction: 10,
@@ -147,12 +147,12 @@ describe('pathfinding with a single move', () => {
         validateTilesAreFound(
             searchResults.getReachableTiles(),
             [
-                new HexCoordinate({q: 0, r: 0,}),
-                new HexCoordinate({q: 0, r: 1,}),
-                new HexCoordinate({q: 0, r: 2,}),
+                {q: 0, r: 0,},
+                {q: 0, r: 1,},
+                {q: 0, r: 2,},
             ],
             [
-                new HexCoordinate({q: 0, r: 3,}),
+                {q: 0, r: 3,},
             ]
         );
     });
@@ -168,7 +168,7 @@ describe('pathfinding with a single move', () => {
         const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
             setup: new SearchSetup({
                 missionMap: missionMap,
-                startLocation: new HexCoordinate({q: 0, r: 1}),
+                startLocation: {q: 0, r: 1},
             }),
             movement: new SearchMovement({
                 movementPerAction: 2,
@@ -182,13 +182,13 @@ describe('pathfinding with a single move', () => {
         validateTilesAreFound(
             searchResults.getReachableTiles(),
             [
-                new HexCoordinate({q: 0, r: 0,}),
-                new HexCoordinate({q: 0, r: 1,}),
-                new HexCoordinate({q: 0, r: 2,}),
+                {q: 0, r: 0,},
+                {q: 0, r: 1,},
+                {q: 0, r: 2,},
             ],
             [
-                new HexCoordinate({q: 0, r: 3,}),
-                new HexCoordinate({q: 0, r: 4,}),
+                {q: 0, r: 3,},
+                {q: 0, r: 4,},
             ]
         );
     });
@@ -203,7 +203,7 @@ describe('pathfinding with a single move', () => {
             ];
 
             wallTile = [
-                new HexCoordinate({q: 0, r: 2}),
+                {q: 0, r: 2},
             ];
         });
 
@@ -216,7 +216,7 @@ describe('pathfinding with a single move', () => {
             const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 setup: new SearchSetup({
                     missionMap: missionMap,
-                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    startLocation: {q: 0, r: 0},
                 }),
                 movement: new SearchMovement({
                     movementPerAction: 2,
@@ -230,12 +230,12 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 searchResults.getReachableTiles(),
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 1,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 1,},
                 ],
                 [
-                    new HexCoordinate({q: 0, r: 2,}),
-                    new HexCoordinate({q: 0, r: 3,}),
+                    {q: 0, r: 2,},
+                    {q: 0, r: 3,},
                 ]
             );
         });
@@ -249,7 +249,7 @@ describe('pathfinding with a single move', () => {
             const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 setup: new SearchSetup({
                     missionMap: missionMap,
-                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    startLocation: {q: 0, r: 0},
                 }),
                 movement: new SearchMovement({
                     movementPerAction: 3,
@@ -264,9 +264,9 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 searchResults.getReachableTiles(),
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 1,}),
-                    new HexCoordinate({q: 0, r: 3,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 1,},
+                    {q: 0, r: 3,},
                 ],
                 wallTile
             );
@@ -290,7 +290,7 @@ describe('pathfinding with a single move', () => {
             const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 setup: new SearchSetup({
                     missionMap: missionMap,
-                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    startLocation: {q: 0, r: 0},
                 }),
                 movement: new SearchMovement({
                     movementPerAction: 3,
@@ -304,12 +304,12 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 searchResults.getReachableTiles(),
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 1,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 1,},
                 ],
                 [
-                    new HexCoordinate({q: 0, r: 2,}),
-                    new HexCoordinate({q: 0, r: 3,}),
+                    {q: 0, r: 2,},
+                    {q: 0, r: 3,},
                 ]
             );
         });
@@ -323,7 +323,7 @@ describe('pathfinding with a single move', () => {
             const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 setup: new SearchSetup({
                     missionMap: missionMap,
-                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    startLocation: {q: 0, r: 0},
                 }),
                 movement: new SearchMovement({
                     movementPerAction: 3,
@@ -338,12 +338,12 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 searchResults.getReachableTiles(),
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 1,}),
-                    new HexCoordinate({q: 0, r: 3,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 1,},
+                    {q: 0, r: 3,},
                 ],
                 [
-                    new HexCoordinate({q: 0, r: 2,}),
+                    {q: 0, r: 2,},
                 ]
             );
         });
@@ -357,7 +357,7 @@ describe('pathfinding with a single move', () => {
             const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
                 setup: new SearchSetup({
                     missionMap: missionMap,
-                    startLocation: new HexCoordinate({q: 0, r: 0}),
+                    startLocation: {q: 0, r: 0},
                 }),
                 movement: new SearchMovement({
                     movementPerAction: 2,
@@ -372,12 +372,12 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 searchResults.getReachableTiles(),
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 1,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 1,},
                 ],
                 [
-                    new HexCoordinate({q: 0, r: 2,}),
-                    new HexCoordinate({q: 0, r: 3,}),
+                    {q: 0, r: 2,},
+                    {q: 0, r: 3,},
                 ]
             );
         });
@@ -405,12 +405,12 @@ describe('pathfinding with a single move', () => {
             pathfinder = tempPathfinder;
 
             justTheCenter = [
-                new HexCoordinate({q: 1, r: 1})
+                {q: 1, r: 1}
             ];
 
             tilesNotFoundBecauseSearchBlockedByWall = [
-                new HexCoordinate({q: 1, r: 3}),
-                new HexCoordinate({q: 1, r: 4}),
+                {q: 1, r: 3},
+                {q: 1, r: 4},
             ];
 
             tilesWithin2HexesOfOrigin = [
@@ -420,9 +420,9 @@ describe('pathfinding with a single move', () => {
                 moveOneTileInDirection(justTheCenter[0], HexDirection.UP_LEFT),
                 moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_RIGHT),
 
-                new HexCoordinate({q: 0, r: 0}),
-                new HexCoordinate({q: 2, r: 2}),
-                new HexCoordinate({q: 3, r: 0}),
+                {q: 0, r: 0},
+                {q: 2, r: 2},
+                {q: 3, r: 0},
             ];
         });
 
@@ -451,7 +451,7 @@ describe('pathfinding with a single move', () => {
             const centerTileOnly: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
                     setup: new SearchSetup({
                         missionMap: missionMap,
-                        startLocation: new HexCoordinate({q: 0, r: 0}),
+                        startLocation: {q: 0, r: 0},
                     }),
                     movement: new SearchMovement({
                         movementPerAction: 1,
@@ -468,11 +468,11 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 centerTileOnly,
                 [
-                    new HexCoordinate({q: 1, r: 1,}),
+                    {q: 1, r: 1,},
                 ],
                 [
-                    new HexCoordinate({q: 2, r: 1,}),
-                    new HexCoordinate({q: 1, r: 2,}),
+                    {q: 2, r: 1,},
+                    {q: 1, r: 2,},
                 ]
             );
         });
@@ -481,7 +481,7 @@ describe('pathfinding with a single move', () => {
             const centerAndAdjacentTiles: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
                     setup: new SearchSetup({
                         missionMap: missionMap,
-                        startLocation: new HexCoordinate({q: 0, r: 0}),
+                        startLocation: {q: 0, r: 0},
                     }),
                     movement: new SearchMovement({
                         movementPerAction: 1,
@@ -515,7 +515,7 @@ describe('pathfinding with a single move', () => {
             const centerAndAdjacentTiles: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
                     setup: new SearchSetup({
                         missionMap: missionMap,
-                        startLocation: new HexCoordinate({q: 0, r: 0}),
+                        startLocation: {q: 0, r: 0},
                     }),
                     movement: new SearchMovement({
                         movementPerAction: 1,
@@ -537,7 +537,7 @@ describe('pathfinding with a single move', () => {
         });
 
         it('can spread from multiple tiles', () => {
-            const movementRangeTiles: HexCoordinate[] = [...justTheCenter, new HexCoordinate({q: 1, r: 2}),];
+            const movementRangeTiles: HexCoordinate[] = [...justTheCenter, {q: 1, r: 2},];
             const meleeAttackTiles: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
                     setup: new SearchSetup({
                         missionMap: missionMap,
@@ -590,7 +590,7 @@ describe('pathfinding with a single move', () => {
             pathfinder = tempPathfinder;
 
             justTheCenter = [
-                new HexCoordinate({q: 1, r: 1}),
+                {q: 1, r: 1},
             ];
         });
 
@@ -618,11 +618,11 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 indirectAttackTiles,
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 3,}),
-                    new HexCoordinate({q: 1, r: 3,}),
-                    new HexCoordinate({q: 3, r: 0,}),
-                    new HexCoordinate({q: 4, r: 0,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 3,},
+                    {q: 1, r: 3,},
+                    {q: 3, r: 0,},
+                    {q: 4, r: 0,},
                 ],
                 [
                     moveOneTileInDirection(justTheCenter[0], HexDirection.ORIGIN),
@@ -633,9 +633,9 @@ describe('pathfinding with a single move', () => {
                     moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_RIGHT),
                     moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_LEFT),
 
-                    new HexCoordinate({q: 1, r: 5,}),
+                    {q: 1, r: 5,},
 
-                    new HexCoordinate({q: 5, r: 0,}),
+                    {q: 5, r: 0,},
                 ]
             );
         });
@@ -643,7 +643,7 @@ describe('pathfinding with a single move', () => {
         it('multiple tiles are combined', () => {
             const movementRangeTiles: HexCoordinate[] = [
                 ...justTheCenter,
-                new HexCoordinate({q: 1, r: 2}),
+                {q: 1, r: 2},
             ];
 
             const indirectAttackTiles: HexCoordinate[] = pathfinder.getTilesInRange(new SearchParams({
@@ -664,12 +664,12 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 indirectAttackTiles,
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 3,}),
-                    new HexCoordinate({q: 1, r: 3,}),
-                    new HexCoordinate({q: 2, r: 0,}),
-                    new HexCoordinate({q: 3, r: 0,}),
-                    new HexCoordinate({q: 4, r: 0,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 3,},
+                    {q: 1, r: 3,},
+                    {q: 2, r: 0,},
+                    {q: 3, r: 0,},
+                    {q: 4, r: 0,},
                     moveOneTileInDirection(justTheCenter[0], HexDirection.LEFT),
                     moveOneTileInDirection(justTheCenter[0], HexDirection.UP_LEFT),
                 ],
@@ -679,8 +679,8 @@ describe('pathfinding with a single move', () => {
                     moveOneTileInDirection(justTheCenter[0], HexDirection.UP_RIGHT),
                     moveOneTileInDirection(justTheCenter[0], HexDirection.DOWN_RIGHT),
 
-                    new HexCoordinate({q: 1, r: 5,}),
-                    new HexCoordinate({q: 5, r: 0,}),
+                    {q: 1, r: 5,},
+                    {q: 5, r: 0,},
                 ]
             );
         });
@@ -703,7 +703,7 @@ describe('pathfinding with a single move', () => {
             pathfinder = tempPathfinder;
 
             justTheCenter = [
-                new HexCoordinate({q: 0, r: 0}),
+                {q: 0, r: 0},
             ];
         });
 
@@ -724,11 +724,11 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 blockedByWall,
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
+                    {q: 0, r: 0,},
                 ],
                 [
-                    new HexCoordinate({q: 0, r: 1,}),
-                    new HexCoordinate({q: 0, r: 2,}),
+                    {q: 0, r: 1,},
+                    {q: 0, r: 2,},
                 ]
             );
         });
@@ -752,11 +752,11 @@ describe('pathfinding with a single move', () => {
             validateTilesAreFound(
                 skipPastWalls,
                 [
-                    new HexCoordinate({q: 0, r: 0,}),
-                    new HexCoordinate({q: 0, r: 2,}),
+                    {q: 0, r: 0,},
+                    {q: 0, r: 2,},
                 ],
                 [
-                    new HexCoordinate({q: 0, r: 1,}),
+                    {q: 0, r: 1,},
                 ]
             );
         });

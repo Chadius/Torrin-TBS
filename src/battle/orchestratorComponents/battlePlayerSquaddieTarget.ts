@@ -181,11 +181,12 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private tryToSelectValidTarget(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
-        const clickedLocation: HexCoordinate = new HexCoordinate({
-            coordinates: [
-                ...convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...state.camera.getCoordinates())
-            ]
-        });
+        const coordinates = convertScreenCoordinatesToMapCoordinates(mouseX, mouseY, ...state.camera.getCoordinates());
+
+        const clickedLocation: HexCoordinate = {
+            q: coordinates[0],
+            r: coordinates[1],
+        };
 
         if (!
             this.highlightedTargetRange.some(

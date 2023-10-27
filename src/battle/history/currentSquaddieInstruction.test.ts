@@ -1,6 +1,5 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieAction} from "../../squaddie/action";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
@@ -10,7 +9,8 @@ import {SquaddieActionType} from "./anySquaddieAction";
 const torrinInstruction = new SquaddieActionsForThisRound({
     battleSquaddieId: "Torrin 0",
     squaddieTemplateId: "Torrin",
-    startingLocation: new HexCoordinate({q: 0, r: 0}),
+    startingLocation: {q: 0, r: 0},
+    actions: [],
 });
 
 const purifyingBlast = new SquaddieAction({
@@ -21,7 +21,7 @@ const purifyingBlast = new SquaddieAction({
 
 const purifyingBlastAction: SquaddieSquaddieAction = new SquaddieSquaddieAction({
     squaddieAction: purifyingBlast,
-    targetLocation: new HexCoordinate({q: 3, r: 4}),
+    targetLocation: {q: 3, r: 4},
 });
 
 describe('Current Squaddie Instruction', () => {
@@ -30,7 +30,8 @@ describe('Current Squaddie Instruction', () => {
             actionsForThisRound: new SquaddieActionsForThisRound({
                 battleSquaddieId: "torrin 0",
                 squaddieTemplateId: "torrin",
-                startingLocation: new HexCoordinate({q: 0, r: 0}),
+                startingLocation: {q: 0, r: 0},
+                actions: [],
             }),
             currentSquaddieAction: new SquaddieAction({
                 name: "purifying stream",
@@ -51,7 +52,7 @@ describe('Current Squaddie Instruction', () => {
             {
                 squaddieTemplateId: "Torrin",
                 battleSquaddieId: "Torrin 0",
-                startingLocation: new HexCoordinate({q: 0, r: 0})
+                startingLocation: {q: 0, r: 0},
             }
         );
         expect(newInstruction.battleSquaddieId).toBe("Torrin 0");
@@ -76,13 +77,13 @@ describe('Current Squaddie Instruction', () => {
 
         expect(newInstruction.currentlySelectedAction).toStrictEqual(purifyingBlast);
         newInstruction.addConfirmedAction(new SquaddieMovementAction({
-            destination: new HexCoordinate({q: 2, r: 3}),
+            destination: {q: 2, r: 3},
             numberOfActionPointsSpent: 2,
         }));
         expect(newInstruction.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(2);
         expect(newInstruction.squaddieActionsForThisRound.totalActionPointsSpent()).toBe(3);
         expect(newInstruction.squaddieActionsForThisRound.destinationLocation()).toStrictEqual(
-            new HexCoordinate({q: 2, r: 3})
+            {q: 2, r: 3}
         );
     });
 
@@ -108,7 +109,7 @@ describe('Current Squaddie Instruction', () => {
                 {
                     squaddieTemplateId: "Torrin",
                     battleSquaddieId: "Torrin 0",
-                    startingLocation: new HexCoordinate({q: 0, r: 0})
+                    startingLocation: {q: 0, r: 0}
                 }
             );
             newInstruction.markBattleSquaddieIdAsMoving("Torrin 0");

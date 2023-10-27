@@ -7,7 +7,6 @@ import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieUsesActionOnMap} from "../orchestratorComponents/battleSquaddieUsesActionOnMap";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -278,7 +277,7 @@ describe('Battle Orchestrator', () => {
         nullState.squaddieCurrentlyActing.addInitialState({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
+            startingLocation: {q: 0, r: 0},
         });
         nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
             type: SquaddieActionType.MOVEMENT,
@@ -313,7 +312,7 @@ describe('Battle Orchestrator', () => {
         nullState.squaddieCurrentlyActing.addInitialState({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
-            startingLocation: new HexCoordinate({q: 0, r: 0}),
+            startingLocation: {q: 0, r: 0},
         });
         nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
             type: SquaddieActionType.MOVEMENT,

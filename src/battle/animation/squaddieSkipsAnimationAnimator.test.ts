@@ -67,6 +67,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         const oneActionInstruction = new SquaddieActionsForThisRound({
             squaddieTemplateId: monkStaticId,
             battleSquaddieId: monkDynamicId,
+            startingLocation: {q: 0, r: 0},
+            actions: [],
         });
 
         oneActionInstruction.addAction({
