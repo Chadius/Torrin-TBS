@@ -35,6 +35,7 @@ import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService";
+import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -192,11 +193,14 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break;
         }
 
-        if (!state.missionStatistics.hasStarted) {
-            state.missionStatistics.startRecording();
+        if (!MissionStatisticsHandler.hasStarted(state.missionStatistics)) {
+            MissionStatisticsHandler.startRecording(state.missionStatistics);
         } else if (this.uiControlSettings.pauseTimer === false) {
             if (this.previousUpdateTimestamp != undefined) {
-                state.missionStatistics.addTimeElapsed(Date.now() - this.previousUpdateTimestamp);
+                MissionStatisticsHandler.addTimeElapsed(
+                    state.missionStatistics,
+                    Date.now() - this.previousUpdateTimestamp,
+                );
             }
             this._previousUpdateTimestamp = Date.now();
         }

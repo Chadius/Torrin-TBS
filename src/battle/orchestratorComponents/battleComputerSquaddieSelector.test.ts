@@ -42,7 +42,6 @@ import {
     SQUADDIE_SELECTOR_PANNING_TIME
 } from "./battleComputerSquaddieSelector";
 import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {BattlePhaseState} from "./battlePhaseController";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";

@@ -5,7 +5,6 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {MissionConditionDefeatAffiliation} from "./missionConditionDefeatAffiliation";
 import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService";
 import {MissionConditionType} from "./missionCondition";

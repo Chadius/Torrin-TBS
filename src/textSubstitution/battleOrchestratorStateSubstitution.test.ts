@@ -1,7 +1,7 @@
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {SubstituteTextUsingBattleOrchestraState} from "./BattleOrchestratorStateSubstitution";
-import {MissionStatistics} from "../battle/missionStatistics/missionStatistics";
+import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
 
 describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute the same token multiple times in the same input', () => {
@@ -56,9 +56,10 @@ describe("BattleOrchestratorStateSubstitution", () => {
             secondsPassed = (hours * 60 * 60 + minutes * 60 + seconds);
 
             battleState = new BattleOrchestratorState({
-                missionStatistics: new MissionStatistics({
+                missionStatistics: {
+                    ...MissionStatisticsHandler.new(),
                     timeElapsedInMilliseconds: secondsPassed * 1000 + milliseconds,
-                })
+                }
             });
         });
 
@@ -81,9 +82,10 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute damage dealt by player team', () => {
         const battleState = new BattleOrchestratorState({
-            missionStatistics: new MissionStatistics({
+            missionStatistics: {
+                ...MissionStatisticsHandler.new(),
                 damageDealtByPlayerTeam: 9001,
-            })
+            }
         });
         const newText = SubstituteTextUsingBattleOrchestraState(
             "How much damage did the player team deal? $$DAMAGE_DEALT_BY_PLAYER_TEAM",
@@ -94,9 +96,10 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute damage received by player team', () => {
         const battleState = new BattleOrchestratorState({
-            missionStatistics: new MissionStatistics({
+            missionStatistics: {
+                ...MissionStatisticsHandler.new(),
                 damageTakenByPlayerTeam: 42,
-            })
+            }
         });
         const newText = SubstituteTextUsingBattleOrchestraState(
             "How much damage did the player team receive? $$DAMAGE_TAKEN_BY_PLAYER_TEAM",
@@ -107,9 +110,10 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute healing received by player team', () => {
         const battleState = new BattleOrchestratorState({
-            missionStatistics: new MissionStatistics({
+            missionStatistics: {
+                ...MissionStatisticsHandler.new(),
                 healingReceivedByPlayerTeam: 1024,
-            })
+            }
         });
         const newText = SubstituteTextUsingBattleOrchestraState(
             "How much healing did the player team receive? $$HEALING_RECEIVED_BY_PLAYER_TEAM",

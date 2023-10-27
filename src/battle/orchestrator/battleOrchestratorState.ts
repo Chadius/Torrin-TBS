@@ -21,7 +21,7 @@ import {BattleGameBoard} from "./battleGameBoard";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
-import {MissionStatistics} from "../missionStatistics/missionStatistics";
+import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -102,7 +102,7 @@ export class BattleOrchestratorState {
         this.camera = options.camera || new BattleCamera();
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
 
-        this._missionStatistics = missionStatistics || new MissionStatistics({});
+        this._missionStatistics = missionStatistics || MissionStatisticsHandler.new();
         this.battleEventRecording = options.battleEventRecording || new Recording({});
 
         this._gameBoard = new BattleGameBoard({

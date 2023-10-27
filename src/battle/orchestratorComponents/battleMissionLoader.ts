@@ -22,7 +22,6 @@ import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoor
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";

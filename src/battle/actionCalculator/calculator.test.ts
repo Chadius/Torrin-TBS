@@ -10,8 +10,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {MissionStatistics} from "../missionStatistics/missionStatistics";
+import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 
 describe('calculator', () => {
@@ -138,9 +137,9 @@ describe('calculator', () => {
         });
 
         it('will record the damage dealt by the player to mission statistics', () => {
-            const missionStatistics: MissionStatistics = new MissionStatistics({});
-            missionStatistics.reset();
-            missionStatistics.startRecording();
+            const missionStatistics: MissionStatistics = MissionStatisticsHandler.new();
+            MissionStatisticsHandler.reset(missionStatistics);
+            MissionStatisticsHandler.startRecording(missionStatistics);
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
                 currentlySelectedAction: actionDealsBodyDamage,
@@ -164,9 +163,9 @@ describe('calculator', () => {
         });
 
         it('will record the damage dealt to the player to mission statistics', () => {
-            const missionStatistics: MissionStatistics = new MissionStatistics({});
-            missionStatistics.reset();
-            missionStatistics.startRecording();
+            const missionStatistics: MissionStatistics = MissionStatisticsHandler.new();
+            MissionStatisticsHandler.reset(missionStatistics);
+            MissionStatisticsHandler.startRecording(missionStatistics);
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
                 currentlySelectedAction: actionDealsBodyDamage,
@@ -213,9 +212,9 @@ describe('calculator', () => {
         });
 
         it('will record the healing received by a player to mission statistics', () => {
-            const missionStatistics: MissionStatistics = new MissionStatistics({});
-            missionStatistics.reset();
-            missionStatistics.startRecording();
+            const missionStatistics: MissionStatistics = MissionStatisticsHandler.new();
+            MissionStatisticsHandler.reset(missionStatistics);
+            MissionStatisticsHandler.startRecording(missionStatistics);
 
             player1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
 

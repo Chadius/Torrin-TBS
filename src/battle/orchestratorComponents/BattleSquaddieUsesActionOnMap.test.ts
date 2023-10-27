@@ -6,7 +6,6 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";

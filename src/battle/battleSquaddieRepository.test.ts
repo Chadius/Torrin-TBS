@@ -6,7 +6,6 @@ import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
-import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {SquaddieResource} from "../squaddie/resource";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 

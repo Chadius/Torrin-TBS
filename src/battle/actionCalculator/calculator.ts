@@ -10,6 +10,7 @@ import {
 } from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 
 export function CalculateResults({
                                      state,
@@ -81,12 +82,12 @@ function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedS
 
 function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate, state: BattleOrchestratorState, healingReceived: number, damageDealt: number, actingBattleSquaddie: BattleSquaddie) {
     if (targetedSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
-        state.missionStatistics.addHealingReceivedByPlayerTeam(healingReceived);
-        state.missionStatistics.adddamageTakenByPlayerTeam(damageDealt);
+        MissionStatisticsHandler.addHealingReceivedByPlayerTeam(state.missionStatistics, healingReceived);
+        MissionStatisticsHandler.addDamageTakenByPlayerTeam(state.missionStatistics, damageDealt);
     }
 
     const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId));
     if (actingSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
-        state.missionStatistics.addDamageDealtByPlayerTeam(damageDealt);
+        MissionStatisticsHandler.addDamageDealtByPlayerTeam(state.missionStatistics, damageDealt);
     }
 }

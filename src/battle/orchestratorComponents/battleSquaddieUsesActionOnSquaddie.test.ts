@@ -5,7 +5,6 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler

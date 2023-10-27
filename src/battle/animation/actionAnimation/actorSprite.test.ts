@@ -2,7 +2,6 @@ import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
-import {ArmyAttributes} from "../../../squaddie/armyAttributes";
 import {ActorSprite} from "./actorSprite";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants";

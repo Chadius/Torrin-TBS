@@ -14,7 +14,7 @@ import {
     HealingType,
     IsSquaddieAlive
 } from "./squaddieService";
-import {ArmyAttributes, DefaultArmyAttributes} from "./armyAttributes";
+import {DefaultArmyAttributes} from "./armyAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('Squaddie Service', () => {
