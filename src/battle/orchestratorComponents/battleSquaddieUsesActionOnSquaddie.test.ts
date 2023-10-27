@@ -60,7 +60,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
-            attributes: new ArmyAttributes({
+            attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
@@ -69,7 +69,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                         }
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
-            }),
+                maxHitPoints: 1,
+                armorClass: 0,
+            },
         }));
 
         ({
@@ -81,7 +83,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             battleId: "target_dynamic_squaddie",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
-            attributes: new ArmyAttributes({
+            attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
@@ -91,7 +93,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
                 maxHitPoints: 3,
-            }),
+                armorClass: 0,
+            },
         }));
 
         powerAttackLongswordAction = new SquaddieAction({

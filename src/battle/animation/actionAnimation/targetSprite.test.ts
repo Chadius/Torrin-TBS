@@ -11,6 +11,7 @@ import * as squaddieService from "../../../squaddie/squaddieService";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
+import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 
 describe('Target Sprite', () => {
     let resultTookDamage: ActionResultPerSquaddie;
@@ -26,9 +27,11 @@ describe('Target Sprite', () => {
         squaddieRepository = new BattleSquaddieRepository();
         CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
-            attributes: new ArmyAttributes({
+            attributes: {
                 maxHitPoints: 5,
-            }),
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            },
             battleId: battleSquaddieId,
             name: "Target",
             squaddieRepository,

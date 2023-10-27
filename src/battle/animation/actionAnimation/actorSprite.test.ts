@@ -9,6 +9,7 @@ import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants"
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
+import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 
 describe('Actor Sprite', () => {
     let resultTookDamage: ActionResultPerSquaddie;
@@ -23,9 +24,11 @@ describe('Actor Sprite', () => {
         squaddieRepository = new BattleSquaddieRepository();
         CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
-            attributes: new ArmyAttributes({
+            attributes: {
                 maxHitPoints: 5,
-            }),
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            },
             battleId: battleSquaddieId,
             name: "actor",
             squaddieRepository,

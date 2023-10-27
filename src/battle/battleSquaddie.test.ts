@@ -2,9 +2,9 @@ import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {InBattleAttributes} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 
 describe('BattleSquaddie', () => {
     it('throws an error if battle squaddie has no template Id', () => {
@@ -49,10 +49,11 @@ describe('BattleSquaddie', () => {
                     name: "Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                attributes: new ArmyAttributes({
+                attributes: {
                     maxHitPoints: 5,
                     armorClass: 2,
-                })
+                    movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                }
             });
         });
 
@@ -100,9 +101,11 @@ describe('BattleSquaddie', () => {
                 battleSquaddieId: "soldier_dynamic",
                 squaddieTemplateId: soldierTemplate.squaddieId.templateId,
                 inBattleAttributes: new InBattleAttributes(
-                    new ArmyAttributes({
+                    {
                         maxHitPoints: 9001,
-                    })
+                        movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                        armorClass: 0,
+                    }
                 )
             });
 

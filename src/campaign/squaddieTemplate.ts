@@ -1,5 +1,5 @@
 import {SquaddieId} from "../squaddie/id";
-import {ArmyAttributes} from "../squaddie/armyAttributes";
+import {ArmyAttributes, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {SquaddieAction} from "../squaddie/action";
 import {SquaddieMovement} from "../squaddie/movement";
 
@@ -15,7 +15,7 @@ export class SquaddieTemplate {
     }) {
         this.squaddieId = options.squaddieId;
         this._action = options.actions || [];
-        this.attributes = options.attributes || new ArmyAttributes();
+        this.attributes = options.attributes || DefaultArmyAttributes();
     }
 
     get action(): SquaddieAction[] {

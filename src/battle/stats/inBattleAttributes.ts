@@ -1,4 +1,4 @@
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
 
 export class InBattleAttributes {
@@ -6,7 +6,7 @@ export class InBattleAttributes {
 
     constructor(statBlock?: ArmyAttributes) {
         if (!statBlock) {
-            statBlock = new ArmyAttributes();
+            statBlock = DefaultArmyAttributes();
         }
 
         this._armyAttributes = statBlock;

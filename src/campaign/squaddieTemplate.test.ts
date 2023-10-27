@@ -1,6 +1,6 @@
 import {SquaddieTemplate} from "./squaddieTemplate";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {ArmyAttributes} from "../squaddie/armyAttributes";
+import {ArmyAttributes, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {NewDummySquaddieID} from "../utils/test/squaddie";
 
 describe('Squaddie Template', () => {
@@ -10,7 +10,7 @@ describe('Squaddie Template', () => {
                 squaddieId: NewDummySquaddieID("id", SquaddieAffiliation.PLAYER),
             });
 
-            const defaultAttributes: ArmyAttributes = new ArmyAttributes();
+            const defaultAttributes: ArmyAttributes = DefaultArmyAttributes();
 
             expect(squaddieWithoutAttributes.attributes).toStrictEqual(defaultAttributes);
         });

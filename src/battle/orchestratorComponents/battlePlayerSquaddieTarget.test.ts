@@ -37,6 +37,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -140,9 +141,11 @@ describe('BattleSquaddieTarget', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepo,
             actions: [longswordAction],
-            attributes: new ArmyAttributes({
+            attributes: {
                 maxHitPoints: 5,
-            })
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
         battleMap.addSquaddie(thiefStatic.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
 

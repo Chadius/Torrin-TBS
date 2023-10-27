@@ -1,23 +1,26 @@
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {InBattleAttributes} from "./inBattleAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
+import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 
 describe('inBattleAttributes', () => {
     it('starts with the same hit points as maximum', () => {
-        const soldierAttributes: ArmyAttributes = new ArmyAttributes({
+        const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-        });
+            movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+        };
 
         const inBattleAttributes: InBattleAttributes = new InBattleAttributes(soldierAttributes);
 
         expect(inBattleAttributes.currentHitPoints).toBe(soldierAttributes.maxHitPoints)
     });
     it('takes damage', () => {
-        const soldierAttributes: ArmyAttributes = new ArmyAttributes({
+        const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-        });
+            movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+        };
 
         const inBattleAttributes: InBattleAttributes = new InBattleAttributes(soldierAttributes);
         const actualDamageTaken = inBattleAttributes.takeDamage(2, DamageType.Body);
@@ -26,10 +29,11 @@ describe('inBattleAttributes', () => {
         expect(inBattleAttributes.currentHitPoints).toBe(soldierAttributes.maxHitPoints - actualDamageTaken);
     });
     it('cannot take more than maximum hit points of damage', () => {
-        const soldierAttributes: ArmyAttributes = new ArmyAttributes({
+        const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-        });
+            movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+        };
 
         const inBattleAttributes: InBattleAttributes = new InBattleAttributes(soldierAttributes);
         const actualDamageTaken = inBattleAttributes.takeDamage(9001, DamageType.Body);
@@ -38,10 +42,11 @@ describe('inBattleAttributes', () => {
         expect(inBattleAttributes.currentHitPoints).toBe(0);
     });
     it('receive healing up to maximum', () => {
-        const soldierAttributes: ArmyAttributes = new ArmyAttributes({
+        const soldierAttributes: ArmyAttributes = {
             maxHitPoints: 3,
             armorClass: 3,
-        });
+            movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+        };
 
         const inBattleAttributes: InBattleAttributes = new InBattleAttributes(soldierAttributes);
         inBattleAttributes.takeDamage(2, DamageType.Body);

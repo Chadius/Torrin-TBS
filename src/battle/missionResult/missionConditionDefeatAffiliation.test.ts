@@ -10,6 +10,7 @@ import {MissionConditionDefeatAffiliation} from "./missionConditionDefeatAffilia
 import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService";
 import {MissionConditionType} from "./missionCondition";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 
 describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () => {
     let missionMap: MissionMap;
@@ -52,9 +53,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             battleId: "enemy 1",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
-            attributes: new ArmyAttributes({
-                maxHitPoints: 1
-            })
+            attributes: {
+                maxHitPoints: 1,
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
 
         ({
@@ -66,9 +69,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             battleId: "enemy 2",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository,
-            attributes: new ArmyAttributes({
-                maxHitPoints: 1
-            })
+            attributes: {
+                maxHitPoints: 1,
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
 
         conditionDefeatAllEnemies = new MissionConditionDefeatAffiliation({
@@ -84,9 +89,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             battleId: "player 1",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository,
-            attributes: new ArmyAttributes({
-                maxHitPoints: 1
-            })
+            attributes: {
+                maxHitPoints: 1,
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
 
         conditionDefeatAllPlayers = new MissionConditionDefeatAffiliation({
@@ -102,9 +109,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             battleId: "ally 1",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository,
-            attributes: new ArmyAttributes({
-                maxHitPoints: 1
-            })
+            attributes: {
+                maxHitPoints: 1,
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
 
         conditionDefeatAllAllies = new MissionConditionDefeatAffiliation({
@@ -120,9 +129,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             battleId: "no affiliation 1",
             affiliation: SquaddieAffiliation.NONE,
             squaddieRepository,
-            attributes: new ArmyAttributes({
-                maxHitPoints: 1
-            })
+            attributes: {
+                maxHitPoints: 1,
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
 
         conditionDefeatAllNoAffiliation = new MissionConditionDefeatAffiliation({

@@ -12,6 +12,7 @@ import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
 import {MissionStatistics} from "../missionStatistics/missionStatistics";
+import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 
 describe('calculator', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -41,9 +42,11 @@ describe('calculator', () => {
                     templateId: player1StaticId,
                     name: "player",
                     squaddieRepository,
-                    attributes: new ArmyAttributes({
+                    attributes: {
                         maxHitPoints: 5,
-                    })
+                        movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                        armorClass: 1,
+                    }
                 })
         );
 
@@ -53,9 +56,11 @@ describe('calculator', () => {
             templateId: enemy1StaticId,
             name: "enemy",
             squaddieRepository,
-            attributes: new ArmyAttributes({
+            attributes: {
                 maxHitPoints: 5,
-            })
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
 
         ({battleSquaddie: ally1BattleSquaddie} =
@@ -65,9 +70,11 @@ describe('calculator', () => {
                     templateId: ally1StaticId,
                     name: "ally",
                     squaddieRepository,
-                    attributes: new ArmyAttributes({
+                    attributes: {
                         maxHitPoints: 5,
-                    })
+                        movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                        armorClass: 0,
+                    }
                 })
         );
     })

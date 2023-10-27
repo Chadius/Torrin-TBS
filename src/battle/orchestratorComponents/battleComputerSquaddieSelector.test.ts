@@ -47,6 +47,7 @@ import {BattlePhaseState} from "./battlePhaseController";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
+import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -143,9 +144,11 @@ describe('BattleComputerSquaddieSelector', () => {
             battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
             actions: [demonBiteAction],
-            attributes: new ArmyAttributes({
+            attributes: {
                 maxHitPoints: 5,
-            })
+                movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
+                armorClass: 0,
+            }
         }));
 
         enemyDemonDynamic2 = new BattleSquaddie({

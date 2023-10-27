@@ -10,7 +10,7 @@ import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRoun
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {BattleSquaddie} from "../battleSquaddie";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 
@@ -54,18 +54,22 @@ describe('move towards closest squaddie in range', () => {
             squaddieTemplate: searchingSquaddieStatic,
             battleSquaddie: searchingSquaddieDynamic
         } = CreateNewSquaddieAndAddToRepository({
-            templateId: "searching_squaddie",
-            battleId: "searching_squaddie_0",
-            name: "Searching",
-            affiliation: SquaddieAffiliation.ALLY,
-            squaddieRepository,
-            attributes: new ArmyAttributes({
-                movement: CreateNewSquaddieMovementWithTraits({
-                    movementPerAction: 1,
-                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-                })
+                templateId: "searching_squaddie",
+                battleId: "searching_squaddie_0",
+                name: "Searching",
+                affiliation: SquaddieAffiliation.ALLY,
+                squaddieRepository,
+                attributes: {
+                    ...DefaultArmyAttributes(),
+                    ...{
+                        movement: CreateNewSquaddieMovementWithTraits({
+                            movementPerAction: 1,
+                            traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                        })
+                    }
+                }
             })
-        }));
+        );
 
         allyTeam = new BattleSquaddieTeam({
             name: "team",
@@ -130,18 +134,21 @@ describe('move towards closest squaddie in range', () => {
             squaddieTemplate: searchingSquaddieStatic2,
             battleSquaddie: searchingSquaddieDynamic2
         } = CreateNewSquaddieAndAddToRepository({
-            templateId: "searching_squaddie_2",
-            battleId: "searching_squaddie_2",
-            name: "Searching",
-            affiliation: SquaddieAffiliation.ALLY,
-            squaddieRepository,
-            attributes: new ArmyAttributes({
-                movement: CreateNewSquaddieMovementWithTraits({
-                    movementPerAction: 10,
-                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
-                })
-            })
-        });
+                templateId: "searching_squaddie_2",
+                battleId: "searching_squaddie_2",
+                name: "Searching",
+                affiliation: SquaddieAffiliation.ALLY,
+                squaddieRepository,
+                attributes: {
+                    ...DefaultArmyAttributes(),
+                    ...{
+                        movement: CreateNewSquaddieMovementWithTraits({
+                            movementPerAction: 10,
+                            traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                        })
+                    }
+                }
+            });
         allyTeam.addBattleSquaddieIds([searchingSquaddieDynamic2.battleSquaddieId]);
 
         missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {

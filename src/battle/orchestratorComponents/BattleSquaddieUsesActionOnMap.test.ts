@@ -30,7 +30,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             battleId: "dynamic_squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepository,
-            attributes: new ArmyAttributes({
+            attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({
@@ -39,7 +39,9 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                         }
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
-            }),
+                armorClass: 0,
+                maxHitPoints: 0,
+            },
         }));
     });
 

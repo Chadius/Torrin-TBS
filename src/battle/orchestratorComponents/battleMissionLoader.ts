@@ -185,14 +185,14 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     }).filterCategory(TraitCategory.CREATURE),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
-                attributes: new ArmyAttributes({
+                attributes: {
                     maxHitPoints: 3,
                     armorClass: 0,
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
                         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
-                }),
+                },
                 actions: [
                     new SquaddieAction({
                         name: "water cannon",
@@ -235,14 +235,14 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
 
         state.squaddieRepository.addSquaddie(
             new SquaddieTemplate({
-                attributes: new ArmyAttributes({
+                attributes: {
                     maxHitPoints: 5,
                     armorClass: 2,
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
                         traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                     }),
-                }),
+                },
                 squaddieId: new SquaddieId({
                     templateId: "player_sir_camil",
                     name: "Sir Camil",
@@ -320,14 +320,14 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
 
     private addEnemyTeam(state: BattleOrchestratorState) {
         const demonSlitherMold = new SquaddieTemplate({
-            attributes: new ArmyAttributes({
+            attributes: {
                 maxHitPoints: 3,
                 armorClass: -5,
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
                 }),
-            }),
+            },
             squaddieId: new SquaddieId({
                 templateId: "enemy_demon_slither",
                 name: "Slither Demon",

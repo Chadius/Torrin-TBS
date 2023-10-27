@@ -6,7 +6,7 @@ import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {BattleSquaddie} from "../../battle/battleSquaddie";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {SquaddieAction} from "../../squaddie/action";
-import {ArmyAttributes} from "../../squaddie/armyAttributes";
+import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import * as mocks from "./mocks";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -137,9 +137,7 @@ export const CreateNewThiefSquaddie: (
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.ENEMY,
         squaddieRepository: squaddieRepository,
         actions: actions || [defaultAttackAction],
-        attributes: attributes || new ArmyAttributes({
-            maxHitPoints: 5,
-        })
+        attributes: attributes || DefaultArmyAttributes(),
     });
 
     return {
@@ -226,9 +224,7 @@ export const CreateNewKnightSquaddie: (
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.PLAYER,
         squaddieRepository: squaddieRepository,
         actions: actions || [defaultAttackAction, powerAttacklongswordAction],
-        attributes: attributes || new ArmyAttributes({
-            maxHitPoints: 5,
-        })
+        attributes: attributes || DefaultArmyAttributes(),
     });
 
     return {

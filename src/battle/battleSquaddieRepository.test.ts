@@ -18,7 +18,7 @@ describe('BattleSquaddieRepository', () => {
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
         squaddieTemplateBase = new SquaddieTemplate({
-            attributes: new ArmyAttributes({
+            attributes: {
                 maxHitPoints: 1,
                 armorClass: 0,
                 movement: CreateNewSquaddieMovementWithTraits({
@@ -29,7 +29,7 @@ describe('BattleSquaddieRepository', () => {
                         }
                     }).filterCategory(TraitCategory.MOVEMENT)
                 }),
-            }),
+            },
             squaddieId: new SquaddieId({
                 templateId: "player_young_torrin",
                 name: "Torrin",

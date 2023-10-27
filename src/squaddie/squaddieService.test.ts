@@ -14,7 +14,7 @@ import {
     HealingType,
     IsSquaddieAlive
 } from "./squaddieService";
-import {ArmyAttributes} from "./armyAttributes";
+import {ArmyAttributes, DefaultArmyAttributes} from "./armyAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('Squaddie Service', () => {
@@ -36,10 +36,13 @@ describe('Squaddie Service', () => {
                     battleId: "player",
                     affiliation: SquaddieAffiliation.PLAYER,
                     squaddieRepository,
-                    attributes: new ArmyAttributes({
-                        armorClass: 3,
-                        maxHitPoints: 5,
-                    })
+                    attributes: {
+                        ...DefaultArmyAttributes(),
+                        ...{
+                            armorClass: 3,
+                            maxHitPoints: 5,
+                        }
+                    }
                 })
         );
 

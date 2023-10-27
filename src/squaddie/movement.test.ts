@@ -3,11 +3,11 @@ import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
 
 describe('movement for squaddies', () => {
     it('can make movement from data', () => {
-        const movement = new SquaddieMovement({
+        const movement: SquaddieMovement = {
             movementPerAction: 3,
             passThroughWalls: true,
             crossOverPits: false,
-        });
+        };
 
         expect(movement.movementPerAction).toBe(3);
         expect(movement.passThroughWalls).toBeTruthy();
