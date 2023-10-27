@@ -16,7 +16,6 @@ import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
-import {BattleEvent} from "../history/battleEvent";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieAction} from "../../squaddie/action";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
@@ -341,9 +340,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             state.hexMap.stopHighlightingTiles();
             this.gaveCompleteInstruction = true;
 
-            state.battleEventRecording.addEvent(new BattleEvent({
-                currentSquaddieInstruction: state.squaddieCurrentlyActing,
-            }));
+            state.battleEventRecording.addEvent({
+                instruction: state.squaddieCurrentlyActing,
+                results: undefined,
+            });
             this.gaveCompleteInstruction = true;
         } else if (state.battleSquaddieSelectedHUD.getSelectedAction() instanceof SquaddieAction) {
             const newAction = state.battleSquaddieSelectedHUD.getSelectedAction();

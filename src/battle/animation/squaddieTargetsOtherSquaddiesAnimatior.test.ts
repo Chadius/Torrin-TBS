@@ -111,14 +111,14 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         };
         SquaddieInstructionInProgressHandler.addSelectedAction(knightHitsThiefWithLongswordInstructionInProgress, longswordAction);
 
-        knightHitsThiefWithLongswordEvent = new BattleEvent({
-            currentSquaddieInstruction: knightHitsThiefWithLongswordInstructionInProgress,
+        knightHitsThiefWithLongswordEvent = {
+            instruction: knightHitsThiefWithLongswordInstructionInProgress,
             results: {
                 actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamicId],
                 resultPerTarget: {[thiefDynamicId]: {damageTaken: 1, healingReceived: 0}},
             }
-        });
+        };
         battleEventRecording = new Recording({});
     });
 

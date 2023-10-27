@@ -10,7 +10,6 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
-import {BattleEvent} from "../history/battleEvent";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -79,9 +78,10 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
     });
 
     SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, moveAction);
-    state.battleEventRecording.addEvent(new BattleEvent({
-        currentSquaddieInstruction: state.squaddieCurrentlyActing,
-    }));
+    state.battleEventRecording.addEvent({
+        instruction: state.squaddieCurrentlyActing,
+        results: undefined,
+    });
     return moveAction;
 }
 

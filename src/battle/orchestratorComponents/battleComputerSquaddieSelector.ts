@@ -196,10 +196,10 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             validTargetLocation: action.targetLocation,
         });
 
-        const newEvent: BattleEvent = new BattleEvent({
-            currentSquaddieInstruction: state.squaddieCurrentlyActing,
+        const newEvent: BattleEvent = {
+            instruction: state.squaddieCurrentlyActing,
             results: instructionResults,
-        });
+        };
         state.battleEventRecording.addEvent(newEvent);
 
         this.mostRecentAction = action;
@@ -264,9 +264,10 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, new SquaddieEndTurnAction({}));
         this.mostRecentAction = new SquaddieEndTurnAction({});
 
-        state.battleEventRecording.addEvent(new BattleEvent({
-            currentSquaddieInstruction: state.squaddieCurrentlyActing,
-        }));
+        state.battleEventRecording.addEvent({
+            instruction: state.squaddieCurrentlyActing,
+            results: undefined,
+        });
     }
 
     private askTeamStrategyToInstructSquaddie(state: BattleOrchestratorState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): SquaddieActionsForThisRound {

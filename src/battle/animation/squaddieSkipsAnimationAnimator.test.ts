@@ -88,14 +88,14 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         };
         SquaddieInstructionInProgressHandler.addSelectedAction(monkMeditatesInstruction, monkKoanAction);
 
-        monkMeditatesEvent = new BattleEvent({
-            currentSquaddieInstruction: monkMeditatesInstruction,
+        monkMeditatesEvent = {
+            instruction: monkMeditatesInstruction,
             results: {
                 actingBattleSquaddieId: monkDynamicId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
             }
-        });
+        };
         battleEventRecording.addEvent(monkMeditatesEvent);
 
         animator = new SquaddieSkipsAnimationAnimator();

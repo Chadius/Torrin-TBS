@@ -34,14 +34,16 @@ describe('Recording', () => {
         );
         SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, new SquaddieEndTurnAction({}));
 
-        recording.addEvent(new BattleEvent({
-            currentSquaddieInstruction: squaddieMovesAndEndsTurn,
-        }));
+        recording.addEvent({
+            instruction: squaddieMovesAndEndsTurn,
+            results: undefined,
+        });
 
         const history: BattleEvent[] = recording.history;
         expect(history).toHaveLength(1);
-        expect(history[0]).toStrictEqual(new BattleEvent({
-            currentSquaddieInstruction: squaddieMovesAndEndsTurn
-        }));
+        expect(history[0]).toStrictEqual({
+            instruction: squaddieMovesAndEndsTurn,
+            results: undefined,
+        });
     });
 });

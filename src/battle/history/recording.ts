@@ -1,4 +1,4 @@
-import {BattleEvent, CloneBattleEvent} from "./battleEvent";
+import {BattleEvent, BattleEventHandler} from "./battleEvent";
 
 export class Recording {
     private readonly _history: BattleEvent[];
@@ -12,7 +12,7 @@ export class Recording {
             return undefined;
         }
 
-        return CloneBattleEvent(this.history[this._history.length - 1]);
+        return BattleEventHandler.clone(this.history[this._history.length - 1]);
     }
 
     get history(): BattleEvent[] {

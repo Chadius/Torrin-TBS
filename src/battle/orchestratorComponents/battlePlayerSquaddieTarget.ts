@@ -336,10 +336,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             validTargetLocation: this.validTargetLocation,
         });
 
-        const newEvent: BattleEvent = new BattleEvent({
-            currentSquaddieInstruction: state.squaddieCurrentlyActing,
+        const newEvent: BattleEvent = {
+            instruction: state.squaddieCurrentlyActing,
             results: instructionResults,
-        });
+        };
 
         state.battleEventRecording.addEvent(newEvent);
 

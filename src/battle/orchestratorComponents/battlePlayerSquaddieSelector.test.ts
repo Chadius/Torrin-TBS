@@ -30,7 +30,6 @@ import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {Recording} from "../history/recording";
-import {BattleEvent} from "../history/battleEvent";
 import {SquaddieAction} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
@@ -338,9 +337,10 @@ describe('BattleSquaddieSelector', () => {
 
         const history = state.battleEventRecording.history;
         expect(history).toHaveLength(1);
-        expect(history[0]).toStrictEqual(new BattleEvent({
-            currentSquaddieInstruction: expectedSquaddieInstruction,
-        }));
+        expect(history[0]).toStrictEqual({
+            instruction: expectedSquaddieInstruction,
+            results: undefined,
+        });
     });
 
     describe('adding movement mid turn instruction', () => {
@@ -515,9 +515,10 @@ describe('BattleSquaddieSelector', () => {
 
         const history = state.battleEventRecording.history;
         expect(history).toHaveLength(1);
-        expect(history[0]).toStrictEqual(new BattleEvent({
-            currentSquaddieInstruction: endTurnInstruction
-        }));
+        expect(history[0]).toStrictEqual({
+            instruction: endTurnInstruction,
+            results: undefined,
+        });
     });
 
     it('will recommend squaddie target if a SquaddieAction is selected that requires a target', () => {

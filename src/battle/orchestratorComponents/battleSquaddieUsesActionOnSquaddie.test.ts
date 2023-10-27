@@ -157,14 +157,14 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         };
         SquaddieInstructionInProgressHandler.addSelectedAction(monkMeditatesInstruction, monkKoanAction);
 
-        monkMeditatesEvent = new BattleEvent({
-            currentSquaddieInstruction: monkMeditatesInstruction,
+        monkMeditatesEvent = {
+            instruction: monkMeditatesInstruction,
             results: {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
             }
-        });
+        };
 
         battleEventRecording.addEvent(monkMeditatesEvent);
 
@@ -207,14 +207,14 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             movingBattleSquaddieIds: [],
         };
 
-        const newEvent: BattleEvent = new BattleEvent({
-            currentSquaddieInstruction: squaddieInstructionInProgress,
+        const newEvent: BattleEvent = {
+            instruction: squaddieInstructionInProgress,
             results: {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
                 resultPerTarget: {["target_dynamic_squaddie"]: {damageTaken: 9001, healingReceived: 0}}
             }
-        });
+        };
         battleEventRecording.addEvent(newEvent);
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({

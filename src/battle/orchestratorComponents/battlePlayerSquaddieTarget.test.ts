@@ -491,9 +491,9 @@ describe('BattleSquaddieTarget', () => {
         it('should add the results to the history', () => {
             expect(state.battleEventRecording.history).toHaveLength(1);
             const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
-            expect(mostRecentEvent.actions).toHaveLength(1);
+            expect(mostRecentEvent.instruction.squaddieActionsForThisRound.actions).toHaveLength(1);
             expect((
-                mostRecentEvent.actions[0].data as SquaddieSquaddieActionData
+                mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0].data as SquaddieSquaddieActionData
             ).squaddieAction.id).toBe(longswordAction.id);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);
