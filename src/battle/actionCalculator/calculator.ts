@@ -8,8 +8,6 @@ import {
     GiveHealingToTheSquaddie,
     HealingType
 } from "../../squaddie/squaddieService";
-import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
@@ -38,21 +36,19 @@ export function CalculateResults({
     let damageDealt = calculateTotalDamageDealt(state, targetedSquaddieTemplate, targetedBattleSquaddie);
 
     const resultPerTarget = {
-        [targetedBattleSquaddieId]: new ActionResultPerSquaddie({
-            data: {
-                healingReceived,
-                damageTaken: damageDealt,
-            }
-        })
+        [targetedBattleSquaddieId]: {
+            healingReceived,
+            damageTaken: damageDealt,
+        }
     };
 
     maybeUpdateMissionStatistics(targetedSquaddieTemplate, state, healingReceived, damageDealt, actingBattleSquaddie);
 
-    return new SquaddieSquaddieResults({
+    return {
         actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
         targetedBattleSquaddieIds: targetedBattleSquaddieIds,
         resultPerTarget,
-    });
+    };
 }
 
 function calculateTotalDamageDealt(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {

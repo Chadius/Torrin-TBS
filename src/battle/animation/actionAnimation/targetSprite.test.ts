@@ -37,8 +37,8 @@ describe('Target Sprite', () => {
 
         const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
-        resultTookDamage = new ActionResultPerSquaddie({damageTaken: 1});
-        resultTookLethalDamage = new ActionResultPerSquaddie({damageTaken: squaddieTemplate.attributes.maxHitPoints});
+        resultTookDamage = {damageTaken: 1, healingReceived: 0};
+        resultTookLethalDamage = {damageTaken: squaddieTemplate.attributes.maxHitPoints, healingReceived: 0};
 
         timer = new ActionTimer();
         timer.start();

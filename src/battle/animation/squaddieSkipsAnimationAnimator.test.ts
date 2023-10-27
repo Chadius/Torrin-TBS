@@ -10,7 +10,6 @@ import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
@@ -91,11 +90,11 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,
-            results: new SquaddieSquaddieResults({
+            results: {
                 actingBattleSquaddieId: monkDynamicId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
-            })
+            }
         });
         battleEventRecording.addEvent(monkMeditatesEvent);
 

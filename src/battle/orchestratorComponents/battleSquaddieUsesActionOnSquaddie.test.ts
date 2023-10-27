@@ -26,10 +26,8 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {DamageType, IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {MissionMap} from "../../missionMap/missionMap";
-import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -161,11 +159,11 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,
-            results: new SquaddieSquaddieResults({
+            results: {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
-            })
+            }
         });
 
         battleEventRecording.addEvent(monkMeditatesEvent);
@@ -211,11 +209,11 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: squaddieInstructionInProgress,
-            results: new SquaddieSquaddieResults({
+            results: {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
-                resultPerTarget: {["target_dynamic_squaddie"]: new ActionResultPerSquaddie({damageTaken: 9001})}
-            })
+                resultPerTarget: {["target_dynamic_squaddie"]: {damageTaken: 9001, healingReceived: 0}}
+            }
         });
         battleEventRecording.addEvent(newEvent);
 

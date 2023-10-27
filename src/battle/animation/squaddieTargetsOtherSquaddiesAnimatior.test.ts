@@ -19,10 +19,8 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
 import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
-import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
 import {SquaddieActionType} from "../history/anySquaddieAction";
@@ -115,11 +113,11 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         knightHitsThiefWithLongswordEvent = new BattleEvent({
             currentSquaddieInstruction: knightHitsThiefWithLongswordInstructionInProgress,
-            results: new SquaddieSquaddieResults({
+            results: {
                 actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamicId],
-                resultPerTarget: {[thiefDynamicId]: new ActionResultPerSquaddie({damageTaken: 1})},
-            })
+                resultPerTarget: {[thiefDynamicId]: {damageTaken: 1, healingReceived: 0}},
+            }
         });
         battleEventRecording = new Recording({});
     });

@@ -14,7 +14,11 @@ export class BattleEvent {
         results?: SquaddieSquaddieResults
     }) {
         this._instruction = currentSquaddieInstruction;
-        this._results = results ?? new SquaddieSquaddieResults({});
+        this._results = results ?? {
+            actingBattleSquaddieId: undefined,
+            resultPerTarget: {},
+            targetedBattleSquaddieIds: [],
+        };
     }
 
     get instruction(): SquaddieInstructionInProgress {

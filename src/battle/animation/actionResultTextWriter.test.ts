@@ -1,5 +1,3 @@
-import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -10,6 +8,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {FormatIntent, FormatResult} from "./actionResultTextWriter";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 
 describe('Action Result Text Writer', () => {
     let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -121,18 +120,20 @@ describe('Action Result Text Writer', () => {
     });
 
     it('Explains how much damage occurred', () => {
-        const damagingResult = new SquaddieSquaddieResults({
+        const damagingResult: SquaddieSquaddieResults = {
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId, rogueDynamic.battleSquaddieId],
             resultPerTarget: {
-                [thiefDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
+                [thiefDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
                     damageTaken: 1
-                }),
-                [rogueDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
+                },
+                [rogueDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
                     damageTaken: 1
-                })
+                }
             }
-        });
+        };
 
         const outputStrings: string[] = FormatResult({
             currentAction: longswordSweepAction,
@@ -147,18 +148,20 @@ describe('Action Result Text Writer', () => {
     });
 
     it('Explains how much healing was received', () => {
-        const healingResult = new SquaddieSquaddieResults({
+        const healingResult: SquaddieSquaddieResults = {
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             targetedBattleSquaddieIds: [knightDynamic.battleSquaddieId, citizenDynamic.battleSquaddieId],
             resultPerTarget: {
-                [knightDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
+                [knightDynamic.battleSquaddieId]: {
+                    damageTaken: 0,
                     healingReceived: 1
-                }),
-                [citizenDynamic.battleSquaddieId]: new ActionResultPerSquaddie({
+                },
+                [citizenDynamic.battleSquaddieId]: {
+                    damageTaken: 0,
                     healingReceived: 2
-                })
+                },
             }
-        });
+        };
 
         const outputStrings: string[] = FormatResult({
             currentAction: bandageWoundsAction,
