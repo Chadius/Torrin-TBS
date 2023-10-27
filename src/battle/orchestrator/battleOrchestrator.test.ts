@@ -36,6 +36,7 @@ import {MissionDefeatCutsceneTrigger,} from "../../cutscene/cutsceneTrigger";
 import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 
 
 describe('Battle Orchestrator', () => {
@@ -273,13 +274,18 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
 
-        nullState.squaddieCurrentlyActing.reset();
-        nullState.squaddieCurrentlyActing.addInitialState({
-            squaddieTemplateId: "new static squaddie",
-            battleSquaddieId: "new dynamic squaddie",
-            startingLocation: {q: 0, r: 0},
-        });
-        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
+        nullState.squaddieCurrentlyActing =
+            {
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: {
+                    squaddieTemplateId: "new static squaddie",
+                    battleSquaddieId: "new dynamic squaddie",
+                    startingLocation: {q: 0, r: 0},
+                    actions: [],
+                },
+                currentlySelectedAction: undefined,
+            };
+        SquaddieActionsForThisRoundHandler.addAction(nullState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 1, r: 2},
@@ -308,19 +314,26 @@ describe('Battle Orchestrator', () => {
             squaddieRepository: nullState.squaddieRepository,
         });
 
-        nullState.squaddieCurrentlyActing.reset();
-        nullState.squaddieCurrentlyActing.addInitialState({
-            squaddieTemplateId: "new static squaddie",
-            battleSquaddieId: "new dynamic squaddie",
-            startingLocation: {q: 0, r: 0},
-        });
-        nullState.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
-            type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 1, r: 2},
-                numberOfActionPointsSpent: 2,
-            }
-        });
+        nullState.squaddieCurrentlyActing =
+            {
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: {
+                    squaddieTemplateId: "new static squaddie",
+                    battleSquaddieId: "new dynamic squaddie",
+                    startingLocation: {q: 0, r: 0},
+                    actions: [],
+                },
+                currentlySelectedAction: undefined,
+            };
+
+        SquaddieActionsForThisRoundHandler.addAction(nullState.squaddieCurrentlyActing.squaddieActionsForThisRound,
+            {
+                type: SquaddieActionType.MOVEMENT,
+                data: {
+                    destination: {q: 1, r: 2},
+                    numberOfActionPointsSpent: 2,
+                }
+            });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);

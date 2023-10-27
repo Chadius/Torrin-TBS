@@ -110,9 +110,11 @@ describe('calculator', () => {
         });
 
         it('will deal full damage to unarmored foes', () => {
-            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieAction: actionDealsBodyDamage
-            });
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+                currentlySelectedAction: actionDealsBodyDamage,
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: undefined,
+            };
 
             const results = CalculateResults({
                     state: new BattleOrchestratorState({
@@ -133,9 +135,11 @@ describe('calculator', () => {
             missionStatistics.reset();
             missionStatistics.startRecording();
 
-            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieAction: actionDealsBodyDamage
-            });
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+                currentlySelectedAction: actionDealsBodyDamage,
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: undefined,
+            };
 
             CalculateResults({
                     state: new BattleOrchestratorState({
@@ -157,10 +161,11 @@ describe('calculator', () => {
             missionStatistics.reset();
             missionStatistics.startRecording();
 
-            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieAction: actionDealsBodyDamage
-            });
-
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+                currentlySelectedAction: actionDealsBodyDamage,
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: undefined,
+            };
             CalculateResults({
                     state: new BattleOrchestratorState({
                         missionMap,
@@ -179,9 +184,11 @@ describe('calculator', () => {
         it('will heal allies fully', () => {
             ally1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
 
-            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieAction: healsLostHitPoints
-            });
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+                currentlySelectedAction: healsLostHitPoints,
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: undefined,
+            };
 
             const results = CalculateResults({
                     state: new BattleOrchestratorState({
@@ -205,9 +212,11 @@ describe('calculator', () => {
 
             player1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
 
-            const squaddieCurrentlyInProgress = new SquaddieInstructionInProgress({
-                currentSquaddieAction: healsLostHitPoints
-            });
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+                currentlySelectedAction: healsLostHitPoints,
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: undefined,
+            };
 
             CalculateResults({
                     state: new BattleOrchestratorState({

@@ -3,7 +3,10 @@ import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRoun
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    SquaddieInstructionInProgress,
+    SquaddieInstructionInProgressHandler
+} from "../history/squaddieInstructionInProgress";
 import {SquaddieAction} from "../../squaddie/action";
 import {
     OrchestratorComponentMouseEvent,
@@ -103,11 +106,12 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        knightHitsThiefWithLongswordInstructionInProgress = new SquaddieInstructionInProgress({
-            actionsForThisRound: oneActionInstruction,
-            currentSquaddieAction: powerAttacklongswordAction,
-        });
-        knightHitsThiefWithLongswordInstructionInProgress.addSelectedAction(longswordAction);
+        knightHitsThiefWithLongswordInstructionInProgress = {
+            squaddieActionsForThisRound: oneActionInstruction,
+            currentlySelectedAction: powerAttacklongswordAction,
+            movingBattleSquaddieIds: [],
+        };
+        SquaddieInstructionInProgressHandler.addSelectedAction(knightHitsThiefWithLongswordInstructionInProgress, longswordAction);
 
         knightHitsThiefWithLongswordEvent = new BattleEvent({
             currentSquaddieInstruction: knightHitsThiefWithLongswordInstructionInProgress,

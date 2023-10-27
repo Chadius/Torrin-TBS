@@ -20,12 +20,13 @@ import {Label} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieActionData} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionData} from "../../squaddie/action";
 import {Trait} from "../../trait/traitStatusStorage";
 import {CalculateResults} from "../actionCalculator/calculator";
 import {FindValidTargets} from "../targeting/targetingService";
 import {FormatIntent} from "../animation/actionResultTextWriter";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
+import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -57,7 +58,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
-                    state.squaddieCurrentlyActing.cancelSelectedAction();
+                    SquaddieInstructionInProgressHandler.cancelSelectedAction(state.squaddieCurrentlyActing);
                     state.hexMap.stopHighlightingTiles();
                     return;
                 } else {
@@ -145,7 +146,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const {
             squaddieTemplate: actingSquaddieTemplate,
             battleSquaddie: actingBattleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+            SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+        ));
         const targetingResults = FindValidTargets({
             map: state.missionMap,
             action: action,
@@ -213,7 +216,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
-            state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId)
+            state.squaddieRepository.getSquaddieByBattleId(
+                SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+            )
         );
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
@@ -245,7 +250,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         const intentMessages = FormatIntent({
             currentAction: state.squaddieCurrentlyActing.currentlySelectedAction,
-            actingBattleSquaddieId: state.squaddieCurrentlyActing.battleSquaddieId,
+            actingBattleSquaddieId: SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing),
             squaddieRepository: state.squaddieRepository,
         });
 
@@ -288,30 +293,41 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private cancelTargetSelection(state: BattleOrchestratorState) {
-        state.squaddieCurrentlyActing.cancelSelectedAction();
+        state.squaddieCurrentlyActing = undefined;
         this.hasSelectedValidTarget = false;
     }
 
     private confirmTargetSelection(state: BattleOrchestratorState) {
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
-            state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId)
+            state.squaddieRepository.getSquaddieByBattleId(
+                SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+            )
         );
         const actingSquaddieInfo = state.missionMap.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId);
 
-        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-            state.squaddieCurrentlyActing.addInitialState({
-                battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-                squaddieTemplateId: actingSquaddieTemplate.templateId,
-                startingLocation: actingSquaddieInfo.mapLocation,
-            });
+        if (
+            state.squaddieCurrentlyActing === undefined
+            || SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)
+        ) {
+            state.squaddieCurrentlyActing =
+                {
+                    movingBattleSquaddieIds: [],
+                    squaddieActionsForThisRound: {
+                        battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
+                        squaddieTemplateId: actingSquaddieTemplate.templateId,
+                        startingLocation: actingSquaddieInfo.mapLocation,
+                        actions: [],
+                    },
+                    currentlySelectedAction: undefined,
+                };
         }
 
-        state.squaddieCurrentlyActing.addConfirmedAction(
+        SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing,
             new SquaddieSquaddieAction({
-                targetLocation: this.validTargetLocation,
-                squaddieAction: state.squaddieCurrentlyActing.currentlySelectedAction,
-            })
-        );
+                    targetLocation: this.validTargetLocation,
+                    squaddieAction: new SquaddieAction({data: state.squaddieCurrentlyActing.currentlySelectedAction}),
+                }
+            ));
 
         actingBattleSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
         const instructionResults = CalculateResults({

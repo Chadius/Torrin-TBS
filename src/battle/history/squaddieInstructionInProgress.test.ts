@@ -1,24 +1,24 @@
-import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
+import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {longswordAction} from "../../utils/test/squaddieAction";
 import {SquaddieActionType} from "./anySquaddieAction";
 
 describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {
-        const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            actionsForThisRound: new SquaddieActionsForThisRound({
+        const squaddieCurrentlyActing: SquaddieInstructionInProgress = {
+            movingBattleSquaddieIds: [],
+            squaddieActionsForThisRound: {
                 battleSquaddieId: "battleSquaddieId",
                 squaddieTemplateId: "templateId",
                 startingLocation: {q: 1, r: 1},
                 actions: [],
-            }),
-            currentSquaddieAction: longswordAction,
-        });
+            },
+            currentlySelectedAction: longswordAction,
+        };
 
-        squaddieCurrentlyActing.cancelSelectedAction();
-
-        expect(squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeFalsy();
-        expect(squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
+        SquaddieInstructionInProgressHandler.cancelSelectedAction(squaddieCurrentlyActing);
+        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(squaddieCurrentlyActing)).toBeFalsy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('will indicate the squaddie has acted this round if they cancel after acting', () => {
@@ -37,14 +37,14 @@ describe('SquaddieInstructionInProgress', () => {
             }
         });
 
-        const squaddieCurrentlyActing = new SquaddieInstructionInProgress({
-            actionsForThisRound: longswordUsedThisRoundAction,
-            currentSquaddieAction: longswordAction,
-        });
+        const squaddieCurrentlyActing: SquaddieInstructionInProgress = {
+            squaddieActionsForThisRound: longswordUsedThisRoundAction,
+            currentlySelectedAction: longswordAction,
+            movingBattleSquaddieIds: [],
+        };
 
-        squaddieCurrentlyActing.cancelSelectedAction();
-
-        expect(squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeTruthy();
-        expect(squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();
+        SquaddieInstructionInProgressHandler.cancelSelectedAction(squaddieCurrentlyActing);
+        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(squaddieCurrentlyActing)).toBeFalsy();
     });
 });

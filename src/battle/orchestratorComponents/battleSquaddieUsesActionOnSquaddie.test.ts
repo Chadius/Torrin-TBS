@@ -6,7 +6,10 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    SquaddieInstructionInProgress,
+    SquaddieInstructionInProgressHandler
+} from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
 import {SquaddieAction} from "../../squaddie/action";
 import {
@@ -149,11 +152,12 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             }
         });
 
-        monkMeditatesInstruction = new SquaddieInstructionInProgress({
-            actionsForThisRound: instruction,
-            currentSquaddieAction: monkKoanAction,
-        });
-        monkMeditatesInstruction.addSelectedAction(monkKoanAction);
+        monkMeditatesInstruction = {
+            squaddieActionsForThisRound: instruction,
+            currentlySelectedAction: monkKoanAction,
+            movingBattleSquaddieIds: [],
+        };
+        SquaddieInstructionInProgressHandler.addSelectedAction(monkMeditatesInstruction, monkKoanAction);
 
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,
@@ -199,10 +203,11 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             }
         });
 
-        const squaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            actionsForThisRound: wholeTurnInstruction,
-            currentSquaddieAction: powerAttackLongswordAction,
-        });
+        const squaddieInstructionInProgress: SquaddieInstructionInProgress = {
+            squaddieActionsForThisRound: wholeTurnInstruction,
+            currentlySelectedAction: powerAttackLongswordAction,
+            movingBattleSquaddieIds: [],
+        };
 
         const newEvent: BattleEvent = new BattleEvent({
             currentSquaddieInstruction: squaddieInstructionInProgress,
@@ -276,7 +281,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes', () => {
@@ -300,7 +305,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('passes mouse events on to the animator', () => {

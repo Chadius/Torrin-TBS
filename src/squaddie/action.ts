@@ -41,6 +41,17 @@ export class ActionRange {
     }
 }
 
+export const SquaddieActionHandler = {
+    isHelpful: (data: SquaddieActionData): boolean => {
+        const traitStatus: TraitStatusStorage = new TraitStatusStorage({data: data.traits});
+        return traitStatus.getStatus(Trait.HEALING);
+    },
+    isHindering: (data: SquaddieActionData): boolean => {
+        const traitStatus: TraitStatusStorage = new TraitStatusStorage({data: data.traits});
+        return traitStatus.getStatus(Trait.ATTACK);
+    },
+};
+
 export interface SquaddieActionData {
     damageDescriptions: { [t in DamageType]?: number };
     healingDescriptions: { Unknown?: number; LostHitPoints?: number };

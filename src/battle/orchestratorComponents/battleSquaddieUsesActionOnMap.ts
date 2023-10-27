@@ -11,6 +11,7 @@ import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestrator
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -59,7 +60,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
                 squaddieTemplate
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
-            const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
+            const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound);
 
             if (mostRecentAction.type === SquaddieActionType.END_TURN) {
                 battleSquaddie.endTurn();

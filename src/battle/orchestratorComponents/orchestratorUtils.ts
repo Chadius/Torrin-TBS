@@ -9,15 +9,20 @@ import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoor
 import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
-    if (state.squaddieCurrentlyActing && !state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
+    if (state.squaddieCurrentlyActing
+        && !SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)
+    ) {
         const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
-            state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId)
+            state.squaddieRepository.getSquaddieByBattleId(
+                SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+            )
         );
         const actInfo = CanSquaddieActRightNow({battleSquaddie, squaddieTemplate})
         if (!actInfo.canAct) {
-            state.squaddieCurrentlyActing.reset();
+            state.squaddieCurrentlyActing = undefined;
         }
     }
 }
@@ -25,19 +30,21 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: Battle
 export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.squaddieCurrentlyActing
-        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
+        && !SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)
     ) {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+            SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+        ));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
             squaddieTemplate,
             battleSquaddie,
         });
         if (playerCanControlThisSquaddieRightNow) {
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                battleId: state.squaddieCurrentlyActing.battleSquaddieId,
+                battleId: SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing),
                 state,
             });
         } else {
@@ -49,12 +56,14 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
 export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.squaddieCurrentlyActing
-        && !state.squaddieCurrentlyActing.isReadyForNewSquaddie
+        && !SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)
     ) {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId));
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+            SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+        ));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
             squaddieTemplate,
             battleSquaddie

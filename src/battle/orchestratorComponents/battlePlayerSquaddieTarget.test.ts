@@ -8,7 +8,11 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinateToKey} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {
+    SquaddieActionsForThisRound,
+    SquaddieActionsForThisRoundData,
+    SquaddieActionsForThisRoundHandler
+} from "../history/squaddieActionsForThisRound";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
@@ -19,7 +23,10 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    SquaddieInstructionInProgress,
+    SquaddieInstructionInProgressHandler
+} from "../history/squaddieInstructionInProgress";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
@@ -139,15 +146,16 @@ describe('BattleSquaddieTarget', () => {
         }));
         battleMap.addSquaddie(thiefStatic.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
 
-        const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-            actionsForThisRound: new SquaddieActionsForThisRound({
+        const currentInstruction: SquaddieInstructionInProgress = {
+            movingBattleSquaddieIds: [],
+            squaddieActionsForThisRound: {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieTemplateId: knightStatic.templateId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
-            }),
-            currentSquaddieAction: longswordAction,
-        });
+            },
+            currentlySelectedAction: longswordAction,
+        };
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
@@ -261,17 +269,22 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.squaddieCurrentlyActing.reset();
-        state.squaddieCurrentlyActing.addInitialState({
-            battleSquaddieId: knightDynamic.battleSquaddieId,
-            squaddieTemplateId: knightStatic.templateId,
-            startingLocation: {q: 1, r: 1},
-        });
-        state.squaddieCurrentlyActing.addSelectedAction(longswordAction);
+        state.squaddieCurrentlyActing = {
+            movingBattleSquaddieIds: [],
+            squaddieActionsForThisRound: {
+                battleSquaddieId: knightDynamic.battleSquaddieId,
+                squaddieTemplateId: knightStatic.templateId,
+                startingLocation: {q: 1, r: 1},
+                actions: [],
+            },
+            currentlySelectedAction: undefined,
+        };
+
+        SquaddieInstructionInProgressHandler.addSelectedAction(state.squaddieCurrentlyActing, longswordAction);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
-        expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeFalsy();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.squaddieCurrentlyActing)).toBeFalsy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('should remember the squaddie is still acting if they cancel midway through their turn', () => {
@@ -281,24 +294,29 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.squaddieCurrentlyActing.reset();
-        state.squaddieCurrentlyActing.addInitialState({
-            battleSquaddieId: knightDynamic.battleSquaddieId,
-            squaddieTemplateId: knightStatic.templateId,
-            startingLocation: {q: 1, r: 1},
-        });
-        state.squaddieCurrentlyActing.squaddieActionsForThisRound.addAction({
+        state.squaddieCurrentlyActing = {
+            movingBattleSquaddieIds: [],
+            squaddieActionsForThisRound: {
+                battleSquaddieId: knightDynamic.battleSquaddieId,
+                squaddieTemplateId: knightStatic.templateId,
+                startingLocation: {q: 1, r: 1},
+                actions: [],
+            },
+            currentlySelectedAction: undefined,
+        };
+
+        SquaddieActionsForThisRoundHandler.addAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 0, r: 1},
                 numberOfActionPointsSpent: 1,
             }
         });
-        state.squaddieCurrentlyActing.addSelectedAction(longswordAction);
+        SquaddieInstructionInProgressHandler.addSelectedAction(state.squaddieCurrentlyActing, longswordAction);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
-        expect(state.squaddieCurrentlyActing.squaddieHasActedThisTurn).toBeTruthy();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeFalsy();
+        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeFalsy();
     });
 
     it('should ignore if the user does not click off of the map', () => {
@@ -349,15 +367,16 @@ describe('BattleSquaddieTarget', () => {
 
     describe('user clicks on target with heal', () => {
         beforeEach(() => {
-            const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-                actionsForThisRound: new SquaddieActionsForThisRound({
+            const currentInstruction: SquaddieInstructionInProgress = {
+                squaddieActionsForThisRound: new SquaddieActionsForThisRound({
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.templateId,
                     startingLocation: {q: 1, r: 1},
                     actions: [],
                 }),
-                currentSquaddieAction: bandageWoundsAction,
-            });
+                currentlySelectedAction: bandageWoundsAction,
+                movingBattleSquaddieIds: [],
+            };
 
             state = new BattleOrchestratorState({
                 missionMap: battleMap,
@@ -386,13 +405,13 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should create a squaddie instruction', () => {
-            const expectedInstruction = new SquaddieActionsForThisRound({
+            const expectedInstruction: SquaddieActionsForThisRoundData = {
                 squaddieTemplateId: knightStatic.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
-            });
-            expectedInstruction.addAction({
+            };
+            SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
                 type: SquaddieActionType.SQUADDIE,
                 data: {
                     targetLocation: {q: 1, r: 2},
@@ -424,11 +443,16 @@ describe('BattleSquaddieTarget', () => {
 
     describe('confirming an action mid turn', () => {
         beforeEach(() => {
-            state.squaddieCurrentlyActing.addInitialState({
-                squaddieTemplateId: knightStatic.templateId,
-                battleSquaddieId: knightDynamic.battleSquaddieId,
-                startingLocation: {q: 1, r: 1},
-            });
+            state.squaddieCurrentlyActing = {
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: {
+                    squaddieTemplateId: knightStatic.templateId,
+                    battleSquaddieId: knightDynamic.battleSquaddieId,
+                    startingLocation: {q: 1, r: 1},
+                    actions: [],
+                },
+                currentlySelectedAction: longswordAction,
+            };
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             targetComponent.update(state, mockedP5GraphicsContext);
@@ -438,13 +462,13 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should add to existing instruction when confirmed mid turn', () => {
-            const expectedInstruction = new SquaddieActionsForThisRound({
+            const expectedInstruction: SquaddieActionsForThisRoundData = {
                 squaddieTemplateId: knightStatic.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
-            });
-            expectedInstruction.addAction({
+            };
+            SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
                 type: SquaddieActionType.SQUADDIE,
                 data: {
                     targetLocation: {q: 1, r: 2},
@@ -519,15 +543,16 @@ describe('BattleSquaddieTarget', () => {
                 minimumRange: 0,
                 maximumRange: 9001,
             });
-            const currentInstruction: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({
-                actionsForThisRound: new SquaddieActionsForThisRound({
+            const currentInstruction: SquaddieInstructionInProgress = {
+                squaddieActionsForThisRound: new SquaddieActionsForThisRound({
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.templateId,
                     startingLocation: {q: 1, r: 1},
                     actions: [],
                 }),
-                currentSquaddieAction: action,
-            });
+                currentlySelectedAction: action,
+                movingBattleSquaddieIds: [],
+            };
 
             state = new BattleOrchestratorState({
                 missionMap: battleMap,

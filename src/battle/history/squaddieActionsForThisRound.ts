@@ -10,6 +10,48 @@ export interface SquaddieActionsForThisRoundData {
     actions: AnySquaddieActionData[];
 }
 
+export const SquaddieActionsForThisRoundHandler = {
+    addAction: (data: SquaddieActionsForThisRoundData, action: AnySquaddieActionData) => {
+        data.actions.push(action);
+    },
+    totalActionPointsSpent: (data: SquaddieActionsForThisRoundData): number => {
+        if (data.actions.some(action => action.type === SquaddieActionType.END_TURN)) {
+            return 3;
+        }
+
+        const addActionPointsSpent: (accumulator: number, currentValue: AnySquaddieActionData) => number = (accumulator, currentValue) => {
+            switch (currentValue.type) {
+                case SquaddieActionType.SQUADDIE:
+                    return accumulator + (currentValue.data as SquaddieSquaddieActionData).numberOfActionPointsSpent;
+                case SquaddieActionType.MOVEMENT:
+                    return accumulator + (currentValue.data as SquaddieMovementActionData).numberOfActionPointsSpent;
+                default:
+                    return accumulator;
+            }
+        };
+
+        return data.actions.reduce(
+            addActionPointsSpent,
+            0
+        );
+    },
+    destinationLocation: (data: SquaddieActionsForThisRoundData): HexCoordinate => {
+        const lastMovementAction = data.actions.reverse().find(action => action.type === SquaddieActionType.MOVEMENT)
+        if (lastMovementAction && lastMovementAction.type === SquaddieActionType.MOVEMENT) {
+            return (lastMovementAction.data as SquaddieMovementActionData).destination;
+        }
+        return data.startingLocation;
+    },
+    getMostRecentAction: (data: SquaddieActionsForThisRoundData): AnySquaddieActionData => {
+        if (data.actions.length === 0) {
+            return undefined;
+        }
+        return data.actions[
+        data.actions.length - 1
+            ];
+    }
+}
+
 export class SquaddieActionsForThisRound implements SquaddieActionsForThisRoundData {
     private readonly _squaddieTemplateId: string;
     private readonly _battleSquaddieId: string;

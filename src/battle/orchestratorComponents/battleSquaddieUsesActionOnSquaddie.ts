@@ -126,7 +126,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             return;
         }
 
-        if (state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedAction.traits.getStatus(Trait.SKIP_ANIMATION) === true) {
+        if (state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedAction.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator;
             return;
         }

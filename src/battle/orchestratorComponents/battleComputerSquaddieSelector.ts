@@ -32,6 +32,7 @@ import {CalculateResults} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -187,7 +188,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             data: actionData
         });
 
-        state.squaddieCurrentlyActing.addConfirmedAction(action);
+        SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, action);
         battleSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
         const instructionResults = CalculateResults({
             state,
@@ -244,15 +245,23 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             battleSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId))
         const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
-        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-            state.squaddieCurrentlyActing.addInitialState({
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                squaddieTemplateId: squaddieTemplate.templateId,
-                startingLocation: datum.mapLocation,
-            });
+        if (state.squaddieCurrentlyActing === undefined
+            || SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)
+        ) {
+            state.squaddieCurrentlyActing =
+                {
+                    movingBattleSquaddieIds: [],
+                    squaddieActionsForThisRound: {
+                        battleSquaddieId: battleSquaddie.battleSquaddieId,
+                        squaddieTemplateId: squaddieTemplate.templateId,
+                        startingLocation: datum.mapLocation,
+                        actions: [],
+                    },
+                    currentlySelectedAction: undefined,
+                };
         }
 
-        state.squaddieCurrentlyActing.addConfirmedAction(new SquaddieEndTurnAction({}));
+        SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, new SquaddieEndTurnAction({}));
         this.mostRecentAction = new SquaddieEndTurnAction({});
 
         state.battleEventRecording.addEvent(new BattleEvent({
@@ -276,7 +285,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private panToSquaddieIfOffscreen(state: BattleOrchestratorState) {
-        const battleSquaddieId: string = state.squaddieCurrentlyActing.battleSquaddieId;
+        const battleSquaddieId: string = SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing);
         const datum = state.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
         const squaddieScreenLocation: number[] = convertMapCoordinatesToScreenCoordinates(

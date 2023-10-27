@@ -1,10 +1,15 @@
-import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
-import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
+import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
+import {
+    SquaddieActionsForThisRound,
+    SquaddieActionsForThisRoundData,
+    SquaddieActionsForThisRoundHandler
+} from "./squaddieActionsForThisRound";
 import {SquaddieAction} from "../../squaddie/action";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieActionType} from "./anySquaddieAction";
+import {TargetingShape} from "../targeting/targetingShapeGenerator";
 
 const torrinInstruction = new SquaddieActionsForThisRound({
     battleSquaddieId: "Torrin 0",
@@ -26,40 +31,47 @@ const purifyingBlastAction: SquaddieSquaddieAction = new SquaddieSquaddieAction(
 
 describe('Current Squaddie Instruction', () => {
     it('can be reset', () => {
-        const newInstruction = new SquaddieInstructionInProgress({
-            actionsForThisRound: new SquaddieActionsForThisRound({
+        const newInstruction: SquaddieInstructionInProgress = {
+            squaddieActionsForThisRound: {
                 battleSquaddieId: "torrin 0",
                 squaddieTemplateId: "torrin",
                 startingLocation: {q: 0, r: 0},
                 actions: [],
-            }),
-            currentSquaddieAction: new SquaddieAction({
+            },
+            currentlySelectedAction: {
                 name: "purifying stream",
                 id: "purifying_stream",
                 traits: new TraitStatusStorage({}),
-            }),
-        });
+                damageDescriptions: {},
+                healingDescriptions: {},
+                actionPointCost: 1,
+                minimumRange: 0,
+                maximumRange: 1,
+                targetingShape: TargetingShape.Snake,
+            },
+            movingBattleSquaddieIds: [],
+        };
 
-        expect(newInstruction.isReadyForNewSquaddie).toBeFalsy();
-        newInstruction.reset();
-        expect(newInstruction.isReadyForNewSquaddie).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(newInstruction)).toBeFalsy();
     });
 
     it('will accept new squaddie and action if it is reset', () => {
-        const newInstruction = new SquaddieInstructionInProgress({});
-
-        newInstruction.addInitialState(
-            {
+        const newInstruction: SquaddieInstructionInProgress = {
+            movingBattleSquaddieIds: [],
+            currentlySelectedAction: undefined,
+            squaddieActionsForThisRound: {
                 squaddieTemplateId: "Torrin",
                 battleSquaddieId: "Torrin 0",
                 startingLocation: {q: 0, r: 0},
-            }
-        );
-        expect(newInstruction.battleSquaddieId).toBe("Torrin 0");
+                actions: [],
+            },
+        };
 
-        newInstruction.addConfirmedAction(purifyingBlastAction);
+        expect(SquaddieInstructionInProgressHandler.battleSquaddieId(newInstruction)).toBe("Torrin 0");
 
-        const initialInstruction: SquaddieActionsForThisRound = newInstruction.squaddieActionsForThisRound;
+        SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, purifyingBlastAction);
+
+        const initialInstruction: SquaddieActionsForThisRoundData = newInstruction.squaddieActionsForThisRound;
 
         torrinInstruction.addAction({
             type: SquaddieActionType.SQUADDIE,
@@ -76,22 +88,27 @@ describe('Current Squaddie Instruction', () => {
         expect(initialInstruction.startingLocation.r).toStrictEqual(torrinInstruction.startingLocation.r);
 
         expect(newInstruction.currentlySelectedAction).toStrictEqual(purifyingBlast);
-        newInstruction.addConfirmedAction(new SquaddieMovementAction({
+        SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, new SquaddieMovementAction({
             destination: {q: 2, r: 3},
             numberOfActionPointsSpent: 2,
         }));
-        expect(newInstruction.squaddieActionsForThisRound.getActionsUsedThisRound()).toHaveLength(2);
-        expect(newInstruction.squaddieActionsForThisRound.totalActionPointsSpent()).toBe(3);
-        expect(newInstruction.squaddieActionsForThisRound.destinationLocation()).toStrictEqual(
+
+        expect(newInstruction.squaddieActionsForThisRound.actions).toHaveLength(2);
+        expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(newInstruction.squaddieActionsForThisRound)).toBe(3);
+        expect(SquaddieActionsForThisRoundHandler.destinationLocation(newInstruction.squaddieActionsForThisRound)).toStrictEqual(
             {q: 2, r: 3}
         );
     });
 
     it('will throw an error if an action is added without setting the squaddie', () => {
-        const newInstruction = new SquaddieInstructionInProgress({});
+        const newInstruction: SquaddieInstructionInProgress = {
+            squaddieActionsForThisRound: undefined,
+            currentlySelectedAction: undefined,
+            movingBattleSquaddieIds: undefined,
+        };
 
         const shouldThrowError = () => {
-            newInstruction.addConfirmedAction(purifyingBlastAction);
+            SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, purifyingBlastAction);
         }
 
         expect(() => {
@@ -104,19 +121,21 @@ describe('Current Squaddie Instruction', () => {
 
     describe('mark squaddie as moving', () => {
         it('can mark dynamic squaddies as moving', () => {
-            const newInstruction = new SquaddieInstructionInProgress({});
-            newInstruction.addInitialState(
-                {
+            const newInstruction: SquaddieInstructionInProgress = {
+                squaddieActionsForThisRound: {
                     squaddieTemplateId: "Torrin",
                     battleSquaddieId: "Torrin 0",
-                    startingLocation: {q: 0, r: 0}
-                }
-            );
-            newInstruction.markBattleSquaddieIdAsMoving("Torrin 0");
-            expect(newInstruction.isBattleSquaddieIdMoving("Torrin 0")).toBeTruthy();
+                    startingLocation: {q: 0, r: 0},
+                    actions: [],
+                },
+                currentlySelectedAction: undefined,
+                movingBattleSquaddieIds: [],
+            };
+            SquaddieInstructionInProgressHandler.markBattleSquaddieIdAsMoving(newInstruction, "Torrin 0");
+            expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(newInstruction, "Torrin 0")).toBeTruthy();
 
-            newInstruction.removeBattleSquaddieIdAsMoving("Torrin 0");
-            expect(newInstruction.isBattleSquaddieIdMoving("Torrin 0")).toBeFalsy();
+            SquaddieInstructionInProgressHandler.removeBattleSquaddieIdAsMoving(newInstruction, "Torrin 0");
+            expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(newInstruction, "Torrin 0")).toBeFalsy();
         });
     });
 });

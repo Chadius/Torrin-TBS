@@ -1,10 +1,10 @@
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieActionData, SquaddieActionHandler} from "../../squaddie/action";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export const FormatResult = ({currentAction, result, squaddieRepository}: {
-    currentAction: SquaddieAction,
+    currentAction: SquaddieActionData,
     result: SquaddieSquaddieResults,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {
@@ -14,10 +14,10 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
     output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentAction.name}`);
     result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
         const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(targetSquaddieId));
-        if (currentAction.isHindering) {
+        if (SquaddieActionHandler.isHindering(currentAction)) {
             output.push(`${targetSquaddieTemplate.squaddieId.name} takes ${result.resultPerTarget[targetSquaddieId].damageTaken} damage`);
         }
-        if (currentAction.isHelpful) {
+        if (SquaddieActionHandler.isHelpful(currentAction)) {
             output.push(`${targetSquaddieTemplate.squaddieId.name} receives ${result.resultPerTarget[targetSquaddieId].healingReceived} healing`);
         }
     });
@@ -26,7 +26,7 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
 }
 
 export const FormatIntent = ({currentAction, actingBattleSquaddieId, squaddieRepository}: {
-    currentAction: SquaddieAction,
+    currentAction: SquaddieActionData,
     actingBattleSquaddieId: string,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {

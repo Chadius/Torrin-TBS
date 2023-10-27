@@ -7,7 +7,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
 import {ArmyAttributes} from "../../squaddie/armyAttributes";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -56,9 +56,11 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                actionsForThisRound: endTurnInstruction,
-            }),
+            squaddieCurrentlyActing: {
+                squaddieActionsForThisRound: endTurnInstruction,
+                movingBattleSquaddieIds: [],
+                currentlySelectedAction: undefined,
+            },
             squaddieRepository: squaddieRepository,
         })
 
@@ -76,6 +78,6 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
         mapAction.reset(state);
         expect(mapAction.animationCompleteStartTime).toBeUndefined();
-        expect(state.squaddieCurrentlyActing.isReadyForNewSquaddie).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
     });
 });

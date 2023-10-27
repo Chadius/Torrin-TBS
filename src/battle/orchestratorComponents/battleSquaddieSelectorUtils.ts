@@ -14,6 +14,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -77,7 +78,7 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
         numberOfActionPointsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
     });
 
-    state.squaddieCurrentlyActing.addConfirmedAction(moveAction);
+    SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, moveAction);
     state.battleEventRecording.addEvent(new BattleEvent({
         currentSquaddieInstruction: state.squaddieCurrentlyActing,
     }));
@@ -85,19 +86,25 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
 }
 
 export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) {
-    if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
+    if (SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)) {
         const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
-        state.squaddieCurrentlyActing.reset();
-        state.squaddieCurrentlyActing.addInitialState({
-            squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
-            battleSquaddieId,
-            startingLocation: {
-                q: datum.mapLocation.q,
-                r: datum.mapLocation.r,
+        state.squaddieCurrentlyActing = {
+            movingBattleSquaddieIds: [],
+            squaddieActionsForThisRound: {
+                squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
+                battleSquaddieId,
+                startingLocation: {
+                    q: datum.mapLocation.q,
+                    r: datum.mapLocation.r,
+                },
+                actions: [],
             },
-        })
+            currentlySelectedAction: undefined,
+        };
+
+
     }
 }
 
@@ -106,14 +113,16 @@ export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
         return;
     }
 
-    if (!state.squaddieCurrentlyActing.battleSquaddieId) {
+    if (!SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)) {
         return;
     }
 
     const {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
-    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(state.squaddieCurrentlyActing.battleSquaddieId));
+    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+        SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+    ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     TintSquaddieIfTurnIsComplete(actingBattleSquaddie, actingSquaddieTemplate);
 }

@@ -22,6 +22,8 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
+import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -58,9 +60,13 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             if (
                 state.squaddieCurrentlyActing
                 && state.squaddieCurrentlyActing.squaddieActionsForThisRound
-                && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction().type === SquaddieActionType.MOVEMENT
+                && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type
+                === SquaddieActionType.MOVEMENT
             ) {
-                state.squaddieCurrentlyActing.markBattleSquaddieIdAsMoving(state.squaddieCurrentlyActing.battleSquaddieId);
+                SquaddieInstructionInProgressHandler.markBattleSquaddieIdAsMoving(
+                    state.squaddieCurrentlyActing,
+                    SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+                );
             }
         }
 
@@ -86,9 +92,13 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         if (
             state.squaddieCurrentlyActing
             && state.squaddieCurrentlyActing.squaddieActionsForThisRound
-            && state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction().type === SquaddieActionType.MOVEMENT
+            && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type
+            === SquaddieActionType.MOVEMENT
         ) {
-            state.squaddieCurrentlyActing.removeBattleSquaddieIdAsMoving(state.squaddieCurrentlyActing.battleSquaddieId);
+            SquaddieInstructionInProgressHandler.removeBattleSquaddieIdAsMoving(
+                state.squaddieCurrentlyActing,
+                SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+            );
         }
 
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
@@ -99,7 +109,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         const {
             battleSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
-            state.squaddieCurrentlyActing.battleSquaddieId
+            SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
         ));
 
         moveSquaddieAlongPath(battleSquaddie, this.animationStartTime, state.squaddieMovePath, state.camera);
@@ -113,11 +123,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             squaddieTemplate,
             battleSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
-            state.squaddieCurrentlyActing.battleSquaddieId
+            SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
         ));
 
         updateSquaddieLocation(battleSquaddie, squaddieTemplate, state.squaddieMovePath.getDestination(), state.missionMap, battleSquaddie.battleSquaddieId);
-        const mostRecentAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
+        const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound);
         if (mostRecentAction.type === SquaddieActionType.MOVEMENT) {
             spendSquaddieActionPoints(battleSquaddie, (mostRecentAction.data as SquaddieSquaddieActionData).numberOfActionPointsSpent);
         }

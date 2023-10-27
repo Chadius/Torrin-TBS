@@ -31,6 +31,8 @@ import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "..
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -116,8 +118,8 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
             return;
         }
-        if (this.selectedBattleSquaddieId === "" && state.squaddieCurrentlyActing.squaddieHasActedThisTurn) {
-            this.selectedBattleSquaddieId = state.squaddieCurrentlyActing.battleSquaddieId;
+        if (this.selectedBattleSquaddieId === "" && SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.squaddieCurrentlyActing)) {
+            this.selectedBattleSquaddieId = SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing);
         }
     }
 
@@ -127,7 +129,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!this.playerCanControlAtLeastOneSquaddie(state)) {
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR;
         } else if (this.gaveCompleteInstruction) {
-            let newAction = state.squaddieCurrentlyActing.squaddieActionsForThisRound.getMostRecentAction();
+            let newAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound);
             if (newAction.type === SquaddieActionType.MOVEMENT) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
             }
@@ -232,10 +234,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie;
+        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing);
         const battleSquaddieToHighlightId: string = startOfANewSquaddieTurn
             ? squaddieClickedOnInfoAndMapLocation.battleSquaddieId
-            : state.squaddieCurrentlyActing.battleSquaddieId;
+            : SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing);
 
         if (startOfANewSquaddieTurn) {
             this.selectedBattleSquaddieId = squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
@@ -297,12 +299,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private isHudInstructingTheCurrentlyActingSquaddie(state: BattleOrchestratorState): boolean {
-        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || state.squaddieCurrentlyActing.isReadyForNewSquaddie;
+        const startOfANewSquaddieTurn = !state.squaddieCurrentlyActing || SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing);
         const squaddieShownInHUD = state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId();
 
         if (
             !startOfANewSquaddieTurn
-            && squaddieShownInHUD !== state.squaddieCurrentlyActing.battleSquaddieId
+            && squaddieShownInHUD !== SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
         ) {
             return false;
         }
@@ -320,16 +322,21 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId()));
         const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
-        if (state.squaddieCurrentlyActing.isReadyForNewSquaddie) {
-            state.squaddieCurrentlyActing.addInitialState({
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                squaddieTemplateId: squaddieTemplate.templateId,
-                startingLocation: datum.mapLocation,
-            });
+        if (SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)) {
+            state.squaddieCurrentlyActing = {
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: {
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    squaddieTemplateId: squaddieTemplate.templateId,
+                    startingLocation: datum.mapLocation,
+                    actions: [],
+                },
+                currentlySelectedAction: undefined,
+            };
         }
 
         if (state.battleSquaddieSelectedHUD.getSelectedAction() instanceof SquaddieEndTurnAction) {
-            state.squaddieCurrentlyActing.addConfirmedAction(new SquaddieEndTurnAction({}));
+            SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, new SquaddieEndTurnAction({}));
 
             state.hexMap.stopHighlightingTiles();
             this.gaveCompleteInstruction = true;
@@ -340,7 +347,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             this.gaveCompleteInstruction = true;
         } else if (state.battleSquaddieSelectedHUD.getSelectedAction() instanceof SquaddieAction) {
             const newAction = state.battleSquaddieSelectedHUD.getSelectedAction();
-            state.squaddieCurrentlyActing.addSelectedAction(newAction as SquaddieAction);
+            SquaddieInstructionInProgressHandler.addSelectedAction(state.squaddieCurrentlyActing, newAction as SquaddieAction);
             this.gaveInstructionThatNeedsATarget = true;
         }
 

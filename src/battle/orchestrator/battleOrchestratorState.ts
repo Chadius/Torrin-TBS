@@ -14,7 +14,7 @@ import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {
     DefaultSquaddieInstructionInProgress,
-    SquaddieInstructionInProgress
+    SquaddieInstructionInProgress,
 } from "../history/squaddieInstructionInProgress";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {BattleGameBoard} from "./battleGameBoard";
@@ -36,7 +36,6 @@ export class BattleOrchestratorState {
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleEventRecording: Recording;
-    private readonly _squaddieCurrentlyActing: SquaddieInstructionInProgress;
 
     constructor(options: {
         cutsceneCollection?: MissionCutsceneCollection,
@@ -113,6 +112,16 @@ export class BattleOrchestratorState {
         })
     }
 
+    private _squaddieCurrentlyActing: SquaddieInstructionInProgress;
+
+    get squaddieCurrentlyActing(): SquaddieInstructionInProgress {
+        return this._squaddieCurrentlyActing;
+    }
+
+    set squaddieCurrentlyActing(value: SquaddieInstructionInProgress) {
+        this._squaddieCurrentlyActing = value;
+    }
+
     private _missionStatistics: MissionStatistics;
 
     get missionStatistics(): MissionStatistics {
@@ -121,10 +130,6 @@ export class BattleOrchestratorState {
 
     get cutsceneTriggers(): CutsceneTrigger[] {
         return this.gameBoard.cutsceneTriggers;
-    }
-
-    get squaddieCurrentlyActing(): SquaddieInstructionInProgress {
-        return this._squaddieCurrentlyActing;
     }
 
     get cutsceneCollection(): MissionCutsceneCollection {

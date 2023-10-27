@@ -11,7 +11,10 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    SquaddieInstructionInProgress,
+    SquaddieInstructionInProgressHandler
+} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {
@@ -79,11 +82,12 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             }
         });
 
-        monkMeditatesInstruction = new SquaddieInstructionInProgress({
-            actionsForThisRound: oneActionInstruction,
-            currentSquaddieAction: monkKoanAction,
-        });
-        monkMeditatesInstruction.addSelectedAction(monkKoanAction);
+        monkMeditatesInstruction = {
+            currentlySelectedAction: monkKoanAction,
+            movingBattleSquaddieIds: [],
+            squaddieActionsForThisRound: oneActionInstruction,
+        };
+        SquaddieInstructionInProgressHandler.addSelectedAction(monkMeditatesInstruction, monkKoanAction);
 
         monkMeditatesEvent = new BattleEvent({
             currentSquaddieInstruction: monkMeditatesInstruction,

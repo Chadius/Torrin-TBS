@@ -1,9 +1,9 @@
 import {Recording} from "./recording";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {BattleEvent} from "./battleEvent";
-import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
-import {SquaddieMovementAction} from "./squaddieMovementAction";
+import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieEndTurnAction} from "./squaddieEndTurnAction";
+import {SquaddieMovementAction} from "./squaddieMovementAction";
 
 describe('Recording', () => {
     it('can add an event and retrieve it', () => {
@@ -17,17 +17,22 @@ describe('Recording', () => {
         });
         endTurnInstruction.endTurn();
 
-        const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = new SquaddieInstructionInProgress({});
-        squaddieMovesAndEndsTurn.addInitialState({
-            squaddieTemplateId: "static",
-            battleSquaddieId: "dynamic",
-            startingLocation: {q: 2, r: 3},
-        });
-        squaddieMovesAndEndsTurn.addConfirmedAction(new SquaddieMovementAction({
-            destination: {q: 3, r: 6},
-            numberOfActionPointsSpent: 1,
-        }));
-        squaddieMovesAndEndsTurn.addConfirmedAction(new SquaddieEndTurnAction({}));
+        const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = {
+            movingBattleSquaddieIds: [],
+            squaddieActionsForThisRound: {
+                squaddieTemplateId: "static",
+                battleSquaddieId: "dynamic",
+                startingLocation: {q: 2, r: 3},
+                actions: [],
+            },
+            currentlySelectedAction: undefined,
+        }
+        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, new SquaddieMovementAction({
+                destination: {q: 3, r: 6},
+                numberOfActionPointsSpent: 1,
+            })
+        );
+        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, new SquaddieEndTurnAction({}));
 
         recording.addEvent(new BattleEvent({
             currentSquaddieInstruction: squaddieMovesAndEndsTurn,

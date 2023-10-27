@@ -9,7 +9,10 @@ import {UseActionButton} from "../squaddie/useActionButton";
 import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieAction} from "../squaddie/action";
 import {SquaddieEndTurnAction} from "./history/squaddieEndTurnAction";
-import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
+import {
+    SquaddieInstructionInProgress,
+    SquaddieInstructionInProgressHandler
+} from "./history/squaddieInstructionInProgress";
 import {TextBox} from "../ui/textBox";
 import {
     CanPlayerControlSquaddieRightNow,
@@ -421,7 +424,7 @@ export class BattleSquaddieSelectedHUD {
 
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState) {
         if (
-            squaddieCurrentlyActing.isReadyForNewSquaddie
+            SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(squaddieCurrentlyActing)
         ) {
             return;
         }

@@ -18,7 +18,6 @@ import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordina
 import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
-import {SquaddieInstructionInProgress} from "./history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound} from "./history/squaddieActionsForThisRound";
 import * as mocks from "../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
@@ -325,19 +324,20 @@ describe('BattleSquaddieSelectedHUD', () => {
             missionMap,
             resourceHandler: resourceHandler,
             camera: new BattleCamera(0, 0),
-            squaddieCurrentlyActing: new SquaddieInstructionInProgress({
-                actionsForThisRound: new SquaddieActionsForThisRound({
+            squaddieCurrentlyActing: {
+                movingBattleSquaddieIds: [],
+                currentlySelectedAction: new SquaddieAction({
+                    name: "purifying stream",
+                    id: "purifying_stream",
+                    traits: new TraitStatusStorage({}),
+                }),
+                squaddieActionsForThisRound: new SquaddieActionsForThisRound({
                     battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                     squaddieTemplateId: playerSquaddieStatic.templateId,
                     startingLocation: {q: 0, r: 0},
                     actions: [],
                 }),
-                currentSquaddieAction: new SquaddieAction({
-                    name: "purifying stream",
-                    id: "purifying_stream",
-                    traits: new TraitStatusStorage({}),
-                })
-            })
+            },
         });
 
         hud.selectSquaddieAndDrawWindow({

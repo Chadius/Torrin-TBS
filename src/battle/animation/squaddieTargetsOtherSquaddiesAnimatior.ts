@@ -16,7 +16,7 @@ import {GetHitPoints} from "../../squaddie/squaddieService";
 import {WINDOW_SPACING1} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieActionData} from "../../squaddie/action";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
@@ -170,7 +170,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.setupAnimationForTargetHitPointMeters(state);
     }
 
-    private setupAnimationForTargetSprites(state: BattleOrchestratorState, action: SquaddieAction, resultPerTarget: {
+    private setupAnimationForTargetSprites(state: BattleOrchestratorState, action: SquaddieActionData, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
         this._targetSprites = state.battleEventRecording.mostRecentEvent.results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
