@@ -341,7 +341,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             state.hexMap.stopHighlightingTiles();
             this.gaveCompleteInstruction = true;
 
-            RecordingHandler.addEvent(state.battleEventRecording,{
+            RecordingHandler.addEvent(state.battleEventRecording, {
                 instruction: state.squaddieCurrentlyActing,
                 results: undefined,
             });

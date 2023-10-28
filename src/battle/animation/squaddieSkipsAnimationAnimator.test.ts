@@ -65,7 +65,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             squaddieRepository,
         });
 
-        battleEventRecording = { history: [] };
+        battleEventRecording = {history: []};
         const oneActionInstruction = new SquaddieActionsForThisRound({
             squaddieTemplateId: monkStaticId,
             battleSquaddieId: monkDynamicId,

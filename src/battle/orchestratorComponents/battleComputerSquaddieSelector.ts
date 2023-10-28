@@ -201,7 +201,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             instruction: state.squaddieCurrentlyActing,
             results: instructionResults,
         };
-        RecordingHandler.addEvent(state.battleEventRecording,newEvent);
+        RecordingHandler.addEvent(state.battleEventRecording, newEvent);
 
         this.mostRecentAction = action;
         this.showSelectedActionWaitTime = Date.now();
@@ -265,7 +265,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, new SquaddieEndTurnAction({}));
         this.mostRecentAction = new SquaddieEndTurnAction({});
 
-        RecordingHandler.addEvent(state.battleEventRecording,{
+        RecordingHandler.addEvent(state.battleEventRecording, {
             instruction: state.squaddieCurrentlyActing,
             results: undefined,
         });

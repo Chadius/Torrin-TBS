@@ -166,7 +166,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             windowArea: this.actorTextWindow.actorLabel.rectangle.area,
         })
         this.weaponIcon.start();
-        
+
         const resultPerTarget = RecordingHandler.mostRecentEvent(state.battleEventRecording).results.resultPerTarget;
         this.setupAnimationForTargetTextWindows(state, resultPerTarget);
         this.setupAnimationForTargetSprites(state, action, resultPerTarget);

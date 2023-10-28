@@ -1,6 +1,7 @@
 import {BattleSquaddie} from "../battle/battleSquaddie";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {InBattleAttributesHandler} from "../battle/stats/inBattleAttributes";
 
 export const GetNumberOfActionPoints = ({
                                             squaddieTemplate,
@@ -71,7 +72,11 @@ export const DealDamageToTheSquaddie = ({
 }): {
     damageTaken: number
 } => {
-    const actualHitPointLoss: number = battleSquaddie.inBattleAttributes.takeDamage(damage, damageType);
+    const actualHitPointLoss: number = InBattleAttributesHandler.takeDamage(
+        battleSquaddie.inBattleAttributes,
+        damage,
+        damageType,
+    );
 
     return {
         damageTaken: actualHitPointLoss,
@@ -91,7 +96,10 @@ export const GiveHealingToTheSquaddie = ({
 }): {
     healingReceived: number
 } => {
-    const actualHitPointGain: number = battleSquaddie.inBattleAttributes.receiveHealing(healingAmount);
+    const actualHitPointGain: number = InBattleAttributesHandler.receiveHealing(
+        battleSquaddie.inBattleAttributes,
+        healingAmount
+    );
 
     return {
         healingReceived: actualHitPointGain,

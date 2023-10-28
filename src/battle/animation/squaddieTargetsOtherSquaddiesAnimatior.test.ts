@@ -18,7 +18,7 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
 import {Recording, RecordingHandler} from "../history/recording";
-import {BattleEvent, BattleEventHandler} from "../history/battleEvent";
+import {BattleEvent} from "../history/battleEvent";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
@@ -119,7 +119,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                 resultPerTarget: {[thiefDynamicId]: {damageTaken: 1, healingReceived: 0}},
             }
         };
-        battleEventRecording = { history: [] };
+        battleEventRecording = {history: []};
     });
 
     function mockActionTimerPhase(timer: ActionTimer, actionAnimationPhase: ActionAnimationPhase) {

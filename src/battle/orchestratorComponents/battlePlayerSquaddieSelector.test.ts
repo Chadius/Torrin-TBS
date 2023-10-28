@@ -29,7 +29,6 @@ import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
-import {Recording} from "../history/recording";
 import {SquaddieAction} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
@@ -288,7 +287,7 @@ describe('BattleSquaddieSelector', () => {
             battlePhaseState,
             teamsByAffiliation,
             pathfinder: new Pathfinder(),
-            battleEventRecording: {history:[]},
+            battleEventRecording: {history: []},
             resourceHandler: mocks.mockResourceHandler(),
         });
 
@@ -387,7 +386,7 @@ describe('BattleSquaddieSelector', () => {
                 teamsByAffiliation,
                 pathfinder: new Pathfinder(),
                 squaddieCurrentlyActing,
-                battleEventRecording: {history:[]},
+                battleEventRecording: {history: []},
                 resourceHandler: mockResourceHandler,
             });
 
@@ -454,7 +453,7 @@ describe('BattleSquaddieSelector', () => {
             teamsByAffiliation,
             pathfinder: new Pathfinder(),
             squaddieCurrentlyActing,
-            battleEventRecording: {history:[]},
+            battleEventRecording: {history: []},
         });
 
         selector.mouseEventHappened(state, {
@@ -654,7 +653,7 @@ describe('BattleSquaddieSelector', () => {
                 battlePhaseState,
                 teamsByAffiliation,
                 pathfinder: new Pathfinder(),
-                battleEventRecording: {history:[]},
+                battleEventRecording: {history: []},
                 squaddieCurrentlyActing: soldierCurrentlyActing,
                 resourceHandler: mockResourceHandler,
             });

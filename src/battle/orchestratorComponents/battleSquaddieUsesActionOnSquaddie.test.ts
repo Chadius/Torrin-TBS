@@ -31,6 +31,7 @@ import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTarget
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -134,7 +135,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        battleEventRecording = {history:[]};
+        battleEventRecording = {history: []};
     });
 
     function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
@@ -245,7 +246,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         const state = usePowerAttackLongswordAndReturnState({missionMap});
         expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.battleSquaddieId)).toBeFalsy();
 
-        targetDynamic.inBattleAttributes.takeDamage(targetStatic.attributes.maxHitPoints, DamageType.Body);
+        InBattleAttributesHandler.takeDamage(
+            targetDynamic.inBattleAttributes,
+            targetStatic.attributes.maxHitPoints, DamageType.Body
+        );
         expect(IsSquaddieAlive({battleSquaddie: targetDynamic, squaddieTemplate: targetStatic})).toBeFalsy();
 
         jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();

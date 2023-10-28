@@ -2,7 +2,7 @@ import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieTurn} from "../squaddie/turn";
 import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {InBattleAttributes} from "./stats/inBattleAttributes";
+import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 
@@ -63,7 +63,7 @@ describe('BattleSquaddie', () => {
                 squaddieTemplateId: soldierTemplate.squaddieId.templateId,
             });
 
-            const defaultInBattleAttributes: InBattleAttributes = new InBattleAttributes();
+            const defaultInBattleAttributes: InBattleAttributes = InBattleAttributesHandler.new();
 
             expect(battleSoldier.inBattleAttributes).toStrictEqual(defaultInBattleAttributes);
         });
@@ -100,7 +100,7 @@ describe('BattleSquaddie', () => {
             const newBattleSoldier = new BattleSquaddie({
                 battleSquaddieId: "soldier_dynamic",
                 squaddieTemplateId: soldierTemplate.squaddieId.templateId,
-                inBattleAttributes: new InBattleAttributes(
+                inBattleAttributes: InBattleAttributesHandler.new(
                     {
                         maxHitPoints: 9001,
                         movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),

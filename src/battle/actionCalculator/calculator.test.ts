@@ -12,6 +12,7 @@ import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
+import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 
 describe('calculator', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -188,7 +189,9 @@ describe('calculator', () => {
         });
 
         it('will heal allies fully', () => {
-            ally1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
+            InBattleAttributesHandler.takeDamage(
+                ally1BattleSquaddie.inBattleAttributes,
+                ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
                 currentlySelectedAction: healsLostHitPoints,
@@ -216,7 +219,10 @@ describe('calculator', () => {
             MissionStatisticsHandler.reset(missionStatistics);
             MissionStatisticsHandler.startRecording(missionStatistics);
 
-            player1BattleSquaddie.inBattleAttributes.takeDamage(ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
+            InBattleAttributesHandler.takeDamage(
+                player1BattleSquaddie.inBattleAttributes,
+                ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown
+            );
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
                 currentlySelectedAction: healsLostHitPoints,

@@ -22,7 +22,6 @@ import {BattleCamera, PanningInformation} from "../battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {Recording} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
@@ -260,7 +259,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }),
                 missionMap,
                 squaddieRepository: squaddieRepo,
-                battleEventRecording: {history:[]},
+                battleEventRecording: {history: []},
                 teamStrategyByAffiliation: {
                     ENEMY: [enemyEndTurnStrategy],
                 },
@@ -313,7 +312,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }),
                 missionMap,
                 squaddieRepository: squaddieRepo,
-                battleEventRecording: {history:[]},
+                battleEventRecording: {history: []},
                 teamStrategyByAffiliation: {
                     ENEMY: [new TestTeamStrategy()],
                 },

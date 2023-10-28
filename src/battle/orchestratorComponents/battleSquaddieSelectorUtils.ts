@@ -79,7 +79,7 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
     });
 
     SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, moveAction);
-    RecordingHandler.addEvent(state.battleEventRecording,{
+    RecordingHandler.addEvent(state.battleEventRecording, {
         instruction: state.squaddieCurrentlyActing,
         results: undefined,
     });

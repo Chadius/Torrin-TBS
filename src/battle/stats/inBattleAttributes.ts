@@ -1,47 +1,37 @@
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
 
-export class InBattleAttributes {
-    private readonly _armyAttributes: ArmyAttributes;
+export interface InBattleAttributes {
+    armyAttributes: ArmyAttributes;
+    currentHitPoints: number;
+}
 
-    constructor(statBlock?: ArmyAttributes) {
-        if (!statBlock) {
-            statBlock = DefaultArmyAttributes();
+export const InBattleAttributesHandler = {
+    new: (statBlock?: ArmyAttributes): InBattleAttributes => {
+        statBlock = statBlock || DefaultArmyAttributes();
+        return {
+            armyAttributes: statBlock,
+            currentHitPoints: statBlock.maxHitPoints,
+        }
+    },
+    takeDamage(data: InBattleAttributes, damageToTake: number, damageType: DamageType): number {
+        const startingHitPoints = data.currentHitPoints;
+
+        data.currentHitPoints -= damageToTake;
+        if (data.currentHitPoints < 0) {
+            data.currentHitPoints = 0;
         }
 
-        this._armyAttributes = statBlock;
-        this._currentHitPoints = statBlock.maxHitPoints;
-    }
+        return startingHitPoints - data.currentHitPoints;
+    },
+    receiveHealing(data: InBattleAttributes, amountHealed: number): number {
+        const startingHitPoints = data.currentHitPoints;
 
-    get armyAttributes(): ArmyAttributes {
-        return this._armyAttributes;
-    }
-
-    private _currentHitPoints: number;
-
-    get currentHitPoints(): number {
-        return this._currentHitPoints;
-    }
-
-    takeDamage(damageToTake: number, damageType: DamageType) {
-        const startingHitPoints = this.currentHitPoints;
-
-        this._currentHitPoints -= damageToTake;
-        if (this._currentHitPoints < 0) {
-            this._currentHitPoints = 0;
+        data.currentHitPoints += amountHealed;
+        if (data.currentHitPoints > data.armyAttributes.maxHitPoints) {
+            data.currentHitPoints = data.armyAttributes.maxHitPoints;
         }
 
-        return startingHitPoints - this._currentHitPoints;
-    }
-
-    receiveHealing(amountHealed: number) {
-        const startingHitPoints = this.currentHitPoints;
-
-        this._currentHitPoints += amountHealed;
-        if (this._currentHitPoints > this._armyAttributes.maxHitPoints) {
-            this._currentHitPoints = this._armyAttributes.maxHitPoints;
-        }
-
-        return this._currentHitPoints - startingHitPoints;
+        return data.currentHitPoints - startingHitPoints;
     }
 }

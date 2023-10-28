@@ -342,7 +342,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             results: instructionResults,
         };
 
-        RecordingHandler.addEvent(state.battleEventRecording,newEvent);
+        RecordingHandler.addEvent(state.battleEventRecording, newEvent);
 
         this.hasConfirmedAction = true;
     }

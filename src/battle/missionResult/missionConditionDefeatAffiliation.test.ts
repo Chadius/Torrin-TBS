@@ -10,6 +10,7 @@ import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService
 import {MissionConditionType} from "./missionCondition";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
+import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 
 describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () => {
     let missionMap: MissionMap;
@@ -177,7 +178,10 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             q: 0,
             r: 1
         });
-        enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
+        InBattleAttributesHandler.takeDamage(
+            enemy1Dynamic.inBattleAttributes,
+            9001, DamageType.Unknown
+        );
         const {
             isDead
         } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
@@ -212,7 +216,9 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             q: 0,
             r: 1
         });
-        enemy1Dynamic.inBattleAttributes.takeDamage(9001, DamageType.Unknown);
+        InBattleAttributesHandler.takeDamage(
+            enemy1Dynamic.inBattleAttributes,
+            9001, DamageType.Unknown);
         const {
             isDead
         } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})

@@ -1,7 +1,7 @@
 import {ImageUI} from "../ui/imageUI";
 import {SquaddieTurn} from "../squaddie/turn";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
-import {InBattleAttributes} from "./stats/inBattleAttributes";
+import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 export class BattleSquaddie {
@@ -29,7 +29,7 @@ export class BattleSquaddie {
             this.copySquaddieTemplate(squaddieTemplate);
         } else {
             this._squaddieTemplateId = squaddieTemplateId;
-            this._inBattleAttributes = new InBattleAttributes();
+            this._inBattleAttributes = InBattleAttributesHandler.new();
         }
 
         if (inBattleAttributes) {
@@ -90,7 +90,7 @@ export class BattleSquaddie {
     }
 
     initializeInBattleAttributes(attributes: ArmyAttributes) {
-        this._inBattleAttributes = new InBattleAttributes(attributes);
+        this._inBattleAttributes = InBattleAttributesHandler.new(attributes);
     }
 
     private copySquaddieTemplate(squaddieTemplate: SquaddieTemplate) {
