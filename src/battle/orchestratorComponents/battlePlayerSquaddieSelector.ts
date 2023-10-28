@@ -19,7 +19,6 @@ import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieAction} from "../../squaddie/action";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
-import {MissionMapSquaddieLocation} from "../../missionMap/missionMap";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -33,6 +32,7 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {RecordingHandler} from "../history/recording";
+import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -94,7 +94,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
                 if (state.battleSquaddieSelectedHUD.selectedBattleSquaddieId != "") {
                     const squaddieInfo = state.missionMap.getSquaddieByBattleId(state.battleSquaddieSelectedHUD.selectedBattleSquaddieId);
-                    if (squaddieInfo.isValid() && state.missionMap.areCoordinatesOnMap(squaddieInfo.mapLocation)) {
+                    if (MissionMapSquaddieLocationHandler.isValid(squaddieInfo) && state.missionMap.areCoordinatesOnMap(squaddieInfo.mapLocation)) {
                         const squaddieScreenCoordinates = convertMapCoordinatesToScreenCoordinates(squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...state.camera.getCoordinates());
                         this.updateBattleSquaddieUIMouseClicked(state, squaddieScreenCoordinates[0], squaddieScreenCoordinates[1]);
                         state.hexMap.mouseClicked(squaddieScreenCoordinates[0], squaddieScreenCoordinates[1], ...state.camera.getCoordinates());
@@ -211,7 +211,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
     private updateBattleSquaddieUISelectedSquaddie(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
         const squaddieClickedOnInfoAndMapLocation = state.missionMap.getSquaddieAtLocation(clickedHexCoordinate);
-        const foundSquaddieAtLocation = squaddieClickedOnInfoAndMapLocation.isValid();
+        const foundSquaddieAtLocation = MissionMapSquaddieLocationHandler.isValid(squaddieClickedOnInfoAndMapLocation);
 
         if (foundSquaddieAtLocation) {
             this.updateBattleSquaddieUISelectedSquaddieClickedOnSquaddie(state, squaddieClickedOnInfoAndMapLocation, mouseX, mouseY);

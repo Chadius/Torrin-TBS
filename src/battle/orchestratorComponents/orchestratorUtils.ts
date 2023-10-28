@@ -10,6 +10,7 @@ import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
     if (state.squaddieCurrentlyActing
@@ -126,7 +127,7 @@ export function GetSquaddieAtMapLocation(param: {
 
     const squaddieAndLocationIdentifier = map.getSquaddieAtLocation(mapLocation);
 
-    if (!squaddieAndLocationIdentifier.isValid()) {
+    if (!MissionMapSquaddieLocationHandler.isValid(squaddieAndLocationIdentifier)) {
         return {
             squaddieTemplate: undefined,
             battleSquaddie: undefined,

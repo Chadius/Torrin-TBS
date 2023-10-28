@@ -23,6 +23,7 @@ import * as mocks from "../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {ButtonStatus} from "../ui/button";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -528,7 +529,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(hud.selectedBattleSquaddieId).toBe(player2SquaddieDynamic.battleSquaddieId);
             const panningInfo = battleCamera.getPanningInformation();
             const player2MapCoordinates = missionMap.getSquaddieByBattleId(player2SquaddieDynamicId);
-            expect(player2MapCoordinates.isValid()).toBeTruthy();
+            expect(MissionMapSquaddieLocationHandler.isValid(player2MapCoordinates)).toBeTruthy();
             const player2WorldCoordinates = convertMapCoordinatesToWorldCoordinates(
                 player2MapCoordinates.mapLocation.q,
                 player2MapCoordinates.mapLocation.r

@@ -20,6 +20,7 @@ import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGene
 
 import {GetSquaddieAtMapLocation} from "../../battle/orchestratorComponents/orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
+import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 
 class SearchState {
     tilesSearchCanStopAt: HexCoordinate[];
@@ -322,7 +323,7 @@ export class Pathfinder {
 
             let squaddieIsOccupyingTile: boolean = false;
             const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate);
-            if (squaddieAtTileDatum.isValid()) {
+            if (MissionMapSquaddieLocationHandler.isValid(squaddieAtTileDatum)) {
                 const {
                     squaddieTemplate: occupyingSquaddieTemplate,
                     battleSquaddie: occupyingBattleSquaddie,

@@ -12,6 +12,7 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
@@ -138,7 +139,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                     || !SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.squaddieCurrentlyActing, battleSquaddieId)) {
                     const datum = state.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
-                    const squaddieIsOnTheMap: boolean = datum.isValid() && state.missionMap.areCoordinatesOnMap(datum.mapLocation);
+                    const squaddieIsOnTheMap: boolean = MissionMapSquaddieLocationHandler.isValid(datum) && state.missionMap.areCoordinatesOnMap(datum.mapLocation);
                     const squaddieIsHidden: boolean = state.missionMap.isSquaddieHiddenFromDrawing(battleSquaddieId);
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
                         drawSquaddieMapIconAtMapLocation(graphicsContext, state.squaddieRepository, battleSquaddie, battleSquaddieId, datum.mapLocation, state.camera);

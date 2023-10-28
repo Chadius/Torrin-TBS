@@ -1,5 +1,5 @@
 import {SquaddieActionData} from "../../squaddie/action";
-import {MissionMap, MissionMapSquaddieLocation} from "../../missionMap/missionMap";
+import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
@@ -9,6 +9,7 @@ import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squa
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "./targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 
 export class TargetingResults {
     constructor() {
@@ -94,7 +95,7 @@ function addValidTargetsToResult(
     const actingAffiliation: SquaddieAffiliation = actingSquaddieTemplate.squaddieId.affiliation;
     const validBattleSquaddieIds: string[] = tilesInRange.map((tile) => {
         const mapData: MissionMapSquaddieLocation = map.getSquaddieAtLocation(tile);
-        if (!mapData.isValid()) {
+        if (!MissionMapSquaddieLocationHandler.isValid(mapData)) {
             return undefined;
         }
         const {

@@ -28,6 +28,7 @@ import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
 
 enum ActionValidityCheck {
     IS_VALID = "IS_VALID",
@@ -681,7 +682,7 @@ export class BattleSquaddieSelectedHUD {
         this.nextBattleSquaddieIds = this.nextBattleSquaddieIds.filter(id => id != nextBattleSquaddieId);
 
         const selectedMapCoordinates = state.missionMap.getSquaddieByBattleId(nextBattleSquaddieId);
-        if (selectedMapCoordinates.isValid()) {
+        if (MissionMapSquaddieLocationHandler.isValid(selectedMapCoordinates)) {
             const selectedWorldCoordinates = convertMapCoordinatesToWorldCoordinates(
                 selectedMapCoordinates.mapLocation.q,
                 selectedMapCoordinates.mapLocation.r

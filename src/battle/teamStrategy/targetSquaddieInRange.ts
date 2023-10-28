@@ -9,6 +9,7 @@ import {SquaddieAction} from "../../squaddie/action";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 
 export class TargetSquaddieInRange implements TeamStrategy {
     desiredBattleSquaddieId: string;
@@ -193,7 +194,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
     }): SquaddieActionsForThisRound | undefined {
         const targetingSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId);
         const desiredSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(squaddieToTarget);
-        if (desiredSquaddieMapDatum.isValid()) {
+        if (MissionMapSquaddieLocationHandler.isValid(desiredSquaddieMapDatum)) {
             if (state.instruction === undefined) {
                 const instruction = this.createNewInstruction({
                     actingSquaddieAction: action,

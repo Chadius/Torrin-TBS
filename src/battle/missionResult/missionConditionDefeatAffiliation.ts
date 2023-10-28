@@ -1,9 +1,9 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionCondition, MissionConditionType} from "./missionCondition";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {MissionMapSquaddieLocation} from "../../missionMap/missionMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {CanSquaddieActRightNow} from "../../squaddie/squaddieService";
+import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 
 export class MissionConditionDefeatAffiliation extends MissionCondition {
     private readonly _affiliation: SquaddieAffiliation;

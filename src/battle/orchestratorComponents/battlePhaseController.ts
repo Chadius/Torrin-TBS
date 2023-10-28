@@ -18,6 +18,7 @@ import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
+import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -202,7 +203,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         }
 
         const mapDatum = state.missionMap.getSquaddieByBattleId(squaddieToPanToBattleId);
-        if (mapDatum.isValid()) {
+        if (MissionMapSquaddieLocationHandler.isValid(mapDatum)) {
             const squaddieScreenLocation = convertMapCoordinatesToScreenCoordinates(
                 mapDatum.mapLocation.q,
                 mapDatum.mapLocation.r,
