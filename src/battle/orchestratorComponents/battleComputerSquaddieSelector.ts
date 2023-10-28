@@ -33,6 +33,7 @@ import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {RecordingHandler} from "../history/recording";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -200,7 +201,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             instruction: state.squaddieCurrentlyActing,
             results: instructionResults,
         };
-        state.battleEventRecording.addEvent(newEvent);
+        RecordingHandler.addEvent(state.battleEventRecording,newEvent);
 
         this.mostRecentAction = action;
         this.showSelectedActionWaitTime = Date.now();
@@ -264,7 +265,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, new SquaddieEndTurnAction({}));
         this.mostRecentAction = new SquaddieEndTurnAction({});
 
-        state.battleEventRecording.addEvent({
+        RecordingHandler.addEvent(state.battleEventRecording,{
             instruction: state.squaddieCurrentlyActing,
             results: undefined,
         });

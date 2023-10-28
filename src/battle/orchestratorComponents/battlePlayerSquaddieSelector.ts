@@ -32,6 +32,7 @@ import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targeting
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {RecordingHandler} from "../history/recording";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -340,7 +341,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             state.hexMap.stopHighlightingTiles();
             this.gaveCompleteInstruction = true;
 
-            state.battleEventRecording.addEvent({
+            RecordingHandler.addEvent(state.battleEventRecording,{
                 instruction: state.squaddieCurrentlyActing,
                 results: undefined,
             });

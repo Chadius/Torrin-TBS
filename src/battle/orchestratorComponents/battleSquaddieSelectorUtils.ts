@@ -14,6 +14,7 @@ import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestrator
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {RecordingHandler} from "../history/recording";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -78,7 +79,7 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
     });
 
     SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, moveAction);
-    state.battleEventRecording.addEvent({
+    RecordingHandler.addEvent(state.battleEventRecording,{
         instruction: state.squaddieCurrentlyActing,
         results: undefined,
     });

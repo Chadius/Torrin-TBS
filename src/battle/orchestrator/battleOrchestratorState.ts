@@ -103,7 +103,7 @@ export class BattleOrchestratorState {
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
 
         this._missionStatistics = missionStatistics || MissionStatisticsHandler.new();
-        this.battleEventRecording = options.battleEventRecording || new Recording({});
+        this.battleEventRecording = options.battleEventRecording || {history:[]};
 
         this._gameBoard = new BattleGameBoard({
             objectives,

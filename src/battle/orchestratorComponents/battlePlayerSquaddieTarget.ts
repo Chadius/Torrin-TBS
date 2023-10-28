@@ -27,6 +27,7 @@ import {FindValidTargets} from "../targeting/targetingService";
 import {FormatIntent} from "../animation/actionResultTextWriter";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {RecordingHandler} from "../history/recording";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -341,7 +342,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             results: instructionResults,
         };
 
-        state.battleEventRecording.addEvent(newEvent);
+        RecordingHandler.addEvent(state.battleEventRecording,newEvent);
 
         this.hasConfirmedAction = true;
     }

@@ -260,7 +260,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }),
                 missionMap,
                 squaddieRepository: squaddieRepo,
-                battleEventRecording: new Recording({}),
+                battleEventRecording: {history:[]},
                 teamStrategyByAffiliation: {
                     ENEMY: [enemyEndTurnStrategy],
                 },
@@ -313,7 +313,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }),
                 missionMap,
                 squaddieRepository: squaddieRepo,
-                battleEventRecording: new Recording({}),
+                battleEventRecording: {history:[]},
                 teamStrategyByAffiliation: {
                     ENEMY: [new TestTeamStrategy()],
                 },

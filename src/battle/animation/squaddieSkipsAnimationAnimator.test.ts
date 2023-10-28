@@ -4,7 +4,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {Recording} from "../history/recording";
+import {Recording, RecordingHandler} from "../history/recording";
 import {ANIMATE_TEXT_WINDOW_WAIT_TIME, SquaddieSkipsAnimationAnimator} from "./squaddieSkipsAnimationAnimator";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -65,7 +65,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             squaddieRepository,
         });
 
-        battleEventRecording = new Recording({});
+        battleEventRecording = { history: [] };
         const oneActionInstruction = new SquaddieActionsForThisRound({
             squaddieTemplateId: monkStaticId,
             battleSquaddieId: monkDynamicId,
@@ -96,7 +96,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                 resultPerTarget: {},
             }
         };
-        battleEventRecording.addEvent(monkMeditatesEvent);
+        RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
 
         animator = new SquaddieSkipsAnimationAnimator();
         mockedP5GraphicsContext = new MockedP5GraphicsContext();

@@ -1,4 +1,4 @@
-import {Recording} from "./recording";
+import {Recording, RecordingHandler} from "./recording";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 import {BattleEvent} from "./battleEvent";
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
@@ -7,7 +7,9 @@ import {SquaddieMovementAction} from "./squaddieMovementAction";
 
 describe('Recording', () => {
     it('can add an event and retrieve it', () => {
-        const recording = new Recording({});
+        const recording: Recording = {
+            history: []
+        };
 
         const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
             squaddieTemplateId: "player_squaddie",
@@ -34,10 +36,13 @@ describe('Recording', () => {
         );
         SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, new SquaddieEndTurnAction({}));
 
-        recording.addEvent({
-            instruction: squaddieMovesAndEndsTurn,
-            results: undefined,
-        });
+        RecordingHandler.addEvent(
+            recording,
+            {
+                instruction: squaddieMovesAndEndsTurn,
+                results: undefined,
+            }
+        );
 
         const history: BattleEvent[] = recording.history;
         expect(history).toHaveLength(1);

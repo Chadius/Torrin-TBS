@@ -288,7 +288,7 @@ describe('BattleSquaddieSelector', () => {
             battlePhaseState,
             teamsByAffiliation,
             pathfinder: new Pathfinder(),
-            battleEventRecording: new Recording({}),
+            battleEventRecording: {history:[]},
             resourceHandler: mocks.mockResourceHandler(),
         });
 
@@ -387,7 +387,7 @@ describe('BattleSquaddieSelector', () => {
                 teamsByAffiliation,
                 pathfinder: new Pathfinder(),
                 squaddieCurrentlyActing,
-                battleEventRecording: new Recording({}),
+                battleEventRecording: {history:[]},
                 resourceHandler: mockResourceHandler,
             });
 
@@ -454,7 +454,7 @@ describe('BattleSquaddieSelector', () => {
             teamsByAffiliation,
             pathfinder: new Pathfinder(),
             squaddieCurrentlyActing,
-            battleEventRecording: new Recording({}),
+            battleEventRecording: {history:[]},
         });
 
         selector.mouseEventHappened(state, {
@@ -654,7 +654,7 @@ describe('BattleSquaddieSelector', () => {
                 battlePhaseState,
                 teamsByAffiliation,
                 pathfinder: new Pathfinder(),
-                battleEventRecording: new Recording({}),
+                battleEventRecording: {history:[]},
                 squaddieCurrentlyActing: soldierCurrentlyActing,
                 resourceHandler: mockResourceHandler,
             });

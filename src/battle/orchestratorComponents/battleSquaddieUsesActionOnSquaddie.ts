@@ -20,6 +20,8 @@ import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionA
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {Trait} from "../../trait/traitStatusStorage";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {RecordingHandler} from "../history/recording";
+import {BattleEvent} from "../history/battleEvent";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -103,7 +105,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     private hideDeadSquaddies(state: BattleOrchestratorState) {
-        const mostRecentResults = state.battleEventRecording.mostRecentEvent.results;
+        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleEventRecording).results;
         mostRecentResults.targetedBattleSquaddieIds.forEach((battleSquaddieId) => {
             const {
                 battleSquaddie,
@@ -117,16 +119,17 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     private setSquaddieActionAnimatorBasedOnAction(state: BattleOrchestratorState) {
+        const mostRecentEvent: BattleEvent = RecordingHandler.mostRecentEvent(state.battleEventRecording);
         if (
-            state.battleEventRecording.mostRecentEvent === undefined
-            || state.battleEventRecording.mostRecentEvent.instruction === undefined
-            || state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedAction === undefined
+            mostRecentEvent === undefined
+            || mostRecentEvent.instruction === undefined
+            || mostRecentEvent.instruction.currentlySelectedAction === undefined
         ) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
             return;
         }
 
-        if (state.battleEventRecording.mostRecentEvent.instruction.currentlySelectedAction.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
+        if (mostRecentEvent.instruction.currentlySelectedAction.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator;
             return;
         }

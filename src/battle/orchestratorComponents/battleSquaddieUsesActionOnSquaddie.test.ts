@@ -23,7 +23,7 @@ import * as orchestratorUtils from "./orchestratorUtils";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {Recording} from "../history/recording";
+import {Recording, RecordingHandler} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {DamageType, IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -134,7 +134,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        battleEventRecording = new Recording({});
+        battleEventRecording = {history:[]};
     });
 
     function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
@@ -168,7 +168,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             }
         };
 
-        battleEventRecording.addEvent(monkMeditatesEvent);
+        RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: monkMeditatesInstruction,
@@ -217,7 +217,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 resultPerTarget: {["target_dynamic_squaddie"]: {damageTaken: 9001, healingReceived: 0}}
             }
         };
-        battleEventRecording.addEvent(newEvent);
+        RecordingHandler.addEvent(battleEventRecording, newEvent);
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: squaddieInstructionInProgress,

@@ -17,8 +17,8 @@ import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
-import {Recording} from "../history/recording";
-import {BattleEvent} from "../history/battleEvent";
+import {Recording, RecordingHandler} from "../history/recording";
+import {BattleEvent, BattleEventHandler} from "../history/battleEvent";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
@@ -119,7 +119,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                 resultPerTarget: {[thiefDynamicId]: {damageTaken: 1, healingReceived: 0}},
             }
         };
-        battleEventRecording = new Recording({});
+        battleEventRecording = { history: [] };
     });
 
     function mockActionTimerPhase(timer: ActionTimer, actionAnimationPhase: ActionAnimationPhase) {
@@ -127,7 +127,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     }
 
     it('will create an actor sprite and a target sprite', () => {
-        battleEventRecording.addEvent(knightHitsThiefWithLongswordEvent);
+        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
@@ -147,7 +147,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     });
 
     it('will skip displaying the results if the user clicks', () => {
-        battleEventRecording.addEvent(knightHitsThiefWithLongswordEvent);
+        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
@@ -174,7 +174,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     });
 
     it('is complete at the end of the animation time', () => {
-        battleEventRecording.addEvent(knightHitsThiefWithLongswordEvent);
+        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
 
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
