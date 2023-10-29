@@ -164,9 +164,13 @@ export class BattleSquaddieSelectedHUD {
         );
 
         if (selectedUseActionButton) {
-            const actionValidityCheck = this.checkIfActionIsValid(selectedUseActionButton.action, state);
+            const actionToCheck = selectedUseActionButton.endTurnAction || selectedUseActionButton.action;
+            const actionValidityCheck = this.checkIfActionIsValid(
+                actionToCheck,
+                state
+            );
             if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
-                this.selectedAction = selectedUseActionButton.action;
+                this.selectedAction = actionToCheck;
                 return;
             }
             this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.action);
@@ -256,7 +260,7 @@ export class BattleSquaddieSelectedHUD {
                     width: (windowDimensions.width / 12) - 16,
                     height: this._background.area.height - 32,
                 }),
-                action: new SquaddieEndTurnAction({}),
+                endTurnAction: new SquaddieEndTurnAction({}),
             })
         );
     }

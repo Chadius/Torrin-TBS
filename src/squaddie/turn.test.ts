@@ -1,4 +1,4 @@
-import {SquaddieAction} from "./action";
+import {SquaddieAction, SquaddieActionHandler} from "./action";
 import {ACTION_PERFORM_FAILURE_REASON, SquaddieTurn, SquaddieTurnHandler} from "./turn";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 
@@ -8,7 +8,7 @@ describe('Squaddie turn and resources', () => {
         let actionSpends2ActionPoints: SquaddieAction;
         beforeEach(() => {
             turn = SquaddieTurnHandler.new();
-            actionSpends2ActionPoints = new SquaddieAction({
+            actionSpends2ActionPoints = SquaddieActionHandler.new({
                 id: "actionSpends2ActionPoints",
                 name: "Power Attack",
                 actionPointCost: 2,
@@ -21,7 +21,7 @@ describe('Squaddie turn and resources', () => {
         });
         it('should spend 1 action by default', () => {
             SquaddieTurnHandler.spendActionPointsOnAction(turn,
-                new SquaddieAction({
+                SquaddieActionHandler.new({
                     id: "strike",
                     name: "longsword",
                     traits: new TraitStatusStorage({initialTraitValues: {[Trait.ATTACK]: true}}).filterCategory(TraitCategory.ACTION)

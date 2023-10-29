@@ -10,16 +10,19 @@ import {ButtonStatus} from "../ui/button";
 
 export class UseActionButton {
     buttonArea: RectArea;
-    action: SquaddieAction | SquaddieEndTurnAction;
+    action: SquaddieAction;
+    endTurnAction: SquaddieEndTurnAction;
     hue: number;
 
     constructor(options: {
         buttonArea?: RectArea;
-        action?: SquaddieAction | SquaddieEndTurnAction;
+        action?: SquaddieAction;
+        endTurnAction?: SquaddieEndTurnAction;
         hue?: number;
     }) {
         this.buttonArea = options.buttonArea;
         this.action = options.action;
+        this.endTurnAction = options.endTurnAction;
         this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];
     }
 
@@ -56,7 +59,7 @@ export class UseActionButton {
         }
 
         let actionDescription: string;
-        if (this.action instanceof SquaddieEndTurnAction) {
+        if (this.endTurnAction) {
             actionDescription = "End Turn";
         } else {
             actionDescription = this.action.name;

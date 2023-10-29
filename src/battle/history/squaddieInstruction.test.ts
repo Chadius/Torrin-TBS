@@ -1,6 +1,6 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {SquaddieMovementActionData} from "./squaddieMovementAction";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieSquaddieActionData} from "./squaddieSquaddieAction";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -99,7 +99,7 @@ describe('SquaddieInstruction', () => {
             startingLocation: {q: 0, r: 0},
             actions: [],
         };
-        const longswordAction: SquaddieAction = new SquaddieAction({
+        const longswordAction: SquaddieAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage({}),

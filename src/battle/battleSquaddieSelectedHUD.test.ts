@@ -6,7 +6,7 @@ import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {UseActionButton} from "../squaddie/useActionButton";
-import {SquaddieAction} from "../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../squaddie/action";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
 import {SquaddieEndTurnAction} from "./history/squaddieEndTurnAction";
 import {RectArea} from "../ui/rectArea";
@@ -61,7 +61,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             "affiliate_icon_none",
         ]);
 
-        longswordAction = new SquaddieAction({
+        longswordAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage({}),
@@ -141,10 +141,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         const actionButtons: UseActionButton[] = hud.getUseActionButtons();
         expect(actionButtons).toBeTruthy();
 
-        expect(actionButtons.find((button) =>
-            button.action instanceof SquaddieAction
-            && button.action.name === longswordAction.name
-        )).toBeTruthy();
+        expect(actionButtons.find((button) => {
+            return button.action && button.action.name === longswordAction.name;
+        })).toBeTruthy();
     });
 
     it('reports when an action button is clicked', () => {
@@ -163,7 +162,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.action instanceof SquaddieAction
+            button.action
             && button.action.name === longswordAction.name
         );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
@@ -192,7 +191,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.action instanceof SquaddieAction
+            button.action
             && button.action.name === longswordAction.name
         );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
@@ -218,7 +217,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(actionButtons).toBeTruthy();
 
         const waitTurnButton = actionButtons.find((button) =>
-            button.action instanceof SquaddieEndTurnAction
+            button.endTurnAction !== undefined
         );
         expect(waitTurnButton).toBeTruthy();
     });
@@ -240,7 +239,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const waitTurnButton = hud.getUseActionButtons().find((button) =>
-            button.action instanceof SquaddieEndTurnAction
+            button.endTurnAction !== undefined
         );
 
         hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top, state);
@@ -276,15 +275,17 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
         let notEnoughActionPointsAction: SquaddieAction;
-        notEnoughActionPointsAction = new SquaddieAction({
-            name: "not enough actions",
-            id: "not enough actions",
-            traits: new TraitStatusStorage({}),
-            actionPointCost: 9001,
-            minimumRange: 0,
-            maximumRange: 1,
-            targetingShape: TargetingShape.Snake,
-        });
+        notEnoughActionPointsAction = SquaddieActionHandler.new({
+                name: "not enough actions",
+                id: "not enough actions",
+                traits: new TraitStatusStorage({}),
+                actionPointCost: 9001,
+                minimumRange: 0,
+                maximumRange: 1,
+                targetingShape: TargetingShape.Snake,
+            }
+        );
+
         const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(playerSquaddieDynamicID));
         squaddieTemplate.addAction(notEnoughActionPointsAction);
 
@@ -304,7 +305,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
-            button.action instanceof SquaddieAction && button.action.name === "not enough actions"
+            button.action && button.action.name === "not enough actions"
         );
 
         hud.mouseClicked(
@@ -320,25 +321,27 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('will warn the user if another squaddie is still completing their turn', () => {
         const state = new BattleOrchestratorState({
-            squaddieRepository: squaddieRepository,
-            missionMap,
-            resourceHandler: resourceHandler,
-            camera: new BattleCamera(0, 0),
-            squaddieCurrentlyActing: {
-                movingBattleSquaddieIds: [],
-                currentlySelectedAction: new SquaddieAction({
-                    name: "purifying stream",
-                    id: "purifying_stream",
-                    traits: new TraitStatusStorage({}),
-                }),
-                squaddieActionsForThisRound: {
-                    battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                    squaddieTemplateId: playerSquaddieStatic.templateId,
-                    startingLocation: {q: 0, r: 0},
-                    actions: [],
-                },
-            },
-        });
+                    squaddieRepository: squaddieRepository,
+                    missionMap,
+                    resourceHandler: resourceHandler,
+                    camera: new BattleCamera(0, 0),
+                    squaddieCurrentlyActing: {
+                        movingBattleSquaddieIds: [],
+                        currentlySelectedAction: SquaddieActionHandler.new({
+                            name: "purifying stream",
+                            id: "purifying_stream",
+                            traits: new TraitStatusStorage({}),
+                        }),
+                        squaddieActionsForThisRound: {
+                            battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                            squaddieTemplateId: playerSquaddieStatic.templateId,
+                            startingLocation: {q: 0, r: 0},
+                            actions: [],
+                        },
+                    },
+                }
+            )
+        ;
 
         hud.selectSquaddieAndDrawWindow({
             battleId: player2SquaddieDynamic.battleSquaddieId,
@@ -405,7 +408,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const waitTurnButton = hud.getUseActionButtons().find((button) =>
-            button.action instanceof SquaddieEndTurnAction
+            button.endTurnAction !== undefined
         );
 
         hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top, state);
@@ -574,4 +577,5 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(battleCamera.isPanning()).toBeTruthy();
         });
     });
-});
+})
+;

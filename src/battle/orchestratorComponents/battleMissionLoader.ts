@@ -14,7 +14,7 @@ import {SquaddieResource} from "../../squaddie/resource";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieActionHandler} from "../../squaddie/action";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
@@ -193,7 +193,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     }),
                 },
                 actions: [
-                    new SquaddieAction({
+                    SquaddieActionHandler.new({
                         name: "water cannon",
                         id: "torrin_water_cannon",
                         minimumRange: 0,
@@ -207,7 +207,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             [DamageType.Body]: 2
                         }
                     }),
-                    new SquaddieAction({
+                    SquaddieActionHandler.new({
                         name: "healing touch",
                         id: "young_torrin_healing_touch",
                         minimumRange: 0,
@@ -263,7 +263,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
                 actions: [
-                    new SquaddieAction({
+                    SquaddieActionHandler.new({
                         name: "longsword",
                         id: "sir_camil_longsword",
                         minimumRange: 0,
@@ -348,7 +348,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
             actions: [
-                new SquaddieAction({
+                SquaddieActionHandler.new({
                     name: "Bite",
                     id: "demon_slither_bite",
                     minimumRange: 0,

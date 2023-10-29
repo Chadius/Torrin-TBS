@@ -3,7 +3,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -30,7 +30,7 @@ describe('target a squaddie within reach of actions', () => {
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
 
-        shortBowAction = new SquaddieAction({
+        shortBowAction = SquaddieActionHandler.new({
             name: "short bow",
             id: "short_bow",
             traits: new TraitStatusStorage({
@@ -273,7 +273,7 @@ describe('target a squaddie within reach of actions', () => {
     });
 
     it('will not change the currently acting squaddie', () => {
-        const longBowAction = new SquaddieAction({
+        const longBowAction = SquaddieActionHandler.new({
             name: "long bow",
             id: "long_bow",
             traits: new TraitStatusStorage({

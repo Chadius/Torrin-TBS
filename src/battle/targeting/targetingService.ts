@@ -1,4 +1,4 @@
-import {SquaddieActionData} from "../../squaddie/action";
+import {SquaddieAction} from "../../squaddie/action";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -47,7 +47,7 @@ export const FindValidTargets = ({
                                      sourceTiles,
                                  }: {
     map: MissionMap,
-    action: SquaddieActionData,
+    action: SquaddieAction,
     actingSquaddieTemplate: SquaddieTemplate,
     actingBattleSquaddie: BattleSquaddie,
     squaddieRepository: BattleSquaddieRepository,

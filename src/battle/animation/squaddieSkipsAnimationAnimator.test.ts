@@ -1,5 +1,5 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
@@ -43,7 +43,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        monkKoanAction = new SquaddieAction({
+        monkKoanAction = SquaddieActionHandler.new({
             id: "koan",
             name: "koan",
             traits: new TraitStatusStorage({

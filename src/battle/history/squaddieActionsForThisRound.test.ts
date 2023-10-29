@@ -1,13 +1,13 @@
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {DamageType} from "../../squaddie/squaddieService";
 import {Trait} from "../../trait/traitStatusStorage";
-import {SquaddieActionData} from "../../squaddie/action";
+import {SquaddieAction} from "../../squaddie/action";
 import {AnySquaddieActionData, SquaddieActionType} from "./anySquaddieAction";
 import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 
 describe('squaddie actions for this round', () => {
     it('can create new object from squaddie data', () => {
-        const squaddieActionData: SquaddieActionData = {
+        const squaddieActionData: SquaddieAction = {
             id: "attackId",
             name: "cool attack",
             minimumRange: 0,

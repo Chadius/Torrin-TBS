@@ -346,7 +346,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                 results: undefined,
             });
             this.gaveCompleteInstruction = true;
-        } else if (state.battleSquaddieSelectedHUD.getSelectedAction() instanceof SquaddieAction) {
+        } else {
             const newAction = state.battleSquaddieSelectedHUD.getSelectedAction();
             SquaddieInstructionInProgressHandler.addSelectedAction(state.squaddieCurrentlyActing, newAction as SquaddieAction);
             this.gaveInstructionThatNeedsATarget = true;

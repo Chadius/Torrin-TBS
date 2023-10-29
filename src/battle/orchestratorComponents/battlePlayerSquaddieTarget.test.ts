@@ -2,7 +2,7 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -66,7 +66,7 @@ describe('BattleSquaddieTarget', () => {
             })
         });
 
-        longswordAction = new SquaddieAction({
+        longswordAction = SquaddieActionHandler.new({
             name: "longsword",
             id: longswordActionId,
             traits: new TraitStatusStorage({
@@ -83,7 +83,7 @@ describe('BattleSquaddieTarget', () => {
             },
         });
 
-        bandageWoundsAction = new SquaddieAction({
+        bandageWoundsAction = SquaddieActionHandler.new({
             name: "Bandage Wounds",
             id: bandageWoundsActionId,
             traits: new TraitStatusStorage({
@@ -534,7 +534,7 @@ describe('BattleSquaddieTarget', () => {
             const traits: { [key in Trait]?: boolean } = Object.fromEntries(
                 actionTraits.map(e => [e, true])
             );
-            const action = new SquaddieAction({
+            const action = SquaddieActionHandler.new({
                 id: name,
                 name,
                 traits: new TraitStatusStorage({initialTraitValues: traits}),

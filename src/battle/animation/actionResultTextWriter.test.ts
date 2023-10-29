@@ -1,7 +1,7 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -36,7 +36,7 @@ describe('Action Result Text Writer', () => {
             })
         });
 
-        longswordSweepAction = new SquaddieAction({
+        longswordSweepAction = SquaddieActionHandler.new({
             name: "Longsword Sweep",
             id: "longsword",
             traits: new TraitStatusStorage({
@@ -50,7 +50,7 @@ describe('Action Result Text Writer', () => {
             actionPointCost: 1,
         });
 
-        bandageWoundsAction = new SquaddieAction({
+        bandageWoundsAction = SquaddieActionHandler.new({
             name: "Bandage Wounds",
             id: "Bandages",
             traits: new TraitStatusStorage({

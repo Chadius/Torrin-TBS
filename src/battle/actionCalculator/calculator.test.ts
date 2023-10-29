@@ -1,7 +1,7 @@
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -88,7 +88,7 @@ describe('calculator', () => {
             missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {q: 0, r: 1});
             missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {q: 0, r: 2});
 
-            actionDealsBodyDamage = new SquaddieAction({
+            actionDealsBodyDamage = SquaddieActionHandler.new({
                 id: "deal body damage",
                 name: "deal body damage",
                 traits: new TraitStatusStorage({
@@ -101,7 +101,7 @@ describe('calculator', () => {
                 maximumRange: 9001,
                 damageDescriptions: {[DamageType.Body]: 2}
             });
-            healsLostHitPoints = new SquaddieAction({
+            healsLostHitPoints = SquaddieActionHandler.new({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
                 traits: new TraitStatusStorage({

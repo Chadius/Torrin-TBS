@@ -10,7 +10,7 @@ import {
     SquaddieInstructionInProgressHandler
 } from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -98,7 +98,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             },
         }));
 
-        powerAttackLongswordAction = new SquaddieAction({
+        powerAttackLongswordAction = SquaddieActionHandler.new({
             name: "power attack longsword",
             id: "powerAttackLongsword",
             traits: new TraitStatusStorage({
@@ -115,7 +115,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             },
         });
 
-        monkKoanAction = new SquaddieAction({
+        monkKoanAction = SquaddieActionHandler.new({
             id: "koan",
             name: "koan",
             traits: new TraitStatusStorage({

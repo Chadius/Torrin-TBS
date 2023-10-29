@@ -25,7 +25,7 @@ import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
     SquaddieInstructionInProgress,
@@ -70,7 +70,7 @@ describe('BattleSquaddieSelector', () => {
             }
         );
 
-        demonBiteAction = new SquaddieAction({
+        demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
             traits: new TraitStatusStorage({
@@ -172,7 +172,7 @@ describe('BattleSquaddieSelector', () => {
             }
         );
 
-        demonBiteAction = new SquaddieAction({
+        demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
             traits: new TraitStatusStorage({
@@ -521,7 +521,7 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const longswordAction: SquaddieAction = new SquaddieAction({
+        const longswordAction: SquaddieAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage({}),
@@ -713,7 +713,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores action commands issued to other squaddies', () => {
-            const longswordAction: SquaddieAction = new SquaddieAction({
+            const longswordAction: SquaddieAction = SquaddieActionHandler.new({
                 name: "longsword",
                 id: "longsword",
                 traits: new TraitStatusStorage({}),

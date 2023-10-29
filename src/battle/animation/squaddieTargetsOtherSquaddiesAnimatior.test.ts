@@ -7,7 +7,7 @@ import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
 } from "../history/squaddieInstructionInProgress";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -58,7 +58,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleId: thiefDynamicId,
         }));
 
-        longswordAction = new SquaddieAction({
+        longswordAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
             traits: new TraitStatusStorage({

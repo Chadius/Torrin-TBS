@@ -20,7 +20,7 @@ import {Label} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieAction, SquaddieActionData} from "../../squaddie/action";
+import {SquaddieAction} from "../../squaddie/action";
 import {Trait} from "../../trait/traitStatusStorage";
 import {CalculateResults} from "../actionCalculator/calculator";
 import {FindValidTargets} from "../targeting/targetingService";
@@ -224,7 +224,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
-        const actionConsidered: SquaddieActionData = state.squaddieCurrentlyActing.currentlySelectedAction;
+        const actionConsidered: SquaddieAction = state.squaddieCurrentlyActing.currentlySelectedAction;
         if (actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
             return;
         }
@@ -327,7 +327,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing,
             new SquaddieSquaddieAction({
                     targetLocation: this.validTargetLocation,
-                    squaddieAction: new SquaddieAction({data: state.squaddieCurrentlyActing.currentlySelectedAction}),
+                    squaddieAction: state.squaddieCurrentlyActing.currentlySelectedAction,
                 }
             ));
 

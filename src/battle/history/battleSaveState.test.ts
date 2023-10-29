@@ -9,7 +9,7 @@ import {Recording, RecordingHandler} from "./recording";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent} from "./battleEvent";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -38,7 +38,7 @@ describe("BattleSaveState", () => {
     let enemy0BattleSquaddieWithWoundsAndTurnEnded: BattleSquaddie;
 
     beforeEach(() => {
-        const action: SquaddieAction = new SquaddieAction({
+        const action: SquaddieAction = SquaddieActionHandler.new({
                 id: "att",
                 name: "attack",
                 traits: new TraitStatusStorage({

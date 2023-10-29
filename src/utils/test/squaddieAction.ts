@@ -1,8 +1,8 @@
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieActionHandler} from "../../squaddie/action";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {DamageType} from "../../squaddie/squaddieService";
 
-export const longswordAction = new SquaddieAction({
+export const longswordAction = SquaddieActionHandler.new({
     name: "longsword",
     id: "longsword",
     traits: new TraitStatusStorage({

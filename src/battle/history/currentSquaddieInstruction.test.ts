@@ -1,6 +1,6 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieActionHandler} from "../../squaddie/action";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -14,7 +14,7 @@ const torrinInstruction: SquaddieActionsForThisRound = {
     actions: [],
 };
 
-const purifyingBlast = new SquaddieAction({
+const purifyingBlast = SquaddieActionHandler.new({
     name: "purifying stream",
     id: "purifying_stream",
     traits: new TraitStatusStorage({}),

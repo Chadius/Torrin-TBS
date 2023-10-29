@@ -7,7 +7,7 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {SquaddieActionData} from "../../../squaddie/action";
+import {SquaddieAction} from "../../../squaddie/action";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
@@ -63,7 +63,7 @@ export class TargetSprite {
     start({targetBattleSquaddieId, squaddieRepository, action, result, windowArea, resourceHandler}: {
         targetBattleSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
-        action: SquaddieActionData,
+        action: SquaddieAction,
         result: ActionResultPerSquaddie,
         windowArea: RectArea,
         resourceHandler: ResourceHandler,

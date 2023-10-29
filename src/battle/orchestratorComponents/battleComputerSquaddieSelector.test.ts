@@ -22,7 +22,7 @@ import {BattleEvent} from "../history/battleEvent";
 import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
@@ -77,7 +77,7 @@ describe('BattleComputerSquaddieSelector', () => {
             }
         );
 
-        demonBiteAction = new SquaddieAction({
+        demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
             traits: new TraitStatusStorage({
@@ -94,7 +94,7 @@ describe('BattleComputerSquaddieSelector', () => {
             },
         });
 
-        demonBiteAction = new SquaddieAction({
+        demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
             traits: new TraitStatusStorage({
@@ -111,7 +111,7 @@ describe('BattleComputerSquaddieSelector', () => {
             },
         });
 
-        entireTurnDemonBiteAction = new SquaddieAction({
+        entireTurnDemonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
             traits: new TraitStatusStorage({

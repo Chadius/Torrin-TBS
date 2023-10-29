@@ -1,10 +1,10 @@
-import {SquaddieActionData, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export const FormatResult = ({currentAction, result, squaddieRepository}: {
-    currentAction: SquaddieActionData,
+    currentAction: SquaddieAction,
     result: SquaddieSquaddieResults,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {
@@ -26,7 +26,7 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
 }
 
 export const FormatIntent = ({currentAction, actingBattleSquaddieId, squaddieRepository}: {
-    currentAction: SquaddieActionData,
+    currentAction: SquaddieAction,
     actingBattleSquaddieId: string,
     squaddieRepository: BattleSquaddieRepository,
 }): string[] => {

@@ -5,7 +5,7 @@ import {SquaddieId} from "../../squaddie/id";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {BattleSquaddie} from "../../battle/battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import * as mocks from "./mocks";
 import {DamageType} from "../../squaddie/squaddieService";
@@ -109,7 +109,7 @@ export const CreateNewThiefSquaddie: (
      }
 ) => {
 
-    const defaultAttackAction = new SquaddieAction({
+    const defaultAttackAction = SquaddieActionHandler.new({
         name: "knife",
         id: "knife",
         traits: new TraitStatusStorage({
@@ -178,7 +178,7 @@ export const CreateNewKnightSquaddie: (
      }
 ) => {
 
-    const defaultAttackAction = new SquaddieAction({
+    const defaultAttackAction = SquaddieActionHandler.new({
         name: "longsword",
         id: "longsword",
         traits: new TraitStatusStorage({
@@ -196,7 +196,7 @@ export const CreateNewKnightSquaddie: (
         },
     });
 
-    const powerAttacklongswordAction = new SquaddieAction({
+    const powerAttackLongswordAction = SquaddieActionHandler.new({
         name: "power attack longsword",
         id: "powerAttackLongsword",
         traits: new TraitStatusStorage({
@@ -223,7 +223,7 @@ export const CreateNewKnightSquaddie: (
         battleId: battleId || "Knight 0",
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.PLAYER,
         squaddieRepository: squaddieRepository,
-        actions: actions || [defaultAttackAction, powerAttacklongswordAction],
+        actions: actions || [defaultAttackAction, powerAttackLongswordAction],
         attributes: attributes || DefaultArmyAttributes(),
     });
 
