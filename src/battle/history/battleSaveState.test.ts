@@ -10,7 +10,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent} from "./battleEvent";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
-import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait} from "../../trait/traitStatusStorage";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -41,12 +41,12 @@ describe("BattleSaveState", () => {
         const action: SquaddieAction = SquaddieActionHandler.new({
                 id: "att",
                 name: "attack",
-                traits: new TraitStatusStorage({
-                    initialTraitValues: {
+                traits: {
+                    booleanTraits: {
                         [Trait.ATTACK]: true,
                         [Trait.ALWAYS_HITS]: true,
                     }
-                }),
+                },
                 maximumRange: 1,
                 minimumRange: 0,
             })
@@ -482,6 +482,64 @@ describe("BattleSaveState", () => {
                 q: 0,
                 r: 1
             }).battleSquaddieId).toBe(enemy0BattleSquaddieWithWoundsAndTurnEnded.battleSquaddieId);
+        });
+
+
+        it('can export data to and from JSON', () => {
+            const dataString = BattleSaveStateHandler.stringifyBattleSaveStateData(saveData);
+            const newSaveData: BattleSaveState = BattleSaveStateHandler.parseJsonIntoBattleSaveStateData(dataString);
+            expect(newSaveData).toEqual(saveData);
+        });
+
+        it('can export save data objects', () => {
+            const missionMap = new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 2 - x "]
+                })
+            });
+
+            missionMap.addSquaddie("template 0", "battle 0", {q: 0, r: 0});
+            missionMap.addSquaddie("template 1", "battle 1", {q: 0, r: 1});
+
+            const battleOrchestratorState = new BattleOrchestratorState({
+                camera: new BattleCamera(100, 200),
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.PLAYER,
+                    turnCount: 3,
+                },
+                battleEventRecording: eventRecording0,
+                missionMap,
+                missionStatistics,
+                squaddieRepository: originalSquaddieRepository,
+            });
+
+            const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+                saveVersion: 9001,
+                missionId: "This mission",
+                battleOrchestratorState,
+            });
+
+            expect(saveData.mission_id).toBe("This mission");
+            expect(saveData.camera.xCoordinate).toBe(100);
+            expect(saveData.camera.yCoordinate).toBe(200);
+            expect(saveData.turn_count).toBe(3);
+
+            expect(saveData.battle_event_recording.history).toHaveLength(1);
+            expect(saveData.battle_event_recording.history[0]).toStrictEqual(firstBattleEvent);
+            expect(saveData.squaddie_map_placements).toHaveLength(2);
+            expect(saveData.squaddie_map_placements[0]).toStrictEqual({
+                squaddieTemplateId: "template 0",
+                battleSquaddieId: "battle 0",
+                mapLocation: {q: 0, r: 0}
+            });
+            expect(saveData.squaddie_map_placements[1]).toStrictEqual({
+                squaddieTemplateId: "template 1",
+                battleSquaddieId: "battle 1",
+                mapLocation: {q: 0, r: 1}
+            });
+
+            expect(saveData.mission_statistics).toStrictEqual(missionStatistics);
+            expect(Object.keys(saveData.in_battle_attributes_by_squaddie_battle_id)).toEqual(["player battle 0", "enemy battle 0"])
         });
     });
 });

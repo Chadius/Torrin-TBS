@@ -54,7 +54,7 @@ export const SquaddieActionHandler = {
             minimumRange: minimumRange,
             maximumRange: maximumRange,
             actionPointCost: actionPointCost || actionPointCost == 0 ? actionPointCost : 1,
-            traits: new TraitStatusStorage({data: traits}),
+            traits: traits,
             damageDescriptions: damageDescriptions ? {...(damageDescriptions)} : {},
             healingDescriptions: healingDescriptions ? {...(healingDescriptions)} : {},
         };

@@ -90,6 +90,44 @@ export const BattleSaveStateHandler = {
             };
         });
     },
+    stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
+        return JSON.stringify(saveData);
+    },
+    parseJsonIntoBattleSaveStateData: (dataString: string): BattleSaveState => {
+        return JSON.parse(dataString);
+    },
+    newUsingBattleOrchestratorState: ({missionId, battleOrchestratorState, saveVersion}: {
+        battleOrchestratorState: BattleOrchestratorState;
+        missionId: string,
+        saveVersion: number,
+    }): BattleSaveState => {
+        const cameraCoordinates = battleOrchestratorState.camera.getCoordinates();
+
+        const in_battle_attributes_by_squaddie_battle_id: {
+            [squaddieBattleId: string]:
+                InBattleAttributesAndTurn
+        } = {};
+        battleOrchestratorState.squaddieRepository.getBattleSquaddieIterator().forEach((battleSquaddieInfo) => {
+            in_battle_attributes_by_squaddie_battle_id[battleSquaddieInfo.battleSquaddieId] = {
+                in_battle_attributes: battleSquaddieInfo.battleSquaddie.inBattleAttributes,
+                turn: battleSquaddieInfo.battleSquaddie.squaddieTurn,
+            };
+        });
+
+        return {
+            save_version: saveVersion,
+            mission_id: missionId,
+            turn_count: battleOrchestratorState.battlePhaseState.turnCount,
+            camera: {
+                xCoordinate: cameraCoordinates[0],
+                yCoordinate: cameraCoordinates[1],
+            },
+            battle_event_recording: battleOrchestratorState.battleEventRecording,
+            mission_statistics: battleOrchestratorState.missionStatistics,
+            in_battle_attributes_by_squaddie_battle_id,
+            squaddie_map_placements: battleOrchestratorState.missionMap.getAllSquaddieData(),
+        }
+    }
 }
 
 const createBattleOrchestratorState = ({
