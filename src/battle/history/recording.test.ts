@@ -1,5 +1,5 @@
 import {Recording, RecordingHandler} from "./recording";
-import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {BattleEvent} from "./battleEvent";
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieEndTurnAction} from "./squaddieEndTurnAction";
@@ -11,13 +11,13 @@ describe('Recording', () => {
             history: []
         };
 
-        const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const endTurnInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "player_squaddie",
             battleSquaddieId: "player_squaddie_0",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
-        endTurnInstruction.endTurn();
+        };
+        SquaddieActionsForThisRoundHandler.endTurn(endTurnInstruction);
 
         const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = {
             movingBattleSquaddieIds: [],

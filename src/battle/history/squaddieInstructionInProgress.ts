@@ -1,4 +1,4 @@
-import {SquaddieActionsForThisRoundData, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {SquaddieAction, SquaddieActionData} from "../../squaddie/action";
 import {AnySquaddieAction, SquaddieActionType} from "./anySquaddieAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
@@ -7,7 +7,7 @@ import {SquaddieEndTurnAction} from "./squaddieEndTurnAction";
 
 
 export interface SquaddieInstructionInProgress {
-    readonly squaddieActionsForThisRound: SquaddieActionsForThisRoundData;
+    readonly squaddieActionsForThisRound: SquaddieActionsForThisRound;
     currentlySelectedAction: SquaddieActionData;
     movingBattleSquaddieIds: string[];
 }

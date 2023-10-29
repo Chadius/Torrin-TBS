@@ -11,7 +11,7 @@ import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent} from "./battleEvent";
 import {SquaddieAction} from "../../squaddie/action";
 import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
-import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
@@ -52,14 +52,14 @@ describe("BattleSaveState", () => {
             })
         ;
 
-        const firstSquaddieActions: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const firstSquaddieActions: SquaddieActionsForThisRound = {
             squaddieTemplateId: "actor 1 template",
             battleSquaddieId: "actor 1",
             startingLocation: {q: 1, r: -2},
             actions: [],
-        })
+        };
 
-        firstSquaddieActions.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 2, r: -5},
@@ -67,7 +67,7 @@ describe("BattleSaveState", () => {
             }
         });
 
-        firstSquaddieActions.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 squaddieAction: action,
@@ -221,14 +221,14 @@ describe("BattleSaveState", () => {
     });
 
     it("Can read the event recording and create a similar one", () => {
-        const secondSquaddieActions: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const secondSquaddieActions: SquaddieActionsForThisRound = {
             squaddieTemplateId: "actor 2 template",
             battleSquaddieId: "actor 2",
             startingLocation: {q: 0, r: 4},
             actions: [],
-        })
+        };
 
-        secondSquaddieActions.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(secondSquaddieActions, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 1, r: 6},

@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -35,7 +35,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let thiefStaticId = "thief_0";
 
     let longswordAction: SquaddieAction;
-    let powerAttacklongswordAction: SquaddieAction;
+    let powerAttackLongswordAction: SquaddieAction;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
     let oneActionInstruction: SquaddieActionsForThisRound;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -86,14 +86,14 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
-        oneActionInstruction = new SquaddieActionsForThisRound({
+        oneActionInstruction = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
+        };
 
-        oneActionInstruction.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 squaddieAction: longswordAction,
@@ -106,7 +106,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         knightHitsThiefWithLongswordInstructionInProgress = {
             squaddieActionsForThisRound: oneActionInstruction,
-            currentlySelectedAction: powerAttacklongswordAction,
+            currentlySelectedAction: powerAttackLongswordAction,
             movingBattleSquaddieIds: [],
         };
         SquaddieInstructionInProgressHandler.addSelectedAction(knightHitsThiefWithLongswordInstructionInProgress, longswordAction);

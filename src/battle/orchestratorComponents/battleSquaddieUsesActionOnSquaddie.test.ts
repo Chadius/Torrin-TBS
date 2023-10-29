@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -140,13 +140,13 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     });
 
     function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
-        const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const instruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
-        instruction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(instruction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 targetLocation: {q: 0, r: 0},
@@ -191,13 +191,13 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     }
 
     function usePowerAttackLongswordAndReturnState({missionMap}: { missionMap?: MissionMap }) {
-        const wholeTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const wholeTurnInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
-        wholeTurnInstruction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(wholeTurnInstruction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 targetLocation: {q: 0, r: 0},

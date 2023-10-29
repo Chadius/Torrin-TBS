@@ -8,11 +8,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinateToKey} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {
-    SquaddieActionsForThisRound,
-    SquaddieActionsForThisRoundData,
-    SquaddieActionsForThisRoundHandler
-} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
@@ -370,12 +366,12 @@ describe('BattleSquaddieTarget', () => {
     describe('user clicks on target with heal', () => {
         beforeEach(() => {
             const currentInstruction: SquaddieInstructionInProgress = {
-                squaddieActionsForThisRound: new SquaddieActionsForThisRound({
+                squaddieActionsForThisRound: {
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.templateId,
                     startingLocation: {q: 1, r: 1},
                     actions: [],
-                }),
+                },
                 currentlySelectedAction: bandageWoundsAction,
                 movingBattleSquaddieIds: [],
             };
@@ -407,7 +403,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should create a squaddie instruction', () => {
-            const expectedInstruction: SquaddieActionsForThisRoundData = {
+            const expectedInstruction: SquaddieActionsForThisRound = {
                 squaddieTemplateId: knightStatic.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
@@ -464,7 +460,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should add to existing instruction when confirmed mid turn', () => {
-            const expectedInstruction: SquaddieActionsForThisRoundData = {
+            const expectedInstruction: SquaddieActionsForThisRound = {
                 squaddieTemplateId: knightStatic.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
@@ -546,12 +542,12 @@ describe('BattleSquaddieTarget', () => {
                 maximumRange: 9001,
             });
             const currentInstruction: SquaddieInstructionInProgress = {
-                squaddieActionsForThisRound: new SquaddieActionsForThisRound({
+                squaddieActionsForThisRound: {
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.templateId,
                     startingLocation: {q: 1, r: 1},
                     actions: [],
-                }),
+                },
                 currentlySelectedAction: action,
                 movingBattleSquaddieIds: [],
             };

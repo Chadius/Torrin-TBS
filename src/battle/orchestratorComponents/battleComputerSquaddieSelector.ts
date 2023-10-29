@@ -16,7 +16,7 @@ import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "..
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementAction, SquaddieMovementActionData} from "../history/squaddieMovementAction";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {isCoordinateOnScreen} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
@@ -318,7 +318,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             squaddieTemplate,
             battleSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieInstruction.battleSquaddieId));
-        let newAction = squaddieInstruction.getMostRecentAction();
+        let newAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(squaddieInstruction);
         if (newAction.type === SquaddieActionType.MOVEMENT) {
             createSearchPath(state, squaddieTemplate, battleSquaddie, (newAction.data as SquaddieMovementActionData).destination);
             this.mostRecentAction = AddMovementInstruction(state, squaddieTemplate, battleSquaddie, (newAction.data as SquaddieMovementActionData).destination);

@@ -1,7 +1,7 @@
 import {TeamStrategy} from "./teamStrategy";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FindValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -160,17 +160,17 @@ export class TargetSquaddieInRange implements TeamStrategy {
         actingSquaddieAction: SquaddieAction,
         targetLocation: HexCoordinate,
     }) {
-        const instruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const instruction: SquaddieActionsForThisRound = {
             battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
             squaddieTemplateId: actingSquaddieTemplate.templateId,
             startingLocation: actingSquaddieMapLocation,
             actions: [],
-        });
+        };
         return this.addActionToInstruction(instruction, actingSquaddieAction, targetLocation);
     }
 
     private addActionToInstruction(instruction: SquaddieActionsForThisRound, action: SquaddieAction, targetLocation: HexCoordinate) {
-        instruction.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(instruction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 squaddieAction: action,
@@ -210,7 +210,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
                     return instruction;
                 }
             } else {
-                state.instruction.addAction({
+                SquaddieActionsForThisRoundHandler.addAction(state.instruction, {
                     type: SquaddieActionType.SQUADDIE,
                     data: {
                         squaddieAction: action,

@@ -1,9 +1,5 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
-import {
-    SquaddieActionsForThisRound,
-    SquaddieActionsForThisRoundData,
-    SquaddieActionsForThisRoundHandler
-} from "./squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {SquaddieAction} from "../../squaddie/action";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
@@ -11,12 +7,12 @@ import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieActionType} from "./anySquaddieAction";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 
-const torrinInstruction = new SquaddieActionsForThisRound({
+const torrinInstruction: SquaddieActionsForThisRound = {
     battleSquaddieId: "Torrin 0",
     squaddieTemplateId: "Torrin",
     startingLocation: {q: 0, r: 0},
     actions: [],
-});
+};
 
 const purifyingBlast = new SquaddieAction({
     name: "purifying stream",
@@ -71,9 +67,9 @@ describe('Current Squaddie Instruction', () => {
 
         SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, purifyingBlastAction);
 
-        const initialInstruction: SquaddieActionsForThisRoundData = newInstruction.squaddieActionsForThisRound;
+        const initialInstruction: SquaddieActionsForThisRound = newInstruction.squaddieActionsForThisRound;
 
-        torrinInstruction.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(torrinInstruction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 squaddieAction: purifyingBlast,

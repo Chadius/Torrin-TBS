@@ -1,5 +1,5 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
-import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {longswordAction} from "../../utils/test/squaddieAction";
 import {SquaddieActionType} from "./anySquaddieAction";
 
@@ -22,14 +22,14 @@ describe('SquaddieInstructionInProgress', () => {
     });
 
     it('will indicate the squaddie has acted this round if they cancel after acting', () => {
-        const longswordUsedThisRoundAction = new SquaddieActionsForThisRound({
+        const longswordUsedThisRoundAction: SquaddieActionsForThisRound = {
             battleSquaddieId: "battleSquaddieId",
             squaddieTemplateId: "templateId",
             startingLocation: {q: 1, r: 1},
             actions: [],
-        });
+        };
 
-        longswordUsedThisRoundAction.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(longswordUsedThisRoundAction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 squaddieAction: longswordAction,

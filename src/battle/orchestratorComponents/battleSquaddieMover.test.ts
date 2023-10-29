@@ -10,7 +10,7 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
     SquaddieInstructionInProgress,
@@ -90,13 +90,13 @@ describe('BattleSquaddieMover', () => {
                 }))
             ).getRouteToStopLocation());
 
-        const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const moveAction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "player_1",
             battleSquaddieId: "player_1",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
-        moveAction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(moveAction, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 1, r: 1},
@@ -194,13 +194,13 @@ describe('BattleSquaddieMover', () => {
         it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+            const moveAction: SquaddieActionsForThisRound = {
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
                 actions: [],
-            });
-            moveAction.addAction({
+            };
+            SquaddieActionsForThisRoundHandler.addAction(moveAction, {
                 type: SquaddieActionType.MOVEMENT,
                 data: {
                     destination: {q: 1, r: 1},
@@ -228,13 +228,13 @@ describe('BattleSquaddieMover', () => {
         it('should open the HUD if the squaddie turn is incomplete', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+            const moveAction: SquaddieActionsForThisRound = {
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
                 actions: [],
-            });
-            moveAction.addAction({
+            };
+            SquaddieActionsForThisRoundHandler.addAction(moveAction, {
                 type: SquaddieActionType.MOVEMENT,
                 data: {
                     destination: {q: 1, r: 1},
@@ -268,13 +268,13 @@ describe('BattleSquaddieMover', () => {
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
             map.addSquaddie("enemy_1", "enemy_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+            const moveAction: SquaddieActionsForThisRound = {
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",
                 startingLocation: {q: 0, r: 0},
                 actions: [],
-            });
-            moveAction.addAction({
+            };
+            SquaddieActionsForThisRoundHandler.addAction(moveAction, {
                 type: SquaddieActionType.MOVEMENT,
                 data: {
                     destination: {q: 1, r: 1},

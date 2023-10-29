@@ -1,5 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -45,13 +45,13 @@ describe('BattleSquaddieUsesActionOnMap', () => {
     });
 
     it('can wait half a second before ending turn', () => {
-        const endTurnInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const endTurnInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
-        endTurnInstruction.endTurn();
+        };
+        SquaddieActionsForThisRoundHandler.endTurn(endTurnInstruction);
 
         const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
 

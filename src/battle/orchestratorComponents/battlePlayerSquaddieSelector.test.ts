@@ -13,11 +13,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {
-    SquaddieActionsForThisRound,
-    SquaddieActionsForThisRoundData,
-    SquaddieActionsForThisRoundHandler
-} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
@@ -560,7 +556,7 @@ describe('BattleSquaddieSelector', () => {
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe("player_soldier_0");
 
-        const expectedInstruction: SquaddieActionsForThisRoundData = {
+        const expectedInstruction: SquaddieActionsForThisRound = {
             battleSquaddieId: "player_soldier_0",
             squaddieTemplateId: "player_soldier",
             startingLocation: {q: 0, r: 0},
@@ -615,14 +611,14 @@ describe('BattleSquaddieSelector', () => {
 
             const soldierSquaddieInfo = missionMap.getSquaddieByBattleId("player_soldier_0");
 
-            const movingInstruction = new SquaddieActionsForThisRound({
+            const movingInstruction: SquaddieActionsForThisRound = {
                 squaddieTemplateId: soldierSquaddieInfo.squaddieTemplateId,
                 battleSquaddieId: soldierSquaddieInfo.battleSquaddieId,
                 startingLocation: soldierSquaddieInfo.mapLocation,
                 actions: [],
-            });
+            };
 
-            movingInstruction.addAction({
+            SquaddieActionsForThisRoundHandler.addAction(movingInstruction, {
                 type: SquaddieActionType.MOVEMENT,
                 data: {
                     destination: {q: 0, r: 2},

@@ -1,4 +1,4 @@
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {TeamStrategyState} from "./teamStrategyState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -70,13 +70,13 @@ describe('end turn team strategy', () => {
         });
         missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
 
-        const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const expectedInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "new_static_squaddie",
             battleSquaddieId: "new_dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
-        expectedInstruction.endTurn();
+        };
+        SquaddieActionsForThisRoundHandler.endTurn(expectedInstruction);
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);

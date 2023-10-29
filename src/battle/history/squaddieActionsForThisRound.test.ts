@@ -3,7 +3,7 @@ import {DamageType} from "../../squaddie/squaddieService";
 import {Trait} from "../../trait/traitStatusStorage";
 import {SquaddieActionData} from "../../squaddie/action";
 import {AnySquaddieActionData, SquaddieActionType} from "./anySquaddieAction";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundData} from "./squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound} from "./squaddieActionsForThisRound";
 
 describe('squaddie actions for this round', () => {
     it('can create new object from squaddie data', () => {
@@ -41,14 +41,14 @@ describe('squaddie actions for this round', () => {
             },
         ];
 
-        const actionsForThisRound: SquaddieActionsForThisRoundData = {
+        const actionsForThisRound: SquaddieActionsForThisRound = {
             squaddieTemplateId: "template id",
             battleSquaddieId: "battle id",
             startingLocation: {q: 0, r: 0},
             actions: anySquaddieActions,
         };
 
-        const newActionForThisRound = new SquaddieActionsForThisRound(actionsForThisRound);
+        const newActionForThisRound: SquaddieActionsForThisRound = {...actionsForThisRound};
         expect(newActionForThisRound.battleSquaddieId).toStrictEqual(actionsForThisRound.battleSquaddieId);
         expect(newActionForThisRound.squaddieTemplateId).toStrictEqual(actionsForThisRound.squaddieTemplateId);
         expect(newActionForThisRound.startingLocation).toStrictEqual(actionsForThisRound.startingLocation);

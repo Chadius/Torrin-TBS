@@ -14,7 +14,7 @@ import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
 } from "../history/squaddieInstructionInProgress";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
@@ -66,14 +66,14 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         });
 
         battleEventRecording = {history: []};
-        const oneActionInstruction = new SquaddieActionsForThisRound({
+        const oneActionInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: monkStaticId,
             battleSquaddieId: monkDynamicId,
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
+        };
 
-        oneActionInstruction.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 squaddieAction: monkKoanAction,

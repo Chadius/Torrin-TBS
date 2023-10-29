@@ -12,11 +12,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {
-    SquaddieActionsForThisRound,
-    SquaddieActionsForThisRoundData,
-    SquaddieActionsForThisRoundHandler
-} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera, PanningInformation} from "../battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
@@ -179,13 +175,13 @@ describe('BattleComputerSquaddieSelector', () => {
     }
 
     const makeSquaddieMoveAction = (squaddieTemplateId: string, battleSquaddieId: string) => {
-        const moveAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const moveAction: SquaddieActionsForThisRound = {
             squaddieTemplateId,
             battleSquaddieId,
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
-        moveAction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(moveAction, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 1, r: 1},
@@ -322,7 +318,7 @@ describe('BattleComputerSquaddieSelector', () => {
             selector.update(state, mockedP5GraphicsContext);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
-            const endTurnActionInstruction: SquaddieActionsForThisRoundData = state.squaddieCurrentlyActing.squaddieActionsForThisRound;
+            const endTurnActionInstruction: SquaddieActionsForThisRound = state.squaddieCurrentlyActing.squaddieActionsForThisRound;
             const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(endTurnActionInstruction);
             expect(mostRecentAction.type).toBe(SquaddieActionType.END_TURN);
 
@@ -336,13 +332,13 @@ describe('BattleComputerSquaddieSelector', () => {
 
         enemyDemonDynamic.endTurn();
 
-        const squaddieSquaddieAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const squaddieSquaddieAction: SquaddieActionsForThisRound = {
             squaddieTemplateId: enemyDemonStatic.templateId,
             battleSquaddieId: enemyDemonDynamic2.battleSquaddieId,
             startingLocation: {q: 0, r: 1},
             actions: [],
-        });
-        squaddieSquaddieAction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(squaddieSquaddieAction, {
             type: SquaddieActionType.SQUADDIE,
             data: {
                 targetLocation: {q: 0, r: 0},
@@ -454,7 +450,7 @@ describe('BattleComputerSquaddieSelector', () => {
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
-            expect(state.squaddieMovePath.getDestination()).toStrictEqual(moveAction.destinationLocation());
+            expect(state.squaddieMovePath.getDestination()).toStrictEqual(SquaddieActionsForThisRoundHandler.destinationLocation(moveAction));
             expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe("enemy_demon_0");
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
             expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.MOVEMENT);
@@ -465,13 +461,13 @@ describe('BattleComputerSquaddieSelector', () => {
             let state: BattleOrchestratorState;
 
             beforeEach(() => {
-                const squaddieSquaddieAction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+                const squaddieSquaddieAction: SquaddieActionsForThisRound = {
                     squaddieTemplateId: enemyDemonStatic.templateId,
                     battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
                     actions: [],
-                });
-                squaddieSquaddieAction.addAction({
+                };
+                SquaddieActionsForThisRoundHandler.addAction(squaddieSquaddieAction, {
                     type: SquaddieActionType.SQUADDIE,
                     data: {
                         targetLocation: {q: 0, r: 1},

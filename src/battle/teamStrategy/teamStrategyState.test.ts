@@ -25,12 +25,12 @@ describe('Team Strategy State', () => {
     }
 
     it('can reset state to clear the instruction', () => {
-        const newInstruction = new SquaddieActionsForThisRound({
+        const newInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
+        };
 
         const state: TeamStrategyState = createDummyState(newInstruction);
         expect(state.instruction).toStrictEqual(newInstruction);
@@ -43,12 +43,12 @@ describe('Team Strategy State', () => {
         const state: TeamStrategyState = createDummyState();
         expect(state.instruction).toBeUndefined();
 
-        const newInstruction = new SquaddieActionsForThisRound({
+        const newInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
             actions: [],
-        });
+        };
         state.setInstruction(newInstruction);
 
         expect(state.instruction).toStrictEqual(newInstruction);

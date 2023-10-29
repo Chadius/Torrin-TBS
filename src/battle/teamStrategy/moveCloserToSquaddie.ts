@@ -1,6 +1,6 @@
 import {TeamStrategy} from "./teamStrategy";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
@@ -135,13 +135,13 @@ export class MoveCloserToSquaddie implements TeamStrategy {
 
             const numberOfMoveActions = searchResults.calculateNumberOfMoveActionsRequired(targetLocation);
 
-            const moveTowardsLocation: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+            const moveTowardsLocation: SquaddieActionsForThisRound = {
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: squaddieToAct,
                 startingLocation: mapLocation,
                 actions: [],
-            });
-            moveTowardsLocation.addAction({
+            };
+            SquaddieActionsForThisRoundHandler.addAction(moveTowardsLocation, {
                 type: SquaddieActionType.MOVEMENT,
                 data: {
                     destination: targetLocation,

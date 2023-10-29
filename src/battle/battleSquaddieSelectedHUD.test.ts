@@ -18,7 +18,6 @@ import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordina
 import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
-import {SquaddieActionsForThisRound} from "./history/squaddieActionsForThisRound";
 import * as mocks from "../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {ButtonStatus} from "../ui/button";
@@ -332,12 +331,12 @@ describe('BattleSquaddieSelectedHUD', () => {
                     id: "purifying_stream",
                     traits: new TraitStatusStorage({}),
                 }),
-                squaddieActionsForThisRound: new SquaddieActionsForThisRound({
+                squaddieActionsForThisRound: {
                     battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                     squaddieTemplateId: playerSquaddieStatic.templateId,
                     startingLocation: {q: 0, r: 0},
                     actions: [],
-                }),
+                },
             },
         });
 

@@ -6,7 +6,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {BattleSquaddie} from "../battleSquaddie";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -102,13 +102,13 @@ describe('move towards closest squaddie in range', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const expectedInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: searchingSquaddieStatic.squaddieId.templateId,
             battleSquaddieId: "searching_squaddie_0",
             startingLocation: {q: 0, r: 2},
             actions: [],
-        });
-        expectedInstruction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 0, r: 1},
@@ -164,13 +164,13 @@ describe('move towards closest squaddie in range', () => {
             r: 2
         });
 
-        const startingInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const startingInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: searchingSquaddieStatic2.templateId,
             battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
             startingLocation: {q: 0, r: 5},
             actions: [],
-        });
-        startingInstruction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(startingInstruction, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 0, r: 3},
@@ -185,13 +185,13 @@ describe('move towards closest squaddie in range', () => {
             instruction: startingInstruction,
         });
 
-        const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const expectedInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: searchingSquaddieStatic2.squaddieId.templateId,
             battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
             startingLocation: {q: 0, r: 3},
             actions: [],
-        });
-        expectedInstruction.addAction({
+        };
+        SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 0, r: 1},
@@ -280,13 +280,13 @@ describe('move towards closest squaddie in range', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const expectedInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: searchingSquaddieStatic.squaddieId.templateId,
             battleSquaddieId: "searching_squaddie_0",
             startingLocation: {q: 0, r: 8},
             actions: [],
-        });
-        expectedInstruction.endTurn();
+        };
+        SquaddieActionsForThisRoundHandler.endTurn(expectedInstruction);
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
             desiredBattleSquaddieId: "target_squaddie_0"
@@ -319,14 +319,14 @@ describe('move towards closest squaddie in range', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        const expectedInstruction: SquaddieActionsForThisRound = new SquaddieActionsForThisRound({
+        const expectedInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: searchingSquaddieStatic.squaddieId.templateId,
             battleSquaddieId: "searching_squaddie_0",
             startingLocation: {q: 0, r: 2},
             actions: [],
-        });
+        };
 
-        expectedInstruction.addAction({
+        SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 0, r: 1},
