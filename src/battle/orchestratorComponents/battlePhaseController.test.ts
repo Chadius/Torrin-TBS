@@ -5,7 +5,7 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieTurn} from "../../squaddie/turn";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController, BattlePhaseState} from "./battlePhaseController";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {ResourceHandler} from "../../resource/resourceHandler";
@@ -50,7 +50,7 @@ describe('BattlePhaseController', () => {
         playerBattleSquaddie = new BattleSquaddie({
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
-            squaddieTurn: new SquaddieTurn({}),
+            squaddieTurn: SquaddieTurnHandler.new(),
             mapIcon: mocks.mockImageUI(),
         });
 
@@ -77,7 +77,7 @@ describe('BattlePhaseController', () => {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
-                squaddieTurn: new SquaddieTurn({}),
+                squaddieTurn: SquaddieTurnHandler.new(),
                 mapIcon: mocks.mockImageUI(),
             })
         );

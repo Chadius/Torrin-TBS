@@ -13,6 +13,7 @@ import {TargetSquaddieInRange} from "./targetSquaddieInRange";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 
 describe('target a squaddie within reach of actions', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -204,7 +205,7 @@ describe('target a squaddie within reach of actions', () => {
     it('will not use an action if there are not enough action points remaining', () => {
         missionMap.addSquaddie(playerKnightStatic.templateId, playerKnightDynamic.battleSquaddieId, {q: 0, r: 1});
         missionMap.addSquaddie(allyClericStatic.templateId, allyClericDynamic.battleSquaddieId, {q: 0, r: 2});
-        enemyBanditDynamic.squaddieTurn.spendActionPoints(4 - shortBowAction.actionPointCost);
+        SquaddieTurnHandler.spendActionPoints(enemyBanditDynamic.squaddieTurn, 4 - shortBowAction.actionPointCost);
 
         const state = new TeamStrategyState({
             missionMap: missionMap,

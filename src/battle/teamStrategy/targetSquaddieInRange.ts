@@ -10,6 +10,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 
 export class TargetSquaddieInRange implements TeamStrategy {
     desiredBattleSquaddieId: string;
@@ -58,7 +59,7 @@ export class TargetSquaddieInRange implements TeamStrategy {
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(actingBattleSquaddieId));
 
         const validActions = squaddieTemplate.action.filter((action) => {
-            return battleSquaddie.squaddieTurn.canPerformAction(action).canPerform === true;
+            return SquaddieTurnHandler.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
         });
 
         const targetingResultsInfo = this.getTargetingResultsOfActionWithTargets({

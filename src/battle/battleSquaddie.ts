@@ -1,5 +1,5 @@
 import {ImageUI} from "../ui/imageUI";
-import {SquaddieTurn} from "../squaddie/turn";
+import {SquaddieTurn, SquaddieTurnHandler} from "../squaddie/turn";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
@@ -36,7 +36,7 @@ export class BattleSquaddie {
             this._inBattleAttributes = inBattleAttributes;
         }
 
-        this._squaddieTurn = squaddieTurn || new SquaddieTurn({});
+        this._squaddieTurn = squaddieTurn || {remainingActionPoints: 3};
         this._mapIcon = mapIcon;
 
         this.assertBattleSquaddie();
@@ -78,15 +78,15 @@ export class BattleSquaddie {
     }
 
     canStillActThisRound(): boolean {
-        return this._squaddieTurn.hasActionPointsRemaining();
+        return SquaddieTurnHandler.hasActionPointsRemaining(this._squaddieTurn);
     }
 
     beginNewRound() {
-        return this._squaddieTurn.beginNewRound();
+        return SquaddieTurnHandler.beginNewRound(this._squaddieTurn);
     }
 
     endTurn() {
-        return this._squaddieTurn.endTurn();
+        return SquaddieTurnHandler.endTurn(this._squaddieTurn);
     }
 
     initializeInBattleAttributes(attributes: ArmyAttributes) {

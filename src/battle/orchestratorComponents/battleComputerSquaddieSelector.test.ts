@@ -4,7 +4,7 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieTurn} from "../../squaddie/turn";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {
     BattleOrchestratorChanges,
     OrchestratorComponentMouseEvent,
@@ -152,7 +152,7 @@ describe('BattleComputerSquaddieSelector', () => {
         enemyDemonDynamic2 = new BattleSquaddie({
             squaddieTemplateId: enemyDemonStatic.templateId,
             battleSquaddieId: "enemy_demon_2",
-            squaddieTurn: new SquaddieTurn({})
+            squaddieTurn: SquaddieTurnHandler.new(),
         });
 
         squaddieRepo.addBattleSquaddie(enemyDemonDynamic2);

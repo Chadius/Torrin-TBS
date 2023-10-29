@@ -1,5 +1,4 @@
 import {BattleSquaddie} from "./battleSquaddie";
-import {SquaddieTurn} from "../squaddie/turn";
 import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
@@ -26,7 +25,7 @@ describe('BattleSquaddie', () => {
             const badBattleSquaddie: BattleSquaddie = new BattleSquaddie({
                 squaddieTemplateId: "squaddieTemplateId",
                 battleSquaddieId: "",
-                squaddieTurn: new SquaddieTurn({}),
+                squaddieTurn: {remainingActionPoints: 3},
             })
             badBattleSquaddie.assertBattleSquaddie();
         }

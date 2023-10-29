@@ -34,6 +34,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {RecordingHandler} from "../history/recording";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -190,7 +191,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         });
 
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, action);
-        battleSquaddie.squaddieTurn.spendActionPointsOnAction(state.squaddieCurrentlyActing.currentlySelectedAction);
+        SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddie.squaddieTurn, state.squaddieCurrentlyActing.currentlySelectedAction);
         const instructionResults = CalculateResults({
             state,
             actingBattleSquaddie: battleSquaddie,

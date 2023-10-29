@@ -4,7 +4,7 @@ import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusS
 import {SquaddieId} from "../../squaddie/id";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {BattleSquaddie} from "../../battle/battleSquaddie";
-import {SquaddieTurn} from "../../squaddie/turn";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {SquaddieAction} from "../../squaddie/action";
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import * as mocks from "./mocks";
@@ -66,7 +66,7 @@ export const CreateNewSquaddieAndAddToRepository: (
     const battleSquaddie = new BattleSquaddie({
         squaddieTemplateId: templateId,
         battleSquaddieId: battleId,
-        squaddieTurn: new SquaddieTurn({}),
+        squaddieTurn: SquaddieTurnHandler.new(),
         mapIcon: mocks.mockImageUI(),
     });
     squaddieRepository.addSquaddie(squaddieTemplate, battleSquaddie);

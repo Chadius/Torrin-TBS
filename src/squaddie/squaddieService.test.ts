@@ -16,6 +16,7 @@ import {
 } from "./squaddieService";
 import {DefaultArmyAttributes} from "./armyAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {SquaddieTurnHandler} from "./turn";
 
 describe('Squaddie Service', () => {
     let playerStatic: SquaddieTemplate;
@@ -70,7 +71,7 @@ describe('Squaddie Service', () => {
             });
             expect(actionPointsRemaining).toBe(3);
 
-            playerDynamic.squaddieTurn.spendActionPoints(1);
+            SquaddieTurnHandler.spendActionPoints(playerDynamic.squaddieTurn, 1);
             ({
                 actionPointsRemaining: actionPointsRemaining
             } = GetNumberOfActionPoints({
@@ -215,7 +216,7 @@ describe('Squaddie Service', () => {
             expect(isDead).toBeFalsy();
         });
         it('cannot act because it is out of actions', () => {
-            playerDynamic.squaddieTurn.spendActionPoints(3);
+            SquaddieTurnHandler.spendActionPoints(playerDynamic.squaddieTurn, 3);
             let {
                 canAct,
                 hasActionPointsRemaining,
@@ -266,7 +267,7 @@ describe('Squaddie Service', () => {
             expect(playerCanControlThisSquaddieRightNow).toBeTruthy();
         });
         it('checks when the player controlled squaddie has no actions', () => {
-            playerDynamic.squaddieTurn.spendActionPoints(3);
+            SquaddieTurnHandler.spendActionPoints(playerDynamic.squaddieTurn, 3);
             let {
                 squaddieHasThePlayerControlledAffiliation,
                 squaddieCanCurrentlyAct,

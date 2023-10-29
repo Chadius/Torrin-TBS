@@ -32,6 +32,7 @@ import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimatio
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -185,7 +186,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        battleSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
+        SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
         return state;
     }
 
@@ -234,7 +235,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        battleSquaddieBase.squaddieTurn.spendActionPointsOnAction(powerAttackLongswordAction);
+        SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
         return state;
     }
 

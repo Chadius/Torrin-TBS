@@ -3,7 +3,7 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieTurn} from "../../squaddie/turn";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
@@ -36,7 +36,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "player_squaddie_0",
                 squaddieTemplateId: "player_squaddie",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
 
@@ -56,7 +56,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
 
@@ -76,7 +76,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "ally_squaddie_0",
                 squaddieTemplateId: "ally_squaddie",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
 
@@ -96,7 +96,7 @@ describe('battlePhaseTracker', () => {
             new BattleSquaddie({
                 battleSquaddieId: "none_squaddie_0",
                 squaddieTemplateId: "none_squaddie",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
 

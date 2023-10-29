@@ -21,7 +21,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieTurn} from "../../squaddie/turn";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
@@ -119,7 +119,7 @@ describe("BattleSaveState", () => {
         player0BattleSquaddie = new BattleSquaddie({
             battleSquaddieId: "player battle 0",
             squaddieTemplateId: "player template 0",
-            squaddieTurn: new SquaddieTurn({}),
+            squaddieTurn: SquaddieTurnHandler.new(),
         });
 
         const enemy0SquaddieTemplate = new SquaddieTemplate({
@@ -134,8 +134,8 @@ describe("BattleSaveState", () => {
             }
         });
 
-        const finishedTurn = new SquaddieTurn({});
-        finishedTurn.endTurn();
+        const finishedTurn = SquaddieTurnHandler.new();
+        SquaddieTurnHandler.endTurn(finishedTurn);
         enemy0BattleSquaddieWithWoundsAndTurnEnded = new BattleSquaddie({
             battleSquaddieId: "enemy battle 0",
             squaddieTemplateId: "enemy template 0",
@@ -157,7 +157,7 @@ describe("BattleSaveState", () => {
         const enemy0BattleSquaddieWithNewTurn = new BattleSquaddie({
             battleSquaddieId: "enemy battle 0",
             squaddieTemplateId: "enemy template 0",
-            squaddieTurn: new SquaddieTurn({}),
+            squaddieTurn: SquaddieTurnHandler.new(),
             inBattleAttributes: InBattleAttributesHandler.new({
                 ...DefaultArmyAttributes(),
                 maxHitPoints: 5
@@ -359,7 +359,7 @@ describe("BattleSaveState", () => {
             battleSquaddie: enemyBattle
         } = getResultOrThrowError(newBattleState.squaddieRepository.getSquaddieByBattleId("enemy battle 0"));
         expect(enemyTemplate.templateId).toBe("enemy template 0");
-        expect(enemyBattle.squaddieTurn.hasActionPointsRemaining()).toBeFalsy();
+        expect(SquaddieTurnHandler.hasActionPointsRemaining(enemyBattle.squaddieTurn)).toBeFalsy();
         expect(enemyBattle.inBattleAttributes.currentHitPoints).toBe(4);
     });
 
@@ -457,7 +457,7 @@ describe("BattleSaveState", () => {
                 battleSquaddie: enemyBattle
             } = getResultOrThrowError(newBattleState.squaddieRepository.getSquaddieByBattleId("enemy battle 0"));
             expect(enemyTemplate.templateId).toBe("enemy template 0");
-            expect(enemyBattle.squaddieTurn.hasActionPointsRemaining()).toBeFalsy();
+            expect(SquaddieTurnHandler.hasActionPointsRemaining(enemyBattle.squaddieTurn)).toBeFalsy();
             expect(enemyBattle.inBattleAttributes.currentHitPoints).toBe(4);
         });
 

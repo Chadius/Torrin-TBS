@@ -5,37 +5,25 @@ export enum ACTION_PERFORM_FAILURE_REASON {
     TOO_FEW_ACTIONS_REMAINING
 }
 
-export interface SquaddieTurnData {
+export interface SquaddieTurn {
     remainingActionPoints: number;
 }
 
-export class SquaddieTurn implements SquaddieTurnData {
-
-    constructor({data}: { data?: SquaddieTurnData }) {
-        if (data) {
-            this._remainingActionPoints = data.remainingActionPoints;
-            return;
-        }
-
-        this._remainingActionPoints = 3;
-    }
-
-    private _remainingActionPoints: number;
-
-    get remainingActionPoints(): number {
-        return this._remainingActionPoints;
-    }
-
-    spendActionPointsOnAction(action: SquaddieActionData) {
-        this._remainingActionPoints = (this._remainingActionPoints - action.actionPointCost);
-    }
-
-    spendActionPoints(number: number) {
-        this._remainingActionPoints = (this._remainingActionPoints - number);
-    }
-
-    canPerformAction(action: SquaddieActionData): { canPerform: boolean, reason: ACTION_PERFORM_FAILURE_REASON } {
-        if (this._remainingActionPoints < action.actionPointCost) {
+export const SquaddieTurnHandler = {
+    new: (): SquaddieTurn => {
+        return {remainingActionPoints: 3};
+    },
+    spendActionPointsOnAction: (data: SquaddieTurn, action: SquaddieActionData) => {
+        data.remainingActionPoints = (data.remainingActionPoints - action.actionPointCost);
+    },
+    spendActionPoints: (data: SquaddieTurn, number: number) => {
+        data.remainingActionPoints = (data.remainingActionPoints - number);
+    },
+    canPerformAction: (data: SquaddieTurn, action: SquaddieActionData): {
+        canPerform: boolean,
+        reason: ACTION_PERFORM_FAILURE_REASON
+    } => {
+        if (data.remainingActionPoints < action.actionPointCost) {
             return {
                 canPerform: false,
                 reason: ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING
@@ -46,21 +34,18 @@ export class SquaddieTurn implements SquaddieTurnData {
             canPerform: true,
             reason: ACTION_PERFORM_FAILURE_REASON.UNKNOWN
         }
-    }
+    },
+    beginNewRound: (data: SquaddieTurn) => {
+        refreshActionPoints(data);
+    },
+    hasActionPointsRemaining: (data: SquaddieTurn): boolean => {
+        return data.remainingActionPoints > 0;
+    },
+    endTurn: (data: SquaddieTurn) => {
+        data.remainingActionPoints = 0;
+    },
+};
 
-    beginNewRound() {
-        this.refreshActionPoints();
-    }
-
-    hasActionPointsRemaining(): boolean {
-        return this._remainingActionPoints > 0;
-    }
-
-    endTurn() {
-        this._remainingActionPoints = 0;
-    }
-
-    private refreshActionPoints() {
-        this._remainingActionPoints = 3;
-    }
+const refreshActionPoints = (data: SquaddieTurn) => {
+    data.remainingActionPoints = 3;
 }

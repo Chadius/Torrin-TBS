@@ -3,7 +3,7 @@ import {SquaddieId} from "../squaddie/id";
 import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
-import {SquaddieTurn} from "../squaddie/turn";
+import {SquaddieTurn, SquaddieTurnHandler} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
 import {SquaddieResource} from "../squaddie/resource";
@@ -41,7 +41,7 @@ describe('BattleSquaddieRepository', () => {
         battleSquaddieBase = new BattleSquaddie({
             battleSquaddieId: "player_young_torrin_0",
             squaddieTemplateId: "player_young_torrin",
-            squaddieTurn: new SquaddieTurn({})
+            squaddieTurn: {remainingActionPoints: 3}
         });
 
         squaddieRepo.addSquaddieTemplate(
@@ -84,7 +84,7 @@ describe('BattleSquaddieRepository', () => {
                 new BattleSquaddie({
                     battleSquaddieId: "battle_id",
                     squaddieTemplateId: "unknown_static_squaddie",
-                    squaddieTurn: new SquaddieTurn({})
+                    squaddieTurn: {remainingActionPoints: 3},
                 })
             );
         }
@@ -122,7 +122,7 @@ describe('BattleSquaddieRepository', () => {
                 battleSquaddieBase = new BattleSquaddie({
                     battleSquaddieId: "",
                     squaddieTemplateId: "static",
-                    squaddieTurn: new SquaddieTurn({})
+                    squaddieTurn: {remainingActionPoints: 3},
                 })
             );
         }
@@ -179,10 +179,10 @@ describe('BattleSquaddieRepository', () => {
         squaddieRepo.addBattleSquaddie(
             battleSquaddieBase
         )
-        expect(battleSquaddieBase.squaddieTurn.hasActionPointsRemaining()).toBeTruthy();
+        expect(SquaddieTurnHandler.hasActionPointsRemaining(battleSquaddieBase.squaddieTurn)).toBeTruthy();
 
-        const turnEnded = new SquaddieTurn({});
-        turnEnded.endTurn();
+        const turnEnded: SquaddieTurn = {remainingActionPoints: 3};
+        SquaddieTurnHandler.endTurn(turnEnded);
         squaddieRepo.updateBattleSquaddie(
             new BattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
@@ -199,7 +199,7 @@ describe('BattleSquaddieRepository', () => {
         } = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_young_torrin_0"))
 
         expect(squaddieTemplate).toStrictEqual(squaddieTemplate);
-        expect(battleSquaddie.squaddieTurn.hasActionPointsRemaining()).toBeFalsy();
+        expect(SquaddieTurnHandler.hasActionPointsRemaining(battleSquaddie.squaddieTurn)).toBeFalsy();
     });
 
     it("should throw error if you update a battle squaddie to a non existent template", () => {
@@ -211,7 +211,7 @@ describe('BattleSquaddieRepository', () => {
             const badBattleSquaddie = new BattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: "does not exist",
-                squaddieTurn: new SquaddieTurn({}),
+                squaddieTurn: {remainingActionPoints: 3},
                 mapIcon: battleSquaddieBase.mapIcon,
             });
 

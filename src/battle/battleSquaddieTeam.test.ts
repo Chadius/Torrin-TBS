@@ -2,7 +2,6 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {SquaddieId} from "../squaddie/id";
 import {BattleSquaddie} from "./battleSquaddie";
-import {SquaddieTurn} from "../squaddie/turn";
 import {BattleSquaddieTeam} from "./battleSquaddieTeam";
 import * as mocks from "../utils/test/mocks";
 import {TraitStatusStorage} from "../trait/traitStatusStorage";
@@ -47,7 +46,7 @@ describe('Battle Squaddie Team', () => {
             new BattleSquaddie({
                 battleSquaddieId: "player_young_torrin_0",
                 squaddieTemplateId: "player_young_torrin",
-                squaddieTurn: new SquaddieTurn({}),
+                squaddieTurn: {remainingActionPoints: 3},
                 mapIcon: mocks.mockImageUI(),
             });
 
@@ -58,7 +57,7 @@ describe('Battle Squaddie Team', () => {
         playerBattleSquaddie1 = new BattleSquaddie({
             battleSquaddieId: "player_young_torrin_1",
             squaddieTemplateId: "player_young_torrin",
-            squaddieTurn: new SquaddieTurn({}),
+            squaddieTurn: {remainingActionPoints: 3},
             mapIcon: mocks.mockImageUI(),
         });
         squaddieRepo.addBattleSquaddie(
@@ -90,7 +89,7 @@ describe('Battle Squaddie Team', () => {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_slither_demon_0",
                 squaddieTemplateId: "enemy_slither_demon",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: {remainingActionPoints: 3},
             });
 
         squaddieRepo.addBattleSquaddie(
@@ -100,7 +99,7 @@ describe('Battle Squaddie Team', () => {
         enemyBattleSquaddie1 = new BattleSquaddie({
             battleSquaddieId: "enemy_slither_demon_1",
             squaddieTemplateId: "enemy_slither_demon",
-            squaddieTurn: new SquaddieTurn({})
+            squaddieTurn: {remainingActionPoints: 3},
         });
         squaddieRepo.addBattleSquaddie(
             enemyBattleSquaddie1

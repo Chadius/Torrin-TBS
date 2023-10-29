@@ -16,7 +16,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {SquaddieAction} from "../../squaddie/action";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieTurn} from "../../squaddie/turn";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {ImageUI} from "../../ui/imageUI";
@@ -227,7 +227,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "player_young_torrin",
                 squaddieTemplateId: "player_young_torrin",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new(),
             })
         );
         state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", {q: 1, r: 0});
@@ -282,7 +282,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "player_sir_camil",
                 squaddieTemplateId: "player_sir_camil",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new(),
             })
         );
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", {q: 1, r: 1});
@@ -365,7 +365,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_0",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_0", {q: 1, r: 5});
@@ -374,7 +374,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_1",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie("enemy_demon_slither", "enemy_demon_slither_1", {q: 1, r: 9});
@@ -383,7 +383,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_2",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie(
@@ -396,7 +396,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_3",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie(
@@ -409,7 +409,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_4",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie(
@@ -422,7 +422,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_5",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie(
@@ -435,7 +435,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_6",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie(
@@ -448,7 +448,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             new BattleSquaddie({
                 battleSquaddieId: "enemy_demon_slither_7",
                 squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: new SquaddieTurn({})
+                squaddieTurn: SquaddieTurnHandler.new()
             })
         );
         state.missionMap.addSquaddie(
