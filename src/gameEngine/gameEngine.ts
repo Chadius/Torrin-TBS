@@ -17,6 +17,8 @@ import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
+import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
@@ -114,6 +116,11 @@ export class GameEngine {
 
     update({graphicsContext}: { graphicsContext: GraphicsContext }) {
         this.component.update(this.getComponentState(), graphicsContext);
+
+        if (this.battleOrchestratorState.gameSaveFlags.saveGame) {
+            this.saveGameAndDownloadFile();
+        }
+
         if (this.component.hasCompleted(this.getComponentState())) {
             const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
             this.component.reset(this.getComponentState());
@@ -344,5 +351,15 @@ export class GameEngine {
         }
 
         return this.resourceHandler;
+    }
+
+    private saveGameAndDownloadFile() {
+        const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+            saveVersion: SAVE_VERSION,
+            missionId: "Test demo mission",
+            battleOrchestratorState: this.battleOrchestratorState,
+        });
+        BattleSaveStateHandler.SaveToFile(saveData);
+        this.battleOrchestratorState.gameSaveFlags.saveGame = false;
     }
 }

@@ -23,6 +23,8 @@ import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {ButtonStatus} from "../ui/button";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
+import {BattlePhase} from "./orchestratorComponents/battlePhaseTracker";
+import {SquaddieActionType} from "./history/anySquaddieAction";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -401,7 +403,6 @@ describe('BattleSquaddieSelectedHUD', () => {
             state,
         });
 
-        const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
         hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
 
         expect(hud.wasAnyActionSelected()).toBeFalsy();
@@ -417,6 +418,137 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
     });
 
+    describe("Save game button", () => {
+        it('should show the button during the player phase', () => {
+            const state = new BattleOrchestratorState({
+                squaddieRepository: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.PLAYER,
+                    turnCount: 0,
+                },
+                squaddieCurrentlyActing: {
+                    movingBattleSquaddieIds: [],
+                    squaddieActionsForThisRound: {
+                        battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        startingLocation: {q: 0, r: 0},
+                        actions: []
+                    },
+                    currentlySelectedAction: undefined,
+                }
+            });
+
+            hud = new BattleSquaddieSelectedHUD()
+
+            hud.selectSquaddieAndDrawWindow({
+                battleId: playerSquaddieDynamic.battleSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeTruthy();
+        });
+        it('should not show the button during other phases', () => {
+            const state = new BattleOrchestratorState({
+                squaddieRepository: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.ENEMY,
+                    turnCount: 0,
+                },
+            });
+
+            hud = new BattleSquaddieSelectedHUD()
+
+            hud.selectSquaddieAndDrawWindow({
+                battleId: playerSquaddieDynamic.battleSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
+        });
+        it('should not show the button if the player controlled squaddie is mid way through their turn', () => {
+            const state = new BattleOrchestratorState({
+                squaddieRepository: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.PLAYER,
+                    turnCount: 0,
+                },
+                squaddieCurrentlyActing: {
+                    movingBattleSquaddieIds: [],
+                    squaddieActionsForThisRound: {
+                        battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        startingLocation: {q: 0, r: 0},
+                        actions: [
+                            {
+                                type: SquaddieActionType.MOVEMENT,
+                                data: {
+                                    destination: {q: 1, r: 0},
+                                    numberOfActionPointsSpent: 1,
+                                }
+                            }
+                        ]
+                    },
+                    currentlySelectedAction: undefined,
+                }
+            });
+
+            hud = new BattleSquaddieSelectedHUD();
+            hud.selectSquaddieAndDrawWindow({
+                battleId: playerSquaddieDynamic.battleSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
+        });
+        it('should call the game engine save function', () => {
+            const state = new BattleOrchestratorState({
+                squaddieRepository: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.PLAYER,
+                    turnCount: 0,
+                },
+                squaddieCurrentlyActing: {
+                    movingBattleSquaddieIds: [],
+                    squaddieActionsForThisRound: {
+                        battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        startingLocation: {q: 0, r: 0},
+                        actions: []
+                    },
+                    currentlySelectedAction: undefined,
+                },
+            });
+
+            hud = new BattleSquaddieSelectedHUD();
+            const saveGame = jest.spyOn(hud, "markGameToBeSaved");
+            hud.selectSquaddieAndDrawWindow({
+                battleId: playerSquaddieDynamic.battleSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+            expect(saveGame).toBeCalled();
+
+            expect(state.gameSaveFlags.saveGame).toBeTruthy();
+        });
+    });
+
     describe("Next Squaddie button", () => {
         it('should show the button if there are at least 2 player controllable squaddies', () => {
             const state = new BattleOrchestratorState({
@@ -425,7 +557,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 camera: new BattleCamera(0, 0),
             });
-
 
             hud = new BattleSquaddieSelectedHUD()
 

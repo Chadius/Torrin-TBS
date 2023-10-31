@@ -6,6 +6,8 @@ import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState} from "../titleScreen/titleScreenState";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
+import {SaveFile} from "../utils/fileHandling/saveFile";
+import {NullMissionMap} from "../utils/test/battleOrchestratorState";
 
 describe('Game Engine', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -113,6 +115,24 @@ describe('Game Engine', () => {
                 componentType: BattleOrchestrator,
                 expectedStateType: BattleOrchestratorState,
             })
+        });
+    });
+
+    describe('save the game', () => {
+        it('will save the game if the battle state asks for it', () => {
+            const newGameEngine = new GameEngine({
+                startupMode: GameModeEnum.BATTLE,
+                graphicsContext: mockedP5GraphicsContext,
+            });
+            newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
+            newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
+            newGameEngine.battleOrchestratorState.gameSaveFlags.saveGame = true;
+            const saveSpy = jest.spyOn(SaveFile, "DownloadToBrowser").mockReturnValue(null);
+
+            newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+
+            expect(saveSpy).toBeCalled();
+            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.saveGame).toBeFalsy();
         });
     });
 });

@@ -36,6 +36,9 @@ export class BattleOrchestratorState {
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleEventRecording: Recording;
+    gameSaveFlags: {
+        saveGame: boolean;
+    }
     private readonly _missionStatistics: MissionStatistics;
 
     constructor(options: {
@@ -107,6 +110,10 @@ export class BattleOrchestratorState {
             cutsceneCollection,
             cutsceneTriggers,
         })
+
+        this.gameSaveFlags = {
+            saveGame: false,
+        }
     }
 
     private _squaddieCurrentlyActing: SquaddieInstructionInProgress;

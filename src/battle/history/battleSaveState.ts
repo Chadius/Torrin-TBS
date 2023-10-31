@@ -10,6 +10,7 @@ import {SquaddieTurn} from "../../squaddie/turn";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
+import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SaveFile} from "../../utils/fileHandling/saveFile";
 
 export type InBattleAttributesAndTurn = {
     in_battle_attributes: InBattleAttributes,
@@ -49,27 +50,6 @@ export const BattleSaveStateHandler = {
             saveData,
         });
     },
-    createSquaddieRepository: ({
-                                   inBattleAttributesBySquaddieBattleId,
-                                   missionMap,
-                                   squaddieRepository,
-                                   squaddieMapPlacements,
-                               }: {
-        squaddieMapPlacements: MissionMapSquaddieLocation[],
-        missionMap: MissionMap,
-        squaddieRepository: BattleSquaddieRepository,
-        inBattleAttributesBySquaddieBattleId: {
-            [squaddieBattleId: string]:
-                InBattleAttributesAndTurn
-        }
-    }): BattleSquaddieRepository => {
-        return createSquaddieRepository({
-            inBattleAttributesBySquaddieBattleId,
-            missionMap,
-            squaddieRepository,
-            squaddieMapPlacements,
-        });
-    },
     updateBattleOrchestratorState: (saveData: BattleSaveState, battleOrchestratorState: BattleOrchestratorState) => {
         const cameraCoordinates = battleOrchestratorState.camera.getCoordinates();
         saveData.camera = {
@@ -91,10 +71,10 @@ export const BattleSaveStateHandler = {
         });
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
-        return JSON.stringify(saveData);
+        return stringifyBattleSaveStateData(saveData);
     },
     parseJsonIntoBattleSaveStateData: (dataString: string): BattleSaveState => {
-        return JSON.parse(dataString);
+        return parseJsonIntoBattleSaveStateData(dataString);
     },
     newUsingBattleOrchestratorState: ({missionId, battleOrchestratorState, saveVersion}: {
         battleOrchestratorState: BattleOrchestratorState;
@@ -127,8 +107,24 @@ export const BattleSaveStateHandler = {
             in_battle_attributes_by_squaddie_battle_id,
             squaddie_map_placements: battleOrchestratorState.missionMap.getAllSquaddieData(),
         }
-    }
+    },
+    SaveToFile: (data: BattleSaveState) => {
+        const dataToSave: string = stringifyBattleSaveStateData(data);
+        SaveFile.DownloadToBrowser({
+            fileName: SAVE_FILENAME,
+            content: dataToSave,
+            contentType: SAVE_CONTENT_TYPE,
+        });
+    },
 }
+
+const stringifyBattleSaveStateData = (saveData: BattleSaveState): string => {
+    return JSON.stringify(saveData);
+};
+
+const parseJsonIntoBattleSaveStateData = (dataString: string): BattleSaveState => {
+    return JSON.parse(dataString);
+};
 
 const createBattleOrchestratorState = ({
                                            missionMap,
@@ -174,47 +170,6 @@ const createBattleOrchestratorState = ({
         missionStatistics: saveData.mission_statistics,
         squaddieRepository,
     });
-};
-
-const createSquaddieRepository = ({
-                                      inBattleAttributesBySquaddieBattleId,
-                                      missionMap,
-                                      squaddieRepository,
-                                      squaddieMapPlacements,
-                                  }: {
-    squaddieMapPlacements: MissionMapSquaddieLocation[],
-    missionMap: MissionMap,
-    squaddieRepository: BattleSquaddieRepository,
-    inBattleAttributesBySquaddieBattleId: {
-        [squaddieBattleId: string]:
-            InBattleAttributesAndTurn
-    }
-}): BattleSquaddieRepository => {
-    squaddieMapPlacements.forEach((datum) => {
-        missionMap.addSquaddie(datum.squaddieTemplateId, datum.battleSquaddieId, datum.mapLocation);
-    });
-
-    Object.entries(inBattleAttributesBySquaddieBattleId).forEach(([battleSquaddieId, info]) => {
-        const inBattleAttributes = info.in_battle_attributes;
-        const turn = info.turn;
-
-        const {
-            battleSquaddie,
-            squaddieTemplate
-        } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
-        const newBattleSquaddie: BattleSquaddie = new BattleSquaddie({
-            battleSquaddieId,
-            mapIcon: battleSquaddie.mapIcon,
-            squaddieTurn: turn,
-            squaddieTemplate: squaddieTemplate,
-            squaddieTemplateId: squaddieTemplate.templateId,
-            inBattleAttributes,
-        });
-
-        squaddieRepository.updateBattleSquaddie(newBattleSquaddie);
-    });
-
-    return squaddieRepository;
 };
 
 export const DefaultBattleSaveState = (): BattleSaveState => {

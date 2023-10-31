@@ -29,6 +29,7 @@ import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
+import {BattlePhase} from "./orchestratorComponents/battlePhaseTracker";
 
 enum ActionValidityCheck {
     IS_VALID = "IS_VALID",
@@ -41,6 +42,7 @@ export class BattleSquaddieSelectedHUD {
     affiliateIcon?: ImageUI;
     selectedAction: SquaddieAction | SquaddieEndTurnAction;
     useActionButtons: UseActionButton[];
+    saveGameButton: Label;
     nextSquaddieButton: Label;
     nextBattleSquaddieIds: string[];
     squaddieIdTextBox: TextBox;
@@ -81,6 +83,7 @@ export class BattleSquaddieSelectedHUD {
 
         this.generateAffiliateIcon(squaddieTemplate, state);
         this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
+        this.generateSaveGameButton(windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
         this.generateSquaddieIdText(squaddieTemplate);
     }
@@ -133,6 +136,9 @@ export class BattleSquaddieSelectedHUD {
         if (this.shouldDrawNextButton(state)) {
             this.nextSquaddieButton.draw(graphicsContext);
         }
+        if (this.shouldDrawSaveAndLoadButton(state)) {
+            this.saveGameButton.draw(graphicsContext);
+        }
     }
 
     getUseActionButtons(): UseActionButton[] {
@@ -180,6 +186,10 @@ export class BattleSquaddieSelectedHUD {
         if (clickedOnNextButton) {
             this.selectNextSquaddie(state);
         }
+
+        if (this.shouldDrawSaveAndLoadButton(state) && this.saveGameButton.rectangle.area.isInside(mouseX, mouseY)) {
+            this.markGameToBeSaved(state);
+        }
     }
 
     mouseMoved(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
@@ -221,6 +231,29 @@ export class BattleSquaddieSelectedHUD {
         }
 
         return !selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 0;
+    }
+
+    shouldDrawSaveAndLoadButton(state: BattleOrchestratorState): boolean {
+        if (
+            !state.battlePhaseState
+            || state.battlePhaseState.currentAffiliation !== BattlePhase.PLAYER
+        ) {
+            return false;
+        }
+
+        if (
+            state.squaddieCurrentlyActing
+            && state.squaddieCurrentlyActing.squaddieActionsForThisRound
+            && state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions.length > 0
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    markGameToBeSaved(state: BattleOrchestratorState): void {
+        state.gameSaveFlags.saveGame = true;
     }
 
     private generateUseActionButtons(
@@ -634,13 +667,35 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
+    private generateSaveGameButton(windowDimensions: RectArea) {
+        const saveButtonArea = new RectArea({
+            top: windowDimensions.top + WINDOW_SPACING1,
+            height: windowDimensions.height / 2,
+            screenWidth: ScreenDimensions.SCREEN_WIDTH,
+            startColumn: 2,
+            endColumn: 2,
+            margin: [0, WINDOW_SPACING1, WINDOW_SPACING1, 0],
+        });
+
+        this.saveGameButton = new Label({
+            text: "Save",
+            textSize: 24,
+            fillColor: [10, 2, 192],
+            fontColor: [20, 5, 16],
+            area: saveButtonArea,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
+            padding: WINDOW_SPACING1,
+        });
+    }
+
     private generateNextSquaddieButton(windowDimensions: RectArea) {
         const nextButtonArea = new RectArea({
             top: windowDimensions.top + WINDOW_SPACING1,
             bottom: windowDimensions.bottom - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 2,
-            endColumn: 2,
+            startColumn: 3,
+            endColumn: 3,
         });
 
         this.nextSquaddieButton = new Label({
