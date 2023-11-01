@@ -37,6 +37,7 @@ export class BattleOrchestratorState {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleEventRecording: Recording;
     gameSaveFlags: {
+        loadGame: boolean;
         saveGame: boolean;
     }
     missionCompletionStatus: MissionCompletionStatus;
@@ -116,6 +117,7 @@ export class BattleOrchestratorState {
         })
 
         this.gameSaveFlags = {
+            loadGame: false,
             saveGame: false,
         }
     }

@@ -549,6 +549,44 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
     });
 
+    describe("Load game button", () => {
+        it('should call the game engine load function when clicked', () => {
+            const state = new BattleOrchestratorState({
+                squaddieRepository: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.PLAYER,
+                    turnCount: 0,
+                },
+                squaddieCurrentlyActing: {
+                    movingBattleSquaddieIds: [],
+                    squaddieActionsForThisRound: {
+                        battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        startingLocation: {q: 0, r: 0},
+                        actions: []
+                    },
+                    currentlySelectedAction: undefined,
+                },
+            });
+
+            hud = new BattleSquaddieSelectedHUD();
+            const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
+            hud.selectSquaddieAndDrawWindow({
+                battleId: playerSquaddieDynamic.battleSquaddieId,
+                repositionWindow: {mouseX: 0, mouseY: 0},
+                state,
+            });
+
+            hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state);
+            expect(loadGame).toBeCalled();
+
+            expect(state.gameSaveFlags.loadGame).toBeTruthy();
+        });
+    });
+
     describe("Next Squaddie button", () => {
         it('should show the button if there are at least 2 player controllable squaddies', () => {
             const state = new BattleOrchestratorState({

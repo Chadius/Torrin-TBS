@@ -21,7 +21,7 @@ import {
     GetNumberOfActionPoints
 } from "../squaddie/squaddieService";
 import {Label} from "../ui/label";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1} from "../ui/constants";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
@@ -42,6 +42,7 @@ export class BattleSquaddieSelectedHUD {
     affiliateIcon?: ImageUI;
     selectedAction: SquaddieAction | SquaddieEndTurnAction;
     useActionButtons: UseActionButton[];
+    loadGameButton: Label;
     saveGameButton: Label;
     nextSquaddieButton: Label;
     nextBattleSquaddieIds: string[];
@@ -83,7 +84,7 @@ export class BattleSquaddieSelectedHUD {
 
         this.generateAffiliateIcon(squaddieTemplate, state);
         this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
-        this.generateSaveGameButton(windowDimensions);
+        this.generateSaveAndLoadGameButton(windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
         this.generateSquaddieIdText(squaddieTemplate);
     }
@@ -138,6 +139,7 @@ export class BattleSquaddieSelectedHUD {
         }
         if (this.shouldDrawSaveAndLoadButton(state)) {
             this.saveGameButton.draw(graphicsContext);
+            this.loadGameButton.draw(graphicsContext);
         }
     }
 
@@ -189,6 +191,9 @@ export class BattleSquaddieSelectedHUD {
 
         if (this.shouldDrawSaveAndLoadButton(state) && this.saveGameButton.rectangle.area.isInside(mouseX, mouseY)) {
             this.markGameToBeSaved(state);
+        }
+        if (this.shouldDrawSaveAndLoadButton(state) && this.loadGameButton.rectangle.area.isInside(mouseX, mouseY)) {
+            this.markGameToBeLoaded(state);
         }
     }
 
@@ -254,6 +259,11 @@ export class BattleSquaddieSelectedHUD {
 
     markGameToBeSaved(state: BattleOrchestratorState): void {
         state.gameSaveFlags.saveGame = true;
+    }
+
+    markGameToBeLoaded(state: BattleOrchestratorState): void {
+        console.log("LOAD GAME NAO");
+        state.gameSaveFlags.loadGame = true;
     }
 
     private generateUseActionButtons(
@@ -667,14 +677,23 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private generateSaveGameButton(windowDimensions: RectArea) {
+    private generateSaveAndLoadGameButton(windowDimensions: RectArea) {
         const saveButtonArea = new RectArea({
             top: windowDimensions.top + WINDOW_SPACING1,
-            height: windowDimensions.height / 2,
+            height: windowDimensions.height / 2 - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             startColumn: 2,
             endColumn: 2,
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING1, 0],
+        });
+
+        const loadButtonArea = new RectArea({
+            top: windowDimensions.centerY + WINDOW_SPACING1,
+            height: windowDimensions.height / 2 - WINDOW_SPACING2,
+            screenWidth: ScreenDimensions.SCREEN_WIDTH,
+            startColumn: 2,
+            endColumn: 2,
+            margin: [0, WINDOW_SPACING1, WINDOW_SPACING2, 0],
         });
 
         this.saveGameButton = new Label({
@@ -683,6 +702,17 @@ export class BattleSquaddieSelectedHUD {
             fillColor: [10, 2, 192],
             fontColor: [20, 5, 16],
             area: saveButtonArea,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
+            padding: WINDOW_SPACING1,
+        });
+
+        this.loadGameButton = new Label({
+            text: "Load",
+            textSize: 24,
+            fillColor: [10, 2, 192],
+            fontColor: [20, 5, 16],
+            area: loadButtonArea,
             horizAlign: HORIZ_ALIGN_CENTER,
             vertAlign: VERT_ALIGN_CENTER,
             padding: WINDOW_SPACING1,
