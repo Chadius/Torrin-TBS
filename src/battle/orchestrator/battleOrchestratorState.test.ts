@@ -1,6 +1,16 @@
-import {BattleOrchestratorState} from "./battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateValidityMissingComponent} from "./battleOrchestratorState";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
+import {ResourceHandler} from "../../resource/resourceHandler";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
+import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
+import {MissionConditionType} from "../missionResult/missionCondition";
+import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
 describe('orchestratorState', () => {
     it('overrides team strategy for non-player teams', () => {
@@ -22,5 +32,159 @@ describe('orchestratorState', () => {
 
         expect(state.teamStrategyByAffiliation[SquaddieAffiliation.ALLY]).toHaveLength(0);
         expect(state.teamStrategyByAffiliation[SquaddieAffiliation.NONE]).toHaveLength(0);
+    });
+
+    it('will indicate if it is ready for battle', () => {
+        const validityCheck = (args: any, isValid: boolean, isReadyToContinueMission: boolean, reasons: BattleOrchestratorStateValidityMissingComponent[]) => {
+            const state: BattleOrchestratorState = new BattleOrchestratorState(args);
+            expect(state.isValid).toBe(isValid);
+            expect(state.isReadyToContinueMission).toBe(isReadyToContinueMission);
+            expect(state.missingComponents).toEqual(reasons);
+        }
+
+        let args = {};
+        validityCheck(args, false, false, [
+            BattleOrchestratorStateValidityMissingComponent.MISSION_MAP,
+            BattleOrchestratorStateValidityMissingComponent.RESOURCE_HANDLER,
+            BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
+            BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
+            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
+            BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
+        ]);
+
+        args = {
+            ...args,
+            missionMap: NullMissionMap(),
+        }
+        validityCheck(args, false, false, [
+            BattleOrchestratorStateValidityMissingComponent.RESOURCE_HANDLER,
+            BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
+            BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
+            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
+            BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
+        ]);
+
+        args = {
+            ...args,
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
+        }
+        validityCheck(args, false, false, [
+            BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
+            BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
+            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
+            BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
+        ]);
+
+        const squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
+        args = {
+            ...args,
+            squaddieRepository,
+        }
+        validityCheck(args, false, false, [
+            BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
+            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
+            BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
+        ]);
+
+        args = {
+            ...args,
+            teamsByAffiliation: {
+                [SquaddieAffiliation.PLAYER]: {
+                    name: "Players",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleSquaddieIds: [],
+                },
+                [SquaddieAffiliation.ENEMY]: {
+                    name: "Baddies",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    battleSquaddieIds: [],
+                },
+            }
+        }
+        validityCheck(args, false, false, [
+            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
+            BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
+        ]);
+
+        args = {
+            ...args,
+            pathfinder: new Pathfinder(),
+        }
+        validityCheck(args, true, false, [
+            BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
+        ]);
+
+        args = {
+            ...args,
+            objectives: [
+                new MissionObjective({
+                    id: "mission objective id",
+                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    conditions: [
+                        {
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            id: "defeat all enemies",
+                        }
+                    ],
+                    numberOfCompletedConditions: 1,
+                })
+            ],
+        }
+        validityCheck(args, true, true, []);
+    });
+
+    it('can clone existing objects', () => {
+        let originalBattleOrchestratorState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: new BattleSquaddieRepository(),
+            missionMap: NullMissionMap(),
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
+            teamsByAffiliation: {
+                [SquaddieAffiliation.PLAYER]: {
+                    name: "Players",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleSquaddieIds: [],
+                },
+                [SquaddieAffiliation.ENEMY]: {
+                    name: "Baddies",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    battleSquaddieIds: [],
+                },
+            },
+            pathfinder: new Pathfinder(),
+            objectives: [
+                new MissionObjective({
+                    id: "mission objective id",
+                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    conditions: [
+                        {
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            id: "defeat all enemies",
+                        }
+                    ],
+                    numberOfCompletedConditions: 1,
+                })
+            ],
+            missionCompletionStatus: {},
+            missionStatistics: MissionStatisticsHandler.new(),
+            cutsceneTriggers: [],
+            battlePhaseState: {
+                turnCount: 20,
+                currentAffiliation: BattlePhase.ENEMY,
+            }
+        });
+        originalBattleOrchestratorState.gameSaveFlags.savingInProgress = true;
+
+        expect(originalBattleOrchestratorState.isValid).toBeTruthy();
+
+        const cloned: BattleOrchestratorState = originalBattleOrchestratorState.clone();
+
+        expect(cloned.isValid).toBeTruthy();
+        expect(cloned).toEqual(originalBattleOrchestratorState);
     });
 });

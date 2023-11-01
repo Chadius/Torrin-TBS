@@ -5,8 +5,9 @@ import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAtt
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 export class BattleSquaddie {
+    squaddieTurn: SquaddieTurn;
+    inBattleAttributes: InBattleAttributes;
     private readonly _battleSquaddieId: string;
-    private readonly _squaddieTurn: SquaddieTurn;
 
     constructor({
                     battleSquaddieId,
@@ -29,14 +30,14 @@ export class BattleSquaddie {
             this.copySquaddieTemplate(squaddieTemplate);
         } else {
             this._squaddieTemplateId = squaddieTemplateId;
-            this._inBattleAttributes = InBattleAttributesHandler.new();
+            this.inBattleAttributes = InBattleAttributesHandler.new();
         }
 
         if (inBattleAttributes) {
-            this._inBattleAttributes = inBattleAttributes;
+            this.inBattleAttributes = inBattleAttributes;
         }
 
-        this._squaddieTurn = squaddieTurn || {remainingActionPoints: 3};
+        this.squaddieTurn = squaddieTurn || {remainingActionPoints: 3};
         this._mapIcon = mapIcon;
 
         this.assertBattleSquaddie();
@@ -52,10 +53,6 @@ export class BattleSquaddie {
         return this._battleSquaddieId;
     }
 
-    get squaddieTurn(): SquaddieTurn {
-        return this._squaddieTurn;
-    }
-
     private _mapIcon?: ImageUI;
 
     get mapIcon(): ImageUI {
@@ -66,31 +63,25 @@ export class BattleSquaddie {
         this._mapIcon = value;
     }
 
-    private _inBattleAttributes: InBattleAttributes;
-
-    get inBattleAttributes(): InBattleAttributes {
-        return this._inBattleAttributes;
-    }
-
     assertBattleSquaddie(): void {
         if (!this._battleSquaddieId) throw new Error("Battle Squaddie has no Id");
         if (!this._squaddieTemplateId) throw new Error("Battle Squaddie has no Squaddie Template Id");
     }
 
     canStillActThisRound(): boolean {
-        return SquaddieTurnHandler.hasActionPointsRemaining(this._squaddieTurn);
+        return SquaddieTurnHandler.hasActionPointsRemaining(this.squaddieTurn);
     }
 
     beginNewRound() {
-        return SquaddieTurnHandler.beginNewRound(this._squaddieTurn);
+        return SquaddieTurnHandler.beginNewRound(this.squaddieTurn);
     }
 
     endTurn() {
-        return SquaddieTurnHandler.endTurn(this._squaddieTurn);
+        return SquaddieTurnHandler.endTurn(this.squaddieTurn);
     }
 
     initializeInBattleAttributes(attributes: ArmyAttributes) {
-        this._inBattleAttributes = InBattleAttributesHandler.new(attributes);
+        this.inBattleAttributes = InBattleAttributesHandler.new(attributes);
     }
 
     private copySquaddieTemplate(squaddieTemplate: SquaddieTemplate) {

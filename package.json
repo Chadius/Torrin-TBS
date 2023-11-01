@@ -8,7 +8,7 @@
     "start": "ENV=production rsync --recursive assets/toDist/* dist/assets && webpack serve --open",
     "serve": "webpack serve --open",
     "test": "ENV=development jest",
-    "tsc": "./node_modules/.bin/tsc -t es6 src/*.ts",
+    "tsc": "./node_modules/.bin/tsc --allowSyntheticDefaultImports -t es6 src/*.ts",
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
     "zip": "cd dist && zip -r ../build/torrins-trial.zip ./",

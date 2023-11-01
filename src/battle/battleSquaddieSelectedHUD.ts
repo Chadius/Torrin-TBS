@@ -21,7 +21,7 @@ import {
     GetNumberOfActionPoints
 } from "../squaddie/squaddieService";
 import {Label} from "../ui/label";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1} from "../ui/constants";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../ui/constants";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
@@ -31,10 +31,14 @@ import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
 import {BattlePhase} from "./orchestratorComponents/battlePhaseTracker";
 
+export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
+
 enum ActionValidityCheck {
     IS_VALID = "IS_VALID",
     SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS = "SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS",
     PLAYER_CANNOT_CONTROL_SQUADDIE = "PLAYER_CANNOT_CONTROL_SQUADDIE",
+    SAVING_GAME = "SAVING_GAME",
+    LOADING_GAME = "LOADING_GAME",
 }
 
 export class BattleSquaddieSelectedHUD {
@@ -42,6 +46,7 @@ export class BattleSquaddieSelectedHUD {
     affiliateIcon?: ImageUI;
     selectedAction: SquaddieAction | SquaddieEndTurnAction;
     useActionButtons: UseActionButton[];
+    loadGameButton: Label;
     saveGameButton: Label;
     nextSquaddieButton: Label;
     nextBattleSquaddieIds: string[];
@@ -83,7 +88,7 @@ export class BattleSquaddieSelectedHUD {
 
         this.generateAffiliateIcon(squaddieTemplate, state);
         this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
-        this.generateSaveGameButton(windowDimensions);
+        this.generateSaveAndLoadGameButton(windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
         this.generateSquaddieIdText(squaddieTemplate);
     }
@@ -132,12 +137,14 @@ export class BattleSquaddieSelectedHUD {
         this.drawSquaddieActions(graphicsContext);
         this.drawUncontrollableSquaddieWarning(state);
         this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state);
+        this.drawFileAccessWarning(state);
         this.invalidCommandWarningTextBox.draw(graphicsContext);
         if (this.shouldDrawNextButton(state)) {
             this.nextSquaddieButton.draw(graphicsContext);
         }
         if (this.shouldDrawSaveAndLoadButton(state)) {
             this.saveGameButton.draw(graphicsContext);
+            this.loadGameButton.draw(graphicsContext);
         }
     }
 
@@ -165,6 +172,13 @@ export class BattleSquaddieSelectedHUD {
     }
 
     mouseClicked(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
+        if (
+            state.gameSaveFlags.savingInProgress
+            || state.gameSaveFlags.loadingInProgress
+        ) {
+            return;
+        }
+
         const selectedUseActionButton = this.useActionButtons.find((button) =>
             button.buttonArea.isInside(mouseX, mouseY)
         );
@@ -189,6 +203,9 @@ export class BattleSquaddieSelectedHUD {
 
         if (this.shouldDrawSaveAndLoadButton(state) && this.saveGameButton.rectangle.area.isInside(mouseX, mouseY)) {
             this.markGameToBeSaved(state);
+        }
+        if (this.shouldDrawSaveAndLoadButton(state) && this.loadGameButton.rectangle.area.isInside(mouseX, mouseY)) {
+            this.markGameToBeLoaded(state);
         }
     }
 
@@ -253,7 +270,11 @@ export class BattleSquaddieSelectedHUD {
     }
 
     markGameToBeSaved(state: BattleOrchestratorState): void {
-        state.gameSaveFlags.saveGame = true;
+        state.gameSaveFlags.savingInProgress = true;
+    }
+
+    markGameToBeLoaded(state: BattleOrchestratorState): void {
+        state.gameSaveFlags.loadingInProgress = true;
     }
 
     private generateUseActionButtons(
@@ -456,8 +477,37 @@ export class BattleSquaddieSelectedHUD {
             warningText = `No actions remaining for ${squaddieTemplate.squaddieId.name}`;
         }
 
-        this.maybeCreateInvalidCommandWarningTextBox(warningText);
+        this.maybeCreateInvalidCommandWarningTextBox(warningText, undefined);
 
+    }
+
+    private drawFileAccessWarning(state: BattleOrchestratorState) {
+        const WARNING_LOAD_FILE_FAILED = "Loading failed. Check logs.";
+        if (state.gameSaveFlags.errorDuringLoading && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE_FAILED) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
+            state.gameSaveFlags.errorDuringLoading = false;
+            return;
+        }
+
+        const WARNING_SAVE_FILE_FAILED = "Saving failed. Check logs.";
+        if (state.gameSaveFlags.errorDuringSaving && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE_FAILED) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
+            state.gameSaveFlags.errorDuringSaving = false;
+            return;
+        }
+
+        const WARNING_SAVE_FILE = "Saving...";
+        if (state.gameSaveFlags.savingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE, FILE_MESSAGE_DISPLAY_DURATION);
+            return;
+
+        }
+
+        const WARNING_LOAD_FILE = "Loading...";
+        if (state.gameSaveFlags.loadingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE, FILE_MESSAGE_DISPLAY_DURATION);
+            return;
+        }
     }
 
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState) {
@@ -481,10 +531,10 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText);
+        this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText, undefined);
     }
 
-    private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration?: number) {
+    private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration: number | undefined) {
         if (
             this.invalidCommandWarningTextBox === undefined
             || this.invalidCommandWarningTextBox.isDone()
@@ -667,14 +717,23 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private generateSaveGameButton(windowDimensions: RectArea) {
+    private generateSaveAndLoadGameButton(windowDimensions: RectArea) {
         const saveButtonArea = new RectArea({
             top: windowDimensions.top + WINDOW_SPACING1,
-            height: windowDimensions.height / 2,
+            height: windowDimensions.height / 2 - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             startColumn: 2,
             endColumn: 2,
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING1, 0],
+        });
+
+        const loadButtonArea = new RectArea({
+            top: windowDimensions.centerY + WINDOW_SPACING1,
+            height: windowDimensions.height / 2 - WINDOW_SPACING2,
+            screenWidth: ScreenDimensions.SCREEN_WIDTH,
+            startColumn: 2,
+            endColumn: 2,
+            margin: [0, WINDOW_SPACING1, WINDOW_SPACING2, 0],
         });
 
         this.saveGameButton = new Label({
@@ -683,6 +742,17 @@ export class BattleSquaddieSelectedHUD {
             fillColor: [10, 2, 192],
             fontColor: [20, 5, 16],
             area: saveButtonArea,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
+            padding: WINDOW_SPACING1,
+        });
+
+        this.loadGameButton = new Label({
+            text: "Load",
+            textSize: 24,
+            fillColor: [10, 2, 192],
+            fontColor: [20, 5, 16],
+            area: loadButtonArea,
             horizAlign: HORIZ_ALIGN_CENTER,
             vertAlign: VERT_ALIGN_CENTER,
             padding: WINDOW_SPACING1,

@@ -1,4 +1,4 @@
-import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
+import {BattleOrchestrator, BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
@@ -18,11 +18,12 @@ import {TitleScreenState} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
-import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
+import {SAVE_VERSION, SaveFile} from "../utils/fileHandling/saveFile";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
 export class GameEngine {
+    battleOrchestratorState: BattleOrchestratorState;
     private readonly graphicsContext: GraphicsContext;
 
     constructor({graphicsContext, startupMode}: { graphicsContext: GraphicsContext, startupMode: GameModeEnum }) {
@@ -65,12 +66,6 @@ export class GameEngine {
         return this._battleOrchestrator;
     }
 
-    private _battleOrchestratorState: BattleOrchestratorState;
-
-    get battleOrchestratorState(): BattleOrchestratorState {
-        return this._battleOrchestratorState;
-    }
-
     private _resourceHandler: ResourceHandler;
 
     get resourceHandler(): ResourceHandler {
@@ -97,9 +92,9 @@ export class GameEngine {
         this.resetComponentStates(graphicsContext);
     }
 
-    draw() {
+    async draw() {
         this.component.update(this.getComponentState(), this.graphicsContext);
-        this.update({graphicsContext: this.graphicsContext});
+        await this.update({graphicsContext: this.graphicsContext});
     }
 
     keyPressed(keyCode: number) {
@@ -114,11 +109,14 @@ export class GameEngine {
         this.component.mouseMoved(this.getComponentState(), mouseX, mouseY);
     }
 
-    update({graphicsContext}: { graphicsContext: GraphicsContext }) {
+    async update({graphicsContext}: { graphicsContext: GraphicsContext }) {
         this.component.update(this.getComponentState(), graphicsContext);
 
-        if (this.battleOrchestratorState.gameSaveFlags.saveGame) {
+        if (this.battleOrchestratorState.gameSaveFlags.savingInProgress) {
             this.saveGameAndDownloadFile();
+        }
+        if (this.battleOrchestratorState.gameSaveFlags.loadingInProgress) {
+            await this.loadGameFileAndSetGameState();
         }
 
         if (this.component.hasCompleted(this.getComponentState())) {
@@ -130,7 +128,7 @@ export class GameEngine {
     }
 
     private resetComponentStates(graphicsContext: GraphicsContext) {
-        this._battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
+        this.battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
         this._titleScreenState = this.titleScreen.setup()
     }
 
@@ -144,7 +142,6 @@ export class GameEngine {
                 throw new Error(`Cannot find component state for Game Engine mode ${this.currentMode}`);
         }
     }
-
 
     private lazyLoadResourceHandler({graphicsContext}: { graphicsContext: GraphicsContext }) {
         if (this.resourceHandler === undefined) {
@@ -359,7 +356,69 @@ export class GameEngine {
             missionId: "Test demo mission",
             battleOrchestratorState: this.battleOrchestratorState,
         });
-        BattleSaveStateHandler.SaveToFile(saveData);
-        this.battleOrchestratorState.gameSaveFlags.saveGame = false;
+        try {
+            BattleSaveStateHandler.SaveToFile(saveData);
+        } catch (error) {
+            console.log(`Save game failed: ${error}`);
+            this.battleOrchestratorState.gameSaveFlags.errorDuringSaving = true;
+        }
+        this.battleOrchestratorState.gameSaveFlags.savingInProgress = false;
+    }
+
+    private async loadGameFileAndSetGameState() {
+        let loadedSaveState: BattleSaveState;
+
+        try {
+            loadedSaveState = await SaveFile.RetrieveFileContent();
+        } catch (error) {
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
+            return;
+        }
+
+        const newBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
+        const testingBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
+        const originalBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
+
+        this.setup({graphicsContext: this.graphicsContext});
+
+        const loaderForTestingState: BattleMissionLoader = new BattleMissionLoader();
+        while (loaderForTestingState.hasCompleted(testingBattleOrchestratorState) !== true) {
+            loaderForTestingState.update(testingBattleOrchestratorState);
+        }
+        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+            battleSaveState: loadedSaveState,
+            battleOrchestratorState: testingBattleOrchestratorState,
+            squaddieRepository: testingBattleOrchestratorState.squaddieRepository,
+        });
+
+        if (testingBattleOrchestratorState.isReadyToContinueMission) {
+            this.battleOrchestratorState = newBattleOrchestratorState;
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = true;
+            while (this.battleOrchestrator.mode !== BattleOrchestratorMode.LOADING_MISSION) {
+                this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+            }
+            while (this.battleOrchestrator.mode === BattleOrchestratorMode.LOADING_MISSION) {
+                this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+            }
+            BattleSaveStateHandler.applySaveStateToOrchestratorState({
+                battleSaveState: loadedSaveState,
+                battleOrchestratorState: this.battleOrchestratorState,
+                squaddieRepository: this.battleOrchestratorState.squaddieRepository,
+            });
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
+            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+        } else {
+            console.log(`Loading created invalid state, missing components: ${testingBattleOrchestratorState.missingComponents}`);
+            this.setup({graphicsContext: this.graphicsContext});
+
+            this.battleOrchestratorState = originalBattleOrchestratorState;
+            const loaderForRevertedState: BattleMissionLoader = new BattleMissionLoader();
+            while (loaderForRevertedState.hasCompleted(this.battleOrchestratorState) !== true) {
+                loaderForRevertedState.update(this.battleOrchestratorState);
+            }
+
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
+            this.battleOrchestratorState.gameSaveFlags.errorDuringLoading = true;
+        }
     }
 }

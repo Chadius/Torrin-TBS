@@ -35,6 +35,7 @@ import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService"
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
+import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -333,7 +334,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     private setNextComponentMode(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
         const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
-        const cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(state, this.mode);
+        let cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(state, this.mode);
 
         if (orchestrationChanges.checkMissionObjectives === true) {
             let completionStatus: BattleCompletionStatus = this.checkMissionCompleteStatus(state);
@@ -342,8 +343,15 @@ export class BattleOrchestrator implements GameEngineComponent {
             }
         }
 
-        if (cutsceneTriggersToActivate.cutsceneTriggersToReactTo.length > 0) {
-            const nextCutscene = cutsceneTriggersToActivate.cutsceneTriggersToReactTo[0];
+        if (state.gameSaveFlags.loadingInProgress === true && state.battlePhaseState.turnCount === 0) {
+            cutsceneTriggersToActivate = cutsceneTriggersToActivate.filter((cutsceneTrigger) =>
+                cutsceneTrigger.triggeringEvent !== TriggeringEvent.START_OF_TURN
+                || cutsceneTrigger.turn !== 0
+            )
+        }
+
+        if (cutsceneTriggersToActivate.length > 0) {
+            const nextCutscene = cutsceneTriggersToActivate[0];
             this.cutscenePlayer.startCutscene(nextCutscene.cutsceneId, state);
             nextCutscene.systemReactedToTrigger = true;
             this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER;

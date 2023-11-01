@@ -37,10 +37,13 @@ export class BattleOrchestratorState {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleEventRecording: Recording;
     gameSaveFlags: {
-        saveGame: boolean;
+        errorDuringLoading: boolean;
+        errorDuringSaving: boolean;
+        loadingInProgress: boolean;
+        savingInProgress: boolean;
     }
     missionCompletionStatus: MissionCompletionStatus;
-    private readonly _missionStatistics: MissionStatistics;
+    missionStatistics: MissionStatistics;
 
     constructor(options: {
         cutsceneCollection?: MissionCutsceneCollection,
@@ -104,7 +107,7 @@ export class BattleOrchestratorState {
         this.camera = options.camera || new BattleCamera();
         this.battleSquaddieSelectedHUD = options.battleSquaddieSelectedHUD || new BattleSquaddieSelectedHUD();
 
-        this._missionStatistics = missionStatistics || MissionStatisticsHandler.new();
+        this.missionStatistics = missionStatistics || MissionStatisticsHandler.new();
         this.battleEventRecording = options.battleEventRecording || {history: []};
 
         this.missionCompletionStatus = missionCompletionStatus;
@@ -116,7 +119,10 @@ export class BattleOrchestratorState {
         })
 
         this.gameSaveFlags = {
-            saveGame: false,
+            loadingInProgress: false,
+            savingInProgress: false,
+            errorDuringLoading: false,
+            errorDuringSaving: false,
         }
     }
 
@@ -130,12 +136,12 @@ export class BattleOrchestratorState {
         this._squaddieCurrentlyActing = value;
     }
 
-    get missionStatistics(): MissionStatistics {
-        return this._missionStatistics;
-    }
-
     get cutsceneTriggers(): CutsceneTrigger[] {
         return this.gameBoard.cutsceneTriggers;
+    }
+
+    set cutsceneTriggers(value: CutsceneTrigger[]) {
+        this.gameBoard.cutsceneTriggers = value;
     }
 
     get cutsceneCollection(): MissionCutsceneCollection {
@@ -152,8 +158,72 @@ export class BattleOrchestratorState {
         return this._gameBoard;
     }
 
+    get isValid(): boolean {
+        return (
+            this.missingComponents.length === 0
+            || (
+                this.missingComponents.length === 1
+                && this.missingComponents.includes(BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE)
+            )
+        );
+    }
+
+    get missingComponents(): BattleOrchestratorStateValidityMissingComponent[] {
+        const expectedComponents = {
+            [BattleOrchestratorStateValidityMissingComponent.MISSION_MAP]: this.missionMap !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.RESOURCE_HANDLER]: this.resourceHandler !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY]: this.squaddieRepository !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION]: (
+                this.teamsByAffiliation !== undefined
+                && Object.keys(this.teamsByAffiliation).length >= 1
+                && this.teamStrategyByAffiliation !== undefined
+            ),
+            [BattleOrchestratorStateValidityMissingComponent.PATHFINDER]: this.pathfinder !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE]: (
+                this.objectives !== undefined
+                && this.objectives.length > 0
+                && this.objectives[0].conditions.length > 0
+            ),
+        }
+
+        return Object.keys(expectedComponents)
+            .map((str) => str as BattleOrchestratorStateValidityMissingComponent)
+            .filter((component) => expectedComponents[component] === false);
+    }
+
+    get isReadyToContinueMission(): boolean {
+        return this.missingComponents.length === 0;
+    }
+
     getCurrentTeam(): BattleSquaddieTeam {
         return this.teamsByAffiliation[this.battlePhaseState.currentAffiliation];
+    }
+
+    public clone(): BattleOrchestratorState {
+        const newState = new BattleOrchestratorState({
+            resourceHandler: this.resourceHandler,
+            squaddieRepository: this.squaddieRepository,
+            missionMap: new MissionMap({terrainTileMap: this.missionMap.terrainTileMap}),
+            hexMap: this.hexMap,
+            teamsByAffiliation: {...this.teamsByAffiliation},
+            teamStrategyByAffiliation: {...this.teamStrategyByAffiliation},
+            battlePhaseState: {...this.battlePhaseState},
+            pathfinder: this.pathfinder,
+            squaddieMovePath: this.squaddieMovePath,
+            camera: this.camera,
+            battleSquaddieSelectedHUD: this.battleSquaddieSelectedHUD,
+            battleEventRecording: {...this.battleEventRecording},
+            missionCompletionStatus: {...this.missionCompletionStatus},
+            missionStatistics: {...this.missionStatistics},
+            cutsceneCollection: this.cutsceneCollection,
+            cutsceneTriggers: [...this.cutsceneTriggers],
+            objectives: [...this.objectives],
+            squaddieCurrentlyActing: {...this.squaddieCurrentlyActing},
+        });
+
+        newState.gameSaveFlags = {...this.gameSaveFlags};
+
+        return newState;
     }
 
     private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {
@@ -174,4 +244,13 @@ export class BattleOrchestratorState {
             this.teamStrategyByAffiliation[affiliation] = [];
         });
     }
+}
+
+export enum BattleOrchestratorStateValidityMissingComponent {
+    MISSION_MAP = "MISSION_MAP",
+    RESOURCE_HANDLER = "RESOURCE_HANDLER",
+    SQUADDIE_REPOSITORY = "SQUADDIE_REPOSITORY",
+    TEAMS_BY_AFFILIATION = "TEAMS_BY_AFFILIATION",
+    PATHFINDER = "PATHFINDER",
+    MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
 }

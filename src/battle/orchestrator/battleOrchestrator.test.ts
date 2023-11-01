@@ -266,6 +266,47 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBe("starting");
     });
 
+    it('skips the introductory cutscene if the game is loaded', () => {
+        const cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneById: {
+                "starting": new Cutscene({})
+            },
+        });
+
+        orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.LOADING_MISSION,
+        });
+
+        const stateWithCutscene = new BattleOrchestratorState({
+            resourceHandler: nullState.resourceHandler,
+            squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneCollection,
+            cutsceneTriggers: [
+                {
+                    cutsceneId: "starting",
+                    turn: 0,
+                    triggeringEvent: TriggeringEvent.START_OF_TURN,
+                    systemReactedToTrigger: false,
+                },
+                {
+                    cutsceneId: "next scene",
+                    turn: 1,
+                    triggeringEvent: TriggeringEvent.START_OF_TURN,
+                    systemReactedToTrigger: false,
+                },
+                {
+                    cutsceneId: "victory",
+                    triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                    systemReactedToTrigger: false,
+                },
+            ],
+        });
+        stateWithCutscene.gameSaveFlags.loadingInProgress = true;
+
+        orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
+        expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
+    });
+
     it('will transition from cutscene playing to phase controller mode', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
@@ -696,101 +737,105 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController);
     });
 
-    it('will call mouse events in battle map display during squaddie selection mode', () => {
-        const orchestrator = createOrchestrator({
-            playerSquaddieSelector: mockPlayerSquaddieSelector,
-            initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
-        });
-        orchestrator.uiControlSettings.update(new UIControlSettings({
-            scrollCamera: true,
-        }));
 
-        expectMouseEventsWillGoToMapDisplay(
-            orchestrator,
-            mockPlayerSquaddieSelector,
-        );
+    describe('mouse events', () => {
+        it('will call mouse events in battle map display during squaddie selection mode', () => {
+            const orchestrator = createOrchestrator({
+                playerSquaddieSelector: mockPlayerSquaddieSelector,
+                initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
+            });
+            orchestrator.uiControlSettings.update(new UIControlSettings({
+                scrollCamera: true,
+            }));
+
+            expectMouseEventsWillGoToMapDisplay(
+                orchestrator,
+                mockPlayerSquaddieSelector,
+            );
+        });
+
+        const expectMouseEventsWillGoToMapDisplay = (
+            squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
+            component: BattleOrchestratorComponent
+        ) => {
+            const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({});
+
+            squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(stateWantsToDisplayTheMap, 0, 0);
+            expect(component.mouseEventHappened).toBeCalledTimes(1);
+            expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(1);
+
+            squaddieSelectorOrchestratorShouldDisplayMap.mouseClicked(stateWantsToDisplayTheMap, MouseButton.LEFT, 0, 0);
+            expect(component.mouseEventHappened).toBeCalledTimes(2);
+            expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2);
+        }
     });
 
-    const expectMouseEventsWillGoToMapDisplay = (
-        squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
-        component: BattleOrchestratorComponent
-    ) => {
-        const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({});
+    describe('keyboard events', () => {
+        it('will call key pressed events in battle map display during squaddie selection mode', () => {
+            const orchestrator = createOrchestrator({
+                playerSquaddieSelector: mockPlayerSquaddieSelector,
+                initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
+            });
+            orchestrator.uiControlSettings.update(new UIControlSettings({
+                scrollCamera: true,
+                displayMap: true,
+            }));
 
-        squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(stateWantsToDisplayTheMap, 0, 0);
-        expect(component.mouseEventHappened).toBeCalledTimes(1);
-        expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(1);
-
-        squaddieSelectorOrchestratorShouldDisplayMap.mouseClicked(stateWantsToDisplayTheMap, MouseButton.LEFT, 0, 0);
-        expect(component.mouseEventHappened).toBeCalledTimes(2);
-        expect(mockMapDisplay.mouseEventHappened).toBeCalledTimes(2);
-    }
-
-    it('will call key pressed events in battle map display during squaddie selection mode', () => {
-        const orchestrator = createOrchestrator({
-            playerSquaddieSelector: mockPlayerSquaddieSelector,
-            initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
+            expectKeyEventsWillGoToMapDisplay(
+                orchestrator,
+                mockPlayerSquaddieSelector,
+            );
         });
-        orchestrator.uiControlSettings.update(new UIControlSettings({
-            scrollCamera: true,
-            displayMap: true,
-        }));
 
-        expectKeyEventsWillGoToMapDisplay(
-            orchestrator,
-            mockPlayerSquaddieSelector,
-        );
+        it('will update the time elapsed if the mode recommends it', () => {
+            const needsTwoUpdatesToFinishLoading = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
+            needsTwoUpdatesToFinishLoading.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: true}));
+            needsTwoUpdatesToFinishLoading.hasCompleted = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+            needsTwoUpdatesToFinishLoading.update = jest.fn();
+            needsTwoUpdatesToFinishLoading.recommendStateChanges = jest.fn().mockReturnValueOnce({
+                nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
+            });
+
+            mockPlayerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: false}));
+
+            const state = new BattleOrchestratorState({});
+
+            orchestrator = createOrchestrator({
+                missionLoader: needsTwoUpdatesToFinishLoading,
+                playerSquaddieSelector: mockPlayerSquaddieSelector,
+                initialMode: BattleOrchestratorMode.LOADING_MISSION,
+            });
+            expect(state.missionStatistics.timeElapsedInMilliseconds).toBeUndefined();
+
+            orchestrator.update(state, mockedP5GraphicsContext);
+
+            expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+            orchestrator.update(state, mockedP5GraphicsContext);
+            expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+
+            expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+            expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
+            jest.spyOn(Date, "now").mockReturnValue(0);
+            orchestrator.update(state, mockedP5GraphicsContext);
+            expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+
+            jest.spyOn(Date, "now").mockReturnValue(100);
+            orchestrator.update(state, mockedP5GraphicsContext);
+            expect(state.missionStatistics.timeElapsedInMilliseconds).toBeGreaterThan(0);
+        });
+        const expectKeyEventsWillGoToMapDisplay = (
+            squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
+            component: BattleOrchestratorComponent
+        ) => {
+            const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({});
+
+            squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
+            expect(component.keyEventHappened).toBeCalledTimes(1);
+            expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(1);
+
+            squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
+            expect(component.keyEventHappened).toBeCalledTimes(2);
+            expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2);
+        }
     });
-
-    it('will update the time elapsed if the mode recommends it', () => {
-        const needsTwoUpdatesToFinishLoading = new (<new () => BattleMissionLoader>BattleMissionLoader)() as jest.Mocked<BattleMissionLoader>;
-        needsTwoUpdatesToFinishLoading.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: true}));
-        needsTwoUpdatesToFinishLoading.hasCompleted = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
-        needsTwoUpdatesToFinishLoading.update = jest.fn();
-        needsTwoUpdatesToFinishLoading.recommendStateChanges = jest.fn().mockReturnValueOnce({
-            nextMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR
-        });
-
-        mockPlayerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: false}));
-
-        const state = new BattleOrchestratorState({});
-
-        orchestrator = createOrchestrator({
-            missionLoader: needsTwoUpdatesToFinishLoading,
-            playerSquaddieSelector: mockPlayerSquaddieSelector,
-            initialMode: BattleOrchestratorMode.LOADING_MISSION,
-        });
-        expect(state.missionStatistics.timeElapsedInMilliseconds).toBeUndefined();
-
-        orchestrator.update(state, mockedP5GraphicsContext);
-
-        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
-        orchestrator.update(state, mockedP5GraphicsContext);
-        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
-
-        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-        expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
-        jest.spyOn(Date, "now").mockReturnValue(0);
-        orchestrator.update(state, mockedP5GraphicsContext);
-        expect(state.missionStatistics.timeElapsedInMilliseconds).toBe(0);
-
-        jest.spyOn(Date, "now").mockReturnValue(100);
-        orchestrator.update(state, mockedP5GraphicsContext);
-        expect(state.missionStatistics.timeElapsedInMilliseconds).toBeGreaterThan(0);
-    });
-
-    const expectKeyEventsWillGoToMapDisplay = (
-        squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
-        component: BattleOrchestratorComponent
-    ) => {
-        const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({});
-
-        squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
-        expect(component.keyEventHappened).toBeCalledTimes(1);
-        expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(1);
-
-        squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
-        expect(component.keyEventHappened).toBeCalledTimes(2);
-        expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2);
-    }
 });
