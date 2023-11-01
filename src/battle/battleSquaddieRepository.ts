@@ -59,6 +59,9 @@ export class BattleSquaddieRepository {
     }, Error> {
         const battleSquaddie: BattleSquaddie = this.battleSquaddies[battleSquaddieId];
         if (!battleSquaddie) {
+            // TODO
+            console.log(typeof this.battleSquaddies);
+            console.log(Object.keys(this.battleSquaddies));
             return makeError(new Error(`cannot getBattleSquaddieByID for '${battleSquaddieId}', does not exist`));
         }
 

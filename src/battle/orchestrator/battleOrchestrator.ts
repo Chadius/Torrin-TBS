@@ -383,4 +383,8 @@ export class BattleOrchestrator implements GameEngineComponent {
         this._battleComplete = false;
         this._previousUpdateTimestamp = undefined;
     }
+
+    public loadNewBattleOrchestratorState({state}: { state: BattleOrchestratorState }) {
+
+    }
 }

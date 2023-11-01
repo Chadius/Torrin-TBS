@@ -11,6 +11,12 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SaveFile} from "../../utils/fileHandling/saveFile";
+import {ResourceHandler} from "../../resource/resourceHandler";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {TeamStrategy} from "../teamStrategy/teamStrategy";
+import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {MissionObjective} from "../missionResult/missionObjective";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
@@ -49,19 +55,33 @@ export const BattleSaveStateHandler = {
                                         squaddieRepository,
                                         cutsceneTriggers,
                                         saveData,
+                                        resourceHandler,
+                                        teamStrategyByAffiliation,
+                                        objectives,
+                                        teamsByAffiliation,
                                     }: {
         missionMap: MissionMap;
         squaddieRepository: BattleSquaddieRepository;
         cutsceneTriggers: CutsceneTrigger[];
-        saveData: BattleSaveState
+        saveData: BattleSaveState;
+        resourceHandler: ResourceHandler;
+        teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+        objectives: MissionObjective[];
+        teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
     }): BattleOrchestratorState => {
         return createBattleOrchestratorState({
             missionMap,
             squaddieRepository,
             cutsceneTriggers,
             saveData,
+            resourceHandler,
+            teamStrategyByAffiliation,
+            objectives,
+            teamsByAffiliation,
         });
     },
+    // TODO implement the opposite, updating a battle save state using the
+    // TODO wrong name, this updates the save data object using the orchestrator state
     updateBattleOrchestratorState: (saveData: BattleSaveState, battleOrchestratorState: BattleOrchestratorState) => {
         const cameraCoordinates = battleOrchestratorState.camera.getCoordinates();
         saveData.camera = {
@@ -152,16 +172,30 @@ const createBattleOrchestratorState = ({
                                            squaddieRepository,
                                            cutsceneTriggers,
                                            saveData,
+                                           resourceHandler,
+    teamsByAffiliation,
+                                           objectives,
+                                           teamStrategyByAffiliation,
                                        }: {
     missionMap: MissionMap;
     squaddieRepository: BattleSquaddieRepository;
+    saveData: BattleSaveState;
+    resourceHandler: ResourceHandler;
+    objectives: MissionObjective[];
+    teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
+    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
     cutsceneTriggers: CutsceneTrigger[];
     saveData: BattleSaveState;
 }): BattleOrchestratorState => {
+    // TODO
+    console.log("addSquaddie");
     saveData.squaddie_map_placements.forEach((datum) => {
         missionMap.addSquaddie(datum.squaddieTemplateId, datum.battleSquaddieId, datum.mapLocation);
     });
 
+    // TODO
+    console.log("in_battle_attributes_by_squaddie_battle_id");
+    console.log(squaddieRepository);
     Object.entries(saveData.in_battle_attributes_by_squaddie_battle_id).forEach(([battleSquaddieId, info]) => {
         const inBattleAttributes = info.in_battle_attributes;
         const turn = info.turn;
@@ -205,6 +239,9 @@ const createBattleOrchestratorState = ({
         teamStrategyByAffiliation: saveData.team_strategy_by_affiliation,
         missionCompletionStatus: saveData.mission_completion_status,
         cutsceneTriggers,
+        resourceHandler,
+        pathfinder: new Pathfinder(),
+        objectives,
     });
 };
 

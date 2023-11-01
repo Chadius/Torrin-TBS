@@ -1,4 +1,4 @@
-import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
+import {BattleOrchestrator, BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
@@ -18,7 +18,17 @@ import {TitleScreenState} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
-import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
+import {SAVE_VERSION, SaveFile} from "../utils/fileHandling/saveFile";
+import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
+import {MissionMap} from "../missionMap/missionMap";
+import {TargetSquaddieInRange} from "../battle/teamStrategy/targetSquaddieInRange";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {MoveCloserToSquaddie} from "../battle/teamStrategy/moveCloserToSquaddie";
+import {EndTurnTeamStrategy} from "../battle/teamStrategy/endTurn";
+import {TeamStrategy} from "../battle/teamStrategy/teamStrategy";
+import {MissionObjective} from "../battle/missionResult/missionObjective";
+import {BattleSquaddieTeam} from "../battle/battleSquaddieTeam";
+import {MissionReward, MissionRewardType} from "../battle/missionResult/missionReward";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
@@ -120,6 +130,9 @@ export class GameEngine {
         if (this.battleOrchestratorState.gameSaveFlags.saveGame) {
             this.saveGameAndDownloadFile();
         }
+        if (this.battleOrchestratorState.gameSaveFlags.loadGame) {
+            this.loadGameFileAndSetGameState();
+        }
 
         if (this.component.hasCompleted(this.getComponentState())) {
             const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
@@ -144,7 +157,6 @@ export class GameEngine {
                 throw new Error(`Cannot find component state for Game Engine mode ${this.currentMode}`);
         }
     }
-
 
     private lazyLoadResourceHandler({graphicsContext}: { graphicsContext: GraphicsContext }) {
         if (this.resourceHandler === undefined) {
@@ -362,4 +374,101 @@ export class GameEngine {
         BattleSaveStateHandler.SaveToFile(saveData);
         this.battleOrchestratorState.gameSaveFlags.saveGame = false;
     }
+
+    private loadGameFileAndSetGameState() {
+        SaveFile.RetrieveFileContent(setGameState, this, this.graphicsContext);
+    }
+
+    public replaceBattleOrchestratorState({
+                                              squaddieRepository,
+                                              missionMap,
+                                              saveData,
+                                              resourceHandler,
+                                              teamStrategyByAffiliation,
+                                              objectives,
+                                              teamsByAffiliation,
+                                          }: {
+        saveData: BattleSaveState;
+        squaddieRepository: BattleSquaddieRepository;
+        missionMap: MissionMap;
+        resourceHandler: ResourceHandler;
+        teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+        objectives: MissionObjective[];
+        teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
+    }) {
+        this._battleOrchestratorState = BattleSaveStateHandler.createBattleOrchestratorState({
+            missionMap,
+            squaddieRepository,
+            saveData,
+            resourceHandler,
+            teamStrategyByAffiliation,
+            objectives,
+            teamsByAffiliation,
+        });
+
+        // TODO
+        console.log(this.battleOrchestratorState);
+    }
+}
+
+const setGameState = (saveData: BattleSaveState, self: GameEngine, graphicsContext: GraphicsContext) => {
+    console.log(saveData);
+    self.battleOrchestratorState.gameSaveFlags.loadGame = false;
+    self.setup({graphicsContext});
+    console.log(self.resourceHandler);
+
+    console.log("loading");
+    while (self.battleOrchestrator.mode !== BattleOrchestratorMode.LOADING_MISSION) {
+        self.battleOrchestrator.update(self.battleOrchestratorState, graphicsContext);
+    }
+    console.log(self.resourceHandler);
+    console.log(self.battleOrchestratorState);
+    self.battleOrchestrator.update(self.battleOrchestratorState, graphicsContext);
+
+    // TODO
+    // TeamsByAffiliation? { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
+    //objectives: MissionObjective[];
+    //teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
+
+    const missionMap: MissionMap = self.battleOrchestratorState.missionMap;
+    const squaddieRepository: BattleSquaddieRepository = self.battleOrchestratorState.squaddieRepository;
+    const teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] } = {
+        PLAYER: [],
+        ENEMY: [
+            new TargetSquaddieInRange({
+                desiredAffiliation: SquaddieAffiliation.PLAYER
+            }),
+            new MoveCloserToSquaddie({
+                desiredAffiliation: SquaddieAffiliation.PLAYER
+            })
+        ],
+        ALLY: [new EndTurnTeamStrategy()],
+        NONE: [new EndTurnTeamStrategy()],
+    };
+
+    console.log(missionMap);
+    console.log(self.battleOrchestratorState.squaddieRepository.getBattleSquaddieIterator().length);
+    console.log(self.battleOrchestratorState);
+    console.log("Replace");
+    self.replaceBattleOrchestratorState(
+        {
+            missionMap,
+            squaddieRepository,
+            saveData,
+            resourceHandler: self.resourceHandler,
+            teamStrategyByAffiliation,
+            // TODO replace with new objectives
+            objectives: [new MissionObjective({
+                reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                conditions: [],
+            })],
+            teamsByAffiliation: {
+                [SquaddieAffiliation.PLAYER]: new BattleSquaddieTeam({
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    name: "Players TODO replace me",
+                    squaddieRepo: squaddieRepository,
+                    battleSquaddieIds: [],
+                })
+            },
+        });
 }

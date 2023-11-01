@@ -176,4 +176,50 @@ export class BattleOrchestratorState {
             this.teamStrategyByAffiliation[affiliation] = [];
         });
     }
+
+    get isValid(): boolean {
+        return (
+            this.missingComponents.length === 0
+            || (
+                this.missingComponents.length === 1
+                && this.missingComponents.includes(BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE)
+            )
+        );
+    }
+
+    get missingComponents(): BattleOrchestratorStateValidityMissingComponent[] {
+        const expectedComponents = {
+            [BattleOrchestratorStateValidityMissingComponent.MISSION_MAP] : this.missionMap !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.RESOURCE_HANDLER] : this.resourceHandler !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY] : this.squaddieRepository !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION] : (
+                this.teamsByAffiliation !== undefined
+                && Object.keys(this.teamsByAffiliation).length >= 1
+                && this.teamStrategyByAffiliation !== undefined
+            ),
+            [BattleOrchestratorStateValidityMissingComponent.PATHFINDER] : this.pathfinder !== undefined,
+            [BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE] : (
+                this.objectives !== undefined
+                && this.objectives.length > 0
+                && this.objectives[0].conditions.length > 0
+            ),
+        }
+
+        return Object.keys(expectedComponents)
+            .map((str) => str as BattleOrchestratorStateValidityMissingComponent)
+            .filter((component) => expectedComponents[component] === false);
+    }
+
+    get isReadyToContinueMission(): boolean {
+        return this.missingComponents.length === 0;
+    }
+}
+
+export enum BattleOrchestratorStateValidityMissingComponent {
+    MISSION_MAP = "MISSION_MAP",
+    RESOURCE_HANDLER = "RESOURCE_HANDLER",
+    SQUADDIE_REPOSITORY = "SQUADDIE_REPOSITORY",
+    TEAMS_BY_AFFILIATION = "TEAMS_BY_AFFILIATION",
+    PATHFINDER = "PATHFINDER",
+    MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
 }

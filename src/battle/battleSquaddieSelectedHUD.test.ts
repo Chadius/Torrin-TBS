@@ -512,40 +512,79 @@ describe('BattleSquaddieSelectedHUD', () => {
 
             expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
         });
-        it('should call the game engine save function', () => {
-            const state = new BattleOrchestratorState({
-                squaddieRepository: squaddieRepository,
-                missionMap,
-                resourceHandler: resourceHandler,
-                camera: new BattleCamera(0, 0),
-                battlePhaseState: {
-                    currentAffiliation: BattlePhase.PLAYER,
-                    turnCount: 0,
-                },
-                squaddieCurrentlyActing: {
-                    movingBattleSquaddieIds: [],
-                    squaddieActionsForThisRound: {
-                        battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                        squaddieTemplateId: playerSquaddieStatic.templateId,
-                        startingLocation: {q: 0, r: 0},
-                        actions: []
+        describe('user clicks the save button', () => {
+            let state: BattleOrchestratorState;
+
+            beforeEach(() => {
+                state = new BattleOrchestratorState({
+                    squaddieRepository: squaddieRepository,
+                    missionMap,
+                    resourceHandler: resourceHandler,
+                    camera: new BattleCamera(0, 0),
+                    battlePhaseState: {
+                        currentAffiliation: BattlePhase.PLAYER,
+                        turnCount: 0,
                     },
-                    currentlySelectedAction: undefined,
-                },
+                    squaddieCurrentlyActing: {
+                        movingBattleSquaddieIds: [],
+                        squaddieActionsForThisRound: {
+                            battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                            squaddieTemplateId: playerSquaddieStatic.templateId,
+                            startingLocation: {q: 0, r: 0},
+                            actions: []
+                        },
+                        currentlySelectedAction: undefined,
+                    },
+                });
+
+                hud = new BattleSquaddieSelectedHUD();
             });
+            it('should call the game engine save function', () => {
+                const saveGame = jest.spyOn(hud, "markGameToBeSaved");
+                hud.selectSquaddieAndDrawWindow({
+                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state,
+                });
 
-            hud = new BattleSquaddieSelectedHUD();
-            const saveGame = jest.spyOn(hud, "markGameToBeSaved");
-            hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamic.battleSquaddieId,
-                repositionWindow: {mouseX: 0, mouseY: 0},
-                state,
+                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+                expect(saveGame).toBeCalled();
+
+                expect(state.gameSaveFlags.saveGame).toBeTruthy();
             });
+            it('should ignore other inputs while saving', () => {
+                hud.selectSquaddieAndDrawWindow({
+                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state,
+                });
+                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
 
-            hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
-            expect(saveGame).toBeCalled();
+                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+                hud.mouseClicked(hud.nextSquaddieButton.rectangle.area.centerX, hud.nextSquaddieButton.rectangle.area.centerY, state,);
+                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+            });
+            it('should show a Saving message while saving is active', () => {
+                const saveGame = jest.spyOn(hud, "markGameToBeSaved");
+                hud.selectSquaddieAndDrawWindow({
+                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state,
+                });
 
-            expect(state.gameSaveFlags.saveGame).toBeTruthy();
+                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+
+                const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+                hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+
+                expect(textSpy).toBeCalled();
+                expect(textSpy).toBeCalledWith(expect.stringMatching(`Saving...`),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+            });
         });
     });
 
@@ -584,6 +623,67 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(loadGame).toBeCalled();
 
             expect(state.gameSaveFlags.loadGame).toBeTruthy();
+        });
+        describe('user clicks the save button', () => {
+            let state: BattleOrchestratorState;
+
+            beforeEach(() => {
+                state = new BattleOrchestratorState({
+                    squaddieRepository: squaddieRepository,
+                    missionMap,
+                    resourceHandler: resourceHandler,
+                    camera: new BattleCamera(0, 0),
+                    battlePhaseState: {
+                        currentAffiliation: BattlePhase.PLAYER,
+                        turnCount: 0,
+                    },
+                    squaddieCurrentlyActing: {
+                        movingBattleSquaddieIds: [],
+                        squaddieActionsForThisRound: {
+                            battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                            squaddieTemplateId: playerSquaddieStatic.templateId,
+                            startingLocation: {q: 0, r: 0},
+                            actions: []
+                        },
+                        currentlySelectedAction: undefined,
+                    },
+                });
+
+                hud = new BattleSquaddieSelectedHUD();
+            });
+            it('should ignore other inputs while loading', () => {
+                hud.selectSquaddieAndDrawWindow({
+                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state,
+                });
+                hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state,);
+
+                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+                hud.mouseClicked(hud.nextSquaddieButton.rectangle.area.centerX, hud.nextSquaddieButton.rectangle.area.centerY, state,);
+                expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
+            });
+            it('should show a Loading message while loading is active', () => {
+                const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
+                hud.selectSquaddieAndDrawWindow({
+                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state,
+                });
+
+                hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state,);
+
+                const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+                hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+
+                expect(textSpy).toBeCalled();
+                expect(textSpy).toBeCalledWith(expect.stringMatching(`Loading...`),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+            });
         });
     });
 
@@ -746,5 +846,4 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(battleCamera.isPanning()).toBeTruthy();
         });
     });
-})
-;
+});

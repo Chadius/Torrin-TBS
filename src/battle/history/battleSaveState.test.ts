@@ -31,6 +31,8 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
+import {ResourceHandler} from "../../resource/resourceHandler";
+import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -211,6 +213,11 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            teamStrategyByAffiliation: {},
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
             cutsceneTriggers: [],
         });
         const newCameraCoordinates = newBattleState.camera.getCoordinates();
@@ -236,6 +243,11 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            teamStrategyByAffiliation: {},
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
             cutsceneTriggers: [],
         });
         expect(newBattleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
@@ -288,6 +300,11 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            teamStrategyByAffiliation: {},
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
             cutsceneTriggers: [],
         });
         expect(newBattleState.battleEventRecording.history).toHaveLength(2);
@@ -319,6 +336,11 @@ describe("BattleSaveState", () => {
                 terrainTileMap: missionMap.terrainTileMap,
             }),
             squaddieRepository: new BattleSquaddieRepository(),
+            teamStrategyByAffiliation: {},
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
             cutsceneTriggers: [],
         });
         expect(newBattleState.missionMap.terrainTileMap.getDimensions()).toStrictEqual({
@@ -358,6 +380,11 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            teamStrategyByAffiliation: {},
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
             cutsceneTriggers: [],
         });
         expect(newBattleState.missionStatistics).toStrictEqual(missionStatistics);
@@ -377,6 +404,11 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: newSquaddieRepository,
+            teamStrategyByAffiliation: {},
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
             cutsceneTriggers: [],
         });
         expect(newBattleState.squaddieRepository.getBattleSquaddieIterator()).toHaveLength(2);
@@ -613,6 +645,11 @@ describe("BattleSaveState", () => {
                     })
                 }),
                 squaddieRepository: newSquaddieRepository,
+                teamStrategyByAffiliation: {},
+                resourceHandler: new ResourceHandler({
+                    imageLoader: new StubImmediateLoader(),
+                    allResources: []
+                }),
                 cutsceneTriggers: [
                     {
                         triggeringEvent: TriggeringEvent.MISSION_VICTORY,
