@@ -100,30 +100,26 @@ describe('battlePhaseTracker', () => {
             })
         );
 
-        playerSquaddieTeam = new BattleSquaddieTeam({
+        playerSquaddieTeam = {
             name: "Player Team",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepo,
             battleSquaddieIds: ["player_squaddie"]
-        });
-        enemySquaddieTeam = new BattleSquaddieTeam({
+        };
+        enemySquaddieTeam = {
             name: "Enemy Team",
             affiliation: SquaddieAffiliation.ENEMY,
-            squaddieRepo,
             battleSquaddieIds: ["enemy_squaddie"]
-        });
-        allySquaddieTeam = new BattleSquaddieTeam({
+        };
+        allySquaddieTeam = {
             name: "Ally Team",
             affiliation: SquaddieAffiliation.ALLY,
-            squaddieRepo,
             battleSquaddieIds: ["ally_squaddie"]
-        });
-        noneSquaddieTeam = new BattleSquaddieTeam({
+        };
+        noneSquaddieTeam = {
             name: "None Team",
             affiliation: SquaddieAffiliation.NONE,
-            squaddieRepo,
             battleSquaddieIds: ["none_squaddie"]
-        });
+        };
     });
 
 

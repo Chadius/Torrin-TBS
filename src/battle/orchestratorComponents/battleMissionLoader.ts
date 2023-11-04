@@ -17,7 +17,6 @@ import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {SquaddieActionHandler} from "../../squaddie/action";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {ImageUI} from "../../ui/imageUI";
 import {RectArea} from "../../ui/rectArea";
@@ -288,15 +287,14 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", {q: 1, r: 1});
         this.addEnemyTeam(state);
 
-        state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = new BattleSquaddieTeam({
+        state.teamsByAffiliation[SquaddieAffiliation.PLAYER] = {
             affiliation: SquaddieAffiliation.PLAYER,
             name: "Crusaders",
-            squaddieRepo: state.squaddieRepository,
             battleSquaddieIds: [
                 "player_young_torrin",
                 "player_sir_camil"
             ],
-        });
+        };
 
         this.affiliateIconResourceKeys = [
             "affiliate_icon_crusaders",
@@ -457,10 +455,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             {q: 15, r: 10},
         );
 
-        state.teamsByAffiliation[SquaddieAffiliation.ENEMY] = new BattleSquaddieTeam({
+        state.teamsByAffiliation[SquaddieAffiliation.ENEMY] = {
             affiliation: SquaddieAffiliation.ENEMY,
             name: "Infiltrators",
-            squaddieRepo: state.squaddieRepository,
             battleSquaddieIds: [
                 "enemy_demon_slither_0",
                 "enemy_demon_slither_1",
@@ -471,7 +468,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 "enemy_demon_slither_6",
                 "enemy_demon_slither_7",
             ],
-        });
+        };
     }
 
     private initializeSquaddieResources(state: BattleOrchestratorState) {

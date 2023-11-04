@@ -2,10 +2,12 @@ import {TeamStrategy} from "./teamStrategy";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 
 export class EndTurnTeamStrategy implements TeamStrategy {
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
-        const squaddiesWhoCanAct: string[] = state.team.getBattleSquaddiesThatCanAct();
+    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
+        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
         }

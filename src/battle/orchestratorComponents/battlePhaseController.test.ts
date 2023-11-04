@@ -82,18 +82,16 @@ describe('BattlePhaseController', () => {
             })
         );
 
-        playerSquaddieTeam = new BattleSquaddieTeam({
+        playerSquaddieTeam = {
             name: "Player Team",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepo,
             battleSquaddieIds: ["player_squaddie_0"]
-        });
-        enemySquaddieTeam = new BattleSquaddieTeam({
+        };
+        enemySquaddieTeam = {
             name: "Enemy Team",
             affiliation: SquaddieAffiliation.ENEMY,
-            squaddieRepo,
             battleSquaddieIds: ["enemy_squaddie_0"]
-        });
+        };
 
         teamsByAffiliation = {
             [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,

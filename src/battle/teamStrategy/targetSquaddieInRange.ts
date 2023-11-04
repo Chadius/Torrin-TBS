@@ -11,6 +11,8 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 
 export class TargetSquaddieInRange implements TeamStrategy {
     desiredBattleSquaddieId: string;
@@ -24,12 +26,12 @@ export class TargetSquaddieInRange implements TeamStrategy {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Target Squaddie In Range strategy has no target");
         }
 
-        const squaddiesWhoCanAct: string[] = state.team.getBattleSquaddiesThatCanAct();
+        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
         }

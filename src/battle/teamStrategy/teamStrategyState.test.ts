@@ -1,7 +1,6 @@
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -15,11 +14,11 @@ describe('Team Strategy State', () => {
                     movementCost: ["1 1 "]
                 })
             }),
-            team: new BattleSquaddieTeam({
+            team: {
                 name: "awesome test team",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepo: new BattleSquaddieRepository(),
-            }),
+                battleSquaddieIds: [],
+            },
             instruction,
         });
     }

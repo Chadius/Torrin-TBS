@@ -1,4 +1,4 @@
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattlePhaseState} from "./battlePhaseController";
 
@@ -64,7 +64,7 @@ export const AdvanceToNextPhase = (startingPhaseState: BattlePhaseState, teamsBy
     let numberOfAttemptedSwitches = 0;
     while (numberOfAttemptedSwitches < 5) {
         const currentTeam = teamsByAffiliation[battlePhaseToSquaddieAffiliation(phase)];
-        if (currentTeam && currentTeam.hasSquaddies()) {
+        if (currentTeam && BattleSquaddieTeamHelper.hasSquaddies(currentTeam)) {
             startingPhaseState.currentAffiliation = phase;
             if (incrementTurn) {
                 startingPhaseState.turnCount += 1;

@@ -13,7 +13,7 @@ import {
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieMovementAction, SquaddieMovementActionData} from "../history/squaddieMovementAction";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
@@ -82,7 +82,11 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
-        if (this.mostRecentAction === undefined && currentTeam && currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+        if (
+            this.mostRecentAction === undefined
+            && currentTeam
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(currentTeam, state.squaddieRepository)
+            && !BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.squaddieRepository)) {
             this.askComputerControlSquaddie(state);
         }
     }
@@ -120,7 +124,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     private atLeastOneSquaddieOnCurrentTeamCanAct(state: BattleOrchestratorState): boolean {
         const currentTeam = state.getCurrentTeam();
-        return currentTeam && currentTeam.hasAnActingSquaddie();
+        return currentTeam
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(currentTeam, state.squaddieRepository);
     }
 
     private isPauseToShowSquaddieSelectionRequired(state: BattleOrchestratorState) {
@@ -237,7 +242,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private defaultSquaddieToEndTurn(state: BattleOrchestratorState, currentTeam: BattleSquaddieTeam) {
-        const battleSquaddieId: string = currentTeam.getBattleSquaddieIdThatCanActButNotPlayerControlled();
+        const battleSquaddieId: string = BattleSquaddieTeamHelper.getBattleSquaddieIdThatCanActButNotPlayerControlled(currentTeam, state.squaddieRepository);
         return this.addEndTurnInstruction(state, battleSquaddieId);
     }
 
@@ -279,7 +284,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             squaddieRepository: state.squaddieRepository,
         })
 
-        let squaddieAction: SquaddieActionsForThisRound = currentTeamStrategy.DetermineNextInstruction(teamStrategyState);
+        let squaddieAction: SquaddieActionsForThisRound = currentTeamStrategy.DetermineNextInstruction(teamStrategyState, state.squaddieRepository);
         if (!squaddieAction) {
             return;
         }

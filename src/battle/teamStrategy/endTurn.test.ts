@@ -5,7 +5,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
@@ -50,12 +50,12 @@ describe('end turn team strategy', () => {
             playerBattleSquaddie
         );
 
-        squaddieTeam = new BattleSquaddieTeam({
+        squaddieTeam = {
             name: "team",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepo: squaddieRepository,
-        });
-        squaddieTeam.addBattleSquaddieIds(["new_dynamic_squaddie"]);
+            battleSquaddieIds: [],
+        };
+        BattleSquaddieTeamHelper.addBattleSquaddieIds(squaddieTeam, ["new_dynamic_squaddie"]);
 
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 "]})
@@ -79,18 +79,18 @@ describe('end turn team strategy', () => {
         SquaddieActionsForThisRoundHandler.endTurn(expectedInstruction);
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('is undefined when there are no squaddies', () => {
-        const noSquaddieTeam: BattleSquaddieTeam = new BattleSquaddieTeam({
+        const noSquaddieTeam: BattleSquaddieTeam = {
             name: "no squaddies team",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepo: squaddieRepository,
-        });
+            battleSquaddieIds: [],
+        };
         const state = new TeamStrategyState({
             missionMap: missionMap,
             team: noSquaddieTeam,
@@ -98,7 +98,7 @@ describe('end turn team strategy', () => {
         });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -112,7 +112,7 @@ describe('end turn team strategy', () => {
         playerBattleSquaddie.endTurn();
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state);
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toBeUndefined();
     });

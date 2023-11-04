@@ -13,7 +13,7 @@ import {
 } from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HighlightSquaddieReach} from "../animation/mapHighlight";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -59,7 +59,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
-            if (currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+            if (BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.squaddieRepository)) {
                 let hudUsedMouseClick: boolean = false;
                 if (state.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
                     hudUsedMouseClick = state.battleSquaddieSelectedHUD.didMouseClickOnHUD(event.mouseX, event.mouseY);
@@ -89,7 +89,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
         if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
             const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
-            if (currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+            if (BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.squaddieRepository)) {
                 state.battleSquaddieSelectedHUD.keyPressed(event.keyCode, state);
 
                 if (state.battleSquaddieSelectedHUD.selectedBattleSquaddieId != "") {
@@ -115,7 +115,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         const currentTeam: BattleSquaddieTeam = state.getCurrentTeam();
-        if (currentTeam.hasAnActingSquaddie() && !currentTeam.canPlayerControlAnySquaddieOnThisTeamRightNow()) {
+        if (
+            BattleSquaddieTeamHelper.hasAnActingSquaddie(currentTeam, state.squaddieRepository)
+            && !BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.squaddieRepository)
+        ) {
             return;
         }
         if (this.selectedBattleSquaddieId === "" && SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.squaddieCurrentlyActing)) {
@@ -158,7 +161,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private playerCanControlAtLeastOneSquaddie(state: BattleOrchestratorState): boolean {
-        return state.getCurrentTeam().canPlayerControlAnySquaddieOnThisTeamRightNow();
+        return BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(state.getCurrentTeam(), state.squaddieRepository);
     }
 
     private updateBattleSquaddieUIMouseClicked(state: BattleOrchestratorState, mouseX: number, mouseY: number) {

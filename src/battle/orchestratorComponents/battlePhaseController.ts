@@ -19,6 +19,7 @@ import {
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
+import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -40,7 +41,9 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     hasCompleted(state: BattleOrchestratorState): boolean {
-        if (!this.newBannerShown && state.getCurrentTeam().hasAnActingSquaddie()) {
+        if (!this.newBannerShown
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(state.getCurrentTeam(), state.squaddieRepository)
+        ) {
             return true;
         }
 
@@ -71,7 +74,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (!this.newBannerShown
             && state.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
-            && state.getCurrentTeam().hasAnActingSquaddie()
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(state.getCurrentTeam(), state.squaddieRepository)
         ) {
             return;
         }
@@ -82,11 +85,11 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         }
 
         if (state.battlePhaseState.currentAffiliation === BattlePhase.UNKNOWN
-            || !state.getCurrentTeam().hasAnActingSquaddie()
+            || !BattleSquaddieTeamHelper.hasAnActingSquaddie(state.getCurrentTeam(), state.squaddieRepository)
         ) {
             const oldTeam = state.getCurrentTeam();
             if (oldTeam) {
-                oldTeam.beginNewRound()
+                BattleSquaddieTeamHelper.beginNewRound(oldTeam, state.squaddieRepository);
             }
 
             this.newBannerShown = true;
@@ -99,7 +102,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
             this.panToControllablePlayerSquaddieIfPlayerPhase(state);
 
-            state.getCurrentTeam().beginNewRound();
+            BattleSquaddieTeamHelper.beginNewRound(state.getCurrentTeam(), state.squaddieRepository);
 
             state.hexMap.stopHighlightingTiles();
         }

@@ -1,7 +1,7 @@
 import {BattlePlayerSquaddieSelector} from "./battlePlayerSquaddieSelector";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -62,13 +62,13 @@ describe('BattleSquaddieSelector', () => {
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
-        const enemyTeam: BattleSquaddieTeam = new BattleSquaddieTeam(
+        const enemyTeam: BattleSquaddieTeam =
             {
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepo: squaddieRepo,
+                battleSquaddieIds: [],
             }
-        );
+        ;
 
         demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
@@ -104,7 +104,7 @@ describe('BattleSquaddieSelector', () => {
             })
         );
 
-        enemyTeam.addBattleSquaddieIds(["enemy_demon_0", "enemy_demon_1"]);
+        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0", "enemy_demon_1"]);
 
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
 
@@ -125,13 +125,13 @@ describe('BattleSquaddieSelector', () => {
     }
 
     const makeBattlePhaseTrackerWithPlayerTeam = (missionMap: MissionMap) => {
-        const playerTeam: BattleSquaddieTeam = new BattleSquaddieTeam(
+        const playerTeam: BattleSquaddieTeam =
             {
                 name: "player controlled team",
                 affiliation: SquaddieAffiliation.PLAYER,
-                squaddieRepo: squaddieRepo,
+                battleSquaddieIds: [],
             }
-        );
+        ;
         teamsByAffiliation[SquaddieAffiliation.PLAYER] = playerTeam;
 
         CreateNewSquaddieAndAddToRepository({
@@ -141,7 +141,7 @@ describe('BattleSquaddieSelector', () => {
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
         });
-        playerTeam.addBattleSquaddieIds(["player_soldier_0"]);
+        BattleSquaddieTeamHelper.addBattleSquaddieIds(playerTeam, ["player_soldier_0"]);
 
         missionMap.addSquaddie(
             "player_soldier",
@@ -164,13 +164,13 @@ describe('BattleSquaddieSelector', () => {
 
         const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
-        const enemyTeam: BattleSquaddieTeam = new BattleSquaddieTeam(
+        const enemyTeam: BattleSquaddieTeam =
             {
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepo: squaddieRepo,
+                battleSquaddieIds: [],
             }
-        );
+        ;
 
         demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
@@ -197,7 +197,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepository: squaddieRepo,
             actions: [demonBiteAction],
         }));
-        enemyTeam.addBattleSquaddieIds(["enemy_demon_0"]);
+        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0"]);
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
         missionMap.addSquaddie(
             enemyDemonStatic.templateId,

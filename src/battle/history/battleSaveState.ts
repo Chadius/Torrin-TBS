@@ -11,6 +11,8 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SaveFile} from "../../utils/fileHandling/saveFile";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 
 export type InBattleAttributesAndTurn = {
     in_battle_attributes: InBattleAttributes,
@@ -32,6 +34,7 @@ export interface BattleSaveState {
             InBattleAttributesAndTurn
     };
     squaddie_map_placements: MissionMapSquaddieLocation[];
+    teams_by_affiliation: { [key in SquaddieAffiliation]?: BattleSquaddieTeam };
 }
 
 export const BattleSaveStateHandler = {
@@ -69,6 +72,8 @@ export const BattleSaveStateHandler = {
                 turn: battleSquaddieInfo.battleSquaddie.squaddieTurn,
             };
         });
+
+        saveData.teams_by_affiliation = {...battleOrchestratorState.teamsByAffiliation};
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
         return stringifyBattleSaveStateData(saveData);
@@ -106,6 +111,7 @@ export const BattleSaveStateHandler = {
             mission_statistics: battleOrchestratorState.missionStatistics,
             in_battle_attributes_by_squaddie_battle_id,
             squaddie_map_placements: battleOrchestratorState.missionMap.getAllSquaddieData(),
+            teams_by_affiliation: {},
         }
     },
     SaveToFile: (data: BattleSaveState) => {
@@ -169,6 +175,7 @@ const createBattleOrchestratorState = ({
         battleEventRecording: saveData.battle_event_recording,
         missionStatistics: saveData.mission_statistics,
         squaddieRepository,
+        teamsByAffiliation: saveData.teams_by_affiliation,
     });
 };
 
@@ -190,5 +197,6 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
         },
         in_battle_attributes_by_squaddie_battle_id: {},
         squaddie_map_placements: [],
+        teams_by_affiliation: {},
     }
 }

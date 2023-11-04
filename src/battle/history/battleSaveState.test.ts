@@ -27,6 +27,7 @@ import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieActionType} from "./anySquaddieAction";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -36,6 +37,8 @@ describe("BattleSaveState", () => {
     let newSquaddieRepository: BattleSquaddieRepository;
     let player0BattleSquaddie: BattleSquaddie;
     let enemy0BattleSquaddieWithWoundsAndTurnEnded: BattleSquaddie;
+    let playerTeam: BattleSquaddieTeam;
+    let enemyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
         const action: SquaddieAction = SquaddieActionHandler.new({
@@ -122,6 +125,12 @@ describe("BattleSaveState", () => {
             squaddieTurn: SquaddieTurnHandler.new(),
         });
 
+        playerTeam = {
+            affiliation: SquaddieAffiliation.PLAYER,
+            name: "Player Team",
+            battleSquaddieIds: ["player battle 0"],
+        }
+
         const enemy0SquaddieTemplate = new SquaddieTemplate({
             squaddieId: new SquaddieId({
                 affiliation: SquaddieAffiliation.ENEMY,
@@ -141,6 +150,12 @@ describe("BattleSaveState", () => {
             squaddieTemplateId: "enemy template 0",
             squaddieTurn: finishedTurn,
         });
+
+        enemyTeam = {
+            affiliation: SquaddieAffiliation.ENEMY,
+            name: "Enemy Team",
+            battleSquaddieIds: ["enemy battle 0"],
+        }
 
         originalSquaddieRepository = new BattleSquaddieRepository();
         originalSquaddieRepository.addSquaddieTemplate(player0SquaddieTemplate);
@@ -164,6 +179,8 @@ describe("BattleSaveState", () => {
             })
         });
         newSquaddieRepository.addBattleSquaddie(enemy0BattleSquaddieWithNewTurn);
+
+
     })
 
     it('Records the mission Id', () => {
@@ -363,6 +380,29 @@ describe("BattleSaveState", () => {
         expect(enemyBattle.inBattleAttributes.currentHitPoints).toBe(4);
     });
 
+    it("can record the squaddie teams from the Battle Orchestrator State and recreate them", () => {
+        const teamsByAffiliation = {
+            [SquaddieAffiliation.PLAYER]: playerTeam,
+            [SquaddieAffiliation.ENEMY]: enemyTeam,
+        };
+        const battleState = new BattleOrchestratorState({
+            missionMap: NullMissionMap(),
+            squaddieRepository: new BattleSquaddieRepository(),
+            teamsByAffiliation,
+        });
+
+        const saveState: BattleSaveState = DefaultBattleSaveState();
+        BattleSaveStateHandler.updateBattleOrchestratorState(saveState, battleState);
+        expect(saveState.teams_by_affiliation).toEqual(teamsByAffiliation);
+
+        const newBattleState = BattleSaveStateHandler.createBattleOrchestratorState({
+            saveData: saveState,
+            missionMap: NullMissionMap(),
+            squaddieRepository: new BattleSquaddieRepository(),
+        });
+        expect(newBattleState.teamsByAffiliation[SquaddieAffiliation.PLAYER]).toEqual(teamsByAffiliation[SquaddieAffiliation.PLAYER]);
+        expect(newBattleState.teamsByAffiliation[SquaddieAffiliation.ENEMY]).toEqual(teamsByAffiliation[SquaddieAffiliation.ENEMY]);
+    });
 
     describe('can be overridden with raw data', () => {
         let saveData: BattleSaveState;
@@ -406,6 +446,10 @@ describe("BattleSaveState", () => {
                         mapLocation: {q: 0, r: 1},
                     },
                 ],
+                teams_by_affiliation: {
+                    [SquaddieAffiliation.PLAYER]: playerTeam,
+                    [SquaddieAffiliation.ENEMY]: enemyTeam,
+                },
             };
 
             newBattleState = BattleSaveStateHandler.createBattleOrchestratorState({

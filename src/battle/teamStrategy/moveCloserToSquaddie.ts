@@ -11,6 +11,8 @@ import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targeting
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 
 export class MoveCloserToSquaddie implements TeamStrategy {
     desiredBattleSquaddieId: string;
@@ -24,12 +26,12 @@ export class MoveCloserToSquaddie implements TeamStrategy {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
 
-        const squaddiesWhoCanAct: string[] = state.team.getBattleSquaddiesThatCanAct();
+        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
         }

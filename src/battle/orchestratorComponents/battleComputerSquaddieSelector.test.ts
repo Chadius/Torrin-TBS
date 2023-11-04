@@ -1,6 +1,6 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -69,13 +69,12 @@ describe('BattleComputerSquaddieSelector', () => {
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
-        const enemyTeam: BattleSquaddieTeam = new BattleSquaddieTeam(
+        const enemyTeam: BattleSquaddieTeam =
             {
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
-                squaddieRepo: squaddieRepo,
-            }
-        );
+                battleSquaddieIds: [],
+            };
 
         demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
@@ -153,7 +152,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
         squaddieRepo.addBattleSquaddie(enemyDemonDynamic2);
 
-        enemyTeam.addBattleSquaddieIds([enemyDemonDynamic.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
+        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyDemonDynamic.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
 
         battlePhaseState = {
             currentAffiliation: BattlePhase.ENEMY,
@@ -296,7 +295,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
         it('will default to ending its turn if none of the strategies provide instruction', () => {
             class TestTeamStrategy implements TeamStrategy {
-                DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
+                DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
                     return undefined;
                 }
             }
@@ -347,7 +346,7 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         class TestTeamStrategy implements TeamStrategy {
-            DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
+            DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
                 return squaddieSquaddieAction;
             }
         }
@@ -426,7 +425,7 @@ describe('BattleComputerSquaddieSelector', () => {
             );
 
             class TestTeamStrategy implements TeamStrategy {
-                DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
+                DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
                     return moveAction;
                 }
             }
@@ -476,7 +475,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 });
 
                 class TestTeamStrategy implements TeamStrategy {
-                    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
+                    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
                         return squaddieSquaddieAction;
                     }
                 }
