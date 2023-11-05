@@ -2,6 +2,7 @@ import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
+import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 
 export enum BattleCompletionStatus {
     IN_PROGRESS = "IN_PROGRESS",
@@ -10,14 +11,22 @@ export enum BattleCompletionStatus {
 }
 
 export class BattleGameBoard {
-    constructor({objectives, cutsceneCollection, cutsceneTriggers}: {
+    private readonly _missionCompletionStatus: MissionCompletionStatus;
+
+    constructor({objectives, cutsceneCollection, cutsceneTriggers, missionCompletionStatus}: {
         objectives: MissionObjective[],
         cutsceneCollection: MissionCutsceneCollection,
         cutsceneTriggers: CutsceneTrigger[],
+        missionCompletionStatus: MissionCompletionStatus,
     }) {
         this._cutsceneCollection = cutsceneCollection || new MissionCutsceneCollection({cutsceneById: {}});
         this._cutsceneTriggers = cutsceneTriggers || [];
+        this._missionCompletionStatus = missionCompletionStatus;
         this.constructMissionObjective(objectives);
+    }
+
+    get missionCompletionStatus(): MissionCompletionStatus {
+        return this._missionCompletionStatus;
     }
 
     private _cutsceneTriggers: CutsceneTrigger[];
@@ -68,6 +77,7 @@ export class BattleGameBoard {
 
         this._objectives = [
             new MissionObjective({
+                id: "default",
                 reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
                 conditions: [],
             })

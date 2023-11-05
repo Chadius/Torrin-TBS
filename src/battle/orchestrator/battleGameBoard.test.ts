@@ -1,15 +1,15 @@
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {BattleGameBoard} from "./battleGameBoard";
-import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {MissionConditionType} from "../missionResult/missionCondition";
 
 describe('Battle Game Board', () => {
     it('creates an instant win objective if none is given', () => {
         const gameBoard: BattleGameBoard = new BattleGameBoard({
             objectives: [],
             cutsceneCollection: undefined,
-            cutsceneTriggers: []
+            cutsceneTriggers: [],
+            missionCompletionStatus: {},
         });
 
         expect(gameBoard.objectives.length).toBeGreaterThanOrEqual(1);
@@ -23,17 +23,20 @@ describe('Battle Game Board', () => {
         const gameBoard: BattleGameBoard = new BattleGameBoard({
             objectives: [],
             cutsceneCollection: undefined,
-            cutsceneTriggers: []
+            cutsceneTriggers: [],
+            missionCompletionStatus: {},
         });
         gameBoard.objectives = [
             new MissionObjective({
+                id: "test",
                 reward: new MissionReward({
                     rewardType: MissionRewardType.VICTORY,
                 }),
                 conditions: [
-                    new MissionConditionDefeatAffiliation({
-                        affiliation: SquaddieAffiliation.ENEMY,
-                    }),
+                    {
+                        id: "test",
+                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                    },
                 ],
                 numberOfCompletedConditions: "all",
             })

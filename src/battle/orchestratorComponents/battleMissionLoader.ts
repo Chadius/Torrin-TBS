@@ -34,13 +34,13 @@ import {
 } from "../orchestrator/missionCutsceneCollection";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {CutsceneTrigger, MissionDefeatCutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
 import {SplashScreen} from "../../cutscene/splashScreen";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {MissionConditionType} from "../missionResult/missionCondition";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -460,13 +460,13 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             name: "Infiltrators",
             battleSquaddieIds: [
                 "enemy_demon_slither_0",
-                "enemy_demon_slither_1",
-                "enemy_demon_slither_2",
-                "enemy_demon_slither_3",
-                "enemy_demon_slither_4",
-                "enemy_demon_slither_5",
-                "enemy_demon_slither_6",
-                "enemy_demon_slither_7",
+                // "enemy_demon_slither_1",
+                // "enemy_demon_slither_2",
+                // "enemy_demon_slither_3",
+                // "enemy_demon_slither_4",
+                // "enemy_demon_slither_5",
+                // "enemy_demon_slither_6",
+                // "enemy_demon_slither_7",
             ],
         };
     }
@@ -735,27 +735,47 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         })
     }
 
-    private loadObjectives(state: BattleOrchestratorState) {
+    private loadObjectives(state: BattleOrchestratorState): MissionObjective[] {
+        if (!state.missionCompletionStatus) {
+            state.missionCompletionStatus = {
+                "victory": {
+                    isComplete: undefined,
+                    conditions: {
+                        "defeat_all_enemies": undefined,
+                    }
+                },
+                "defeat": {
+                    isComplete: undefined,
+                    conditions: {
+                        "defeat_all_players": undefined,
+                    }
+                }
+            }
+        }
         return [
             new MissionObjective({
+                id: "victory",
                 reward: new MissionReward({
                     rewardType: MissionRewardType.VICTORY,
                 }),
                 conditions: [
-                    new MissionConditionDefeatAffiliation({
-                        affiliation: SquaddieAffiliation.ENEMY,
-                    }),
+                    {
+                        id: "defeat_all_enemies",
+                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                    },
                 ],
                 numberOfCompletedConditions: "all",
             }),
             new MissionObjective({
+                id: "defeat",
                 reward: new MissionReward({
                     rewardType: MissionRewardType.DEFEAT,
                 }),
                 conditions: [
-                    new MissionConditionDefeatAffiliation({
-                        affiliation: SquaddieAffiliation.PLAYER,
-                    }),
+                    {
+                        id: "defeat_all_players",
+                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                    },
                 ],
                 numberOfCompletedConditions: "all",
             })

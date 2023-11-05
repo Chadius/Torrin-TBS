@@ -8,14 +8,13 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionDefeatCutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {BattleCompletionStatus} from "../orchestrator/battleGameBoard";
 import {MissionVictoryCutsceneTrigger} from "./missionVictoryCutsceneTrigger";
 import {GetCutsceneTriggersToActivate} from "./missionCutsceneService";
 import {MissionStartOfPhaseCutsceneTrigger} from "./missionStartOfPhaseCutsceneTrigger";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {MissionConditionType} from "../missionResult/missionCondition";
 
 describe('Mission Cutscene Service', () => {
     let mockCutscene: Cutscene;
@@ -48,10 +47,14 @@ describe('Mission Cutscene Service', () => {
             }),
             objectives: [
                 new MissionObjective({
+                    id: "test",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
-                    conditions: [new MissionConditionDefeatAffiliation({
-                        affiliation: SquaddieAffiliation.ENEMY,
-                    })],
+                    conditions: [
+                        {
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                        }
+                    ],
                 })
             ],
             cutsceneCollection,
@@ -68,10 +71,12 @@ describe('Mission Cutscene Service', () => {
             }),
             objectives: [
                 new MissionObjective({
+                    id: "test",
                     reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
-                    conditions: [new MissionConditionDefeatAffiliation({
-                        affiliation: SquaddieAffiliation.PLAYER,
-                    })],
+                    conditions: [{
+                        id: "test",
+                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                    }],
                 })
             ],
             cutsceneCollection,
@@ -87,16 +92,20 @@ describe('Mission Cutscene Service', () => {
             }),
             objectives: [
                 new MissionObjective({
+                    id: "test",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
-                    conditions: [new MissionConditionDefeatAffiliation({
-                        affiliation: SquaddieAffiliation.ENEMY,
-                    })],
+                    conditions: [{
+                        id: "test",
+                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                    }],
                 }),
                 new MissionObjective({
+                    id: "test1",
                     reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
-                    conditions: [new MissionConditionDefeatAffiliation({
-                        affiliation: SquaddieAffiliation.PLAYER,
-                    })],
+                    conditions: [{
+                        id: "test",
+                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                    }],
                 })
             ],
             cutsceneCollection,

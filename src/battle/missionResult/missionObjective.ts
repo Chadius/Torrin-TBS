@@ -1,19 +1,27 @@
 import {MissionReward} from "./missionReward";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {MissionCondition} from "./missionCondition";
+import {MissionCondition, MissionShouldBeComplete} from "./missionCondition";
+import {MissionCompletionStatus} from "./missionCompletionStatus";
 
 export class MissionObjective {
     private readonly _reward: MissionReward;
     private readonly _conditions: MissionCondition[];
+    private readonly _id: string;
 
-    constructor({reward, conditions, numberOfCompletedConditions}: {
+    constructor({id, reward, conditions, numberOfCompletedConditions}: {
         reward: MissionReward;
         conditions: MissionCondition[],
         numberOfCompletedConditions?: number | "all" | "ALL",
+        id: string,
     }) {
+        this._id = id;
         this._reward = reward;
         this._conditions = conditions;
         this.constructNumberOfCompletedConditions(numberOfCompletedConditions);
+    }
+
+    get id(): string {
+        return this._id;
     }
 
     private _allConditionsAreRequiredToCompleteObjective: boolean;
@@ -32,16 +40,6 @@ export class MissionObjective {
         this._hasGivenReward = value;
     }
 
-    private _isComplete: boolean;
-
-    get isComplete(): boolean {
-        return this._isComplete;
-    }
-
-    set isComplete(value: boolean) {
-        this._isComplete = value;
-    }
-
     private _numberOfRequiredConditionsToComplete: number;
 
     get numberOfRequiredConditionsToComplete(): number {
@@ -57,11 +55,13 @@ export class MissionObjective {
     }
 
     shouldBeComplete(state: BattleOrchestratorState): boolean {
-        if (this.isComplete !== undefined) {
-            return this.isComplete;
+        const missionCompletionStatus: MissionCompletionStatus = state.missionCompletionStatus;
+
+        if (missionCompletionStatus[this.id].isComplete !== undefined) {
+            return missionCompletionStatus[this.id].isComplete;
         }
         const completeConditions = this.conditions.filter((condition: MissionCondition) => {
-            return condition.shouldBeComplete(state);
+            return MissionShouldBeComplete(condition, state, this.id);
         });
         return completeConditions.length >= this.numberOfRequiredConditionsToComplete;
     }

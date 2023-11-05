@@ -31,12 +31,12 @@ import {
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
 import {MissionDefeatCutsceneTrigger,} from "../../cutscene/cutsceneTrigger";
 import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {MissionConditionType} from "../missionResult/missionCondition";
 
 
 describe('Battle Orchestrator', () => {
@@ -173,6 +173,12 @@ describe('Battle Orchestrator', () => {
                 movementCost: ["1 1 "]
             }),
             battleSquaddieSelectedHUD: mockHud,
+            missionCompletionStatus: {
+                "default": {
+                    isComplete: undefined,
+                    conditions: {}
+                }
+            },
         });
         setupMocks();
     });
@@ -466,10 +472,14 @@ describe('Battle Orchestrator', () => {
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
                     new MissionObjective({
+                        id: "test",
                         reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
-                        conditions: [new MissionConditionDefeatAffiliation({
-                            affiliation: SquaddieAffiliation.ENEMY,
-                        })],
+                        conditions: [
+                            {
+                                id: "test",
+                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            }
+                        ],
                     })
                 ],
                 cutsceneCollection,
@@ -486,10 +496,12 @@ describe('Battle Orchestrator', () => {
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
                     new MissionObjective({
+                        id: "test",
                         reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
-                        conditions: [new MissionConditionDefeatAffiliation({
-                            affiliation: SquaddieAffiliation.PLAYER,
-                        })],
+                        conditions: [{
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                        }],
                     })
                 ],
                 cutsceneCollection,
@@ -506,16 +518,20 @@ describe('Battle Orchestrator', () => {
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
                     new MissionObjective({
+                        id: "test",
                         reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
-                        conditions: [new MissionConditionDefeatAffiliation({
-                            affiliation: SquaddieAffiliation.ENEMY,
-                        })],
+                        conditions: [{
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                        }],
                     }),
                     new MissionObjective({
+                        id: "test1",
                         reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
-                        conditions: [new MissionConditionDefeatAffiliation({
-                            affiliation: SquaddieAffiliation.PLAYER,
-                        })],
+                        conditions: [{
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                        }],
                     })
                 ],
                 cutsceneCollection,

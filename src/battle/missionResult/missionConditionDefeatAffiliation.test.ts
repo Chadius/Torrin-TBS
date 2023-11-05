@@ -5,9 +5,8 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {MissionConditionDefeatAffiliation} from "./missionConditionDefeatAffiliation";
 import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService";
-import {MissionConditionType} from "./missionCondition";
+import {MissionCondition, MissionConditionType, MissionShouldBeComplete} from "./missionCondition";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
@@ -17,21 +16,21 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
 
     let player1Static: SquaddieTemplate;
     let player1Dynamic: BattleSquaddie;
-    let conditionDefeatAllPlayers: MissionConditionDefeatAffiliation;
+    let conditionDefeatAllPlayers: MissionCondition;
 
     let ally1Static: SquaddieTemplate;
     let ally1Dynamic: BattleSquaddie;
-    let conditionDefeatAllAllies: MissionConditionDefeatAffiliation;
+    let conditionDefeatAllAllies: MissionCondition;
 
     let noAffiliation1Static: SquaddieTemplate;
     let noAffiliation1Dynamic: BattleSquaddie;
-    let conditionDefeatAllNoAffiliation: MissionConditionDefeatAffiliation;
+    let conditionDefeatAllNoAffiliation: MissionCondition;
 
     let enemy1Static: SquaddieTemplate;
     let enemy1Dynamic: BattleSquaddie;
     let enemy2Static: SquaddieTemplate;
     let enemy2Dynamic: BattleSquaddie;
-    let conditionDefeatAllEnemies: MissionConditionDefeatAffiliation;
+    let conditionDefeatAllEnemies: MissionCondition;
     let state: BattleOrchestratorState;
     let squaddieRepository = new BattleSquaddieRepository();
 
@@ -76,9 +75,10 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             }
         }));
 
-        conditionDefeatAllEnemies = new MissionConditionDefeatAffiliation({
-            affiliation: SquaddieAffiliation.ENEMY,
-        });
+        conditionDefeatAllEnemies = {
+            id: "defeat all enemies",
+            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+        };
 
         ({
             squaddieTemplate: player1Static,
@@ -96,9 +96,10 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             }
         }));
 
-        conditionDefeatAllPlayers = new MissionConditionDefeatAffiliation({
-            affiliation: SquaddieAffiliation.PLAYER,
-        });
+        conditionDefeatAllPlayers = {
+            id: "defeat all players",
+            type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+        };
 
         ({
             squaddieTemplate: ally1Static,
@@ -116,9 +117,10 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             }
         }));
 
-        conditionDefeatAllAllies = new MissionConditionDefeatAffiliation({
-            affiliation: SquaddieAffiliation.ALLY,
-        });
+        conditionDefeatAllAllies = {
+            id: "defeat all allies",
+            type: MissionConditionType.DEFEAT_ALL_ALLIES,
+        };
 
         ({
             squaddieTemplate: noAffiliation1Static,
@@ -136,37 +138,42 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             }
         }));
 
-        conditionDefeatAllNoAffiliation = new MissionConditionDefeatAffiliation({
-            affiliation: SquaddieAffiliation.NONE,
-        });
+        conditionDefeatAllNoAffiliation = {
+            id: "defeat all with no affiliation",
+            type: MissionConditionType.DEFEAT_ALL_NO_AFFILIATIONS,
+        };
 
         state = new BattleOrchestratorState({
             missionMap,
             hexMap: missionMap.terrainTileMap,
             squaddieRepository: squaddieRepository,
+            missionCompletionStatus: {
+                "player objective id": {
+                    isComplete: undefined,
+                    conditions: {
+                        [conditionDefeatAllPlayers.id]: undefined,
+                    }
+                },
+                "enemy objective id": {
+                    isComplete: undefined,
+                    conditions: {
+                        [conditionDefeatAllEnemies.id]: undefined,
+                    }
+                },
+                "ally objective id": {
+                    isComplete: undefined,
+                    conditions: {
+                        [conditionDefeatAllAllies.id]: undefined,
+                    }
+                },
+                "no affiliation objective id": {
+                    isComplete: undefined,
+                    conditions: {
+                        [conditionDefeatAllNoAffiliation.id]: undefined,
+                    }
+                },
+            },
         })
-    });
-
-    it('knows what type it is', () => {
-        expect(conditionDefeatAllEnemies.conditionType).toBe(MissionConditionType.DEFEAT_ALL_ENEMIES);
-        expect(conditionDefeatAllPlayers.conditionType).toBe(MissionConditionType.DEFEAT_ALL_PLAYERS);
-        expect(conditionDefeatAllAllies.conditionType).toBe(MissionConditionType.DEFEAT_ALL_ALLIES);
-        expect(conditionDefeatAllNoAffiliation.conditionType).toBe(MissionConditionType.DEFEAT_ALL_NO_AFFILIATIONS);
-    });
-
-    it('throws an error if it is made with an unknown affiliation', () => {
-        const shouldThrowErrorUnknown = () => {
-            return new MissionConditionDefeatAffiliation({
-                affiliation: SquaddieAffiliation.UNKNOWN,
-            });
-        }
-
-        expect(() => {
-            shouldThrowErrorUnknown()
-        }).toThrow(Error);
-        expect(() => {
-            shouldThrowErrorUnknown()
-        }).toThrow("No mission condition type exists for defeat all UNKNOWN");
     });
 
     it('is not complete if squaddies of the given affiliation are alive and on the map', () => {
@@ -186,11 +193,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             isDead
         } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
-        expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeFalsy();
+        expect(MissionShouldBeComplete(conditionDefeatAllEnemies, state, "enemy objective id")).toBeFalsy();
     });
 
     it('is complete if it was already marked complete', () => {
-        conditionDefeatAllEnemies.isComplete = true;
+        state.missionCompletionStatus["enemy objective id"].conditions[conditionDefeatAllEnemies.id] = true;
         missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0
@@ -199,12 +206,12 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             q: 0,
             r: 1
         });
-        expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeTruthy();
-        expect(conditionDefeatAllPlayers.shouldBeComplete(state)).toBeFalsy();
+        expect(MissionShouldBeComplete(conditionDefeatAllEnemies, state, "enemy objective id")).toBeTruthy();
+        expect(MissionShouldBeComplete(conditionDefeatAllPlayers, state, "enemy objective id")).toBeFalsy();
     });
 
     it('is complete if no squaddies of the affiliation exist', () => {
-        expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeTruthy();
+        expect(MissionShouldBeComplete(conditionDefeatAllEnemies, state, "enemy objective id")).toBeTruthy();
     });
 
     it('is complete if all squaddies of the given affiliation are dead', () => {
@@ -223,7 +230,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             isDead
         } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
-        expect(conditionDefeatAllEnemies.shouldBeComplete(state)).toBeTruthy();
-        expect(conditionDefeatAllPlayers.shouldBeComplete(state)).toBeFalsy();
+        expect(MissionShouldBeComplete(conditionDefeatAllEnemies, state, "enemy objective id")).toBeTruthy();
+        expect(MissionShouldBeComplete(conditionDefeatAllPlayers, state, "player objective id")).toBeFalsy();
     });
 });

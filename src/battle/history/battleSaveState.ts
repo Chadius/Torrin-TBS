@@ -14,6 +14,7 @@ import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SaveFile} from "../../utils/fileHandli
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
+import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 
 export type InBattleAttributesAndTurn = {
     in_battle_attributes: InBattleAttributes,
@@ -37,6 +38,7 @@ export interface BattleSaveState {
     squaddie_map_placements: MissionMapSquaddieLocation[];
     teams_by_affiliation: { [key in SquaddieAffiliation]?: BattleSquaddieTeam };
     team_strategy_by_affiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+    mission_completion_status: MissionCompletionStatus;
 }
 
 export const BattleSaveStateHandler = {
@@ -77,6 +79,7 @@ export const BattleSaveStateHandler = {
 
         saveData.teams_by_affiliation = {...battleOrchestratorState.teamsByAffiliation};
         saveData.team_strategy_by_affiliation = {...battleOrchestratorState.teamStrategyByAffiliation};
+        saveData.mission_completion_status = {...battleOrchestratorState.missionCompletionStatus};
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
         return stringifyBattleSaveStateData(saveData);
@@ -116,6 +119,7 @@ export const BattleSaveStateHandler = {
             squaddie_map_placements: battleOrchestratorState.missionMap.getAllSquaddieData(),
             teams_by_affiliation: battleOrchestratorState.teamsByAffiliation,
             team_strategy_by_affiliation: battleOrchestratorState.teamStrategyByAffiliation,
+            mission_completion_status: battleOrchestratorState.missionCompletionStatus,
         }
     },
     SaveToFile: (data: BattleSaveState) => {
@@ -181,6 +185,7 @@ const createBattleOrchestratorState = ({
         squaddieRepository,
         teamsByAffiliation: saveData.teams_by_affiliation,
         teamStrategyByAffiliation: saveData.team_strategy_by_affiliation,
+        missionCompletionStatus: saveData.mission_completion_status,
     });
 };
 
@@ -204,5 +209,6 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
         squaddie_map_placements: [],
         teams_by_affiliation: {},
         team_strategy_by_affiliation: {},
+        mission_completion_status: {},
     }
 }

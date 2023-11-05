@@ -21,6 +21,7 @@ import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
+import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -38,6 +39,7 @@ export class BattleOrchestratorState {
     gameSaveFlags: {
         saveGame: boolean;
     }
+    missionCompletionStatus: MissionCompletionStatus;
     private readonly _missionStatistics: MissionStatistics;
 
     constructor(options: {
@@ -57,7 +59,7 @@ export class BattleOrchestratorState {
         battleEventRecording?: Recording;
         teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] };
         teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
-
+        missionCompletionStatus?: MissionCompletionStatus;
         missionStatistics?: MissionStatistics;
     }) {
 
@@ -78,7 +80,8 @@ export class BattleOrchestratorState {
             battleEventRecording,
             teamStrategyByAffiliation,
             teamsByAffiliation,
-            missionStatistics
+            missionStatistics,
+            missionCompletionStatus,
         } = options;
 
         this.resourceHandler = options.resourceHandler;
@@ -104,10 +107,12 @@ export class BattleOrchestratorState {
         this._missionStatistics = missionStatistics || MissionStatisticsHandler.new();
         this.battleEventRecording = options.battleEventRecording || {history: []};
 
+        this.missionCompletionStatus = missionCompletionStatus;
         this._gameBoard = new BattleGameBoard({
             objectives,
             cutsceneCollection,
             cutsceneTriggers,
+            missionCompletionStatus,
         })
 
         this.gameSaveFlags = {

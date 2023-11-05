@@ -1,46 +1,24 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {MissionCondition, MissionConditionType} from "./missionCondition";
+import {MissionCondition, MissionConditionCalculator, MissionConditionType} from "./missionCondition";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 
-export class MissionConditionDefeatAffiliation extends MissionCondition {
-    private readonly _affiliation: SquaddieAffiliation;
-
-    constructor({
-                    affiliation,
-                }: {
-        affiliation: SquaddieAffiliation,
-    }) {
-        switch (affiliation) {
-            case SquaddieAffiliation.ENEMY:
-                super(MissionConditionType.DEFEAT_ALL_ENEMIES);
-                break;
-            case SquaddieAffiliation.PLAYER:
-                super(MissionConditionType.DEFEAT_ALL_PLAYERS);
-                break;
-            case SquaddieAffiliation.ALLY:
-                super(MissionConditionType.DEFEAT_ALL_ALLIES);
-                break;
-            case SquaddieAffiliation.NONE:
-                super(MissionConditionType.DEFEAT_ALL_NO_AFFILIATIONS);
-                break;
-            default:
-                throw new Error(`No mission condition type exists for defeat all ${affiliation}`);
+export class MissionConditionDefeatAffiliation implements MissionConditionCalculator {
+    shouldBeComplete(missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean {
+        const isComplete: boolean = state.missionCompletionStatus[missionObjectiveId].conditions[missionCondition.id];
+        if (isComplete !== undefined) {
+            return isComplete;
         }
 
-        this._affiliation = affiliation;
-    }
-
-    get affiliation(): SquaddieAffiliation {
-        return this._affiliation;
-    }
-
-    shouldBeComplete(state: BattleOrchestratorState): boolean {
-        if (this.isComplete !== undefined) {
-            return this.isComplete;
-        }
+        const affiliationByType: { [key in MissionConditionType]?: SquaddieAffiliation } = {
+            [MissionConditionType.DEFEAT_ALL_PLAYERS]: SquaddieAffiliation.PLAYER,
+            [MissionConditionType.DEFEAT_ALL_ENEMIES]: SquaddieAffiliation.ENEMY,
+            [MissionConditionType.DEFEAT_ALL_ALLIES]: SquaddieAffiliation.ALLY,
+            [MissionConditionType.DEFEAT_ALL_NO_AFFILIATIONS]: SquaddieAffiliation.NONE,
+        };
+        const affiliationToCheck = affiliationByType[missionCondition.type];
 
         const livingSquaddie = state.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
             const {
@@ -48,7 +26,7 @@ export class MissionConditionDefeatAffiliation extends MissionCondition {
                 battleSquaddie,
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(livingSquaddieDatum.battleSquaddieId));
 
-            if (squaddieTemplate.squaddieId.affiliation !== this.affiliation) {
+            if (squaddieTemplate.squaddieId.affiliation !== affiliationToCheck) {
                 return false;
             }
 

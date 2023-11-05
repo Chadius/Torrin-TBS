@@ -29,6 +29,7 @@ import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieActionType} from "./anySquaddieAction";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
+import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -520,7 +521,21 @@ describe("BattleSaveState", () => {
                             }
                         }
                     ],
-                }
+                },
+                mission_completion_status: {
+                    "victory": {
+                        isComplete: undefined,
+                        conditions: {
+                            "defeat all enemies": undefined
+                        }
+                    },
+                    "defeat": {
+                        isComplete: undefined,
+                        conditions: {
+                            "defeat all players": undefined
+                        }
+                    },
+                },
             };
 
             newBattleState = BattleSaveStateHandler.createBattleOrchestratorState({
@@ -630,6 +645,23 @@ describe("BattleSaveState", () => {
             });
         });
 
+        it('can set the mission completion status for the new Battle Orchestrator State', () => {
+            expect(newBattleState.missionCompletionStatus).toEqual({
+                "victory": {
+                    isComplete: undefined,
+                    conditions: {
+                        "defeat all enemies": undefined
+                    }
+                },
+                "defeat": {
+                    isComplete: undefined,
+                    conditions: {
+                        "defeat all players": undefined
+                    }
+                },
+            });
+        });
+
         it('can export data to and from JSON', () => {
             const dataString = BattleSaveStateHandler.stringifyBattleSaveStateData(saveData);
             const newSaveData: BattleSaveState = BattleSaveStateHandler.parseJsonIntoBattleSaveStateData(dataString);
@@ -671,6 +703,21 @@ describe("BattleSaveState", () => {
                 ],
                 [SquaddieAffiliation.NONE]: [],
             };
+            const missionCompletionStatus: MissionCompletionStatus = {
+                "victory": {
+                    isComplete: undefined,
+                    conditions: {
+                        "defeat all enemies": undefined
+                    }
+                },
+                "defeat": {
+                    isComplete: undefined,
+                    conditions: {
+                        "defeat all players": undefined
+                    }
+                }
+            };
+
             const battleOrchestratorState = new BattleOrchestratorState({
                 camera: new BattleCamera(100, 200),
                 battlePhaseState: {
@@ -686,6 +733,7 @@ describe("BattleSaveState", () => {
                     [SquaddieAffiliation.ENEMY]: enemyTeam,
                 },
                 teamStrategyByAffiliation: teamStrategyByAffiliation,
+                missionCompletionStatus,
             });
 
             const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
@@ -722,6 +770,8 @@ describe("BattleSaveState", () => {
             });
 
             expect(saveData.team_strategy_by_affiliation).toEqual(teamStrategyByAffiliation);
+
+            expect(saveData.mission_completion_status).toEqual(missionCompletionStatus);
         });
     });
 });

@@ -1,4 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {MissionConditionDefeatAffiliation} from "./missionConditionDefeatAffiliation";
 
 export enum MissionConditionType {
     DEFEAT_ALL_ENEMIES = "DEFEAT_ALL_ENEMIES",
@@ -7,29 +8,27 @@ export enum MissionConditionType {
     DEFEAT_ALL_NO_AFFILIATIONS = "DEFEAT_ALL_NO_AFFILIATIONS",
 }
 
-export abstract class MissionCondition {
-    private readonly _conditionType: MissionConditionType;
+export interface MissionCondition {
+    id: string,
+    type: MissionConditionType,
+}
 
-    protected constructor(conditionType: MissionConditionType) {
-        this.isComplete = undefined;
-        this._conditionType = conditionType;
+export interface MissionConditionCalculator {
+    shouldBeComplete(missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean
+}
+
+export const MissionShouldBeComplete = (missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean => {
+    let calculator: MissionConditionCalculator;
+    if (
+        [
+            MissionConditionType.DEFEAT_ALL_ENEMIES,
+            MissionConditionType.DEFEAT_ALL_PLAYERS,
+            MissionConditionType.DEFEAT_ALL_ALLIES,
+            MissionConditionType.DEFEAT_ALL_NO_AFFILIATIONS,
+        ].includes(missionCondition.type)
+    ) {
+        calculator = new MissionConditionDefeatAffiliation();
     }
 
-    get conditionType(): MissionConditionType {
-        return this._conditionType;
-    }
-
-    private _isComplete?: boolean;
-
-    get isComplete(): boolean {
-        return this._isComplete;
-    }
-
-    set isComplete(value: boolean) {
-        this._isComplete = value;
-    }
-
-    shouldBeComplete(state: BattleOrchestratorState): boolean {
-        return false;
-    }
+    return calculator.shouldBeComplete(missionCondition, state, missionObjectiveId);
 }
