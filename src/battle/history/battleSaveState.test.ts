@@ -28,6 +28,7 @@ import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieActionType} from "./anySquaddieAction";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -404,6 +405,52 @@ describe("BattleSaveState", () => {
         expect(newBattleState.teamsByAffiliation[SquaddieAffiliation.ENEMY]).toEqual(teamsByAffiliation[SquaddieAffiliation.ENEMY]);
     });
 
+    it("can record the TeamStrategy data used from the Battle Orchestrator and recreate them", () => {
+        const teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] } = {
+            [SquaddieAffiliation.ENEMY]: [
+                {
+                    type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                    options: {
+                        desiredAffiliation: SquaddieAffiliation.PLAYER,
+                    }
+                },
+                {
+                    type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                    options: {
+                        desiredAffiliation: SquaddieAffiliation.PLAYER,
+                    }
+                }
+            ],
+            [SquaddieAffiliation.ALLY]: [
+                {
+                    type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                    options: {
+                        desiredBattleSquaddieId: "player leader",
+                    }
+                }
+            ],
+            [SquaddieAffiliation.NONE]: [],
+        };
+        const battleState = new BattleOrchestratorState({
+            missionMap: NullMissionMap(),
+            squaddieRepository: new BattleSquaddieRepository(),
+            teamStrategyByAffiliation,
+        });
+
+        const saveState: BattleSaveState = DefaultBattleSaveState();
+        BattleSaveStateHandler.updateBattleOrchestratorState(saveState, battleState);
+        expect(saveState.team_strategy_by_affiliation).toEqual(teamStrategyByAffiliation);
+
+        const newBattleState = BattleSaveStateHandler.createBattleOrchestratorState({
+            saveData: saveState,
+            missionMap: NullMissionMap(),
+            squaddieRepository: new BattleSquaddieRepository(),
+        });
+        expect(newBattleState.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY]).toEqual(teamStrategyByAffiliation[SquaddieAffiliation.ENEMY]);
+        expect(newBattleState.teamStrategyByAffiliation[SquaddieAffiliation.ALLY]).toEqual(teamStrategyByAffiliation[SquaddieAffiliation.ALLY]);
+        expect(newBattleState.teamStrategyByAffiliation[SquaddieAffiliation.NONE]).toEqual(teamStrategyByAffiliation[SquaddieAffiliation.NONE]);
+    });
+
     describe('can be overridden with raw data', () => {
         let saveData: BattleSaveState;
         let newBattleState: BattleOrchestratorState;
@@ -450,6 +497,30 @@ describe("BattleSaveState", () => {
                     [SquaddieAffiliation.PLAYER]: playerTeam,
                     [SquaddieAffiliation.ENEMY]: enemyTeam,
                 },
+                team_strategy_by_affiliation: {
+                    [SquaddieAffiliation.ENEMY]: [
+                        {
+                            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            options: {
+                                desiredAffiliation: SquaddieAffiliation.PLAYER,
+                            }
+                        },
+                        {
+                            type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                            options: {
+                                desiredAffiliation: SquaddieAffiliation.PLAYER,
+                            }
+                        }
+                    ],
+                    [SquaddieAffiliation.ALLY]: [
+                        {
+                            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            options: {
+                                desiredBattleSquaddieId: "player leader",
+                            }
+                        }
+                    ],
+                }
             };
 
             newBattleState = BattleSaveStateHandler.createBattleOrchestratorState({
@@ -477,25 +548,20 @@ describe("BattleSaveState", () => {
         });
 
         it('can override camera position', () => {
-            expect(saveData.camera).toStrictEqual(saveData.camera)
             const newCameraCoordinates = newBattleState.camera.getCoordinates();
             expect(newCameraCoordinates[0]).toBe(saveData.camera.xCoordinate);
             expect(newCameraCoordinates[1]).toBe(saveData.camera.yCoordinate);
         });
 
         it('can override battle event recordings', () => {
-            expect(saveData.battle_event_recording).toStrictEqual(saveData.battle_event_recording);
             expect(newBattleState.battleEventRecording.history).toStrictEqual(saveData.battle_event_recording.history);
         });
 
         it('can override mission statistics', () => {
-            expect(saveData.mission_statistics).toStrictEqual(saveData.mission_statistics);
             expect(newBattleState.missionStatistics).toStrictEqual(saveData.mission_statistics);
         });
 
         it('can override in battle attributes', () => {
-            expect(saveData.in_battle_attributes_by_squaddie_battle_id).toStrictEqual(saveData.in_battle_attributes_by_squaddie_battle_id);
-
             const {
                 squaddieTemplate: enemyTemplate,
                 battleSquaddie: enemyBattle
@@ -528,6 +594,41 @@ describe("BattleSaveState", () => {
             }).battleSquaddieId).toBe(enemy0BattleSquaddieWithWoundsAndTurnEnded.battleSquaddieId);
         });
 
+        it('can set the battle state teams to match the save data', () => {
+            expect(newBattleState.teamsByAffiliation).toEqual(
+                {
+                    [SquaddieAffiliation.PLAYER]: playerTeam,
+                    [SquaddieAffiliation.ENEMY]: enemyTeam,
+                });
+        });
+
+        it('can set the battle state team strategies to match the save data', () => {
+            expect(newBattleState.teamStrategyByAffiliation).toEqual({
+                [SquaddieAffiliation.ENEMY]: [
+                    {
+                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                        options: {
+                            desiredAffiliation: SquaddieAffiliation.PLAYER,
+                        }
+                    },
+                    {
+                        type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                        options: {
+                            desiredAffiliation: SquaddieAffiliation.PLAYER,
+                        }
+                    }
+                ],
+                [SquaddieAffiliation.ALLY]: [
+                    {
+                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                        options: {
+                            desiredBattleSquaddieId: "player leader",
+                        }
+                    }
+                ],
+                [SquaddieAffiliation.NONE]: [],
+            });
+        });
 
         it('can export data to and from JSON', () => {
             const dataString = BattleSaveStateHandler.stringifyBattleSaveStateData(saveData);
@@ -545,6 +646,31 @@ describe("BattleSaveState", () => {
             missionMap.addSquaddie("template 0", "battle 0", {q: 0, r: 0});
             missionMap.addSquaddie("template 1", "battle 1", {q: 0, r: 1});
 
+            const teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] } = {
+                [SquaddieAffiliation.ENEMY]: [
+                    {
+                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                        options: {
+                            desiredAffiliation: SquaddieAffiliation.PLAYER,
+                        }
+                    },
+                    {
+                        type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                        options: {
+                            desiredAffiliation: SquaddieAffiliation.PLAYER,
+                        }
+                    }
+                ],
+                [SquaddieAffiliation.ALLY]: [
+                    {
+                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                        options: {
+                            desiredBattleSquaddieId: "player leader",
+                        }
+                    }
+                ],
+                [SquaddieAffiliation.NONE]: [],
+            };
             const battleOrchestratorState = new BattleOrchestratorState({
                 camera: new BattleCamera(100, 200),
                 battlePhaseState: {
@@ -555,6 +681,11 @@ describe("BattleSaveState", () => {
                 missionMap,
                 missionStatistics,
                 squaddieRepository: originalSquaddieRepository,
+                teamsByAffiliation: {
+                    [SquaddieAffiliation.PLAYER]: playerTeam,
+                    [SquaddieAffiliation.ENEMY]: enemyTeam,
+                },
+                teamStrategyByAffiliation: teamStrategyByAffiliation,
             });
 
             const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
@@ -584,6 +715,13 @@ describe("BattleSaveState", () => {
 
             expect(saveData.mission_statistics).toStrictEqual(missionStatistics);
             expect(Object.keys(saveData.in_battle_attributes_by_squaddie_battle_id)).toEqual(["player battle 0", "enemy battle 0"])
+
+            expect(saveData.teams_by_affiliation).toEqual({
+                [SquaddieAffiliation.PLAYER]: playerTeam,
+                [SquaddieAffiliation.ENEMY]: enemyTeam,
+            });
+
+            expect(saveData.team_strategy_by_affiliation).toEqual(teamStrategyByAffiliation);
         });
     });
 });

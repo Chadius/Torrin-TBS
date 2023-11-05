@@ -1,4 +1,4 @@
-import {TeamStrategy} from "./teamStrategy";
+import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -13,15 +13,13 @@ import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {TeamStrategyOptions} from "./teamStrategy";
 
-export class MoveCloserToSquaddie implements TeamStrategy {
+export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
     desiredAffiliation: SquaddieAffiliation;
 
-    constructor(options: {
-        desiredBattleSquaddieId?: string;
-        desiredAffiliation?: SquaddieAffiliation;
-    }) {
+    constructor(options: TeamStrategyOptions) {
         this.desiredBattleSquaddieId = options.desiredBattleSquaddieId;
         this.desiredAffiliation = options.desiredAffiliation;
     }

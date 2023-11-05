@@ -20,7 +20,6 @@ import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from ".
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {isCoordinateOnScreen} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
-import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
@@ -35,6 +34,8 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
+import {TeamStrategy} from "../teamStrategy/teamStrategy";
+import {DetermineNextInstruction} from "../teamStrategy/determineNextInstruction";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -284,7 +285,12 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             squaddieRepository: state.squaddieRepository,
         })
 
-        let squaddieAction: SquaddieActionsForThisRound = currentTeamStrategy.DetermineNextInstruction(teamStrategyState, state.squaddieRepository);
+        let squaddieAction: SquaddieActionsForThisRound = DetermineNextInstruction({
+            strategy: currentTeamStrategy,
+            state: teamStrategyState,
+            squaddieRepository: state.squaddieRepository,
+        });
+
         if (!squaddieAction) {
             return;
         }

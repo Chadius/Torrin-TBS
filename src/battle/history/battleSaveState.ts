@@ -13,6 +13,7 @@ import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SaveFile} from "../../utils/fileHandling/saveFile";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {TeamStrategy} from "../teamStrategy/teamStrategy";
 
 export type InBattleAttributesAndTurn = {
     in_battle_attributes: InBattleAttributes,
@@ -35,6 +36,7 @@ export interface BattleSaveState {
     };
     squaddie_map_placements: MissionMapSquaddieLocation[];
     teams_by_affiliation: { [key in SquaddieAffiliation]?: BattleSquaddieTeam };
+    team_strategy_by_affiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
 }
 
 export const BattleSaveStateHandler = {
@@ -74,6 +76,7 @@ export const BattleSaveStateHandler = {
         });
 
         saveData.teams_by_affiliation = {...battleOrchestratorState.teamsByAffiliation};
+        saveData.team_strategy_by_affiliation = {...battleOrchestratorState.teamStrategyByAffiliation};
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
         return stringifyBattleSaveStateData(saveData);
@@ -111,7 +114,8 @@ export const BattleSaveStateHandler = {
             mission_statistics: battleOrchestratorState.missionStatistics,
             in_battle_attributes_by_squaddie_battle_id,
             squaddie_map_placements: battleOrchestratorState.missionMap.getAllSquaddieData(),
-            teams_by_affiliation: {},
+            teams_by_affiliation: battleOrchestratorState.teamsByAffiliation,
+            team_strategy_by_affiliation: battleOrchestratorState.teamStrategyByAffiliation,
         }
     },
     SaveToFile: (data: BattleSaveState) => {
@@ -176,6 +180,7 @@ const createBattleOrchestratorState = ({
         missionStatistics: saveData.mission_statistics,
         squaddieRepository,
         teamsByAffiliation: saveData.teams_by_affiliation,
+        teamStrategyByAffiliation: saveData.team_strategy_by_affiliation,
     });
 };
 
@@ -198,5 +203,6 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
         in_battle_attributes_by_squaddie_battle_id: {},
         squaddie_map_placements: [],
         teams_by_affiliation: {},
+        team_strategy_by_affiliation: {},
     }
 }

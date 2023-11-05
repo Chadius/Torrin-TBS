@@ -78,7 +78,7 @@ describe('end turn team strategy', () => {
         };
         SquaddieActionsForThisRoundHandler.endTurn(expectedInstruction);
 
-        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
+        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
@@ -97,7 +97,7 @@ describe('end turn team strategy', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
+        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toBeUndefined();
     });
@@ -111,7 +111,7 @@ describe('end turn team strategy', () => {
 
         playerBattleSquaddie.endTurn();
 
-        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy();
+        const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toBeUndefined();

@@ -19,9 +19,7 @@ import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoord
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
-import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
-import {TeamStrategy} from "../teamStrategy/teamStrategy";
-import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
+import * as determineNextInstruction from "../teamStrategy/determineNextInstruction";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {
     SquaddieInstructionInProgress,
@@ -42,6 +40,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
+import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -244,8 +243,7 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
-            const enemyEndTurnStrategy = new EndTurnTeamStrategy();
-            const strategySpy = jest.spyOn(enemyEndTurnStrategy, "DetermineNextInstruction");
+            const strategySpy = jest.spyOn(determineNextInstruction, "DetermineNextInstruction");
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseState,
@@ -256,7 +254,10 @@ describe('BattleComputerSquaddieSelector', () => {
                 squaddieRepository: squaddieRepo,
                 battleEventRecording: {history: []},
                 teamStrategyByAffiliation: {
-                    ENEMY: [enemyEndTurnStrategy],
+                    ENEMY: [{
+                        type: TeamStrategyType.END_TURN,
+                        options: {},
+                    }],
                 },
                 teamsByAffiliation,
             });
@@ -294,12 +295,6 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         it('will default to ending its turn if none of the strategies provide instruction', () => {
-            class TestTeamStrategy implements TeamStrategy {
-                DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
-                    return undefined;
-                }
-            }
-
             const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseState,
                 hexMap: new TerrainTileMap({
@@ -309,11 +304,14 @@ describe('BattleComputerSquaddieSelector', () => {
                 squaddieRepository: squaddieRepo,
                 battleEventRecording: {history: []},
                 teamStrategyByAffiliation: {
-                    ENEMY: [new TestTeamStrategy()],
+                    ENEMY: [{
+                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                        options: {},
+                    }],
                 },
                 teamsByAffiliation,
             });
-
+            jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(undefined);
             selector.update(state, mockedP5GraphicsContext);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
@@ -345,12 +343,6 @@ describe('BattleComputerSquaddieSelector', () => {
             }
         });
 
-        class TestTeamStrategy implements TeamStrategy {
-            DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
-                return squaddieSquaddieAction;
-            }
-        }
-
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseState,
             hexMap: new TerrainTileMap({
@@ -360,11 +352,15 @@ describe('BattleComputerSquaddieSelector', () => {
             missionMap,
             pathfinder: new Pathfinder(),
             teamStrategyByAffiliation: {
-                ENEMY: [new TestTeamStrategy()],
+                ENEMY: [{
+                    type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                    options: {},
+                }],
             },
             teamsByAffiliation,
         });
 
+        jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(squaddieSquaddieAction);
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         selector.update(state, mockedP5GraphicsContext);
 
@@ -424,12 +420,6 @@ describe('BattleComputerSquaddieSelector', () => {
                 enemyDemonDynamic.battleSquaddieId,
             );
 
-            class TestTeamStrategy implements TeamStrategy {
-                DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
-                    return moveAction;
-                }
-            }
-
             const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseState,
                 squaddieRepository: squaddieRepo,
@@ -438,11 +428,15 @@ describe('BattleComputerSquaddieSelector', () => {
                 hexMap,
                 pathfinder: new Pathfinder(),
                 teamStrategyByAffiliation: {
-                    ENEMY: [new TestTeamStrategy()]
+                    ENEMY: [{
+                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                        options: {}
+                    }]
                 },
                 teamsByAffiliation,
             });
 
+            jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(moveAction);
             selector.update(state, mockedP5GraphicsContext);
 
             expect(selector.hasCompleted(state)).toBeTruthy();
@@ -474,12 +468,6 @@ describe('BattleComputerSquaddieSelector', () => {
                     }
                 });
 
-                class TestTeamStrategy implements TeamStrategy {
-                    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
-                        return squaddieSquaddieAction;
-                    }
-                }
-
                 state = new BattleOrchestratorState({
                     battlePhaseState,
                     squaddieRepository: squaddieRepo,
@@ -488,10 +476,14 @@ describe('BattleComputerSquaddieSelector', () => {
                     hexMap,
                     pathfinder: new Pathfinder(),
                     teamStrategyByAffiliation: {
-                        ENEMY: [new TestTeamStrategy()]
+                        ENEMY: [{
+                            type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                            options: {}
+                        }]
                     },
                     teamsByAffiliation,
                 });
+                jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(squaddieSquaddieAction);
 
                 jest.spyOn(Date, 'now').mockImplementation(() => 0);
                 selector.update(state, mockedP5GraphicsContext);

@@ -1,7 +1,17 @@
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
-import {TeamStrategyState} from "./teamStrategyState";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+
+export enum TeamStrategyType {
+    END_TURN = "END_TURN",
+    MOVE_CLOSER_TO_SQUADDIE = "MOVE_CLOSER_TO_SQUADDIE",
+    TARGET_SQUADDIE_IN_RANGE = "TARGET_SQUADDIE_IN_RANGE",
+}
+
+export interface TeamStrategyOptions {
+    desiredBattleSquaddieId?: string;
+    desiredAffiliation?: SquaddieAffiliation;
+}
 
 export interface TeamStrategy {
-    DetermineNextInstruction(state: TeamStrategyState, squaddieRepository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined;
+    type: TeamStrategyType;
+    options: TeamStrategyOptions;
 }

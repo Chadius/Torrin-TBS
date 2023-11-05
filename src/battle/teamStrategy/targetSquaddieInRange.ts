@@ -1,4 +1,4 @@
-import {TeamStrategy} from "./teamStrategy";
+import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
@@ -13,15 +13,13 @@ import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocati
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {TeamStrategyOptions} from "./teamStrategy";
 
-export class TargetSquaddieInRange implements TeamStrategy {
+export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
     desiredAffiliation: SquaddieAffiliation;
 
-    constructor(options: {
-        desiredBattleSquaddieId?: string;
-        desiredAffiliation?: SquaddieAffiliation;
-    }) {
+    constructor(options: TeamStrategyOptions) {
         this.desiredBattleSquaddieId = options.desiredBattleSquaddieId;
         this.desiredAffiliation = options.desiredAffiliation;
     }

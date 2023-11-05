@@ -10,8 +10,6 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {Recording} from "../history/recording";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {TeamStrategy} from "../teamStrategy/teamStrategy";
-import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {
     DefaultSquaddieInstructionInProgress,
     SquaddieInstructionInProgress,
@@ -22,6 +20,7 @@ import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
+import {TeamStrategy} from "../teamStrategy/teamStrategy";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -154,6 +153,7 @@ export class BattleOrchestratorState {
 
     private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {
         this.teamStrategyByAffiliation = {...teamStrategyByAffiliation};
+
         [
             SquaddieAffiliation.PLAYER,
             SquaddieAffiliation.ENEMY,
@@ -166,7 +166,7 @@ export class BattleOrchestratorState {
             if (affiliation === SquaddieAffiliation.PLAYER) {
                 return;
             }
-            this.teamStrategyByAffiliation[affiliation] = [new EndTurnTeamStrategy()];
+            this.teamStrategyByAffiliation[affiliation] = [];
         });
     }
 }

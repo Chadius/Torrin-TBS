@@ -24,10 +24,7 @@ import {GameEngineComponentState} from "../../gameEngine/gameEngine";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
-import {TargetSquaddieInRange} from "../teamStrategy/targetSquaddieInRange";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {MoveCloserToSquaddie} from "../teamStrategy/moveCloserToSquaddie";
-import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleCompletionStatus} from "./battleGameBoard";
@@ -36,6 +33,8 @@ import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
+
+import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -313,15 +312,21 @@ export class BattleOrchestrator implements GameEngineComponent {
             camera: new BattleCamera(0, 100),
             teamStrategyByAffiliation: {
                 ENEMY: [
-                    new TargetSquaddieInRange({
-                        desiredAffiliation: SquaddieAffiliation.PLAYER
-                    }),
-                    new MoveCloserToSquaddie({
-                        desiredAffiliation: SquaddieAffiliation.PLAYER
-                    })
+                    {
+                        type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                        options: {
+                            desiredAffiliation: SquaddieAffiliation.PLAYER
+                        }
+                    },
+                    {
+                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                        options: {
+                            desiredAffiliation: SquaddieAffiliation.PLAYER
+                        }
+                    }
                 ],
-                ALLY: [new EndTurnTeamStrategy()],
-                NONE: [new EndTurnTeamStrategy()],
+                ALLY: [],
+                NONE: [],
             }
         });
     }
