@@ -31,9 +31,7 @@ import {
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {MissionDefeatCutsceneTrigger,} from "../../cutscene/cutsceneTrigger";
-import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
-import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
+import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MissionConditionType} from "../missionResult/missionCondition";
@@ -254,7 +252,12 @@ describe('Battle Orchestrator', () => {
             squaddieRepository: new BattleSquaddieRepository(),
             cutsceneCollection,
             cutsceneTriggers: [
-                new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "starting", turn: 0}),
+                {
+                    cutsceneId: "starting",
+                    turn: 0,
+                    triggeringEvent: TriggeringEvent.START_OF_TURN,
+                    systemReactedToTrigger: false,
+                },
             ],
         });
 
@@ -484,7 +487,11 @@ describe('Battle Orchestrator', () => {
                 ],
                 cutsceneCollection,
                 cutsceneTriggers: [
-                    new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID}),
+                    {
+                        cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                        systemReactedToTrigger: false,
+                    },
                 ],
             });
             victoryState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
@@ -506,7 +513,11 @@ describe('Battle Orchestrator', () => {
                 ],
                 cutsceneCollection,
                 cutsceneTriggers: [
-                    new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID}),
+                    {
+                        cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+                        triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                        systemReactedToTrigger: false,
+                    },
                 ],
             });
             defeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
@@ -536,8 +547,16 @@ describe('Battle Orchestrator', () => {
                 ],
                 cutsceneCollection,
                 cutsceneTriggers: [
-                    new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID}),
-                    new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID}),
+                    {
+                        cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                        systemReactedToTrigger: false,
+                    },
+                    {
+                        cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+                        triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                        systemReactedToTrigger: false,
+                    },
                 ],
             });
             victoryAndDefeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;

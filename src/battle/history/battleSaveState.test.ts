@@ -30,6 +30,7 @@ import {SquaddieActionType} from "./anySquaddieAction";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
+import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -210,6 +211,7 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [],
         });
         const newCameraCoordinates = newBattleState.camera.getCoordinates();
         expect(newCameraCoordinates[0]).toBe(100);
@@ -234,6 +236,7 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [],
         });
         expect(newBattleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
         expect(newBattleState.battlePhaseState.turnCount).toBe(3);
@@ -285,6 +288,7 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [],
         });
         expect(newBattleState.battleEventRecording.history).toHaveLength(2);
         expect(newBattleState.battleEventRecording.history[0]).toStrictEqual(firstBattleEvent);
@@ -315,6 +319,7 @@ describe("BattleSaveState", () => {
                 terrainTileMap: missionMap.terrainTileMap,
             }),
             squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [],
         });
         expect(newBattleState.missionMap.terrainTileMap.getDimensions()).toStrictEqual({
             widthOfWidestRow: 4,
@@ -353,6 +358,7 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [],
         });
         expect(newBattleState.missionStatistics).toStrictEqual(missionStatistics);
     });
@@ -371,6 +377,7 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: newSquaddieRepository,
+            cutsceneTriggers: [],
         });
         expect(newBattleState.squaddieRepository.getBattleSquaddieIterator()).toHaveLength(2);
         const {
@@ -401,6 +408,7 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [],
         });
         expect(newBattleState.teamsByAffiliation[SquaddieAffiliation.PLAYER]).toEqual(teamsByAffiliation[SquaddieAffiliation.PLAYER]);
         expect(newBattleState.teamsByAffiliation[SquaddieAffiliation.ENEMY]).toEqual(teamsByAffiliation[SquaddieAffiliation.ENEMY]);
@@ -446,10 +454,56 @@ describe("BattleSaveState", () => {
             saveData: saveState,
             missionMap: NullMissionMap(),
             squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [],
         });
         expect(newBattleState.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY]).toEqual(teamStrategyByAffiliation[SquaddieAffiliation.ENEMY]);
         expect(newBattleState.teamStrategyByAffiliation[SquaddieAffiliation.ALLY]).toEqual(teamStrategyByAffiliation[SquaddieAffiliation.ALLY]);
         expect(newBattleState.teamStrategyByAffiliation[SquaddieAffiliation.NONE]).toEqual(teamStrategyByAffiliation[SquaddieAffiliation.NONE]);
+    });
+
+    it('updates the completion status on the cutscene triggers', () => {
+        const triggers: CutsceneTrigger[] = [
+            {
+                cutsceneId: "victory",
+                triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                systemReactedToTrigger: false,
+            },
+            {
+                cutsceneId: "introduction",
+                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                systemReactedToTrigger: true,
+            }
+        ];
+
+        const battleState = new BattleOrchestratorState({
+            missionMap: NullMissionMap(),
+            squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: triggers,
+        });
+
+        const saveState: BattleSaveState = DefaultBattleSaveState();
+        BattleSaveStateHandler.updateBattleOrchestratorState(saveState, battleState);
+        expect(saveState.cutscene_trigger_completion).toEqual(triggers);
+
+        const newBattleState = BattleSaveStateHandler.createBattleOrchestratorState({
+            saveData: saveState,
+            missionMap: NullMissionMap(),
+            squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneTriggers: [
+                {
+                    cutsceneId: "victory",
+                    triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                    systemReactedToTrigger: false,
+                },
+                {
+                    cutsceneId: "introduction",
+                    triggeringEvent: TriggeringEvent.START_OF_TURN,
+                    systemReactedToTrigger: false,
+                }
+            ],
+        });
+        expect(newBattleState.cutsceneTriggers.find(c => c.cutsceneId === "victory").systemReactedToTrigger).toBeFalsy();
+        expect(newBattleState.cutsceneTriggers.find(c => c.cutsceneId === "introduction").systemReactedToTrigger).toBeTruthy();
     });
 
     describe('can be overridden with raw data', () => {
@@ -536,6 +590,19 @@ describe("BattleSaveState", () => {
                         }
                     },
                 },
+                cutscene_trigger_completion: [
+                    {
+                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                        cutsceneId: "default_victory",
+                        systemReactedToTrigger: false,
+                    },
+                    {
+                        triggeringEvent: TriggeringEvent.START_OF_TURN,
+                        cutsceneId: "introduction",
+                        systemReactedToTrigger: false,
+                        turn: 0,
+                    }
+                ],
             };
 
             newBattleState = BattleSaveStateHandler.createBattleOrchestratorState({
@@ -546,6 +613,19 @@ describe("BattleSaveState", () => {
                     })
                 }),
                 squaddieRepository: newSquaddieRepository,
+                cutsceneTriggers: [
+                    {
+                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                        cutsceneId: "default_victory",
+                        systemReactedToTrigger: false,
+                    },
+                    {
+                        triggeringEvent: TriggeringEvent.START_OF_TURN,
+                        cutsceneId: "introduction",
+                        systemReactedToTrigger: false,
+                        turn: 0,
+                    }
+                ]
             });
         });
 
@@ -717,6 +797,18 @@ describe("BattleSaveState", () => {
                     }
                 }
             };
+            const triggers: CutsceneTrigger[] = [
+                {
+                    cutsceneId: "victory",
+                    triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                    systemReactedToTrigger: false,
+                },
+                {
+                    cutsceneId: "introduction",
+                    triggeringEvent: TriggeringEvent.START_OF_TURN,
+                    systemReactedToTrigger: true,
+                }
+            ];
 
             const battleOrchestratorState = new BattleOrchestratorState({
                 camera: new BattleCamera(100, 200),
@@ -734,6 +826,7 @@ describe("BattleSaveState", () => {
                 },
                 teamStrategyByAffiliation: teamStrategyByAffiliation,
                 missionCompletionStatus,
+                cutsceneTriggers: triggers,
             });
 
             const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
@@ -772,6 +865,8 @@ describe("BattleSaveState", () => {
             expect(saveData.team_strategy_by_affiliation).toEqual(teamStrategyByAffiliation);
 
             expect(saveData.mission_completion_status).toEqual(missionCompletionStatus);
+
+            expect(saveData.cutscene_trigger_completion).toEqual(triggers);
         });
     });
 });

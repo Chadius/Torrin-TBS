@@ -15,6 +15,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
+import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 
 export type InBattleAttributesAndTurn = {
     in_battle_attributes: InBattleAttributes,
@@ -39,21 +40,25 @@ export interface BattleSaveState {
     teams_by_affiliation: { [key in SquaddieAffiliation]?: BattleSquaddieTeam };
     team_strategy_by_affiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
     mission_completion_status: MissionCompletionStatus;
+    cutscene_trigger_completion: CutsceneTrigger[];
 }
 
 export const BattleSaveStateHandler = {
     createBattleOrchestratorState: ({
                                         missionMap,
                                         squaddieRepository,
+                                        cutsceneTriggers,
                                         saveData,
                                     }: {
         missionMap: MissionMap;
         squaddieRepository: BattleSquaddieRepository;
+        cutsceneTriggers: CutsceneTrigger[];
         saveData: BattleSaveState
     }): BattleOrchestratorState => {
         return createBattleOrchestratorState({
             missionMap,
             squaddieRepository,
+            cutsceneTriggers,
             saveData,
         });
     },
@@ -80,6 +85,7 @@ export const BattleSaveStateHandler = {
         saveData.teams_by_affiliation = {...battleOrchestratorState.teamsByAffiliation};
         saveData.team_strategy_by_affiliation = {...battleOrchestratorState.teamStrategyByAffiliation};
         saveData.mission_completion_status = {...battleOrchestratorState.missionCompletionStatus};
+        saveData.cutscene_trigger_completion = [...battleOrchestratorState.cutsceneTriggers];
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
         return stringifyBattleSaveStateData(saveData);
@@ -120,6 +126,7 @@ export const BattleSaveStateHandler = {
             teams_by_affiliation: battleOrchestratorState.teamsByAffiliation,
             team_strategy_by_affiliation: battleOrchestratorState.teamStrategyByAffiliation,
             mission_completion_status: battleOrchestratorState.missionCompletionStatus,
+            cutscene_trigger_completion: battleOrchestratorState.cutsceneTriggers,
         }
     },
     SaveToFile: (data: BattleSaveState) => {
@@ -143,11 +150,13 @@ const parseJsonIntoBattleSaveStateData = (dataString: string): BattleSaveState =
 const createBattleOrchestratorState = ({
                                            missionMap,
                                            squaddieRepository,
+                                           cutsceneTriggers,
                                            saveData,
                                        }: {
     missionMap: MissionMap;
     squaddieRepository: BattleSquaddieRepository;
-    saveData: BattleSaveState
+    cutsceneTriggers: CutsceneTrigger[];
+    saveData: BattleSaveState;
 }): BattleOrchestratorState => {
     saveData.squaddie_map_placements.forEach((datum) => {
         missionMap.addSquaddie(datum.squaddieTemplateId, datum.battleSquaddieId, datum.mapLocation);
@@ -173,6 +182,15 @@ const createBattleOrchestratorState = ({
         squaddieRepository.updateBattleSquaddie(newBattleSquaddie);
     });
 
+    saveData.cutscene_trigger_completion.forEach(
+        (saveDataTrigger: CutsceneTrigger) => {
+            const battleOrchestratorStateTrigger: CutsceneTrigger = cutsceneTriggers.find(c => c.cutsceneId === saveDataTrigger.cutsceneId);
+            if (battleOrchestratorStateTrigger) {
+                battleOrchestratorStateTrigger.systemReactedToTrigger = saveDataTrigger.systemReactedToTrigger;
+            }
+        }
+    )
+
     return new BattleOrchestratorState({
         missionMap,
         camera: new BattleCamera(saveData.camera.xCoordinate, saveData.camera.yCoordinate),
@@ -186,6 +204,7 @@ const createBattleOrchestratorState = ({
         teamsByAffiliation: saveData.teams_by_affiliation,
         teamStrategyByAffiliation: saveData.team_strategy_by_affiliation,
         missionCompletionStatus: saveData.mission_completion_status,
+        cutsceneTriggers,
     });
 };
 
@@ -210,5 +229,6 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
         teams_by_affiliation: {},
         team_strategy_by_affiliation: {},
         mission_completion_status: {},
+        cutscene_trigger_completion: [],
     }
 }

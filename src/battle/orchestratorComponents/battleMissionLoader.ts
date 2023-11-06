@@ -35,12 +35,11 @@ import {
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
-import {CutsceneTrigger, MissionDefeatCutsceneTrigger} from "../../cutscene/cutsceneTrigger";
-import {MissionVictoryCutsceneTrigger} from "../cutscene/missionVictoryCutsceneTrigger";
-import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
+import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SplashScreen} from "../../cutscene/splashScreen";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionConditionType} from "../missionResult/missionCondition";
+import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -460,15 +459,30 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             name: "Infiltrators",
             battleSquaddieIds: [
                 "enemy_demon_slither_0",
-                // "enemy_demon_slither_1",
-                // "enemy_demon_slither_2",
-                // "enemy_demon_slither_3",
-                // "enemy_demon_slither_4",
-                // "enemy_demon_slither_5",
-                // "enemy_demon_slither_6",
-                // "enemy_demon_slither_7",
+                "enemy_demon_slither_1",
+                "enemy_demon_slither_2",
+                "enemy_demon_slither_3",
+                "enemy_demon_slither_4",
+                "enemy_demon_slither_5",
+                "enemy_demon_slither_6",
+                "enemy_demon_slither_7",
             ],
         };
+
+        state.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY] = [
+            {
+                type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                options: {
+                    desiredAffiliation: SquaddieAffiliation.PLAYER,
+                }
+            },
+            {
+                type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                options: {
+                    desiredAffiliation: SquaddieAffiliation.PLAYER,
+                }
+            },
+        ]
     }
 
     private initializeSquaddieResources(state: BattleOrchestratorState) {
@@ -714,13 +728,46 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.resourceHandler.loadResources(this.cutsceneResourceKeys);
 
         const cutsceneTriggers: CutsceneTrigger[] = [
-            new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID}),
-            new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID}),
-            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "introduction", turn: 0}),
-            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn1", turn: 1}),
-            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn2", turn: 2}),
-            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn4", turn: 4}),
-            new MissionStartOfPhaseCutsceneTrigger({cutsceneId: "turn5", turn: 5}),
+            {
+                triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+                systemReactedToTrigger: false,
+            },
+            {
+                triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+                systemReactedToTrigger: false,
+            },
+            {
+                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                systemReactedToTrigger: false,
+                cutsceneId: "introduction",
+                turn: 0,
+            },
+            {
+                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                systemReactedToTrigger: false,
+                cutsceneId: "turn1",
+                turn: 1,
+            },
+            {
+                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                systemReactedToTrigger: false,
+                cutsceneId: "turn2",
+                turn: 2,
+            },
+            {
+                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                systemReactedToTrigger: false,
+                cutsceneId: "turn4",
+                turn: 4,
+            },
+            {
+                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                systemReactedToTrigger: false,
+                cutsceneId: "turn5",
+                turn: 5,
+            },
         ];
 
         return {

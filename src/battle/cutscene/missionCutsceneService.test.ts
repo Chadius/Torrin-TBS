@@ -8,7 +8,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {MissionDefeatCutsceneTrigger} from "../../cutscene/cutsceneTrigger";
+import {MissionDefeatCutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {BattleCompletionStatus} from "../orchestrator/battleGameBoard";
 import {MissionVictoryCutsceneTrigger} from "./missionVictoryCutsceneTrigger";
 import {GetCutsceneTriggersToActivate} from "./missionCutsceneService";
@@ -40,7 +40,11 @@ describe('Mission Cutscene Service', () => {
             }
         });
 
-        victoryCutsceneTrigger = new MissionVictoryCutsceneTrigger({cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID});
+        victoryCutsceneTrigger = {
+            cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+            triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+            systemReactedToTrigger: false,
+        };
         victoryState = new BattleOrchestratorState({
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
@@ -64,7 +68,11 @@ describe('Mission Cutscene Service', () => {
         });
         victoryState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
-        defeatCutsceneTrigger = new MissionDefeatCutsceneTrigger({cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID});
+        defeatCutsceneTrigger = {
+            cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+            triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+            systemReactedToTrigger: false,
+        };
         defeatState = new BattleOrchestratorState({
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
@@ -115,10 +123,13 @@ describe('Mission Cutscene Service', () => {
         });
         victoryAndDefeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
-        turn0CutsceneTrigger = new MissionStartOfPhaseCutsceneTrigger({
+        turn0CutsceneTrigger = {
             cutsceneId: "starting",
+            triggeringEvent: TriggeringEvent.START_OF_TURN,
+            systemReactedToTrigger: false,
             turn: 0,
-        });
+        }
+
         turn0State = new BattleOrchestratorState({
             hexMap: new TerrainTileMap({
                 movementCost: ["1 1 "]

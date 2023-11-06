@@ -5,39 +5,15 @@ export enum TriggeringEvent {
 }
 
 export interface CutsceneTrigger {
-    get triggeringEvent(): TriggeringEvent;
+    triggeringEvent: TriggeringEvent;
+    systemReactedToTrigger: boolean;
+    cutsceneId: string;
 
-    get systemReactedToTrigger(): boolean;
-
-    set systemReactedToTrigger(reacted: boolean);
-
-    get cutsceneId(): string;
-
-    set cutsceneId(id: string);
+    turn?: number;
 }
 
 export class MissionDefeatCutsceneTrigger implements CutsceneTrigger {
-    private readonly _cutsceneId: string;
-
-    constructor({cutsceneId}: { cutsceneId: string }) {
-        this._cutsceneId = cutsceneId;
-    }
-
-    private _systemReactedToTrigger: boolean;
-
-    get systemReactedToTrigger(): boolean {
-        return this._systemReactedToTrigger;
-    }
-
-    set systemReactedToTrigger(reacted: boolean) {
-        this._systemReactedToTrigger = reacted;
-    }
-
-    get cutsceneId(): string {
-        return this._cutsceneId;
-    }
-
-    get triggeringEvent(): TriggeringEvent {
-        return TriggeringEvent.MISSION_DEFEAT;
-    }
+    public readonly triggeringEvent: TriggeringEvent.MISSION_DEFEAT;
+    public systemReactedToTrigger: boolean;
+    public cutsceneId: string;
 }

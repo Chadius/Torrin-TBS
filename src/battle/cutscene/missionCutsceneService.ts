@@ -26,7 +26,7 @@ function findMissionObjectiveCutscenes(defeatObjective: MissionObjective, state:
 function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: BattleOrchestratorState, cutscenesToPlay: string[], cutsceneTriggersToReactTo: CutsceneTrigger[]) {
     const turnTriggersToReactTo = turnObjectives.filter((trigger) => {
         const startOfTurnTrigger = trigger as MissionStartOfPhaseCutsceneTrigger;
-        if (state.battlePhaseState.turnCount !== startOfTurnTrigger.phase) {
+        if (state.battlePhaseState.turnCount !== startOfTurnTrigger.turn) {
             return false;
         }
         return isTriggerReadyToReact(trigger);
