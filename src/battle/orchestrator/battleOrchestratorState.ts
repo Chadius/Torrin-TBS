@@ -221,7 +221,6 @@ export class BattleOrchestratorState {
         });
     }
 
-    // TODO test
     public clone(): BattleOrchestratorState {
         const newState = new BattleOrchestratorState({
             resourceHandler: this.resourceHandler,

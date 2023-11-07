@@ -9,6 +9,8 @@ import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionConditionType} from "../missionResult/missionCondition";
+import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
 describe('orchestratorState', () => {
     it('overrides team strategy for non-player teams', () => {
@@ -132,5 +134,57 @@ describe('orchestratorState', () => {
             ],
         }
         validityCheck(args, true, true, []);
+    });
+
+    it('can clone existing objects', () => {
+        let originalBattleOrchestratorState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: new BattleSquaddieRepository(),
+            missionMap: NullMissionMap(),
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
+            teamsByAffiliation: {
+                [SquaddieAffiliation.PLAYER]: {
+                    name: "Players",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleSquaddieIds: [],
+                },
+                [SquaddieAffiliation.ENEMY]: {
+                    name: "Baddies",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    battleSquaddieIds: [],
+                },
+            },
+            pathfinder: new Pathfinder(),
+            objectives: [
+                new MissionObjective({
+                    id: "mission objective id",
+                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    conditions: [
+                        {
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            id: "defeat all enemies",
+                        }
+                    ],
+                    numberOfCompletedConditions: 1,
+                })
+            ],
+            missionCompletionStatus: {},
+            missionStatistics: MissionStatisticsHandler.new(),
+            cutsceneTriggers: [],
+            battlePhaseState: {
+                turnCount: 20,
+                currentAffiliation: BattlePhase.ENEMY,
+            }
+        });
+        originalBattleOrchestratorState.gameSaveFlags.saveGame = true;
+
+        expect(originalBattleOrchestratorState.isValid).toBeTruthy();
+
+        const cloned: BattleOrchestratorState = originalBattleOrchestratorState.clone();
+
+        expect(cloned.isValid).toBeTruthy();
+        expect(cloned).toEqual(originalBattleOrchestratorState);
     });
 });

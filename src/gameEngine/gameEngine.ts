@@ -375,7 +375,6 @@ export class GameEngine {
             return;
         }
 
-        // TODO test clone()
         const newBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
         const originalBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
 
