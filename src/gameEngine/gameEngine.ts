@@ -1,4 +1,4 @@
-import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
+import {BattleOrchestrator, BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
@@ -375,28 +375,40 @@ export class GameEngine {
             return;
         }
 
-        const newBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
+        const newBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
+        const testingBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
         const originalBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
 
         this.setup({graphicsContext: this.graphicsContext});
 
-        const loaderForNewState: BattleMissionLoader = new BattleMissionLoader();
-        while (loaderForNewState.hasCompleted(newBattleOrchestratorState) !== true) {
-            loaderForNewState.update(newBattleOrchestratorState);
+        const loaderForTestingState: BattleMissionLoader = new BattleMissionLoader();
+        while (loaderForTestingState.hasCompleted(testingBattleOrchestratorState) !== true) {
+            loaderForTestingState.update(testingBattleOrchestratorState);
         }
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: loadedSaveState,
-            battleOrchestratorState: newBattleOrchestratorState,
-            squaddieRepository: newBattleOrchestratorState.squaddieRepository,
+            battleOrchestratorState: testingBattleOrchestratorState,
+            squaddieRepository: testingBattleOrchestratorState.squaddieRepository,
         });
 
-        if (newBattleOrchestratorState.isReadyToContinueMission) {
+        if (testingBattleOrchestratorState.isReadyToContinueMission) {
             this.battleOrchestratorState = newBattleOrchestratorState;
             this.battleOrchestratorState.gameSaveFlags.loadingInProgress = true;
-            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+            while (this.battleOrchestrator.mode !== BattleOrchestratorMode.LOADING_MISSION) {
+                this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+            }
+            while (this.battleOrchestrator.mode === BattleOrchestratorMode.LOADING_MISSION) {
+                this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+            }
+            BattleSaveStateHandler.applySaveStateToOrchestratorState({
+                battleSaveState: loadedSaveState,
+                battleOrchestratorState: this.battleOrchestratorState,
+                squaddieRepository: this.battleOrchestratorState.squaddieRepository,
+            });
             this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
+            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
         } else {
-            console.log(`Loading created invalid state, missing components: ${newBattleOrchestratorState.missingComponents}`);
+            console.log(`Loading created invalid state, missing components: ${testingBattleOrchestratorState.missingComponents}`);
             this.setup({graphicsContext: this.graphicsContext});
 
             this.battleOrchestratorState = originalBattleOrchestratorState;
