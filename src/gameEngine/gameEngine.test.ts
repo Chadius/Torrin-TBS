@@ -147,14 +147,35 @@ describe('Game Engine', () => {
             expect(saveSpy).toBeCalled();
             expect(newGameEngine.battleOrchestratorState.gameSaveFlags.saveGame).toBeFalsy();
         });
+        it('will set the error flag if there is an error while saving', () => {
+            const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {});
+            const newGameEngine = new GameEngine({
+                startupMode: GameModeEnum.BATTLE,
+                graphicsContext: mockedP5GraphicsContext,
+            });
+            newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
+            newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
+            newGameEngine.battleOrchestratorState.gameSaveFlags.saveGame = true;
+            const saveSpy = jest.spyOn(SaveFile, "DownloadToBrowser").mockImplementation(() => {
+                throw new Error("Failed for some reason");
+            });
+
+            newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+
+            expect(saveSpy).toBeCalled();
+            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.saveGame).toBeFalsy();
+            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.errorDuringSaving).toBeTruthy();
+
+            expect(consoleLoggerSpy).toBeCalled();
+        });
     });
 
     describe('load the game', () => {
         let newGameEngine: GameEngine;
         let openDialogSpy: jest.SpyInstance;
         let loadedBattleSaveState: BattleSaveState;
-        let updateSpy: jest.SpyInstance;
         let hasCompletedSpy: jest.SpyInstance;
+        let originalState: BattleOrchestratorState;
 
         beforeEach(() => {
             newGameEngine = new GameEngine({
@@ -164,6 +185,19 @@ describe('Game Engine', () => {
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
             newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
             newGameEngine.battleOrchestratorState.gameSaveFlags.loadGame = true;
+            newGameEngine.battleOrchestratorState.pathfinder = new Pathfinder();
+            newGameEngine.battleOrchestratorState.gameBoard.objectives = [
+                new MissionObjective({
+                    id: "test",
+                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    conditions: [
+                        {
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                        }
+                    ],
+                })
+            ];
 
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
@@ -183,20 +217,9 @@ describe('Game Engine', () => {
                 loadedBattleSaveState
             );
             jest.spyOn(newGameEngine.battleOrchestrator.missionLoader, "update").mockReturnValue(null);
-            updateSpy = jest.spyOn(BattleMissionLoader.prototype, "update").mockReturnValue(null);
             hasCompletedSpy = jest.spyOn(BattleMissionLoader.prototype, "hasCompleted").mockReturnValue(true);
-        });
-        it('will try to begin retrieving file content', async () => {
-            const retrieveSpy = jest.spyOn(SaveFile, "RetrieveFileContent");
-            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-            expect(retrieveSpy).toBeCalled();
-        });
-        it('will try to open a file dialog', async () => {
-            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-            expect(openDialogSpy).toBeCalled();
-        });
-        it('will tell the battle orchestrator to reload the mission', async () => {
-            newGameEngine.battleOrchestratorState = new BattleOrchestratorState({
+
+            originalState = new BattleOrchestratorState({
                 camera: new BattleCamera(100, 200),
                 missionMap: NullMissionMap(),
                 squaddieRepository: new BattleSquaddieRepository(),
@@ -229,8 +252,24 @@ describe('Game Engine', () => {
                         turn: 0,
                         systemReactedToTrigger: true,
                     }
-                ]
+                ],
+                missionCompletionStatus: {},
             });
+        });
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+        it('will try to begin retrieving file content', async () => {
+            const retrieveSpy = jest.spyOn(SaveFile, "RetrieveFileContent");
+            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            expect(retrieveSpy).toBeCalled();
+        });
+        it('will try to open a file dialog', async () => {
+            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            expect(openDialogSpy).toBeCalled();
+        });
+        it('will tell the battle orchestrator to reload the mission', async () => {
+            newGameEngine.battleOrchestratorState = originalState;
             BattleSaveStateHandler.applySaveStateToOrchestratorState({
                 battleSaveState: loadedBattleSaveState,
                 battleOrchestratorState: newGameEngine.battleOrchestratorState,
@@ -242,7 +281,6 @@ describe('Game Engine', () => {
             expect(newGameEngine.currentMode).toBe(GameModeEnum.BATTLE);
 
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-            expect(updateSpy).toBeCalled();
             expect(hasCompletedSpy).toBeCalled();
             expect(newGameEngine.battleOrchestrator.missionLoader.update).toBeCalled();
 
@@ -252,16 +290,47 @@ describe('Game Engine', () => {
         });
         it('will clear the load game flag after succeeding', async () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-            expect(updateSpy).toBeCalled();
             expect(hasCompletedSpy).toBeCalled();
             expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadGame).toBeFalsy();
         });
         it('should not play the introductory cutscene', async () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-            expect(updateSpy).toBeCalled();
             expect(hasCompletedSpy).toBeCalled();
             expect(newGameEngine.battleOrchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
         });
-        // TODO error handling
+
+        it('should abort loading if the file data is invalid', async () => {
+            newGameEngine.battleOrchestratorState = originalState;
+            newGameEngine.battleOrchestratorState.gameSaveFlags.loadGame = true;
+            openDialogSpy = jest.spyOn(SaveFile, "RetrieveFileContent").mockRejectedValue(
+                null
+            );
+            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadGame).toBeFalsy();
+            expect(newGameEngine.battleOrchestratorState).toEqual(originalState);
+            expect(hasCompletedSpy).not.toBeCalled();
+        });
+        it('should revert to previous state if augmented state is invalid', async() => {
+            const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {});
+
+            const isValidSpy: jest.SpyInstance = jest.spyOn(BattleOrchestratorState.prototype, "isReadyToContinueMission", "get").mockReturnValue(false);
+            newGameEngine.battleOrchestratorState = originalState;
+            newGameEngine.battleOrchestratorState.gameSaveFlags.loadGame = true;
+            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            expect(isValidSpy).toBeCalled();
+            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadGame).toBeFalsy();
+
+            const originalGameSaveFlags = {...originalState.gameSaveFlags};
+            originalState.gameSaveFlags = {
+                ...originalState.gameSaveFlags,
+                loadGame: false,
+                errorDuringLoading: true,
+            };
+            expect(newGameEngine.battleOrchestratorState).toEqual(originalState);
+            originalState.gameSaveFlags = originalGameSaveFlags;
+
+            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.errorDuringLoading).toBeTruthy();
+            expect(consoleLoggerSpy).toBeCalled();
+        });
     });
 });

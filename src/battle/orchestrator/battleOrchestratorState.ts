@@ -22,6 +22,7 @@ import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
+import {battleSquaddieSelectedHUD} from "../../utils/test/mocks";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -37,6 +38,10 @@ export class BattleOrchestratorState {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleEventRecording: Recording;
     gameSaveFlags: {
+        // TODO Test errorDuringLoading in HUD
+        errorDuringLoading: boolean;
+        // TODO Test errorDuringSaving in HUD
+        errorDuringSaving: boolean;
         loadGame: boolean;
         saveGame: boolean;
     }
@@ -119,6 +124,8 @@ export class BattleOrchestratorState {
         this.gameSaveFlags = {
             loadGame: false,
             saveGame: false,
+            errorDuringLoading: false,
+            errorDuringSaving: false,
         }
     }
 
@@ -212,6 +219,34 @@ export class BattleOrchestratorState {
             }
             this.teamStrategyByAffiliation[affiliation] = [];
         });
+    }
+
+    // TODO test
+    public clone(): BattleOrchestratorState {
+        const newState = new BattleOrchestratorState({
+            resourceHandler: this.resourceHandler,
+            squaddieRepository: this.squaddieRepository,
+            missionMap: new MissionMap({terrainTileMap: this.missionMap.terrainTileMap}),
+            hexMap: this.hexMap,
+            teamsByAffiliation: {...this.teamsByAffiliation},
+            teamStrategyByAffiliation: {...this.teamStrategyByAffiliation},
+            battlePhaseState: {...this.battlePhaseState},
+            pathfinder: this.pathfinder,
+            squaddieMovePath: this.squaddieMovePath,
+            camera: this.camera,
+            battleSquaddieSelectedHUD: this.battleSquaddieSelectedHUD,
+            battleEventRecording: {...this.battleEventRecording},
+            missionCompletionStatus: {...this.missionCompletionStatus},
+            missionStatistics: {...this.missionStatistics},
+            cutsceneCollection: this.cutsceneCollection,
+            cutsceneTriggers: [...this.cutsceneTriggers],
+            objectives: [...this.objectives],
+            squaddieCurrentlyActing: {...this.squaddieCurrentlyActing},
+        });
+
+        newState.gameSaveFlags = {...this.gameSaveFlags};
+
+        return newState;
     }
 }
 

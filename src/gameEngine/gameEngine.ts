@@ -356,29 +356,58 @@ export class GameEngine {
             missionId: "Test demo mission",
             battleOrchestratorState: this.battleOrchestratorState,
         });
-        BattleSaveStateHandler.SaveToFile(saveData);
+        try {
+            BattleSaveStateHandler.SaveToFile(saveData);
+        } catch (error) {
+            console.log(`Save game failed: ${error}`);
+            this.battleOrchestratorState.gameSaveFlags.errorDuringSaving = true;
+        }
         this.battleOrchestratorState.gameSaveFlags.saveGame = false;
     }
 
     private async loadGameFileAndSetGameState() {
-        const loadedSaveState: BattleSaveState = await SaveFile.RetrieveFileContent();
+        let loadedSaveState: BattleSaveState;
+
+        try {
+            loadedSaveState = await SaveFile.RetrieveFileContent();
+        } catch (error) {
+            this.battleOrchestratorState.gameSaveFlags.loadGame = false;
+            return;
+        }
+
+        // TODO test clone()
+        const newBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
+        const originalBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
 
         this.setup({graphicsContext: this.graphicsContext});
 
-        this.battleOrchestratorState.gameSaveFlags.loadGame = true;
-        while (this.battleOrchestrator.mode !== BattleOrchestratorMode.LOADING_MISSION) {
-            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+        const loaderForNewState: BattleMissionLoader = new BattleMissionLoader();
+        while (loaderForNewState.hasCompleted(newBattleOrchestratorState) !== true) {
+            loaderForNewState.update(newBattleOrchestratorState);
         }
-
-        while (this.battleOrchestrator.mode === BattleOrchestratorMode.LOADING_MISSION) {
-            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
-        }
-        this.battleOrchestratorState.gameSaveFlags.loadGame = false;
-// TODO Mission is loaded! But it's turn 0 so the introductory cutscene plays.
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: loadedSaveState,
-            battleOrchestratorState: this.battleOrchestratorState,
-            squaddieRepository: this.battleOrchestratorState.squaddieRepository,
+            battleOrchestratorState: newBattleOrchestratorState,
+            squaddieRepository: newBattleOrchestratorState.squaddieRepository,
         });
+
+        if (newBattleOrchestratorState.isReadyToContinueMission) {
+            this.battleOrchestratorState = newBattleOrchestratorState;
+            this.battleOrchestratorState.gameSaveFlags.loadGame = true;
+            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+            this.battleOrchestratorState.gameSaveFlags.loadGame = false;
+        } else {
+            console.log(`Loading created invalid state, missing components: ${newBattleOrchestratorState.missingComponents}`);
+            this.setup({graphicsContext: this.graphicsContext});
+
+            this.battleOrchestratorState = originalBattleOrchestratorState;
+            const loaderForRevertedState: BattleMissionLoader = new BattleMissionLoader();
+            while (loaderForRevertedState.hasCompleted(this.battleOrchestratorState) !== true) {
+                loaderForRevertedState.update(this.battleOrchestratorState);
+            }
+
+            this.battleOrchestratorState.gameSaveFlags.loadGame = false;
+            this.battleOrchestratorState.gameSaveFlags.errorDuringLoading = true;
+        }
     }
 }
