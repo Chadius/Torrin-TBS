@@ -178,7 +178,7 @@ describe('orchestratorState', () => {
                 currentAffiliation: BattlePhase.ENEMY,
             }
         });
-        originalBattleOrchestratorState.gameSaveFlags.saveGame = true;
+        originalBattleOrchestratorState.gameSaveFlags.savingInProgress = true;
 
         expect(originalBattleOrchestratorState.isValid).toBeTruthy();
 

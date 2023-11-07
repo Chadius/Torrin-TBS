@@ -1,7 +1,7 @@
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {MissionMap} from "../missionMap/missionMap";
 import {ResourceHandler} from "../resource/resourceHandler";
-import {BattleSquaddieSelectedHUD} from "./battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD, FILE_MESSAGE_DISPLAY_DURATION} from "./battleSquaddieSelectedHUD";
 import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
@@ -550,7 +550,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
                 expect(saveGame).toBeCalled();
 
-                expect(state.gameSaveFlags.saveGame).toBeTruthy();
+                expect(state.gameSaveFlags.savingInProgress).toBeTruthy();
             });
             it('should ignore other inputs while saving', () => {
                 hud.selectSquaddieAndDrawWindow({
@@ -579,6 +579,42 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Saving...`),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+                expect(saveGame).toBeCalled();
+            });
+            it('should show a failure message if the save failed', () => {
+                jest.spyOn(Date, "now").mockReturnValue(0);
+                const saveGame = jest.spyOn(hud, "markGameToBeSaved");
+                hud.selectSquaddieAndDrawWindow({
+                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state,
+                });
+
+                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+                state.gameSaveFlags.errorDuringSaving = true;
+
+                const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+                hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+
+                expect(textSpy).toBeCalled();
+                expect(textSpy).toBeCalledWith(expect.stringMatching(`Saving failed. Check logs.`),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+                expect(saveGame).toBeCalled();
+                expect(state.gameSaveFlags.errorDuringSaving).toBeFalsy();
+
+                jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
+                textSpy.mockClear();
+                hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                expect(textSpy).not.toBeCalledWith(expect.stringMatching(`Saving failed. Check logs.`),
                     expect.anything(),
                     expect.anything(),
                     expect.anything(),
@@ -622,9 +658,9 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state);
             expect(loadGame).toBeCalled();
 
-            expect(state.gameSaveFlags.loadGame).toBeTruthy();
+            expect(state.gameSaveFlags.loadingInProgress).toBeTruthy();
         });
-        describe('user clicks the save button', () => {
+        describe('user clicks the load button', () => {
             let state: BattleOrchestratorState;
 
             beforeEach(() => {
@@ -678,6 +714,42 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Loading...`),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+                expect(loadGame).toBeCalled();
+            });
+            it('should show a failure message if the load failed', () => {
+                jest.spyOn(Date, "now").mockReturnValue(0);
+                const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
+                hud.selectSquaddieAndDrawWindow({
+                    battleId: playerSquaddieDynamic.battleSquaddieId,
+                    repositionWindow: {mouseX: 0, mouseY: 0},
+                    state,
+                });
+
+                hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state,);
+                state.gameSaveFlags.errorDuringLoading = true;
+
+                const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+                hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+
+                expect(textSpy).toBeCalled();
+                expect(textSpy).toBeCalledWith(expect.stringMatching(`Loading failed. Check logs.`),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+                expect(loadGame).toBeCalled();
+                expect(state.gameSaveFlags.errorDuringLoading).toBeFalsy();
+
+                jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
+                textSpy.mockClear();
+                hud.draw(state.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                expect(textSpy).not.toBeCalledWith(expect.stringMatching(`Loading failed. Check logs.`),
                     expect.anything(),
                     expect.anything(),
                     expect.anything(),

@@ -31,6 +31,8 @@ import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
 import {BattlePhase} from "./orchestratorComponents/battlePhaseTracker";
 
+export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
+
 enum ActionValidityCheck {
     IS_VALID = "IS_VALID",
     SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS = "SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS",
@@ -171,8 +173,8 @@ export class BattleSquaddieSelectedHUD {
 
     mouseClicked(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
         if (
-            state.gameSaveFlags.saveGame
-            || state.gameSaveFlags.loadGame
+            state.gameSaveFlags.savingInProgress
+            || state.gameSaveFlags.loadingInProgress
         ) {
             return;
         }
@@ -268,11 +270,11 @@ export class BattleSquaddieSelectedHUD {
     }
 
     markGameToBeSaved(state: BattleOrchestratorState): void {
-        state.gameSaveFlags.saveGame = true;
+        state.gameSaveFlags.savingInProgress = true;
     }
 
     markGameToBeLoaded(state: BattleOrchestratorState): void {
-        state.gameSaveFlags.loadGame = true;
+        state.gameSaveFlags.loadingInProgress = true;
     }
 
     private generateUseActionButtons(
@@ -475,28 +477,35 @@ export class BattleSquaddieSelectedHUD {
             warningText = `No actions remaining for ${squaddieTemplate.squaddieId.name}`;
         }
 
-        this.maybeCreateInvalidCommandWarningTextBox(warningText);
+        this.maybeCreateInvalidCommandWarningTextBox(warningText, undefined);
 
     }
 
     private drawFileAccessWarning(state: BattleOrchestratorState) {
-        const WARNING_SAVE_FILE = "Saving...";
-        if (!state.gameSaveFlags.saveGame && this.invalidCommandWarningTextBox.text === WARNING_SAVE_FILE) {
-            this.maybeCreateInvalidCommandWarningTextBox("");
-            return;
-        }
-        if (state.gameSaveFlags.saveGame) {
-            this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE);
+        const WARNING_LOAD_FILE_FAILED = "Loading failed. Check logs.";
+        if (state.gameSaveFlags.errorDuringLoading && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE_FAILED) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
+            state.gameSaveFlags.errorDuringLoading = false;
             return;
         }
 
-        const WARNING_LOAD_FILE = "Loading...";
-        if (!state.gameSaveFlags.loadGame && this.invalidCommandWarningTextBox.text === WARNING_LOAD_FILE) {
-            this.maybeCreateInvalidCommandWarningTextBox("");
+        const WARNING_SAVE_FILE_FAILED = "Saving failed. Check logs.";
+        if (state.gameSaveFlags.errorDuringSaving && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE_FAILED) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
+            state.gameSaveFlags.errorDuringSaving = false;
             return;
         }
-        if (state.gameSaveFlags.loadGame) {
-            this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE);
+
+        const WARNING_SAVE_FILE = "Saving...";
+        if (state.gameSaveFlags.savingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE, FILE_MESSAGE_DISPLAY_DURATION);
+            return;
+
+        }
+
+        const WARNING_LOAD_FILE = "Loading...";
+        if (state.gameSaveFlags.loadingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE) {
+            this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE, FILE_MESSAGE_DISPLAY_DURATION);
             return;
         }
     }
@@ -522,10 +531,10 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText);
+        this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText, undefined);
     }
 
-    private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration?: number) {
+    private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration: number | undefined) {
         if (
             this.invalidCommandWarningTextBox === undefined
             || this.invalidCommandWarningTextBox.isDone()

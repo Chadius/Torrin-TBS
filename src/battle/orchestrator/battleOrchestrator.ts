@@ -343,7 +343,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             }
         }
 
-        if (state.gameSaveFlags.loadGame === true && state.battlePhaseState.turnCount === 0) {
+        if (state.gameSaveFlags.loadingInProgress === true && state.battlePhaseState.turnCount === 0) {
             cutsceneTriggersToActivate = cutsceneTriggersToActivate.filter((cutsceneTrigger) =>
                 cutsceneTrigger.triggeringEvent !== TriggeringEvent.START_OF_TURN
                 || cutsceneTrigger.turn !== 0

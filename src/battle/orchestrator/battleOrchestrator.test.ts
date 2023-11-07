@@ -5,7 +5,7 @@ import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlay
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
 import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
-import {BattlePhaseController, BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
+import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieUsesActionOnMap} from "../orchestratorComponents/battleSquaddieUsesActionOnMap";
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -35,8 +35,6 @@ import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MissionConditionType} from "../missionResult/missionCondition";
-import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {BattleCamera} from "../battleCamera";
 
 
 describe('Battle Orchestrator', () => {
@@ -303,7 +301,7 @@ describe('Battle Orchestrator', () => {
                 },
             ],
         });
-        stateWithCutscene.gameSaveFlags.loadGame = true;
+        stateWithCutscene.gameSaveFlags.loadingInProgress = true;
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();

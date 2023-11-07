@@ -1,4 +1,4 @@
-import {BattleOrchestrator, BattleOrchestratorMode} from "../battle/orchestrator/battleOrchestrator";
+import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleMissionLoader} from "../battle/orchestratorComponents/battleMissionLoader";
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
@@ -112,10 +112,10 @@ export class GameEngine {
     async update({graphicsContext}: { graphicsContext: GraphicsContext }) {
         this.component.update(this.getComponentState(), graphicsContext);
 
-        if (this.battleOrchestratorState.gameSaveFlags.saveGame) {
+        if (this.battleOrchestratorState.gameSaveFlags.savingInProgress) {
             this.saveGameAndDownloadFile();
         }
-        if (this.battleOrchestratorState.gameSaveFlags.loadGame) {
+        if (this.battleOrchestratorState.gameSaveFlags.loadingInProgress) {
             await this.loadGameFileAndSetGameState();
         }
 
@@ -362,7 +362,7 @@ export class GameEngine {
             console.log(`Save game failed: ${error}`);
             this.battleOrchestratorState.gameSaveFlags.errorDuringSaving = true;
         }
-        this.battleOrchestratorState.gameSaveFlags.saveGame = false;
+        this.battleOrchestratorState.gameSaveFlags.savingInProgress = false;
     }
 
     private async loadGameFileAndSetGameState() {
@@ -371,7 +371,7 @@ export class GameEngine {
         try {
             loadedSaveState = await SaveFile.RetrieveFileContent();
         } catch (error) {
-            this.battleOrchestratorState.gameSaveFlags.loadGame = false;
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
             return;
         }
 
@@ -392,9 +392,9 @@ export class GameEngine {
 
         if (newBattleOrchestratorState.isReadyToContinueMission) {
             this.battleOrchestratorState = newBattleOrchestratorState;
-            this.battleOrchestratorState.gameSaveFlags.loadGame = true;
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = true;
             this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
-            this.battleOrchestratorState.gameSaveFlags.loadGame = false;
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
         } else {
             console.log(`Loading created invalid state, missing components: ${newBattleOrchestratorState.missingComponents}`);
             this.setup({graphicsContext: this.graphicsContext});
@@ -405,7 +405,7 @@ export class GameEngine {
                 loaderForRevertedState.update(this.battleOrchestratorState);
             }
 
-            this.battleOrchestratorState.gameSaveFlags.loadGame = false;
+            this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
             this.battleOrchestratorState.gameSaveFlags.errorDuringLoading = true;
         }
     }

@@ -22,7 +22,6 @@ import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
-import {battleSquaddieSelectedHUD} from "../../utils/test/mocks";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -38,12 +37,10 @@ export class BattleOrchestratorState {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     battleEventRecording: Recording;
     gameSaveFlags: {
-        // TODO Test errorDuringLoading in HUD
         errorDuringLoading: boolean;
-        // TODO Test errorDuringSaving in HUD
         errorDuringSaving: boolean;
-        loadGame: boolean;
-        saveGame: boolean;
+        loadingInProgress: boolean;
+        savingInProgress: boolean;
     }
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
@@ -122,8 +119,8 @@ export class BattleOrchestratorState {
         })
 
         this.gameSaveFlags = {
-            loadGame: false,
-            saveGame: false,
+            loadingInProgress: false,
+            savingInProgress: false,
             errorDuringLoading: false,
             errorDuringSaving: false,
         }
@@ -202,25 +199,6 @@ export class BattleOrchestratorState {
         return this.teamsByAffiliation[this.battlePhaseState.currentAffiliation];
     }
 
-    private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {
-        this.teamStrategyByAffiliation = {...teamStrategyByAffiliation};
-
-        [
-            SquaddieAffiliation.PLAYER,
-            SquaddieAffiliation.ENEMY,
-            SquaddieAffiliation.ALLY,
-            SquaddieAffiliation.NONE,
-        ].forEach((affiliation) => {
-            if (this.teamStrategyByAffiliation[affiliation]) {
-                return;
-            }
-            if (affiliation === SquaddieAffiliation.PLAYER) {
-                return;
-            }
-            this.teamStrategyByAffiliation[affiliation] = [];
-        });
-    }
-
     public clone(): BattleOrchestratorState {
         const newState = new BattleOrchestratorState({
             resourceHandler: this.resourceHandler,
@@ -246,6 +224,25 @@ export class BattleOrchestratorState {
         newState.gameSaveFlags = {...this.gameSaveFlags};
 
         return newState;
+    }
+
+    private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {
+        this.teamStrategyByAffiliation = {...teamStrategyByAffiliation};
+
+        [
+            SquaddieAffiliation.PLAYER,
+            SquaddieAffiliation.ENEMY,
+            SquaddieAffiliation.ALLY,
+            SquaddieAffiliation.NONE,
+        ].forEach((affiliation) => {
+            if (this.teamStrategyByAffiliation[affiliation]) {
+                return;
+            }
+            if (affiliation === SquaddieAffiliation.PLAYER) {
+                return;
+            }
+            this.teamStrategyByAffiliation[affiliation] = [];
+        });
     }
 }
 
