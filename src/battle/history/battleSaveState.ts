@@ -2,26 +2,18 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleCamera} from "../battleCamera";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {Recording} from "./recording";
-import {MissionMap} from "../../missionMap/missionMap";
 import {MissionStatistics} from "../missionStatistics/missionStatistics";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {InBattleAttributes} from "../stats/inBattleAttributes";
 import {SquaddieTurn} from "../../squaddie/turn";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
-import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SaveFile} from "../../utils/fileHandling/saveFile";
-import {ResourceHandler} from "../../resource/resourceHandler";
+import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SAVE_VERSION, SaveFile} from "../../utils/fileHandling/saveFile";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
-import {MissionObjective} from "../missionResult/missionObjective";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
-import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export type InBattleAttributesAndTurn = {
     in_battle_attributes: InBattleAttributes,
@@ -50,62 +42,37 @@ export interface BattleSaveState {
 }
 
 export const BattleSaveStateHandler = {
-    createBattleOrchestratorState: ({
-                                        missionMap,
-                                        squaddieRepository,
-                                        cutsceneTriggers,
-                                        saveData,
-                                        resourceHandler,
-                                        teamStrategyByAffiliation,
-                                        objectives,
-                                        teamsByAffiliation,
-                                    }: {
-        missionMap: MissionMap;
-        squaddieRepository: BattleSquaddieRepository;
-        cutsceneTriggers: CutsceneTrigger[];
-        saveData: BattleSaveState;
-        resourceHandler: ResourceHandler;
-        teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
-        objectives: MissionObjective[];
-        teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
-    }): BattleOrchestratorState => {
-        return createBattleOrchestratorState({
-            missionMap,
-            squaddieRepository,
-            cutsceneTriggers,
-            saveData,
-            resourceHandler,
-            teamStrategyByAffiliation,
-            objectives,
-            teamsByAffiliation,
+    applySaveStateToOrchestratorState: ({
+                                            battleSaveState,
+                                            battleOrchestratorState,
+                                            squaddieRepository,
+                                        }: {
+        battleSaveState: BattleSaveState,
+        battleOrchestratorState: BattleOrchestratorState,
+        squaddieRepository: BattleSquaddieRepository,
+    }): void => {
+        battleOrchestratorState.camera = new BattleCamera(battleSaveState.camera.xCoordinate, battleSaveState.camera.yCoordinate);
+        battleOrchestratorState.battlePhaseState = {
+            currentAffiliation: BattlePhase.PLAYER,
+            turnCount: battleSaveState.turn_count,
+        };
+        battleOrchestratorState.battleEventRecording = {...battleSaveState.battle_event_recording};
+        battleOrchestratorState.missionStatistics = {...battleSaveState.mission_statistics};
+
+        battleSaveState.squaddie_map_placements.forEach((locationData: MissionMapSquaddieLocation) => {
+            battleOrchestratorState.missionMap.updateSquaddieLocation(locationData.battleSquaddieId, locationData.mapLocation);
         });
-    },
-    // TODO implement the opposite, updating a battle save state using the
-    // TODO wrong name, this updates the save data object using the orchestrator state
-    updateBattleOrchestratorState: (saveData: BattleSaveState, battleOrchestratorState: BattleOrchestratorState) => {
-        const cameraCoordinates = battleOrchestratorState.camera.getCoordinates();
-        saveData.camera = {
-            xCoordinate: cameraCoordinates[0],
-            yCoordinate: cameraCoordinates[1],
+
+        for (let squaddieBattleId in battleSaveState.in_battle_attributes_by_squaddie_battle_id) {
+            const {battleSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(squaddieBattleId));
+
+            battleSquaddie.inBattleAttributes = battleSaveState.in_battle_attributes_by_squaddie_battle_id[squaddieBattleId].in_battle_attributes;
+            battleSquaddie.squaddieTurn = battleSaveState.in_battle_attributes_by_squaddie_battle_id[squaddieBattleId].turn;
         }
 
-        saveData.turn_count = battleOrchestratorState.battlePhaseState.turnCount;
-        saveData.battle_event_recording = battleOrchestratorState.battleEventRecording;
-        saveData.squaddie_map_placements = battleOrchestratorState.missionMap.getAllSquaddieData();
-        saveData.mission_statistics = battleOrchestratorState.missionStatistics;
-
-        saveData.in_battle_attributes_by_squaddie_battle_id = {};
-        battleOrchestratorState.squaddieRepository.getBattleSquaddieIterator().forEach((battleSquaddieInfo) => {
-            saveData.in_battle_attributes_by_squaddie_battle_id[battleSquaddieInfo.battleSquaddieId] = {
-                in_battle_attributes: battleSquaddieInfo.battleSquaddie.inBattleAttributes,
-                turn: battleSquaddieInfo.battleSquaddie.squaddieTurn,
-            };
-        });
-
-        saveData.teams_by_affiliation = {...battleOrchestratorState.teamsByAffiliation};
-        saveData.team_strategy_by_affiliation = {...battleOrchestratorState.teamStrategyByAffiliation};
-        saveData.mission_completion_status = {...battleOrchestratorState.missionCompletionStatus};
-        saveData.cutscene_trigger_completion = [...battleOrchestratorState.cutsceneTriggers];
+        battleOrchestratorState.teamsByAffiliation = {...battleSaveState.teams_by_affiliation};
+        battleOrchestratorState.teamStrategyByAffiliation = {...battleSaveState.team_strategy_by_affiliation};
+        battleOrchestratorState.cutsceneTriggers = [...battleSaveState.cutscene_trigger_completion];
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
         return stringifyBattleSaveStateData(saveData);
@@ -167,87 +134,9 @@ const parseJsonIntoBattleSaveStateData = (dataString: string): BattleSaveState =
     return JSON.parse(dataString);
 };
 
-const createBattleOrchestratorState = ({
-                                           missionMap,
-                                           squaddieRepository,
-                                           cutsceneTriggers,
-                                           saveData,
-                                           resourceHandler,
-    teamsByAffiliation,
-                                           objectives,
-                                           teamStrategyByAffiliation,
-                                       }: {
-    missionMap: MissionMap;
-    squaddieRepository: BattleSquaddieRepository;
-    saveData: BattleSaveState;
-    resourceHandler: ResourceHandler;
-    objectives: MissionObjective[];
-    teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
-    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
-    cutsceneTriggers: CutsceneTrigger[];
-    saveData: BattleSaveState;
-}): BattleOrchestratorState => {
-    // TODO
-    console.log("addSquaddie");
-    saveData.squaddie_map_placements.forEach((datum) => {
-        missionMap.addSquaddie(datum.squaddieTemplateId, datum.battleSquaddieId, datum.mapLocation);
-    });
-
-    // TODO
-    console.log("in_battle_attributes_by_squaddie_battle_id");
-    console.log(squaddieRepository);
-    Object.entries(saveData.in_battle_attributes_by_squaddie_battle_id).forEach(([battleSquaddieId, info]) => {
-        const inBattleAttributes = info.in_battle_attributes;
-        const turn = info.turn;
-
-        const {
-            battleSquaddie,
-            squaddieTemplate
-        } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
-        const newBattleSquaddie: BattleSquaddie = new BattleSquaddie({
-            battleSquaddieId,
-            mapIcon: battleSquaddie.mapIcon,
-            squaddieTurn: turn,
-            squaddieTemplate: squaddieTemplate,
-            squaddieTemplateId: squaddieTemplate.templateId,
-            inBattleAttributes,
-        });
-
-        squaddieRepository.updateBattleSquaddie(newBattleSquaddie);
-    });
-
-    saveData.cutscene_trigger_completion.forEach(
-        (saveDataTrigger: CutsceneTrigger) => {
-            const battleOrchestratorStateTrigger: CutsceneTrigger = cutsceneTriggers.find(c => c.cutsceneId === saveDataTrigger.cutsceneId);
-            if (battleOrchestratorStateTrigger) {
-                battleOrchestratorStateTrigger.systemReactedToTrigger = saveDataTrigger.systemReactedToTrigger;
-            }
-        }
-    )
-
-    return new BattleOrchestratorState({
-        missionMap,
-        camera: new BattleCamera(saveData.camera.xCoordinate, saveData.camera.yCoordinate),
-        battlePhaseState: {
-            currentAffiliation: BattlePhase.PLAYER,
-            turnCount: saveData.turn_count,
-        },
-        battleEventRecording: saveData.battle_event_recording,
-        missionStatistics: saveData.mission_statistics,
-        squaddieRepository,
-        teamsByAffiliation: saveData.teams_by_affiliation,
-        teamStrategyByAffiliation: saveData.team_strategy_by_affiliation,
-        missionCompletionStatus: saveData.mission_completion_status,
-        cutsceneTriggers,
-        resourceHandler,
-        pathfinder: new Pathfinder(),
-        objectives,
-    });
-};
-
 export const DefaultBattleSaveState = (): BattleSaveState => {
     return {
-        save_version: 0,
+        save_version: SAVE_VERSION,
         mission_id: "",
         turn_count: 0,
         camera: {

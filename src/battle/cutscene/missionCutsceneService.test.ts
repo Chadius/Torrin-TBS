@@ -158,8 +158,7 @@ describe('Mission Cutscene Service', () => {
 
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
-            expect(info.cutscenesToPlay).toStrictEqual([victoryCutsceneTrigger.cutsceneId]);
-            expect(info.cutsceneTriggersToReactTo).toStrictEqual([victoryCutsceneTrigger]);
+            expect(info).toStrictEqual([victoryCutsceneTrigger]);
         });
     });
 
@@ -167,8 +166,7 @@ describe('Mission Cutscene Service', () => {
         expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
         const info = GetCutsceneTriggersToActivate(victoryState, BattleOrchestratorMode.CUTSCENE_PLAYER);
 
-        expect(info.cutscenesToPlay).toHaveLength(0);
-        expect(info.cutsceneTriggersToReactTo).toHaveLength(0);
+        expect(info).toHaveLength(0);
     });
 
     it('will not recommend already triggered cutscenes', () => {
@@ -176,8 +174,7 @@ describe('Mission Cutscene Service', () => {
         victoryCutsceneTrigger.systemReactedToTrigger = true;
         const info = GetCutsceneTriggersToActivate(victoryState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 
-        expect(info.cutscenesToPlay).toStrictEqual([]);
-        expect(info.cutsceneTriggersToReactTo).toHaveLength(0);
+        expect(info).toHaveLength(0);
     });
 
     it('will check for defeat conditions once the squaddie finishes moving', () => {
@@ -188,8 +185,7 @@ describe('Mission Cutscene Service', () => {
 
         expect(missionObjectiveCompleteCheck).toBeCalled();
 
-        expect(info.cutscenesToPlay).toStrictEqual([defeatCutsceneTrigger.cutsceneId]);
-        expect(info.cutsceneTriggersToReactTo).toStrictEqual([defeatCutsceneTrigger]);
+        expect(info).toStrictEqual([defeatCutsceneTrigger]);
     });
 
     it('if you trigger victory and defeat, defeat takes precedence', () => {
@@ -200,21 +196,18 @@ describe('Mission Cutscene Service', () => {
 
         expect(missionObjectiveCompleteCheck).toBeCalled();
 
-        expect(info.cutscenesToPlay).toStrictEqual([defeatCutsceneTrigger.cutsceneId]);
-        expect(info.cutsceneTriggersToReactTo).toStrictEqual([defeatCutsceneTrigger]);
+        expect(info).toStrictEqual([defeatCutsceneTrigger]);
     });
 
     it('will check for any introductory cutscenes during turn 0', () => {
         const info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.LOADING_MISSION);
 
-        expect(info.cutscenesToPlay).toStrictEqual([turn0CutsceneTrigger.cutsceneId]);
-        expect(info.cutsceneTriggersToReactTo).toStrictEqual([turn0CutsceneTrigger]);
+        expect(info).toStrictEqual([turn0CutsceneTrigger]);
     });
 
     it('will not check for any turn starting cutscenes mid turn', () => {
         const info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
 
-        expect(info.cutscenesToPlay).toHaveLength(0);
-        expect(info.cutsceneTriggersToReactTo).toHaveLength(0);
+        expect(info).toHaveLength(0);
     });
 });

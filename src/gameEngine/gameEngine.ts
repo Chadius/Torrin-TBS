@@ -19,20 +19,11 @@ import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
 import {SAVE_VERSION, SaveFile} from "../utils/fileHandling/saveFile";
-import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
-import {MissionMap} from "../missionMap/missionMap";
-import {TargetSquaddieInRange} from "../battle/teamStrategy/targetSquaddieInRange";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {MoveCloserToSquaddie} from "../battle/teamStrategy/moveCloserToSquaddie";
-import {EndTurnTeamStrategy} from "../battle/teamStrategy/endTurn";
-import {TeamStrategy} from "../battle/teamStrategy/teamStrategy";
-import {MissionObjective} from "../battle/missionResult/missionObjective";
-import {BattleSquaddieTeam} from "../battle/battleSquaddieTeam";
-import {MissionReward, MissionRewardType} from "../battle/missionResult/missionReward";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
 export class GameEngine {
+    battleOrchestratorState: BattleOrchestratorState;
     private readonly graphicsContext: GraphicsContext;
 
     constructor({graphicsContext, startupMode}: { graphicsContext: GraphicsContext, startupMode: GameModeEnum }) {
@@ -75,12 +66,6 @@ export class GameEngine {
         return this._battleOrchestrator;
     }
 
-    private _battleOrchestratorState: BattleOrchestratorState;
-
-    get battleOrchestratorState(): BattleOrchestratorState {
-        return this._battleOrchestratorState;
-    }
-
     private _resourceHandler: ResourceHandler;
 
     get resourceHandler(): ResourceHandler {
@@ -107,9 +92,9 @@ export class GameEngine {
         this.resetComponentStates(graphicsContext);
     }
 
-    draw() {
+    async draw() {
         this.component.update(this.getComponentState(), this.graphicsContext);
-        this.update({graphicsContext: this.graphicsContext});
+        await this.update({graphicsContext: this.graphicsContext});
     }
 
     keyPressed(keyCode: number) {
@@ -124,14 +109,14 @@ export class GameEngine {
         this.component.mouseMoved(this.getComponentState(), mouseX, mouseY);
     }
 
-    update({graphicsContext}: { graphicsContext: GraphicsContext }) {
+    async update({graphicsContext}: { graphicsContext: GraphicsContext }) {
         this.component.update(this.getComponentState(), graphicsContext);
 
         if (this.battleOrchestratorState.gameSaveFlags.saveGame) {
             this.saveGameAndDownloadFile();
         }
         if (this.battleOrchestratorState.gameSaveFlags.loadGame) {
-            this.loadGameFileAndSetGameState();
+            await this.loadGameFileAndSetGameState();
         }
 
         if (this.component.hasCompleted(this.getComponentState())) {
@@ -143,7 +128,7 @@ export class GameEngine {
     }
 
     private resetComponentStates(graphicsContext: GraphicsContext) {
-        this._battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
+        this.battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
         this._titleScreenState = this.titleScreen.setup()
     }
 
@@ -375,100 +360,25 @@ export class GameEngine {
         this.battleOrchestratorState.gameSaveFlags.saveGame = false;
     }
 
-    private loadGameFileAndSetGameState() {
-        SaveFile.RetrieveFileContent(setGameState, this, this.graphicsContext);
-    }
+    private async loadGameFileAndSetGameState() {
+        const loadedSaveState: BattleSaveState = await SaveFile.RetrieveFileContent();
 
-    public replaceBattleOrchestratorState({
-                                              squaddieRepository,
-                                              missionMap,
-                                              saveData,
-                                              resourceHandler,
-                                              teamStrategyByAffiliation,
-                                              objectives,
-                                              teamsByAffiliation,
-                                          }: {
-        saveData: BattleSaveState;
-        squaddieRepository: BattleSquaddieRepository;
-        missionMap: MissionMap;
-        resourceHandler: ResourceHandler;
-        teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
-        objectives: MissionObjective[];
-        teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
-    }) {
-        this._battleOrchestratorState = BattleSaveStateHandler.createBattleOrchestratorState({
-            missionMap,
-            squaddieRepository,
-            saveData,
-            resourceHandler,
-            teamStrategyByAffiliation,
-            objectives,
-            teamsByAffiliation,
+        this.setup({graphicsContext: this.graphicsContext});
+
+        this.battleOrchestratorState.gameSaveFlags.loadGame = true;
+        while (this.battleOrchestrator.mode !== BattleOrchestratorMode.LOADING_MISSION) {
+            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+        }
+
+        while (this.battleOrchestrator.mode === BattleOrchestratorMode.LOADING_MISSION) {
+            this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
+        }
+        this.battleOrchestratorState.gameSaveFlags.loadGame = false;
+// TODO Mission is loaded! But it's turn 0 so the introductory cutscene plays.
+        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+            battleSaveState: loadedSaveState,
+            battleOrchestratorState: this.battleOrchestratorState,
+            squaddieRepository: this.battleOrchestratorState.squaddieRepository,
         });
-
-        // TODO
-        console.log(this.battleOrchestratorState);
     }
-}
-
-const setGameState = (saveData: BattleSaveState, self: GameEngine, graphicsContext: GraphicsContext) => {
-    console.log(saveData);
-    self.battleOrchestratorState.gameSaveFlags.loadGame = false;
-    self.setup({graphicsContext});
-    console.log(self.resourceHandler);
-
-    console.log("loading");
-    while (self.battleOrchestrator.mode !== BattleOrchestratorMode.LOADING_MISSION) {
-        self.battleOrchestrator.update(self.battleOrchestratorState, graphicsContext);
-    }
-    console.log(self.resourceHandler);
-    console.log(self.battleOrchestratorState);
-    self.battleOrchestrator.update(self.battleOrchestratorState, graphicsContext);
-
-    // TODO
-    // TeamsByAffiliation? { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
-    //objectives: MissionObjective[];
-    //teamsByAffiliation: {[key in SquaddieAffiliation]?: BattleSquaddieTeam }
-
-    const missionMap: MissionMap = self.battleOrchestratorState.missionMap;
-    const squaddieRepository: BattleSquaddieRepository = self.battleOrchestratorState.squaddieRepository;
-    const teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] } = {
-        PLAYER: [],
-        ENEMY: [
-            new TargetSquaddieInRange({
-                desiredAffiliation: SquaddieAffiliation.PLAYER
-            }),
-            new MoveCloserToSquaddie({
-                desiredAffiliation: SquaddieAffiliation.PLAYER
-            })
-        ],
-        ALLY: [new EndTurnTeamStrategy()],
-        NONE: [new EndTurnTeamStrategy()],
-    };
-
-    console.log(missionMap);
-    console.log(self.battleOrchestratorState.squaddieRepository.getBattleSquaddieIterator().length);
-    console.log(self.battleOrchestratorState);
-    console.log("Replace");
-    self.replaceBattleOrchestratorState(
-        {
-            missionMap,
-            squaddieRepository,
-            saveData,
-            resourceHandler: self.resourceHandler,
-            teamStrategyByAffiliation,
-            // TODO replace with new objectives
-            objectives: [new MissionObjective({
-                reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
-                conditions: [],
-            })],
-            teamsByAffiliation: {
-                [SquaddieAffiliation.PLAYER]: new BattleSquaddieTeam({
-                    affiliation: SquaddieAffiliation.PLAYER,
-                    name: "Players TODO replace me",
-                    squaddieRepo: squaddieRepository,
-                    battleSquaddieIds: [],
-                })
-            },
-        });
 }

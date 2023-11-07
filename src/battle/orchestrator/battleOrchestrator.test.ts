@@ -268,6 +268,47 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBe("starting");
     });
 
+    it('skips the introductory cutscene if the game is loaded', () => {
+        const cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneById: {
+                "starting": new Cutscene({})
+            },
+        });
+
+        orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.LOADING_MISSION,
+        });
+
+        const stateWithCutscene = new BattleOrchestratorState({
+            resourceHandler: nullState.resourceHandler,
+            squaddieRepository: new BattleSquaddieRepository(),
+            cutsceneCollection,
+            cutsceneTriggers: [
+                {
+                    cutsceneId: "starting",
+                    turn: 0,
+                    triggeringEvent: TriggeringEvent.START_OF_TURN,
+                    systemReactedToTrigger: false,
+                },
+                {
+                    cutsceneId: "next scene",
+                    turn: 1,
+                    triggeringEvent: TriggeringEvent.START_OF_TURN,
+                    systemReactedToTrigger: false,
+                },
+                {
+                    cutsceneId: "victory",
+                    triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                    systemReactedToTrigger: false,
+                },
+            ],
+        });
+        stateWithCutscene.gameSaveFlags.loadGame = true;
+
+        orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
+        expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
+    });
+
     it('will transition from cutscene playing to phase controller mode', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
@@ -798,47 +839,5 @@ describe('Battle Orchestrator', () => {
             expect(component.keyEventHappened).toBeCalledTimes(2);
             expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2);
         }
-    });
-
-    describe('reset using battle orchestrator state', () => {
-        let battlePhaseState: BattlePhaseState;
-        let camera: BattleCamera;
-        let battleOrchestratorState: BattleOrchestratorState;
-
-        beforeEach(() => {
-            orchestrator = createOrchestrator({});
-            battlePhaseState = {
-                currentAffiliation: BattlePhase.PLAYER,
-                turnCount: 2,
-            };
-            camera = new BattleCamera(100, 200);
-            battleOrchestratorState = new BattleOrchestratorState({
-                hexMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
-                }),
-                camera,
-                battlePhaseState,
-                battleSquaddieSelectedHUD: mockHud,
-            });
-        });
-
-        it('Tells the camera to update itself', () => {
-            jest.spyOn(battleOrchestratorState.camera, "loadNewBattleOrchestratorState");
-
-            orchestrator.loadNewBattleOrchestratorState({
-                state: battleOrchestratorState,
-            });
-
-            expect(battleOrchestratorState.camera.loadNewBattleOrchestratorState).toBeCalled();
-        });
-        it('Tells the game board to update itself based on the state', () => {
-            jest.spyOn(battleOrchestratorState.gameBoard, "loadNewBattleOrchestratorState");
-
-            orchestrator.loadNewBattleOrchestratorState({
-                state: battleOrchestratorState,
-            });
-
-            expect(battleOrchestratorState.gameBoard.loadNewBattleOrchestratorState).toBeCalled();
-        });
     });
 });

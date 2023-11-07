@@ -2,7 +2,6 @@ import {assertsInteger, assertsNonNegativeNumber} from "../utils/mathAssert";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {RectArea} from "../ui/rectArea";
-import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
 
 export type PanningInformation = {
     xStartCoordinate: number,
@@ -268,9 +267,5 @@ export class BattleCamera {
             worldLocationOfStartOfFirstRow,
             worldLocationOfEndOfLastRow,
         };
-    }
-
-    public loadNewBattleOrchestratorState(state: BattleOrchestratorState) {
-
     }
 }

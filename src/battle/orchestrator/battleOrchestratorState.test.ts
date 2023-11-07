@@ -1,24 +1,14 @@
 import {BattleOrchestratorState, BattleOrchestratorStateValidityMissingComponent} from "./battleOrchestratorState";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {EndTurnTeamStrategy} from "../teamStrategy/endTurn";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
-import {MissionConditionDefeatAffiliation} from "../missionResult/missionConditionDefeatAffiliation";
-
-class TestTeamStrategy implements TeamStrategy {
-    DetermineNextInstruction(state: TeamStrategyState): SquaddieActionsForThisRound | undefined {
-        return undefined;
-    }
-}
-import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
-import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {TeamStrategyType} from "../teamStrategy/teamStrategy";
+import {MissionConditionType} from "../missionResult/missionCondition";
 
 describe('orchestratorState', () => {
     it('overrides team strategy for non-player teams', () => {
@@ -100,18 +90,16 @@ describe('orchestratorState', () => {
         args = {
             ...args,
             teamsByAffiliation: {
-                [SquaddieAffiliation.PLAYER]: new BattleSquaddieTeam({
+                [SquaddieAffiliation.PLAYER]: {
+                    name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
-                    name: "Players",
-                    squaddieRepo: squaddieRepository
-                }),
-                [SquaddieAffiliation.ENEMY]: new BattleSquaddieTeam({
+                },
+                [SquaddieAffiliation.ENEMY]: {
+                    name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
-                    name: "Baddies",
-                    squaddieRepo: squaddieRepository
-                }),
+                },
             }
         }
         validityCheck(args, false, false, [
@@ -131,9 +119,13 @@ describe('orchestratorState', () => {
             ...args,
             objectives: [
                 new MissionObjective({
+                    id: "mission objective id",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
                     conditions: [
-                        new MissionConditionDefeatAffiliation({affiliation: SquaddieAffiliation.ENEMY}),
+                        {
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            id: "defeat all enemies",
+                        }
                     ],
                     numberOfCompletedConditions: 1,
                 })

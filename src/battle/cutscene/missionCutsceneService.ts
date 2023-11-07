@@ -23,7 +23,7 @@ function findMissionObjectiveCutscenes(defeatObjective: MissionObjective, state:
     return {cutsceneId, cutsceneTrigger};
 }
 
-function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: BattleOrchestratorState, cutscenesToPlay: string[], cutsceneTriggersToReactTo: CutsceneTrigger[]) {
+function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: BattleOrchestratorState, cutsceneTriggersToReactTo: CutsceneTrigger[]) {
     const turnTriggersToReactTo = turnObjectives.filter((trigger) => {
         const startOfTurnTrigger = trigger as MissionStartOfPhaseCutsceneTrigger;
         if (state.battlePhaseState.turnCount !== startOfTurnTrigger.turn) {
@@ -31,8 +31,6 @@ function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: Battle
         }
         return isTriggerReadyToReact(trigger);
     });
-    const turnObjectivesCutsceneIdsToReactTo = turnTriggersToReactTo.map((trigger) => trigger.cutsceneId);
-    cutscenesToPlay.push(...turnObjectivesCutsceneIdsToReactTo);
     cutsceneTriggersToReactTo.push(...turnTriggersToReactTo);
 }
 
@@ -40,7 +38,7 @@ function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: Battle
 export const GetCutsceneTriggersToActivate = (
     state: BattleOrchestratorState,
     battleOrchestratorModeThatJustCompleted: BattleOrchestratorMode
-) => {
+): CutsceneTrigger[] => {
     const squaddieActionCompleteModes = [
         BattleOrchestratorMode.SQUADDIE_MOVER,
         BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
@@ -52,7 +50,6 @@ export const GetCutsceneTriggersToActivate = (
         BattleOrchestratorMode.PHASE_CONTROLLER,
     ];
 
-    const cutscenesToPlay: string[] = [];
     const cutsceneTriggersToReactTo: CutsceneTrigger[] = [];
 
     let cutsceneId: string = "";
@@ -70,24 +67,16 @@ export const GetCutsceneTriggersToActivate = (
     }
 
     if (cutsceneId !== "" && cutsceneTrigger) {
-        cutscenesToPlay.push(cutsceneId);
         cutsceneTriggersToReactTo.push(cutsceneTrigger);
-
-        return {
-            cutscenesToPlay,
-            cutsceneTriggersToReactTo,
-        }
+        return cutsceneTriggersToReactTo;
     }
 
     if (startOfPhaseModes.includes(battleOrchestratorModeThatJustCompleted)) {
         const turnObjectives = state.cutsceneTriggers.filter((trigger) => trigger.triggeringEvent === TriggeringEvent.START_OF_TURN);
-        addStartOfTurnTriggers(turnObjectives, state, cutscenesToPlay, cutsceneTriggersToReactTo);
+        addStartOfTurnTriggers(turnObjectives, state, cutsceneTriggersToReactTo);
     }
 
-    return {
-        cutscenesToPlay,
-        cutsceneTriggersToReactTo,
-    }
+    return cutsceneTriggersToReactTo;
 }
 
 function isTriggerReadyToReact(cutsceneTrigger: CutsceneTrigger) {
