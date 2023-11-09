@@ -24,7 +24,6 @@ import {GameEngineComponentState} from "../../gameEngine/gameEngine";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleCompletionStatus} from "./battleGameBoard";
@@ -33,8 +32,6 @@ import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
-
-import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 
 export enum BattleOrchestratorMode {
@@ -311,24 +308,6 @@ export class BattleOrchestrator implements GameEngineComponent {
             resourceHandler,
             squaddieRepository: new BattleSquaddieRepository(),
             camera: new BattleCamera(0, 100),
-            teamStrategyByAffiliation: {
-                ENEMY: [
-                    {
-                        type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                        options: {
-                            desiredAffiliation: SquaddieAffiliation.PLAYER
-                        }
-                    },
-                    {
-                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                        options: {
-                            desiredAffiliation: SquaddieAffiliation.PLAYER
-                        }
-                    }
-                ],
-                ALLY: [],
-                NONE: [],
-            }
         });
     }
 

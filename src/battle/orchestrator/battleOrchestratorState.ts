@@ -95,7 +95,7 @@ export class BattleOrchestratorState {
         this.hexMap = options.hexMap || (this.missionMap && this.missionMap.terrainTileMap) || new TerrainTileMap({movementCost: ["1 "]});
 
         this.teamsByAffiliation = {...teamsByAffiliation};
-        this.copyTeamStrategyByAffiliation(options.teamStrategyByAffiliation);
+        this.copyTeamStrategyByAffiliation(teamStrategyByAffiliation);
         this.battlePhaseState = options.battlePhaseState || {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
