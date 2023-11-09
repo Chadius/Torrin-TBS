@@ -41,6 +41,7 @@ export class BattleOrchestratorState {
         errorDuringSaving: boolean;
         loadingInProgress: boolean;
         savingInProgress: boolean;
+        loadRequested: boolean;
     }
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
@@ -120,6 +121,7 @@ export class BattleOrchestratorState {
 
         this.gameSaveFlags = {
             loadingInProgress: false,
+            loadRequested: false,
             savingInProgress: false,
             errorDuringLoading: false,
             errorDuringSaving: false,

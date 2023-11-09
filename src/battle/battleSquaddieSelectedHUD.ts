@@ -175,6 +175,7 @@ export class BattleSquaddieSelectedHUD {
         if (
             state.gameSaveFlags.savingInProgress
             || state.gameSaveFlags.loadingInProgress
+            || state.gameSaveFlags.loadRequested
         ) {
             return;
         }
@@ -274,7 +275,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     markGameToBeLoaded(state: BattleOrchestratorState): void {
-        state.gameSaveFlags.loadingInProgress = true;
+        state.gameSaveFlags.loadRequested = true;
     }
 
     private generateUseActionButtons(
@@ -504,7 +505,7 @@ export class BattleSquaddieSelectedHUD {
         }
 
         const WARNING_LOAD_FILE = "Loading...";
-        if (state.gameSaveFlags.loadingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE) {
+        if ((state.gameSaveFlags.loadingInProgress || state.gameSaveFlags.loadRequested) && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE, FILE_MESSAGE_DISPLAY_DURATION);
             return;
         }

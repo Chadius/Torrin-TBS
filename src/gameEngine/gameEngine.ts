@@ -115,7 +115,7 @@ export class GameEngine {
         if (this.battleOrchestratorState.gameSaveFlags.savingInProgress) {
             this.saveGameAndDownloadFile();
         }
-        if (this.battleOrchestratorState.gameSaveFlags.loadingInProgress) {
+        if (this.battleOrchestratorState.gameSaveFlags.loadRequested) {
             await this.loadGameFileAndSetGameState();
         }
 
@@ -366,6 +366,7 @@ export class GameEngine {
     }
 
     private async loadGameFileAndSetGameState() {
+        this.battleOrchestratorState.gameSaveFlags.loadRequested = false;
         let loadedSaveState: BattleSaveState;
 
         try {
@@ -374,6 +375,7 @@ export class GameEngine {
             this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
             return;
         }
+        this.battleOrchestratorState.gameSaveFlags.loadingInProgress = true;
 
         const newBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
         const testingBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});

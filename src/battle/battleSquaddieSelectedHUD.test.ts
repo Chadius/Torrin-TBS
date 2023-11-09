@@ -625,7 +625,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     describe("Load game button", () => {
-        it('should call the game engine load function when clicked', () => {
+        it('should remember the user requested a load function', () => {
             const state = new BattleOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 missionMap,
@@ -658,7 +658,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state);
             expect(loadGame).toBeCalled();
 
-            expect(state.gameSaveFlags.loadingInProgress).toBeTruthy();
+            expect(state.gameSaveFlags.loadRequested).toBeTruthy();
         });
         describe('user clicks the load button', () => {
             let state: BattleOrchestratorState;
