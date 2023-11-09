@@ -56,6 +56,7 @@ export class TitleScreen implements GameEngineComponent {
     private sirCamilIconArea: RectArea;
     private sirCamilDescriptionText: TextBox;
     private _showingLoadingMessage: boolean;
+    private playButtonLabel: string;
 
     constructor({
                     resourceHandler
@@ -264,18 +265,32 @@ export class TitleScreen implements GameEngineComponent {
             ? ScreenDimensions.SCREEN_WIDTH
             : graphicsContext.windowWidth();
 
-        let playButtonLabel = "Click here to Play Demo";
+        this.playButtonLabel = "";
+        const playButtonHasBeenClicked: boolean = this.playButton && this.playButton.getStatus() === ButtonStatus.ACTIVE;
+        let changePlayButtonLabel: boolean = false;
         let buttonTextSize = WINDOW_SPACING4;
         if (windowIsTooSmall) {
             buttonTextSize = buttonWidth / 35;
-            playButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
+            this.playButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
 
             const buttonTextMinimumSize = 18;
             if (buttonTextSize < buttonTextMinimumSize) {
                 buttonTextSize = buttonTextMinimumSize;
-                playButtonLabel = "Window is too small";
+                this.playButtonLabel = "Window is too small";
             }
+            changePlayButtonLabel = true;
+        } else if (
+            !windowIsTooSmall
+            && !playButtonHasBeenClicked
+            && this.playButtonLabel !== "Click here to Play Demo"
+        ) {
+            this.playButtonLabel = "Click here to Play Demo";
+            changePlayButtonLabel = true;
+        } else if (this.playButton === undefined) {
+            this.playButtonLabel = "Click here to Play Demo";
+            changePlayButtonLabel = true;
         }
+
         const playButtonHorizontalAlignment = windowIsTooSmall
             ? HORIZ_ALIGN_LEFT
             : HORIZ_ALIGN_CENTER;
@@ -287,7 +302,7 @@ export class TitleScreen implements GameEngineComponent {
             bottom: ScreenDimensions.SCREEN_HEIGHT,
         })
 
-        if (this.playButton === undefined || windowIsTooSmall) {
+        if (this.playButton === undefined || changePlayButtonLabel) {
             this.playButton = new Button({
                 activeLabel: new Label({
                     text: "Now loading...",
@@ -301,7 +316,7 @@ export class TitleScreen implements GameEngineComponent {
                     strokeColor: colors.playButtonStroke,
                 }),
                 readyLabel: new Label({
-                    text: playButtonLabel,
+                    text: this.playButtonLabel,
                     fillColor: colors.playButton,
                     area: buttonArea,
                     textSize: buttonTextSize,

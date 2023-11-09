@@ -97,4 +97,19 @@ describe('Title Screen', () => {
         const expectedButtonLabel = `Window is too small`;
         expect(textSpy).toBeCalledWith(expectedButtonLabel, expect.anything(), expect.anything(), expect.anything(), expect.anything());
     });
+
+    it('will reset the screen size warning if the window is restored', () => {
+        const [mockedWidth, mockedHeight] = [1, 1];
+        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+        titleScreen.reset(titleScreenState);
+        titleScreen.update(titleScreenState, mockedP5GraphicsContext);
+
+        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
+        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
+
+        let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+        titleScreen.update(titleScreenState, mockedP5GraphicsContext);
+        expect(textSpy).toBeCalledWith("Click here to Play Demo", expect.anything(), expect.anything(), expect.anything(), expect.anything());
+    });
 });
