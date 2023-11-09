@@ -69,10 +69,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             }
 
             if (!this.hasConfirmedAction) {
-                if (
-                    event.mouseX < BUTTON_MIDDLE_DIVIDER
-                    && event.mouseY > BUTTON_TOP
-                ) {
+                if (event.mouseY > BUTTON_TOP) {
                     return this.cancelTargetSelection(state);
                 }
 
@@ -295,7 +292,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private cancelTargetSelection(state: BattleOrchestratorState) {
-        state.squaddieCurrentlyActing = undefined;
         this.hasSelectedValidTarget = false;
     }
 

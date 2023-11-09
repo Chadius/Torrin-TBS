@@ -231,7 +231,7 @@ describe('BattleSquaddieTarget', () => {
         });
     });
 
-    describe('canceling', () => {
+    describe('canceling after selecting action but before selecting target', () => {
         const tests = [
             {
                 mouseX: 0,
@@ -257,6 +257,7 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
+            expect(state.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
         });
     });
 
@@ -352,7 +353,7 @@ describe('BattleSquaddieTarget', () => {
         it('should unset the target location if the user cancels', () => {
             const cancelTargetClick: OrchestratorComponentMouseEvent = {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
-                mouseX: 0,
+                mouseX: ScreenDimensions.SCREEN_WIDTH,
                 mouseY: ScreenDimensions.SCREEN_HEIGHT,
             };
 
@@ -360,6 +361,7 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
+            expect(state.squaddieCurrentlyActing.currentlySelectedAction).toEqual(longswordAction);
         });
     });
 
