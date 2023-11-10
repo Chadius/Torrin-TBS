@@ -8,7 +8,6 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
 import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
@@ -152,8 +151,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap = new MissionMap({
             terrainTileMap: state.hexMap
         })
-
-        state.pathfinder = new Pathfinder();
 
         this.startedLoading = true;
     }

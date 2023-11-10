@@ -1,12 +1,11 @@
-import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "./searchParams";
+import {SearchParametersHelper} from "./searchParams";
 import {SearchResults} from "./searchResults";
-import {
-    createMapAndPathfinder,
-    validateTileHasExpectedNumberOfActions,
-    validateTilesAreFound
-} from "./pathfinder_test_utils";
+import {createMap, validateTileHasExpectedNumberOfActions, validateTilesAreFound} from "./pathfinder_test_utils";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
+import {Pathfinder} from "./pathfinder";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 
 describe('pathfinder move with multiple movement actions', () => {
     let mapOneRowFourColumns: string[];
@@ -20,24 +19,35 @@ describe('pathfinder move with multiple movement actions', () => {
     it('can report on how many movement actions it took', () => {
         const {
             missionMap,
-            pathfinder,
-        } = createMapAndPathfinder(mapOneRowFourColumns);
 
-        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
-            setup: new SearchSetup({
-                missionMap: missionMap,
-                startLocation: {q: 0, r: 0},
-            }),
-            movement:
-                new SearchMovement({
-                    movementPerAction: 1,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
-                }),
-            stopCondition:
-                new SearchStopCondition({
-                    numberOfActionPoints: 2,
-                })
-        })))
+        } = createMap(mapOneRowFourColumns);
+
+        const searchResults: SearchResults = getResultOrThrowError(Pathfinder.getAllReachableTiles(
+            SearchParametersHelper.newUsingSearchSetupMovementStop(
+                {
+                    setup: {
+                        startLocation: {q: 0, r: 0},
+                        affiliation: SquaddieAffiliation.UNKNOWN,
+                    },
+                    movement: {
+                        movementPerAction: 1,
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        maximumDistanceMoved: undefined,
+                        minimumDistanceMoved: undefined,
+                        canStopOnSquaddies: true,
+                        ignoreTerrainPenalty: false,
+                        crossOverPits: false,
+                        passThroughWalls: false,
+                    },
+                    stopCondition: {
+                        stopLocation: undefined,
+                        numberOfActions: 2,
+                    }
+                }
+            ),
+            missionMap,
+            new BattleSquaddieRepository(),
+        ));
 
         validateTilesAreFound(
             searchResults.getReachableTiles(),
@@ -60,26 +70,37 @@ describe('pathfinder move with multiple movement actions', () => {
     it('discards excess movement between actions', () => {
         const {
             missionMap,
-            pathfinder,
-        } = createMapAndPathfinder([
+
+        } = createMap([
             "1 1 1 2 "
         ]);
 
-        const searchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(new SearchParams({
-            setup: new SearchSetup({
-                missionMap: missionMap,
-                startLocation: {q: 0, r: 0},
-            }),
-            movement:
-                new SearchMovement({
-                    movementPerAction: 2,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
-                }),
-            stopCondition:
-                new SearchStopCondition({
-                    numberOfActionPoints: 2,
-                })
-        })))
+        const searchResults: SearchResults = getResultOrThrowError(Pathfinder.getAllReachableTiles(
+            SearchParametersHelper.newUsingSearchSetupMovementStop(
+                {
+                    setup: {
+                        startLocation: {q: 0, r: 0},
+                        affiliation: SquaddieAffiliation.UNKNOWN,
+                    },
+                    movement: {
+                        movementPerAction: 2,
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        maximumDistanceMoved: undefined,
+                        minimumDistanceMoved: undefined,
+                        canStopOnSquaddies: true,
+                        ignoreTerrainPenalty: false,
+                        crossOverPits: false,
+                        passThroughWalls: false,
+                    },
+                    stopCondition: {
+                        stopLocation: undefined,
+                        numberOfActions: 2,
+                    }
+                }
+            ),
+            missionMap,
+            new BattleSquaddieRepository(),
+        ));
 
         validateTilesAreFound(
             searchResults.getReachableTiles(),

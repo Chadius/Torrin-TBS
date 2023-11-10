@@ -3,7 +3,7 @@ import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
-import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
+import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
@@ -42,26 +42,33 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
-        const pathfinder = new Pathfinder();
         const searchResults: SearchResults =
-            pathfinder.findReachableSquaddies(new SearchParams({
-                setup: new SearchSetup({
-
-                    missionMap: state.missionMap,
-                    squaddieRepository: state.squaddieRepository,
-                    startLocation: mapLocation,
-                    affiliation: squaddieTemplate.squaddieId.affiliation,
-                }),
-                movement: new SearchMovement({
-                    movementPerAction: squaddieTemplate.movement.movementPerAction,
-                    crossOverPits: squaddieTemplate.movement.crossOverPits,
-                    passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
-                }),
-                stopCondition: new SearchStopCondition({
-                    numberOfActionPoints: actionPointsRemaining,
-                }),
-            }));
+            Pathfinder.findReachableSquaddies(
+                SearchParametersHelper.newUsingSearchSetupMovementStop(
+                    {
+                        setup: {
+                            startLocation: mapLocation,
+                            affiliation: squaddieTemplate.squaddieId.affiliation,
+                        },
+                        movement: {
+                            movementPerAction: squaddieTemplate.movement.movementPerAction,
+                            crossOverPits: squaddieTemplate.movement.crossOverPits,
+                            passThroughWalls: squaddieTemplate.movement.passThroughWalls,
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            maximumDistanceMoved: undefined,
+                            minimumDistanceMoved: undefined,
+                            canStopOnSquaddies: true,
+                            ignoreTerrainPenalty: false,
+                        },
+                        stopCondition: {
+                            stopLocation: undefined,
+                            numberOfActions: actionPointsRemaining,
+                        }
+                    }
+                ),
+                state.missionMap,
+                state.squaddieRepository,
+            );
         const reachableSquaddiesResults = searchResults.getReachableSquaddies();
         const reachableSquaddieLocations = reachableSquaddiesResults.getClosestSquaddies();
 
@@ -107,25 +114,32 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             }
 
             const routeToTargetSquaddie: SearchResults =
-                getResultOrThrowError(pathfinder.findPathToStopLocation(new SearchParams({
-                        setup: new SearchSetup({
-
-                            missionMap: state.missionMap,
-                            startLocation: mapLocation,
-                            squaddieRepository: state.squaddieRepository,
-                        }),
-                        movement: new SearchMovement({
-                            movementPerAction: squaddieTemplate.movement.movementPerAction,
-                            passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                            crossOverPits: squaddieTemplate.movement.crossOverPits,
-                            canStopOnSquaddies: true,
-
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
-                        }),
-                        stopCondition: new SearchStopCondition({
-                            stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
-                        })
-                    }))
+                getResultOrThrowError(Pathfinder.findPathToStopLocation(
+                        SearchParametersHelper.newUsingSearchSetupMovementStop(
+                            {
+                                setup: {
+                                    startLocation: mapLocation,
+                                    affiliation: SquaddieAffiliation.UNKNOWN,
+                                },
+                                movement: {
+                                    movementPerAction: squaddieTemplate.movement.movementPerAction,
+                                    passThroughWalls: squaddieTemplate.movement.passThroughWalls,
+                                    crossOverPits: squaddieTemplate.movement.crossOverPits,
+                                    canStopOnSquaddies: true,
+                                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                                    maximumDistanceMoved: undefined,
+                                    minimumDistanceMoved: undefined,
+                                    ignoreTerrainPenalty: false,
+                                },
+                                stopCondition: {
+                                    stopLocation: reachableSquaddieLocations[closestSquaddieToMoveTowards],
+                                    numberOfActions: undefined,
+                                }
+                            }
+                        ),
+                        state.missionMap,
+                        state.squaddieRepository,
+                    )
                 );
 
             const currentDistanceFromSquaddie = getResultOrThrowError(routeToTargetSquaddie.getRouteToStopLocation()).getTotalDistance();

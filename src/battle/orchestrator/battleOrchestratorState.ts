@@ -1,7 +1,6 @@
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
@@ -31,7 +30,6 @@ export class BattleOrchestratorState {
     teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
     battlePhaseState: BattlePhaseState;
-    pathfinder: Pathfinder;
     squaddieMovePath?: SearchPath;
     camera: BattleCamera;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
@@ -47,13 +45,12 @@ export class BattleOrchestratorState {
     missionStatistics: MissionStatistics;
 
     constructor(options: {
-        cutsceneCollection?: MissionCutsceneCollection,
-        cutsceneTriggers?: CutsceneTrigger[],
-        objectives?: MissionObjective[],
+        cutsceneCollection?: MissionCutsceneCollection;
+        cutsceneTriggers?: CutsceneTrigger[];
+        objectives?: MissionObjective[];
         resourceHandler?: ResourceHandler;
         missionMap?: MissionMap;
         hexMap?: TerrainTileMap;
-        pathfinder?: Pathfinder;
         squaddieRepository?: BattleSquaddieRepository;
         camera?: BattleCamera;
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD;
@@ -64,7 +61,7 @@ export class BattleOrchestratorState {
         teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] };
         teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
         missionCompletionStatus?: MissionCompletionStatus;
-        missionStatistics?: MissionStatistics;
+        missionStatistics?: MissionStatistics
     }) {
 
         const {
@@ -74,7 +71,6 @@ export class BattleOrchestratorState {
             resourceHandler,
             missionMap,
             hexMap,
-            pathfinder,
             squaddieRepository,
             camera,
             battleSquaddieSelectedHUD,
@@ -101,7 +97,6 @@ export class BattleOrchestratorState {
             turnCount: 0,
         };
 
-        this.pathfinder = options.pathfinder;
         this.squaddieMovePath = options.squaddieMovePath || undefined;
         this._squaddieCurrentlyActing = options.squaddieCurrentlyActing || DefaultSquaddieInstructionInProgress();
 
@@ -180,7 +175,6 @@ export class BattleOrchestratorState {
                 && Object.keys(this.teamsByAffiliation).length >= 1
                 && this.teamStrategyByAffiliation !== undefined
             ),
-            [BattleOrchestratorStateValidityMissingComponent.PATHFINDER]: this.pathfinder !== undefined,
             [BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE]: (
                 this.objectives !== undefined
                 && this.objectives.length > 0
@@ -210,7 +204,6 @@ export class BattleOrchestratorState {
             teamsByAffiliation: {...this.teamsByAffiliation},
             teamStrategyByAffiliation: {...this.teamStrategyByAffiliation},
             battlePhaseState: {...this.battlePhaseState},
-            pathfinder: this.pathfinder,
             squaddieMovePath: this.squaddieMovePath,
             camera: this.camera,
             battleSquaddieSelectedHUD: this.battleSquaddieSelectedHUD,
@@ -253,6 +246,5 @@ export enum BattleOrchestratorStateValidityMissingComponent {
     RESOURCE_HANDLER = "RESOURCE_HANDLER",
     SQUADDIE_REPOSITORY = "SQUADDIE_REPOSITORY",
     TEAMS_BY_AFFILIATION = "TEAMS_BY_AFFILIATION",
-    PATHFINDER = "PATHFINDER",
     MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
 }

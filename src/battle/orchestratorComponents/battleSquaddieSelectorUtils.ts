@@ -4,7 +4,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
+import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
@@ -15,36 +15,44 @@ import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {RecordingHandler} from "../history/recording";
+import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
-        state.pathfinder.findPathToStopLocation(new SearchParams({
-            setup: new SearchSetup({
-                missionMap: state.missionMap,
-                startLocation: {
-                    q: datum.mapLocation.q,
-                    r: datum.mapLocation.r,
-                },
-                affiliation: squaddieTemplate.squaddieId.affiliation,
-                squaddieRepository: state.squaddieRepository,
-
-            }),
-            movement: new SearchMovement({
-                movementPerAction: squaddieTemplate.movement.movementPerAction,
-                passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                crossOverPits: squaddieTemplate.movement.crossOverPits,
-                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
-            }),
-            stopCondition: new SearchStopCondition({
-                numberOfActionPoints: actionPointsRemaining,
-                stopLocation: {
-                    q: clickedHexCoordinate.q,
-                    r: clickedHexCoordinate.r
-                },
-            }),
-        }))
+        Pathfinder.findPathToStopLocation(
+            SearchParametersHelper.newUsingSearchSetupMovementStop(
+                {
+                    setup: {
+                        startLocation: {
+                            q: datum.mapLocation.q,
+                            r: datum.mapLocation.r,
+                        },
+                        affiliation: squaddieTemplate.squaddieId.affiliation,
+                    },
+                    movement: {
+                        movementPerAction: squaddieTemplate.movement.movementPerAction,
+                        passThroughWalls: squaddieTemplate.movement.passThroughWalls,
+                        crossOverPits: squaddieTemplate.movement.crossOverPits,
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        maximumDistanceMoved: undefined,
+                        minimumDistanceMoved: undefined,
+                        canStopOnSquaddies: undefined,
+                        ignoreTerrainPenalty: undefined,
+                    },
+                    stopCondition: {
+                        numberOfActions: actionPointsRemaining,
+                        stopLocation: {
+                            q: clickedHexCoordinate.q,
+                            r: clickedHexCoordinate.r
+                        },
+                    }
+                }
+            ),
+            state.missionMap,
+            state.squaddieRepository,
+        )
     );
 
     const closestRoute: SearchPath = getResultOrThrowError(searchResults.getRouteToStopLocation());

@@ -1,19 +1,10 @@
-import {PriorityQueue} from "../../utils/priorityQueue";
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
-import {CreateNewNeighboringCoordinates} from "../hexGridDirection";
-import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "./searchParams";
+import {SearchParameters, SearchParametersHelper} from "./searchParams";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
-import {
-    getResultOrThrowError,
-    isError,
-    makeError,
-    makeResult,
-    ResultOrError,
-    unwrapResultOrError
-} from "../../utils/ResultOrError";
+import {getResultOrThrowError, makeError, makeResult, ResultOrError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
@@ -21,192 +12,33 @@ import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGene
 import {GetSquaddieAtMapLocation} from "../../battle/orchestratorComponents/orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
+import {SearchState, SearchStateHelper} from "./searchState";
+import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 
-class SearchState {
-    tilesSearchCanStopAt: HexCoordinate[];
-    tileLocationsAlreadyVisited: { [loc: string]: boolean };
-    tileLocationsAlreadyConsideredForQueue: { [loc: string]: boolean };
-    searchPathQueue: PriorityQueue;
-    results: SearchResults;
 
-    constructor(searchParams: SearchParams) {
-        this.tilesSearchCanStopAt = [];
-        this.tileLocationsAlreadyVisited = {};
-        this.tileLocationsAlreadyConsideredForQueue = {};
-        this.searchPathQueue = new PriorityQueue();
-        this.results = new SearchResults({
-            stopLocation: searchParams.stopLocation,
-        });
-        this.shapeGenerator = searchParams.shapeGenerator;
-    }
-
-    private _shapeGenerator: TargetingShapeGenerator;
-
-    get shapeGenerator(): TargetingShapeGenerator {
-        return this._shapeGenerator;
-    }
-
-    set shapeGenerator(value: TargetingShapeGenerator) {
-        this._shapeGenerator = value;
-    }
-
-    getTilesSearchCanStopAt(): HexCoordinate[] {
-        return this.tilesSearchCanStopAt;
-    }
-
-    hasAlreadyStoppedOnTile(tileLocation: HexCoordinate): boolean {
-        return !!this.tilesSearchCanStopAt.find(
-            (tile) => tile.q === tileLocation.q && tile.r === tileLocation.r)
-    }
-
-    markLocationAsStopped(tileLocation: TileFoundDescription) {
-        this.tilesSearchCanStopAt.push({
-                q: tileLocation.q,
-                r: tileLocation.r,
-            }
-        );
-    }
-
-    markLocationAsVisited(mostRecentTileLocation: TileFoundDescription) {
-        let mostRecentTileLocationKey: string = HexCoordinateToKey(mostRecentTileLocation.hexCoordinate);
-        this.tileLocationsAlreadyVisited[mostRecentTileLocationKey] = true;
-    }
-
-    hasAlreadyMarkedLocationAsVisited(location: HexCoordinate): boolean {
-        let locationKey: string = HexCoordinateToKey(location);
-        return this.tileLocationsAlreadyVisited[locationKey] === true;
-    }
-
-    hasAlreadyMarkedLocationAsEnqueued(location: HexCoordinate): boolean {
-        let locationKey: string = HexCoordinateToKey(location);
-        return this.tileLocationsAlreadyConsideredForQueue[locationKey] === true;
-    }
-
-    markLocationAsConsideredForQueue(location: HexCoordinate) {
-        this.tileLocationsAlreadyConsideredForQueue[HexCoordinateToKey(location)] = true;
-    }
-
-    initializeStartPath(startLocation: HexCoordinate) {
-        const startingPath = new SearchPath();
-        startingPath.add(new TileFoundDescription({
-            hexCoordinate: {
-                q: startLocation.q,
-                r: startLocation.r,
-            },
-            movementCost: 0,
-        }), 0);
-        startingPath.startNewMovementAction();
-        this.searchPathQueue.enqueue(startingPath);
-    }
-
-    extendPathWithNewMovementAction(tile: HexCoordinate) {
-        const existingRoute = this.results.getLowestCostRoute(tile.q, tile.r);
-        const extendedPath = new SearchPath(existingRoute);
-        extendedPath.startNewMovementAction();
-        this.searchPathQueue.enqueue(extendedPath);
-    }
-
-    hasMorePathsToSearch(): boolean {
-        return !this.searchPathQueue.isEmpty();
-    }
-
-    nextSearchPath(): SearchPath {
-        let nextPath: SearchPath = this.searchPathQueue.dequeue() as SearchPath;
-        if (nextPath === undefined) {
-            throw new Error(`Search Path Queue is empty, cannot find another`)
-        }
-        return nextPath;
-    }
-
-    addNeighborSearchPathToQueue(tileInfo: TileFoundDescription, head: SearchPath, searchParams: SearchParams): SearchPath {
-        const neighborPath = new SearchPath(head);
-        const tileInfoMovementCost = searchParams.ignoreTerrainPenalty
-            ? 1
-            : tileInfo.movementCost;
-        neighborPath.add(
-            new TileFoundDescription({
-                hexCoordinate: {
-                    q: tileInfo.q,
-                    r: tileInfo.r,
-                },
-                movementCost: head.getTotalMovementCost() + tileInfoMovementCost,
-            }),
-            tileInfoMovementCost
-        );
-        this.searchPathQueue.enqueue(neighborPath);
-        return neighborPath;
-    }
-
-    setAllReachableTiles() {
-        this.results.setAllReachableTiles(this.getTilesSearchCanStopAt());
-    }
-
-    hasFoundStopLocation(): boolean {
-        const routeOrError = this.results.getRouteToStopLocation();
-        if (isError(routeOrError)) {
-            return false;
-        }
-        const routeToStopLocation: SearchPath = unwrapResultOrError(routeOrError);
-        return routeToStopLocation !== null;
-    }
-
-    setLowestCostRoute(searchPath: SearchPath) {
-        this.results.setLowestCostRoute(searchPath);
-    }
-
-    recordReachableSquaddies(searchParams: SearchParams, missionMap: MissionMap) {
-        missionMap.getAllSquaddieData().forEach((datum) => {
-            const {
-                squaddieTemplate,
-                battleSquaddie
-            } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByBattleId(datum.battleSquaddieId));
-            if (!IsSquaddieAlive({squaddieTemplate, battleSquaddie})) {
-                return;
-            }
-            const {
-                mapLocation,
-                squaddieTemplateId,
-            } = datum;
-
-            if (this.hasAlreadyMarkedLocationAsVisited(mapLocation)) {
-                this.results.reachableSquaddies.addSquaddie(squaddieTemplateId, mapLocation);
-                this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieTemplateId, 0, mapLocation);
-            }
-
-            const adjacentLocations: HexCoordinate[] = CreateNewNeighboringCoordinates(mapLocation.q, mapLocation.r);
-            this.getTilesSearchCanStopAt().forEach((description: HexCoordinate) => {
-                adjacentLocations.forEach((location: HexCoordinate) => {
-                    if (description.q === location.q && description.r === location.r) {
-                        this.results.reachableSquaddies.addSquaddie(squaddieTemplateId, mapLocation);
-                        this.results.reachableSquaddies.addCoordinateCloseToSquaddie(squaddieTemplateId, 1, description);
-                    }
-                });
-            });
-        });
-    }
-}
-
-export class Pathfinder {
-
-    constructor() {
-    }
-
-    findPathToStopLocation(searchParams: SearchParams): ResultOrError<SearchResults, Error> {
+export const Pathfinder = {
+    findPathToStopLocation(
+        searchParams: SearchParameters,
+        missionMap: MissionMap,
+        squaddieRepository: BattleSquaddieRepository,
+    ): ResultOrError<SearchResults, Error> {
         if (searchParams.stopLocation === undefined) {
             return makeError(new Error("no stop location was given"));
         }
-        return makeResult(this.searchMapForPaths(searchParams));
-    }
-
-    getAllReachableTiles(searchParams: SearchParams): ResultOrError<SearchResults, Error> {
-        if (!searchParams.startLocation) {
-            return makeError(new Error("no starting location provided"));
-        }
-
-        return makeResult(this.searchMapForPaths(searchParams));
-    }
-
-    getTilesInRange(searchParams: SearchParams, maximumDistance: number, sourceTiles: HexCoordinate[]): HexCoordinate[] {
+        return makeResult(searchMapForPaths(
+            searchParams,
+            missionMap,
+            squaddieRepository,
+        ));
+    },
+    getAllReachableTiles(searchParams: SearchParameters, missionMap: MissionMap,
+                         squaddieRepository: BattleSquaddieRepository): ResultOrError<SearchResults, Error> {
+        return getAllReachableTiles(searchParams, missionMap,
+            squaddieRepository,);
+    },
+    getTilesInRange(searchParams: SearchParameters, maximumDistance: number, sourceTiles: HexCoordinate[],
+                    missionMap: MissionMap,
+                    squaddieRepository: BattleSquaddieRepository,): HexCoordinate[] {
         const inRangeTilesByLocation: { [locationKey: string]: HexCoordinate } = {};
         if (
             sourceTiles.length < 1
@@ -220,14 +52,12 @@ export class Pathfinder {
         }
 
         sourceTiles.forEach((sourceTile) => {
-            const searchParamsWithNewStartLocation = new SearchParams({
-                setup: new SearchSetup({
-                    missionMap: searchParams.missionMap,
+            const searchParamsWithNewStartLocation = SearchParametersHelper.newUsingSearchSetupMovementStop({
+                setup: {
                     startLocation: sourceTile,
                     affiliation: searchParams.squaddieAffiliation,
-                    squaddieRepository: searchParams.squaddieRepository,
-                }),
-                movement: new SearchMovement({
+                },
+                movement: {
                     movementPerAction: maximumDistance,
                     crossOverPits: true,
                     minimumDistanceMoved: searchParams.minimumDistanceMoved,
@@ -236,384 +66,400 @@ export class Pathfinder {
                     maximumDistanceMoved: searchParams.maximumDistanceMoved,
                     passThroughWalls: searchParams.passThroughWalls,
                     shapeGenerator: searchParams.shapeGenerator,
-                }),
-                stopCondition: new SearchStopCondition({
-                    numberOfActionPoints: 1,
+                },
+                stopCondition: {
+                    numberOfActions: 1,
                     stopLocation: searchParams.stopLocation,
-                })
+                }
             });
 
-            const reachableTiles: SearchResults = getResultOrThrowError(this.getAllReachableTiles(searchParamsWithNewStartLocation));
+            const reachableTiles: SearchResults = getResultOrThrowError(getAllReachableTiles(searchParamsWithNewStartLocation, missionMap,
+                squaddieRepository,));
             reachableTiles.getReachableTiles().forEach((reachableTile) => {
                 inRangeTilesByLocation[HexCoordinateToKey(reachableTile)] = reachableTile;
             });
         });
 
         return Object.values(inRangeTilesByLocation);
+    },
+    findReachableSquaddies(searchParams: SearchParameters, missionMap: MissionMap,
+                           squaddieRepository: BattleSquaddieRepository): SearchResults {
+        return getResultOrThrowError(getAllReachableTiles(searchParams, missionMap, squaddieRepository));
+    },
+}
+
+const getAllReachableTiles = (searchParams: SearchParameters, missionMap: MissionMap,
+                              squaddieRepository: BattleSquaddieRepository): ResultOrError<SearchResults, Error> => {
+    if (!searchParams.startLocation) {
+        return makeError(new Error("no starting location provided"));
     }
 
-    findReachableSquaddies(searchParams: SearchParams): SearchResults {
-        return getResultOrThrowError(this.getAllReachableTiles(searchParams));
-    }
+    return makeResult(searchMapForPaths(
+        searchParams,
+        missionMap,
+        squaddieRepository,
+    ));
+};
 
-    private searchMapForPaths(searchParams: SearchParams): SearchResults {
-        const workingSearchState: SearchState = new SearchState(searchParams);
+const searchMapForPaths = (
+    searchParams: SearchParameters,
+    missionMap: MissionMap,
+    squaddieRepository: BattleSquaddieRepository,
+): SearchResults => {
+    const workingSearchState: SearchState = SearchStateHelper.newFromSearchParameters(searchParams);
 
-        workingSearchState.initializeStartPath({
+    SearchStateHelper.initializeStartPath(
+        workingSearchState,
+        {
             q: searchParams.startLocation.q,
             r: searchParams.startLocation.r,
-        });
-
-        let numberOfMovementActions: number = 1;
-        let morePathsAdded: boolean = true;
-
-        while (
-            this.hasRemainingMovementActions(searchParams, numberOfMovementActions)
-            && !this.hasFoundStopLocation(searchParams, workingSearchState)
-            && morePathsAdded
-            ) {
-            const {
-                newAddedSearchPaths,
-                movementEndsOnTheseTiles
-            } = this.addLegalSearchPaths(
-                searchParams,
-                workingSearchState,
-                searchParams.missionMap
-            );
-
-            morePathsAdded = newAddedSearchPaths.length > 0;
-            const continueToNextMovementAction: boolean = movementEndsOnTheseTiles.length > 0
-                && !this.hasFoundStopLocation(searchParams, workingSearchState);
-
-            if (continueToNextMovementAction) {
-                numberOfMovementActions++;
-                movementEndsOnTheseTiles.forEach(tile => workingSearchState.extendPathWithNewMovementAction(tile.hexCoordinate))
-            }
         }
-        workingSearchState.setAllReachableTiles();
-        workingSearchState.recordReachableSquaddies(searchParams, searchParams.missionMap);
-        return workingSearchState.results;
-    }
+    );
 
-    private hasRemainingMovementActions(searchParams: SearchParams, numberOfMovementActions: number) {
-        return searchParams.numberOfActions === undefined
-            || numberOfMovementActions <= searchParams.numberOfActions;
-    }
+    let numberOfMovementActions: number = 1;
+    let morePathsAdded: boolean = true;
 
-    private addLegalSearchPaths(
-        searchParams: SearchParams,
-        workingSearchState: SearchState,
-        missionMap: MissionMap,
-    ): {
-        newAddedSearchPaths: SearchPath[],
-        movementEndsOnTheseTiles: TileFoundDescription[]
-    } {
-        const newAddedSearchPaths: SearchPath[] = [];
-        const movementEndsOnTheseTiles: TileFoundDescription[] = [];
-
-        let arrivedAtTheStopLocation: boolean = false;
-
-        while (
-            workingSearchState.hasMorePathsToSearch()
-            && !arrivedAtTheStopLocation
-            ) {
-            let head: SearchPath = workingSearchState.nextSearchPath();
-
-            const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(head.getMostRecentTileLocation().hexCoordinate);
-
-            let squaddieIsOccupyingTile: boolean = false;
-            const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate);
-            if (MissionMapSquaddieLocationHandler.isValid(squaddieAtTileDatum)) {
-                const {
-                    squaddieTemplate: occupyingSquaddieTemplate,
-                    battleSquaddie: occupyingBattleSquaddie,
-                } = getResultOrThrowError(searchParams.squaddieRepository.getSquaddieByBattleId(squaddieAtTileDatum.battleSquaddieId));
-                if (IsSquaddieAlive({
-                    squaddieTemplate: occupyingSquaddieTemplate,
-                    battleSquaddie: occupyingBattleSquaddie,
-                })) {
-                    squaddieIsOccupyingTile = true;
-                }
-            }
-
-            this.markLocationAsStoppable(head, searchParams, workingSearchState, hexCostTerrainType, squaddieIsOccupyingTile);
-            let mostRecentTileLocation = head.getMostRecentTileLocation();
-            workingSearchState.markLocationAsVisited(mostRecentTileLocation);
-
-            if (
-                searchParams.stopLocation !== undefined
-                && head.getMostRecentTileLocation().q === searchParams.stopLocation.q
-                && head.getMostRecentTileLocation().r === searchParams.stopLocation.r
-            ) {
-                arrivedAtTheStopLocation = true;
-                continue;
-            }
-
-            if (this.isPathMoreThanMaximumDistance(head, searchParams)) {
-                movementEndsOnTheseTiles.push(new TileFoundDescription({
-                    hexCoordinate: {
-                        q: mostRecentTileLocation.q,
-                        r: mostRecentTileLocation.r,
-                    },
-                    movementCost: mostRecentTileLocation.movementCost,
-                }));
-                continue;
-            }
-
-            let neighboringLocations = this.createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r, workingSearchState.shapeGenerator);
-            neighboringLocations = this.selectValidPathCandidates(
-                neighboringLocations,
-                searchParams,
-                head,
-                missionMap,
-                workingSearchState,
-            );
-            if (neighboringLocations.length === 0 && this.canStopOnThisTile(head, searchParams, hexCostTerrainType, squaddieIsOccupyingTile)) {
-                movementEndsOnTheseTiles.push(new TileFoundDescription({
-                    hexCoordinate: {
-                        q: mostRecentTileLocation.q,
-                        r: mostRecentTileLocation.r,
-                    },
-                    movementCost: mostRecentTileLocation.movementCost,
-                }))
-            }
-            newAddedSearchPaths.push(...this.createNewPathsUsingNeighbors(
-                    neighboringLocations,
-                    head,
-                    missionMap,
-                    workingSearchState,
-                    searchParams,
-                )
-            );
-        }
-
-        return {
+    while (
+        hasRemainingMovementActions(searchParams, numberOfMovementActions)
+        && !hasFoundStopLocation(searchParams, workingSearchState)
+        && morePathsAdded
+        ) {
+        const {
             newAddedSearchPaths,
-            movementEndsOnTheseTiles,
+            movementEndsOnTheseTiles
+        } = addLegalSearchPaths(
+            searchParams,
+            workingSearchState,
+            missionMap,
+            squaddieRepository,
+        );
+
+        morePathsAdded = newAddedSearchPaths.length > 0;
+        const continueToNextMovementAction: boolean = movementEndsOnTheseTiles.length > 0
+            && !hasFoundStopLocation(searchParams, workingSearchState);
+
+        if (continueToNextMovementAction) {
+            numberOfMovementActions++;
+            movementEndsOnTheseTiles.forEach(tile =>
+                SearchStateHelper.extendPathWithNewMovementAction(workingSearchState, tile.hexCoordinate))
         }
     }
+    SearchStateHelper.setAllReachableTiles(workingSearchState);
+    SearchStateHelper.recordReachableSquaddies(workingSearchState, squaddieRepository, missionMap);
+    return workingSearchState.results;
+};
+const hasRemainingMovementActions = (searchParams: SearchParameters, numberOfMovementActions: number) => {
+    return searchParams.numberOfActions === undefined
+        || numberOfMovementActions <= searchParams.numberOfActions;
+}
+const addLegalSearchPaths = (
+    searchParams: SearchParameters,
+    workingSearchState: SearchState,
+    missionMap: MissionMap,
+    squaddieRepository: BattleSquaddieRepository,
+): {
+    newAddedSearchPaths: SearchPath[],
+    movementEndsOnTheseTiles: TileFoundDescription[]
+} => {
+    const newAddedSearchPaths: SearchPath[] = [];
+    const movementEndsOnTheseTiles: TileFoundDescription[] = [];
 
-    private markLocationAsStoppable(
-        searchPath: SearchPath,
-        searchParams: SearchParams,
-        workingSearchState: SearchState,
-        hexCostTerrainType: HexGridMovementCost,
-        squaddieIsOccupyingTile: boolean
-    ) {
-        if (
-            this.canStopOnThisTile(searchPath, searchParams, hexCostTerrainType, squaddieIsOccupyingTile)
-            && !workingSearchState.hasAlreadyStoppedOnTile(searchPath.getMostRecentTileLocation().hexCoordinate)
+    let arrivedAtTheStopLocation: boolean = false;
+
+    while (
+        SearchStateHelper.hasMorePathsToSearch(workingSearchState)
+        && !arrivedAtTheStopLocation
         ) {
-            workingSearchState.markLocationAsStopped(searchPath.getMostRecentTileLocation())
-            workingSearchState.setLowestCostRoute(searchPath);
+        let head: SearchPath = SearchStateHelper.nextSearchPath(workingSearchState);
+
+        const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(head.getMostRecentTileLocation().hexCoordinate);
+
+        let squaddieIsOccupyingTile: boolean = false;
+        const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate);
+        if (MissionMapSquaddieLocationHandler.isValid(squaddieAtTileDatum)) {
+            const {
+                squaddieTemplate: occupyingSquaddieTemplate,
+                battleSquaddie: occupyingBattleSquaddie,
+            } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(squaddieAtTileDatum.battleSquaddieId));
+            if (IsSquaddieAlive({
+                squaddieTemplate: occupyingSquaddieTemplate,
+                battleSquaddie: occupyingBattleSquaddie,
+            })) {
+                squaddieIsOccupyingTile = true;
+            }
         }
-    }
 
-    private canStopOnThisTile(head: SearchPath, searchParams: SearchParams, hexCostTerrainType: HexGridMovementCost, squaddieIsOccupyingTile: boolean) {
-        return this.squaddieCanStopMovingOnTile(searchParams, hexCostTerrainType, squaddieIsOccupyingTile)
-            && this.isPathAtLeastMinimumDistance(head, searchParams);
-    }
+        markLocationAsStoppable(head, searchParams, workingSearchState, hexCostTerrainType, squaddieIsOccupyingTile);
+        let mostRecentTileLocation = head.getMostRecentTileLocation();
+        SearchStateHelper.markLocationAsVisited(workingSearchState, mostRecentTileLocation);
 
-    private selectValidPathCandidates(
-        neighboringLocations: [number, number][],
-        searchParams: SearchParams,
-        head: SearchPath,
-        missionMap: MissionMap,
-        workingSearchState: SearchState,
-    ): [number, number][] {
-        neighboringLocations = this.filterNeighborsNotEnqueued(neighboringLocations, workingSearchState);
-        neighboringLocations = this.filterNeighborsNotVisited(neighboringLocations, workingSearchState);
-        neighboringLocations = this.filterNeighborsOnMap(missionMap, neighboringLocations);
-        neighboringLocations = this.filterNeighborsCheckingAffiliation(neighboringLocations, searchParams);
-        return this.filterNeighborsWithinMovementPerAction(neighboringLocations, searchParams, head, missionMap);
-    }
+        if (
+            searchParams.stopLocation !== undefined
+            && head.getMostRecentTileLocation().q === searchParams.stopLocation.q
+            && head.getMostRecentTileLocation().r === searchParams.stopLocation.r
+        ) {
+            arrivedAtTheStopLocation = true;
+            continue;
+        }
 
-    private createNewPathsUsingNeighbors(
-        neighboringLocations: [number, number][],
-        head: SearchPath,
-        missionMap: MissionMap,
-        workingSearchState: SearchState,
-        searchParams: SearchParams,
-    ): SearchPath[] {
-        const newPaths: SearchPath[] = [];
-        neighboringLocations.forEach((neighbor) =>
-            workingSearchState.markLocationAsConsideredForQueue(
-                {
-                    q: neighbor[0],
-                    r: neighbor[1],
-                }
-            ));
-        neighboringLocations.forEach((neighbor) => {
-            const newPath: SearchPath = this.addNeighborNewPath(
-                neighbor,
+        if (isPathMoreThanMaximumDistance(head, searchParams)) {
+            movementEndsOnTheseTiles.push(new TileFoundDescription({
+                hexCoordinate: {
+                    q: mostRecentTileLocation.q,
+                    r: mostRecentTileLocation.r,
+                },
+                movementCost: mostRecentTileLocation.movementCost,
+            }));
+            continue;
+        }
+
+        let neighboringLocations = createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r, workingSearchState.shapeGenerator);
+        neighboringLocations = selectValidPathCandidates(
+            neighboringLocations,
+            searchParams,
+            head,
+            missionMap,
+            workingSearchState,
+            squaddieRepository,
+        );
+        if (neighboringLocations.length === 0 && canStopOnThisTile(head, searchParams, hexCostTerrainType, squaddieIsOccupyingTile)) {
+            movementEndsOnTheseTiles.push(new TileFoundDescription({
+                hexCoordinate: {
+                    q: mostRecentTileLocation.q,
+                    r: mostRecentTileLocation.r,
+                },
+                movementCost: mostRecentTileLocation.movementCost,
+            }))
+        }
+        newAddedSearchPaths.push(...createNewPathsUsingNeighbors(
+                neighboringLocations,
                 head,
                 missionMap,
                 workingSearchState,
                 searchParams,
-            );
-            newPaths.push(newPath);
-        });
-        return newPaths;
-    }
-
-    private squaddieCanStopMovingOnTile(searchParams: SearchParams, hexCostTerrainType: HexGridMovementCost, squaddieIsOccupyingTile: boolean) {
-        const squaddieIsBlocking: boolean = !searchParams.canStopOnSquaddies && squaddieIsOccupyingTile;
-        return !(
-            [HexGridMovementCost.wall, HexGridMovementCost.pit].includes(
-                hexCostTerrainType
             )
-            || squaddieIsBlocking
+        );
+    }
+
+    return {
+        newAddedSearchPaths,
+        movementEndsOnTheseTiles,
+    }
+}
+const markLocationAsStoppable = (
+    searchPath: SearchPath,
+    searchParams: SearchParameters,
+    workingSearchState: SearchState,
+    hexCostTerrainType: HexGridMovementCost,
+    squaddieIsOccupyingTile: boolean
+) => {
+    if (
+        canStopOnThisTile(searchPath, searchParams, hexCostTerrainType, squaddieIsOccupyingTile)
+        && !SearchStateHelper.hasAlreadyStoppedOnTile(workingSearchState, searchPath.getMostRecentTileLocation().hexCoordinate)
+    ) {
+        SearchStateHelper.markLocationAsStopped(workingSearchState, searchPath.getMostRecentTileLocation())
+        SearchStateHelper.setLowestCostRoute(workingSearchState, searchPath);
+    }
+}
+const canStopOnThisTile = (head: SearchPath, searchParams: SearchParameters, hexCostTerrainType: HexGridMovementCost, squaddieIsOccupyingTile: boolean) => {
+    return squaddieCanStopMovingOnTile(searchParams, hexCostTerrainType, squaddieIsOccupyingTile)
+        && isPathAtLeastMinimumDistance(head, searchParams);
+}
+const selectValidPathCandidates = (
+    neighboringLocations: [number, number][],
+    searchParams: SearchParameters,
+    head: SearchPath,
+    missionMap: MissionMap,
+    workingSearchState: SearchState,
+    squaddieRepository: BattleSquaddieRepository,
+): [number, number][] => {
+    neighboringLocations = filterNeighborsNotEnqueued(neighboringLocations, workingSearchState);
+    neighboringLocations = filterNeighborsNotVisited(neighboringLocations, workingSearchState);
+    neighboringLocations = filterNeighborsOnMap(missionMap, neighboringLocations);
+    neighboringLocations = filterNeighborsCheckingAffiliation(neighboringLocations, searchParams, missionMap, squaddieRepository);
+    return filterNeighborsWithinMovementPerAction(neighboringLocations, searchParams, head, missionMap);
+}
+const createNewPathsUsingNeighbors = (
+    neighboringLocations: [number, number][],
+    head: SearchPath,
+    missionMap: MissionMap,
+    workingSearchState: SearchState,
+    searchParams: SearchParameters,
+): SearchPath[] => {
+    const newPaths: SearchPath[] = [];
+    neighboringLocations.forEach((neighbor) =>
+        SearchStateHelper.markLocationAsConsideredForQueue(
+            workingSearchState,
+            {
+                q: neighbor[0],
+                r: neighbor[1],
+            }
+        ));
+    neighboringLocations.forEach((neighbor) => {
+        const newPath: SearchPath = addNeighborNewPath(
+            neighbor,
+            head,
+            missionMap,
+            workingSearchState,
+            searchParams,
+        );
+        newPaths.push(newPath);
+    });
+    return newPaths;
+}
+
+const squaddieCanStopMovingOnTile = (searchParams: SearchParameters, hexCostTerrainType: HexGridMovementCost, squaddieIsOccupyingTile: boolean) => {
+    const squaddieIsBlocking: boolean = !searchParams.canStopOnSquaddies && squaddieIsOccupyingTile;
+    return !(
+        [HexGridMovementCost.wall, HexGridMovementCost.pit].includes(
+            hexCostTerrainType
         )
-    }
-
-    private createNewPathCandidates(q: number, r: number, shapeGenerator: TargetingShapeGenerator): [number, number][] {
-        const neighbors: HexCoordinate[] = shapeGenerator.createNeighboringHexCoordinates({q, r});
-        return neighbors.map((coordinate: HexCoordinate) => {
-            return [coordinate.q, coordinate.r]
+        || squaddieIsBlocking
+    )
+}
+const createNewPathCandidates = (q: number, r: number, shapeGenerator: TargetingShapeGenerator): [number, number][] => {
+    const neighbors: HexCoordinate[] = shapeGenerator.createNeighboringHexCoordinates({q, r});
+    return neighbors.map((coordinate: HexCoordinate) => {
+        return [coordinate.q, coordinate.r]
+    });
+}
+const filterNeighborsNotVisited = (
+    neighboringLocations: [number, number][],
+    workingSearchState: SearchState,
+): [number, number][] => {
+    return neighboringLocations.filter((neighbor) => {
+        return !SearchStateHelper.hasAlreadyMarkedLocationAsVisited(workingSearchState, {
+            q: neighbor[0],
+            r: neighbor[1],
         });
-    }
-
-    private filterNeighborsNotVisited(
-        neighboringLocations: [number, number][],
-        workingSearchState: SearchState,
-    ): [number, number][] {
-        return neighboringLocations.filter((neighbor) => {
-            return !workingSearchState.hasAlreadyMarkedLocationAsVisited({
-                q: neighbor[0],
-                r: neighbor[1],
-            });
+    });
+}
+const filterNeighborsNotEnqueued = (
+    neighboringLocations: [number, number][],
+    workingSearchState: SearchState,
+): [number, number][] => {
+    return neighboringLocations.filter((neighbor) => {
+        return !SearchStateHelper.hasAlreadyMarkedLocationAsEnqueued(workingSearchState, {
+            q: neighbor[0],
+            r: neighbor[1],
         });
-    }
-
-    private filterNeighborsNotEnqueued(
-        neighboringLocations: [number, number][],
-        workingSearchState: SearchState,
-    ): [number, number][] {
-        return neighboringLocations.filter((neighbor) => {
-            return !workingSearchState.hasAlreadyMarkedLocationAsEnqueued({
-                q: neighbor[0],
-                r: neighbor[1],
-            });
-        });
-    }
-
-    private filterNeighborsOnMap(missionMap: MissionMap, neighboringLocations: [number, number][]): [number, number][] {
-        return neighboringLocations.filter((neighbor) => {
-            return missionMap.areCoordinatesOnMap({q: neighbor[0], r: neighbor[1]})
-        });
-    }
-
-    private filterNeighborsWithinMovementPerAction(
-        neighboringLocations: [number, number][],
-        searchParams: SearchParams,
-        head: SearchPath,
-        missionMap: MissionMap,
-    ): [number, number][] {
-        return neighboringLocations.filter((neighbor) => {
-            const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation({
-                q: neighbor[0],
-                r: neighbor[1]
-            });
-
-            if (!searchParams.passThroughWalls && hexCostTerrainType === HexGridMovementCost.wall) {
-                return false;
-            }
-
-            if (!searchParams.crossOverPits && hexCostTerrainType === HexGridMovementCost.pit) {
-                return false;
-            }
-
-            if (searchParams.movementPerAction === undefined) {
-                return true;
-            }
-
-            let movementCost = searchParams.ignoreTerrainPenalty
-                ? 1
-                : MovingCostByTerrainType[hexCostTerrainType];
-            return head.getMovementCostSinceStartOfAction() + movementCost <= searchParams.movementPerAction;
-        });
-    }
-
-    private filterNeighborsCheckingAffiliation(
-        neighboringLocations: [number, number][],
-        searchParams: SearchParams
-    ): [number, number][] {
-        if (!searchParams.hasSquaddieAffiliation()
-            || !searchParams.squaddieRepository
-        ) {
-            return neighboringLocations;
-        }
-
-        const searcherAffiliation: SquaddieAffiliation = searchParams.squaddieAffiliation;
-        const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
-        return neighboringLocations.filter((neighbor) => {
-            const {
-                squaddieTemplate,
-                battleSquaddie,
-            } = GetSquaddieAtMapLocation({
-                mapLocation: {q: neighbor[0], r: neighbor[1]},
-                map: searchParams.missionMap,
-                squaddieRepository: searchParams.squaddieRepository,
-            });
-
-            if (!squaddieTemplate) {
-                return true;
-            }
-
-            if (!IsSquaddieAlive({squaddieTemplate, battleSquaddie})) {
-                return true;
-            }
-
-            return friendlyAffiliations[squaddieTemplate.squaddieId.affiliation];
-        });
-    }
-
-    private addNeighborNewPath(
-        neighbor: [number, number],
-        head: SearchPath,
-        missionMap: MissionMap,
-        workingSearchState: SearchState,
-        searchParams: SearchParams,
-    ): SearchPath {
+    });
+}
+const filterNeighborsOnMap = (missionMap: MissionMap, neighboringLocations: [number, number][]): [number, number][] => {
+    return neighboringLocations.filter((neighbor) => {
+        return missionMap.areCoordinatesOnMap({q: neighbor[0], r: neighbor[1]})
+    });
+}
+const filterNeighborsWithinMovementPerAction = (
+    neighboringLocations: [number, number][],
+    searchParams: SearchParameters,
+    head: SearchPath,
+    missionMap: MissionMap,
+): [number, number][] => {
+    return neighboringLocations.filter((neighbor) => {
         const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation({
             q: neighbor[0],
             r: neighbor[1]
         });
 
-        let movementCost = MovingCostByTerrainType[hexCostTerrainType];
+        if (!searchParams.passThroughWalls && hexCostTerrainType === HexGridMovementCost.wall) {
+            return false;
+        }
 
-        return workingSearchState.addNeighborSearchPathToQueue(
-            new TileFoundDescription({
-                hexCoordinate: {
-                    q: neighbor[0],
-                    r: neighbor[1],
-                },
-                movementCost: movementCost
-            }),
-            head,
-            searchParams,
-        );
-    }
+        if (!searchParams.crossOverPits && hexCostTerrainType === HexGridMovementCost.pit) {
+            return false;
+        }
 
-    private isPathAtLeastMinimumDistance(head: SearchPath, searchParams: SearchParams): boolean {
-        if (searchParams.minimumDistanceMoved === undefined || searchParams.minimumDistanceMoved <= 0) {
+        if (searchParams.movementPerAction === undefined) {
             return true;
         }
 
-        return head.getTotalDistance() >= searchParams.minimumDistanceMoved;
+        let movementCost = searchParams.ignoreTerrainPenalty
+            ? 1
+            : MovingCostByTerrainType[hexCostTerrainType];
+        return head.getMovementCostSinceStartOfAction() + movementCost <= searchParams.movementPerAction;
+    });
+}
+const filterNeighborsCheckingAffiliation = (
+    neighboringLocations: [number, number][],
+    searchParams: SearchParameters,
+    missionMap: MissionMap,
+    squaddieRepository: BattleSquaddieRepository,
+): [number, number][] => {
+    if (searchParams.squaddieAffiliation === SquaddieAffiliation.UNKNOWN
+    ) {
+        return neighboringLocations;
     }
 
-    private isPathMoreThanMaximumDistance(head: SearchPath, searchParams: SearchParams): boolean {
-        if (searchParams.maximumDistanceMoved === undefined) {
-            return false;
+    const searcherAffiliation: SquaddieAffiliation = searchParams.squaddieAffiliation;
+    const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searcherAffiliation];
+    return neighboringLocations.filter((neighbor) => {
+        const {
+            squaddieTemplate,
+            battleSquaddie,
+        } = GetSquaddieAtMapLocation({
+            mapLocation: {q: neighbor[0], r: neighbor[1]},
+            map: missionMap,
+            squaddieRepository: squaddieRepository,
+        });
+
+        if (!squaddieTemplate) {
+            return true;
         }
-        return head.getTotalDistance() >= searchParams.maximumDistanceMoved;
+
+        if (!IsSquaddieAlive({squaddieTemplate, battleSquaddie})) {
+            return true;
+        }
+
+        return friendlyAffiliations[squaddieTemplate.squaddieId.affiliation];
+    });
+}
+const addNeighborNewPath = (
+    neighbor: [number, number],
+    head: SearchPath,
+    missionMap: MissionMap,
+    workingSearchState: SearchState,
+    searchParams: SearchParameters,
+): SearchPath => {
+    const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation({
+        q: neighbor[0],
+        r: neighbor[1]
+    });
+
+    let movementCost = MovingCostByTerrainType[hexCostTerrainType];
+
+    return SearchStateHelper.addNeighborSearchPathToQueue(
+        workingSearchState,
+        new TileFoundDescription({
+            hexCoordinate: {
+                q: neighbor[0],
+                r: neighbor[1],
+            },
+            movementCost: movementCost
+        }),
+        head,
+        searchParams,
+    );
+}
+
+const isPathAtLeastMinimumDistance = (head: SearchPath, searchParams: SearchParameters): boolean => {
+    if (searchParams.minimumDistanceMoved === undefined || searchParams.minimumDistanceMoved <= 0) {
+        return true;
     }
 
-    private hasFoundStopLocation(searchParams: SearchParams, workingSearchState: SearchState): boolean {
-        if (searchParams.stopLocation === undefined) {
-            return false;
-        }
-        return workingSearchState.hasFoundStopLocation();
+    return head.getTotalDistance() >= searchParams.minimumDistanceMoved;
+}
+
+const isPathMoreThanMaximumDistance = (head: SearchPath, searchParams: SearchParameters): boolean => {
+    if (searchParams.maximumDistanceMoved === undefined) {
+        return false;
     }
+    return head.getTotalDistance() >= searchParams.maximumDistanceMoved;
+}
+
+const hasFoundStopLocation = (searchParams: SearchParameters, workingSearchState: SearchState): boolean => {
+    if (searchParams.stopLocation === undefined) {
+        return false;
+    }
+    return SearchStateHelper.hasFoundStopLocation(workingSearchState);
 }

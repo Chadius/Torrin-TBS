@@ -4,7 +4,6 @@ import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
@@ -48,7 +47,6 @@ describe('orchestratorState', () => {
             BattleOrchestratorStateValidityMissingComponent.RESOURCE_HANDLER,
             BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
             BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
-            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
             BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
         ]);
 
@@ -60,7 +58,6 @@ describe('orchestratorState', () => {
             BattleOrchestratorStateValidityMissingComponent.RESOURCE_HANDLER,
             BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
             BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
-            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
             BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
         ]);
 
@@ -74,7 +71,6 @@ describe('orchestratorState', () => {
         validityCheck(args, false, false, [
             BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
             BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
-            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
             BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
         ]);
 
@@ -85,7 +81,6 @@ describe('orchestratorState', () => {
         }
         validityCheck(args, false, false, [
             BattleOrchestratorStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
-            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
             BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
         ]);
 
@@ -103,15 +98,6 @@ describe('orchestratorState', () => {
                     battleSquaddieIds: [],
                 },
             }
-        }
-        validityCheck(args, false, false, [
-            BattleOrchestratorStateValidityMissingComponent.PATHFINDER,
-            BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
-        ]);
-
-        args = {
-            ...args,
-            pathfinder: new Pathfinder(),
         }
         validityCheck(args, true, false, [
             BattleOrchestratorStateValidityMissingComponent.MISSION_OBJECTIVE,
@@ -156,7 +142,6 @@ describe('orchestratorState', () => {
                     battleSquaddieIds: [],
                 },
             },
-            pathfinder: new Pathfinder(),
             objectives: [
                 new MissionObjective({
                     id: "mission objective id",

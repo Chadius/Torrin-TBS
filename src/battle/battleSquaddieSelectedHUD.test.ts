@@ -323,26 +323,25 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('will warn the user if another squaddie is still completing their turn', () => {
         const state = new BattleOrchestratorState({
-                    squaddieRepository: squaddieRepository,
-                    missionMap,
-                    resourceHandler: resourceHandler,
-                    camera: new BattleCamera(0, 0),
-                    squaddieCurrentlyActing: {
-                        movingBattleSquaddieIds: [],
-                        currentlySelectedAction: SquaddieActionHandler.new({
-                            name: "purifying stream",
-                            id: "purifying_stream",
-                            traits: new TraitStatusStorage({}),
-                        }),
-                        squaddieActionsForThisRound: {
-                            battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                            squaddieTemplateId: playerSquaddieStatic.templateId,
-                            startingLocation: {q: 0, r: 0},
-                            actions: [],
-                        },
+                squaddieRepository: squaddieRepository,
+                missionMap,
+                resourceHandler: resourceHandler,
+                camera: new BattleCamera(0, 0),
+                squaddieCurrentlyActing: {
+                    movingBattleSquaddieIds: [],
+                    currentlySelectedAction: SquaddieActionHandler.new({
+                        name: "purifying stream",
+                        id: "purifying_stream",
+                        traits: new TraitStatusStorage({}),
+                    }),
+                    squaddieActionsForThisRound: {
+                        battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
+                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        startingLocation: {q: 0, r: 0},
+                        actions: [],
                     },
-                }
-            )
+                },
+            })
         ;
 
         hud.selectSquaddieAndDrawWindow({

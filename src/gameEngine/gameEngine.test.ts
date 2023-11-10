@@ -12,7 +12,6 @@ import {BattleSaveState, BattleSaveStateHandler, DefaultBattleSaveState} from ".
 import {BattleCamera} from "../battle/battleCamera";
 import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
 import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
-import {Pathfinder} from "../hexMap/pathfinder/pathfinder";
 import {MissionObjective} from "../battle/missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
@@ -186,7 +185,6 @@ describe('Game Engine', () => {
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
             newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
             newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested = true;
-            newGameEngine.battleOrchestratorState.pathfinder = new Pathfinder();
             newGameEngine.battleOrchestratorState.gameBoard.objectives = [
                 new MissionObjective({
                     id: "test",
@@ -228,7 +226,6 @@ describe('Game Engine', () => {
                     ...MissionStatisticsHandler.new(),
                     timeElapsedInMilliseconds: 9001,
                 },
-                pathfinder: new Pathfinder(),
                 objectives: [
                     new MissionObjective({
                         id: "test",

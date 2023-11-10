@@ -25,7 +25,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
-import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
+import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieActionType} from "../history/anySquaddieAction";
@@ -200,7 +200,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.hexMap, state.squaddieRepository);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddie.battleSquaddieId,
             repositionWindow: {
@@ -251,7 +251,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieToHighlightId));
 
         state.hexMap.stopHighlightingTiles();
-        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.pathfinder, state.missionMap, state.hexMap, state.squaddieRepository);
+        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.hexMap, state.squaddieRepository);
     }
 
     private updateBattleSquaddieUISelectedSquaddieClickedOnMap(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -269,28 +269,34 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        const pathfinder: Pathfinder = new Pathfinder();
         const squaddieDatum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
         const searchResults: SearchResults = getResultOrThrowError(
-            pathfinder.findPathToStopLocation(new SearchParams({
-                    setup: new SearchSetup({
-                        startLocation: squaddieDatum.mapLocation,
-                        missionMap: state.missionMap,
-                        squaddieRepository: state.squaddieRepository,
-                        affiliation: SquaddieAffiliation.PLAYER,
-                    }),
-                    movement: new SearchMovement({
-                        movementPerAction: squaddieTemplate.movement.movementPerAction,
-                        passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                        crossOverPits: squaddieTemplate.movement.crossOverPits,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
-                    }),
-                    stopCondition: new SearchStopCondition({
-                        stopLocation: clickedHexCoordinate,
-                        numberOfActionPoints: actionPointsRemaining,
-                    })
-                })
+            Pathfinder.findPathToStopLocation(
+                SearchParametersHelper.newUsingSearchSetupMovementStop(
+                    {
+                        setup: {
+                            startLocation: squaddieDatum.mapLocation,
+                            affiliation: SquaddieAffiliation.PLAYER,
+                        },
+                        movement: {
+                            movementPerAction: squaddieTemplate.movement.movementPerAction,
+                            passThroughWalls: squaddieTemplate.movement.passThroughWalls,
+                            crossOverPits: squaddieTemplate.movement.crossOverPits,
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            maximumDistanceMoved: undefined,
+                            minimumDistanceMoved: undefined,
+                            canStopOnSquaddies: true,
+                            ignoreTerrainPenalty: false,
+                        },
+                        stopCondition: {
+                            stopLocation: clickedHexCoordinate,
+                            numberOfActions: actionPointsRemaining,
+                        }
+                    }
+                ),
+                state.missionMap,
+                state.squaddieRepository,
             )
         );
         const closestRoute = getResultOrThrowError(searchResults.getRouteToStopLocation());

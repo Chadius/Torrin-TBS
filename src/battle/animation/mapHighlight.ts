@@ -3,7 +3,7 @@ import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
-import {SearchMovement, SearchParams, SearchSetup, SearchStopCondition} from "../../hexMap/pathfinder/searchParams";
+import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -13,31 +13,41 @@ import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {FindValidTargets} from "../targeting/targetingService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
-export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, pathfinder: Pathfinder, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
+export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
 
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
 
-    const reachableTileSearchResults: SearchResults = getResultOrThrowError(pathfinder.getAllReachableTiles(
-        new SearchParams({
-            setup: new SearchSetup({
-                startLocation: squaddieDatum.mapLocation,
-                missionMap: missionMap,
-                affiliation: squaddieTemplate.squaddieId.affiliation,
-                squaddieRepository,
+    const reachableTileSearchResults: SearchResults = getResultOrThrowError(
+        Pathfinder.getAllReachableTiles(
+            SearchParametersHelper.newUsingSearchSetupMovementStop({
+                setup: {
+                    startLocation: squaddieDatum.mapLocation,
+                    affiliation:
+                    squaddieTemplate.squaddieId.affiliation,
+                },
+                movement: {
+                    movementPerAction: squaddieTemplate.movement.movementPerAction,
+                    passThroughWalls:
+                    squaddieTemplate.movement.passThroughWalls,
+                    crossOverPits:
+                    squaddieTemplate.movement.crossOverPits,
+                    canStopOnSquaddies:
+                        false,
+                    ignoreTerrainPenalty:
+                        false,
+                    shapeGenerator:
+                        getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                },
+                stopCondition: {
+                    stopLocation: undefined,
+                    numberOfActions:
+                    actionPointsRemaining,
+                },
             }),
-            movement: new SearchMovement({
-                movementPerAction: squaddieTemplate.movement.movementPerAction,
-                passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                crossOverPits: squaddieTemplate.movement.crossOverPits,
-                canStopOnSquaddies: false,
-                ignoreTerrainPenalty: false,
-                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
-            }),
-            stopCondition: new SearchStopCondition({
-                numberOfActionPoints: actionPointsRemaining,
-            })
-        }))
+            missionMap,
+            squaddieRepository,
+        )
     );
 
     const {

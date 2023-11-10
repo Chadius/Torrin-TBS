@@ -11,7 +11,6 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
     OrchestratorComponentMouseEvent,
@@ -163,7 +162,6 @@ describe('BattleSquaddieTarget', () => {
             squaddieRepository: squaddieRepo,
             hexMap: battleMap.terrainTileMap,
             squaddieCurrentlyActing: currentInstruction,
-            pathfinder: new Pathfinder(),
             resourceHandler: mockResourceHandler,
         });
     });
@@ -383,7 +381,6 @@ describe('BattleSquaddieTarget', () => {
                 squaddieRepository: squaddieRepo,
                 hexMap: battleMap.terrainTileMap,
                 squaddieCurrentlyActing: currentInstruction,
-                pathfinder: new Pathfinder(),
                 resourceHandler: mockResourceHandler,
             });
 
@@ -559,7 +556,6 @@ describe('BattleSquaddieTarget', () => {
                 squaddieRepository: squaddieRepo,
                 hexMap: battleMap.terrainTileMap,
                 squaddieCurrentlyActing: currentInstruction,
-                pathfinder: new Pathfinder(),
                 resourceHandler: mockResourceHandler,
             });
 

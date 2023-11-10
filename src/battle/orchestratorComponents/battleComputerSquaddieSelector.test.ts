@@ -16,7 +16,6 @@ import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from ".
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera, PanningInformation} from "../battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
 import * as determineNextInstruction from "../teamStrategy/determineNextInstruction";
@@ -350,7 +349,6 @@ describe('BattleComputerSquaddieSelector', () => {
             }),
             squaddieRepository: squaddieRepo,
             missionMap,
-            pathfinder: new Pathfinder(),
             teamStrategyByAffiliation: {
                 ENEMY: [{
                     type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
@@ -426,7 +424,6 @@ describe('BattleComputerSquaddieSelector', () => {
                 camera,
                 missionMap,
                 hexMap,
-                pathfinder: new Pathfinder(),
                 teamStrategyByAffiliation: {
                     ENEMY: [{
                         type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
@@ -474,7 +471,6 @@ describe('BattleComputerSquaddieSelector', () => {
                     camera,
                     missionMap,
                     hexMap,
-                    pathfinder: new Pathfinder(),
                     teamStrategyByAffiliation: {
                         ENEMY: [{
                             type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,

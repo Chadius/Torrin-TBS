@@ -1,18 +1,15 @@
 import {TerrainTileMap} from "../terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
-import {Pathfinder} from "./pathfinder";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
-export const createMapAndPathfinder = (movementCost: string[]) => {
+export const createMap = (movementCost: string[]) => {
     const terrainTileMap: TerrainTileMap = new TerrainTileMap({movementCost});
     const missionMap: MissionMap = new MissionMap({terrainTileMap})
-    const pathfinder: Pathfinder = new Pathfinder();
     return {
         missionMap,
-        pathfinder,
     }
 }
 

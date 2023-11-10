@@ -21,7 +21,6 @@ import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
@@ -219,7 +218,6 @@ describe('BattleSquaddieSelector', () => {
             camera,
             battleSquaddieSelectedHUD: mockHud,
             squaddieRepository: squaddieRepo,
-            pathfinder: new Pathfinder(),
         });
 
         const enemyLocation = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates())
@@ -282,7 +280,6 @@ describe('BattleSquaddieSelector', () => {
             hexMap: missionMap.terrainTileMap,
             battlePhaseState,
             teamsByAffiliation,
-            pathfinder: new Pathfinder(),
             battleEventRecording: {history: []},
             resourceHandler: mocks.mockResourceHandler(),
         });
@@ -380,7 +377,6 @@ describe('BattleSquaddieSelector', () => {
                 hexMap: missionMap.terrainTileMap,
                 battlePhaseState,
                 teamsByAffiliation,
-                pathfinder: new Pathfinder(),
                 squaddieCurrentlyActing,
                 battleEventRecording: {history: []},
                 resourceHandler: mockResourceHandler,
@@ -447,7 +443,6 @@ describe('BattleSquaddieSelector', () => {
             hexMap: missionMap.terrainTileMap,
             battlePhaseState,
             teamsByAffiliation,
-            pathfinder: new Pathfinder(),
             squaddieCurrentlyActing,
             battleEventRecording: {history: []},
         });
@@ -480,7 +475,6 @@ describe('BattleSquaddieSelector', () => {
             hexMap: missionMap.terrainTileMap,
             battlePhaseState,
             teamsByAffiliation,
-            pathfinder: new Pathfinder(),
         });
 
         selector.mouseEventHappened(state, {
@@ -544,7 +538,6 @@ describe('BattleSquaddieSelector', () => {
             hexMap: missionMap.terrainTileMap,
             battlePhaseState,
             teamsByAffiliation,
-            pathfinder: new Pathfinder(),
         });
 
         selector.mouseEventHappened(state, {
@@ -648,7 +641,6 @@ describe('BattleSquaddieSelector', () => {
                 hexMap: missionMap.terrainTileMap,
                 battlePhaseState,
                 teamsByAffiliation,
-                pathfinder: new Pathfinder(),
                 battleEventRecording: {history: []},
                 squaddieCurrentlyActing: soldierCurrentlyActing,
                 resourceHandler: mockResourceHandler,
@@ -762,7 +754,6 @@ describe('BattleSquaddieSelector', () => {
             hexMap: missionMap.terrainTileMap,
             battlePhaseState,
             teamsByAffiliation,
-            pathfinder: new Pathfinder(),
         });
 
         selector.keyEventHappened(state, {
