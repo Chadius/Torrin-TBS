@@ -9,14 +9,20 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
+import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {FindValidTargets} from "../targeting/targetingService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
     const squaddieDatum = missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
 
-    const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
+    let {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
+    const {
+        squaddieHasThePlayerControlledAffiliation,
+    } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
+    if (!squaddieHasThePlayerControlledAffiliation) {
+        actionPointsRemaining = 3;
+    }
 
     const reachableTileSearchResults: SearchResults = getResultOrThrowError(
         Pathfinder.getAllReachableTiles(
@@ -28,16 +34,11 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
                 },
                 movement: {
                     movementPerAction: squaddieTemplate.movement.movementPerAction,
-                    passThroughWalls:
-                    squaddieTemplate.movement.passThroughWalls,
-                    crossOverPits:
-                    squaddieTemplate.movement.crossOverPits,
-                    canStopOnSquaddies:
-                        false,
-                    ignoreTerrainPenalty:
-                        false,
-                    shapeGenerator:
-                        getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                    passThroughWalls: squaddieTemplate.movement.passThroughWalls,
+                    crossOverPits: squaddieTemplate.movement.crossOverPits,
+                    canStopOnSquaddies: false,
+                    ignoreTerrainPenalty: false,
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                 },
                 stopCondition: {
                     stopLocation: undefined,

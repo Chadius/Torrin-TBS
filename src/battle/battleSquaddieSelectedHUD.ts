@@ -723,8 +723,8 @@ export class BattleSquaddieSelectedHUD {
             top: windowDimensions.top + WINDOW_SPACING1,
             height: windowDimensions.height / 2 - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 2,
-            endColumn: 2,
+            startColumn: 3,
+            endColumn: 3,
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING1, 0],
         });
 
@@ -732,8 +732,8 @@ export class BattleSquaddieSelectedHUD {
             top: windowDimensions.centerY + WINDOW_SPACING1,
             height: windowDimensions.height / 2 - WINDOW_SPACING2,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 2,
-            endColumn: 2,
+            startColumn: 3,
+            endColumn: 3,
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING2, 0],
         });
 
@@ -765,8 +765,8 @@ export class BattleSquaddieSelectedHUD {
             top: windowDimensions.top + WINDOW_SPACING1,
             bottom: windowDimensions.bottom - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 3,
-            endColumn: 3,
+            startColumn: 4,
+            endColumn: 4,
         });
 
         this.nextSquaddieButton = new Label({
