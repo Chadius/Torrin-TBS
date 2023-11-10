@@ -23,11 +23,11 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
         while (costStringIndex < costString.length) {
             let stringToConvert = costString.slice(costStringIndex, costStringIndex + 2);
             let movementCostType = convertStringToMovementCost(stringToConvert);
-            newTiles.push(new HexGridTile(
-                q_index,
-                r_index,
-                movementCostType
-            ));
+            newTiles.push({
+                q: q_index,
+                r: r_index,
+                terrainType: movementCostType,
+            });
 
             r_index += 1;
             costStringIndex += 2;

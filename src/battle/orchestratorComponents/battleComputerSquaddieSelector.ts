@@ -182,8 +182,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             state.squaddieRepository,
         )).getReachableTiles();
 
-        state.hexMap.stopHighlightingTiles();
-        state.hexMap.highlightTiles([
+        state.missionMap.terrainTileMap.stopHighlightingTiles();
+        state.missionMap.terrainTileMap.highlightTiles([
                 {
                     tiles: tilesTargeted,
                     pulseColor: HighlightPulseRedColor,
@@ -335,7 +335,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private reactToComputerSelectedAction(state: BattleOrchestratorState, squaddieInstruction: SquaddieActionsForThisRound) {
-        state.hexMap.stopHighlightingTiles();
+        state.missionMap.terrainTileMap.stopHighlightingTiles();
         const {
             squaddieTemplate,
             battleSquaddie,

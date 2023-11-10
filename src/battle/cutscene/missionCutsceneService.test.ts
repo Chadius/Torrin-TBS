@@ -15,6 +15,7 @@ import {GetCutsceneTriggersToActivate} from "./missionCutsceneService";
 import {MissionStartOfPhaseCutsceneTrigger} from "./missionStartOfPhaseCutsceneTrigger";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {MissionConditionType} from "../missionResult/missionCondition";
+import {MissionMap} from "../../missionMap/missionMap";
 
 describe('Mission Cutscene Service', () => {
     let mockCutscene: Cutscene;
@@ -46,8 +47,10 @@ describe('Mission Cutscene Service', () => {
             systemReactedToTrigger: false,
         };
         victoryState = new BattleOrchestratorState({
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
             }),
             objectives: [
                 new MissionObjective({
@@ -74,8 +77,10 @@ describe('Mission Cutscene Service', () => {
             systemReactedToTrigger: false,
         };
         defeatState = new BattleOrchestratorState({
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
             }),
             objectives: [
                 new MissionObjective({
@@ -95,8 +100,10 @@ describe('Mission Cutscene Service', () => {
         defeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
         victoryAndDefeatState = new BattleOrchestratorState({
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
             }),
             objectives: [
                 new MissionObjective({
@@ -131,8 +138,10 @@ describe('Mission Cutscene Service', () => {
         }
 
         turn0State = new BattleOrchestratorState({
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
             }),
             cutsceneCollection,
             objectives: [],

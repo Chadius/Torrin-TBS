@@ -177,7 +177,6 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             missionMap,
-            hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
             battleEventRecording,
         })
 
@@ -226,7 +225,6 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             missionMap,
-            hexMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
             battleEventRecording,
         })
 

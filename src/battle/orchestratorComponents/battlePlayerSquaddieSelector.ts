@@ -75,7 +75,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                 }
 
                 this.updateBattleSquaddieUIMouseClicked(state, event.mouseX, event.mouseY);
-                state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
+                state.missionMap.terrainTileMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
             }
         }
 
@@ -97,7 +97,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                     if (MissionMapSquaddieLocationHandler.isValid(squaddieInfo) && state.missionMap.areCoordinatesOnMap(squaddieInfo.mapLocation)) {
                         const squaddieScreenCoordinates = convertMapCoordinatesToScreenCoordinates(squaddieInfo.mapLocation.q, squaddieInfo.mapLocation.r, ...state.camera.getCoordinates());
                         this.updateBattleSquaddieUIMouseClicked(state, squaddieScreenCoordinates[0], squaddieScreenCoordinates[1]);
-                        state.hexMap.mouseClicked(squaddieScreenCoordinates[0], squaddieScreenCoordinates[1], ...state.camera.getCoordinates());
+                        state.missionMap.terrainTileMap.mouseClicked(squaddieScreenCoordinates[0], squaddieScreenCoordinates[1], ...state.camera.getCoordinates());
                         return;
                     }
                 }
@@ -172,7 +172,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         };
 
         if (
-            !state.hexMap.areCoordinatesOnMap(clickedHexCoordinate)
+            !state.missionMap.terrainTileMap.areCoordinatesOnMap(clickedHexCoordinate)
         ) {
             state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
@@ -200,7 +200,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.hexMap, state.squaddieRepository);
+        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.missionMap.terrainTileMap, state.squaddieRepository);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddie.battleSquaddieId,
             repositionWindow: {
@@ -250,8 +250,8 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             battleSquaddie,
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieToHighlightId));
 
-        state.hexMap.stopHighlightingTiles();
-        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.hexMap, state.squaddieRepository);
+        state.missionMap.terrainTileMap.stopHighlightingTiles();
+        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.missionMap.terrainTileMap, state.squaddieRepository);
     }
 
     private updateBattleSquaddieUISelectedSquaddieClickedOnMap(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -347,7 +347,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (state.battleSquaddieSelectedHUD.getSelectedAction() instanceof SquaddieEndTurnAction) {
             SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, new SquaddieEndTurnAction({}));
 
-            state.hexMap.stopHighlightingTiles();
+            state.missionMap.terrainTileMap.stopHighlightingTiles();
             this.gaveCompleteInstruction = true;
 
             RecordingHandler.addEvent(state.battleEventRecording, {
@@ -361,6 +361,6 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             this.gaveInstructionThatNeedsATarget = true;
         }
 
-        state.hexMap.stopHighlightingTiles();
+        state.missionMap.terrainTileMap.stopHighlightingTiles();
     }
 }

@@ -160,7 +160,6 @@ describe('BattleSquaddieTarget', () => {
         state = new BattleOrchestratorState({
             missionMap: battleMap,
             squaddieRepository: squaddieRepo,
-            hexMap: battleMap.terrainTileMap,
             squaddieCurrentlyActing: currentInstruction,
             resourceHandler: mockResourceHandler,
         });
@@ -379,7 +378,6 @@ describe('BattleSquaddieTarget', () => {
             state = new BattleOrchestratorState({
                 missionMap: battleMap,
                 squaddieRepository: squaddieRepo,
-                hexMap: battleMap.terrainTileMap,
                 squaddieCurrentlyActing: currentInstruction,
                 resourceHandler: mockResourceHandler,
             });
@@ -554,7 +552,6 @@ describe('BattleSquaddieTarget', () => {
             state = new BattleOrchestratorState({
                 missionMap: battleMap,
                 squaddieRepository: squaddieRepo,
-                hexMap: battleMap.terrainTileMap,
                 squaddieCurrentlyActing: currentInstruction,
                 resourceHandler: mockResourceHandler,
             });

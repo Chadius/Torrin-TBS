@@ -145,7 +145,6 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
 
         state = new BattleOrchestratorState({
             missionMap,
-            hexMap: missionMap.terrainTileMap,
             squaddieRepository: squaddieRepository,
             missionCompletionStatus: {
                 "player objective id": {

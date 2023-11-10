@@ -1,6 +1,5 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {SquaddieId} from "../squaddie/id";
-import {HexGridTile} from "../hexMap/hexGrid";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {SquaddieResource} from "../squaddie/resource";
 import {TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
@@ -14,9 +13,9 @@ describe('Mission Map', () => {
     beforeEach(() => {
         map = new TerrainTileMap({
             tiles: [
-                new HexGridTile(0, -1, HexGridMovementCost.singleMovement),
-                new HexGridTile(0, 0, HexGridMovementCost.singleMovement),
-                new HexGridTile(0, 1, HexGridMovementCost.doubleMovement),
+                {q: 0, r: -1, terrainType: HexGridMovementCost.singleMovement},
+                {q: 0, r: 0, terrainType: HexGridMovementCost.singleMovement},
+                {q: 0, r: 1, terrainType: HexGridMovementCost.doubleMovement},
             ]
         });
 

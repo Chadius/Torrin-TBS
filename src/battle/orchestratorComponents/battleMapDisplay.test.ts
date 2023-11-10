@@ -9,6 +9,8 @@ import {Rectangle} from "../../ui/rectangle";
 import {RectArea} from "../../ui/rectArea";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MissionMap} from "../../missionMap/missionMap";
+import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
@@ -58,6 +60,11 @@ describe('battleMapDisplay', () => {
                 camera,
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 "]
+                    })
+                }),
             });
         });
 

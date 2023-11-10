@@ -70,8 +70,8 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
             battleSquaddie
         })
         if (playerCanControlThisSquaddieRightNow) {
-            state.hexMap.stopHighlightingTiles();
-            HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.hexMap, state.squaddieRepository);
+            state.missionMap.terrainTileMap.stopHighlightingTiles();
+            HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.missionMap, state.missionMap.terrainTileMap, state.squaddieRepository);
         }
     }
 }

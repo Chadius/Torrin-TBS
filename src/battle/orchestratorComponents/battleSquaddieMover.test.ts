@@ -124,7 +124,6 @@ describe('BattleSquaddieMover', () => {
             squaddieRepository: squaddieRepo,
             missionMap: map,
             squaddieMovePath: movePath,
-            hexMap: map.terrainTileMap,
             squaddieCurrentlyActing: {
                 squaddieActionsForThisRound: moveAction,
                 movingBattleSquaddieIds: [],
@@ -192,7 +191,6 @@ describe('BattleSquaddieMover', () => {
                 squaddieRepository: squaddieRepo,
                 missionMap: map,
                 squaddieMovePath: movePath,
-                hexMap: map.terrainTileMap,
                 squaddieCurrentlyActing: {
                     squaddieActionsForThisRound: newInstruction,
                     currentlySelectedAction: undefined,

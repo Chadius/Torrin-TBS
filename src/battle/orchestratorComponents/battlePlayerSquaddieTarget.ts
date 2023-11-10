@@ -61,7 +61,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
                     SquaddieInstructionInProgressHandler.cancelSelectedAction(state.squaddieCurrentlyActing);
-                    state.hexMap.stopHighlightingTiles();
+                    state.missionMap.terrainTileMap.stopHighlightingTiles();
                     return;
                 } else {
                     return this.tryToSelectValidTarget(event.mouseX, event.mouseY, state);
@@ -124,7 +124,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     reset(state: BattleOrchestratorState) {
         this.resetObject();
-        state.hexMap.stopHighlightingTiles();
+        state.missionMap.terrainTileMap.stopHighlightingTiles();
     }
 
     shouldDrawConfirmWindow(): boolean {
@@ -157,8 +157,8 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         })
         const actionRange: HexCoordinate[] = targetingResults.locationsInRange;
 
-        state.hexMap.stopHighlightingTiles();
-        state.hexMap.highlightTiles([
+        state.missionMap.terrainTileMap.stopHighlightingTiles();
+        state.missionMap.terrainTileMap.highlightTiles([
                 {
                     tiles: actionRange,
                     pulseColor: HighlightPulseRedColor,
@@ -230,7 +230,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         const cameraCoordinates = state.camera.getCoordinates();
-        state.hexMap.mouseClicked(mouseX, mouseY, cameraCoordinates[0], cameraCoordinates[1]);
+        state.missionMap.terrainTileMap.mouseClicked(mouseX, mouseY, cameraCoordinates[0], cameraCoordinates[1]);
         this.hasSelectedValidTarget = true;
         this.validTargetLocation = clickedLocation;
     }

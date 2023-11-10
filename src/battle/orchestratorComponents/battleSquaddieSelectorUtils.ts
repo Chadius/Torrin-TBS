@@ -72,8 +72,8 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
             )
         )
     );
-    state.hexMap.stopHighlightingTiles();
-    state.hexMap.highlightTiles(routeTilesByDistance);
+    state.missionMap.terrainTileMap.stopHighlightingTiles();
+    state.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);
 
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }

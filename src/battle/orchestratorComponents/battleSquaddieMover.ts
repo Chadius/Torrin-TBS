@@ -137,6 +137,6 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             TintSquaddieIfTurnIsComplete(battleSquaddie, squaddieTemplate);
             battleSquaddie.mapIcon.draw(graphicsContext);
         }
-        state.hexMap.stopHighlightingTiles();
+        state.missionMap.terrainTileMap.stopHighlightingTiles();
     }
 }

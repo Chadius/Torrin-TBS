@@ -121,7 +121,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     }
 
     private loadMap(state: BattleOrchestratorState) {
-        state.hexMap = new TerrainTileMap({
+        const hexMap = new TerrainTileMap({
             movementCost: [
                 "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
                 " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
@@ -149,7 +149,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.resourceHandler.loadResources(attributeIcons);
 
         state.missionMap = new MissionMap({
-            terrainTileMap: state.hexMap
+            terrainTileMap: hexMap
         })
 
         this.startedLoading = true;
@@ -509,7 +509,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     }
 
     private initializeCameraPosition(state: BattleOrchestratorState) {
-        const mapDimensions = state.hexMap.getDimensions();
+        const mapDimensions = state.missionMap.terrainTileMap.getDimensions();
         state.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
     }
 

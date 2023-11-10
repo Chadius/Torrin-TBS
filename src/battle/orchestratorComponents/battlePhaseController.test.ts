@@ -111,6 +111,11 @@ describe('BattlePhaseController', () => {
             },
             resourceHandler,
             teamsByAffiliation,
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 "]
+                })
+            })
         });
 
         battlePhaseController = new BattlePhaseController();
@@ -342,6 +347,11 @@ describe('BattlePhaseController', () => {
             resourceHandler,
             battlePhaseState: phase,
             teamsByAffiliation,
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 "]
+                })
+            })
         });
         battlePhaseController = new BattlePhaseController();
         const startTime = 0;

@@ -1,13 +1,15 @@
-import {HexGridTile} from "./hexGrid";
+import {HexGridTileHelper} from "./hexGrid";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 
 describe('HexGrid', () => {
     it('throws an error if non integer coordinates are used for HexGrid', () => {
         const shouldThrowError = () => {
-            new HexGridTile(
-                5.5,
-                4.5,
-                HexGridMovementCost.singleMovement
+            HexGridTileHelper.assertIsValid(
+                {
+                    q: 5.5,
+                    r: 4.5,
+                    terrainType: HexGridMovementCost.singleMovement
+                }
             );
         }
 

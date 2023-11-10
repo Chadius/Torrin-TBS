@@ -1,6 +1,5 @@
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMap} from "../../missionMap/missionMap";
-import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCamera} from "../battleCamera";
@@ -26,7 +25,6 @@ export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
     squaddieRepository: BattleSquaddieRepository;
     missionMap: MissionMap;
-    hexMap: TerrainTileMap;
     teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
     battlePhaseState: BattlePhaseState;
@@ -50,7 +48,6 @@ export class BattleOrchestratorState {
         objectives?: MissionObjective[];
         resourceHandler?: ResourceHandler;
         missionMap?: MissionMap;
-        hexMap?: TerrainTileMap;
         squaddieRepository?: BattleSquaddieRepository;
         camera?: BattleCamera;
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD;
@@ -70,7 +67,6 @@ export class BattleOrchestratorState {
             cutsceneTriggers,
             resourceHandler,
             missionMap,
-            hexMap,
             squaddieRepository,
             camera,
             battleSquaddieSelectedHUD,
@@ -88,7 +84,6 @@ export class BattleOrchestratorState {
         this.squaddieRepository = options.squaddieRepository;
 
         this.missionMap = options.missionMap;
-        this.hexMap = options.hexMap || (this.missionMap && this.missionMap.terrainTileMap) || new TerrainTileMap({movementCost: ["1 "]});
 
         this.teamsByAffiliation = {...teamsByAffiliation};
         this.copyTeamStrategyByAffiliation(teamStrategyByAffiliation);
@@ -200,7 +195,6 @@ export class BattleOrchestratorState {
             resourceHandler: this.resourceHandler,
             squaddieRepository: this.squaddieRepository,
             missionMap: new MissionMap({terrainTileMap: this.missionMap.terrainTileMap}),
-            hexMap: this.hexMap,
             teamsByAffiliation: {...this.teamsByAffiliation},
             teamStrategyByAffiliation: {...this.teamStrategyByAffiliation},
             battlePhaseState: {...this.battlePhaseState},

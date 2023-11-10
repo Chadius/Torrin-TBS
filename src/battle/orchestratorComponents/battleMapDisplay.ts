@@ -18,8 +18,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         graphicsContext.background(50, 10, 20);
 
-        if (state.hexMap) {
-            drawHexMap(graphicsContext, state.hexMap, ...state.camera.getCoordinates());
+        if (state.missionMap.terrainTileMap) {
+            drawHexMap(graphicsContext, state.missionMap.terrainTileMap, ...state.camera.getCoordinates());
         }
 
         this.drawSquaddieMapIcons(state, graphicsContext);
@@ -34,7 +34,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
     mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            state.hexMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
+            state.missionMap.terrainTileMap.mouseClicked(event.mouseX, event.mouseY, ...state.camera.getCoordinates());
         }
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
             this.moveCameraBasedOnMouseMovement(state, event.mouseX, event.mouseY);

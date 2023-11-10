@@ -8,12 +8,12 @@ describe('hexMap', () => {
     describe('mouseClicks on the map', () => {
         it('should select tiles in a hex pattern according to where the mouse clicked', function () {
             const gridTiles: HexGridTile[] = [
-                new HexGridTile(0, 0, HexGridMovementCost.pit),
-                new HexGridTile(0, 1, HexGridMovementCost.pit),
-                new HexGridTile(0, 2, HexGridMovementCost.pit),
-                new HexGridTile(0, -1, HexGridMovementCost.pit),
-                new HexGridTile(1, 0, HexGridMovementCost.pit),
-                new HexGridTile(-1, 0, HexGridMovementCost.pit),
+                {q: 0, r: 0, terrainType: HexGridMovementCost.pit},
+                {q: 0, r: 1, terrainType: HexGridMovementCost.pit},
+                {q: 0, r: 2, terrainType: HexGridMovementCost.pit},
+                {q: 0, r: -1, terrainType: HexGridMovementCost.pit},
+                {q: 1, r: 0, terrainType: HexGridMovementCost.pit},
+                {q: -1, r: 0, terrainType: HexGridMovementCost.pit},
             ];
 
             const hexGrid = new TerrainTileMap({tiles: gridTiles});
@@ -42,12 +42,12 @@ describe('hexMap', () => {
     });
     it('can note which tiles are at which locations', () => {
         const gridTiles: HexGridTile[] = [
-            new HexGridTile(0, 0, HexGridMovementCost.pit),
-            new HexGridTile(0, 1, HexGridMovementCost.doubleMovement),
-            new HexGridTile(0, 2, HexGridMovementCost.wall),
-            new HexGridTile(0, -1, HexGridMovementCost.singleMovement),
-            new HexGridTile(1, 0, HexGridMovementCost.doubleMovement),
-            new HexGridTile(-1, 0, HexGridMovementCost.pit),
+            {q: 0, r: 0, terrainType: HexGridMovementCost.pit},
+            {q: 0, r: 1, terrainType: HexGridMovementCost.doubleMovement},
+            {q: 0, r: 2, terrainType: HexGridMovementCost.wall},
+            {q: 0, r: -1, terrainType: HexGridMovementCost.singleMovement},
+            {q: 1, r: 0, terrainType: HexGridMovementCost.doubleMovement},
+            {q: -1, r: 0, terrainType: HexGridMovementCost.pit},
         ];
 
         const hexGrid = new TerrainTileMap({tiles: gridTiles});

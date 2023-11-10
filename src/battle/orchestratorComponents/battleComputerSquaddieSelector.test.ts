@@ -191,7 +191,7 @@ describe('BattleComputerSquaddieSelector', () => {
     it('moves camera to an uncontrollable squaddie before before moving', () => {
         const missionMap: MissionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
+                movementCost: ["1 "]
             })
         });
 
@@ -208,7 +208,6 @@ describe('BattleComputerSquaddieSelector', () => {
             camera,
             missionMap,
             teamsByAffiliation,
-            hexMap: new TerrainTileMap({movementCost: ["1 "]})
         });
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
@@ -246,9 +245,6 @@ describe('BattleComputerSquaddieSelector', () => {
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseState,
-                hexMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
-                }),
                 missionMap,
                 squaddieRepository: squaddieRepo,
                 battleEventRecording: {history: []},
@@ -296,9 +292,6 @@ describe('BattleComputerSquaddieSelector', () => {
         it('will default to ending its turn if none of the strategies provide instruction', () => {
             const state: BattleOrchestratorState = new BattleOrchestratorState({
                 battlePhaseState,
-                hexMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
-                }),
                 missionMap,
                 squaddieRepository: squaddieRepo,
                 battleEventRecording: {history: []},
@@ -344,9 +337,6 @@ describe('BattleComputerSquaddieSelector', () => {
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             battlePhaseState,
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
-            }),
             squaddieRepository: squaddieRepo,
             missionMap,
             teamStrategyByAffiliation: {
@@ -423,7 +413,6 @@ describe('BattleComputerSquaddieSelector', () => {
                 squaddieRepository: squaddieRepo,
                 camera,
                 missionMap,
-                hexMap,
                 teamStrategyByAffiliation: {
                     ENEMY: [{
                         type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
@@ -470,7 +459,6 @@ describe('BattleComputerSquaddieSelector', () => {
                     squaddieRepository: squaddieRepo,
                     camera,
                     missionMap,
-                    hexMap,
                     teamStrategyByAffiliation: {
                         ENEMY: [{
                             type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,

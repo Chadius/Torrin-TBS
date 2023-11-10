@@ -35,6 +35,7 @@ import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MissionConditionType} from "../missionResult/missionCondition";
+import {MissionMap} from "../../missionMap/missionMap";
 
 
 describe('Battle Orchestrator', () => {
@@ -167,8 +168,10 @@ describe('Battle Orchestrator', () => {
 
     beforeEach(() => {
         nullState = new BattleOrchestratorState({
-            hexMap: new TerrainTileMap({
-                movementCost: ["1 1 "]
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
             }),
             battleSquaddieSelectedHUD: mockHud,
             missionCompletionStatus: {
@@ -510,8 +513,10 @@ describe('Battle Orchestrator', () => {
             cutscenePlayer = new BattleCutscenePlayer();
 
             victoryState = new BattleOrchestratorState({
-                hexMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "]
+                    }),
                 }),
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
@@ -538,8 +543,10 @@ describe('Battle Orchestrator', () => {
             victoryState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
             defeatState = new BattleOrchestratorState({
-                hexMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "]
+                    }),
                 }),
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
@@ -564,8 +571,10 @@ describe('Battle Orchestrator', () => {
             defeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
 
             victoryAndDefeatState = new BattleOrchestratorState({
-                hexMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "]
+                    }),
                 }),
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [

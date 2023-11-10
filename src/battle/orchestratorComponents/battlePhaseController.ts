@@ -23,7 +23,7 @@ import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
-export type BattlePhaseState = {
+export interface BattlePhaseState {
     currentAffiliation: BattlePhase;
     turnCount: number;
 }
@@ -104,12 +104,12 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
             BattleSquaddieTeamHelper.beginNewRound(state.getCurrentTeam(), state.squaddieRepository);
 
-            state.hexMap.stopHighlightingTiles();
+            state.missionMap.terrainTileMap.stopHighlightingTiles();
         }
     }
 
     setBannerImage(state: BattleOrchestratorState) {
-        state.hexMap?.stopOutlineTiles();
+        state.missionMap.terrainTileMap.stopOutlineTiles();
 
         switch (state.battlePhaseState.currentAffiliation) {
             case BattlePhase.PLAYER:
