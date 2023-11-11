@@ -1,5 +1,4 @@
 import {BattleSquaddie} from "./battleSquaddie";
-import {SquaddieId} from "../squaddie/id";
 import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
@@ -28,7 +27,7 @@ describe('BattleSquaddieRepository', () => {
                     }
                 }),
             },
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 templateId: "player_young_torrin",
                 name: "Torrin",
                 resources: {
@@ -37,7 +36,7 @@ describe('BattleSquaddieRepository', () => {
                 },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
-            }),
+            },
             actions: [],
         });
         battleSquaddieBase = new BattleSquaddie({

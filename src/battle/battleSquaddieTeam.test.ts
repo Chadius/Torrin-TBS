@@ -1,6 +1,5 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
-import {SquaddieId} from "../squaddie/id";
 import {BattleSquaddie} from "./battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "./BattleSquaddieTeam";
 import * as mocks from "../utils/test/mocks";
@@ -27,7 +26,7 @@ describe('Battle Squaddie Team', () => {
             battleSquaddieIds: [],
         };
         playerSquaddieTemplateBase = new SquaddieTemplate({
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 templateId: "player_young_torrin",
                 name: "Torrin",
                 resources: {
@@ -36,7 +35,7 @@ describe('Battle Squaddie Team', () => {
                 },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
-            }),
+            },
             actions: [],
         });
 
@@ -73,7 +72,7 @@ describe('Battle Squaddie Team', () => {
             battleSquaddieIds: [],
         };
         enemySquaddieTemplateBase = new SquaddieTemplate({
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 templateId: "enemy_slither_demon",
                 name: "Slither",
                 resources: {
@@ -82,7 +81,7 @@ describe('Battle Squaddie Team', () => {
                 },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.ENEMY,
-            }),
+            },
             actions: [],
         });
 

@@ -18,7 +18,6 @@ import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {MissionStatistics} from "../missionStatistics/missionStatistics";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
@@ -116,11 +115,13 @@ describe("BattleSaveState", () => {
         };
 
         const player0SquaddieTemplate = new SquaddieTemplate({
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 affiliation: SquaddieAffiliation.PLAYER,
                 name: "player 0",
                 templateId: "player template 0",
-            })
+                traits: {booleanTraits: {}},
+                resources: {mapIconResourceKey: "", actionSpritesByEmotion: {}},
+            }
         });
 
         player0BattleSquaddie = new BattleSquaddie({
@@ -136,11 +137,13 @@ describe("BattleSaveState", () => {
         }
 
         const enemy0SquaddieTemplate = new SquaddieTemplate({
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 affiliation: SquaddieAffiliation.ENEMY,
                 name: "enemy 0",
                 templateId: "enemy template 0",
-            }),
+                traits: {booleanTraits: {}},
+                resources: {mapIconResourceKey: "", actionSpritesByEmotion: {}},
+            },
             attributes: {
                 ...DefaultArmyAttributes(),
                 maxHitPoints: 5

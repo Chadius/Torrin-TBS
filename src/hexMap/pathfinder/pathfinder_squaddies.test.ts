@@ -1,4 +1,3 @@
-import {SquaddieId} from "../../squaddie/id";
 import {Pathfinder} from "./pathfinder";
 import {SearchParametersHelper} from "./searchParams";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
@@ -67,13 +66,13 @@ describe('pathfinder and squaddies', () => {
             blockingAffiliation: SquaddieAffiliation,
             canPassThrough: boolean
         ) => {
-            const blockingSquaddie = new SquaddieId({
+            const blockingSquaddie = {
                 name: "blocker",
                 templateId: "blocker",
                 resources: {mapIconResourceKey: "map_icon_blocker", actionSpritesByEmotion: {}},
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: blockingAffiliation,
-            });
+            };
             missionMap.addSquaddie(blockingSquaddie.templateId, "dynamic_0", {q: 0, r: 1});
             let squaddieRepository = new BattleSquaddieRepository();
             CreateNewSquaddieAndAddToRepository({

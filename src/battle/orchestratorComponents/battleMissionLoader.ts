@@ -8,7 +8,6 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {SquaddieId} from "../../squaddie/id";
 import {Trait, TraitStatusStorageHelper,} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
@@ -157,7 +156,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     private loadSquaddies(state: BattleOrchestratorState) {
         state.squaddieRepository.addSquaddie(
             new SquaddieTemplate({
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "player_young_torrin",
                     name: "Torrin",
                     resources: {
@@ -175,7 +174,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         [Trait.MONSU]: true
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
-                }),
+                },
                 attributes: {
                     maxHitPoints: 3,
                     armorClass: 0,
@@ -230,7 +229,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     }),
                 },
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "player_sir_camil",
                     name: "Sir Camil",
                     resources: {
@@ -247,7 +246,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         [Trait.HUMANOID]: true,
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
-                }),
+                },
                 actions: [
                     SquaddieActionHandler.new({
                         name: "longsword",
@@ -310,7 +309,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 }),
             },
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 templateId: "enemy_demon_slither",
                 name: "Slither Demon",
                 resources: {
@@ -327,7 +326,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     [Trait.DEMON]: true,
                 }),
                 affiliation: SquaddieAffiliation.ENEMY,
-            }),
+            },
             actions: [
                 SquaddieActionHandler.new({
                     name: "Bite",

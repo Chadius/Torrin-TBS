@@ -1,5 +1,4 @@
 import {BattleSquaddie} from "./battleSquaddie";
-import {SquaddieId} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
@@ -43,11 +42,13 @@ describe('BattleSquaddie', () => {
 
         beforeEach(() => {
             soldierTemplate = new SquaddieTemplate({
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "soldier_static",
                     name: "Soldier",
                     affiliation: SquaddieAffiliation.PLAYER,
-                }),
+                    traits: {booleanTraits: {}},
+                    resources: {mapIconResourceKey: "", actionSpritesByEmotion: {}},
+                },
                 attributes: {
                     maxHitPoints: 5,
                     armorClass: 2,

@@ -2,7 +2,6 @@ import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from ".
 import {TeamStrategyState} from "./teamStrategyState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
@@ -23,7 +22,7 @@ describe('end turn team strategy', () => {
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
         playerSquaddieTemplate = new SquaddieTemplate({
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 templateId: "new_static_squaddie",
                 name: "Torrin",
                 resources: {
@@ -32,7 +31,7 @@ describe('end turn team strategy', () => {
                 },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
-            }),
+            },
             actions: [],
         });
 

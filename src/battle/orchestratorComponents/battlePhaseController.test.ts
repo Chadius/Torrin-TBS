@@ -3,7 +3,6 @@ import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController, BattlePhaseState} from "./battlePhaseController";
@@ -37,7 +36,7 @@ describe('BattlePhaseController', () => {
         squaddieRepo = new BattleSquaddieRepository();
 
         playerSquaddieTemplate = new SquaddieTemplate({
-            squaddieId: new SquaddieId({
+            squaddieId: {
                 templateId: "player_squaddie",
                 name: "Player",
                 resources: {
@@ -46,7 +45,7 @@ describe('BattlePhaseController', () => {
                 },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
-            }),
+            },
             actions: [],
         });
         playerBattleSquaddie = new BattleSquaddie({
@@ -65,7 +64,7 @@ describe('BattlePhaseController', () => {
 
         squaddieRepo.addSquaddieTemplate(
             new SquaddieTemplate({
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
                     resources: {
@@ -74,7 +73,7 @@ describe('BattlePhaseController', () => {
                     },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
-                }),
+                },
                 actions: [],
             })
         );

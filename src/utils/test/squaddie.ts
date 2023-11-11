@@ -10,8 +10,8 @@ import * as mocks from "./mocks";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
-export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation) => {
-    return new SquaddieId({
+export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation): SquaddieId => {
+    return {
         templateId: id,
         name: id,
         resources: {
@@ -20,7 +20,7 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
         },
         traits: TraitStatusStorageHelper.newUsingTraitValues(),
         affiliation
-    });
+    };
 }
 
 export const CreateNewSquaddieAndAddToRepository: (
@@ -55,7 +55,7 @@ export const CreateNewSquaddieAndAddToRepository: (
      }
 ) => {
     const squaddieTemplate = new SquaddieTemplate({
-        squaddieId: new SquaddieId({
+        squaddieId: {
             templateId,
             name,
             resources: {
@@ -64,7 +64,7 @@ export const CreateNewSquaddieAndAddToRepository: (
             },
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
             affiliation
-        }),
+        },
         actions: actions,
         attributes,
     });

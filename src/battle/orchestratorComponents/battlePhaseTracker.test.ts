@@ -1,7 +1,6 @@
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
@@ -21,7 +20,7 @@ describe('battlePhaseTracker', () => {
 
         squaddieRepo.addSquaddieTemplate(
             new SquaddieTemplate({
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "player_squaddie",
                     name: "Player",
                     resources: {
@@ -30,7 +29,7 @@ describe('battlePhaseTracker', () => {
                     },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.PLAYER,
-                }),
+                },
                 actions: [],
             })
         );
@@ -44,7 +43,7 @@ describe('battlePhaseTracker', () => {
 
         squaddieRepo.addSquaddieTemplate(
             new SquaddieTemplate({
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
                     resources: {
@@ -53,7 +52,7 @@ describe('battlePhaseTracker', () => {
                     },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
-                }),
+                },
                 actions: [],
             })
         );
@@ -67,7 +66,7 @@ describe('battlePhaseTracker', () => {
 
         squaddieRepo.addSquaddieTemplate(
             new SquaddieTemplate({
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "ally_squaddie",
                     name: "Ally",
                     resources: {
@@ -76,7 +75,7 @@ describe('battlePhaseTracker', () => {
                     },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ALLY,
-                }),
+                },
                 actions: [],
             })
         );
@@ -90,7 +89,7 @@ describe('battlePhaseTracker', () => {
 
         squaddieRepo.addSquaddieTemplate(
             new SquaddieTemplate({
-                squaddieId: new SquaddieId({
+                squaddieId: {
                     templateId: "none_squaddie",
                     name: "None",
                     resources: {
@@ -99,7 +98,7 @@ describe('battlePhaseTracker', () => {
                     },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.NONE,
-                }),
+                },
                 actions: [],
             })
         );

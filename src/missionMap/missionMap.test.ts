@@ -18,7 +18,7 @@ describe('Mission Map', () => {
             ]
         });
 
-        torrinSquaddie = new SquaddieId({
+        torrinSquaddie = {
             name: "Torrin",
             templateId: "000",
             resources: {
@@ -27,7 +27,7 @@ describe('Mission Map', () => {
             },
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
             affiliation: SquaddieAffiliation.PLAYER,
-        });
+        };
     });
 
     it('can add a squaddie and report its location', () => {
