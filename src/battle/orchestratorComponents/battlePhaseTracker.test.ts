@@ -6,7 +6,6 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {SquaddieResource} from "../../squaddie/resource";
 import {BattlePhaseState} from "./battlePhaseController";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
@@ -25,7 +24,10 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     templateId: "player_squaddie",
                     name: "Player",
-                    resources: new SquaddieResource({}),
+                    resources: {
+                        mapIconResourceKey: "",
+                        actionSpritesByEmotion: {},
+                    },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
@@ -45,7 +47,10 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     templateId: "enemy_squaddie",
                     name: "Enemy",
-                    resources: new SquaddieResource({}),
+                    resources: {
+                        mapIconResourceKey: "",
+                        actionSpritesByEmotion: {},
+                    },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
@@ -65,7 +70,10 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     templateId: "ally_squaddie",
                     name: "Ally",
-                    resources: new SquaddieResource({}),
+                    resources: {
+                        mapIconResourceKey: "",
+                        actionSpritesByEmotion: {},
+                    },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ALLY,
                 }),
@@ -85,7 +93,10 @@ describe('battlePhaseTracker', () => {
                 squaddieId: new SquaddieId({
                     templateId: "none_squaddie",
                     name: "None",
-                    resources: new SquaddieResource({}),
+                    resources: {
+                        mapIconResourceKey: "",
+                        actionSpritesByEmotion: {},
+                    },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.NONE,
                 }),

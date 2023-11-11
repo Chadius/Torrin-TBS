@@ -1,7 +1,6 @@
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {SquaddieId} from "../squaddie/id";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
-import {SquaddieResource} from "../squaddie/resource";
 import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {MissionMap} from "./missionMap";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
@@ -22,9 +21,10 @@ describe('Mission Map', () => {
         torrinSquaddie = new SquaddieId({
             name: "Torrin",
             templateId: "000",
-            resources: new SquaddieResource({
-                mapIconResourceKey: "map_icon_torrin"
-            }),
+            resources: {
+                mapIconResourceKey: "map_icon_torrin",
+                actionSpritesByEmotion: {},
+            },
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
             affiliation: SquaddieAffiliation.PLAYER,
         });

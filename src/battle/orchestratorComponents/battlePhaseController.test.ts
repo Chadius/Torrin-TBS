@@ -12,7 +12,6 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {SquaddieResource} from "../../squaddie/resource";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -41,7 +40,10 @@ describe('BattlePhaseController', () => {
             squaddieId: new SquaddieId({
                 templateId: "player_squaddie",
                 name: "Player",
-                resources: new SquaddieResource({}),
+                resources: {
+                    mapIconResourceKey: "",
+                    actionSpritesByEmotion: {},
+                },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
@@ -66,7 +68,10 @@ describe('BattlePhaseController', () => {
                 squaddieId: new SquaddieId({
                     templateId: "enemy_squaddie",
                     name: "Enemy",
-                    resources: new SquaddieResource({}),
+                    resources: {
+                        mapIconResourceKey: "",
+                        actionSpritesByEmotion: {},
+                    },
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),

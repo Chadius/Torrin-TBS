@@ -18,7 +18,7 @@ export class SquaddieId {
     }) {
         this.name = params.name;
         this.templateId = params.templateId;
-        this.resources = params.resources || new SquaddieResource({});
+        this.resources = params.resources || {mapIconResourceKey: "", actionSpritesByEmotion: {}};
         this.traits = params.traits || {booleanTraits: {}};
         this._affiliation = params.affiliation;
     }

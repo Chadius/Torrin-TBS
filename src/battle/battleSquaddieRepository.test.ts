@@ -6,7 +6,6 @@ import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 import {SquaddieTurn, SquaddieTurnHandler} from "../squaddie/turn";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
-import {SquaddieResource} from "../squaddie/resource";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddieRepository', () => {
@@ -32,7 +31,10 @@ describe('BattleSquaddieRepository', () => {
             squaddieId: new SquaddieId({
                 templateId: "player_young_torrin",
                 name: "Torrin",
-                resources: new SquaddieResource({}),
+                resources: {
+                    mapIconResourceKey: "",
+                    actionSpritesByEmotion: {},
+                },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),

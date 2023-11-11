@@ -4,7 +4,6 @@ import {SquaddieId} from "../squaddie/id";
 import {BattleSquaddie} from "./battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "./BattleSquaddieTeam";
 import * as mocks from "../utils/test/mocks";
-import {SquaddieResource} from "../squaddie/resource";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 
@@ -31,7 +30,10 @@ describe('Battle Squaddie Team', () => {
             squaddieId: new SquaddieId({
                 templateId: "player_young_torrin",
                 name: "Torrin",
-                resources: new SquaddieResource({}),
+                resources: {
+                    mapIconResourceKey: "",
+                    actionSpritesByEmotion: {},
+                },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
@@ -74,7 +76,10 @@ describe('Battle Squaddie Team', () => {
             squaddieId: new SquaddieId({
                 templateId: "enemy_slither_demon",
                 name: "Slither",
-                resources: new SquaddieResource({}),
+                resources: {
+                    mapIconResourceKey: "",
+                    actionSpritesByEmotion: {},
+                },
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),

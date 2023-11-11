@@ -9,7 +9,6 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieId} from "../../squaddie/id";
-import {SquaddieResource} from "../../squaddie/resource";
 import {Trait, TraitStatusStorageHelper,} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
@@ -161,16 +160,16 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieId: new SquaddieId({
                     templateId: "player_young_torrin",
                     name: "Torrin",
-                    resources: new SquaddieResource({
+                    resources: {
                         mapIconResourceKey: "map icon young torrin",
-                        actionSpriteByEmotion: {
+                        actionSpritesByEmotion: {
                             [SquaddieEmotion.NEUTRAL]: "combat-young-torrin-neutral",
                             [SquaddieEmotion.ATTACK]: "combat-young-torrin-attack",
                             [SquaddieEmotion.TARGETED]: "combat-young-torrin-targeted",
                             [SquaddieEmotion.DAMAGED]: "combat-young-torrin-damaged",
                             [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
                         },
-                    }),
+                    },
                     traits: TraitStatusStorageHelper.newUsingTraitValues({
                         [Trait.HUMANOID]: true,
                         [Trait.MONSU]: true
@@ -234,16 +233,16 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 squaddieId: new SquaddieId({
                     templateId: "player_sir_camil",
                     name: "Sir Camil",
-                    resources: new SquaddieResource({
+                    resources: {
                         mapIconResourceKey: "map icon sir camil",
-                        actionSpriteByEmotion: {
+                        actionSpritesByEmotion: {
                             [SquaddieEmotion.NEUTRAL]: "combat-sir-camil-neutral",
                             [SquaddieEmotion.ATTACK]: "combat-sir-camil-attack",
                             [SquaddieEmotion.TARGETED]: "combat-sir-camil-targeted",
                             [SquaddieEmotion.DAMAGED]: "combat-sir-camil-damaged",
                             [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
                         },
-                    }),
+                    },
                     traits: TraitStatusStorageHelper.newUsingTraitValues({
                         [Trait.HUMANOID]: true,
                     }),
@@ -314,16 +313,16 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             squaddieId: new SquaddieId({
                 templateId: "enemy_demon_slither",
                 name: "Slither Demon",
-                resources: new SquaddieResource({
+                resources: {
                     mapIconResourceKey: "map icon demon slither",
-                    actionSpriteByEmotion: {
+                    actionSpritesByEmotion: {
                         [SquaddieEmotion.NEUTRAL]: "combat-demon-slither-neutral",
                         [SquaddieEmotion.ATTACK]: "combat-demon-slither-attack",
                         [SquaddieEmotion.TARGETED]: "combat-demon-slither-targeted",
                         [SquaddieEmotion.DAMAGED]: "combat-demon-slither-damaged",
                         [SquaddieEmotion.DEAD]: "combat-demon-slither-dead",
                     },
-                }),
+                },
                 traits: TraitStatusStorageHelper.newUsingTraitValues({
                     [Trait.DEMON]: true,
                 }),

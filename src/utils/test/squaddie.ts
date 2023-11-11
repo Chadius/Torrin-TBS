@@ -1,5 +1,4 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieResource} from "../../squaddie/resource";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieId} from "../../squaddie/id";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
@@ -15,7 +14,10 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
     return new SquaddieId({
         templateId: id,
         name: id,
-        resources: new SquaddieResource({}),
+        resources: {
+            mapIconResourceKey: "",
+            actionSpritesByEmotion: {},
+        },
         traits: TraitStatusStorageHelper.newUsingTraitValues(),
         affiliation
     });
@@ -56,7 +58,10 @@ export const CreateNewSquaddieAndAddToRepository: (
         squaddieId: new SquaddieId({
             templateId,
             name,
-            resources: new SquaddieResource({}),
+            resources: {
+                mapIconResourceKey: "",
+                actionSpritesByEmotion: {},
+            },
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
             affiliation
         }),

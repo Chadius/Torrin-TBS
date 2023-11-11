@@ -1,5 +1,4 @@
 import {SquaddieId} from "../../squaddie/id";
-import {SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder} from "./pathfinder";
 import {SearchParametersHelper} from "./searchParams";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
@@ -71,7 +70,7 @@ describe('pathfinder and squaddies', () => {
             const blockingSquaddie = new SquaddieId({
                 name: "blocker",
                 templateId: "blocker",
-                resources: new SquaddieResource({mapIconResourceKey: "map_icon_blocker"}),
+                resources: {mapIconResourceKey: "map_icon_blocker", actionSpritesByEmotion: {}},
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: blockingAffiliation,
             });
