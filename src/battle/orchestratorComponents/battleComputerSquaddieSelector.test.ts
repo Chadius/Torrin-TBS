@@ -138,7 +138,7 @@ describe('BattleComputerSquaddieSelector', () => {
         }));
 
         enemyDemonDynamic2 = new BattleSquaddie({
-            squaddieTemplateId: enemyDemonStatic.templateId,
+            squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
             battleSquaddieId: "enemy_demon_2",
             squaddieTurn: SquaddieTurnHandler.new(),
         });
@@ -155,7 +155,7 @@ describe('BattleComputerSquaddieSelector', () => {
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
 
         missionMap.addSquaddie(
-            enemyDemonStatic.templateId,
+            enemyDemonStatic.squaddieId.templateId,
             enemyDemonDynamic.battleSquaddieId,
             {q: 0, r: 0}
         );
@@ -259,7 +259,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 {
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: {
-                        squaddieTemplateId: enemyDemonStatic.templateId,
+                        squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
                         battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
                         startingLocation: {q: 0, r: 0},
                         actions: [],
@@ -317,7 +317,7 @@ describe('BattleComputerSquaddieSelector', () => {
         enemyDemonDynamic.endTurn();
 
         const squaddieSquaddieAction: SquaddieActionsForThisRound = {
-            squaddieTemplateId: enemyDemonStatic.templateId,
+            squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
             battleSquaddieId: enemyDemonDynamic2.battleSquaddieId,
             startingLocation: {q: 0, r: 1},
             actions: [],
@@ -384,12 +384,12 @@ describe('BattleComputerSquaddieSelector', () => {
             makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
             missionMap.addSquaddie(
-                enemyDemonStatic.templateId,
+                enemyDemonStatic.squaddieId.templateId,
                 enemyDemonDynamic.battleSquaddieId,
                 {q: 0, r: 0},
             );
             missionMap.addSquaddie(
-                enemyDemonStatic.templateId,
+                enemyDemonStatic.squaddieId.templateId,
                 enemyDemonDynamic2.battleSquaddieId,
                 {q: 0, r: 1},
             );
@@ -399,7 +399,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
         it('will prepare to move if computer controlled squaddie wants to move', () => {
             const moveAction = makeSquaddieMoveAction(
-                enemyDemonStatic.templateId,
+                enemyDemonStatic.squaddieId.templateId,
                 enemyDemonDynamic.battleSquaddieId,
             );
 
@@ -436,7 +436,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
             beforeEach(() => {
                 const squaddieSquaddieAction: SquaddieActionsForThisRound = {
-                    squaddieTemplateId: enemyDemonStatic.templateId,
+                    squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
                     battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
                     actions: [],

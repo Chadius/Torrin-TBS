@@ -289,7 +289,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
 
         const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(playerSquaddieDynamicID));
-        squaddieTemplate.addAction(notEnoughActionPointsAction);
+        squaddieTemplate.actions.push(notEnoughActionPointsAction);
 
         const state = new BattleOrchestratorState({
             squaddieRepository: squaddieRepository,
@@ -336,7 +336,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     }),
                     squaddieActionsForThisRound: {
                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                         startingLocation: {q: 0, r: 0},
                         actions: [],
                     },
@@ -432,7 +432,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: {
                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                         startingLocation: {q: 0, r: 0},
                         actions: []
                     },
@@ -486,7 +486,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: {
                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                         startingLocation: {q: 0, r: 0},
                         actions: [
                             {
@@ -528,7 +528,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         movingBattleSquaddieIds: [],
                         squaddieActionsForThisRound: {
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                            squaddieTemplateId: playerSquaddieStatic.templateId,
+                            squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                             startingLocation: {q: 0, r: 0},
                             actions: []
                         },
@@ -638,7 +638,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: {
                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                        squaddieTemplateId: playerSquaddieStatic.templateId,
+                        squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                         startingLocation: {q: 0, r: 0},
                         actions: []
                     },
@@ -676,7 +676,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         movingBattleSquaddieIds: [],
                         squaddieActionsForThisRound: {
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
-                            squaddieTemplateId: playerSquaddieStatic.templateId,
+                            squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                             startingLocation: {q: 0, r: 0},
                             actions: []
                         },
@@ -844,11 +844,11 @@ describe('BattleSquaddieSelectedHUD', () => {
         it('clicking on the next button will select a different squaddie', () => {
             const battleCamera = new BattleCamera(0, 0);
             hud = new BattleSquaddieSelectedHUD();
-            missionMap.addSquaddie(playerSquaddieStatic.templateId, playerSquaddieDynamic.battleSquaddieId, {
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerSquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 0
             });
-            missionMap.addSquaddie(player2SquaddieStatic.templateId, player2SquaddieDynamic.battleSquaddieId, {
+            missionMap.addSquaddie(player2SquaddieStatic.squaddieId.templateId, player2SquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 1
             });
@@ -894,11 +894,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             jest.spyOn((hud as any), "generateSquaddieIdText").mockImplementation(() => {
             });
 
-            missionMap.addSquaddie(playerSquaddieStatic.templateId, playerSquaddieDynamic.battleSquaddieId, {
+            missionMap.addSquaddie(playerSquaddieStatic.squaddieId.templateId, playerSquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 0
             });
-            missionMap.addSquaddie(player2SquaddieStatic.templateId, player2SquaddieDynamic.battleSquaddieId, {
+            missionMap.addSquaddie(player2SquaddieStatic.squaddieId.templateId, player2SquaddieDynamic.battleSquaddieId, {
                 q: 0,
                 r: 1
             });

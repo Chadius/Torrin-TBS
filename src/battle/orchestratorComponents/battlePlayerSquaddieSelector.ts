@@ -280,9 +280,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                             affiliation: SquaddieAffiliation.PLAYER,
                         },
                         movement: {
-                            movementPerAction: squaddieTemplate.movement.movementPerAction,
-                            passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                            crossOverPits: squaddieTemplate.movement.crossOverPits,
+                            movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+                            passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+                            crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
                             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
@@ -336,7 +336,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: {
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
-                    squaddieTemplateId: squaddieTemplate.templateId,
+                    squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                     startingLocation: datum.mapLocation,
                     actions: [],
                 },

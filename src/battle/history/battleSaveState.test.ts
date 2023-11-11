@@ -114,15 +114,17 @@ describe("BattleSaveState", () => {
             healingReceivedByPlayerTeam: 314,
         };
 
-        const player0SquaddieTemplate = new SquaddieTemplate({
+        const player0SquaddieTemplate: SquaddieTemplate = {
             squaddieId: {
                 affiliation: SquaddieAffiliation.PLAYER,
                 name: "player 0",
                 templateId: "player template 0",
                 traits: {booleanTraits: {}},
                 resources: {mapIconResourceKey: "", actionSpritesByEmotion: {}},
-            }
-        });
+            },
+            attributes: DefaultArmyAttributes(),
+            actions: [],
+        };
 
         player0BattleSquaddie = new BattleSquaddie({
             battleSquaddieId: "player battle 0",
@@ -136,7 +138,7 @@ describe("BattleSaveState", () => {
             battleSquaddieIds: ["player battle 0"],
         }
 
-        const enemy0SquaddieTemplate = new SquaddieTemplate({
+        const enemy0SquaddieTemplate: SquaddieTemplate = {
             squaddieId: {
                 affiliation: SquaddieAffiliation.ENEMY,
                 name: "enemy 0",
@@ -147,8 +149,9 @@ describe("BattleSaveState", () => {
             attributes: {
                 ...DefaultArmyAttributes(),
                 maxHitPoints: 5
-            }
-        });
+            },
+            actions: [],
+        };
 
         const finishedTurn = SquaddieTurnHandler.new();
         SquaddieTurnHandler.endTurn(finishedTurn);
@@ -421,7 +424,7 @@ describe("BattleSaveState", () => {
             squaddieTemplate: enemyTemplate,
             battleSquaddie: enemyBattle
         } = getResultOrThrowError(newBattleState.squaddieRepository.getSquaddieByBattleId("enemy battle 0"));
-        expect(enemyTemplate.templateId).toBe("enemy template 0");
+        expect(enemyTemplate.squaddieId.templateId).toBe("enemy template 0");
         expect(SquaddieTurnHandler.hasActionPointsRemaining(enemyBattle.squaddieTurn)).toBeFalsy();
         expect(enemyBattle.inBattleAttributes.currentHitPoints).toBe(4);
     });

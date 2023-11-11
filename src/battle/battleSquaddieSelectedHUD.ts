@@ -285,7 +285,7 @@ export class BattleSquaddieSelectedHUD {
         windowDimensions: RectArea
     ) {
         this.useActionButtons = [];
-        squaddieTemplate.action.forEach((action: SquaddieAction, index: number) => {
+        squaddieTemplate.actions.forEach((action: SquaddieAction, index: number) => {
             this.useActionButtons.push(
                 new UseActionButton({
                     buttonArea: new RectArea({

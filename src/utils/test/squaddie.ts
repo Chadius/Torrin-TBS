@@ -54,7 +54,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          attributes?: ArmyAttributes,
      }
 ) => {
-    const squaddieTemplate = new SquaddieTemplate({
+    const squaddieTemplate: SquaddieTemplate = {
         squaddieId: {
             templateId,
             name,
@@ -65,9 +65,9 @@ export const CreateNewSquaddieAndAddToRepository: (
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
             affiliation
         },
-        actions: actions,
-        attributes,
-    });
+        actions: actions || [],
+        attributes: attributes || DefaultArmyAttributes(),
+    };
     const battleSquaddie = new BattleSquaddie({
         squaddieTemplateId: templateId,
         battleSquaddieId: battleId,

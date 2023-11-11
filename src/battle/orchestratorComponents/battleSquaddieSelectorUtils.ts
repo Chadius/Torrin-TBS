@@ -32,9 +32,9 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
                         affiliation: squaddieTemplate.squaddieId.affiliation,
                     },
                     movement: {
-                        movementPerAction: squaddieTemplate.movement.movementPerAction,
-                        passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                        crossOverPits: squaddieTemplate.movement.crossOverPits,
+                        movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+                        passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+                        crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
                         shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,

@@ -176,11 +176,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     });
 
     it('is not complete if squaddies of the given affiliation are alive and on the map', () => {
-        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, {
+        missionMap.addSquaddie(enemy1Static.squaddieId.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0
         });
-        missionMap.addSquaddie(enemy2Static.templateId, enemy2Dynamic.battleSquaddieId, {
+        missionMap.addSquaddie(enemy2Static.squaddieId.templateId, enemy2Dynamic.battleSquaddieId, {
             q: 0,
             r: 1
         });
@@ -197,11 +197,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
 
     it('is complete if it was already marked complete', () => {
         state.missionCompletionStatus["enemy objective id"].conditions[conditionDefeatAllEnemies.id] = true;
-        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, {
+        missionMap.addSquaddie(enemy1Static.squaddieId.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0
         });
-        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, {
+        missionMap.addSquaddie(player1Static.squaddieId.templateId, player1Dynamic.battleSquaddieId, {
             q: 0,
             r: 1
         });
@@ -214,11 +214,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     });
 
     it('is complete if all squaddies of the given affiliation are dead', () => {
-        missionMap.addSquaddie(enemy1Static.templateId, enemy1Dynamic.battleSquaddieId, {
+        missionMap.addSquaddie(enemy1Static.squaddieId.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0
         });
-        missionMap.addSquaddie(player1Static.templateId, player1Dynamic.battleSquaddieId, {
+        missionMap.addSquaddie(player1Static.squaddieId.templateId, player1Dynamic.battleSquaddieId, {
             q: 0,
             r: 1
         });

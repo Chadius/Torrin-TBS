@@ -17,6 +17,7 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -35,7 +36,7 @@ describe('BattlePhaseController', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepo = new BattleSquaddieRepository();
 
-        playerSquaddieTemplate = new SquaddieTemplate({
+        playerSquaddieTemplate = {
             squaddieId: {
                 templateId: "player_squaddie",
                 name: "Player",
@@ -47,7 +48,8 @@ describe('BattlePhaseController', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             actions: [],
-        });
+            attributes: DefaultArmyAttributes(),
+        };
         playerBattleSquaddie = new BattleSquaddie({
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
@@ -63,7 +65,7 @@ describe('BattlePhaseController', () => {
         );
 
         squaddieRepo.addSquaddieTemplate(
-            new SquaddieTemplate({
+            {
                 squaddieId: {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
@@ -75,7 +77,8 @@ describe('BattlePhaseController', () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
                 actions: [],
-            })
+                attributes: DefaultArmyAttributes(),
+            }
         );
         squaddieRepo.addBattleSquaddie(
             new BattleSquaddie({
@@ -233,7 +236,7 @@ describe('BattlePhaseController', () => {
 
         it('pans the camera to the first player when it is the player phase and the player is offscreen', () => {
             const state = initializeState({
-                squaddieTemplateIdToAdd: playerSquaddieTemplate.templateId,
+                squaddieTemplateIdToAdd: playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
                 camera: new BattleCamera(
                     ScreenDimensions.SCREEN_WIDTH * 10,
@@ -252,7 +255,7 @@ describe('BattlePhaseController', () => {
 
         it('does not pan the camera to the first player when it is the player phase and the player is onscreen', () => {
             const state = initializeState({
-                squaddieTemplateIdToAdd: playerSquaddieTemplate.templateId,
+                squaddieTemplateIdToAdd: playerSquaddieTemplate.squaddieId.templateId,
                 battleSquaddieIdToAdd: playerBattleSquaddie.battleSquaddieId,
                 camera: new BattleCamera(
                     ...convertMapCoordinatesToWorldCoordinates(0, 0)

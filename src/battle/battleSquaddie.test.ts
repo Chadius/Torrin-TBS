@@ -41,7 +41,7 @@ describe('BattleSquaddie', () => {
         let battleSoldier: BattleSquaddie;
 
         beforeEach(() => {
-            soldierTemplate = new SquaddieTemplate({
+            soldierTemplate = {
                 squaddieId: {
                     templateId: "soldier_static",
                     name: "Soldier",
@@ -53,8 +53,9 @@ describe('BattleSquaddie', () => {
                     maxHitPoints: 5,
                     armorClass: 2,
                     movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
-                }
-            });
+                },
+                actions: [],
+            };
         });
 
         it('will give battle squaddie defaults', () => {

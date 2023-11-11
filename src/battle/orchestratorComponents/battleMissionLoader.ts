@@ -155,7 +155,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
 
     private loadSquaddies(state: BattleOrchestratorState) {
         state.squaddieRepository.addSquaddie(
-            new SquaddieTemplate({
+            {
                 squaddieId: {
                     templateId: "player_young_torrin",
                     name: "Torrin",
@@ -210,7 +210,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         healingDescriptions: {[HealingType.LostHitPoints]: 2}
                     })
                 ],
-            }),
+            },
             new BattleSquaddie({
                 battleSquaddieId: "player_young_torrin",
                 squaddieTemplateId: "player_young_torrin",
@@ -220,7 +220,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         state.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", {q: 1, r: 0});
 
         state.squaddieRepository.addSquaddie(
-            new SquaddieTemplate({
+            {
                 attributes: {
                     maxHitPoints: 5,
                     armorClass: 2,
@@ -261,7 +261,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         }
                     })
                 ],
-            }),
+            },
             new BattleSquaddie({
                 battleSquaddieId: "player_sir_camil",
                 squaddieTemplateId: "player_sir_camil",
@@ -300,7 +300,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     }
 
     private addEnemyTeam(state: BattleOrchestratorState) {
-        const demonSlitherMold = new SquaddieTemplate({
+        const demonSlitherMold: SquaddieTemplate = {
             attributes: {
                 maxHitPoints: 3,
                 armorClass: -5,
@@ -339,7 +339,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     }
                 })
             ],
-        });
+        };
         state.squaddieRepository.addSquaddie(
             demonSlitherMold,
             new BattleSquaddie({

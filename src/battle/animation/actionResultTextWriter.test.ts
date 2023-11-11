@@ -72,7 +72,7 @@ describe('Action Result Text Writer', () => {
             actions: [longswordSweepAction, bandageWoundsAction],
         }));
 
-        battleMap.addSquaddie(knightStatic.templateId, knightDynamic.battleSquaddieId, {q: 1, r: 1});
+        battleMap.addSquaddie(knightStatic.squaddieId.templateId, knightDynamic.battleSquaddieId, {q: 1, r: 1});
 
         ({
             squaddieTemplate: citizenStatic,
@@ -98,7 +98,7 @@ describe('Action Result Text Writer', () => {
             actions: [],
         }));
 
-        battleMap.addSquaddie(thiefStatic.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
+        battleMap.addSquaddie(thiefStatic.squaddieId.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
 
         ({
             squaddieTemplate: rogueStatic,
@@ -112,7 +112,7 @@ describe('Action Result Text Writer', () => {
             actions: [],
         }));
 
-        battleMap.addSquaddie(rogueStatic.templateId, rogueDynamic.battleSquaddieId, {q: 1, r: 2});
+        battleMap.addSquaddie(rogueStatic.squaddieId.templateId, rogueDynamic.battleSquaddieId, {q: 1, r: 2});
     });
 
     it('Explains how much damage occurred', () => {

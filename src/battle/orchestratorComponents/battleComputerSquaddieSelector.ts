@@ -272,7 +272,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: {
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
-                        squaddieTemplateId: squaddieTemplate.templateId,
+                        squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                         startingLocation: datum.mapLocation,
                         actions: [],
                     },

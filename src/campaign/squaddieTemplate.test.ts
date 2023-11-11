@@ -6,9 +6,11 @@ import {NewDummySquaddieID} from "../utils/test/squaddie";
 describe('Squaddie Template', () => {
     describe('attributes', () => {
         it('will give static squaddie defaults', () => {
-            const squaddieWithoutAttributes: SquaddieTemplate = new SquaddieTemplate({
+            const squaddieWithoutAttributes: SquaddieTemplate = {
                 squaddieId: NewDummySquaddieID("id", SquaddieAffiliation.PLAYER),
-            });
+                actions: [],
+                attributes: DefaultArmyAttributes(),
+            };
 
             const defaultAttributes: ArmyAttributes = DefaultArmyAttributes();
 

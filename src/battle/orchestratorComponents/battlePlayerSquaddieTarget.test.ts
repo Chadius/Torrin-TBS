@@ -103,7 +103,7 @@ describe('BattleSquaddieTarget', () => {
             squaddieRepository: squaddieRepo,
             actions: [longswordAction, bandageWoundsAction],
         }));
-        battleMap.addSquaddie(knightStatic.templateId, knightDynamic.battleSquaddieId, {q: 1, r: 1});
+        battleMap.addSquaddie(knightStatic.squaddieId.templateId, knightDynamic.battleSquaddieId, {q: 1, r: 1});
 
         ({
             squaddieTemplate: citizenStatic,
@@ -116,7 +116,7 @@ describe('BattleSquaddieTarget', () => {
             squaddieRepository: squaddieRepo,
             actions: [],
         }));
-        battleMap.addSquaddie(citizenStatic.templateId, citizenDynamic.battleSquaddieId, {
+        battleMap.addSquaddie(citizenStatic.squaddieId.templateId, citizenDynamic.battleSquaddieId, {
             q: 0,
             r: 1
         });
@@ -137,13 +137,13 @@ describe('BattleSquaddieTarget', () => {
                 armorClass: 0,
             }
         }));
-        battleMap.addSquaddie(thiefStatic.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
+        battleMap.addSquaddie(thiefStatic.squaddieId.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
 
         const currentInstruction: SquaddieInstructionInProgress = {
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
-                squaddieTemplateId: knightStatic.templateId,
+                squaddieTemplateId: knightStatic.squaddieId.templateId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
             },
@@ -265,7 +265,7 @@ describe('BattleSquaddieTarget', () => {
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
-                squaddieTemplateId: knightStatic.templateId,
+                squaddieTemplateId: knightStatic.squaddieId.templateId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
             },
@@ -290,7 +290,7 @@ describe('BattleSquaddieTarget', () => {
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
-                squaddieTemplateId: knightStatic.templateId,
+                squaddieTemplateId: knightStatic.squaddieId.templateId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
             },
@@ -363,7 +363,7 @@ describe('BattleSquaddieTarget', () => {
             const currentInstruction: SquaddieInstructionInProgress = {
                 squaddieActionsForThisRound: {
                     battleSquaddieId: knightDynamic.battleSquaddieId,
-                    squaddieTemplateId: knightStatic.templateId,
+                    squaddieTemplateId: knightStatic.squaddieId.templateId,
                     startingLocation: {q: 1, r: 1},
                     actions: [],
                 },
@@ -397,7 +397,7 @@ describe('BattleSquaddieTarget', () => {
 
         it('should create a squaddie instruction', () => {
             const expectedInstruction: SquaddieActionsForThisRound = {
-                squaddieTemplateId: knightStatic.templateId,
+                squaddieTemplateId: knightStatic.squaddieId.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
@@ -437,7 +437,7 @@ describe('BattleSquaddieTarget', () => {
             state.squaddieCurrentlyActing = {
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: {
-                    squaddieTemplateId: knightStatic.templateId,
+                    squaddieTemplateId: knightStatic.squaddieId.templateId,
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     startingLocation: {q: 1, r: 1},
                     actions: [],
@@ -454,7 +454,7 @@ describe('BattleSquaddieTarget', () => {
 
         it('should add to existing instruction when confirmed mid turn', () => {
             const expectedInstruction: SquaddieActionsForThisRound = {
-                squaddieTemplateId: knightStatic.templateId,
+                squaddieTemplateId: knightStatic.squaddieId.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
                 actions: [],
@@ -537,7 +537,7 @@ describe('BattleSquaddieTarget', () => {
             const currentInstruction: SquaddieInstructionInProgress = {
                 squaddieActionsForThisRound: {
                     battleSquaddieId: knightDynamic.battleSquaddieId,
-                    squaddieTemplateId: knightStatic.templateId,
+                    squaddieTemplateId: knightStatic.squaddieId.templateId,
                     startingLocation: {q: 1, r: 1},
                     actions: [],
                 },

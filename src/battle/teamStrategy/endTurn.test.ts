@@ -11,6 +11,7 @@ import {EndTurnTeamStrategy} from "./endTurn";
 import * as mocks from "../../utils/test/mocks";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 
 describe('end turn team strategy', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
@@ -21,7 +22,7 @@ describe('end turn team strategy', () => {
 
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
-        playerSquaddieTemplate = new SquaddieTemplate({
+        playerSquaddieTemplate = {
             squaddieId: {
                 templateId: "new_static_squaddie",
                 name: "Torrin",
@@ -33,7 +34,8 @@ describe('end turn team strategy', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             actions: [],
-        });
+            attributes: DefaultArmyAttributes(),
+        };
 
         squaddieRepository.addSquaddieTemplate(
             playerSquaddieTemplate

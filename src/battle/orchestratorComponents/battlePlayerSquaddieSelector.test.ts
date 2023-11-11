@@ -106,12 +106,12 @@ describe('BattleSquaddieSelector', () => {
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
 
         missionMap.addSquaddie(
-            enemyDemonStatic.templateId,
+            enemyDemonStatic.squaddieId.templateId,
             enemyDemonDynamic.battleSquaddieId,
             {q: 0, r: 0},
         );
         missionMap.addSquaddie(
-            enemyDemonStatic.templateId,
+            enemyDemonStatic.squaddieId.templateId,
             enemyDemonDynamic.battleSquaddieId,
             {q: 0, r: 1},
         );
@@ -195,7 +195,7 @@ describe('BattleSquaddieSelector', () => {
         BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0"]);
         teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
         missionMap.addSquaddie(
-            enemyDemonStatic.templateId,
+            enemyDemonStatic.squaddieId.templateId,
             enemyDemonDynamic.battleSquaddieId,
             {q: 0, r: 1},
         );
@@ -588,7 +588,7 @@ describe('BattleSquaddieSelector', () => {
             }));
 
             missionMap.addSquaddie(
-                interruptSquaddieStatic.templateId,
+                interruptSquaddieStatic.squaddieId.templateId,
                 interruptSquaddieDynamic.battleSquaddieId,
                 {q: 0, r: 1},
             );

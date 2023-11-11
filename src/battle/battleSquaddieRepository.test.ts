@@ -14,7 +14,7 @@ describe('BattleSquaddieRepository', () => {
 
     beforeEach(() => {
         squaddieRepo = new BattleSquaddieRepository();
-        squaddieTemplateBase = new SquaddieTemplate({
+        squaddieTemplateBase = {
             attributes: {
                 maxHitPoints: 1,
                 armorClass: 0,
@@ -38,7 +38,7 @@ describe('BattleSquaddieRepository', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             actions: [],
-        });
+        };
         battleSquaddieBase = new BattleSquaddie({
             battleSquaddieId: "player_young_torrin_0",
             squaddieTemplateId: "player_young_torrin",

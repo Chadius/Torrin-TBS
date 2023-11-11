@@ -58,7 +58,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             battleSquaddie
         } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(actingBattleSquaddieId));
 
-        const validActions = squaddieTemplate.action.filter((action) => {
+        const validActions = squaddieTemplate.actions.filter((action) => {
             return SquaddieTurnHandler.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
         });
 
@@ -162,7 +162,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
     }) {
         const instruction: SquaddieActionsForThisRound = {
             battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-            squaddieTemplateId: actingSquaddieTemplate.templateId,
+            squaddieTemplateId: actingSquaddieTemplate.squaddieId.templateId,
             startingLocation: actingSquaddieMapLocation,
             actions: [],
         };

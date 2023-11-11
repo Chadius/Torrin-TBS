@@ -7,7 +7,6 @@ import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SquaddieActionType} from "../history/anySquaddieAction";
@@ -51,9 +50,9 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
                             affiliation: squaddieTemplate.squaddieId.affiliation,
                         },
                         movement: {
-                            movementPerAction: squaddieTemplate.movement.movementPerAction,
-                            crossOverPits: squaddieTemplate.movement.crossOverPits,
-                            passThroughWalls: squaddieTemplate.movement.passThroughWalls,
+                            movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+                            crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
+                            passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
                             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
@@ -122,9 +121,9 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
                                     affiliation: SquaddieAffiliation.UNKNOWN,
                                 },
                                 movement: {
-                                    movementPerAction: squaddieTemplate.movement.movementPerAction,
-                                    passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                                    crossOverPits: squaddieTemplate.movement.crossOverPits,
+                                    movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+                                    passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+                                    crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
                                     canStopOnSquaddies: true,
                                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                                     maximumDistanceMoved: undefined,

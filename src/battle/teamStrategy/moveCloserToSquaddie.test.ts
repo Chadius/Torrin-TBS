@@ -165,7 +165,7 @@ describe('move towards closest squaddie in range', () => {
         });
 
         const startingInstruction: SquaddieActionsForThisRound = {
-            squaddieTemplateId: searchingSquaddieStatic2.templateId,
+            squaddieTemplateId: searchingSquaddieStatic2.squaddieId.templateId,
             battleSquaddieId: searchingSquaddieDynamic2.battleSquaddieId,
             startingLocation: {q: 0, r: 5},
             actions: [],

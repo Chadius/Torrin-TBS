@@ -312,7 +312,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: {
                         battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-                        squaddieTemplateId: actingSquaddieTemplate.templateId,
+                        squaddieTemplateId: actingSquaddieTemplate.squaddieId.templateId,
                         startingLocation: actingSquaddieInfo.mapLocation,
                         actions: [],
                     },

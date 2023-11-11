@@ -38,7 +38,7 @@ describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
             })
         });
         map.addSquaddie(
-            knightSquaddieStatic.templateId,
+            knightSquaddieStatic.squaddieId.templateId,
             knightSquaddieDynamic.battleSquaddieId,
             {q: 0, r: 2}
         );

@@ -33,9 +33,9 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
                     squaddieTemplate.squaddieId.affiliation,
                 },
                 movement: {
-                    movementPerAction: squaddieTemplate.movement.movementPerAction,
-                    passThroughWalls: squaddieTemplate.movement.passThroughWalls,
-                    crossOverPits: squaddieTemplate.movement.crossOverPits,
+                    movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+                    passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+                    crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
                     canStopOnSquaddies: false,
                     ignoreTerrainPenalty: false,
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
@@ -71,7 +71,7 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
     let actionTiles: HexCoordinate[] = [];
     const actionPoints = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
 
-    squaddieTemplate.action.forEach((action) => {
+    squaddieTemplate.actions.forEach((action) => {
         sortedMovementActionPoints.forEach((movementActionsSpent: number) => {
             if (action.actionPointCost > actionPoints.actionPointsRemaining - movementActionsSpent) {
                 return;
