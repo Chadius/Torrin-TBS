@@ -3,7 +3,7 @@ import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinateToKey} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -68,12 +68,10 @@ describe('BattleSquaddieTarget', () => {
         longswordAction = SquaddieActionHandler.new({
             name: "longsword",
             id: longswordActionId,
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 1,
@@ -85,12 +83,10 @@ describe('BattleSquaddieTarget', () => {
         bandageWoundsAction = SquaddieActionHandler.new({
             name: "Bandage Wounds",
             id: bandageWoundsActionId,
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.HEALING]: true,
-                    [Trait.TARGETS_ALLIES]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.HEALING]: true,
+                [Trait.TARGETS_ALLIES]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 2,
@@ -534,7 +530,7 @@ describe('BattleSquaddieTarget', () => {
             const action = SquaddieActionHandler.new({
                 id: name,
                 name,
-                traits: new TraitStatusStorage({initialTraitValues: traits}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(traits),
                 minimumRange: 0,
                 maximumRange: 9001,
             });

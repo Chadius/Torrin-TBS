@@ -12,13 +12,13 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 
 describe('BattlePhaseController', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -42,7 +42,7 @@ describe('BattlePhaseController', () => {
                 templateId: "player_squaddie",
                 name: "Player",
                 resources: new SquaddieResource({}),
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             actions: [],
@@ -67,7 +67,7 @@ describe('BattlePhaseController', () => {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
                     resources: new SquaddieResource({}),
-                    traits: new TraitStatusStorage({}),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
                 actions: [],

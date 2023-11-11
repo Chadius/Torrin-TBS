@@ -1,6 +1,6 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieResource} from "../../squaddie/resource";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieId} from "../../squaddie/id";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {BattleSquaddie} from "../../battle/battleSquaddie";
@@ -16,7 +16,7 @@ export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) 
         templateId: id,
         name: id,
         resources: new SquaddieResource({}),
-        traits: new TraitStatusStorage({}),
+        traits: TraitStatusStorageHelper.newUsingTraitValues(),
         affiliation
     });
 }
@@ -57,7 +57,7 @@ export const CreateNewSquaddieAndAddToRepository: (
             templateId,
             name,
             resources: new SquaddieResource({}),
-            traits: new TraitStatusStorage({}),
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
             affiliation
         }),
         actions: actions,
@@ -112,13 +112,11 @@ export const CreateNewThiefSquaddie: (
     const defaultAttackAction = SquaddieActionHandler.new({
         name: "knife",
         id: "knife",
-        traits: new TraitStatusStorage({
-            initialTraitValues: {
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-                [Trait.TARGETS_FOE]: true,
-            }
-        }).filterCategory(TraitCategory.ACTION),
+        traits: TraitStatusStorageHelper.newUsingTraitValues({
+            [Trait.ATTACK]: true,
+            [Trait.TARGET_ARMOR]: true,
+            [Trait.TARGETS_FOE]: true,
+        }),
         minimumRange: 1,
         maximumRange: 1,
         actionPointCost: 1,
@@ -181,13 +179,11 @@ export const CreateNewKnightSquaddie: (
     const defaultAttackAction = SquaddieActionHandler.new({
         name: "longsword",
         id: "longsword",
-        traits: new TraitStatusStorage({
-            initialTraitValues: {
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-                [Trait.TARGETS_FOE]: true,
-            }
-        }).filterCategory(TraitCategory.ACTION),
+        traits: TraitStatusStorageHelper.newUsingTraitValues({
+            [Trait.ATTACK]: true,
+            [Trait.TARGET_ARMOR]: true,
+            [Trait.TARGETS_FOE]: true,
+        }),
         minimumRange: 1,
         maximumRange: 1,
         actionPointCost: 1,
@@ -199,13 +195,11 @@ export const CreateNewKnightSquaddie: (
     const powerAttackLongswordAction = SquaddieActionHandler.new({
         name: "power attack longsword",
         id: "powerAttackLongsword",
-        traits: new TraitStatusStorage({
-            initialTraitValues: {
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-                [Trait.TARGETS_FOE]: true,
-            }
-        }).filterCategory(TraitCategory.ACTION),
+        traits: TraitStatusStorageHelper.newUsingTraitValues({
+            [Trait.ATTACK]: true,
+            [Trait.TARGET_ARMOR]: true,
+            [Trait.TARGETS_FOE]: true,
+        }),
         minimumRange: 1,
         maximumRange: 1,
         actionPointCost: 3,

@@ -2,7 +2,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
@@ -32,11 +32,9 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
-                    traits: new TraitStatusStorage({
-                        initialTraitValues: {
-                            [Trait.PASS_THROUGH_WALLS]: true,
-                        }
-                    }).filterCategory(TraitCategory.MOVEMENT)
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }),
                 }),
                 armorClass: 0,
                 maxHitPoints: 0,

@@ -2,7 +2,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {
@@ -64,11 +64,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
-                    traits: new TraitStatusStorage({
-                        initialTraitValues: {
-                            [Trait.PASS_THROUGH_WALLS]: true,
-                        }
-                    }).filterCategory(TraitCategory.MOVEMENT)
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }),
                 }),
                 maxHitPoints: 1,
                 armorClass: 0,
@@ -87,11 +85,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
-                    traits: new TraitStatusStorage({
-                        initialTraitValues: {
-                            [Trait.PASS_THROUGH_WALLS]: true,
-                        }
-                    }).filterCategory(TraitCategory.MOVEMENT)
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.PASS_THROUGH_WALLS]: true,
+                    }),
                 }),
                 maxHitPoints: 3,
                 armorClass: 0,
@@ -101,12 +97,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         powerAttackLongswordAction = SquaddieActionHandler.new({
             name: "power attack longsword",
             id: "powerAttackLongsword",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 3,
@@ -118,10 +112,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         monkKoanAction = SquaddieActionHandler.new({
             id: "koan",
             name: "koan",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.SKIP_ANIMATION]: true
-                }
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.SKIP_ANIMATION]: true
             }),
             maximumRange: 0,
             minimumRange: 0,

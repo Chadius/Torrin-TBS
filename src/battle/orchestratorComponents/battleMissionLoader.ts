@@ -10,7 +10,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieId} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper,} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {SquaddieActionHandler} from "../../squaddie/action";
@@ -171,12 +171,10 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
                         },
                     }),
-                    traits: new TraitStatusStorage({
-                        initialTraitValues: {
-                            [Trait.HUMANOID]: true,
-                            [Trait.MONSU]: true
-                        }
-                    }).filterCategory(TraitCategory.CREATURE),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.HUMANOID]: true,
+                        [Trait.MONSU]: true
+                    }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
                 attributes: {
@@ -184,7 +182,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     armorClass: 0,
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
-                        traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     }),
                 },
                 actions: [
@@ -193,11 +191,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         id: "torrin_water_cannon",
                         minimumRange: 0,
                         maximumRange: 2,
-                        traits: new TraitStatusStorage({
-                            initialTraitValues: {
-                                [Trait.ATTACK]: true,
-                            }
-                        }).filterCategory(TraitCategory.ACTION),
+                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                        }),
                         damageDescriptions: {
                             [DamageType.Body]: 2
                         }
@@ -207,13 +203,11 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         id: "young_torrin_healing_touch",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: new TraitStatusStorage({
-                            initialTraitValues: {
-                                [Trait.SKIP_ANIMATION]: true,
-                                [Trait.TARGETS_ALLIES]: true,
-                                [Trait.HEALING]: true,
-                            }
-                        }).filterCategory(TraitCategory.ACTION),
+                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                            [Trait.SKIP_ANIMATION]: true,
+                            [Trait.TARGETS_ALLIES]: true,
+                            [Trait.HEALING]: true,
+                        }),
                         actionPointCost: 2,
                         healingDescriptions: {[HealingType.LostHitPoints]: 2}
                     })
@@ -234,7 +228,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     armorClass: 2,
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
-                        traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     }),
                 },
                 squaddieId: new SquaddieId({
@@ -250,11 +244,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                             [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
                         },
                     }),
-                    traits: new TraitStatusStorage({
-                        initialTraitValues: {
-                            [Trait.HUMANOID]: true,
-                        }
-                    }).filterCategory(TraitCategory.CREATURE),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.HUMANOID]: true,
+                    }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
                 actions: [
@@ -263,11 +255,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         id: "sir_camil_longsword",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: new TraitStatusStorage({
-                            initialTraitValues: {
-                                [Trait.ATTACK]: true,
-                            }
-                        }).filterCategory(TraitCategory.ACTION),
+                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                        }),
                         damageDescriptions: {
                             [DamageType.Body]: 2
                         }
@@ -318,7 +308,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 armorClass: -5,
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
-                    traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 }),
             },
             squaddieId: new SquaddieId({
@@ -334,11 +324,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                         [SquaddieEmotion.DEAD]: "combat-demon-slither-dead",
                     },
                 }),
-                traits: new TraitStatusStorage({
-                    initialTraitValues: {
-                        [Trait.DEMON]: true,
-                    }
-                }).filterCategory(TraitCategory.CREATURE),
+                traits: TraitStatusStorageHelper.newUsingTraitValues({
+                    [Trait.DEMON]: true,
+                }),
                 affiliation: SquaddieAffiliation.ENEMY,
             }),
             actions: [
@@ -347,7 +335,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                     id: "demon_slither_bite",
                     minimumRange: 0,
                     maximumRange: 1,
-                    traits: new TraitStatusStorage({initialTraitValues: {[Trait.ATTACK]: true}}).filterCategory(TraitCategory.ACTION),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
                     damageDescriptions: {
                         [DamageType.Body]: 1
                     }

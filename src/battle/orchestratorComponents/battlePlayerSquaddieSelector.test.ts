@@ -32,7 +32,7 @@ import {
 } from "../history/squaddieInstructionInProgress";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
@@ -72,12 +72,10 @@ describe('BattleSquaddieSelector', () => {
         demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 2,
@@ -174,12 +172,10 @@ describe('BattleSquaddieSelector', () => {
         demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 2,
@@ -514,7 +510,7 @@ describe('BattleSquaddieSelector', () => {
         const longswordAction: SquaddieAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage({}),
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -702,7 +698,7 @@ describe('BattleSquaddieSelector', () => {
             const longswordAction: SquaddieAction = SquaddieActionHandler.new({
                 name: "longsword",
                 id: "longsword",
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 actionPointCost: 1,
                 minimumRange: 0,
                 maximumRange: 1,

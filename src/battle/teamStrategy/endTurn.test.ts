@@ -10,7 +10,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
 import * as mocks from "../../utils/test/mocks";
-import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
@@ -28,7 +28,7 @@ describe('end turn team strategy', () => {
                 templateId: "new_static_squaddie",
                 name: "Torrin",
                 resources: new SquaddieResource({}),
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             actions: [],

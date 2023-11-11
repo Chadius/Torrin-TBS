@@ -92,51 +92,56 @@ const traitInformation: {
     }
 }
 
-export interface TraitStatusStorageData {
+export interface TraitStatusStorage {
     booleanTraits: { [key in Trait]?: boolean };
 }
 
-export class TraitStatusStorage implements TraitStatusStorageData {
-    booleanTraits: { [key in Trait]?: boolean }
-
-    constructor({initialTraitValues, data}: {
-        initialTraitValues?: { [key in Trait]?: boolean },
-        data?: TraitStatusStorageData
-    }) {
-        if (data) {
-            this.booleanTraits = data.booleanTraits;
-            return;
+export const TraitStatusStorageHelper = {
+    newUsingTraitValues: (initialTraitValues?: { [key in Trait]?: boolean }): TraitStatusStorage => {
+        const newStorage: TraitStatusStorage = {
+            booleanTraits: {}
+        };
+        if (initialTraitValues === undefined) {
+            return newStorage;
         }
 
-        this.booleanTraits = {};
-
-        if (initialTraitValues) {
-            Object.entries(initialTraitValues).forEach(([traitName, value]) => {
-                const trait: Trait = Trait[traitName as keyof typeof Trait];
-                if (trait && trait !== Trait.UNKNOWN) {
-                    this.setStatus(trait, value);
-                }
-            })
-        }
-    }
-
-    setStatus(trait: Trait, value: boolean): void {
-        this.booleanTraits[trait] = value;
-    }
-
-    getStatus(trait: Trait): any {
-        return this.booleanTraits[trait];
-    }
-
-    filterCategory(category: TraitCategory): TraitStatusStorage {
-        this.booleanTraits = Object.fromEntries(
-            Object.keys(this.booleanTraits)
-                .filter((traitName: Trait) =>
-                    traitInformation[traitName].categories.includes(category)
-                )
-                .map((traitName: Trait) => [traitName, this.booleanTraits[traitName]])
-        )
-
-        return this;
+        Object.entries(initialTraitValues).forEach(([traitName, value]) => {
+            const trait: Trait = Trait[traitName as keyof typeof Trait];
+            if (trait && trait !== Trait.UNKNOWN) {
+                setStatus(newStorage, trait, value);
+            }
+        })
+        return newStorage;
+    },
+    clone: (original: TraitStatusStorage): TraitStatusStorage => {
+        return clone(original);
+    },
+    getStatus: (data: TraitStatusStorage, trait: Trait): boolean => {
+        return data.booleanTraits[trait];
+    },
+    setStatus: (data: TraitStatusStorage, trait: Trait, value: boolean): void => {
+        setStatus(data, trait, value);
+    },
+    filterCategory(data: TraitStatusStorage, category: TraitCategory): TraitStatusStorage {
+        return clone({
+            ...data,
+            booleanTraits: Object.fromEntries(
+                Object.keys(data.booleanTraits)
+                    .filter((traitName: Trait) =>
+                        traitInformation[traitName].categories.includes(category)
+                    )
+                    .map((traitName: Trait) => [traitName, data.booleanTraits[traitName]])
+            )
+        });
     }
 }
+
+const setStatus = (data: TraitStatusStorage, trait: Trait, value: boolean): void => {
+    data.booleanTraits[trait] = value;
+};
+
+const clone = (original: TraitStatusStorage): TraitStatusStorage => {
+    return {
+        booleanTraits: {...original.booleanTraits}
+    };
+};

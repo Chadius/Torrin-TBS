@@ -4,7 +4,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -91,12 +91,11 @@ describe('calculator', () => {
             actionDealsBodyDamage = SquaddieActionHandler.new({
                 id: "deal body damage",
                 name: "deal body damage",
-                traits: new TraitStatusStorage({
-                    initialTraitValues: {
+                traits: TraitStatusStorageHelper.newUsingTraitValues({
                         [Trait.ATTACK]: true,
                         [Trait.ALWAYS_HITS]: true,
                     }
-                }),
+                ),
                 minimumRange: 0,
                 maximumRange: 9001,
                 damageDescriptions: {[DamageType.Body]: 2}
@@ -104,12 +103,12 @@ describe('calculator', () => {
             healsLostHitPoints = SquaddieActionHandler.new({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
-                traits: new TraitStatusStorage({
-                    initialTraitValues: {
+                traits: TraitStatusStorageHelper.newUsingTraitValues(
+                    {
                         [Trait.HEALING]: true,
                         [Trait.ALWAYS_HITS]: true,
                     }
-                }),
+                ),
                 minimumRange: 0,
                 maximumRange: 9001,
                 healingDescriptions: {[HealingType.LostHitPoints]: 2},

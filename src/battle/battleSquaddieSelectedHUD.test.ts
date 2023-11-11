@@ -11,7 +11,6 @@ import {TargetingShape} from "./targeting/targetingShapeGenerator";
 import {SquaddieEndTurnAction} from "./history/squaddieEndTurnAction";
 import {RectArea} from "../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../utils/ResultOrError";
-import {TraitStatusStorage} from "../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../utils/test/squaddie";
 import {BattleCamera} from "./battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
@@ -25,6 +24,7 @@ import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
 import {BattlePhase} from "./orchestratorComponents/battlePhaseTracker";
 import {SquaddieActionType} from "./history/anySquaddieAction";
+import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -66,7 +66,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         longswordAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage({}),
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -280,7 +280,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         notEnoughActionPointsAction = SquaddieActionHandler.new({
                 name: "not enough actions",
                 id: "not enough actions",
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 actionPointCost: 9001,
                 minimumRange: 0,
                 maximumRange: 1,
@@ -332,7 +332,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     currentlySelectedAction: SquaddieActionHandler.new({
                         name: "purifying stream",
                         id: "purifying_stream",
-                        traits: new TraitStatusStorage({}),
+                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     }),
                     squaddieActionsForThisRound: {
                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,

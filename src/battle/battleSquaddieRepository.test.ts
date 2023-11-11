@@ -1,6 +1,6 @@
 import {BattleSquaddie} from "./battleSquaddie";
 import {SquaddieId} from "../squaddie/id";
-import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 import {SquaddieTurn, SquaddieTurnHandler} from "../squaddie/turn";
@@ -22,18 +22,18 @@ describe('BattleSquaddieRepository', () => {
                 armorClass: 0,
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
-                    traits: new TraitStatusStorage({
-                        initialTraitValues: {
+                    traits: {
+                        booleanTraits: {
                             [Trait.PASS_THROUGH_WALLS]: true,
                         }
-                    }).filterCategory(TraitCategory.MOVEMENT)
+                    }
                 }),
             },
             squaddieId: new SquaddieId({
                 templateId: "player_young_torrin",
                 name: "Torrin",
                 resources: new SquaddieResource({}),
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             }),
             actions: [],

@@ -2,7 +2,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
@@ -61,12 +61,11 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         longswordAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
+            traits: TraitStatusStorageHelper.newUsingTraitValues(
+                {
                     [Trait.ATTACK]: true,
                     [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+                }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 1,

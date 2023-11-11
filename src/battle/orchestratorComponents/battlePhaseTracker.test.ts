@@ -5,7 +5,7 @@ import {SquaddieId} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
-import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieResource} from "../../squaddie/resource";
 import {BattlePhaseState} from "./battlePhaseController";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -26,7 +26,7 @@ describe('battlePhaseTracker', () => {
                     templateId: "player_squaddie",
                     name: "Player",
                     resources: new SquaddieResource({}),
-                    traits: new TraitStatusStorage({}),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 }),
                 actions: [],
@@ -46,7 +46,7 @@ describe('battlePhaseTracker', () => {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
                     resources: new SquaddieResource({}),
-                    traits: new TraitStatusStorage({}),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 }),
                 actions: [],
@@ -66,7 +66,7 @@ describe('battlePhaseTracker', () => {
                     templateId: "ally_squaddie",
                     name: "Ally",
                     resources: new SquaddieResource({}),
-                    traits: new TraitStatusStorage({}),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ALLY,
                 }),
                 actions: [],
@@ -86,7 +86,7 @@ describe('battlePhaseTracker', () => {
                     templateId: "none_squaddie",
                     name: "None",
                     resources: new SquaddieResource({}),
-                    traits: new TraitStatusStorage({}),
+                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.NONE,
                 }),
                 actions: [],

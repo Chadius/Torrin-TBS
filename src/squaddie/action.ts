@@ -1,5 +1,5 @@
 import {assertsInteger} from "../utils/mathAssert";
-import {Trait, TraitStatusStorage, TraitStatusStorageData} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorage, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType, HealingType} from "./squaddieService";
 import {ActionRange} from "./actionRange";
@@ -9,7 +9,7 @@ export interface SquaddieAction {
     healingDescriptions: { Unknown?: number; LostHitPoints?: number };
     name: string;
     id: string;
-    traits: TraitStatusStorageData;
+    traits: TraitStatusStorage;
     actionPointCost: number;
     minimumRange: number;
     maximumRange: number;
@@ -29,7 +29,7 @@ export const SquaddieActionHandler = {
           }: {
         name?: string;
         id?: string;
-        traits?: TraitStatusStorageData;
+        traits?: TraitStatusStorage;
         actionPointCost?: number;
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
@@ -60,11 +60,9 @@ export const SquaddieActionHandler = {
         };
     },
     isHelpful: (data: SquaddieAction): boolean => {
-        const traitStatus: TraitStatusStorage = new TraitStatusStorage({data: data.traits});
-        return traitStatus.getStatus(Trait.HEALING);
+        return TraitStatusStorageHelper.getStatus(data.traits, Trait.HEALING);
     },
     isHindering: (data: SquaddieAction): boolean => {
-        const traitStatus: TraitStatusStorage = new TraitStatusStorage({data: data.traits});
-        return traitStatus.getStatus(Trait.ATTACK);
+        return TraitStatusStorageHelper.getStatus(data.traits, Trait.ATTACK);
     },
 };

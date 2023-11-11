@@ -4,7 +4,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {FindValidTargets, TargetingResults} from "./targetingService";
 
@@ -22,12 +22,10 @@ describe('Targeting Service', () => {
         longswordAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
         });
@@ -117,12 +115,10 @@ describe('Targeting Service', () => {
         let longbowAction = SquaddieActionHandler.new({
             name: "longbow",
             id: "longbow",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 2,
             maximumRange: 3,
         });
@@ -245,12 +241,10 @@ describe('Targeting Service', () => {
         let longbowAction: SquaddieAction = SquaddieActionHandler.new({
             name: "longbow",
             id: "longbow",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 3,
         });

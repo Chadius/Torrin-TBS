@@ -1,6 +1,6 @@
 import {SquaddieAction, SquaddieActionHandler} from "./action";
 import {ACTION_PERFORM_FAILURE_REASON, SquaddieTurn, SquaddieTurnHandler} from "./turn";
-import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 
 describe('Squaddie turn and resources', () => {
     describe('actions', () => {
@@ -12,7 +12,7 @@ describe('Squaddie turn and resources', () => {
                 id: "actionSpends2ActionPoints",
                 name: "Power Attack",
                 actionPointCost: 2,
-                traits: new TraitStatusStorage({initialTraitValues: {[Trait.ATTACK]: true}}).filterCategory(TraitCategory.ACTION)
+                traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
             })
         })
 
@@ -24,7 +24,7 @@ describe('Squaddie turn and resources', () => {
                 SquaddieActionHandler.new({
                     id: "strike",
                     name: "longsword",
-                    traits: new TraitStatusStorage({initialTraitValues: {[Trait.ATTACK]: true}}).filterCategory(TraitCategory.ACTION)
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
                 })
             );
             expect(turn.remainingActionPoints).toBe(2);

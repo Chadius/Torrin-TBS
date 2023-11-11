@@ -3,9 +3,9 @@ import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from ".
 import {SquaddieActionHandler} from "../../squaddie/action";
 import {SquaddieMovementAction} from "./squaddieMovementAction";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
-import {TraitStatusStorage} from "../../trait/traitStatusStorage";
 import {SquaddieActionType} from "./anySquaddieAction";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 
 const torrinInstruction: SquaddieActionsForThisRound = {
     battleSquaddieId: "Torrin 0",
@@ -17,7 +17,7 @@ const torrinInstruction: SquaddieActionsForThisRound = {
 const purifyingBlast = SquaddieActionHandler.new({
     name: "purifying stream",
     id: "purifying_stream",
-    traits: new TraitStatusStorage({}),
+    traits: TraitStatusStorageHelper.newUsingTraitValues(),
 });
 
 const purifyingBlastAction: SquaddieSquaddieAction = new SquaddieSquaddieAction({
@@ -37,7 +37,7 @@ describe('Current Squaddie Instruction', () => {
             currentlySelectedAction: {
                 name: "purifying stream",
                 id: "purifying_stream",
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 damageDescriptions: {},
                 healingDescriptions: {},
                 actionPointCost: 1,

@@ -1,14 +1,14 @@
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
-import {TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 
 describe('SquaddieAction', () => {
     it('returns the number of action points spent', () => {
         const longswordAction: SquaddieAction = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage({}),
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,

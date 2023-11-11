@@ -1,5 +1,5 @@
 import {SquaddieAction, SquaddieActionHandler} from "./action";
-import {Trait, TraitCategory, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {DamageType} from "./squaddieService";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 
@@ -38,7 +38,7 @@ describe('SquaddieAction', () => {
                 maximumRange: 2,
                 minimumRange: 3,
                 name: "non integer action cost",
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
             })
         }
 
@@ -58,7 +58,7 @@ describe('SquaddieAction', () => {
                 minimumRange: 0.2,
                 maximumRange: 3,
                 name: "non integer minimum range to spend",
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
             })
         }
 
@@ -78,7 +78,7 @@ describe('SquaddieAction', () => {
                 minimumRange: 2,
                 maximumRange: 0.3,
                 name: "non integer maximum range to spend",
-                traits: new TraitStatusStorage({}),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
             })
         }
 
@@ -94,11 +94,9 @@ describe('SquaddieAction', () => {
         const harmfulAttack = SquaddieActionHandler.new({
             name: "longsword",
             id: "longsword",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+            }),
         });
         expect(SquaddieActionHandler.isHelpful(harmfulAttack)).toBeFalsy();
         expect(SquaddieActionHandler.isHindering(harmfulAttack)).toBeTruthy();
@@ -108,11 +106,9 @@ describe('SquaddieAction', () => {
         const helpfulAttack = SquaddieActionHandler.new({
             name: "healing word",
             id: "healing",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.HEALING]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.HEALING]: true,
+            }),
         });
         expect(SquaddieActionHandler.isHelpful(helpfulAttack)).toBeTruthy();
         expect(SquaddieActionHandler.isHindering(helpfulAttack)).toBeFalsy();

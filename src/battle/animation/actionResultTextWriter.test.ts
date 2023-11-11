@@ -3,7 +3,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {FormatIntent, FormatResult} from "./actionResultTextWriter";
@@ -39,12 +39,10 @@ describe('Action Result Text Writer', () => {
         longswordSweepAction = SquaddieActionHandler.new({
             name: "Longsword Sweep",
             id: "longsword",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 1,
@@ -53,12 +51,10 @@ describe('Action Result Text Writer', () => {
         bandageWoundsAction = SquaddieActionHandler.new({
             name: "Bandage Wounds",
             id: "Bandages",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.HEALING]: true,
-                    [Trait.TARGETS_ALLIES]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.HEALING]: true,
+                [Trait.TARGETS_ALLIES]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 2,

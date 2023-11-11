@@ -1,5 +1,5 @@
 import {CreateNewSquaddieMovementWithTraits, SquaddieMovement} from "./movement";
-import {Trait, TraitStatusStorage} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 
 describe('movement for squaddies', () => {
     it('can make movement from data', () => {
@@ -17,11 +17,9 @@ describe('movement for squaddies', () => {
     it('can make movement using traits and movement speed', () => {
         const movement = CreateNewSquaddieMovementWithTraits({
             movementPerAction: 3,
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.PASS_THROUGH_WALLS]: true,
-                }
-            })
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.PASS_THROUGH_WALLS]: true,
+            }),
         });
 
         expect(movement.movementPerAction).toBe(3);

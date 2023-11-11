@@ -1,7 +1,7 @@
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -64,7 +64,7 @@ describe('move towards closest squaddie in range', () => {
                     ...{
                         movement: CreateNewSquaddieMovementWithTraits({
                             movementPerAction: 1,
-                            traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
                         })
                     }
                 }
@@ -144,7 +144,7 @@ describe('move towards closest squaddie in range', () => {
                 ...{
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 10,
-                        traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT)
+                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     })
                 }
             }

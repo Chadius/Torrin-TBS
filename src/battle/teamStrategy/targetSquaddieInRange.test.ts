@@ -4,7 +4,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
@@ -33,12 +33,10 @@ describe('target a squaddie within reach of actions', () => {
         shortBowAction = SquaddieActionHandler.new({
             name: "short bow",
             id: "short_bow",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 2,
             actionPointCost: 2,
@@ -276,12 +274,10 @@ describe('target a squaddie within reach of actions', () => {
         const longBowAction = SquaddieActionHandler.new({
             name: "long bow",
             id: "long_bow",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 2,
             actionPointCost: 2,

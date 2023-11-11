@@ -2,7 +2,7 @@ import {SquaddieId} from "../../squaddie/id";
 import {SquaddieResource} from "../../squaddie/resource";
 import {Pathfinder} from "./pathfinder";
 import {SearchParametersHelper} from "./searchParams";
-import {TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SearchResults} from "./searchResults";
 import {SearchPath} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
@@ -72,7 +72,7 @@ describe('pathfinder and squaddies', () => {
                 name: "blocker",
                 templateId: "blocker",
                 resources: new SquaddieResource({mapIconResourceKey: "map_icon_blocker"}),
-                traits: new TraitStatusStorage({}).filterCategory(TraitCategory.MOVEMENT),
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: blockingAffiliation,
             });
             missionMap.addSquaddie(blockingSquaddie.templateId, "dynamic_0", {q: 0, r: 1});

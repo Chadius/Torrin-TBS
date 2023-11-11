@@ -25,7 +25,7 @@ import {
     SquaddieInstructionInProgressHandler
 } from "../history/squaddieInstructionInProgress";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {Trait, TraitCategory, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
 import {
@@ -77,12 +77,10 @@ describe('BattleComputerSquaddieSelector', () => {
         demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 2,
@@ -94,12 +92,10 @@ describe('BattleComputerSquaddieSelector', () => {
         demonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
-                    [Trait.ATTACK]: true,
-                    [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 3,
@@ -111,12 +107,11 @@ describe('BattleComputerSquaddieSelector', () => {
         entireTurnDemonBiteAction = SquaddieActionHandler.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
+            traits: TraitStatusStorageHelper.newUsingTraitValues(
+                {
                     [Trait.ATTACK]: true,
                     [Trait.TARGET_ARMOR]: true,
-                }
-            }).filterCategory(TraitCategory.ACTION),
+                }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 3,

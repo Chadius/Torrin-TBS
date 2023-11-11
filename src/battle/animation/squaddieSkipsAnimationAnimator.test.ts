@@ -6,7 +6,7 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Recording, RecordingHandler} from "../history/recording";
 import {ANIMATE_TEXT_WINDOW_WAIT_TIME, SquaddieSkipsAnimationAnimator} from "./squaddieSkipsAnimationAnimator";
-import {Trait, TraitStatusStorage} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
@@ -46,11 +46,11 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         monkKoanAction = SquaddieActionHandler.new({
             id: "koan",
             name: "koan",
-            traits: new TraitStatusStorage({
-                initialTraitValues: {
+            traits: TraitStatusStorageHelper.newUsingTraitValues(
+                {
                     [Trait.SKIP_ANIMATION]: true
                 }
-            }),
+            ),
             maximumRange: 0,
             minimumRange: 0,
         });
