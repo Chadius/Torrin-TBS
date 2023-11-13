@@ -1,0 +1,52 @@
+{
+  "terrain": [
+    "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
+    " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
+    "  x x x x 2 2 1 1 1 1 1 2 2 1 1 1 1 ",
+    "   x x x x x x x x x x x x x x 1 1 1 ",
+    "    1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
+    "     1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
+    "      1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 ",
+    "       1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 1 ",
+    "        x x x x x x x x x x x 2 1 1 1 1 1 ",
+    "         1 1 1 1 1 1 x 2 2 2 1 1 1 1 2 2 2 ",
+    "          1 1 1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 ",
+    "           1 1 1 1 x 2 1 1 1 2 2 2 1 1 1 1 2 ",
+    "            1 1 1 x 2 1 1 1 1 O O 1 1 1 1 1 2 ",
+    "             1 1 1 x 2 1 1 1 O O O 1 1 1 1 1 2 ",
+    "              1 1 1 x 2 1 1 1 O O 1 1 1 1 1 1 2 ",
+    "               1 1 1 x 2 1 1 1 1 1 1 1 1 1 1 2 x ",
+    "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
+    "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 "
+  ],
+  "objectives": [
+    {
+      "id": "victory",
+      "reward": {
+        "rewardType": "VICTORY"
+      },
+      "hasGivenReward": false,
+      "conditions": [
+        {
+          "id": "defeat_all_enemies",
+          "type": "DEFEAT_ALL_ENEMIES"
+        }
+      ],
+      "numberOfRequiredConditionsToComplete": "all"
+    },
+    {
+      "id": "defeat",
+      "reward": {
+        "rewardType": "DEFEAT"
+      },
+      "hasGivenReward": false,
+      "conditions": [
+        {
+          "id": "defeat_all_players",
+          "type": "DEFEAT_ALL_PLAYERS"
+        }
+      ],
+      "numberOfRequiredConditionsToComplete": "all"
+    }
+  ]
+}

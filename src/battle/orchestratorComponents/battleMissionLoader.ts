@@ -29,14 +29,12 @@ import {
     DEFAULT_VICTORY_CUTSCENE_ID,
     MissionCutsceneCollection
 } from "../orchestrator/missionCutsceneCollection";
-import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {MissionRewardType} from "../missionResult/missionReward";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SplashScreen} from "../../cutscene/splashScreen";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {MissionConditionType} from "../missionResult/missionCondition";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
+import {LoadMissionFromFile, MissionFileFormat} from "../../dataLoader/missionLoader";
 
 const mapMovementAndAttackIcons: string[] = [
     "map icon move 1 action",
@@ -64,15 +62,19 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         this.finishedPreparations = false;
     }
 
-    update(state: BattleOrchestratorState) {
+    async update(state: BattleOrchestratorState) {
         if (!this.startedLoading) {
-            this.loadMap(state);
+            this.startedLoading = true;
+            await this.initializeMapFromFile(state, "0000");
             this.loadSquaddies(state);
+
 
             const cutsceneInfo = this.loadCutscenes(state);
             state.gameBoard.cutsceneTriggers = cutsceneInfo.cutsceneTriggers;
             state.gameBoard.cutsceneCollection = cutsceneInfo.cutsceneCollection;
-            state.gameBoard.objectives = this.loadObjectives(state);
+            this.addMissionCompletionStatus(state);
+
+            this.loadResources(state);
             return;
         }
         if (this.startedLoading && state.resourceHandler.areAllResourcesLoaded([
@@ -116,41 +118,6 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
     reset(state: BattleOrchestratorState) {
         this.startedLoading = false;
         this.finishedPreparations = false;
-    }
-
-    private loadMap(state: BattleOrchestratorState) {
-        const hexMap = new TerrainTileMap({
-            movementCost: [
-                "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
-                " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
-                "  x x x x 2 2 1 1 1 1 1 2 2 1 1 1 1 ",
-                "   1 1 1 x x x x x x x x x x x 1 1 1 ",
-                "    1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
-                "     1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
-                "      1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 ",
-                "       1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 1 ",
-                "        x x x x x x x x x x x 2 1 1 1 1 1 ",
-                "         1 1 1 1 1 1 x 2 2 2 1 1 1 1 2 2 2 ",
-                "          1 1 1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 ",
-                "           1 1 1 1 x 2 1 1 1 2 2 2 1 1 1 1 2 ",
-                "            1 1 1 x 2 1 1 1 1 O O 1 1 1 1 1 2 ",
-                "             1 1 1 x 2 1 1 1 O O O 1 1 1 1 1 2 ",
-                "              1 1 1 x 2 1 1 1 O O 1 1 1 1 1 1 2 ",
-                "               1 1 1 x 2 1 1 1 1 1 1 1 1 1 1 2 x ",
-                "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
-                "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 ",
-            ],
-            resourceHandler: state.resourceHandler,
-        });
-
-        state.resourceHandler.loadResources(mapMovementAndAttackIcons);
-        state.resourceHandler.loadResources(attributeIcons);
-
-        state.missionMap = new MissionMap({
-            terrainTileMap: hexMap
-        })
-
-        this.startedLoading = true;
     }
 
     private loadSquaddies(state: BattleOrchestratorState) {
@@ -765,7 +732,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         })
     }
 
-    private loadObjectives(state: BattleOrchestratorState): MissionObjective[] {
+    private addMissionCompletionStatus(state: BattleOrchestratorState): void {
         if (!state.missionCompletionStatus) {
             state.missionCompletionStatus = {
                 "victory": {
@@ -782,35 +749,28 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
                 }
             }
         }
-        return [
-            MissionObjectiveHelper.validateMissionObjective({
-                id: "victory",
-                reward: {
-                    rewardType: MissionRewardType.VICTORY,
-                },
-                hasGivenReward: false,
-                conditions: [
-                    {
-                        id: "defeat_all_enemies",
-                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                    },
-                ],
-                numberOfRequiredConditionsToComplete: "all",
-            }),
-            MissionObjectiveHelper.validateMissionObjective({
-                id: "defeat",
-                reward: {
-                    rewardType: MissionRewardType.DEFEAT,
-                },
-                hasGivenReward: false,
-                conditions: [
-                    {
-                        id: "defeat_all_players",
-                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                    },
-                ],
-                numberOfRequiredConditionsToComplete: "all",
-            })
-        ]
+    }
+
+    private async initializeMapFromFile(state: BattleOrchestratorState, missionId: string) {
+        const missionData: MissionFileFormat = await LoadMissionFromFile(missionId);
+
+        const hexMap = new TerrainTileMap({
+            movementCost: missionData.terrain,
+            resourceHandler: state.resourceHandler,
+        });
+
+        state.resourceHandler.loadResources(mapMovementAndAttackIcons);
+        state.resourceHandler.loadResources(attributeIcons);
+
+        state.missionMap = new MissionMap({
+            terrainTileMap: hexMap
+        });
+
+        state.gameBoard.objectives = missionData.objectives;
+    }
+
+    private loadResources(state: BattleOrchestratorState) {
+        state.resourceHandler.loadResources(mapMovementAndAttackIcons);
+        state.resourceHandler.loadResources(attributeIcons);
     }
 }
