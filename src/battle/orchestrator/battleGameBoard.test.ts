@@ -1,5 +1,5 @@
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleGameBoard} from "./battleGameBoard";
 import {MissionConditionType} from "../missionResult/missionCondition";
 
@@ -30,9 +30,9 @@ describe('Battle Game Board', () => {
             MissionObjectiveHelper.validateMissionObjective({
                 id: "test",
                 hasGivenReward: false,
-                reward: new MissionReward({
+                reward: {
                     rewardType: MissionRewardType.VICTORY,
-                }),
+                },
                 conditions: [
                     {
                         id: "test",

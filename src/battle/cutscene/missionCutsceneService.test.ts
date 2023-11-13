@@ -7,7 +7,7 @@ import {
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {MissionRewardType} from "../missionResult/missionReward";
 import {MissionDefeatCutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {BattleCompletionStatus} from "../orchestrator/battleGameBoard";
 import {MissionVictoryCutsceneTrigger} from "./missionVictoryCutsceneTrigger";
@@ -55,7 +55,7 @@ describe('Mission Cutscene Service', () => {
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
-                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    reward: {rewardType: MissionRewardType.VICTORY},
                     numberOfRequiredConditionsToComplete: 1,
                     hasGivenReward: false,
                     conditions: [
@@ -87,7 +87,7 @@ describe('Mission Cutscene Service', () => {
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
-                    reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                    reward: {rewardType: MissionRewardType.DEFEAT},
                     numberOfRequiredConditionsToComplete: 1,
                     hasGivenReward: false,
                     conditions: [{
@@ -112,7 +112,7 @@ describe('Mission Cutscene Service', () => {
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
-                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    reward: {rewardType: MissionRewardType.VICTORY},
                     numberOfRequiredConditionsToComplete: 1,
                     hasGivenReward: false,
                     conditions: [{
@@ -122,7 +122,7 @@ describe('Mission Cutscene Service', () => {
                 }),
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test1",
-                    reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                    reward: {rewardType: MissionRewardType.DEFEAT},
                     numberOfRequiredConditionsToComplete: 1,
                     hasGivenReward: false,
                     conditions: [{

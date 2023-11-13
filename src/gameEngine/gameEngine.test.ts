@@ -13,7 +13,7 @@ import {BattleCamera} from "../battle/battleCamera";
 import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
 import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
 import {MissionObjectiveHelper} from "../battle/missionResult/missionObjective";
-import {MissionReward, MissionRewardType} from "../battle/missionResult/missionReward";
+import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
@@ -188,7 +188,7 @@ describe('Game Engine', () => {
             newGameEngine.battleOrchestratorState.gameBoard.objectives = [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
-                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    reward: {rewardType: MissionRewardType.VICTORY},
                     numberOfRequiredConditionsToComplete: 1,
                     hasGivenReward: false,
                     conditions: [
@@ -231,7 +231,7 @@ describe('Game Engine', () => {
                 objectives: [
                     MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
-                        reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        reward: {rewardType: MissionRewardType.VICTORY},
                         hasGivenReward: false,
                         numberOfRequiredConditionsToComplete: 1,
                         conditions: [

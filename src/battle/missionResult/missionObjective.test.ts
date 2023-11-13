@@ -1,7 +1,7 @@
 import * as mc from "./missionCondition";
 import {MissionCondition, MissionConditionType} from "./missionCondition";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {MissionReward, MissionRewardType} from "./missionReward";
+import {MissionRewardType} from "./missionReward";
 import {MissionObjectiveHelper} from "./missionObjective";
 
 describe('Mission Objective', () => {
@@ -16,7 +16,7 @@ describe('Mission Objective', () => {
     it('is complete when some of the conditions are complete', () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+            reward: {rewardType: MissionRewardType.VICTORY},
             hasGivenReward: false,
             conditions: [
                 {
@@ -67,7 +67,7 @@ describe('Mission Objective', () => {
     it('is can use ALL to indicate all conditions need to be complete', () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+            reward: {rewardType: MissionRewardType.VICTORY},
             hasGivenReward: false,
             conditions: [
                 {
@@ -128,7 +128,7 @@ describe('Mission Objective', () => {
     it('will default to all conditions required when an amount is not given', () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+            reward: {rewardType: MissionRewardType.VICTORY},
             numberOfRequiredConditionsToComplete: "ALL",
             hasGivenReward: false,
             conditions: [
@@ -180,7 +180,7 @@ describe('Mission Objective', () => {
     it('is complete if it was already completed', () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+            reward: {rewardType: MissionRewardType.VICTORY},
             hasGivenReward: false,
             conditions: [
                 {
@@ -222,7 +222,7 @@ describe('Mission Objective', () => {
     it('knows if it gave a reward', () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+            reward: {rewardType: MissionRewardType.VICTORY},
             numberOfRequiredConditionsToComplete: 0,
             hasGivenReward: false,
             conditions: [],
@@ -236,7 +236,7 @@ describe('Mission Objective', () => {
     it('is complete if there are no conditions', () => {
         const objective = MissionObjectiveHelper.validateMissionObjective({
             id: "test objective",
-            reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+            reward: {rewardType: MissionRewardType.VICTORY},
             hasGivenReward: false,
             numberOfRequiredConditionsToComplete: 0,
             conditions: [],

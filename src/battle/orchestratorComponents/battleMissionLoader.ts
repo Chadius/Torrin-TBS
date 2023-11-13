@@ -30,7 +30,7 @@ import {
     MissionCutsceneCollection
 } from "../orchestrator/missionCutsceneCollection";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {MissionRewardType} from "../missionResult/missionReward";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SplashScreen} from "../../cutscene/splashScreen";
@@ -785,9 +785,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
         return [
             MissionObjectiveHelper.validateMissionObjective({
                 id: "victory",
-                reward: new MissionReward({
+                reward: {
                     rewardType: MissionRewardType.VICTORY,
-                }),
+                },
                 hasGivenReward: false,
                 conditions: [
                     {
@@ -799,9 +799,9 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             }),
             MissionObjectiveHelper.validateMissionObjective({
                 id: "defeat",
-                reward: new MissionReward({
+                reward: {
                     rewardType: MissionRewardType.DEFEAT,
-                }),
+                },
                 hasGivenReward: false,
                 conditions: [
                     {

@@ -5,7 +5,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {MissionRewardType} from "../missionResult/missionReward";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
@@ -108,7 +108,7 @@ describe('orchestratorState', () => {
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "mission objective id",
-                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    reward: {rewardType: MissionRewardType.VICTORY},
                     hasGivenReward: false,
                     conditions: [
                         {
@@ -146,7 +146,7 @@ describe('orchestratorState', () => {
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "mission objective id",
-                    reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    reward: {rewardType: MissionRewardType.VICTORY},
                     hasGivenReward: false,
                     conditions: [
                         {

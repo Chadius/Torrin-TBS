@@ -30,7 +30,7 @@ import {
 } from "./missionCutsceneCollection";
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
-import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
+import {MissionRewardType} from "../missionResult/missionReward";
 import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
@@ -522,7 +522,7 @@ describe('Battle Orchestrator', () => {
                 objectives: [
                     MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
-                        reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        reward: {rewardType: MissionRewardType.VICTORY},
                         numberOfRequiredConditionsToComplete: 1,
                         hasGivenReward: false,
                         conditions: [
@@ -554,7 +554,7 @@ describe('Battle Orchestrator', () => {
                 objectives: [
                     MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
-                        reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                        reward: {rewardType: MissionRewardType.DEFEAT},
                         numberOfRequiredConditionsToComplete: 1,
                         hasGivenReward: false,
                         conditions: [{
@@ -584,7 +584,7 @@ describe('Battle Orchestrator', () => {
                 objectives: [
                     MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
-                        reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        reward: {rewardType: MissionRewardType.VICTORY},
                         numberOfRequiredConditionsToComplete: 1,
                         hasGivenReward: false,
                         conditions: [{
@@ -594,7 +594,7 @@ describe('Battle Orchestrator', () => {
                     }),
                     MissionObjectiveHelper.validateMissionObjective({
                         id: "test1",
-                        reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                        reward: {rewardType: MissionRewardType.DEFEAT},
                         numberOfRequiredConditionsToComplete: 1,
                         hasGivenReward: false,
                         conditions: [{
