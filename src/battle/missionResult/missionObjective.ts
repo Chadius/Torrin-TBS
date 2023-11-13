@@ -3,81 +3,40 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {MissionCondition, MissionShouldBeComplete} from "./missionCondition";
 import {MissionCompletionStatus} from "./missionCompletionStatus";
 
-export class MissionObjective {
-    private readonly _reward: MissionReward;
-    private readonly _conditions: MissionCondition[];
-    private readonly _id: string;
+export interface MissionObjective {
+    reward: MissionReward;
+    conditions: MissionCondition[],
+    numberOfRequiredConditionsToComplete: number | "all" | "ALL",
+    id: string,
+    hasGivenReward: boolean,
+}
 
-    constructor({id, reward, conditions, numberOfCompletedConditions}: {
-        reward: MissionReward;
-        conditions: MissionCondition[],
-        numberOfCompletedConditions?: number | "all" | "ALL",
-        id: string,
-    }) {
-        this._id = id;
-        this._reward = reward;
-        this._conditions = conditions;
-        this.constructNumberOfCompletedConditions(numberOfCompletedConditions);
-    }
+export const MissionObjectiveHelper = {
+    validateMissionObjective: (objective: MissionObjective): MissionObjective => {
+        if (Number.isInteger(objective.numberOfRequiredConditionsToComplete)) {
+            objective.numberOfRequiredConditionsToComplete = Number(objective.numberOfRequiredConditionsToComplete);
+        } else {
+            objective.numberOfRequiredConditionsToComplete = objective.conditions.length;
+        }
 
-    get id(): string {
-        return this._id;
-    }
-
-    private _allConditionsAreRequiredToCompleteObjective: boolean;
-
-    get allConditionsAreRequiredToCompleteObjective(): boolean {
-        return this._allConditionsAreRequiredToCompleteObjective;
-    }
-
-    private _hasGivenReward: boolean;
-
-    get hasGivenReward(): boolean {
-        return this._hasGivenReward;
-    }
-
-    set hasGivenReward(value: boolean) {
-        this._hasGivenReward = value;
-    }
-
-    private _numberOfRequiredConditionsToComplete: number;
-
-    get numberOfRequiredConditionsToComplete(): number {
-        return this._numberOfRequiredConditionsToComplete;
-    }
-
-    get reward(): MissionReward {
-        return this._reward;
-    }
-
-    get conditions(): MissionCondition[] {
-        return this._conditions;
-    }
-
-    shouldBeComplete(state: BattleOrchestratorState): boolean {
+        if (objective.numberOfRequiredConditionsToComplete > objective.conditions.length) {
+            objective.numberOfRequiredConditionsToComplete = objective.conditions.length;
+        }
+        return objective;
+    },
+    allConditionsAreRequiredToCompleteObjective: (objective: MissionObjective): boolean => {
+        return objective.numberOfRequiredConditionsToComplete === objective.conditions.length;
+    },
+    shouldBeComplete: (objective: MissionObjective, state: BattleOrchestratorState): boolean => {
         const missionCompletionStatus: MissionCompletionStatus = state.missionCompletionStatus;
 
-        if (missionCompletionStatus[this.id].isComplete !== undefined) {
-            return missionCompletionStatus[this.id].isComplete;
+        if (missionCompletionStatus[objective.id].isComplete !== undefined) {
+            return missionCompletionStatus[objective.id].isComplete;
         }
-        const completeConditions = this.conditions.filter((condition: MissionCondition) => {
-            return MissionShouldBeComplete(condition, state, this.id);
+        const completeConditions = objective.conditions.filter((condition: MissionCondition) => {
+            return MissionShouldBeComplete(condition, state, objective.id);
         });
-        return completeConditions.length >= this.numberOfRequiredConditionsToComplete;
-    }
-
-    private constructNumberOfCompletedConditions(numberOfCompletedConditions: number | "all" | "ALL") {
-        if (Number.isInteger(numberOfCompletedConditions)) {
-            this._numberOfRequiredConditionsToComplete = Number(numberOfCompletedConditions);
-        } else {
-            this._numberOfRequiredConditionsToComplete = this.conditions.length;
-        }
-
-        if (this._numberOfRequiredConditionsToComplete > this.conditions.length) {
-            this._numberOfRequiredConditionsToComplete = this.conditions.length;
-        }
-        if (this._numberOfRequiredConditionsToComplete === this.conditions.length) {
-            this._allConditionsAreRequiredToCompleteObjective = true;
-        }
+        return completeConditions.length >= objective.numberOfRequiredConditionsToComplete;
     }
 }
+

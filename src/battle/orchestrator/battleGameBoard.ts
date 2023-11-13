@@ -1,4 +1,4 @@
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
@@ -76,10 +76,12 @@ export class BattleGameBoard {
         }
 
         this._objectives = [
-            new MissionObjective({
+            MissionObjectiveHelper.validateMissionObjective({
                 id: "default",
                 reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
                 conditions: [],
+                hasGivenReward: false,
+                numberOfRequiredConditionsToComplete: 0,
             })
         ];
     }

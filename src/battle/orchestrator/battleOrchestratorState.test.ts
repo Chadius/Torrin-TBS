@@ -4,7 +4,7 @@ import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionConditionType} from "../missionResult/missionCondition";
@@ -106,16 +106,17 @@ describe('orchestratorState', () => {
         args = {
             ...args,
             objectives: [
-                new MissionObjective({
+                MissionObjectiveHelper.validateMissionObjective({
                     id: "mission objective id",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    hasGivenReward: false,
                     conditions: [
                         {
                             type: MissionConditionType.DEFEAT_ALL_ENEMIES,
                             id: "defeat all enemies",
                         }
                     ],
-                    numberOfCompletedConditions: 1,
+                    numberOfRequiredConditionsToComplete: 1,
                 })
             ],
         }
@@ -143,16 +144,17 @@ describe('orchestratorState', () => {
                 },
             },
             objectives: [
-                new MissionObjective({
+                MissionObjectiveHelper.validateMissionObjective({
                     id: "mission objective id",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    hasGivenReward: false,
                     conditions: [
                         {
                             type: MissionConditionType.DEFEAT_ALL_ENEMIES,
                             id: "defeat all enemies",
                         }
                     ],
-                    numberOfCompletedConditions: 1,
+                    numberOfRequiredConditionsToComplete: 1,
                 })
             ],
             missionCompletionStatus: {},

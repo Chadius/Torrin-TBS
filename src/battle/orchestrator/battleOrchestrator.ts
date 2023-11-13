@@ -24,7 +24,7 @@ import {GameEngineComponentState} from "../../gameEngine/gameEngine";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleCompletionStatus} from "./battleGameBoard";
 import {GameModeEnum} from "../../utils/startupConfig";
@@ -342,14 +342,14 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     private checkMissionCompleteStatus(state: BattleOrchestratorState): BattleCompletionStatus {
         const defeatObjectives = state.objectives.find((objective: MissionObjective) =>
-            objective.reward.rewardType === MissionRewardType.DEFEAT && objective.shouldBeComplete(state) && !objective.hasGivenReward
+            objective.reward.rewardType === MissionRewardType.DEFEAT && MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
         if (defeatObjectives) {
             return BattleCompletionStatus.DEFEAT;
         }
 
         const victoryObjectives = state.objectives.find((objective: MissionObjective) =>
-            objective.reward.rewardType === MissionRewardType.VICTORY && objective.shouldBeComplete(state) && !objective.hasGivenReward
+            objective.reward.rewardType === MissionRewardType.VICTORY && MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
         if (victoryObjectives) {
             return BattleCompletionStatus.VICTORY;

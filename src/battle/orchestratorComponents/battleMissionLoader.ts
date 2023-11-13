@@ -29,7 +29,7 @@ import {
     DEFAULT_VICTORY_CUTSCENE_ID,
     MissionCutsceneCollection
 } from "../orchestrator/missionCutsceneCollection";
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
@@ -783,31 +783,33 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             }
         }
         return [
-            new MissionObjective({
+            MissionObjectiveHelper.validateMissionObjective({
                 id: "victory",
                 reward: new MissionReward({
                     rewardType: MissionRewardType.VICTORY,
                 }),
+                hasGivenReward: false,
                 conditions: [
                     {
                         id: "defeat_all_enemies",
                         type: MissionConditionType.DEFEAT_ALL_ENEMIES,
                     },
                 ],
-                numberOfCompletedConditions: "all",
+                numberOfRequiredConditionsToComplete: "all",
             }),
-            new MissionObjective({
+            MissionObjectiveHelper.validateMissionObjective({
                 id: "defeat",
                 reward: new MissionReward({
                     rewardType: MissionRewardType.DEFEAT,
                 }),
+                hasGivenReward: false,
                 conditions: [
                     {
                         id: "defeat_all_players",
                         type: MissionConditionType.DEFEAT_ALL_PLAYERS,
                     },
                 ],
-                numberOfCompletedConditions: "all",
+                numberOfRequiredConditionsToComplete: "all",
             })
         ]
     }

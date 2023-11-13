@@ -1,4 +1,4 @@
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {BattleGameBoard} from "./battleGameBoard";
 import {MissionConditionType} from "../missionResult/missionCondition";
@@ -27,8 +27,9 @@ describe('Battle Game Board', () => {
             missionCompletionStatus: {},
         });
         gameBoard.objectives = [
-            new MissionObjective({
+            MissionObjectiveHelper.validateMissionObjective({
                 id: "test",
+                hasGivenReward: false,
                 reward: new MissionReward({
                     rewardType: MissionRewardType.VICTORY,
                 }),
@@ -38,7 +39,7 @@ describe('Battle Game Board', () => {
                         type: MissionConditionType.DEFEAT_ALL_ENEMIES,
                     },
                 ],
-                numberOfCompletedConditions: "all",
+                numberOfRequiredConditionsToComplete: "all",
             })
         ];
 

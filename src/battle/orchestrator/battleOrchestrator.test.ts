@@ -20,7 +20,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {MouseButton} from "../../utils/mouseConfig";
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {Cutscene} from "../../cutscene/cutscene";
 import {BattleCompletionStatus} from "./battleGameBoard";
 import {
@@ -397,7 +397,7 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will move from squaddie move mode to phase controller mode', () => {
-        jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(false);
+        jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(false);
 
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.SQUADDIE_MOVER,
@@ -520,9 +520,11 @@ describe('Battle Orchestrator', () => {
                 }),
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
-                    new MissionObjective({
+                    MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
                         reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
                         conditions: [
                             {
                                 id: "test",
@@ -550,9 +552,11 @@ describe('Battle Orchestrator', () => {
                 }),
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
-                    new MissionObjective({
+                    MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
                         reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
                         conditions: [{
                             id: "test",
                             type: MissionConditionType.DEFEAT_ALL_PLAYERS,
@@ -578,17 +582,21 @@ describe('Battle Orchestrator', () => {
                 }),
                 battleSquaddieSelectedHUD: mockHud,
                 objectives: [
-                    new MissionObjective({
+                    MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
                         reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
                         conditions: [{
                             id: "test",
                             type: MissionConditionType.DEFEAT_ALL_ENEMIES,
                         }],
                     }),
-                    new MissionObjective({
+                    MissionObjectiveHelper.validateMissionObjective({
                         id: "test1",
                         reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
                         conditions: [{
                             id: "test",
                             type: MissionConditionType.DEFEAT_ALL_PLAYERS,
@@ -616,7 +624,7 @@ describe('Battle Orchestrator', () => {
                 cutscenePlayer,
             });
 
-            missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
+            missionObjectiveCompleteCheck = jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(true);
         });
 
         it('will check for victory conditions once the squaddie finishes moving', () => {
@@ -732,7 +740,7 @@ describe('Battle Orchestrator', () => {
     });
 
     it('will move from squaddie map action mode to phase controller mode', () => {
-        jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(false);
+        jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(false);
 
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,

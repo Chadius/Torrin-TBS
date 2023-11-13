@@ -12,7 +12,7 @@ import {BattleSaveState, BattleSaveStateHandler, DefaultBattleSaveState} from ".
 import {BattleCamera} from "../battle/battleCamera";
 import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
 import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
-import {MissionObjective} from "../battle/missionResult/missionObjective";
+import {MissionObjectiveHelper} from "../battle/missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
 import {ResourceHandler} from "../resource/resourceHandler";
@@ -186,9 +186,11 @@ describe('Game Engine', () => {
             newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
             newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested = true;
             newGameEngine.battleOrchestratorState.gameBoard.objectives = [
-                new MissionObjective({
+                MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    numberOfRequiredConditionsToComplete: 1,
+                    hasGivenReward: false,
                     conditions: [
                         {
                             id: "test",
@@ -227,9 +229,11 @@ describe('Game Engine', () => {
                     timeElapsedInMilliseconds: 9001,
                 },
                 objectives: [
-                    new MissionObjective({
+                    MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
                         reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                        hasGivenReward: false,
+                        numberOfRequiredConditionsToComplete: 1,
                         conditions: [
                             {
                                 id: "test",

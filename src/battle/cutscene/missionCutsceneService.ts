@@ -1,6 +1,6 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {MissionStartOfPhaseCutsceneTrigger} from "./missionStartOfPhaseCutsceneTrigger";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
@@ -57,7 +57,7 @@ export const GetCutsceneTriggersToActivate = (
 
     if (squaddieActionCompleteModes.includes(battleOrchestratorModeThatJustCompleted)) {
         const completedObjectives = state.objectives.filter((objective: MissionObjective) =>
-            objective.shouldBeComplete(state) && !objective.hasGivenReward
+            MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
 
         const victoryObjective = getMissionObjectivesByRewardType(completedObjectives, MissionRewardType.VICTORY);

@@ -6,7 +6,7 @@ import {
 } from "../orchestrator/missionCutsceneCollection";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionReward, MissionRewardType} from "../missionResult/missionReward";
 import {MissionDefeatCutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {BattleCompletionStatus} from "../orchestrator/battleGameBoard";
@@ -53,9 +53,11 @@ describe('Mission Cutscene Service', () => {
                 }),
             }),
             objectives: [
-                new MissionObjective({
+                MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    numberOfRequiredConditionsToComplete: 1,
+                    hasGivenReward: false,
                     conditions: [
                         {
                             id: "test",
@@ -83,9 +85,11 @@ describe('Mission Cutscene Service', () => {
                 }),
             }),
             objectives: [
-                new MissionObjective({
+                MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
                     reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                    numberOfRequiredConditionsToComplete: 1,
+                    hasGivenReward: false,
                     conditions: [{
                         id: "test",
                         type: MissionConditionType.DEFEAT_ALL_PLAYERS,
@@ -106,17 +110,21 @@ describe('Mission Cutscene Service', () => {
                 }),
             }),
             objectives: [
-                new MissionObjective({
+                MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
                     reward: new MissionReward({rewardType: MissionRewardType.VICTORY}),
+                    numberOfRequiredConditionsToComplete: 1,
+                    hasGivenReward: false,
                     conditions: [{
                         id: "test",
                         type: MissionConditionType.DEFEAT_ALL_ENEMIES,
                     }],
                 }),
-                new MissionObjective({
+                MissionObjectiveHelper.validateMissionObjective({
                     id: "test1",
                     reward: new MissionReward({rewardType: MissionRewardType.DEFEAT}),
+                    numberOfRequiredConditionsToComplete: 1,
+                    hasGivenReward: false,
                     conditions: [{
                         id: "test",
                         type: MissionConditionType.DEFEAT_ALL_PLAYERS,
@@ -160,7 +168,7 @@ describe('Mission Cutscene Service', () => {
         ]
 
         it.each(modes)(`mode $mode will look for victory conditions`, ({mode}) => {
-            const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
+            const missionObjectiveCompleteCheck = jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(true);
             expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
             const info = GetCutsceneTriggersToActivate(victoryState, mode);
@@ -187,7 +195,7 @@ describe('Mission Cutscene Service', () => {
     });
 
     it('will check for defeat conditions once the squaddie finishes moving', () => {
-        const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
+        const missionObjectiveCompleteCheck = jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(true);
         expect(defeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
         const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
@@ -198,7 +206,7 @@ describe('Mission Cutscene Service', () => {
     });
 
     it('if you trigger victory and defeat, defeat takes precedence', () => {
-        const missionObjectiveCompleteCheck = jest.spyOn(MissionObjective.prototype, "shouldBeComplete").mockReturnValue(true);
+        const missionObjectiveCompleteCheck = jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(true);
         expect(victoryAndDefeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
         const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
