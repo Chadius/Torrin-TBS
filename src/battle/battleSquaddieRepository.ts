@@ -1,12 +1,15 @@
 import {BattleSquaddie} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {ImageUI} from "../ui/imageUI";
 
 export class BattleSquaddieRepository {
+    imageUIByBattleSquaddieId: {
+        [id: string]: ImageUI;
+    }
     private squaddieTemplates: {
         [id: string]: SquaddieTemplate;
     }
-
     private battleSquaddies: {
         [id: string]: BattleSquaddie;
     }
@@ -91,5 +94,6 @@ export class BattleSquaddieRepository {
     reset() {
         this.battleSquaddies = {};
         this.squaddieTemplates = {};
+        this.imageUIByBattleSquaddieId = {};
     }
 }

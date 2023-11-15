@@ -1,4 +1,3 @@
-import {ImageUI} from "../ui/imageUI";
 import {SquaddieTurn, SquaddieTurnHandler} from "../squaddie/turn";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
@@ -11,7 +10,6 @@ export class BattleSquaddie {
 
     constructor({
                     battleSquaddieId,
-                    mapIcon,
                     squaddieTurn,
                     squaddieTemplate,
                     squaddieTemplateId,
@@ -21,7 +19,6 @@ export class BattleSquaddie {
         squaddieTemplate?: SquaddieTemplate,
         battleSquaddieId: string,
         squaddieTurn?: SquaddieTurn,
-        mapIcon?: ImageUI,
         inBattleAttributes?: InBattleAttributes,
     }) {
         this._battleSquaddieId = battleSquaddieId;
@@ -38,7 +35,6 @@ export class BattleSquaddie {
         }
 
         this.squaddieTurn = squaddieTurn || {remainingActionPoints: 3};
-        this._mapIcon = mapIcon;
 
         this.assertBattleSquaddie();
     }
@@ -51,16 +47,6 @@ export class BattleSquaddie {
 
     get battleSquaddieId(): string {
         return this._battleSquaddieId;
-    }
-
-    private _mapIcon?: ImageUI;
-
-    get mapIcon(): ImageUI {
-        return this._mapIcon;
-    }
-
-    set mapIcon(value: ImageUI) {
-        this._mapIcon = value;
     }
 
     assertBattleSquaddie(): void {

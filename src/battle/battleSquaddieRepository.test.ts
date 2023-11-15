@@ -190,7 +190,6 @@ describe('BattleSquaddieRepository', () => {
                 squaddieTemplateId: battleSquaddieBase.squaddieTemplateId,
                 squaddieTurn: turnEnded,
                 squaddieTemplate: squaddieTemplateBase,
-                mapIcon: battleSquaddieBase.mapIcon,
             })
         );
 
@@ -213,7 +212,6 @@ describe('BattleSquaddieRepository', () => {
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: "does not exist",
                 squaddieTurn: {remainingActionPoints: 3},
-                mapIcon: battleSquaddieBase.mapIcon,
             });
 
             squaddieRepo.updateBattleSquaddie(

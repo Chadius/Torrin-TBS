@@ -112,9 +112,10 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
         ));
 
-        moveSquaddieAlongPath(battleSquaddie, this.animationStartTime, state.squaddieMovePath, state.camera);
-        if (battleSquaddie.mapIcon) {
-            battleSquaddie.mapIcon.draw(graphicsContext);
+        moveSquaddieAlongPath(state.squaddieRepository, battleSquaddie, this.animationStartTime, state.squaddieMovePath, state.camera);
+        const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
+        if (mapIcon) {
+            mapIcon.draw(graphicsContext);
         }
     }
 
@@ -132,10 +133,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             spendSquaddieActionPoints(battleSquaddie, (mostRecentAction.data as SquaddieSquaddieActionData).numberOfActionPointsSpent);
         }
 
-        if (battleSquaddie.mapIcon) {
-            updateSquaddieIconLocation(battleSquaddie, state.squaddieMovePath.getDestination(), state.camera);
-            TintSquaddieIfTurnIsComplete(battleSquaddie, squaddieTemplate);
-            battleSquaddie.mapIcon.draw(graphicsContext);
+        const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
+        if (mapIcon) {
+            updateSquaddieIconLocation(state.squaddieRepository, battleSquaddie, state.squaddieMovePath.getDestination(), state.camera);
+            TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
+            mapIcon.draw(graphicsContext);
         }
         state.missionMap.terrainTileMap.stopHighlightingTiles();
     }

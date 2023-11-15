@@ -447,7 +447,7 @@ export class BattleMissionLoader implements BattleOrchestratorComponent {
             const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
                 datum.mapLocation.q, datum.mapLocation.r, ...state.camera.getCoordinates())
 
-            battleSquaddie.mapIcon = new ImageUI({
+            state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddieId] = new ImageUI({
                 graphic: image,
                 area: new RectArea({
                     left: xyCoords[0],

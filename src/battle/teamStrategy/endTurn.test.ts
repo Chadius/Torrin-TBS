@@ -8,7 +8,6 @@ import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTea
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
-import * as mocks from "../../utils/test/mocks";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
@@ -46,7 +45,6 @@ describe('end turn team strategy', () => {
                 battleSquaddieId: "new_dynamic_squaddie",
                 squaddieTemplateId: "new_static_squaddie",
                 squaddieTurn: SquaddieTurnHandler.new(),
-                mapIcon: mocks.mockImageUI(),
             });
 
         squaddieRepository.addBattleSquaddie(

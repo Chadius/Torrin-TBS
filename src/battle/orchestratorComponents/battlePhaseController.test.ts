@@ -54,7 +54,6 @@ describe('BattlePhaseController', () => {
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
             squaddieTurn: SquaddieTurnHandler.new(),
-            mapIcon: mocks.mockImageUI(),
         });
 
         squaddieRepo.addSquaddieTemplate(
@@ -85,7 +84,6 @@ describe('BattlePhaseController', () => {
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
                 squaddieTurn: SquaddieTurnHandler.new(),
-                mapIcon: mocks.mockImageUI(),
             })
         );
 

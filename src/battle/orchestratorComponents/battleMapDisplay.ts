@@ -130,7 +130,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         const noSquaddieIsCurrentlyActing: boolean = state.squaddieCurrentlyActing === undefined;
         state.squaddieRepository.getBattleSquaddieIterator()
             .filter((info) =>
-                info.battleSquaddie.mapIcon
+                info.battleSquaddieId in state.squaddieRepository.imageUIByBattleSquaddieId
             )
             .forEach((info) => {
                 const {battleSquaddie, battleSquaddieId} = info;

@@ -64,7 +64,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
             if (mostRecentAction.type === SquaddieActionType.END_TURN) {
                 battleSquaddie.endTurn();
-                TintSquaddieIfTurnIsComplete(battleSquaddie, squaddieTemplate);
+                TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
             }
             this.animationCompleteStartTime = Date.now();
         }

@@ -104,7 +104,10 @@ describe('BattleMissionLoader', () => {
         it('tries to load the terrain', async () => {
             await loader.update(initialState);
             expect(missionLoadSpy).toBeCalled();
-            expect(initialState.missionMap.terrainTileMap.getDimensions()).toEqual({widthOfWidestRow: 3, numberOfRows: 2})
+            expect(initialState.missionMap.terrainTileMap.getDimensions()).toEqual({
+                widthOfWidestRow: 3,
+                numberOfRows: 2
+            })
         });
 
         it('tries to load the mission objectives', async () => {

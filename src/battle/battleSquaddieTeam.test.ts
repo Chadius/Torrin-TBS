@@ -2,7 +2,6 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {BattleSquaddie} from "./battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "./BattleSquaddieTeam";
-import * as mocks from "../utils/test/mocks";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../squaddie/armyAttributes";
@@ -50,7 +49,6 @@ describe('Battle Squaddie Team', () => {
                 battleSquaddieId: "player_young_torrin_0",
                 squaddieTemplateId: "player_young_torrin",
                 squaddieTurn: {remainingActionPoints: 3},
-                mapIcon: mocks.mockImageUI(),
             });
 
         squaddieRepository.addBattleSquaddie(
@@ -61,7 +59,6 @@ describe('Battle Squaddie Team', () => {
             battleSquaddieId: "player_young_torrin_1",
             squaddieTemplateId: "player_young_torrin",
             squaddieTurn: {remainingActionPoints: 3},
-            mapIcon: mocks.mockImageUI(),
         });
         squaddieRepository.addBattleSquaddie(
             playerBattleSquaddie1

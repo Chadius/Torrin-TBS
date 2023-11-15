@@ -6,7 +6,6 @@ import {BattleSquaddie} from "../../battle/battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
-import * as mocks from "./mocks";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
@@ -72,7 +71,6 @@ export const CreateNewSquaddieAndAddToRepository: (
         squaddieTemplateId: templateId,
         battleSquaddieId: battleId,
         squaddieTurn: SquaddieTurnHandler.new(),
-        mapIcon: mocks.mockImageUI(),
     });
     squaddieRepository.addSquaddie(squaddieTemplate, battleSquaddie);
 

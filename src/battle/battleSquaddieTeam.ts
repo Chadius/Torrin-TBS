@@ -75,7 +75,7 @@ export const BattleSquaddieTeamHelper = {
                 battleSquaddie
             } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
             battleSquaddie.beginNewRound();
-            unTintSquaddieMapIcon(squaddieTemplate, battleSquaddie);
+            unTintSquaddieMapIcon(squaddieRepository, battleSquaddie);
         }));
     }
 };

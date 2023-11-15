@@ -133,5 +133,5 @@ export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
         SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-    TintSquaddieIfTurnIsComplete(actingBattleSquaddie, actingSquaddieTemplate);
+    TintSquaddieIfTurnIsComplete(state.squaddieRepository, actingBattleSquaddie, actingSquaddieTemplate);
 }
