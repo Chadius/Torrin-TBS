@@ -130,6 +130,28 @@ describe('Resource Handler', () => {
         expect(loader.areAllResourcesLoaded(["image1"])).toBeTruthy();
         expect(loader.areAllResourcesLoaded(["image1", "image2"])).toBeFalsy();
     });
+    it('indicates when a single resource has been loaded', () => {
+        const loader = new ResourceHandler({
+            imageLoader: new StubImmediateLoader(),
+            allResources: [
+                {
+                    type: ResourceType.IMAGE,
+                    path: "path/to/image1",
+                    key: "image1",
+                },
+                {
+                    type: ResourceType.IMAGE,
+                    path: "path/to/image2",
+                    key: "image2",
+                }
+            ]
+        });
+
+        expect(loader.isResourceLoaded("image1")).toBeFalsy();
+        loader.loadResource("image1");
+        expect(loader.isResourceLoaded("image1")).toBeTruthy();
+        expect(loader.isResourceLoaded("image2")).toBeFalsy();
+    });
     it('can forget an individual resource key', () => {
         const loader = new ResourceHandler({
             imageLoader: new StubImmediateLoader(),

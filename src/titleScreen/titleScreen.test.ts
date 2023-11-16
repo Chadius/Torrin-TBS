@@ -22,7 +22,8 @@ describe('Title Screen', () => {
         jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(ScreenDimensions.SCREEN_WIDTH);
         jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(ScreenDimensions.SCREEN_HEIGHT);
         mockResourceHandler = mocks.mockResourceHandler();
-        mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+        mockResourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
+        mockResourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
         titleScreen = new TitleScreen({resourceHandler: mockResourceHandler});
         titleScreenState = titleScreen.setup();
@@ -60,10 +61,10 @@ describe('Title Screen', () => {
         expect(textSpy).toBeCalledWith("Now loading...", expect.anything(), expect.anything(), expect.anything(), expect.anything());
     });
 
-    it('will upon completion recommend the battle state', () => {
+    it('will upon completion recommend the loading battle state', () => {
         titleScreen.update(titleScreenState, mockedP5GraphicsContext);
         const recommendation = titleScreen.recommendStateChanges(titleScreenState);
-        expect(recommendation.nextMode).toBe(GameModeEnum.BATTLE);
+        expect(recommendation.nextMode).toBe(GameModeEnum.LOADING_BATTLE);
     });
 
     it('after resetting it will not immediately complete', () => {

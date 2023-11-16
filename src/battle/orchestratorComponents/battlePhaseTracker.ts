@@ -85,4 +85,3 @@ export const AdvanceToNextPhase = (startingPhaseState: BattlePhaseState, teamsBy
     }
     throw new Error("No teams are available");
 }
-

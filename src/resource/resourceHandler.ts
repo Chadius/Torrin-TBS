@@ -62,6 +62,10 @@ class p5ImageLoader implements ResourceTypeLoader {
             return;
         }
 
+        if (handler.isResourceLoaded(resourceKey)) {
+            return;
+        }
+
         const path = handler.getResourceLocator(resourceKey).path;
         const loader = this;
         this.graphicsContext.loadImage(
@@ -148,22 +152,23 @@ export class ResourceHandler {
     }
 
     areAllResourcesLoaded(keysToCheck?: string[]): boolean {
-        const resourceHandler = this;
         let keys = keysToCheck || Object.keys(this.resourcesByKey);
-        return keys.every(resourceKey => {
-            const resourceType = resourceHandler.resourcesByKey[resourceKey].type;
+        return keys.every(this.isResourceLoaded);
+    }
 
-            if (
-                resourceType === ResourceType.IMAGE
-            ) {
-                return (
-                    resourceHandler.imagesByKey[resourceKey]
-                    && resourceHandler.imagesByKey[resourceKey].image
-                );
-            }
+    isResourceLoaded = (resourceKey: string): boolean => {
+        const resourceType = this.resourcesByKey[resourceKey].type;
 
-            return false;
-        });
+        if (
+            resourceType === ResourceType.IMAGE
+        ) {
+            return (
+                this.imagesByKey[resourceKey]
+                && this.imagesByKey[resourceKey].image
+            ) !== undefined;
+        }
+
+        return false;
     }
 
     deleteResource(resourceKey: string) {

@@ -46,7 +46,6 @@ export const GetCutsceneTriggersToActivate = (
     ];
 
     const startOfPhaseModes = [
-        BattleOrchestratorMode.LOADING_MISSION,
         BattleOrchestratorMode.PHASE_CONTROLLER,
     ];
 

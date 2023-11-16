@@ -1,4 +1,3 @@
-import {BattleMissionLoader} from "../orchestratorComponents/battleMissionLoader";
 import {
     BattleOrchestratorChanges,
     BattleOrchestratorComponent,
@@ -36,7 +35,6 @@ import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
-    LOADING_MISSION = "LOADING_MISSION",
     CUTSCENE_PLAYER = "CUTSCENE_PLAYER",
     PHASE_CONTROLLER = "PHASE_CONTROLLER",
     PLAYER_SQUADDIE_SELECTOR = "PLAYER_SQUADDIE_SELECTOR",
@@ -50,7 +48,6 @@ export enum BattleOrchestratorMode {
 
 export class BattleOrchestrator implements GameEngineComponent {
     mode: BattleOrchestratorMode;
-    missionLoader: BattleMissionLoader;
     cutscenePlayer: BattleCutscenePlayer;
     playerSquaddieSelector: BattlePlayerSquaddieSelector;
     playerSquaddieTarget: BattlePlayerSquaddieTarget;
@@ -65,7 +62,6 @@ export class BattleOrchestrator implements GameEngineComponent {
     constructor({
                     cutscenePlayer,
                     mapDisplay,
-                    missionLoader,
                     phaseController,
                     squaddieUsesActionOnMap,
                     squaddieMover,
@@ -74,7 +70,6 @@ export class BattleOrchestrator implements GameEngineComponent {
                     playerSquaddieTarget,
                     computerSquaddieSelector,
                 }: {
-        missionLoader: BattleMissionLoader,
         cutscenePlayer: BattleCutscenePlayer,
         playerSquaddieSelector: BattlePlayerSquaddieSelector,
         playerSquaddieTarget: BattlePlayerSquaddieTarget,
@@ -85,7 +80,6 @@ export class BattleOrchestrator implements GameEngineComponent {
         mapDisplay: BattleMapDisplay,
         phaseController: BattlePhaseController,
     }) {
-        this.missionLoader = missionLoader;
         this.cutscenePlayer = cutscenePlayer;
         this.playerSquaddieSelector = playerSquaddieSelector;
         this.playerSquaddieTarget = playerSquaddieTarget;
@@ -125,8 +119,6 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     public getCurrentComponent(): BattleOrchestratorComponent {
         switch (this.mode) {
-            case BattleOrchestratorMode.LOADING_MISSION:
-                return this.missionLoader;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
                 return this.cutscenePlayer;
             case BattleOrchestratorMode.PHASE_CONTROLLER:
@@ -153,14 +145,11 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     public update(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
-        if (this.uiControlSettings.displayBattleMap === true && this.mode !== BattleOrchestratorMode.LOADING_MISSION) {
+        if (this.uiControlSettings.displayBattleMap === true) {
             this.displayBattleMap(state, graphicsContext);
         }
 
         switch (this.mode) {
-            case BattleOrchestratorMode.LOADING_MISSION:
-                this.updateComponent(state, this.missionLoader, graphicsContext, BattleOrchestratorMode.CUTSCENE_PLAYER);
-                break;
             case BattleOrchestratorMode.CUTSCENE_PLAYER:
                 this.updateComponent(state, this.cutscenePlayer, graphicsContext, BattleOrchestratorMode.PHASE_CONTROLLER);
                 break;
@@ -186,7 +175,7 @@ export class BattleOrchestrator implements GameEngineComponent {
                 this.updateComponent(state, this.playerSquaddieTarget, graphicsContext, BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
                 break;
             default:
-                this.updateComponent(state, this.defaultBattleOrchestrator, graphicsContext, BattleOrchestratorMode.LOADING_MISSION);
+                this.updateComponent(state, this.defaultBattleOrchestrator, graphicsContext, BattleOrchestratorMode.CUTSCENE_PLAYER);
                 break;
         }
 
@@ -276,7 +265,6 @@ export class BattleOrchestrator implements GameEngineComponent {
 
     reset(state: GameEngineComponentState): void {
         [
-            this.missionLoader,
             this.cutscenePlayer,
             this.playerSquaddieSelector,
             this.playerSquaddieTarget,

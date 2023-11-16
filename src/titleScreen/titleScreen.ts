@@ -42,6 +42,8 @@ const resourceKeys: string[] = [
 ];
 
 export class TitleScreen implements GameEngineComponent {
+    // TODO Add a test to make sure this flag is set so you don't hammer the resource loader
+    startLoadingResources: boolean;
     private playButton: Button;
     private byLine: TextBox;
     private titleText: TextBox;
@@ -80,7 +82,9 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     update(state: TitleScreenState, graphicsContext: GraphicsContext): void {
-        this.loadResourcesFromHandler();
+        if (this.startLoadingResources === false) {
+            this.loadResourcesFromHandler();
+        }
         this.draw(state, graphicsContext);
     }
 
@@ -111,7 +115,7 @@ export class TitleScreen implements GameEngineComponent {
 
     recommendStateChanges(state: GameEngineComponentState): GameEngineChanges | undefined {
         return {
-            nextMode: GameModeEnum.BATTLE,
+            nextMode: GameModeEnum.LOADING_BATTLE,
         }
     }
 
@@ -135,6 +139,8 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private resetInternalState() {
+        this.startLoadingResources = false;
+
         if (this.titleBanner === undefined) {
             this.titleBannerArea = new RectArea({left: 0, top: 0, width: 0, height: 0});
         }
@@ -355,7 +361,12 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private loadResourcesFromHandler() {
-        this.resourceHandler.loadResources(resourceKeys);
+        this.startLoadingResources = true;
+        resourceKeys.forEach(key => {
+            if (!this.resourceHandler.isResourceLoaded(key)) {
+                this.resourceHandler.loadResource(key);
+            }
+        });
     }
 
     private areResourcesLoaded(): boolean {
