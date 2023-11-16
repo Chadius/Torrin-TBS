@@ -217,9 +217,11 @@ describe('Mission Cutscene Service', () => {
     });
 
     it('will check for any introductory cutscenes during turn 0', () => {
-        const info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.LOADING_MISSION);
-
+        let info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.INITIALIZED);
         expect(info).toStrictEqual([turn0CutsceneTrigger]);
+
+        let info2 = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.PHASE_CONTROLLER);
+        expect(info2).toStrictEqual([turn0CutsceneTrigger]);
     });
 
     it('will not check for any turn starting cutscenes mid turn', () => {

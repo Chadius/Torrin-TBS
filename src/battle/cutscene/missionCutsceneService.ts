@@ -2,7 +2,6 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
-import {MissionStartOfPhaseCutsceneTrigger} from "./missionStartOfPhaseCutsceneTrigger";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 
@@ -25,8 +24,10 @@ function findMissionObjectiveCutscenes(defeatObjective: MissionObjective, state:
 
 function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: BattleOrchestratorState, cutsceneTriggersToReactTo: CutsceneTrigger[]) {
     const turnTriggersToReactTo = turnObjectives.filter((trigger) => {
-        const startOfTurnTrigger = trigger as MissionStartOfPhaseCutsceneTrigger;
-        if (state.battlePhaseState.turnCount !== startOfTurnTrigger.turn) {
+        if (trigger.triggeringEvent !== TriggeringEvent.START_OF_TURN) {
+            return false;
+        }
+        if (state.battlePhaseState.turnCount !== trigger.turn) {
             return false;
         }
         return isTriggerReadyToReact(trigger);
@@ -46,7 +47,7 @@ export const GetCutsceneTriggersToActivate = (
     ];
 
     const startOfPhaseModes = [
-        BattleOrchestratorMode.LOADING_MISSION,
+        BattleOrchestratorMode.INITIALIZED,
         BattleOrchestratorMode.PHASE_CONTROLLER,
     ];
 
@@ -84,7 +85,7 @@ function isTriggerReadyToReact(cutsceneTrigger: CutsceneTrigger) {
         return false;
     }
 
-    return !cutsceneTrigger.systemReactedToTrigger;
+    return cutsceneTrigger.systemReactedToTrigger === false;
 }
 
 function getCutsceneIdIfTriggerIsValid(cutsceneTrigger: CutsceneTrigger) {

@@ -215,6 +215,31 @@ export class BattleOrchestratorState {
         return newState;
     }
 
+    public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
+        this.resourceHandler = other.resourceHandler;
+        this.squaddieRepository = other.squaddieRepository;
+        this.missionMap = new MissionMap({terrainTileMap: other.missionMap.terrainTileMap});
+        this.teamsByAffiliation = {...other.teamsByAffiliation};
+        this.teamStrategyByAffiliation = {...other.teamStrategyByAffiliation};
+        this.battlePhaseState = {...other.battlePhaseState};
+        this.squaddieMovePath = other.squaddieMovePath;
+        this.camera = other.camera;
+        this.battleSquaddieSelectedHUD = other.battleSquaddieSelectedHUD;
+        this.battleEventRecording = {...other.battleEventRecording};
+        this.missionStatistics = {...other.missionStatistics};
+        this.missionCompletionStatus = {...other.missionCompletionStatus};
+
+        this._gameBoard = new BattleGameBoard({
+            objectives: [...other.objectives],
+            cutsceneCollection: other.cutsceneCollection,
+            cutsceneTriggers: [...other.cutsceneTriggers],
+            missionCompletionStatus: {...other.gameBoard.missionCompletionStatus},
+        })
+
+        this.squaddieCurrentlyActing = {...other.squaddieCurrentlyActing};
+        this.gameSaveFlags = {...other.gameSaveFlags};
+    }
+
     private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {
         this.teamStrategyByAffiliation = {...teamStrategyByAffiliation};
 
@@ -241,4 +266,18 @@ export enum BattleOrchestratorStateValidityMissingComponent {
     SQUADDIE_REPOSITORY = "SQUADDIE_REPOSITORY",
     TEAMS_BY_AFFILIATION = "TEAMS_BY_AFFILIATION",
     MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
+}
+
+export const BattleOrchestratorStateHelper = {
+    newOrchestratorState: ({
+                               resourceHandler
+                           }: {
+        resourceHandler: ResourceHandler
+    }): BattleOrchestratorState => {
+        return new BattleOrchestratorState({
+            resourceHandler,
+            squaddieRepository: new BattleSquaddieRepository(),
+            camera: new BattleCamera(0, 100),
+        });
+    }
 }
