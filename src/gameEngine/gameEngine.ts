@@ -22,11 +22,17 @@ import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
+interface GameLoadContext {
+    backupBattleOrchestratorState: BattleOrchestratorState;
+}
+
 export class GameEngine {
     battleOrchestratorState: BattleOrchestratorState;
     titleScreenState: TitleScreenState;
     battleMissionLoader: GameEngineBattleMissionLoader;
     private readonly graphicsContext: GraphicsContext;
+
+    loadingContext: GameLoadContext;
 
     constructor({graphicsContext, startupMode}: { graphicsContext: GraphicsContext, startupMode: GameModeEnum }) {
         this.graphicsContext = graphicsContext;

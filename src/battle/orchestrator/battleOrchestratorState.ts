@@ -20,6 +20,7 @@ import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
+import {battleSquaddieSelectedHUD} from "../../utils/test/mocks";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -213,6 +214,26 @@ export class BattleOrchestratorState {
         newState.gameSaveFlags = {...this.gameSaveFlags};
 
         return newState;
+    }
+
+    // TODO test this
+    public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
+            this.resourceHandler = other.resourceHandler;
+            this.squaddieRepository = other.squaddieRepository;
+            this.missionMap = new MissionMap({terrainTileMap: other.missionMap.terrainTileMap});
+            this.teamsByAffiliation = {...other.teamsByAffiliation};
+            this.teamStrategyByAffiliation = {...other.teamStrategyByAffiliation};
+            this.battlePhaseState = {...other.battlePhaseState};
+            this.squaddieMovePath = other.squaddieMovePath;
+            this.camera = other.camera;
+            this.battleSquaddieSelectedHUD = other.battleSquaddieSelectedHUD;
+            this.battleEventRecording = {...other.battleEventRecording};
+            this.missionCompletionStatus = {...other.missionCompletionStatus};
+            this.missionStatistics = {...other.missionStatistics};
+            this.gameBoard.cutsceneCollection = other.cutsceneCollection;
+            this.cutsceneTriggers = [...other.cutsceneTriggers];
+            this.gameBoard.objectives = [...other.objectives];
+            this.squaddieCurrentlyActing = {...other.squaddieCurrentlyActing};
     }
 
     private copyTeamStrategyByAffiliation(teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] }) {

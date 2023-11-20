@@ -145,6 +145,10 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     public update(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+        if ((state as BattleOrchestratorState).gameSaveFlags.loadRequested) {
+            return;
+        }
+
         if (this.uiControlSettings.displayBattleMap === true) {
             this.displayBattleMap(state, graphicsContext);
         }
@@ -260,7 +264,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     hasCompleted(state: GameEngineComponentState): boolean {
-        return this.battleComplete;
+        return this.battleComplete || (state as BattleOrchestratorState).gameSaveFlags.loadRequested;
     }
 
     reset(state: GameEngineComponentState): void {
@@ -287,6 +291,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
+    // TODO common function should be pulled into a utility file
     setup({
               resourceHandler
           }: {

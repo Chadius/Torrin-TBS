@@ -378,7 +378,7 @@ describe('Battle Orchestrator', () => {
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
     });
 
-    it('switches from default mode to mission loader', () => {
+    it('Uses the default loader when the mode is unknown', () => {
         const mode = BattleOrchestratorMode.UNKNOWN
 
         orchestrator = createOrchestrator({
@@ -435,7 +435,6 @@ describe('Battle Orchestrator', () => {
             }
         });
     });
-
 
     it('will use the recommended next mode to switch', () => {
         const battleCutscenePlayerRecommendsAMode = new (<new () => BattleCutscenePlayer>BattleCutscenePlayer)() as jest.Mocked<BattleCutscenePlayer>;
@@ -719,7 +718,6 @@ describe('Battle Orchestrator', () => {
         expect(orchestrator.getCurrentComponent()).toBe(mockPhaseController);
     });
 
-
     describe('mouse events', () => {
         it('will call mouse events in battle map display during squaddie selection mode', () => {
             const orchestrator = createOrchestrator({
@@ -819,4 +817,20 @@ describe('Battle Orchestrator', () => {
             expect(mockMapDisplay.keyEventHappened).toBeCalledTimes(2);
         }
     });
+
+    it('sets the completed flag if the user wants to load progress', () => {
+        const orchestrator = createOrchestrator({
+            initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
+        });
+
+        const state = new BattleOrchestratorState({});
+        state.gameSaveFlags.loadRequested = true;
+
+        orchestrator.update(state, mockedP5GraphicsContext);
+        expect(orchestrator.hasCompleted(state)).toBeTruthy();
+    });
+
+    // TODO Game needs to back up the save
+    // TODO Game needs to load the file
+    // TODO Game has to interrupt the loader and swap out the battle save state
 });
