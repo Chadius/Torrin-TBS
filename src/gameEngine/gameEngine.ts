@@ -119,9 +119,6 @@ export class GameEngine {
         if (this.battleOrchestratorState.gameSaveFlags.savingInProgress) {
             this.saveGameAndDownloadFile();
         }
-        // if (this.battleOrchestratorState.gameSaveFlags.loadRequested) {
-        //     await this.loadGameFileAndSetGameState();
-        // }
 
         if (this.component.hasCompleted(this.getComponentState())) {
             const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());

@@ -10,7 +10,7 @@ import {SaveFile} from "../utils/fileHandling/saveFile";
 import {NullMissionMap} from "../utils/test/battleOrchestratorState";
 import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
 import {TriggeringEvent} from "../cutscene/cutsceneTrigger";
-import {BattleSaveState, DefaultBattleSaveState} from "../battle/history/battleSaveState";
+import {BattleSaveState, BattleSaveStateHandler, DefaultBattleSaveState} from "../battle/history/battleSaveState";
 import {MissionObjectiveHelper} from "../battle/missionResult/missionObjective";
 import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
@@ -139,7 +139,7 @@ describe('Game Engine', () => {
     });
 
     describe('save the game', () => {
-        it('will save the game if the battle state asks for it', () => {
+        it('will save the game if the battle state asks for it', async () => {
             const newGameEngine = new GameEngine({
                 startupMode: GameModeEnum.BATTLE,
                 graphicsContext: mockedP5GraphicsContext,
@@ -147,14 +147,14 @@ describe('Game Engine', () => {
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
             newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
             newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress = true;
-            const saveSpy = jest.spyOn(SaveFile, "DownloadToBrowser").mockReturnValue(null);
+            const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockReturnValue(null);
 
-            newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
             expect(newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress).toBeFalsy();
         });
-        it('will set the error flag if there is an error while saving', () => {
+        it('will set the error flag if there is an error while saving', async () => {
             const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {
             });
             const newGameEngine = new GameEngine({
@@ -164,11 +164,11 @@ describe('Game Engine', () => {
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
             newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
             newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress = true;
-            const saveSpy = jest.spyOn(SaveFile, "DownloadToBrowser").mockImplementation(() => {
+            const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockImplementation(() => {
                 throw new Error("Failed for some reason");
             });
 
-            newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
             expect(newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress).toBeFalsy();

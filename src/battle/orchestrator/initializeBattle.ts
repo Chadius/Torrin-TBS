@@ -28,13 +28,15 @@ export class InitializeBattle implements BattleOrchestratorComponent {
 
     reset(state: BattleOrchestratorState): void {
         const playerTeam = state.teamsByAffiliation[SquaddieAffiliation.PLAYER];
-        playerTeam.battleSquaddieIds.forEach((battleId) => {
-            const {
-                battleSquaddie,
-                squaddieTemplate,
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId))
-            TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
-        });
+        if (playerTeam) {
+            playerTeam.battleSquaddieIds.forEach((battleId) => {
+                const {
+                    battleSquaddie,
+                    squaddieTemplate,
+                } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId))
+                TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
+            });
+        }
     }
 
     uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
