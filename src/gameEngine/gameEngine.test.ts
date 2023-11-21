@@ -178,7 +178,6 @@ describe('Game Engine', () => {
         });
     });
 
-    // TODO
     describe('load the game', () => {
         let newGameEngine: GameEngine;
         let openDialogSpy: jest.SpyInstance;
@@ -208,6 +207,7 @@ describe('Game Engine', () => {
                     ],
                 })
             ];
+            jest.spyOn(newGameEngine.battleOrchestrator, "hasCompleted").mockReturnValue(true);
 
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
@@ -268,84 +268,13 @@ describe('Game Engine', () => {
         afterEach(() => {
             jest.clearAllMocks();
         });
-        // it('will try to begin retrieving file content', async () => {
-        //     const retrieveSpy = jest.spyOn(SaveFile, "RetrieveFileContent");
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(retrieveSpy).toBeCalled();
-        // });
-        // it('will try to open a file dialog', async () => {
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(openDialogSpy).toBeCalled();
-        // });
-        // it('will tell the battle orchestrator to reload the mission', async () => {
-        //     newGameEngine.battleOrchestratorState = originalState;
-        //     BattleSaveStateHandler.applySaveStateToOrchestratorState({
-        //         battleSaveState: loadedBattleSaveState,
-        //         battleOrchestratorState: newGameEngine.battleOrchestratorState,
-        //         squaddieRepository: new BattleSquaddieRepository(),
-        //     });
-        //     expect(newGameEngine.battleOrchestratorState.missionStatistics).toEqual(loadedBattleSaveState.mission_statistics);
-        //
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(newGameEngine.currentMode).toBe(GameModeEnum.BATTLE);
-        //
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(hasCompletedSpy).toBeCalled();
-        //     expect(newGameEngine.battleOrchestrator.missionLoader.update).toBeCalled();
-        //
-        //     expect(newGameEngine.battleOrchestratorState.missingComponents).toHaveLength(0);
-        //     expect(newGameEngine.battleOrchestratorState.isValid).toBeTruthy();
-        //     expect(newGameEngine.battleOrchestratorState.isReadyToContinueMission).toBeTruthy();
-        // });
-        // it('will clear the load game flag after succeeding', async () => {
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(hasCompletedSpy).toBeCalled();
-        //     expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested).toBeFalsy();
-        //     expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadingInProgress).toBeFalsy();
-        // });
-        // it('should not play the introductory cutscene', async () => {
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(hasCompletedSpy).toBeCalled();
-        //     expect(newGameEngine.battleOrchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
-        // });
-        //
-        // it('should abort loading if the file data is invalid', async () => {
-        //     newGameEngine.battleOrchestratorState = originalState;
-        //     newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested = true;
-        //     newGameEngine.battleOrchestratorState.gameSaveFlags.loadingInProgress = true;
-        //     openDialogSpy = jest.spyOn(SaveFile, "RetrieveFileContent").mockRejectedValue(
-        //         null
-        //     );
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested).toBeFalsy();
-        //     expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadingInProgress).toBeFalsy();
-        //     expect(newGameEngine.battleOrchestratorState).toEqual(originalState);
-        //     expect(hasCompletedSpy).not.toBeCalled();
-        // });
-        // it('should revert to previous state if augmented state is invalid', async () => {
-        //     const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {
-        //     });
-        //
-        //     const isValidSpy: jest.SpyInstance = jest.spyOn(BattleOrchestratorState.prototype, "isReadyToContinueMission", "get").mockReturnValue(false);
-        //     newGameEngine.battleOrchestratorState = originalState;
-        //     newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested = true;
-        //     await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-        //     expect(isValidSpy).toBeCalled();
-        //     expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested).toBeFalsy();
-        //     expect(newGameEngine.battleOrchestratorState.gameSaveFlags.loadingInProgress).toBeFalsy();
-        //
-        //     const originalGameSaveFlags = {...originalState.gameSaveFlags};
-        //     originalState.gameSaveFlags = {
-        //         ...originalState.gameSaveFlags,
-        //         loadingInProgress: false,
-        //         loadRequested: false,
-        //         errorDuringLoading: true,
-        //     };
-        //     expect(newGameEngine.battleOrchestratorState).toEqual(originalState);
-        //     originalState.gameSaveFlags = originalGameSaveFlags;
-        //
-        //     expect(newGameEngine.battleOrchestratorState.gameSaveFlags.errorDuringLoading).toBeTruthy();
-        //     expect(consoleLoggerSpy).toBeCalled();
-        // });
+        it('will switch to loading battle', () => {
+            newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            expect(newGameEngine.currentMode).toBe(GameModeEnum.LOADING_BATTLE);
+        });
+        it('will not reset the battle orchestrator state', () => {
+            newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            expect(newGameEngine.battleOrchestratorState.objectives[0].id).toBe("test");
+        });
     });
 });

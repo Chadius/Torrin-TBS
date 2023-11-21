@@ -174,4 +174,57 @@ describe('orchestratorState', () => {
         expect(cloned.isValid).toBeTruthy();
         expect(cloned).toEqual(originalBattleOrchestratorState);
     });
+
+    it('can change itself to match other objects', () => {
+        let originalBattleOrchestratorState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: new BattleSquaddieRepository(),
+            missionMap: NullMissionMap(),
+            resourceHandler: new ResourceHandler({
+                imageLoader: new StubImmediateLoader(),
+                allResources: []
+            }),
+            teamsByAffiliation: {
+                [SquaddieAffiliation.PLAYER]: {
+                    name: "Players",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                    battleSquaddieIds: [],
+                },
+                [SquaddieAffiliation.ENEMY]: {
+                    name: "Baddies",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    battleSquaddieIds: [],
+                },
+            },
+            objectives: [
+                MissionObjectiveHelper.validateMissionObjective({
+                    id: "mission objective id",
+                    reward: {rewardType: MissionRewardType.VICTORY},
+                    hasGivenReward: false,
+                    conditions: [
+                        {
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            id: "defeat all enemies",
+                        }
+                    ],
+                    numberOfRequiredConditionsToComplete: 1,
+                })
+            ],
+            missionCompletionStatus: {},
+            missionStatistics: MissionStatisticsHandler.new(),
+            cutsceneTriggers: [],
+            battlePhaseState: {
+                turnCount: 20,
+                currentAffiliation: BattlePhase.ENEMY,
+            }
+        });
+        originalBattleOrchestratorState.gameSaveFlags.savingInProgress = true;
+
+        expect(originalBattleOrchestratorState.isValid).toBeTruthy();
+
+        const cloned: BattleOrchestratorState = new BattleOrchestratorState({});
+        cloned.copyOtherOrchestratorState(originalBattleOrchestratorState);
+
+        expect(cloned.isValid).toBeTruthy();
+        expect(cloned).toEqual(originalBattleOrchestratorState);
+    });
 });

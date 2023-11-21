@@ -19,6 +19,7 @@ import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
+import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
 
 export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
 
@@ -32,8 +33,6 @@ export class GameEngine {
     battleMissionLoader: GameEngineBattleMissionLoader;
     private readonly graphicsContext: GraphicsContext;
 
-    loadingContext: GameLoadContext;
-
     constructor({graphicsContext, startupMode}: { graphicsContext: GraphicsContext, startupMode: GameModeEnum }) {
         this.graphicsContext = graphicsContext;
         this._currentMode = startupMode;
@@ -44,7 +43,6 @@ export class GameEngine {
     get titleScreen(): TitleScreen {
         return this._titleScreen;
     }
-
 
     get component(): GameEngineComponent {
         switch (this.currentMode) {
@@ -79,6 +77,7 @@ export class GameEngine {
 
     setup({graphicsContext}: { graphicsContext: GraphicsContext }) {
         this._battleOrchestrator = new BattleOrchestrator({
+            initializeBattle: new InitializeBattle(),
             cutscenePlayer: new BattleCutscenePlayer(),
             playerSquaddieSelector: new BattlePlayerSquaddieSelector(),
             computerSquaddieSelector: new BattleComputerSquaddieSelector(),
@@ -126,7 +125,12 @@ export class GameEngine {
 
         if (this.component.hasCompleted(this.getComponentState())) {
             const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
-            this.component.reset(this.getComponentState());
+            if (!(
+                orchestrationChanges.nextMode === GameModeEnum.LOADING_BATTLE
+                && this.currentMode === GameModeEnum.BATTLE
+            )) {
+                this.component.reset(this.getComponentState());
+            }
             this._currentMode = orchestrationChanges.nextMode || GameModeEnum.TITLE_SCREEN;
             if (this.currentMode === GameModeEnum.TITLE_SCREEN) {
                 this.titleScreenState = new TitleScreenState({});
@@ -371,65 +375,5 @@ export class GameEngine {
             this.battleOrchestratorState.gameSaveFlags.errorDuringSaving = true;
         }
         this.battleOrchestratorState.gameSaveFlags.savingInProgress = false;
-    }
-
-    // TODO
-    private async loadGameFileAndSetGameState() {
-        // this.battleOrchestratorState.gameSaveFlags.loadRequested = false;
-        // let loadedSaveState: BattleSaveState;
-        //
-        // try {
-        //     loadedSaveState = await SaveFile.RetrieveFileContent();
-        // } catch (error) {
-        //     this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
-        //     return;
-        // }
-        // this.battleOrchestratorState.gameSaveFlags.loadingInProgress = true;
-        //
-        // const newBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
-        // const testingBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
-        // const originalBattleOrchestratorState: BattleOrchestratorState = this.battleOrchestratorState.clone();
-        //
-        // this.setup({graphicsContext: this.graphicsContext});
-        //
-        // const loaderForTestingState: BattleMissionLoader = new BattleMissionLoader();
-        // while (loaderForTestingState.hasCompleted(testingBattleOrchestratorState) !== true) {
-        //     await loaderForTestingState.update(testingBattleOrchestratorState);
-        // }
-        // BattleSaveStateHandler.applySaveStateToOrchestratorState({
-        //     battleSaveState: loadedSaveState,
-        //     battleOrchestratorState: testingBattleOrchestratorState,
-        //     squaddieRepository: testingBattleOrchestratorState.squaddieRepository,
-        // });
-        //
-        // if (testingBattleOrchestratorState.isReadyToContinueMission) {
-        //     this.battleOrchestratorState = newBattleOrchestratorState;
-        //     this.battleOrchestratorState.gameSaveFlags.loadingInProgress = true;
-        //     while (this.battleOrchestrator.mode !== BattleOrchestratorMode.LOADING_MISSION) {
-        //         this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
-        //     }
-        //     while (this.battleOrchestrator.mode === BattleOrchestratorMode.LOADING_MISSION) {
-        //         this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
-        //     }
-        //     BattleSaveStateHandler.applySaveStateToOrchestratorState({
-        //         battleSaveState: loadedSaveState,
-        //         battleOrchestratorState: this.battleOrchestratorState,
-        //         squaddieRepository: this.battleOrchestratorState.squaddieRepository,
-        //     });
-        //     this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
-        //     this.battleOrchestrator.update(this.battleOrchestratorState, this.graphicsContext);
-        // } else {
-        //     console.log(`Loading created invalid state, missing components: ${testingBattleOrchestratorState.missingComponents}`);
-        //     this.setup({graphicsContext: this.graphicsContext});
-        //
-        //     this.battleOrchestratorState = originalBattleOrchestratorState;
-        //     const loaderForRevertedState: BattleMissionLoader = new BattleMissionLoader();
-        //     while (loaderForRevertedState.hasCompleted(this.battleOrchestratorState) !== true) {
-        //         await loaderForRevertedState.update(this.battleOrchestratorState);
-        //     }
-        //
-        //     this.battleOrchestratorState.gameSaveFlags.loadingInProgress = false;
-        //     this.battleOrchestratorState.gameSaveFlags.errorDuringLoading = true;
-        // }
     }
 }

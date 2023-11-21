@@ -3,13 +3,11 @@ import {GameEngineComponentState} from "./gameEngine";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {MissionLoader, MissionLoaderStatus} from "../battle/loading/missionLoader";
-import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../battle/orchestrator/uiControlSettings";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MissionObjective} from "../battle/missionResult/missionObjective";
 import {MissionCondition} from "../battle/missionResult/missionCondition";
-import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
-import {BattleCamera} from "../battle/battleCamera";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
 import {SaveFile} from "../utils/fileHandling/saveFile";
 
@@ -24,25 +22,12 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         this.resetInternalFields();
     }
 
-    private resetInternalFields() {
-        this.missionLoaderStatus = MissionLoader.newEmptyMissionLoaderStatus();
-        this.appliedResources = false;
-        this.backupBattleOrchestratorState = undefined;
-        this.loadedBattleSaveState = undefined;
-        this.errorFoundWhileLoading = false;
-    }
-
     async update(state: GameEngineComponentState) {
         if (this.missionLoaderStatus.completionProgress.started !== true) {
             if ((state as BattleOrchestratorState).gameSaveFlags.loadRequested) {
                 this.backupBattleOrchestratorState = (state as BattleOrchestratorState).clone();
 
-                // TODO pull into a common function
-                state = new BattleOrchestratorState({
-                    resourceHandler: (state as BattleOrchestratorState).resourceHandler,
-                    squaddieRepository: new BattleSquaddieRepository(),
-                    camera: new BattleCamera(0, 100),
-                });
+                state = BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler: (state as BattleOrchestratorState).resourceHandler});
 
                 try {
                     this.loadedBattleSaveState = await SaveFile.RetrieveFileContent();
@@ -59,18 +44,18 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             }
 
             (state as BattleOrchestratorState).missionMap = NullMissionMap();
-                await MissionLoader.loadMissionFromFile({
+            await MissionLoader.loadMissionFromFile({
+                missionLoaderStatus: this.missionLoaderStatus,
+                missionId: "0000",
+                resourceHandler: (state as BattleOrchestratorState).resourceHandler,
+            }).then(() => {
+                MissionLoader.loadMissionFromHardcodedData({
                     missionLoaderStatus: this.missionLoaderStatus,
-                    missionId: "0000",
                     resourceHandler: (state as BattleOrchestratorState).resourceHandler,
-                }).then(() => {
-                    MissionLoader.loadMissionFromHardcodedData({
-                        missionLoaderStatus: this.missionLoaderStatus,
-                        resourceHandler: (state as BattleOrchestratorState).resourceHandler,
-                        squaddieRepository: (state as BattleOrchestratorState).squaddieRepository,
-                    });
+                    squaddieRepository: (state as BattleOrchestratorState).squaddieRepository,
+                });
 
-                })
+            })
             return;
         }
 
@@ -89,9 +74,9 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
             (state as BattleOrchestratorState).missionMap = this.missionLoaderStatus.missionMap;
             (state as BattleOrchestratorState).gameBoard.cutsceneCollection = this.missionLoaderStatus.cutsceneInfo.cutsceneCollection;
-            (state as BattleOrchestratorState).gameBoard.cutsceneTriggers = this.missionLoaderStatus.cutsceneInfo.cutsceneTriggers;
-            (state as BattleOrchestratorState).teamsByAffiliation = this.missionLoaderStatus.squaddieData.teamsByAffiliation;
-            (state as BattleOrchestratorState).teamStrategyByAffiliation = this.missionLoaderStatus.squaddieData.teamStrategyByAffiliation;
+            (state as BattleOrchestratorState).gameBoard.cutsceneTriggers = [...this.missionLoaderStatus.cutsceneInfo.cutsceneTriggers];
+            (state as BattleOrchestratorState).teamsByAffiliation = {...this.missionLoaderStatus.squaddieData.teamsByAffiliation};
+            (state as BattleOrchestratorState).teamStrategyByAffiliation = {...this.missionLoaderStatus.squaddieData.teamStrategyByAffiliation};
             (state as BattleOrchestratorState).missionCompletionStatus = {};
 
             (state as BattleOrchestratorState).gameBoard.objectives = this.missionLoaderStatus.objectives;
@@ -116,7 +101,6 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
                     squaddieRepository: (state as BattleOrchestratorState).squaddieRepository,
                 });
 
-                (state as BattleOrchestratorState).gameSaveFlags.loadRequested = false;
                 if ((state as BattleOrchestratorState).isReadyToContinueMission) {
                     this.backupBattleOrchestratorState = undefined;
                 } else {
@@ -124,6 +108,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
                     (state as BattleOrchestratorState).copyOtherOrchestratorState(this.backupBattleOrchestratorState);
                     this.errorFoundWhileLoading = true;
                 }
+                (state as BattleOrchestratorState).gameSaveFlags.loadRequested = false;
             }
             this.appliedResources = true;
         }
@@ -164,5 +149,13 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
     }
 
     mouseMoved(state: GameEngineComponentState, mouseX: number, mouseY: number): void {
+    }
+
+    private resetInternalFields() {
+        this.missionLoaderStatus = MissionLoader.newEmptyMissionLoaderStatus();
+        this.appliedResources = false;
+        this.backupBattleOrchestratorState = undefined;
+        this.loadedBattleSaveState = undefined;
+        this.errorFoundWhileLoading = false;
     }
 }

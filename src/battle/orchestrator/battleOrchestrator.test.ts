@@ -35,6 +35,8 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionMap} from "../../missionMap/missionMap";
+import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
+import {InitializeBattle} from "./initializeBattle";
 
 
 describe('Battle Orchestrator', () => {
@@ -47,12 +49,14 @@ describe('Battle Orchestrator', () => {
         squaddieMover: BattleSquaddieMover;
         phaseController: BattlePhaseController;
         playerSquaddieTarget: BattlePlayerSquaddieTarget;
+        initializeBattle: InitializeBattle;
 
         initialMode: BattleOrchestratorMode;
     }
 
     let orchestrator: BattleOrchestrator;
 
+    let mockInitializeBattle: InitializeBattle;
     let mockBattleCutscenePlayer: BattleCutscenePlayer;
     let mockPlayerSquaddieSelector: BattlePlayerSquaddieSelector;
     let mockPlayerSquaddieTarget: BattlePlayerSquaddieTarget;
@@ -70,6 +74,10 @@ describe('Battle Orchestrator', () => {
 
     function setupMocks() {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
+
+        mockInitializeBattle = new (<new () => InitializeBattle>InitializeBattle)() as jest.Mocked<InitializeBattle>;
+        mockInitializeBattle.reset = jest.fn();
+        mockInitializeBattle.update = jest.fn();
 
         mockBattleCutscenePlayer = new (
             <new (options: any) => BattleCutscenePlayer>BattleCutscenePlayer
@@ -178,6 +186,7 @@ describe('Battle Orchestrator', () => {
     const createOrchestrator: (overrides: Partial<OrchestratorTestOptions>) => BattleOrchestrator = (overrides: Partial<OrchestratorTestOptions> = {}) => {
         const orchestrator: BattleOrchestrator = new BattleOrchestrator({
             ...{
+                initializeBattle: mockInitializeBattle,
                 cutscenePlayer: mockBattleCutscenePlayer,
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 computerSquaddieSelector: mockComputerSquaddieSelector,
@@ -198,11 +207,50 @@ describe('Battle Orchestrator', () => {
         return orchestrator;
     }
 
-    it('starts in cutscene player mode', () => {
+    it('change to cutscene player mode', () => {
         orchestrator = createOrchestrator({});
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
         expect(orchestrator.getCurrentComponent()).toBe(mockBattleCutscenePlayer);
+    });
+
+    it('plays a cutscene at the start of the turn', () => {
+        orchestrator = createOrchestrator({});
+        const turn0StateCutsceneId = "starting";
+        const mockCutscene = new Cutscene({});
+        const cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneById: {
+                [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
+                [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
+                [turn0StateCutsceneId]: mockCutscene,
+            }
+        });
+
+        const turn0CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger = {
+            cutsceneId: "starting",
+            triggeringEvent: TriggeringEvent.START_OF_TURN,
+            systemReactedToTrigger: false,
+            turn: 0,
+        }
+
+        const turn0State = new BattleOrchestratorState({
+            missionMap: new MissionMap({
+                terrainTileMap: new TerrainTileMap({
+                    movementCost: ["1 1 "]
+                }),
+            }),
+            cutsceneCollection,
+            objectives: [],
+            cutsceneTriggers: [
+                turn0CutsceneTrigger
+            ],
+        });
+        turn0State.battlePhaseState.turnCount = 0;
+
+        orchestrator.update(turn0State, mockedP5GraphicsContext);
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
+        expect(orchestrator.getCurrentComponent()).toBe(mockBattleCutscenePlayer);
+        expect(mockBattleCutscenePlayer.currentCutsceneId).toBe(turn0StateCutsceneId);
     });
 
     it('recommends cutscene player if there is a cutscene to play at the start', () => {
@@ -378,19 +426,15 @@ describe('Battle Orchestrator', () => {
         expect(mockPhaseController.hasCompleted).toBeCalledTimes(1);
     });
 
-    it('Uses the default loader when the mode is unknown', () => {
-        const mode = BattleOrchestratorMode.UNKNOWN
+    it('Start in the initialized mode as startup', () => {
+        orchestrator = createOrchestrator({});
 
-        orchestrator = createOrchestrator({
-            initialMode: mode,
-        });
+        expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.INITIALIZED);
+        expect(orchestrator.getCurrentComponent()).toStrictEqual(mockInitializeBattle);
 
-        expect(orchestrator.getCurrentMode()).toBe(mode);
-        expect(orchestrator.getCurrentComponent()).toStrictEqual(new DefaultBattleOrchestrator());
-
-        const defaultBattleOrchestratorSpy = jest.spyOn(DefaultBattleOrchestrator.prototype, "update");
+        const initializeBattleSpy = jest.spyOn(mockInitializeBattle, "update");
         orchestrator.update(nullState, mockedP5GraphicsContext);
-        expect(defaultBattleOrchestratorSpy).toBeCalled();
+        expect(initializeBattleSpy).toBeCalled();
     });
 
     describe('mode switching', () => {
@@ -410,13 +454,16 @@ describe('Battle Orchestrator', () => {
 
         describe('knows which component to load based on the state', () => {
             for (const modeStr in BattleOrchestratorMode) {
-                if (modeStr === BattleOrchestratorMode.UNKNOWN) {
+                if (
+                    modeStr === BattleOrchestratorMode.UNKNOWN
+                    || modeStr === BattleOrchestratorMode.INITIALIZED
+                ) {
                     continue;
                 }
 
-                const mode: BattleOrchestratorMode = modeStr as Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN>;
+                const mode: BattleOrchestratorMode = modeStr as Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN | BattleOrchestratorMode.INITIALIZED>;
                 it(`using the ${mode} mode will use the expected component`, () => {
-                    const tests: { [mode in Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN>]: BattleOrchestratorComponent } = {
+                    const tests: { [mode in Exclude<BattleOrchestratorMode, BattleOrchestratorMode.UNKNOWN | BattleOrchestratorMode.INITIALIZED>]: BattleOrchestratorComponent } = {
                         [BattleOrchestratorMode.CUTSCENE_PLAYER]: mockBattleCutscenePlayer,
                         [BattleOrchestratorMode.PHASE_CONTROLLER]: mockPhaseController,
                         [BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR]: mockPlayerSquaddieSelector,
@@ -828,9 +875,8 @@ describe('Battle Orchestrator', () => {
 
         orchestrator.update(state, mockedP5GraphicsContext);
         expect(orchestrator.hasCompleted(state)).toBeTruthy();
-    });
 
-    // TODO Game needs to back up the save
-    // TODO Game needs to load the file
-    // TODO Game has to interrupt the loader and swap out the battle save state
+        const changes = orchestrator.recommendStateChanges(state);
+        expect(changes.nextMode).toBe(GameModeEnum.LOADING_BATTLE);
+    });
 });

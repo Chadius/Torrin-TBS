@@ -72,7 +72,7 @@ export const BattleSaveStateHandler = {
 
         battleOrchestratorState.teamsByAffiliation = {...battleSaveState.teams_by_affiliation};
         battleOrchestratorState.teamStrategyByAffiliation = {...battleSaveState.team_strategy_by_affiliation};
-        battleOrchestratorState.cutsceneTriggers = [...battleSaveState.cutscene_trigger_completion];
+        battleOrchestratorState.gameBoard.cutsceneTriggers = [...battleSaveState.cutscene_trigger_completion];
     },
     stringifyBattleSaveStateData: (saveData: BattleSaveState): string => {
         return stringifyBattleSaveStateData(saveData);

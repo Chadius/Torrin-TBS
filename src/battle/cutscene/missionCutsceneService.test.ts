@@ -216,12 +216,13 @@ describe('Mission Cutscene Service', () => {
         expect(info).toStrictEqual([defeatCutsceneTrigger]);
     });
 
-    // TODO
-    // it('will check for any introductory cutscenes during turn 0', () => {
-    //     const info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.LOADING_MISSION);
-    //
-    //     expect(info).toStrictEqual([turn0CutsceneTrigger]);
-    // });
+    it('will check for any introductory cutscenes during turn 0', () => {
+        let info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.INITIALIZED);
+        expect(info).toStrictEqual([turn0CutsceneTrigger]);
+
+        let info2 = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.PHASE_CONTROLLER);
+        expect(info2).toStrictEqual([turn0CutsceneTrigger]);
+    });
 
     it('will not check for any turn starting cutscenes mid turn', () => {
         const info = GetCutsceneTriggersToActivate(turn0State, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
