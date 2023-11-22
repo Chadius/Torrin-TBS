@@ -18,7 +18,7 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {SquaddieActionHandler} from "../../squaddie/action";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
-import {BattleSquaddie} from "../battleSquaddie";
+import {BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -614,7 +614,7 @@ const loadTorrin = ({
                 })
             ],
         },
-        new BattleSquaddie({
+        BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "player_young_torrin",
             squaddieTemplateId: "player_young_torrin",
             squaddieTurn: SquaddieTurnHandler.new(),
@@ -682,7 +682,7 @@ const loadSirCamil = ({
                 })
             ],
         },
-        new BattleSquaddie({
+        BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "player_sir_camil",
             squaddieTemplateId: "player_sir_camil",
             squaddieTurn: SquaddieTurnHandler.new(),
@@ -795,7 +795,7 @@ const loadSlitherDemons = ({
         } = slitherDemonInfo;
 
         squaddieRepository.addBattleSquaddie(
-            new BattleSquaddie({
+            BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId,
                 squaddieTemplateId: "enemy_demon_slither",
                 squaddieTurn: SquaddieTurnHandler.new()

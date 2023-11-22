@@ -12,6 +12,7 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {BattleSquaddieHelper} from "../battleSquaddie";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -63,7 +64,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
             const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound);
 
             if (mostRecentAction.type === SquaddieActionType.END_TURN) {
-                battleSquaddie.endTurn();
+                BattleSquaddieHelper.endTurn(battleSquaddie);
                 TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
             }
             this.animationCompleteStartTime = Date.now();

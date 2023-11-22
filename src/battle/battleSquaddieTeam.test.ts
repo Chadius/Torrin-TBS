@@ -1,6 +1,6 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
-import {BattleSquaddie} from "./battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "./battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "./BattleSquaddieTeam";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
@@ -45,7 +45,7 @@ describe('Battle Squaddie Team', () => {
         );
 
         playerBattleSquaddie0 =
-            new BattleSquaddie({
+            BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "player_young_torrin_0",
                 squaddieTemplateId: "player_young_torrin",
                 squaddieTurn: {remainingActionPoints: 3},
@@ -55,7 +55,7 @@ describe('Battle Squaddie Team', () => {
             playerBattleSquaddie0
         );
 
-        playerBattleSquaddie1 = new BattleSquaddie({
+        playerBattleSquaddie1 = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "player_young_torrin_1",
             squaddieTemplateId: "player_young_torrin",
             squaddieTurn: {remainingActionPoints: 3},
@@ -90,7 +90,7 @@ describe('Battle Squaddie Team', () => {
         );
 
         enemyBattleSquaddie0 =
-            new BattleSquaddie({
+            BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "enemy_slither_demon_0",
                 squaddieTemplateId: "enemy_slither_demon",
                 squaddieTurn: {remainingActionPoints: 3},
@@ -100,7 +100,7 @@ describe('Battle Squaddie Team', () => {
             enemyBattleSquaddie0
         );
 
-        enemyBattleSquaddie1 = new BattleSquaddie({
+        enemyBattleSquaddie1 = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "enemy_slither_demon_1",
             squaddieTemplateId: "enemy_slither_demon",
             squaddieTurn: {remainingActionPoints: 3},
@@ -113,45 +113,45 @@ describe('Battle Squaddie Team', () => {
     it('knows at least 1 squaddie can act', () => {
         expect(BattleSquaddieTeamHelper.hasAnActingSquaddie(twoPlayerTeam, squaddieRepository)).toBeTruthy();
 
-        playerBattleSquaddie0.endTurn();
+        BattleSquaddieHelper.endTurn(playerBattleSquaddie0);
         expect(BattleSquaddieTeamHelper.hasAnActingSquaddie(twoPlayerTeam, squaddieRepository)).toBeTruthy();
 
-        playerBattleSquaddie1.endTurn();
+        BattleSquaddieHelper.endTurn(playerBattleSquaddie1);
         expect(BattleSquaddieTeamHelper.hasAnActingSquaddie(twoPlayerTeam, squaddieRepository)).toBeFalsy();
     });
     it('knows if the player can control at least 1 squaddie', () => {
         expect(BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(twoPlayerTeam, squaddieRepository)).toBeTruthy();
 
-        playerBattleSquaddie0.endTurn();
+        BattleSquaddieHelper.endTurn(playerBattleSquaddie0);
         expect(BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(twoPlayerTeam, squaddieRepository)).toBeTruthy();
 
-        playerBattleSquaddie1.endTurn();
+        BattleSquaddieHelper.endTurn(playerBattleSquaddie1);
         expect(BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(twoPlayerTeam, squaddieRepository)).toBeFalsy();
     });
     it('can get a squaddie who can act this round', () => {
         expect(BattleSquaddieTeamHelper.hasAnActingSquaddie(twoPlayerTeam, squaddieRepository)).toBeTruthy();
         expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(twoPlayerTeam, squaddieRepository)).toStrictEqual(["player_young_torrin_0", "player_young_torrin_1"]);
-        playerBattleSquaddie0.endTurn();
+        BattleSquaddieHelper.endTurn(playerBattleSquaddie0);
 
         expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(twoPlayerTeam, squaddieRepository)).toStrictEqual(["player_young_torrin_1"]);
     });
     it('can get a squaddie who can act this round but is not controlled by the player', () => {
         expect(BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(twoEnemyTeam, squaddieRepository)).toBeFalsy();
 
-        enemyBattleSquaddie0.endTurn();
+        BattleSquaddieHelper.endTurn(enemyBattleSquaddie0);
 
         expect(BattleSquaddieTeamHelper.getBattleSquaddieIdThatCanActButNotPlayerControlled(twoEnemyTeam, squaddieRepository)).toBe("enemy_slither_demon_1");
     });
     describe('begin new round', () => {
         it('can restore action points to the team upon beginning a round', () => {
-            playerBattleSquaddie0.endTurn();
-            playerBattleSquaddie1.endTurn();
+            BattleSquaddieHelper.endTurn(playerBattleSquaddie0);
+            BattleSquaddieHelper.endTurn(playerBattleSquaddie1);
             expect(BattleSquaddieTeamHelper.hasAnActingSquaddie(twoPlayerTeam, squaddieRepository)).toBeFalsy();
 
             BattleSquaddieTeamHelper.beginNewRound(twoPlayerTeam, squaddieRepository);
             expect(BattleSquaddieTeamHelper.hasAnActingSquaddie(twoPlayerTeam, squaddieRepository)).toBeTruthy();
-            expect(playerBattleSquaddie0.canStillActThisRound()).toBeTruthy();
-            expect(playerBattleSquaddie1.canStillActThisRound()).toBeTruthy();
+            expect(BattleSquaddieHelper.canStillActThisRound(playerBattleSquaddie0)).toBeTruthy();
+            expect(BattleSquaddieHelper.canStillActThisRound(playerBattleSquaddie1)).toBeTruthy();
         });
     });
 });

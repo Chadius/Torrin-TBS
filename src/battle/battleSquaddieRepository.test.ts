@@ -1,4 +1,4 @@
-import {BattleSquaddie} from "./battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "./battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
@@ -39,7 +39,7 @@ describe('BattleSquaddieRepository', () => {
             },
             actions: [],
         };
-        battleSquaddieBase = new BattleSquaddie({
+        battleSquaddieBase = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "player_young_torrin_0",
             squaddieTemplateId: "player_young_torrin",
             squaddieTurn: {remainingActionPoints: 3}
@@ -82,7 +82,7 @@ describe('BattleSquaddieRepository', () => {
     it("should throw error if you add battle squaddie for static squaddie that doesn't exist", () => {
         const shouldThrowError = () => {
             squaddieRepo.addBattleSquaddie(
-                new BattleSquaddie({
+                BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "battle_id",
                     squaddieTemplateId: "unknown_static_squaddie",
                     squaddieTurn: {remainingActionPoints: 3},
@@ -120,7 +120,7 @@ describe('BattleSquaddieRepository', () => {
     it('should throw an error if battle squaddie is invalid', () => {
         const shouldThrowError = () => {
             squaddieRepo.addBattleSquaddie(
-                battleSquaddieBase = new BattleSquaddie({
+                battleSquaddieBase = BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "",
                     squaddieTemplateId: "static",
                     squaddieTurn: {remainingActionPoints: 3},
@@ -185,7 +185,7 @@ describe('BattleSquaddieRepository', () => {
         const turnEnded: SquaddieTurn = {remainingActionPoints: 3};
         SquaddieTurnHandler.endTurn(turnEnded);
         squaddieRepo.updateBattleSquaddie(
-            new BattleSquaddie({
+            BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: battleSquaddieBase.squaddieTemplateId,
                 squaddieTurn: turnEnded,
@@ -208,7 +208,7 @@ describe('BattleSquaddieRepository', () => {
         )
 
         const shouldThrowError = () => {
-            const badBattleSquaddie = new BattleSquaddie({
+            const badBattleSquaddie = BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: "does not exist",
                 squaddieTurn: {remainingActionPoints: 3},

@@ -4,7 +4,7 @@ import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddie} from "../battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {
     BattleOrchestratorChanges,
@@ -94,7 +94,7 @@ describe('BattleSquaddieSelector', () => {
         }));
 
         squaddieRepo.addBattleSquaddie(
-            new BattleSquaddie({
+            BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "enemy_demon_1",
                 squaddieTemplateId: "enemy_demon",
                 squaddieTurn: SquaddieTurnHandler.new()

@@ -1,7 +1,7 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {TeamStrategyState} from "./teamStrategyState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddie} from "../battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
@@ -41,7 +41,7 @@ describe('end turn team strategy', () => {
         );
 
         playerBattleSquaddie =
-            new BattleSquaddie({
+            BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "new_dynamic_squaddie",
                 squaddieTemplateId: "new_static_squaddie",
                 squaddieTurn: SquaddieTurnHandler.new(),
@@ -110,7 +110,7 @@ describe('end turn team strategy', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        playerBattleSquaddie.endTurn();
+        BattleSquaddieHelper.endTurn(playerBattleSquaddie);
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);

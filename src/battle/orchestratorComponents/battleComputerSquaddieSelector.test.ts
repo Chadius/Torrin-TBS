@@ -3,7 +3,7 @@ import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddie} from "../battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {
     BattleOrchestratorChanges,
@@ -137,7 +137,7 @@ describe('BattleComputerSquaddieSelector', () => {
             }
         }));
 
-        enemyDemonDynamic2 = new BattleSquaddie({
+        enemyDemonDynamic2 = BattleSquaddieHelper.newBattleSquaddie({
             squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
             battleSquaddieId: "enemy_demon_2",
             squaddieTurn: SquaddieTurnHandler.new(),
@@ -314,7 +314,7 @@ describe('BattleComputerSquaddieSelector', () => {
     it('will change phase if no squaddies are able to act', () => {
         makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
-        enemyDemonDynamic.endTurn();
+        BattleSquaddieHelper.endTurn(enemyDemonDynamic);
 
         const squaddieSquaddieAction: SquaddieActionsForThisRound = {
             squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,

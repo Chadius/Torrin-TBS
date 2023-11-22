@@ -3,6 +3,7 @@ import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {unTintSquaddieMapIcon} from "./animation/drawSquaddie";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../squaddie/squaddieService";
+import {BattleSquaddieHelper} from "./battleSquaddie";
 
 export interface BattleSquaddieTeam {
     name: string;
@@ -74,7 +75,7 @@ export const BattleSquaddieTeamHelper = {
                 squaddieTemplate,
                 battleSquaddie
             } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
-            battleSquaddie.beginNewRound();
+            BattleSquaddieHelper.beginNewRound(battleSquaddie);
             unTintSquaddieMapIcon(squaddieRepository, battleSquaddie);
         }));
     }

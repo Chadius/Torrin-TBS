@@ -2,7 +2,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieId} from "../../squaddie/id";
 import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
-import {BattleSquaddie} from "../../battle/battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "../../battle/battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
@@ -67,7 +67,7 @@ export const CreateNewSquaddieAndAddToRepository: (
         actions: actions || [],
         attributes: attributes || DefaultArmyAttributes(),
     };
-    const battleSquaddie = new BattleSquaddie({
+    const battleSquaddie = BattleSquaddieHelper.newBattleSquaddie({
         squaddieTemplateId: templateId,
         battleSquaddieId: battleId,
         squaddieTurn: SquaddieTurnHandler.new(),

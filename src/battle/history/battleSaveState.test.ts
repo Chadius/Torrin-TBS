@@ -19,7 +19,7 @@ import {MissionStatistics} from "../missionStatistics/missionStatistics";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddie} from "../battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
@@ -126,7 +126,7 @@ describe("BattleSaveState", () => {
             actions: [],
         };
 
-        player0BattleSquaddie = new BattleSquaddie({
+        player0BattleSquaddie = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "player battle 0",
             squaddieTemplateId: "player template 0",
             squaddieTurn: SquaddieTurnHandler.new(),
@@ -155,7 +155,7 @@ describe("BattleSaveState", () => {
 
         const finishedTurn = SquaddieTurnHandler.new();
         SquaddieTurnHandler.endTurn(finishedTurn);
-        enemy0BattleSquaddieWithWoundsAndTurnEnded = new BattleSquaddie({
+        enemy0BattleSquaddieWithWoundsAndTurnEnded = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "enemy battle 0",
             squaddieTemplateId: "enemy template 0",
             squaddieTurn: finishedTurn,
@@ -179,7 +179,7 @@ describe("BattleSaveState", () => {
         newSquaddieRepository.addBattleSquaddie(player0BattleSquaddie);
         newSquaddieRepository.addSquaddieTemplate(enemy0SquaddieTemplate);
 
-        const enemy0BattleSquaddieWithNewTurn = new BattleSquaddie({
+        const enemy0BattleSquaddieWithNewTurn = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "enemy battle 0",
             squaddieTemplateId: "enemy template 0",
             squaddieTurn: SquaddieTurnHandler.new(),

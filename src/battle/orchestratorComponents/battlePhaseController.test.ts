@@ -2,7 +2,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {BattleSquaddie} from "../battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController, BattlePhaseState} from "./battlePhaseController";
@@ -50,7 +50,7 @@ describe('BattlePhaseController', () => {
             actions: [],
             attributes: DefaultArmyAttributes(),
         };
-        playerBattleSquaddie = new BattleSquaddie({
+        playerBattleSquaddie = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
             squaddieTurn: SquaddieTurnHandler.new(),
@@ -80,7 +80,7 @@ describe('BattlePhaseController', () => {
             }
         );
         squaddieRepo.addBattleSquaddie(
-            new BattleSquaddie({
+            BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
                 squaddieTurn: SquaddieTurnHandler.new(),
@@ -284,7 +284,7 @@ describe('BattlePhaseController', () => {
         expect(state.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
         const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_squaddie_0"));
-        battleSquaddie0.endTurn();
+        BattleSquaddieHelper.endTurn(battleSquaddie0);
 
         const startTime = 100;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
@@ -339,8 +339,8 @@ describe('BattlePhaseController', () => {
 
     it('restores team squaddie turns once the banner appears starts', () => {
         const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_squaddie_0"));
-        battleSquaddie0.endTurn();
-        expect(battleSquaddie0.canStillActThisRound()).toBeFalsy();
+        BattleSquaddieHelper.endTurn(battleSquaddie0);
+        expect(BattleSquaddieHelper.canStillActThisRound(battleSquaddie0)).toBeFalsy();
 
         const phase: BattlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
@@ -366,6 +366,6 @@ describe('BattlePhaseController', () => {
 
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(phase.currentAffiliation).toBe(BattlePhase.PLAYER);
-        expect(battleSquaddie0.canStillActThisRound()).toBeTruthy();
+        expect(BattleSquaddieHelper.canStillActThisRound(battleSquaddie0)).toBeTruthy();
     });
 });

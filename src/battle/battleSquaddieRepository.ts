@@ -1,4 +1,4 @@
-import {BattleSquaddie} from "./battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {ImageUI} from "../ui/imageUI";
@@ -27,7 +27,7 @@ export class BattleSquaddieRepository {
     }
 
     addBattleSquaddie(battleSquaddie: BattleSquaddie) {
-        battleSquaddie.assertBattleSquaddie();
+        BattleSquaddieHelper.assertBattleSquaddie(battleSquaddie);
         if (!this.squaddieTemplates[battleSquaddie.squaddieTemplateId]) {
             throw new Error(`cannot addBattleSquaddie '${battleSquaddie.battleSquaddieId}', no squaddie template with Id '${battleSquaddie.squaddieTemplateId}' exists`);
         }
@@ -37,7 +37,7 @@ export class BattleSquaddieRepository {
         }
 
         const squaddieTemplate: SquaddieTemplate = this.squaddieTemplates[battleSquaddie.squaddieTemplateId];
-        battleSquaddie.initializeInBattleAttributes(squaddieTemplate.attributes);
+        BattleSquaddieHelper.initializeInBattleAttributes(battleSquaddie, squaddieTemplate.attributes);
 
         this.battleSquaddies[battleSquaddie.battleSquaddieId] = battleSquaddie;
     }
@@ -48,7 +48,7 @@ export class BattleSquaddieRepository {
     }
 
     updateBattleSquaddie(battleSquaddie: BattleSquaddie) {
-        battleSquaddie.assertBattleSquaddie();
+        BattleSquaddieHelper.assertBattleSquaddie(battleSquaddie);
         if (!this.squaddieTemplates[battleSquaddie.squaddieTemplateId]) {
             throw new Error(`cannot updateBattleSquaddie '${battleSquaddie.battleSquaddieId}', no squaddie template with id '${battleSquaddie.squaddieTemplateId}' exists`);
         }
