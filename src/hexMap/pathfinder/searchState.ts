@@ -39,8 +39,8 @@ export const SearchStateHelper = {
     },
     markLocationAsStopped: (searchState: SearchState, tileLocation: TileFoundDescription) => {
         searchState.tilesSearchCanStopAt.push({
-                q: tileLocation.q,
-                r: tileLocation.r,
+                q: tileLocation.hexCoordinate.q,
+                r: tileLocation.hexCoordinate.r,
             }
         );
     },
@@ -60,13 +60,13 @@ export const SearchStateHelper = {
     },
     initializeStartPath: (searchState: SearchState, startLocation: HexCoordinate) => {
         const startingPath = new SearchPath();
-        startingPath.add(new TileFoundDescription({
+        startingPath.add({
             hexCoordinate: {
                 q: startLocation.q,
                 r: startLocation.r,
             },
             movementCost: 0,
-        }), 0);
+        }, 0);
         startingPath.startNewMovementAction();
         searchState.searchPathQueue.enqueue(startingPath);
     },
@@ -92,13 +92,13 @@ export const SearchStateHelper = {
             ? 1
             : tileInfo.movementCost;
         neighborPath.add(
-            new TileFoundDescription({
+            {
                 hexCoordinate: {
-                    q: tileInfo.q,
-                    r: tileInfo.r,
+                    q: tileInfo.hexCoordinate.q,
+                    r: tileInfo.hexCoordinate.r,
                 },
                 movementCost: head.getTotalMovementCost() + tileInfoMovementCost,
-            }),
+            },
             tileInfoMovementCost
         );
         searchState.searchPathQueue.enqueue(neighborPath);

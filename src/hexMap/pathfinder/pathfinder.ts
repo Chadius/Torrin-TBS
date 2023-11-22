@@ -195,25 +195,25 @@ const addLegalSearchPaths = (
 
         if (
             searchParams.stopLocation !== undefined
-            && head.getMostRecentTileLocation().q === searchParams.stopLocation.q
-            && head.getMostRecentTileLocation().r === searchParams.stopLocation.r
+            && head.getMostRecentTileLocation().hexCoordinate.q === searchParams.stopLocation.q
+            && head.getMostRecentTileLocation().hexCoordinate.r === searchParams.stopLocation.r
         ) {
             arrivedAtTheStopLocation = true;
             continue;
         }
 
         if (isPathMoreThanMaximumDistance(head, searchParams)) {
-            movementEndsOnTheseTiles.push(new TileFoundDescription({
+            movementEndsOnTheseTiles.push({
                 hexCoordinate: {
-                    q: mostRecentTileLocation.q,
-                    r: mostRecentTileLocation.r,
+                    q: mostRecentTileLocation.hexCoordinate.q,
+                    r: mostRecentTileLocation.hexCoordinate.r,
                 },
                 movementCost: mostRecentTileLocation.movementCost,
-            }));
+            });
             continue;
         }
 
-        let neighboringLocations = createNewPathCandidates(mostRecentTileLocation.q, mostRecentTileLocation.r, workingSearchState.shapeGenerator);
+        let neighboringLocations = createNewPathCandidates(mostRecentTileLocation.hexCoordinate.q, mostRecentTileLocation.hexCoordinate.r, workingSearchState.shapeGenerator);
         neighboringLocations = selectValidPathCandidates(
             neighboringLocations,
             searchParams,
@@ -223,13 +223,13 @@ const addLegalSearchPaths = (
             squaddieRepository,
         );
         if (neighboringLocations.length === 0 && canStopOnThisTile(head, searchParams, hexCostTerrainType, squaddieIsOccupyingTile)) {
-            movementEndsOnTheseTiles.push(new TileFoundDescription({
+            movementEndsOnTheseTiles.push({
                 hexCoordinate: {
-                    q: mostRecentTileLocation.q,
-                    r: mostRecentTileLocation.r,
+                    q: mostRecentTileLocation.hexCoordinate.q,
+                    r: mostRecentTileLocation.hexCoordinate.r,
                 },
                 movementCost: mostRecentTileLocation.movementCost,
-            }))
+            })
         }
         newAddedSearchPaths.push(...createNewPathsUsingNeighbors(
                 neighboringLocations,
@@ -430,13 +430,13 @@ const addNeighborNewPath = (
 
     return SearchStateHelper.addNeighborSearchPathToQueue(
         workingSearchState,
-        new TileFoundDescription({
+        {
             hexCoordinate: {
                 q: neighbor[0],
                 r: neighbor[1],
             },
             movementCost: movementCost
-        }),
+        },
         head,
         searchParams,
     );

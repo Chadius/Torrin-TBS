@@ -12,6 +12,7 @@ import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
+import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 describe('pathfinder and squaddies', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -385,26 +386,30 @@ describe('pathfinder and squaddies', () => {
         routeFound = getResultOrThrowError(routeOrError);
         const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
         expect(tilesTraveled).toHaveLength(4);
-        expect(tilesTraveled[0]).toEqual(expect.objectContaining({
-            q: 0,
-            r: 0,
-            movementCost: 0,
-        }));
-        expect(tilesTraveled[1]).toEqual(expect.objectContaining({
-            q: 1,
-            r: 0,
-            movementCost: 1,
-        }));
-        expect(tilesTraveled[2]).toEqual(expect.objectContaining({
-            q: 1,
-            r: 1,
-            movementCost: 2,
-        }));
-        expect(tilesTraveled[3]).toEqual(expect.objectContaining({
-            q: 0,
-            r: 2,
-            movementCost: 3,
-        }));
+        expect(tilesTraveled[0]).toEqual(
+            {
+                hexCoordinate: {q: 0, r: 0},
+                movementCost: 0
+            }
+        );
+        expect(tilesTraveled[1]).toEqual(
+            {
+                hexCoordinate: {q: 1, r: 0},
+                movementCost: 1
+            }
+        );
+        expect(tilesTraveled[2]).toEqual(
+            {
+                hexCoordinate: {q: 1, r: 1},
+                movementCost: 2
+            }
+        );
+        expect(tilesTraveled[3]).toEqual(
+            {
+                hexCoordinate: {q: 0, r: 2},
+                movementCost: 3
+            }
+        );
     });
 
     it('will move through dead squaddies', () => {
@@ -467,21 +472,24 @@ describe('pathfinder and squaddies', () => {
         routeFound = getResultOrThrowError(routeOrError);
         const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
         expect(tilesTraveled).toHaveLength(3);
-        expect(tilesTraveled[0]).toEqual(expect.objectContaining({
-            q: 0,
-            r: 0,
-            movementCost: 0,
-        }));
-        expect(tilesTraveled[1]).toEqual(expect.objectContaining({
-            q: 0,
-            r: 1,
-            movementCost: 1,
-        }));
-        expect(tilesTraveled[2]).toEqual(expect.objectContaining({
-            q: 0,
-            r: 2,
-            movementCost: 2,
-        }));
+        expect(tilesTraveled[0]).toEqual(
+            {
+                hexCoordinate: {q: 0, r: 0},
+                movementCost: 0
+            }
+        );
+        expect(tilesTraveled[1]).toEqual(
+            {
+                hexCoordinate: {q: 0, r: 1},
+                movementCost: 1
+            }
+        );
+        expect(tilesTraveled[2]).toEqual(
+            {
+                hexCoordinate: {q: 0, r: 2},
+                movementCost: 2
+            }
+        );
     });
 
     it('knows which squaddies it was adjacent to', () => {

@@ -61,20 +61,20 @@ describe('pathfinder reaching a destination', () => {
             r: 1,
         });
         expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
-            new TileFoundDescription({
+            {
                 hexCoordinate: {q: 0, r: 1},
                 movementCost: 1
-            }),
+            },
         );
         expect(routeFound.getTilesTraveled()).toStrictEqual([
-            new TileFoundDescription({
+            {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 0, r: 1},
                 movementCost: 1
-            }),
+            },
         ])
     });
 
@@ -241,16 +241,16 @@ describe('pathfinder reaching a destination', () => {
             r: 0,
         });
         expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
-            new TileFoundDescription({
+            {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
-            }),
+            },
         );
         expect(routeFound.getTilesTraveled()).toStrictEqual([
-            new TileFoundDescription({
+            {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
-            }),
+            },
         ]);
     });
 
@@ -301,61 +301,61 @@ describe('pathfinder reaching a destination', () => {
             r: 2,
         });
         expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
-            new TileFoundDescription({
+            {
                 hexCoordinate: {q: 2, r: 2},
                 movementCost: 4
-            }),
+            },
         );
 
         expect(routeFound.getTilesTraveled()).toStrictEqual([
-            new TileFoundDescription({
+            {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 1, r: 0},
                 movementCost: 1
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 2, r: 0},
                 movementCost: 2
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 2, r: 1},
                 movementCost: 3
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 2, r: 2},
                 movementCost: 4
-            }),
+            },
         ]);
 
         expect(routeFound.getTilesTraveledByNumberOfMovementActions()).toStrictEqual([
             [
-                new TileFoundDescription({
+                {
                     hexCoordinate: {q: 0, r: 0},
                     movementCost: 0
-                }),
+                },
             ],
             [
-                new TileFoundDescription({
+                {
                     hexCoordinate: {q: 1, r: 0},
                     movementCost: 1
-                }),
-                new TileFoundDescription({
+                },
+                {
                     hexCoordinate: {q: 2, r: 0},
                     movementCost: 2
-                }),
+                },
             ],
             [
-                new TileFoundDescription({
+                {
                     hexCoordinate: {q: 2, r: 1},
                     movementCost: 3
-                }),
-                new TileFoundDescription({
+                },
+                {
                     hexCoordinate: {q: 2, r: 2},
                     movementCost: 4
-                }),
+                },
             ]
         ]);
     });
@@ -402,30 +402,30 @@ describe('pathfinder reaching a destination', () => {
 
         expect(routeFound.getTotalMovementCost()).toEqual(5);
         expect(routeFound.getTilesTraveled()).toStrictEqual([
-            new TileFoundDescription({
+            {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 1, r: 0},
                 movementCost: 1
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 1, r: 1},
                 movementCost: 2
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 1, r: 2},
                 movementCost: 3
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 1, r: 3},
                 movementCost: 4
-            }),
-            new TileFoundDescription({
+            },
+            {
                 hexCoordinate: {q: 0, r: 4},
                 movementCost: 5
-            }),
+            },
         ]);
     });
 
@@ -572,22 +572,22 @@ describe('pathfinder reaching a destination', () => {
         let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
         expect(routeSortedByNumberOfMovementActions).toStrictEqual([
             [
-                new TileFoundDescription({
+                {
                     hexCoordinate: {q: 1, r: 1},
                     movementCost: 0
-                }),
+                },
             ],
             [
-                new TileFoundDescription({
+                {
                     hexCoordinate: {q: 2, r: 1},
                     movementCost: 1
-                }),
+                },
             ],
             [
-                new TileFoundDescription({
+                {
                     hexCoordinate: {q: 2, r: 2},
                     movementCost: 2
-                }),
+                },
             ]
         ])
     });

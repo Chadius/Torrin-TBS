@@ -70,6 +70,6 @@ export const validateTileHasExpectedNumberOfActions = (q: number, r: number, exp
     expect(searchPath).not.toBeUndefined();
     const tilesFoundByNumberOfActions: TileFoundDescription[][] = searchPath.getTilesTraveledByNumberOfMovementActions();
     expect(tilesFoundByNumberOfActions[expectedActions]).not.toBeUndefined();
-    const tileAtCoordinate = tilesFoundByNumberOfActions[expectedActions].find((t) => t.q === q && t.r === r);
+    const tileAtCoordinate = tilesFoundByNumberOfActions[expectedActions].find((t) => t.hexCoordinate.q === q && t.hexCoordinate.r === r);
     expect(tileAtCoordinate).not.toBeUndefined();
 }

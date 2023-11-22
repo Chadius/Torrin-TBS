@@ -41,8 +41,8 @@ export class SearchResults {
                 .getTilesTraveledByNumberOfMovementActions().map((multipleTiles) =>
                 multipleTiles.filter(tile => {
                     return routeFound.getTilesTraveled().find(closeTile => (
-                        closeTile.r === tile.r
-                        && closeTile.q === tile.q
+                        closeTile.hexCoordinate.r === tile.hexCoordinate.r
+                        && closeTile.hexCoordinate.q === tile.hexCoordinate.q
                     ))
                 })
             )
@@ -83,8 +83,8 @@ export class SearchResults {
             }
 
             reachableTiles[numberOfActions].push({
-                q: path.getMostRecentTileLocation().q,
-                r: path.getMostRecentTileLocation().r,
+                q: path.getMostRecentTileLocation().hexCoordinate.q,
+                r: path.getMostRecentTileLocation().hexCoordinate.r,
             })
         })
 
@@ -108,8 +108,8 @@ export class SearchResults {
     getClosestTilesToDestination(): { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] {
         return Object.values(this.lowestCostRoutes).map((searchPath: SearchPath) => {
             const coordinate: HexCoordinate = {
-                q: searchPath.getMostRecentTileLocation().q,
-                r: searchPath.getMostRecentTileLocation().r,
+                q: searchPath.getMostRecentTileLocation().hexCoordinate.q,
+                r: searchPath.getMostRecentTileLocation().hexCoordinate.r,
             };
             const distance: number = Math.abs(coordinate.q - this.stopLocation.q)
                 + Math.abs(coordinate.r - this.stopLocation.r);

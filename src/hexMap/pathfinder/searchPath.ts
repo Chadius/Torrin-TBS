@@ -33,7 +33,7 @@ export class SearchPath implements CostReportable {
         this.totalMovementCost += cost;
         this.movementCostSinceStartOfAction += cost;
 
-        this.destination = {q: tile.q, r: tile.r};
+        this.destination = {q: tile.hexCoordinate.q, r: tile.hexCoordinate.r};
     }
 
     getMostRecentTileLocation(): TileFoundDescription {
