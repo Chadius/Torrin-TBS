@@ -1,6 +1,6 @@
 import {SearchParametersHelper} from "./searchParams";
 import {SearchResults} from "./searchResults";
-import {SearchPath} from "./searchPath";
+import {SearchPath, SearchPathHelper} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {getResultOrThrowError, isError, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {createMap} from "./pathfinder_test_utils";
@@ -55,18 +55,18 @@ describe('pathfinder reaching a destination', () => {
         let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
         routeFound = getResultOrThrowError(routeOrError);
 
-        expect(routeFound.getTotalMovementCost()).toEqual(1);
-        expect(routeFound.getDestination()).toStrictEqual({
+        expect(SearchPathHelper.getTotalMovementCost(routeFound)).toEqual(1);
+        expect(routeFound.destination).toStrictEqual({
             q: 0,
             r: 1,
         });
-        expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
+        expect(SearchPathHelper.getMostRecentTileLocation(routeFound)).toStrictEqual(
             {
                 hexCoordinate: {q: 0, r: 1},
                 movementCost: 1
             },
         );
-        expect(routeFound.getTilesTraveled()).toStrictEqual([
+        expect(SearchPathHelper.getTilesTraveled(routeFound)).toStrictEqual([
             {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
@@ -235,18 +235,18 @@ describe('pathfinder reaching a destination', () => {
         let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
         routeFound = getResultOrThrowError(routeOrError);
 
-        expect(routeFound.getTotalMovementCost()).toEqual(0);
-        expect(routeFound.getDestination()).toStrictEqual({
+        expect(routeFound.totalMovementCost).toEqual(0);
+        expect(routeFound.destination).toStrictEqual({
             q: 0,
             r: 0,
         });
-        expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
+        expect(SearchPathHelper.getMostRecentTileLocation(routeFound)).toStrictEqual(
             {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
             },
         );
-        expect(routeFound.getTilesTraveled()).toStrictEqual([
+        expect(SearchPathHelper.getTilesTraveled(routeFound)).toStrictEqual([
             {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
@@ -295,19 +295,19 @@ describe('pathfinder reaching a destination', () => {
         let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
         routeFound = getResultOrThrowError(routeOrError);
 
-        expect(routeFound.getTotalMovementCost()).toEqual(4);
-        expect(routeFound.getDestination()).toStrictEqual({
+        expect(routeFound.totalMovementCost).toEqual(4);
+        expect(routeFound.destination).toStrictEqual({
             q: 2,
             r: 2,
         });
-        expect(routeFound.getMostRecentTileLocation()).toStrictEqual(
+        expect(SearchPathHelper.getMostRecentTileLocation(routeFound)).toStrictEqual(
             {
                 hexCoordinate: {q: 2, r: 2},
                 movementCost: 4
             },
         );
 
-        expect(routeFound.getTilesTraveled()).toStrictEqual([
+        expect(SearchPathHelper.getTilesTraveled(routeFound)).toStrictEqual([
             {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0
@@ -330,7 +330,7 @@ describe('pathfinder reaching a destination', () => {
             },
         ]);
 
-        expect(routeFound.getTilesTraveledByNumberOfMovementActions()).toStrictEqual([
+        expect(routeFound.tilesTraveledByNumberOfMovementActions).toStrictEqual([
             [
                 {
                     hexCoordinate: {q: 0, r: 0},
@@ -400,8 +400,8 @@ describe('pathfinder reaching a destination', () => {
         let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
         routeFound = getResultOrThrowError(routeOrError);
 
-        expect(routeFound.getTotalMovementCost()).toEqual(5);
-        expect(routeFound.getTilesTraveled()).toStrictEqual([
+        expect(routeFound.totalMovementCost).toEqual(5);
+        expect(SearchPathHelper.getTilesTraveled(routeFound)).toStrictEqual([
             {
                 hexCoordinate: {q: 0, r: 0},
                 movementCost: 0

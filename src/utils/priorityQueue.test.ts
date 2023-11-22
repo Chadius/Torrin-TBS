@@ -1,5 +1,6 @@
 import {PriorityQueue} from "./priorityQueue";
 import {CostReportable} from "./costReportable";
+import {SearchPath, SearchPathHelper} from "../hexMap/pathfinder/searchPath";
 
 class PathWithCost implements CostReportable {
     cost: number;
@@ -15,9 +16,22 @@ class PathWithCost implements CostReportable {
     }
 }
 
+const comparison = (a: PathWithCost, b: PathWithCost) => {
+    if (a.getTotalMovementCost() < b.getTotalMovementCost()) {
+        return -1;
+    }
+    if (a.getTotalMovementCost() > b.getTotalMovementCost()) {
+        return 1;
+    }
+    return 0;
+};
+
 describe('Priority Queue', () => {
     it('knows when it is empty', () => {
-        const pq = new PriorityQueue();
+        const addedFirst: SearchPath = SearchPathHelper.newSearchPath();
+        addedFirst.totalMovementCost = 0;
+
+        const pq = new PriorityQueue<PathWithCost>(comparison);
         expect(pq.isEmpty()).toBeTruthy();
         pq.enqueue(new PathWithCost("added first", 0));
         expect(pq.isEmpty()).toBeFalsy();
@@ -28,7 +42,7 @@ describe('Priority Queue', () => {
     });
 
     it('gets items in First In First Out order if the costs are the same', () => {
-        const pq = new PriorityQueue();
+        const pq = new PriorityQueue<PathWithCost>(comparison);
         pq.enqueue(new PathWithCost("added first", 0));
         pq.enqueue(new PathWithCost("added second", 0));
 
@@ -40,7 +54,7 @@ describe('Priority Queue', () => {
     });
 
     it('gets items with the least cost first', () => {
-        const pq = new PriorityQueue();
+        const pq = new PriorityQueue<PathWithCost>(comparison);
         pq.enqueue(new PathWithCost("added first but higher cost", 1));
         pq.enqueue(new PathWithCost("added second but lower cost", 0));
         pq.enqueue(new PathWithCost("added third but same cost as second", 0));

@@ -424,7 +424,7 @@ describe('BattleComputerSquaddieSelector', () => {
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
-            expect(state.squaddieMovePath.getDestination()).toStrictEqual(SquaddieActionsForThisRoundHandler.destinationLocation(moveAction));
+            expect(state.squaddieMovePath.destination).toStrictEqual(SquaddieActionsForThisRoundHandler.destinationLocation(moveAction));
             expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe("enemy_demon_0");
             expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
             expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.MOVEMENT);

@@ -1,4 +1,4 @@
-import {SearchPath} from "./searchPath";
+import {SearchPath, SearchPathHelper} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {isError, makeError, makeResult, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {ReachableSquaddiesResults} from "./reachableSquaddiesResults";
@@ -38,9 +38,9 @@ export class SearchResults {
 
         return makeResult(
             routeFound
-                .getTilesTraveledByNumberOfMovementActions().map((multipleTiles) =>
+                .tilesTraveledByNumberOfMovementActions.map((multipleTiles) =>
                 multipleTiles.filter(tile => {
-                    return routeFound.getTilesTraveled().find(closeTile => (
+                    return SearchPathHelper.getTilesTraveled(routeFound).find(closeTile => (
                         closeTile.hexCoordinate.r === tile.hexCoordinate.r
                         && closeTile.hexCoordinate.q === tile.hexCoordinate.q
                     ))
@@ -54,7 +54,7 @@ export class SearchResults {
     }
 
     setLowestCostRoute(searchPath: SearchPath) {
-        const locationFound: TileFoundDescription = searchPath.getMostRecentTileLocation();
+        const locationFound: TileFoundDescription = SearchPathHelper.getMostRecentTileLocation(searchPath);
         const locationKey: string = HexCoordinateToKey(locationFound.hexCoordinate);
         if (this.lowestCostRoutes[locationKey]) {
             throw new Error(`lowest cost route already exists with key ${locationKey}`);
@@ -77,14 +77,14 @@ export class SearchResults {
     } {
         const reachableTiles: { [numberOfActionPoints: number]: [{ q: number, r: number }?] } = {};
         Object.entries(this.lowestCostRoutes).forEach(([_, path]) => {
-            const numberOfActions: number = path.getNumberOfMovementActions();
+            const numberOfActions: number = SearchPathHelper.getNumberOfMovementActions(path);
             if (!reachableTiles[numberOfActions]) {
                 reachableTiles[numberOfActions] = [];
             }
 
             reachableTiles[numberOfActions].push({
-                q: path.getMostRecentTileLocation().hexCoordinate.q,
-                r: path.getMostRecentTileLocation().hexCoordinate.r,
+                q: SearchPathHelper.getMostRecentTileLocation(path).hexCoordinate.q,
+                r: SearchPathHelper.getMostRecentTileLocation(path).hexCoordinate.r,
             })
         })
 
@@ -108,8 +108,8 @@ export class SearchResults {
     getClosestTilesToDestination(): { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] {
         return Object.values(this.lowestCostRoutes).map((searchPath: SearchPath) => {
             const coordinate: HexCoordinate = {
-                q: searchPath.getMostRecentTileLocation().hexCoordinate.q,
-                r: searchPath.getMostRecentTileLocation().hexCoordinate.r,
+                q: SearchPathHelper.getMostRecentTileLocation(searchPath).hexCoordinate.q,
+                r: SearchPathHelper.getMostRecentTileLocation(searchPath).hexCoordinate.r,
             };
             const distance: number = Math.abs(coordinate.q - this.stopLocation.q)
                 + Math.abs(coordinate.r - this.stopLocation.r);

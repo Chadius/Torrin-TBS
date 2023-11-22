@@ -3,7 +3,7 @@ import {PriorityQueue} from "../../utils/priorityQueue";
 import {SearchResults} from "./searchResults";
 import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
 import {TileFoundDescription} from "./tileFoundDescription";
-import {SearchPath} from "./searchPath";
+import {SearchPath, SearchPathHelper} from "./searchPath";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../../utils/ResultOrError";
 import {MissionMap} from "../../missionMap/missionMap";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
@@ -15,7 +15,7 @@ export interface SearchState {
     tilesSearchCanStopAt: HexCoordinate[];
     tileLocationsAlreadyVisited: { [loc: string]: boolean };
     tileLocationsAlreadyConsideredForQueue: { [loc: string]: boolean };
-    searchPathQueue: PriorityQueue;
+    searchPathQueue: PriorityQueue<SearchPath>;
     results: SearchResults;
     shapeGenerator: TargetingShapeGenerator;
 }
@@ -26,7 +26,7 @@ export const SearchStateHelper = {
             tilesSearchCanStopAt: [],
             tileLocationsAlreadyVisited: {},
             tileLocationsAlreadyConsideredForQueue: {},
-            searchPathQueue: new PriorityQueue(),
+            searchPathQueue: new PriorityQueue<SearchPath>(SearchPathHelper.compare),
             results: new SearchResults({
                 stopLocation: searchParams.stopLocation,
             }),
@@ -59,21 +59,23 @@ export const SearchStateHelper = {
         searchState.tileLocationsAlreadyConsideredForQueue[HexCoordinateToKey(location)] = true;
     },
     initializeStartPath: (searchState: SearchState, startLocation: HexCoordinate) => {
-        const startingPath = new SearchPath();
-        startingPath.add({
-            hexCoordinate: {
-                q: startLocation.q,
-                r: startLocation.r,
-            },
-            movementCost: 0,
-        }, 0);
-        startingPath.startNewMovementAction();
+        const startingPath = SearchPathHelper.newSearchPath();
+        SearchPathHelper.add(
+            startingPath,
+            {
+                hexCoordinate: {
+                    q: startLocation.q,
+                    r: startLocation.r,
+                },
+                movementCost: 0,
+            }, 0);
+        SearchPathHelper.startNewMovementAction(startingPath);
         searchState.searchPathQueue.enqueue(startingPath);
     },
     extendPathWithNewMovementAction: (searchState: SearchState, tile: HexCoordinate) => {
         const existingRoute = searchState.results.getLowestCostRoute(tile.q, tile.r);
-        const extendedPath = new SearchPath(existingRoute);
-        extendedPath.startNewMovementAction();
+        const extendedPath = SearchPathHelper.clone(existingRoute);
+        SearchPathHelper.startNewMovementAction(extendedPath);
         searchState.searchPathQueue.enqueue(extendedPath);
     },
     hasMorePathsToSearch: (searchState: SearchState): boolean => {
@@ -87,17 +89,18 @@ export const SearchStateHelper = {
         return nextPath;
     },
     addNeighborSearchPathToQueue: (searchState: SearchState, tileInfo: TileFoundDescription, head: SearchPath, searchParams: SearchParameters): SearchPath => {
-        const neighborPath = new SearchPath(head);
+        const neighborPath = SearchPathHelper.clone(head);
         const tileInfoMovementCost = searchParams.ignoreTerrainPenalty
             ? 1
             : tileInfo.movementCost;
-        neighborPath.add(
+        SearchPathHelper.add(
+            neighborPath,
             {
                 hexCoordinate: {
                     q: tileInfo.hexCoordinate.q,
                     r: tileInfo.hexCoordinate.r,
                 },
-                movementCost: head.getTotalMovementCost() + tileInfoMovementCost,
+                movementCost: head.totalMovementCost + tileInfoMovementCost,
             },
             tileInfoMovementCost
         );

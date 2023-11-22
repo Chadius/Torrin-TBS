@@ -1,39 +1,30 @@
-import {CostReportable} from "./costReportable";
+export class PriorityQueue<T> {
+    items: T[];
+    comparison: (a: T, b: T) => number;
 
-export class PriorityQueue {
-    items: CostReportable[];
-
-    constructor() {
+    constructor(comparison: (a: T, b: T) => number) {
         this.items = [];
+        this.comparison = comparison;
     }
 
     isEmpty(): boolean {
         return this.items.length < 1;
     }
 
-    enqueue(item: CostReportable): void {
+    enqueue(item: T): void {
         this.items.push(item);
-
-        this.items.sort((a, b) => {
-            if (a.getTotalMovementCost() < b.getTotalMovementCost()) {
-                return -1;
-            }
-            if (a.getTotalMovementCost() > b.getTotalMovementCost()) {
-                return 1;
-            }
-            return 0;
-        })
+        this.items.sort(this.comparison);
     }
 
-    peek(): CostReportable | undefined {
+    peek(): T | undefined {
         if (this.items.length > 0) {
             return this.items[0];
         }
         return undefined;
     }
 
-    dequeue(): CostReportable | undefined {
-        const next: CostReportable = this.peek();
+    dequeue(): T | undefined {
+        const next: T = this.peek();
         if (this.items.length > 0) {
             this.items.shift();
         }

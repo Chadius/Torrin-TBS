@@ -13,6 +13,7 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
+import {SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -141,7 +142,9 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
                     )
                 );
 
-            const currentDistanceFromSquaddie = getResultOrThrowError(routeToTargetSquaddie.getRouteToStopLocation()).getTotalDistance();
+            const currentDistanceFromSquaddie = SearchPathHelper.getTotalDistance(
+                getResultOrThrowError(routeToTargetSquaddie.getRouteToStopLocation())
+            );
             if (closestPotentialDistanceFromSquaddie >= currentDistanceFromSquaddie) {
                 return undefined;
             }

@@ -1,7 +1,7 @@
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
 import {SearchParameters, SearchParametersHelper} from "./searchParams";
 import {SearchResults} from "./searchResults";
-import {SearchPath} from "./searchPath";
+import {SearchPath, SearchPathHelper} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError, makeError, makeResult, ResultOrError} from "../../utils/ResultOrError";
@@ -172,10 +172,10 @@ const addLegalSearchPaths = (
         ) {
         let head: SearchPath = SearchStateHelper.nextSearchPath(workingSearchState);
 
-        const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(head.getMostRecentTileLocation().hexCoordinate);
+        const hexCostTerrainType: HexGridMovementCost = missionMap.getHexGridMovementAtLocation(SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate);
 
         let squaddieIsOccupyingTile: boolean = false;
-        const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(head.getMostRecentTileLocation().hexCoordinate);
+        const squaddieAtTileDatum = missionMap.getSquaddieAtLocation(SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate);
         if (MissionMapSquaddieLocationHandler.isValid(squaddieAtTileDatum)) {
             const {
                 squaddieTemplate: occupyingSquaddieTemplate,
@@ -190,13 +190,13 @@ const addLegalSearchPaths = (
         }
 
         markLocationAsStoppable(head, searchParams, workingSearchState, hexCostTerrainType, squaddieIsOccupyingTile);
-        let mostRecentTileLocation = head.getMostRecentTileLocation();
+        let mostRecentTileLocation = SearchPathHelper.getMostRecentTileLocation(head);
         SearchStateHelper.markLocationAsVisited(workingSearchState, mostRecentTileLocation);
 
         if (
             searchParams.stopLocation !== undefined
-            && head.getMostRecentTileLocation().hexCoordinate.q === searchParams.stopLocation.q
-            && head.getMostRecentTileLocation().hexCoordinate.r === searchParams.stopLocation.r
+            && SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate.q === searchParams.stopLocation.q
+            && SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate.r === searchParams.stopLocation.r
         ) {
             arrivedAtTheStopLocation = true;
             continue;
@@ -255,9 +255,9 @@ const markLocationAsStoppable = (
 ) => {
     if (
         canStopOnThisTile(searchPath, searchParams, hexCostTerrainType, squaddieIsOccupyingTile)
-        && !SearchStateHelper.hasAlreadyStoppedOnTile(workingSearchState, searchPath.getMostRecentTileLocation().hexCoordinate)
+        && !SearchStateHelper.hasAlreadyStoppedOnTile(workingSearchState, SearchPathHelper.getMostRecentTileLocation(searchPath).hexCoordinate)
     ) {
-        SearchStateHelper.markLocationAsStopped(workingSearchState, searchPath.getMostRecentTileLocation())
+        SearchStateHelper.markLocationAsStopped(workingSearchState, SearchPathHelper.getMostRecentTileLocation(searchPath))
         SearchStateHelper.setLowestCostRoute(workingSearchState, searchPath);
     }
 }
@@ -377,7 +377,7 @@ const filterNeighborsWithinMovementPerAction = (
         let movementCost = searchParams.ignoreTerrainPenalty
             ? 1
             : MovingCostByTerrainType[hexCostTerrainType];
-        return head.getMovementCostSinceStartOfAction() + movementCost <= searchParams.movementPerAction;
+        return head.movementCostSinceStartOfAction + movementCost <= searchParams.movementPerAction;
     });
 }
 const filterNeighborsCheckingAffiliation = (
@@ -447,14 +447,14 @@ const isPathAtLeastMinimumDistance = (head: SearchPath, searchParams: SearchPara
         return true;
     }
 
-    return head.getTotalDistance() >= searchParams.minimumDistanceMoved;
+    return SearchPathHelper.getTotalDistance(head) >= searchParams.minimumDistanceMoved;
 }
 
 const isPathMoreThanMaximumDistance = (head: SearchPath, searchParams: SearchParameters): boolean => {
     if (searchParams.maximumDistanceMoved === undefined) {
         return false;
     }
-    return head.getTotalDistance() >= searchParams.maximumDistanceMoved;
+    return SearchPathHelper.getTotalDistance(head) >= searchParams.maximumDistanceMoved;
 }
 
 const hasFoundStopLocation = (searchParams: SearchParameters, workingSearchState: SearchState): boolean => {

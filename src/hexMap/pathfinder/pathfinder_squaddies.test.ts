@@ -2,7 +2,7 @@ import {Pathfinder} from "./pathfinder";
 import {SearchParametersHelper} from "./searchParams";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SearchResults} from "./searchResults";
-import {SearchPath} from "./searchPath";
+import {SearchPath, SearchPathHelper} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError, ResultOrError} from "../../utils/ResultOrError";
@@ -12,7 +12,6 @@ import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 describe('pathfinder and squaddies', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -384,7 +383,7 @@ describe('pathfinder and squaddies', () => {
         let routeFound: SearchPath;
         let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
         routeFound = getResultOrThrowError(routeOrError);
-        const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
+        const tilesTraveled: TileFoundDescription[] = SearchPathHelper.getTilesTraveled(routeFound)
         expect(tilesTraveled).toHaveLength(4);
         expect(tilesTraveled[0]).toEqual(
             {
@@ -470,7 +469,7 @@ describe('pathfinder and squaddies', () => {
         let routeFound: SearchPath;
         let routeOrError = getResultOrThrowError(searchResults).getRouteToStopLocation();
         routeFound = getResultOrThrowError(routeOrError);
-        const tilesTraveled: TileFoundDescription[] = routeFound.getTilesTraveled()
+        const tilesTraveled: TileFoundDescription[] = SearchPathHelper.getTilesTraveled(routeFound);
         expect(tilesTraveled).toHaveLength(3);
         expect(tilesTraveled[0]).toEqual(
             {

@@ -6,7 +6,7 @@ import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
@@ -83,7 +83,7 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
 
     const moveAction = new SquaddieMovementAction({
         destination: destinationHexCoordinate,
-        numberOfActionPointsSpent: state.squaddieMovePath.getNumberOfMovementActions(),
+        numberOfActionPointsSpent: SearchPathHelper.getNumberOfMovementActions(state.squaddieMovePath),
     });
 
     SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, moveAction);

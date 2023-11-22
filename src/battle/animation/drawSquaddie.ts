@@ -7,7 +7,7 @@ import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {
     CanPlayerControlSquaddieRightNow,
@@ -121,7 +121,7 @@ export const updateSquaddieIconLocation = (squaddieRepository: BattleSquaddieRep
 }
 
 export const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
-    if (squaddieMovePath.getTilesTraveled().length <= 1) {
+    if (SearchPathHelper.getTilesTraveled(squaddieMovePath).length <= 1) {
         return true;
     }
 
@@ -136,7 +136,7 @@ export const hasMovementAnimationFinished = (timeMovementStarted: number, squadd
 export const moveSquaddieAlongPath = (squaddieRepository: BattleSquaddieRepository, battleSquaddie: BattleSquaddie, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
     const timePassed = Date.now() - timeMovementStarted;
     const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
-        squaddieMovePath.getTilesTraveled().map(tile => tile.hexCoordinate),
+        SearchPathHelper.getTilesTraveled(squaddieMovePath).map(tile => tile.hexCoordinate),
         timePassed,
         TIME_TO_MOVE,
         camera,
