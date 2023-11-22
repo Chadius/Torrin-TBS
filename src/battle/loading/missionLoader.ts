@@ -6,7 +6,8 @@ import {MissionObjective} from "../missionResult/missionObjective";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,
-    MissionCutsceneCollection
+    MissionCutsceneCollection,
+    MissionCutsceneCollectionHelper
 } from "../orchestrator/missionCutsceneCollection";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -286,7 +287,7 @@ const loadCutscenes = ({
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
-    const cutsceneCollection = new MissionCutsceneCollection({
+    const cutsceneCollection = MissionCutsceneCollectionHelper.new({
         cutsceneById: {
             [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
                 resourceHandler,

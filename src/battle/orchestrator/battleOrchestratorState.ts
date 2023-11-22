@@ -13,13 +13,13 @@ import {
     SquaddieInstructionInProgress,
 } from "../history/squaddieInstructionInProgress";
 import {MissionObjective} from "../missionResult/missionObjective";
-import {BattleGameBoard} from "./battleGameBoard";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
+import {MissionObjectivesAndCutscenes, MissionObjectivesAndCutscenesHelper} from "./battleGameBoard";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -102,7 +102,7 @@ export class BattleOrchestratorState {
         this.battleEventRecording = options.battleEventRecording || {history: []};
 
         this.missionCompletionStatus = missionCompletionStatus;
-        this._gameBoard = new BattleGameBoard({
+        this._gameBoard = MissionObjectivesAndCutscenesHelper.new({
             objectives,
             cutsceneCollection,
             cutsceneTriggers,
@@ -144,9 +144,9 @@ export class BattleOrchestratorState {
         return this.gameBoard.objectives;
     }
 
-    private _gameBoard: BattleGameBoard;
+    private _gameBoard: MissionObjectivesAndCutscenes;
 
-    get gameBoard(): BattleGameBoard {
+    get gameBoard(): MissionObjectivesAndCutscenes {
         return this._gameBoard;
     }
 
@@ -229,7 +229,7 @@ export class BattleOrchestratorState {
         this.missionStatistics = {...other.missionStatistics};
         this.missionCompletionStatus = {...other.missionCompletionStatus};
 
-        this._gameBoard = new BattleGameBoard({
+        this._gameBoard = MissionObjectivesAndCutscenesHelper.new({
             objectives: [...other.objectives],
             cutsceneCollection: other.cutsceneCollection,
             cutsceneTriggers: [...other.cutsceneTriggers],

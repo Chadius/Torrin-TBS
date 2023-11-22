@@ -1,6 +1,10 @@
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
-import {DEFAULT_VICTORY_CUTSCENE_ID, MissionCutsceneCollection} from "./missionCutsceneCollection";
+import {
+    DEFAULT_VICTORY_CUTSCENE_ID,
+    MissionCutsceneCollection,
+    MissionCutsceneCollectionHelper
+} from "./missionCutsceneCollection";
 
 describe('MissionCutsceneCollection', () => {
     let dinnerDate: Cutscene;
@@ -20,10 +24,10 @@ describe('MissionCutsceneCollection', () => {
     });
 
     it('creates a default victory cutscene if it does not exist', () => {
-        const cutsceneCollectionWithNoDefaultVictoryCutscene: MissionCutsceneCollection = new MissionCutsceneCollection({cutsceneById: {}});
+        const cutsceneCollectionWithNoDefaultVictoryCutscene: MissionCutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
         expect(DEFAULT_VICTORY_CUTSCENE_ID in cutsceneCollectionWithNoDefaultVictoryCutscene.cutsceneById).toBeTruthy();
 
-        const cutsceneCollectionWithVictoryCutscene: MissionCutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollectionWithVictoryCutscene: MissionCutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: dinnerDate
             }

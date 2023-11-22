@@ -1,11 +1,11 @@
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
-import {BattleGameBoard} from "./battleGameBoard";
+import {MissionObjectivesAndCutscenes, MissionObjectivesAndCutscenesHelper} from "./battleGameBoard";
 import {MissionConditionType} from "../missionResult/missionCondition";
 
 describe('Battle Game Board', () => {
     it('creates an instant win objective if none is given', () => {
-        const gameBoard: BattleGameBoard = new BattleGameBoard({
+        const gameBoard: MissionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
             objectives: [],
             cutsceneCollection: undefined,
             cutsceneTriggers: [],
@@ -20,7 +20,7 @@ describe('Battle Game Board', () => {
         expect(victory).not.toBeUndefined();
     });
     it('uses the given conditions when set later', () => {
-        const gameBoard: BattleGameBoard = new BattleGameBoard({
+        const gameBoard: MissionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
             objectives: [],
             cutsceneCollection: undefined,
             cutsceneTriggers: [],

@@ -2,7 +2,8 @@ import {Cutscene} from "../../cutscene/cutscene";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,
-    MissionCutsceneCollection
+    MissionCutsceneCollection,
+    MissionCutsceneCollectionHelper
 } from "../orchestrator/missionCutsceneCollection";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -33,7 +34,7 @@ describe('Mission Cutscene Service', () => {
 
     beforeEach(() => {
         mockCutscene = new Cutscene({});
-        cutsceneCollection = new MissionCutsceneCollection({
+        cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                 [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,

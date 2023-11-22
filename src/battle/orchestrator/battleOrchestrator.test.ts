@@ -25,7 +25,8 @@ import {BattleCompletionStatus} from "./battleGameBoard";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,
-    MissionCutsceneCollection
+    MissionCutsceneCollection,
+    MissionCutsceneCollectionHelper
 } from "./missionCutsceneCollection";
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
@@ -218,7 +219,7 @@ describe('Battle Orchestrator', () => {
         orchestrator = createOrchestrator({});
         const turn0StateCutsceneId = "starting";
         const mockCutscene = new Cutscene({});
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                 [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
@@ -254,7 +255,7 @@ describe('Battle Orchestrator', () => {
     });
 
     it('recommends cutscene player if there is a cutscene to play at the start', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 "starting": new Cutscene({})
             },
@@ -284,7 +285,7 @@ describe('Battle Orchestrator', () => {
     });
 
     it('skips the introductory cutscene if the game is loaded', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 "starting": new Cutscene({})
             },
@@ -515,7 +516,7 @@ describe('Battle Orchestrator', () => {
 
         beforeEach(() => {
             mockCutscene = new Cutscene({});
-            cutsceneCollection = new MissionCutsceneCollection({
+            cutsceneCollection = MissionCutsceneCollectionHelper.new({
                 cutsceneById: {
                     [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                     [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,

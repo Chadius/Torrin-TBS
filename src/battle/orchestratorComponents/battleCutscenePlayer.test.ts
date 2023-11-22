@@ -2,7 +2,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
-import {MissionCutsceneCollection} from "../orchestrator/missionCutsceneCollection";
+import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
 
 describe('BattleCutscenePlayer', () => {
     let dinnerDate: Cutscene;
@@ -32,13 +32,13 @@ describe('BattleCutscenePlayer', () => {
     });
 
     it('is complete when there is no cutscene to play', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({cutsceneById: {}});
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
         const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         expect(cutscenePlayer.hasCompleted(initialState)).toBeTruthy();
     });
     it('can start a cutscene', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 "dinner_date": dinnerDate,
             }
@@ -52,7 +52,7 @@ describe('BattleCutscenePlayer', () => {
         expect(dinnerDate.isInProgress()).toBeTruthy();
     });
     it('is complete when the cutscene completes', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 "dinner_date": dinnerDate,
             }
@@ -67,7 +67,7 @@ describe('BattleCutscenePlayer', () => {
         expect(cutscenePlayer.hasCompleted(initialState)).toBeTruthy();
     });
     it('will not change the cutscene if one is playing', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 "dinner_date": dinnerDate,
                 "lunch_date": lunchDate,
@@ -90,7 +90,7 @@ describe('BattleCutscenePlayer', () => {
         expect(cutscenePlayer.currentCutscene).toBe(lunchDate);
     });
     it('throws an error if the cutscene does not exist', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {}
         });
 
@@ -109,7 +109,7 @@ describe('BattleCutscenePlayer', () => {
         }).toThrow("No cutscene with Id dinner_date");
     });
     it('clears the current cutscene when it resets', () => {
-        const cutsceneCollection = new MissionCutsceneCollection({
+        const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 "dinner_date": dinnerDate,
             }
