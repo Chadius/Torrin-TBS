@@ -57,7 +57,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
                             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
-                            canStopOnSquaddies: true,
+                            canStopOnSquaddies: false,
                             ignoreTerrainPenalty: false,
                         },
                         stopCondition: {

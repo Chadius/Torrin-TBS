@@ -42,7 +42,6 @@ const resourceKeys: string[] = [
 ];
 
 export class TitleScreen implements GameEngineComponent {
-    // TODO Add a test to make sure this flag is set so you don't hammer the resource loader
     startLoadingResources: boolean;
     private playButton: Button;
     private byLine: TextBox;

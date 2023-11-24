@@ -74,7 +74,9 @@ export const SearchStateHelper = {
     },
     extendPathWithNewMovementAction: (searchState: SearchState, tile: HexCoordinate) => {
         const existingRoute = searchState.results.getLowestCostRoute(tile.q, tile.r);
-        const extendedPath = SearchPathHelper.clone(existingRoute);
+        const extendedPath = existingRoute !== undefined
+            ? SearchPathHelper.clone(existingRoute)
+            : SearchPathHelper.newSearchPath();
         SearchPathHelper.startNewMovementAction(extendedPath);
         searchState.searchPathQueue.enqueue(extendedPath);
     },

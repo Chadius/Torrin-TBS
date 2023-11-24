@@ -342,4 +342,76 @@ describe('move towards closest squaddie in range', () => {
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
+
+    it('will find an alternate destination if a squaddie is blocking its first space', () => {
+        const {
+            squaddieTemplate: playerSquaddieStatic,
+            battleSquaddie: playerSquaddieDynamic
+        } = CreateNewSquaddieAndAddToRepository({
+            templateId: "player_squaddie",
+            battleId: "player_squaddie_1",
+            name: "Player",
+            affiliation: SquaddieAffiliation.PLAYER,
+            squaddieRepository,
+            attributes: {
+                ...DefaultArmyAttributes(),
+                ...{
+                    movement: CreateNewSquaddieMovementWithTraits({
+                        movementPerAction: 1,
+                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                    })
+                }
+            }
+        });
+
+        missionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: [
+                    "1 1 1 ",
+                    " 1 1 1 "
+                ]
+            })
+        });
+
+        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {
+            q: 0,
+            r: 2
+        });
+        missionMap.addSquaddie(ignoredSquaddieStatic.squaddieId.templateId, "player_squaddie_1", {
+            q: 0,
+            r: 1
+        });
+        missionMap.addSquaddie(searchingSquaddieStatic.squaddieId.templateId, "searching_squaddie_0", {
+            q: 0,
+            r: 0
+        });
+
+        const state = new TeamStrategyState({
+            missionMap: missionMap,
+            team: allyTeam,
+            squaddieRepository: squaddieRepository,
+        });
+
+        const expectedInstruction: SquaddieActionsForThisRound = {
+            squaddieTemplateId: searchingSquaddieStatic.squaddieId.templateId,
+            battleSquaddieId: "searching_squaddie_0",
+            startingLocation: {q: 0, r: 0},
+            actions: [],
+        };
+        SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
+            type: SquaddieActionType.MOVEMENT,
+            data: {
+                destination: {q: 1, r: 1},
+                numberOfActionPointsSpent: 2,
+            }
+        });
+
+        const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
+            desiredBattleSquaddieId: "target_squaddie_0",
+        });
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+
+        expect(actualInstruction).toStrictEqual(expectedInstruction);
+        expect(state.instruction).toStrictEqual(expectedInstruction);
+    });
 });
