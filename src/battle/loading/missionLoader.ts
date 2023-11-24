@@ -2,7 +2,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMap} from "../../missionMap/missionMap";
 import {LoadMissionFromFile, MissionFileFormat} from "../../dataLoader/missionLoader";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {MissionObjective} from "../missionResult/missionObjective";
+import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,
@@ -123,7 +123,7 @@ export const MissionLoader = {
             ...MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
         ];
 
-        missionLoaderStatus.objectives = missionData.objectives;
+        missionLoaderStatus.objectives = missionData.objectives.map(MissionObjectiveHelper.validateMissionObjective);
 
         missionLoaderStatus.completionProgress.loadedFileData = true;
 

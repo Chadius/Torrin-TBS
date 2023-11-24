@@ -14,6 +14,7 @@ import {
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {makeResult} from "../../utils/ResultOrError";
 import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestrator/missionCutsceneCollection";
+import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -148,8 +149,14 @@ describe('Mission Loader', () => {
             );
         });
 
-        it('can extract objectives', () => {
-            expect(missionLoaderStatus.objectives).toEqual(missionData.objectives);
+        it('can extract and validate objectives', () => {
+            const clonedObjectives = missionData.objectives.map(obj => {
+                return {...obj}
+            });
+            expect(clonedObjectives[0]).not.toBe(missionLoaderStatus.objectives[0]);
+            expect(clonedObjectives[0]).toEqual(missionLoaderStatus.objectives[0]);
+            const validatedMissionObjectives = clonedObjectives.map(MissionObjectiveHelper.validateMissionObjective);
+            expect(missionLoaderStatus.objectives).toEqual(validatedMissionObjectives);
         });
 
         it('initializes the camera', () => {
