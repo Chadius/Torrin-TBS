@@ -58,7 +58,10 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
 
     const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
         Object.values(movementTilesByNumberOfActions).map(
-            (coordinateList: [({ q: number, r: number } | undefined)]) => {
+            (coordinateList: [({
+                q: number,
+                r: number
+            } | undefined)]) => {
                 return coordinateList.map(
                     (coordinate) => {
                         return {...coordinate}

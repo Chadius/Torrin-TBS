@@ -21,6 +21,8 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -121,28 +123,32 @@ describe('BattleSquaddieMover', () => {
         SquaddieInstructionInProgressHandler.markBattleSquaddieIdAsMoving(squaddieCurrentlyActing, "player_1");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
-            missionMap: map,
-            squaddieMovePath: movePath,
-            squaddieCurrentlyActing: {
-                squaddieActionsForThisRound: moveAction,
-                movingBattleSquaddieIds: [],
-                currentlySelectedAction: undefined,
-            },
+            battleState: BattleStateHelper.newBattleState({
+                missionMap: map,
+                searchPath: movePath,
+                squaddieCurrentlyActing: {
+                    squaddieActionsForThisRound: moveAction,
+                    movingBattleSquaddieIds: [],
+                    currentlySelectedAction: undefined,
+                },
+            }),
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
         mover.update(state, mockedP5GraphicsContext);
         expect(mover.hasCompleted(state)).toBeFalsy();
-        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.squaddieCurrentlyActing, "player_1")).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleState.squaddieCurrentlyActing, "player_1")).toBeTruthy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
         mover.update(state, mockedP5GraphicsContext);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
-        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.squaddieCurrentlyActing, "player_1")).toBeFalsy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleState.squaddieCurrentlyActing, "player_1")).toBeFalsy();
     });
 
     describe('reset actions based on squaddie', () => {
@@ -188,15 +194,18 @@ describe('BattleSquaddieMover', () => {
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             return new BattleOrchestratorState({
-                squaddieRepository: squaddieRepo,
-                missionMap: map,
-                squaddieMovePath: movePath,
-                squaddieCurrentlyActing: {
-                    squaddieActionsForThisRound: newInstruction,
-                    currentlySelectedAction: undefined,
-                    movingBattleSquaddieIds: [],
-                },
                 resourceHandler: mockResourceHandler,
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                squaddieRepository: squaddieRepo,
+                battleState: BattleStateHelper.newBattleState({
+                    missionMap: map,
+                    searchPath: movePath,
+                    squaddieCurrentlyActing: {
+                        squaddieActionsForThisRound: newInstruction,
+                        currentlySelectedAction: undefined,
+                        movingBattleSquaddieIds: [],
+                    },
+                }),
             });
         }
 
@@ -229,7 +238,7 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
+            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
 
             expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
@@ -270,7 +279,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
 
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeFalsy();
+            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeFalsy();
             expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
 
@@ -310,7 +319,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
 
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeFalsy();
+            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeFalsy();
             expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
     });

@@ -74,7 +74,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     startCutscene(cutsceneId: string, state: BattleOrchestratorState) {
-        if (!state.cutsceneCollection.cutsceneById[cutsceneId]) {
+        if (!state.battleState.cutsceneCollection.cutsceneById[cutsceneId]) {
             throw new Error(`No cutscene with Id ${cutsceneId}`);
         }
 
@@ -83,7 +83,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         }
 
         this._currentCutsceneId = cutsceneId;
-        this._currentCutscene = state.cutsceneCollection.cutsceneById[cutsceneId];
+        this._currentCutscene = state.battleState.cutsceneCollection.cutsceneById[cutsceneId];
         this.currentCutscene.start({battleOrchestratorState: state});
     }
 }

@@ -73,7 +73,10 @@ export class BattleSquaddieRepository {
         });
     }
 
-    getSquaddieTemplateIterator(): { squaddieTemplateId: string, squaddieTemplate: SquaddieTemplate }[] {
+    getSquaddieTemplateIterator(): {
+        squaddieTemplateId: string,
+        squaddieTemplate: SquaddieTemplate
+    }[] {
         return Object.entries(this.squaddieTemplates).map(([squaddieTemplateId, squaddieTemplate]) => {
             return {
                 squaddieTemplate,
@@ -82,7 +85,10 @@ export class BattleSquaddieRepository {
         });
     }
 
-    getBattleSquaddieIterator(): { battleSquaddieId: string, battleSquaddie: BattleSquaddie }[] {
+    getBattleSquaddieIterator(): {
+        battleSquaddieId: string,
+        battleSquaddie: BattleSquaddie
+    }[] {
         return Object.entries(this.battleSquaddies).map(([battleSquaddieId, battleSquaddie]) => {
             return {
                 battleSquaddie,

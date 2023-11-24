@@ -42,7 +42,9 @@ export class SquaddieSprite {
         this.resourceHandler.loadResources(Object.values(this.actionSpritesResourceKeysByEmotion));
     }
 
-    public createActorImagesWithLoadedData(): { justCreatedImages: boolean } {
+    public createActorImagesWithLoadedData(): {
+        justCreatedImages: boolean
+    } {
         if (this.resourceHandler.areAllResourcesLoaded(Object.values(this.actionSpritesResourceKeysByEmotion)) !== true) {
             return {justCreatedImages: false};
         }

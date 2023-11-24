@@ -65,9 +65,13 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         return this._targetTextWindows;
     }
 
-    private _targetHitPointMeters: { [battleId: string]: HitPointMeter };
+    private _targetHitPointMeters: {
+        [battleId: string]: HitPointMeter
+    };
 
-    get targetHitPointMeters(): { [battleId: string]: HitPointMeter } {
+    get targetHitPointMeters(): {
+        [battleId: string]: HitPointMeter
+    } {
         return this._targetHitPointMeters;
     }
 
@@ -144,7 +148,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this._weaponIcon = new WeaponIcon();
         this._actorSprite = new ActorSprite();
 
-        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleEventRecording);
+        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording);
         const {
             battleSquaddie: actorBattle,
             squaddieTemplate: actorTemplate,
@@ -152,7 +156,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             mostRecentResults.results.actingBattleSquaddieId
         ));
 
-        const action = state.squaddieCurrentlyActing.currentlySelectedAction;
+        const action = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
         this.actorTextWindow.start({
             actorTemplate: actorTemplate,
             actorBattle: actorBattle,
@@ -167,7 +171,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         })
         this.weaponIcon.start();
 
-        const resultPerTarget = RecordingHandler.mostRecentEvent(state.battleEventRecording).results.resultPerTarget;
+        const resultPerTarget = RecordingHandler.mostRecentEvent(state.battleState.recording).results.resultPerTarget;
         this.setupAnimationForTargetTextWindows(state, resultPerTarget);
         this.setupAnimationForTargetSprites(state, action, resultPerTarget);
         this.setupAnimationForTargetHitPointMeters(state);
@@ -176,7 +180,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     private setupAnimationForTargetSprites(state: BattleOrchestratorState, action: SquaddieAction, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
-        this._targetSprites = RecordingHandler.mostRecentEvent(state.battleEventRecording).results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
+        this._targetSprites = RecordingHandler.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
             const targetSprite = new TargetSprite();
             targetSprite.start({
                 targetBattleSquaddieId: battleId,
@@ -193,7 +197,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     private setupAnimationForTargetTextWindows(state: BattleOrchestratorState, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
-        this._targetTextWindows = RecordingHandler.mostRecentEvent(state.battleEventRecording).results.targetedBattleSquaddieIds.map((battleId: string) => {
+        this._targetTextWindows = RecordingHandler.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string) => {
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
@@ -210,8 +214,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     }
 
     private setupAnimationForTargetHitPointMeters(state: BattleOrchestratorState) {
-        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleEventRecording).results;
-        RecordingHandler.mostRecentEvent(state.battleEventRecording).results.targetedBattleSquaddieIds.forEach((battleId: string, index: number) => {
+        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording).results;
+        RecordingHandler.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.forEach((battleId: string, index: number) => {
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
@@ -247,8 +251,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     }
 
     private updateHitPointMeters(state: BattleOrchestratorState) {
-        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleEventRecording).results;
-        RecordingHandler.mostRecentEvent(state.battleEventRecording).results.targetedBattleSquaddieIds.forEach((battleId: string) => {
+        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording).results;
+        RecordingHandler.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.forEach((battleId: string) => {
             const hitPointMeter = this.targetHitPointMeters[battleId];
             hitPointMeter.changeHitPoints(-1 * mostRecentResults.resultPerTarget[battleId].damageTaken);
         });

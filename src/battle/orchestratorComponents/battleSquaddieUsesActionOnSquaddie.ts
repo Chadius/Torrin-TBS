@@ -105,21 +105,21 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     private hideDeadSquaddies(state: BattleOrchestratorState) {
-        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleEventRecording).results;
+        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording).results;
         mostRecentResults.targetedBattleSquaddieIds.forEach((battleSquaddieId) => {
             const {
                 battleSquaddie,
                 squaddieTemplate
             } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
             if (!IsSquaddieAlive({battleSquaddie, squaddieTemplate})) {
-                state.missionMap.hideSquaddieFromDrawing(battleSquaddieId);
-                state.missionMap.updateSquaddieLocation(battleSquaddieId, undefined);
+                state.battleState.missionMap.hideSquaddieFromDrawing(battleSquaddieId);
+                state.battleState.missionMap.updateSquaddieLocation(battleSquaddieId, undefined);
             }
         });
     }
 
     private setSquaddieActionAnimatorBasedOnAction(state: BattleOrchestratorState) {
-        const mostRecentEvent: BattleEvent = RecordingHandler.mostRecentEvent(state.battleEventRecording);
+        const mostRecentEvent: BattleEvent = RecordingHandler.mostRecentEvent(state.battleState.recording);
         if (
             mostRecentEvent === undefined
             || mostRecentEvent.instruction === undefined

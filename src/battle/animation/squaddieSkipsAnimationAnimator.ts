@@ -60,8 +60,8 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         if (this.outputTextDisplay === undefined) {
             this.outputTextStrings = FormatResult({
                 squaddieRepository: state.squaddieRepository,
-                currentAction: state.squaddieCurrentlyActing.currentlySelectedAction,
-                result: RecordingHandler.mostRecentEvent(state.battleEventRecording).results,
+                currentAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
+                result: RecordingHandler.mostRecentEvent(state.battleState.recording).results,
             });
 
             const textToDraw = this.outputTextStrings.join("\n");

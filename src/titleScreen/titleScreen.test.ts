@@ -113,4 +113,21 @@ describe('Title Screen', () => {
         titleScreen.update(titleScreenState, mockedP5GraphicsContext);
         expect(textSpy).toBeCalledWith("Click here to Play Demo", expect.anything(), expect.anything(), expect.anything(), expect.anything());
     });
+
+    it('will gather resources once upon startup', () => {
+        const [mockedWidth, mockedHeight] = [1, 1];
+        jest.spyOn(mockedP5GraphicsContext, 'windowWidth').mockReturnValue(mockedWidth);
+        jest.spyOn(mockedP5GraphicsContext, 'windowHeight').mockReturnValue(mockedHeight);
+
+        mockResourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
+        const isResourceLoadedMock = jest.spyOn(mockResourceHandler, "isResourceLoaded");
+
+        titleScreen.reset(titleScreenState);
+        titleScreen.update(titleScreenState, mockedP5GraphicsContext);
+        const resourceCallCount = isResourceLoadedMock.mock.calls.length;
+        expect(mockResourceHandler.isResourceLoaded).toBeCalledTimes(resourceCallCount);
+
+        titleScreen.update(titleScreenState, mockedP5GraphicsContext);
+        expect(mockResourceHandler.isResourceLoaded).toBeCalledTimes(resourceCallCount);
+    });
 });

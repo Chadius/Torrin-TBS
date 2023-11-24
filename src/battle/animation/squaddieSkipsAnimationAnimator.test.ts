@@ -23,6 +23,7 @@ import {
 import {Label} from "../../ui/label";
 import * as actionResultTextWriter from "./actionResultTextWriter";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {BattleStateHelper} from "../orchestrator/battleState";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -104,10 +105,13 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will create a text window with the action results', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: monkMeditatesInstruction,
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleEventRecording,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                squaddieCurrentlyActing: monkMeditatesInstruction,
+                recording: battleEventRecording,
+            }),
         })
 
         const formatResultSpy = jest.spyOn(actionResultTextWriter, "FormatResult");
@@ -129,10 +133,13 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     it('will complete at the end of the display time', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: monkMeditatesInstruction,
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleEventRecording,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                squaddieCurrentlyActing: monkMeditatesInstruction,
+                recording: battleEventRecording,
+            }),
         })
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
@@ -147,10 +154,13 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     it('will skip displaying the results if the user clicks', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: monkMeditatesInstruction,
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleEventRecording,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                squaddieCurrentlyActing: monkMeditatesInstruction,
+                recording: battleEventRecording,
+            }),
         })
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);

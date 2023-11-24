@@ -22,7 +22,10 @@ type Options = {
 export class Cutscene {
     dialogueActions: CutsceneAction[];
     decisionTriggers: DecisionTrigger[];
-    screenDimensions: { width: number, height: number };
+    screenDimensions: {
+        width: number,
+        height: number
+    };
 
     dialogueActionIndex: number | undefined;
     currentAction: CutsceneAction | undefined;
@@ -154,7 +157,10 @@ export class Cutscene {
         }
     }
 
-    getNextAction(): { nextAction: CutsceneAction, actionIndex: number } {
+    getNextAction(): {
+        nextAction: CutsceneAction,
+        actionIndex: number
+    } {
         const trigger: DecisionTrigger = this.getTriggeredAction();
         let nextAction: CutsceneAction;
         let currentActionIndex: number = this.dialogueActionIndex;

@@ -103,7 +103,10 @@ export class MockedP5GraphicsContext implements GraphicsContext {
         this.mockedP5.endShape(mode as p5.END_MODE);
     }
 
-    fill({hsb, color}: { hsb?: number[]; color?: string }): void {
+    fill({hsb, color}: {
+        hsb?: number[];
+        color?: string
+    }): void {
         if (hsb) {
             this.mockedP5.fill(hsb[0], hsb[1], hsb[2]);
             return;
@@ -149,7 +152,10 @@ export class MockedP5GraphicsContext implements GraphicsContext {
         this.mockedP5.rect(left, top, width, height);
     }
 
-    stroke({hsb, color}: { hsb?: number[]; color?: string }): void {
+    stroke({hsb, color}: {
+        hsb?: number[];
+        color?: string
+    }): void {
         if (hsb) {
             this.mockedP5.stroke(hsb[0], hsb[1], hsb[2]);
             return;

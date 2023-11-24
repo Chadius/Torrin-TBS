@@ -33,6 +33,8 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
+import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -131,7 +133,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         battleEventRecording = {history: []};
     });
 
-    function useMonkKoanAndReturnState({missionMap}: { missionMap?: MissionMap }) {
+    function useMonkKoanAndReturnState({missionMap}: {
+        missionMap?: MissionMap
+    }) {
         const instruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
@@ -165,11 +169,14 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: monkMeditatesInstruction,
+            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            battleState: BattleStateHelper.newBattleState({
+                squaddieCurrentlyActing: monkMeditatesInstruction,
+                missionMap,
+                recording: battleEventRecording,
+            }),
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            missionMap,
-            battleEventRecording,
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -181,7 +188,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         return state;
     }
 
-    function usePowerAttackLongswordAndReturnState({missionMap}: { missionMap?: MissionMap }) {
+    function usePowerAttackLongswordAndReturnState({missionMap}: {
+        missionMap?: MissionMap
+    }) {
         const wholeTurnInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
@@ -213,11 +222,14 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         RecordingHandler.addEvent(battleEventRecording, newEvent);
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: squaddieInstructionInProgress,
+            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            battleState: BattleStateHelper.newBattleState({
+                missionMap,
+                squaddieCurrentlyActing: squaddieInstructionInProgress,
+                recording: battleEventRecording,
+            }),
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            missionMap,
-            battleEventRecording,
         })
 
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -276,7 +288,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes', () => {
@@ -300,7 +312,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('passes mouse events on to the animator', () => {

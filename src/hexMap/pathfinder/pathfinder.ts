@@ -39,7 +39,9 @@ export const Pathfinder = {
     getTilesInRange(searchParams: SearchParameters, maximumDistance: number, sourceTiles: HexCoordinate[],
                     missionMap: MissionMap,
                     squaddieRepository: BattleSquaddieRepository,): HexCoordinate[] {
-        const inRangeTilesByLocation: { [locationKey: string]: HexCoordinate } = {};
+        const inRangeTilesByLocation: {
+            [locationKey: string]: HexCoordinate
+        } = {};
         if (
             sourceTiles.length < 1
             || searchParams.startLocation === undefined

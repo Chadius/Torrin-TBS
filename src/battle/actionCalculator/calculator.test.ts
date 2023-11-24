@@ -13,6 +13,7 @@ import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInPro
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
+import {BattleStateHelper} from "../orchestrator/battleState";
 
 describe('calculator', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -124,9 +125,13 @@ describe('calculator', () => {
 
             const results = CalculateResults({
                     state: new BattleOrchestratorState({
-                        missionMap,
-                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                         squaddieRepository: squaddieRepository,
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionMap,
+                            squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        }),
                     }),
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 1},
@@ -149,10 +154,14 @@ describe('calculator', () => {
 
             CalculateResults({
                     state: new BattleOrchestratorState({
-                        missionMap,
-                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                         squaddieRepository: squaddieRepository,
-                        missionStatistics,
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionMap,
+                            squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                            missionStatistics,
+                        }),
                     }),
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 1},
@@ -174,10 +183,14 @@ describe('calculator', () => {
             };
             CalculateResults({
                     state: new BattleOrchestratorState({
-                        missionMap,
-                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionMap,
+                            missionStatistics,
+                            squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        }),
                         squaddieRepository: squaddieRepository,
-                        missionStatistics,
                     }),
                     actingBattleSquaddie: enemy1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 0},
@@ -200,8 +213,13 @@ describe('calculator', () => {
 
             const results = CalculateResults({
                     state: new BattleOrchestratorState({
-                        missionMap,
-                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionMap,
+                            squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        }),
+
                         squaddieRepository: squaddieRepository,
                     }),
 
@@ -231,10 +249,14 @@ describe('calculator', () => {
 
             CalculateResults({
                     state: new BattleOrchestratorState({
-                        missionMap,
-                        squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionMap,
+                            squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                            missionStatistics,
+                        }),
                         squaddieRepository: squaddieRepository,
-                        missionStatistics,
                     }),
 
                     actingBattleSquaddie: player1BattleSquaddie,

@@ -10,13 +10,15 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {MissionDefeatCutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
-import {BattleCompletionStatus} from "../orchestrator/battleGameBoard";
+import {BattleCompletionStatus} from "../orchestrator/missionObjectivesAndCutscenes";
 import {MissionVictoryCutsceneTrigger} from "./missionVictoryCutsceneTrigger";
 import {GetCutsceneTriggersToActivate} from "./missionCutsceneService";
 import {MissionStartOfPhaseCutsceneTrigger} from "./missionStartOfPhaseCutsceneTrigger";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionMap} from "../../missionMap/missionMap";
+import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
 describe('Mission Cutscene Service', () => {
     let mockCutscene: Cutscene;
@@ -48,31 +50,36 @@ describe('Mission Cutscene Service', () => {
             systemReactedToTrigger: false,
         };
         victoryState = new BattleOrchestratorState({
-            missionMap: new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
+            squaddieRepository: undefined,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "]
+                    }),
                 }),
+                objectives: [
+                    MissionObjectiveHelper.validateMissionObjective({
+                        id: "test",
+                        reward: {rewardType: MissionRewardType.VICTORY},
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
+                        conditions: [
+                            {
+                                id: "test",
+                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                            }
+                        ],
+                    })
+                ],
+                cutsceneCollection,
+                cutsceneTriggers: [
+                    victoryCutsceneTrigger,
+                ],
             }),
-            objectives: [
-                MissionObjectiveHelper.validateMissionObjective({
-                    id: "test",
-                    reward: {rewardType: MissionRewardType.VICTORY},
-                    numberOfRequiredConditionsToComplete: 1,
-                    hasGivenReward: false,
-                    conditions: [
-                        {
-                            id: "test",
-                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                        }
-                    ],
-                })
-            ],
-            cutsceneCollection,
-            cutsceneTriggers: [
-                victoryCutsceneTrigger,
-            ],
         });
-        victoryState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
+        victoryState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
 
         defeatCutsceneTrigger = {
             cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
@@ -80,64 +87,74 @@ describe('Mission Cutscene Service', () => {
             systemReactedToTrigger: false,
         };
         defeatState = new BattleOrchestratorState({
-            missionMap: new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
+            squaddieRepository: undefined,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "]
+                    }),
                 }),
-            }),
-            objectives: [
-                MissionObjectiveHelper.validateMissionObjective({
-                    id: "test",
-                    reward: {rewardType: MissionRewardType.DEFEAT},
-                    numberOfRequiredConditionsToComplete: 1,
-                    hasGivenReward: false,
-                    conditions: [{
+                objectives: [
+                    MissionObjectiveHelper.validateMissionObjective({
                         id: "test",
-                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                    }],
-                })
-            ],
-            cutsceneCollection,
-            cutsceneTriggers: [
-                defeatCutsceneTrigger,
-            ],
+                        reward: {rewardType: MissionRewardType.DEFEAT},
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
+                        conditions: [{
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                        }],
+                    })
+                ],
+                cutsceneCollection,
+                cutsceneTriggers: [
+                    defeatCutsceneTrigger,
+                ],
+            }),
         });
-        defeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
+        defeatState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
 
         victoryAndDefeatState = new BattleOrchestratorState({
-            missionMap: new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
+            squaddieRepository: undefined,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "]
+                    }),
                 }),
+                objectives: [
+                    MissionObjectiveHelper.validateMissionObjective({
+                        id: "test",
+                        reward: {rewardType: MissionRewardType.VICTORY},
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
+                        conditions: [{
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                        }],
+                    }),
+                    MissionObjectiveHelper.validateMissionObjective({
+                        id: "test1",
+                        reward: {rewardType: MissionRewardType.DEFEAT},
+                        numberOfRequiredConditionsToComplete: 1,
+                        hasGivenReward: false,
+                        conditions: [{
+                            id: "test",
+                            type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                        }],
+                    })
+                ],
+                cutsceneCollection,
+                cutsceneTriggers: [
+                    victoryCutsceneTrigger, defeatCutsceneTrigger,
+                ],
             }),
-            objectives: [
-                MissionObjectiveHelper.validateMissionObjective({
-                    id: "test",
-                    reward: {rewardType: MissionRewardType.VICTORY},
-                    numberOfRequiredConditionsToComplete: 1,
-                    hasGivenReward: false,
-                    conditions: [{
-                        id: "test",
-                        type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                    }],
-                }),
-                MissionObjectiveHelper.validateMissionObjective({
-                    id: "test1",
-                    reward: {rewardType: MissionRewardType.DEFEAT},
-                    numberOfRequiredConditionsToComplete: 1,
-                    hasGivenReward: false,
-                    conditions: [{
-                        id: "test",
-                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                    }],
-                })
-            ],
-            cutsceneCollection,
-            cutsceneTriggers: [
-                victoryCutsceneTrigger, defeatCutsceneTrigger,
-            ],
         });
-        victoryAndDefeatState.gameBoard.completionStatus = BattleCompletionStatus.IN_PROGRESS;
+        victoryAndDefeatState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
 
         turn0CutsceneTrigger = {
             cutsceneId: "starting",
@@ -147,18 +164,27 @@ describe('Mission Cutscene Service', () => {
         }
 
         turn0State = new BattleOrchestratorState({
-            missionMap: new MissionMap({
-                terrainTileMap: new TerrainTileMap({
-                    movementCost: ["1 1 "]
+            squaddieRepository: undefined,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap: new MissionMap({
+                    terrainTileMap: new TerrainTileMap({
+                        movementCost: ["1 1 "]
+                    }),
                 }),
+                cutsceneCollection,
+                objectives: [],
+                cutsceneTriggers: [
+                    turn0CutsceneTrigger
+                ],
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                }
             }),
-            cutsceneCollection,
-            objectives: [],
-            cutsceneTriggers: [
-                turn0CutsceneTrigger
-            ],
         });
-        turn0State.battlePhaseState.turnCount = 0;
+        turn0State.battleState.battlePhaseState.turnCount = 0;
     });
 
     describe('will check for victory conditions once the squaddie finishes action', () => {
@@ -170,7 +196,7 @@ describe('Mission Cutscene Service', () => {
 
         it.each(modes)(`mode $mode will look for victory conditions`, ({mode}) => {
             const missionObjectiveCompleteCheck = jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(true);
-            expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+            expect(victoryState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
             const info = GetCutsceneTriggersToActivate(victoryState, mode);
 
@@ -181,14 +207,14 @@ describe('Mission Cutscene Service', () => {
     });
 
     it('will not check for victory cutscenes if the mode is not related to ending squaddie actions', () => {
-        expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+        expect(victoryState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
         const info = GetCutsceneTriggersToActivate(victoryState, BattleOrchestratorMode.CUTSCENE_PLAYER);
 
         expect(info).toHaveLength(0);
     });
 
     it('will not recommend already triggered cutscenes', () => {
-        expect(victoryState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+        expect(victoryState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
         victoryCutsceneTrigger.systemReactedToTrigger = true;
         const info = GetCutsceneTriggersToActivate(victoryState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 
@@ -197,7 +223,7 @@ describe('Mission Cutscene Service', () => {
 
     it('will check for defeat conditions once the squaddie finishes moving', () => {
         const missionObjectiveCompleteCheck = jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(true);
-        expect(defeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+        expect(defeatState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
         const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 
@@ -208,7 +234,7 @@ describe('Mission Cutscene Service', () => {
 
     it('if you trigger victory and defeat, defeat takes precedence', () => {
         const missionObjectiveCompleteCheck = jest.spyOn(MissionObjectiveHelper, "shouldBeComplete").mockReturnValue(true);
-        expect(victoryAndDefeatState.gameBoard.completionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+        expect(victoryAndDefeatState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
         const info = GetCutsceneTriggersToActivate(defeatState, BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 

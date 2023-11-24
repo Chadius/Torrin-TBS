@@ -14,7 +14,9 @@ export const createMap = (movementCost: string[]) => {
 }
 
 export const validateTilesAreFound = (tilesToTest: HexCoordinate[], tilesFound: HexCoordinate[], tilesNotFound: HexCoordinate[]) => {
-    const tilesByKey: { [key: string]: boolean } = {};
+    const tilesByKey: {
+        [key: string]: boolean
+    } = {};
     tilesFound.forEach((tile) => {
         const key = `${tile.q},${tile.r}`;
         if (tilesByKey[key]) {

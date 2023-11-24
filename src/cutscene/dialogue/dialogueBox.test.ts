@@ -3,6 +3,7 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleOrchestratorState} from "../../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../../battle/orchestratorComponents/battlePhaseTracker";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {BattleStateHelper} from "../../battle/orchestrator/battleState";
 
 describe('dialogue box', () => {
 
@@ -104,10 +105,15 @@ describe('dialogue box', () => {
         });
 
         const battleState: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseState: {
-                currentAffiliation: BattlePhase.UNKNOWN,
-                turnCount: 5
-            }
+            squaddieRepository: undefined,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                    turnCount: 5
+                }
+            }),
         });
 
         purchasePrompt.start({battleOrchestratorState: battleState});

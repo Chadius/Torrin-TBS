@@ -33,7 +33,10 @@ export class GameEngine {
     battleMissionLoader: GameEngineBattleMissionLoader;
     private readonly graphicsContext: GraphicsContext;
 
-    constructor({graphicsContext, startupMode}: { graphicsContext: GraphicsContext, startupMode: GameModeEnum }) {
+    constructor({graphicsContext, startupMode}: {
+        graphicsContext: GraphicsContext,
+        startupMode: GameModeEnum
+    }) {
         this.graphicsContext = graphicsContext;
         this._currentMode = startupMode;
     }
@@ -75,7 +78,9 @@ export class GameEngine {
         return this._resourceHandler;
     }
 
-    setup({graphicsContext}: { graphicsContext: GraphicsContext }) {
+    setup({graphicsContext}: {
+        graphicsContext: GraphicsContext
+    }) {
         this._battleOrchestrator = new BattleOrchestrator({
             initializeBattle: new InitializeBattle(),
             cutscenePlayer: new BattleCutscenePlayer(),
@@ -97,7 +102,6 @@ export class GameEngine {
     }
 
     async draw() {
-        this.component.update(this.getComponentState(), this.graphicsContext);
         await this.update({graphicsContext: this.graphicsContext});
     }
 
@@ -113,10 +117,12 @@ export class GameEngine {
         this.component.mouseMoved(this.getComponentState(), mouseX, mouseY);
     }
 
-    async update({graphicsContext}: { graphicsContext: GraphicsContext }) {
+    async update({graphicsContext}: {
+        graphicsContext: GraphicsContext
+    }) {
         this.component.update(this.getComponentState(), graphicsContext);
 
-        if (this.battleOrchestratorState.gameSaveFlags.savingInProgress) {
+        if (this.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress) {
             this.saveGameAndDownloadFile();
         }
 
@@ -152,7 +158,9 @@ export class GameEngine {
         }
     }
 
-    private lazyLoadResourceHandler({graphicsContext}: { graphicsContext: GraphicsContext }) {
+    private lazyLoadResourceHandler({graphicsContext}: {
+        graphicsContext: GraphicsContext
+    }) {
         if (this.resourceHandler === undefined) {
             this._resourceHandler = new ResourceHandler({
                 graphicsContext: graphicsContext,
@@ -369,8 +377,8 @@ export class GameEngine {
             BattleSaveStateHandler.SaveToFile(saveData);
         } catch (error) {
             console.log(`Save game failed: ${error}`);
-            this.battleOrchestratorState.gameSaveFlags.errorDuringSaving = true;
+            this.battleOrchestratorState.battleState.gameSaveFlags.errorDuringSaving = true;
         }
-        this.battleOrchestratorState.gameSaveFlags.savingInProgress = false;
+        this.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress = false;
     }
 }

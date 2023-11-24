@@ -1,15 +1,20 @@
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
-import {MissionObjectivesAndCutscenes, MissionObjectivesAndCutscenesHelper} from "./battleGameBoard";
+import {
+    BattleCompletionStatus,
+    MissionObjectivesAndCutscenes,
+    MissionObjectivesAndCutscenesHelper
+} from "./missionObjectivesAndCutscenes";
 import {MissionConditionType} from "../missionResult/missionCondition";
 
-describe('Battle Game Board', () => {
+describe('Mission Objectives and Cutscenes', () => {
     it('creates an instant win objective if none is given', () => {
         const gameBoard: MissionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
             objectives: [],
             cutsceneCollection: undefined,
             cutsceneTriggers: [],
             missionCompletionStatus: {},
+            battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
         });
 
         expect(gameBoard.objectives.length).toBeGreaterThanOrEqual(1);
@@ -25,6 +30,7 @@ describe('Battle Game Board', () => {
             cutsceneCollection: undefined,
             cutsceneTriggers: [],
             missionCompletionStatus: {},
+            battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
         });
         gameBoard.objectives = [
             MissionObjectiveHelper.validateMissionObjective({

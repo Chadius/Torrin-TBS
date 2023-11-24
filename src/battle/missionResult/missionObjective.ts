@@ -28,7 +28,7 @@ export const MissionObjectiveHelper = {
         return objective.numberOfRequiredConditionsToComplete === objective.conditions.length;
     },
     shouldBeComplete: (objective: MissionObjective, state: BattleOrchestratorState): boolean => {
-        const missionCompletionStatus: MissionCompletionStatus = state.missionCompletionStatus;
+        const missionCompletionStatus: MissionCompletionStatus = state.battleState.missionCompletionStatus;
 
         if (missionCompletionStatus[objective.id].isComplete !== undefined) {
             return missionCompletionStatus[objective.id].isComplete;

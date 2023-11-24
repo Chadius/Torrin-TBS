@@ -20,6 +20,7 @@ import {
 } from "../../hexMap/convertCoordinates";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleStateHelper} from "../orchestrator/battleState";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -42,7 +43,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
     hasCompleted(state: BattleOrchestratorState): boolean {
         if (!this.newBannerShown
-            && BattleSquaddieTeamHelper.hasAnActingSquaddie(state.getCurrentTeam(), state.squaddieRepository)
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository)
         ) {
             return true;
         }
@@ -73,8 +74,8 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
     update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
         if (!this.newBannerShown
-            && state.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
-            && BattleSquaddieTeamHelper.hasAnActingSquaddie(state.getCurrentTeam(), state.squaddieRepository)
+            && state.battleState.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository)
         ) {
             return;
         }
@@ -84,34 +85,34 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
 
-        if (state.battlePhaseState.currentAffiliation === BattlePhase.UNKNOWN
-            || !BattleSquaddieTeamHelper.hasAnActingSquaddie(state.getCurrentTeam(), state.squaddieRepository)
+        if (state.battleState.battlePhaseState.currentAffiliation === BattlePhase.UNKNOWN
+            || !BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository)
         ) {
-            const oldTeam = state.getCurrentTeam();
+            const oldTeam = BattleStateHelper.getCurrentTeam(state.battleState);
             if (oldTeam) {
                 BattleSquaddieTeamHelper.beginNewRound(oldTeam, state.squaddieRepository);
             }
 
             this.newBannerShown = true;
-            AdvanceToNextPhase(state.battlePhaseState, state.teamsByAffiliation);
+            AdvanceToNextPhase(state.battleState.battlePhaseState, state.battleState.teamsByAffiliation);
             this.bannerDisplayAnimationStartTime = Date.now();
             this.setBannerImage(state);
 
-            state.camera.setXVelocity(0);
-            state.camera.setYVelocity(0);
+            state.battleState.camera.setXVelocity(0);
+            state.battleState.camera.setYVelocity(0);
 
             this.panToControllablePlayerSquaddieIfPlayerPhase(state);
 
-            BattleSquaddieTeamHelper.beginNewRound(state.getCurrentTeam(), state.squaddieRepository);
+            BattleSquaddieTeamHelper.beginNewRound(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository);
 
-            state.missionMap.terrainTileMap.stopHighlightingTiles();
+            state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         }
     }
 
     setBannerImage(state: BattleOrchestratorState) {
-        state.missionMap.terrainTileMap.stopOutlineTiles();
+        state.battleState.missionMap.terrainTileMap.stopOutlineTiles();
 
-        switch (state.battlePhaseState.currentAffiliation) {
+        switch (state.battleState.battlePhaseState.currentAffiliation) {
             case BattlePhase.PLAYER:
                 this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_crusaders"));
                 this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource("phase banner player"));
@@ -184,11 +185,11 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 
     private panToControllablePlayerSquaddieIfPlayerPhase(state: BattleOrchestratorState) {
-        if (state.battlePhaseState.currentAffiliation !== BattlePhase.PLAYER) {
+        if (state.battleState.battlePhaseState.currentAffiliation !== BattlePhase.PLAYER) {
             return;
         }
 
-        const playerTeam = state.teamsByAffiliation[SquaddieAffiliation.PLAYER];
+        const playerTeam = state.battleState.teamsByAffiliation[SquaddieAffiliation.PLAYER];
         let squaddieToPanToBattleId = playerTeam.battleSquaddieIds.find((id) => {
             const {
                 squaddieTemplate,
@@ -205,19 +206,19 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
 
-        const mapDatum = state.missionMap.getSquaddieByBattleId(squaddieToPanToBattleId);
+        const mapDatum = state.battleState.missionMap.getSquaddieByBattleId(squaddieToPanToBattleId);
         if (MissionMapSquaddieLocationHandler.isValid(mapDatum)) {
             const squaddieScreenLocation = convertMapCoordinatesToScreenCoordinates(
                 mapDatum.mapLocation.q,
                 mapDatum.mapLocation.r,
-                ...state.camera.getCoordinates()
+                ...state.battleState.camera.getCoordinates()
             );
             if (isCoordinateOnScreen(...squaddieScreenLocation)) {
                 return;
             }
 
             const squaddieWorldLocation = convertMapCoordinatesToWorldCoordinates(mapDatum.mapLocation.q, mapDatum.mapLocation.r);
-            state.camera.pan({
+            state.battleState.camera.pan({
                 xDestination: squaddieWorldLocation[0],
                 yDestination: squaddieWorldLocation[1],
                 timeToPan: BANNER_ANIMATION_TIME - 500,

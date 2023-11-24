@@ -4,7 +4,9 @@ import p5 from "p5";
 export class P5GraphicsContext implements GraphicsContext {
     p: p5;
 
-    constructor({p}: { p: p5 }) {
+    constructor({p}: {
+        p: p5
+    }) {
         this.p = p;
     }
 
@@ -20,7 +22,10 @@ export class P5GraphicsContext implements GraphicsContext {
         return this.p.createImage(width, height);
     }
 
-    fill({hsb, color}: { hsb?: number[]; color?: string }): void {
+    fill({hsb, color}: {
+        hsb?: number[];
+        color?: string
+    }): void {
         if (hsb) {
             this.p.fill(hsb[0], hsb[1], hsb[2]);
             return;
@@ -73,7 +78,10 @@ export class P5GraphicsContext implements GraphicsContext {
         this.p.rect(left, top, width, height);
     }
 
-    stroke({hsb, color}: { hsb?: number[]; color?: string }): void {
+    stroke({hsb, color}: {
+        hsb?: number[];
+        color?: string
+    }): void {
         if (hsb) {
             this.p.stroke(hsb[0], hsb[1], hsb[2]);
             return;

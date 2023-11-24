@@ -23,7 +23,7 @@ import {GameEngineComponentState} from "../../gameEngine/gameEngine";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
-import {BattleCompletionStatus} from "./battleGameBoard";
+import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -116,7 +116,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     recommendStateChanges(state: GameEngineComponentState): GameEngineChanges {
-        if ((state as BattleOrchestratorState).gameSaveFlags.loadRequested) {
+        if ((state as BattleOrchestratorState).battleState.gameSaveFlags.loadRequested) {
             return {
                 nextMode: GameModeEnum.LOADING_BATTLE
             };
@@ -157,7 +157,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     public update(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
-        if ((state as BattleOrchestratorState).gameSaveFlags.loadRequested) {
+        if ((state as BattleOrchestratorState).battleState.gameSaveFlags.loadRequested) {
             return;
         }
 
@@ -198,12 +198,12 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break;
         }
 
-        if (!MissionStatisticsHandler.hasStarted(state.missionStatistics)) {
-            MissionStatisticsHandler.startRecording(state.missionStatistics);
+        if (!MissionStatisticsHandler.hasStarted(state.battleState.missionStatistics)) {
+            MissionStatisticsHandler.startRecording(state.battleState.missionStatistics);
         } else if (this.uiControlSettings.pauseTimer === false) {
             if (this.previousUpdateTimestamp != undefined) {
                 MissionStatisticsHandler.addTimeElapsed(
-                    state.missionStatistics,
+                    state.battleState.missionStatistics,
                     Date.now() - this.previousUpdateTimestamp,
                 );
             }
@@ -218,8 +218,8 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (currentComponent.hasCompleted(state)) {
             if (
-                state.gameBoard.completionStatus === BattleCompletionStatus.VICTORY
-                || state.gameBoard.completionStatus === BattleCompletionStatus.DEFEAT
+                state.battleState.battleCompletionStatus === BattleCompletionStatus.VICTORY
+                || state.battleState.battleCompletionStatus === BattleCompletionStatus.DEFEAT
             ) {
                 this._battleComplete = true;
             }
@@ -279,7 +279,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     hasCompleted(state: GameEngineComponentState): boolean {
-        return this.battleComplete || (state as BattleOrchestratorState).gameSaveFlags.loadRequested;
+        return this.battleComplete || (state as BattleOrchestratorState).battleState.gameSaveFlags.loadRequested;
     }
 
     reset(state: GameEngineComponentState): void {
@@ -321,11 +321,11 @@ export class BattleOrchestrator implements GameEngineComponent {
         if (orchestrationChanges.checkMissionObjectives === true) {
             let completionStatus: BattleCompletionStatus = this.checkMissionCompleteStatus(state);
             if (completionStatus) {
-                state.gameBoard.completionStatus = completionStatus;
+                state.battleState.battleCompletionStatus = completionStatus;
             }
         }
 
-        if (state.gameSaveFlags.loadingInProgress === true && state.battlePhaseState.turnCount === 0) {
+        if (state.battleState.gameSaveFlags.loadingInProgress === true && state.battleState.battlePhaseState.turnCount === 0) {
             cutsceneTriggersToActivate = cutsceneTriggersToActivate.filter((cutsceneTrigger) =>
                 cutsceneTrigger.triggeringEvent !== TriggeringEvent.START_OF_TURN
                 || cutsceneTrigger.turn !== 0
@@ -344,14 +344,14 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     private checkMissionCompleteStatus(state: BattleOrchestratorState): BattleCompletionStatus {
-        const defeatObjectives = state.objectives.find((objective: MissionObjective) =>
+        const defeatObjectives = state.battleState.objectives.find((objective: MissionObjective) =>
             objective.reward.rewardType === MissionRewardType.DEFEAT && MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
         if (defeatObjectives) {
             return BattleCompletionStatus.DEFEAT;
         }
 
-        const victoryObjectives = state.objectives.find((objective: MissionObjective) =>
+        const victoryObjectives = state.battleState.objectives.find((objective: MissionObjective) =>
             objective.reward.rewardType === MissionRewardType.VICTORY && MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
         if (victoryObjectives) {

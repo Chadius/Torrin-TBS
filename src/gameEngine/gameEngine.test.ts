@@ -20,6 +20,7 @@ import {BattleCamera} from "../battle/battleCamera";
 import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
+import {BattleStateHelper} from "../battle/orchestrator/battleState";
 
 describe('Game Engine', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -145,14 +146,14 @@ describe('Game Engine', () => {
                 graphicsContext: mockedP5GraphicsContext,
             });
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
-            newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress = true;
+            newGameEngine.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress = true;
             const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockReturnValue(null);
 
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress).toBeFalsy();
+            expect(newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress).toBeFalsy();
         });
         it('will set the error flag if there is an error while saving', async () => {
             const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {
@@ -162,8 +163,8 @@ describe('Game Engine', () => {
                 graphicsContext: mockedP5GraphicsContext,
             });
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
-            newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress = true;
+            newGameEngine.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress = true;
             const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockImplementation(() => {
                 throw new Error("Failed for some reason");
             });
@@ -171,8 +172,8 @@ describe('Game Engine', () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.savingInProgress).toBeFalsy();
-            expect(newGameEngine.battleOrchestratorState.gameSaveFlags.errorDuringSaving).toBeTruthy();
+            expect(newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress).toBeFalsy();
+            expect(newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.errorDuringSaving).toBeTruthy();
 
             expect(consoleLoggerSpy).toBeCalled();
         });
@@ -191,9 +192,9 @@ describe('Game Engine', () => {
                 graphicsContext: mockedP5GraphicsContext,
             });
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.battleOrchestratorState.missionMap = NullMissionMap();
-            newGameEngine.battleOrchestratorState.gameSaveFlags.loadRequested = true;
-            newGameEngine.battleOrchestratorState.gameBoard.objectives = [
+            newGameEngine.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.loadRequested = true;
+            newGameEngine.battleOrchestratorState.battleState.objectives = [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
                     reward: {rewardType: MissionRewardType.VICTORY},
@@ -228,41 +229,44 @@ describe('Game Engine', () => {
             );
 
             originalState = new BattleOrchestratorState({
-                camera: new BattleCamera(100, 200),
-                missionMap: NullMissionMap(),
                 squaddieRepository: new BattleSquaddieRepository(),
-                missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
-                    timeElapsedInMilliseconds: 9001,
-                },
-                objectives: [
-                    MissionObjectiveHelper.validateMissionObjective({
-                        id: "test",
-                        reward: {rewardType: MissionRewardType.VICTORY},
-                        hasGivenReward: false,
-                        numberOfRequiredConditionsToComplete: 1,
-                        conditions: [
-                            {
-                                id: "test",
-                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                            }
-                        ],
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    camera: new BattleCamera(100, 200),
+                    missionMap: NullMissionMap(),
+                    missionStatistics: {
+                        ...MissionStatisticsHandler.new(),
+                        timeElapsedInMilliseconds: 9001,
+                    },
+                    objectives: [
+                        MissionObjectiveHelper.validateMissionObjective({
+                            id: "test",
+                            reward: {rewardType: MissionRewardType.VICTORY},
+                            hasGivenReward: false,
+                            numberOfRequiredConditionsToComplete: 1,
+                            conditions: [
+                                {
+                                    id: "test",
+                                    type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                }
+                            ],
 
-                    })
-                ],
+                        })
+                    ],
+                    cutsceneTriggers: [
+                        {
+                            cutsceneId: "introductory",
+                            triggeringEvent: TriggeringEvent.START_OF_TURN,
+                            turn: 0,
+                            systemReactedToTrigger: true,
+                        }
+                    ],
+                    missionCompletionStatus: {},
+                }),
                 resourceHandler: new ResourceHandler({
                     imageLoader: new StubImmediateLoader(),
                     allResources: []
                 }),
-                cutsceneTriggers: [
-                    {
-                        cutsceneId: "introductory",
-                        triggeringEvent: TriggeringEvent.START_OF_TURN,
-                        turn: 0,
-                        systemReactedToTrigger: true,
-                    }
-                ],
-                missionCompletionStatus: {},
             });
         });
         afterEach(() => {
@@ -274,7 +278,7 @@ describe('Game Engine', () => {
         });
         it('will not reset the battle orchestrator state', () => {
             newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-            expect(newGameEngine.battleOrchestratorState.objectives[0].id).toBe("test");
+            expect(newGameEngine.battleOrchestratorState.battleState.objectives[0].id).toBe("test");
         });
     });
 });

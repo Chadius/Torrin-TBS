@@ -12,23 +12,24 @@ export enum BattleCompletionStatus {
 
 export interface MissionObjectivesAndCutscenes {
     missionCompletionStatus: MissionCompletionStatus;
-    completionStatus: BattleCompletionStatus;
+    battleCompletionStatus: BattleCompletionStatus;
     cutsceneTriggers: CutsceneTrigger[];
     objectives: MissionObjective[];
     cutsceneCollection: MissionCutsceneCollection;
 }
 
 export const MissionObjectivesAndCutscenesHelper = {
-    new: ({objectives, cutsceneCollection, cutsceneTriggers, missionCompletionStatus}: {
+    new: ({objectives, cutsceneCollection, cutsceneTriggers, missionCompletionStatus, battleCompletionStatus}: {
         objectives: MissionObjective[],
         cutsceneCollection: MissionCutsceneCollection,
         cutsceneTriggers: CutsceneTrigger[],
         missionCompletionStatus: MissionCompletionStatus,
+        battleCompletionStatus: BattleCompletionStatus,
     }): MissionObjectivesAndCutscenes => {
         return {
             missionCompletionStatus: missionCompletionStatus,
             cutsceneTriggers: cutsceneTriggers || [],
-            completionStatus: BattleCompletionStatus.IN_PROGRESS,
+            battleCompletionStatus: battleCompletionStatus,
             cutsceneCollection: cutsceneCollection || MissionCutsceneCollectionHelper.new({cutsceneById: {}}),
             objectives: objectives && objectives.length > 0 ? objectives : [
                 MissionObjectiveHelper.validateMissionObjective({

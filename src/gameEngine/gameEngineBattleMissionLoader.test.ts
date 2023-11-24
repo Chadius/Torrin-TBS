@@ -21,6 +21,8 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {SaveFile} from "../utils/fileHandling/saveFile";
 import {BattleCamera} from "../battle/battleCamera";
 import {TriggeringEvent} from "../cutscene/cutsceneTrigger";
+import {BattleStateHelper} from "../battle/orchestrator/battleState";
+import {BattleSquaddieSelectedHUD} from "../battle/battleSquaddieSelectedHUD";
 
 describe('GameEngineBattleMissionLoader', () => {
     let loader: GameEngineBattleMissionLoader;
@@ -41,6 +43,8 @@ describe('GameEngineBattleMissionLoader', () => {
         state = new BattleOrchestratorState({
             resourceHandler,
             squaddieRepository,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({}),
         });
 
         missionData = {
@@ -145,12 +149,12 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('mission map', () => {
-            expect(state.missionMap.terrainTileMap).toEqual(loader.missionLoaderStatus.missionMap.terrainTileMap);
+            expect(state.battleState.missionMap.terrainTileMap).toEqual(loader.missionLoaderStatus.missionMap.terrainTileMap);
         });
 
         it('mission objectives', () => {
-            expect(state.gameBoard.objectives).toEqual(loader.missionLoaderStatus.objectives);
-            expect(state.missionCompletionStatus).toEqual({
+            expect(state.battleState.objectives).toEqual(loader.missionLoaderStatus.objectives);
+            expect(state.battleState.missionCompletionStatus).toEqual({
                     "victory": {
                         isComplete: undefined,
                         conditions:
@@ -171,14 +175,14 @@ describe('GameEngineBattleMissionLoader', () => {
 
         it('squaddies', () => {
             expect(state.squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
-            expect(Object.keys(state.teamsByAffiliation).length).toBeGreaterThan(0);
-            expect(Object.keys(state.teamStrategyByAffiliation).length).toBeGreaterThan(0);
+            expect(Object.keys(state.battleState.teamsByAffiliation).length).toBeGreaterThan(0);
+            expect(Object.keys(state.battleState.teamStrategyByAffiliation).length).toBeGreaterThan(0);
             expect(Object.keys(state.squaddieRepository.imageUIByBattleSquaddieId)).toHaveLength(squaddieRepository.getBattleSquaddieIterator().length);
         });
 
         it('cutscenes', () => {
-            expect(state.cutsceneTriggers.length).toBeGreaterThan(0);
-            expect(state.gameBoard.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+            expect(state.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
+            expect(state.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
         });
 
         it('initializes the camera', () => {
@@ -228,40 +232,43 @@ describe('GameEngineBattleMissionLoader', () => {
             );
 
             originalState = new BattleOrchestratorState({
-                camera: new BattleCamera(100, 200),
-                missionMap: NullMissionMap(),
                 squaddieRepository,
-                missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
-                    timeElapsedInMilliseconds: 9001,
-                },
-                objectives: [
-                    MissionObjectiveHelper.validateMissionObjective({
-                        id: "test",
-                        reward: {rewardType: MissionRewardType.VICTORY},
-                        hasGivenReward: false,
-                        numberOfRequiredConditionsToComplete: 1,
-                        conditions: [
-                            {
-                                id: "test",
-                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                            }
-                        ],
-
-                    })
-                ],
                 resourceHandler,
-                cutsceneTriggers: [
-                    {
-                        cutsceneId: "introductory",
-                        triggeringEvent: TriggeringEvent.START_OF_TURN,
-                        turn: 0,
-                        systemReactedToTrigger: true,
-                    }
-                ],
-                missionCompletionStatus: {},
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleState: BattleStateHelper.newBattleState({
+                    camera: new BattleCamera(100, 200),
+                    missionMap: NullMissionMap(),
+                    missionStatistics: {
+                        ...MissionStatisticsHandler.new(),
+                        timeElapsedInMilliseconds: 9001,
+                    },
+                    objectives: [
+                        MissionObjectiveHelper.validateMissionObjective({
+                            id: "test",
+                            reward: {rewardType: MissionRewardType.VICTORY},
+                            hasGivenReward: false,
+                            numberOfRequiredConditionsToComplete: 1,
+                            conditions: [
+                                {
+                                    id: "test",
+                                    type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                }
+                            ],
+
+                        })
+                    ],
+                    cutsceneTriggers: [
+                        {
+                            cutsceneId: "introductory",
+                            triggeringEvent: TriggeringEvent.START_OF_TURN,
+                            turn: 0,
+                            systemReactedToTrigger: true,
+                        }
+                    ],
+                    missionCompletionStatus: {},
+                }),
             });
-            originalState.gameSaveFlags.loadRequested = true;
+            originalState.battleState.gameSaveFlags.loadRequested = true;
             currentState = originalState.clone();
         });
 
@@ -290,21 +297,20 @@ describe('GameEngineBattleMissionLoader', () => {
             await loader.update(currentState);
             await loader.update(currentState);
             expect(loader.missionLoaderStatus.resourcesPendingLoading).toHaveLength(0);
-            expect(currentState.cutsceneTriggers.length).toBeGreaterThan(0);
-            expect(currentState.gameBoard.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
-            expect(currentState.missionStatistics.timeElapsedInMilliseconds).toBe(1);
+            expect(currentState.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
+            expect(currentState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+            expect(currentState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(1);
 
             expect(currentState.missingComponents).toHaveLength(0);
             expect(currentState.isValid).toBeTruthy();
-            expect(currentState.isReadyToContinueMission).toBeTruthy();
         });
 
         it('will mark the save as complete', async () => {
             await loader.update(currentState);
             await loader.update(currentState);
 
-            expect(currentState.gameSaveFlags.loadRequested).toBeFalsy();
-            expect(currentState.gameSaveFlags.loadingInProgress).toBeFalsy();
+            expect(currentState.battleState.gameSaveFlags.loadRequested).toBeFalsy();
+            expect(currentState.battleState.gameSaveFlags.loadingInProgress).toBeFalsy();
             expect(loader.hasCompleted(currentState)).toBeTruthy();
         });
 
@@ -319,15 +325,15 @@ describe('GameEngineBattleMissionLoader', () => {
 
         it('should abort loading if the applied file is invalid.', async () => {
             let consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-            jest.spyOn(currentState, "isReadyToContinueMission", "get").mockReturnValue(false);
+            jest.spyOn(currentState, "isValid", "get").mockReturnValue(false);
             await loader.update(currentState);
             expect(currentState).toEqual(loader.backupBattleOrchestratorState);
             await loader.update(currentState);
-            expect(currentState.gameSaveFlags.loadingInProgress).toBeFalsy();
-            expect(currentState.gameSaveFlags.loadRequested).toBeFalsy();
+            expect(currentState.battleState.gameSaveFlags.loadingInProgress).toBeFalsy();
+            expect(currentState.battleState.gameSaveFlags.loadRequested).toBeFalsy();
             expect(loader.errorFoundWhileLoading).toBeTruthy();
 
-            expect(currentState.missionStatistics.timeElapsedInMilliseconds).toEqual(originalState.missionStatistics.timeElapsedInMilliseconds);
+            expect(currentState.battleState.missionStatistics.timeElapsedInMilliseconds).toEqual(originalState.battleState.missionStatistics.timeElapsedInMilliseconds);
 
             expect(consoleErrorSpy).toBeCalledWith("Save file is incompatible. Reverting.");
             expect(loader.hasCompleted(currentState)).toBeTruthy();

@@ -195,20 +195,23 @@ const initializeSquaddieResources = ({
             resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey)
         );
         const datum = missionLoaderStatus.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
-        const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-            datum.mapLocation.q, datum.mapLocation.r, ...missionLoaderStatus.mapSettings.camera.getCoordinates())
 
-        squaddieRepository.imageUIByBattleSquaddieId[battleSquaddieId] = new ImageUI({
-            graphic: image,
-            area: new RectArea({
-                left: xyCoords[0],
-                top: xyCoords[1],
-                width: image.width,
-                height: image.height,
-                horizAlign: HORIZ_ALIGN_CENTER,
-                vertAlign: VERT_ALIGN_CENTER
-            })
-        })
+        if (datum.mapLocation !== undefined) {
+            const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
+                datum.mapLocation.q, datum.mapLocation.r, ...missionLoaderStatus.mapSettings.camera.getCoordinates())
+
+            squaddieRepository.imageUIByBattleSquaddieId[battleSquaddieId] = new ImageUI({
+                graphic: image,
+                area: new RectArea({
+                    left: xyCoords[0],
+                    top: xyCoords[1],
+                    width: image.width,
+                    height: image.height,
+                    horizAlign: HORIZ_ALIGN_CENTER,
+                    vertAlign: VERT_ALIGN_CENTER
+                })
+            });
+        }
     });
 }
 
@@ -806,7 +809,9 @@ const loadSlitherDemons = ({
     });
 };
 
-function loadTeamInfo({missionLoaderStatus}: { missionLoaderStatus: MissionLoaderStatus }) {
+function loadTeamInfo({missionLoaderStatus}: {
+    missionLoaderStatus: MissionLoaderStatus
+}) {
     missionLoaderStatus.squaddieData.teamsByAffiliation[SquaddieAffiliation.PLAYER] = {
         affiliation: SquaddieAffiliation.PLAYER,
         name: "Crusaders",

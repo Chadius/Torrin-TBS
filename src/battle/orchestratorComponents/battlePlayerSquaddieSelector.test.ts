@@ -36,6 +36,7 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {BattleStateHelper} from "../orchestrator/battleState";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -208,10 +209,13 @@ describe('BattleSquaddieSelector', () => {
         mockHud.selectSquaddieAndDrawWindow = jest.fn();
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseState,
-            teamsByAffiliation,
-            missionMap,
-            camera,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                battlePhaseState,
+                teamsByAffiliation,
+                missionMap,
+                camera,
+            }),
             battleSquaddieSelectedHUD: mockHud,
             squaddieRepository: squaddieRepo,
         });
@@ -231,7 +235,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeFalsy();
-        expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe("");
+        expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)).toBe("");
     });
 
     it('recommends computer squaddie selector if the player cannot control the squaddies', () => {
@@ -244,11 +248,15 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseState,
-            teamsByAffiliation,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
-            camera,
-            missionMap,
+            battleState: BattleStateHelper.newBattleState({
+                battlePhaseState,
+                teamsByAffiliation,
+                camera,
+                missionMap,
+            }),
         });
 
         selector.update(state, mockedP5GraphicsContext);
@@ -270,13 +278,16 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            missionMap,
+            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             squaddieRepository: squaddieRepo,
-            camera,
-            battlePhaseState,
-            teamsByAffiliation,
-            battleEventRecording: {history: []},
             resourceHandler: mocks.mockResourceHandler(),
+            battleState: BattleStateHelper.newBattleState({
+                missionMap,
+                camera,
+                battlePhaseState,
+                teamsByAffiliation,
+                recording: {history: []},
+            }),
         });
 
         let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
@@ -295,8 +306,8 @@ describe('BattleSquaddieSelector', () => {
 
         expect(selector.hasCompleted(state)).toBeTruthy();
 
-        expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(state.squaddieCurrentlyActing.squaddieActionsForThisRound)).toBe(1);
-        expect(SquaddieActionsForThisRoundHandler.destinationLocation(state.squaddieCurrentlyActing.squaddieActionsForThisRound)).toStrictEqual({
+        expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound)).toBe(1);
+        expect(SquaddieActionsForThisRoundHandler.destinationLocation(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound)).toStrictEqual({
             q: 0,
             r: 1
         });
@@ -322,7 +333,7 @@ describe('BattleSquaddieSelector', () => {
                 numberOfActionPointsSpent: 1,
             }));
 
-        const history = state.battleEventRecording.history;
+        const history = state.battleState.recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual({
             instruction: expectedSquaddieInstruction,
@@ -366,14 +377,17 @@ describe('BattleSquaddieSelector', () => {
             }));
 
             state = new BattleOrchestratorState({
-                missionMap,
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
-                camera,
-                battlePhaseState,
-                teamsByAffiliation,
-                squaddieCurrentlyActing,
-                battleEventRecording: {history: []},
                 resourceHandler: mockResourceHandler,
+                battleState: BattleStateHelper.newBattleState({
+                    missionMap,
+                    camera,
+                    battlePhaseState,
+                    teamsByAffiliation,
+                    squaddieCurrentlyActing,
+                    recording: {history: []},
+                }),
             });
 
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
@@ -393,15 +407,15 @@ describe('BattleSquaddieSelector', () => {
                 mouseY,
             });
             expect(selector.hasCompleted(state)).toBeTruthy();
-            expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(2);
-            expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions[1]).toStrictEqual({
+            expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(2);
+            expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions[1]).toStrictEqual({
                 type: SquaddieActionType.MOVEMENT,
                 data: {
                     destination: {q: 0, r: 2},
                     numberOfActionPointsSpent: 1,
                 }
             });
-            expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(state.squaddieCurrentlyActing.squaddieActionsForThisRound)).toBe(2);
+            expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound)).toBe(2);
         });
     });
 
@@ -430,14 +444,17 @@ describe('BattleSquaddieSelector', () => {
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            missionMap,
+            resourceHandler: undefined,
             squaddieRepository: squaddieRepo,
-            camera,
             battleSquaddieSelectedHUD: mockHud,
-            battlePhaseState,
-            teamsByAffiliation,
-            squaddieCurrentlyActing,
-            battleEventRecording: {history: []},
+            battleState: BattleStateHelper.newBattleState({
+                missionMap,
+                camera,
+                battlePhaseState,
+                teamsByAffiliation,
+                squaddieCurrentlyActing,
+                recording: {history: []},
+            }),
         });
 
         selector.mouseEventHappened(state, {
@@ -447,9 +464,9 @@ describe('BattleSquaddieSelector', () => {
         });
         selector.update(state, mockedP5GraphicsContext);
         expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(2);
-        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions[1].type).toBe(SquaddieActionType.END_TURN);
-        expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(state.squaddieCurrentlyActing.squaddieActionsForThisRound)).toBe(3);
+        expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(2);
+        expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions[1].type).toBe(SquaddieActionType.END_TURN);
+        expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound)).toBe(3);
     });
 
     it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
@@ -461,12 +478,16 @@ describe('BattleSquaddieSelector', () => {
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            missionMap,
+            resourceHandler: undefined,
             squaddieRepository: squaddieRepo,
-            camera,
             battleSquaddieSelectedHUD: mockHud,
-            battlePhaseState,
-            teamsByAffiliation,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap,
+                camera,
+                battlePhaseState,
+                teamsByAffiliation,
+                recording: {history: []},
+            }),
         });
 
         selector.mouseEventHappened(state, {
@@ -489,12 +510,12 @@ describe('BattleSquaddieSelector', () => {
 
         SquaddieInstructionInProgressHandler.addConfirmedAction(endTurnInstruction, new SquaddieEndTurnAction({}));
 
-        expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.END_TURN);
+        expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.END_TURN);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
 
-        const history = state.battleEventRecording.history;
+        const history = state.battleState.recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual({
             instruction: endTurnInstruction,
@@ -523,12 +544,16 @@ describe('BattleSquaddieSelector', () => {
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            missionMap,
+            resourceHandler: undefined,
             squaddieRepository: squaddieRepo,
-            camera,
             battleSquaddieSelectedHUD: mockHud,
-            battlePhaseState,
-            teamsByAffiliation,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap,
+                camera,
+                battlePhaseState,
+                teamsByAffiliation,
+                recording: {history: []},
+            }),
         });
 
         selector.mouseEventHappened(state, {
@@ -538,7 +563,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe("player_soldier_0");
+        expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)).toBe("player_soldier_0");
 
         const expectedInstruction: SquaddieActionsForThisRound = {
             battleSquaddieId: "player_soldier_0",
@@ -547,13 +572,13 @@ describe('BattleSquaddieSelector', () => {
             actions: [],
         };
 
-        expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
-        expect(state.squaddieCurrentlyActing.currentlySelectedAction).toStrictEqual(longswordAction);
+        expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
+        expect(state.battleState.squaddieCurrentlyActing.currentlySelectedAction).toStrictEqual(longswordAction);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
 
-        const history = state.battleEventRecording.history;
+        const history = state.battleState.recording.history;
         expect(history).toHaveLength(0);
     });
 
@@ -625,15 +650,17 @@ describe('BattleSquaddieSelector', () => {
             selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
 
             state = new BattleOrchestratorState({
-                missionMap,
-                squaddieRepository: squaddieRepo,
-                camera,
-                battleSquaddieSelectedHUD: mockHud,
-                battlePhaseState,
-                teamsByAffiliation,
-                battleEventRecording: {history: []},
-                squaddieCurrentlyActing: soldierCurrentlyActing,
                 resourceHandler: mockResourceHandler,
+                battleSquaddieSelectedHUD: mockHud,
+                squaddieRepository: squaddieRepo,
+                battleState: BattleStateHelper.newBattleState({
+                    missionMap,
+                    camera,
+                    battlePhaseState,
+                    teamsByAffiliation,
+                    recording: {history: []},
+                    squaddieCurrentlyActing: soldierCurrentlyActing,
+                }),
             });
 
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
@@ -665,7 +692,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores movement commands issued to other squaddies', () => {
-            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe(
+            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)).toBe(
                 SquaddieInstructionInProgressHandler.battleSquaddieId(soldierCurrentlyActing)
             );
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
@@ -688,7 +715,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: endingMouseY
             });
 
-            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe(
+            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)).toBe(
                 SquaddieInstructionInProgressHandler.battleSquaddieId(soldierCurrentlyActing)
             );
             expect(selector.hasCompleted(state)).toBeFalsy();
@@ -720,8 +747,8 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: 0,
                 mouseY: 0
             });
-            expect(state.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
-            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe(
+            expect(state.battleState.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
+            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)).toBe(
                 SquaddieInstructionInProgressHandler.battleSquaddieId(soldierCurrentlyActing)
             );
             expect(selector.hasCompleted(state)).toBeFalsy();
@@ -737,12 +764,15 @@ describe('BattleSquaddieSelector', () => {
         mockHud.keyPressed = jest.fn();
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            missionMap,
-            squaddieRepository: squaddieRepo,
-            camera,
+            resourceHandler: undefined,
             battleSquaddieSelectedHUD: mockHud,
-            battlePhaseState,
-            teamsByAffiliation,
+            squaddieRepository: squaddieRepo,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap,
+                camera,
+                battlePhaseState,
+                teamsByAffiliation,
+            }),
         });
 
         selector.keyEventHappened(state, {

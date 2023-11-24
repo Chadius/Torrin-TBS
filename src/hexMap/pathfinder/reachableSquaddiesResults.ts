@@ -1,7 +1,9 @@
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 export class HexCoordinatesByDistance {
-    coordinatesByDistance: { [distance: number]: HexCoordinate[] };
+    coordinatesByDistance: {
+        [distance: number]: HexCoordinate[]
+    };
 
     constructor() {
         this.coordinatesByDistance = {};
@@ -122,7 +124,9 @@ export class ReachableSquaddiesResults {
     getClosestSquaddies(): {
         [squaddieId: string]: HexCoordinate
     } {
-        const squaddieInfo: { [squaddieId: string]: HexCoordinate } = {};
+        const squaddieInfo: {
+            [squaddieId: string]: HexCoordinate
+        } = {};
 
         Object.entries(this.coordinatesCloseToSquaddieByDistance).forEach(([squaddieId, description]) => {
             squaddieInfo[squaddieId] = description.squaddieMapLocation

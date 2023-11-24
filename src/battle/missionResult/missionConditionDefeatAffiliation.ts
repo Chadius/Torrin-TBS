@@ -7,7 +7,7 @@ import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 
 export class MissionConditionDefeatAffiliation implements MissionConditionCalculator {
     shouldBeComplete(missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean {
-        const isComplete: boolean = state.missionCompletionStatus[missionObjectiveId].conditions[missionCondition.id];
+        const isComplete: boolean = state.battleState.missionCompletionStatus[missionObjectiveId].conditions[missionCondition.id];
         if (isComplete !== undefined) {
             return isComplete;
         }
@@ -20,7 +20,7 @@ export class MissionConditionDefeatAffiliation implements MissionConditionCalcul
         };
         const affiliationToCheck = affiliationByType[missionCondition.type];
 
-        const livingSquaddie = state.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
+        const livingSquaddie = state.battleState.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
             const {
                 squaddieTemplate,
                 battleSquaddie,

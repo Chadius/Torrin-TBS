@@ -89,7 +89,12 @@ export class TerrainTileMap {
         }
     };
 
-    get highlightedTiles(): { [p: string]: { pulseColor: PulseBlendColor; name: string } } {
+    get highlightedTiles(): {
+        [p: string]: {
+            pulseColor: PulseBlendColor;
+            name: string
+        }
+    } {
         return this._highlightedTiles;
     }
 
@@ -144,7 +149,10 @@ export class TerrainTileMap {
         return hexCoordinate && this.getTileAtLocation(hexCoordinate) !== undefined;
     }
 
-    getDimensions(): { widthOfWidestRow: number, numberOfRows: number } {
+    getDimensions(): {
+        widthOfWidestRow: number,
+        numberOfRows: number
+    } {
         let rowIndecies: { [row in number]: boolean } = {};
         this.tiles.forEach((tile) => {
             rowIndecies[tile.q] = true;

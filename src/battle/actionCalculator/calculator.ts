@@ -25,7 +25,7 @@ export function CalculateResults({
     const {
         battleSquaddieId: targetedBattleSquaddieId,
         squaddieTemplateId: targetedSquaddieTemplateId
-    } = state.missionMap.getSquaddieAtLocation(validTargetLocation);
+    } = state.battleState.missionMap.getSquaddieAtLocation(validTargetLocation);
 
     const {
         squaddieTemplate: targetedSquaddieTemplate,
@@ -54,8 +54,8 @@ export function CalculateResults({
 
 function calculateTotalDamageDealt(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {
     let damageDealt = 0;
-    Object.keys(state.squaddieCurrentlyActing.currentlySelectedAction.damageDescriptions).forEach((damageType: DamageType) => {
-        const rawDamageFromAction = state.squaddieCurrentlyActing.currentlySelectedAction.damageDescriptions[damageType]
+    Object.keys(state.battleState.squaddieCurrentlyActing.currentlySelectedAction.damageDescriptions).forEach((damageType: DamageType) => {
+        const rawDamageFromAction = state.battleState.squaddieCurrentlyActing.currentlySelectedAction.damageDescriptions[damageType]
         const {damageTaken: damageTakenByThisType} = DealDamageToTheSquaddie({
             squaddieTemplate: targetedSquaddieTemplate,
             battleSquaddie: targetedBattleSquaddie,
@@ -69,11 +69,11 @@ function calculateTotalDamageDealt(state: BattleOrchestratorState, targetedSquad
 
 function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {
     let healingReceived = 0;
-    if (state.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints) {
+    if (state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints) {
         ({healingReceived} = GiveHealingToTheSquaddie({
             squaddieTemplate: targetedSquaddieTemplate,
             battleSquaddie: targetedBattleSquaddie,
-            healingAmount: state.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints,
+            healingAmount: state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints,
             healingType: HealingType.LostHitPoints,
         }));
     }
@@ -82,12 +82,12 @@ function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedS
 
 function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate, state: BattleOrchestratorState, healingReceived: number, damageDealt: number, actingBattleSquaddie: BattleSquaddie) {
     if (targetedSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
-        MissionStatisticsHandler.addHealingReceivedByPlayerTeam(state.missionStatistics, healingReceived);
-        MissionStatisticsHandler.addDamageTakenByPlayerTeam(state.missionStatistics, damageDealt);
+        MissionStatisticsHandler.addHealingReceivedByPlayerTeam(state.battleState.missionStatistics, healingReceived);
+        MissionStatisticsHandler.addDamageTakenByPlayerTeam(state.battleState.missionStatistics, damageDealt);
     }
 
     const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId));
     if (actingSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
-        MissionStatisticsHandler.addDamageDealtByPlayerTeam(state.missionStatistics, damageDealt);
+        MissionStatisticsHandler.addDamageDealtByPlayerTeam(state.battleState.missionStatistics, damageDealt);
     }
 }

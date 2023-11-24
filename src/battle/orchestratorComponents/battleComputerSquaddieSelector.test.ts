@@ -40,6 +40,8 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
+import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -198,11 +200,16 @@ describe('BattleComputerSquaddieSelector', () => {
             squaddieLocation[1] + (ScreenDimensions.SCREEN_HEIGHT * 2),
         );
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseState,
             squaddieRepository: squaddieRepo,
-            camera,
-            missionMap,
-            teamsByAffiliation,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                battlePhaseState,
+                camera,
+                missionMap,
+                teamsByAffiliation,
+                recording: {history: []},
+            })
         });
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
@@ -239,17 +246,21 @@ describe('BattleComputerSquaddieSelector', () => {
             const strategySpy = jest.spyOn(determineNextInstruction, "DetermineNextInstruction");
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
-                battlePhaseState,
-                missionMap,
                 squaddieRepository: squaddieRepo,
-                battleEventRecording: {history: []},
-                teamStrategyByAffiliation: {
-                    ENEMY: [{
-                        type: TeamStrategyType.END_TURN,
-                        options: {},
-                    }],
-                },
-                teamsByAffiliation,
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    battlePhaseState,
+                    missionMap,
+                    recording: {history: []},
+                    teamStrategyByAffiliation: {
+                        ENEMY: [{
+                            type: TeamStrategyType.END_TURN,
+                            options: {},
+                        }],
+                    },
+                    teamsByAffiliation,
+                })
             });
 
             selector.update(state, mockedP5GraphicsContext);
@@ -268,12 +279,12 @@ describe('BattleComputerSquaddieSelector', () => {
                 };
             SquaddieInstructionInProgressHandler.addConfirmedAction(endTurnInstruction, new SquaddieEndTurnAction({}));
 
-            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.END_TURN);
+            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.END_TURN);
 
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
 
-            const history = state.battleEventRecording.history;
+            const history = state.battleState.recording.history;
             expect(history).toHaveLength(1);
             expect(history[0]).toStrictEqual({
                 instruction: endTurnInstruction,
@@ -286,23 +297,27 @@ describe('BattleComputerSquaddieSelector', () => {
 
         it('will default to ending its turn if none of the strategies provide instruction', () => {
             const state: BattleOrchestratorState = new BattleOrchestratorState({
-                battlePhaseState,
-                missionMap,
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
-                battleEventRecording: {history: []},
-                teamStrategyByAffiliation: {
-                    ENEMY: [{
-                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                        options: {},
-                    }],
-                },
-                teamsByAffiliation,
+                battleState: BattleStateHelper.newBattleState({
+                    battlePhaseState,
+                    missionMap,
+                    recording: {history: []},
+                    teamStrategyByAffiliation: {
+                        ENEMY: [{
+                            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            options: {},
+                        }],
+                    },
+                    teamsByAffiliation,
+                })
             });
             jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(undefined);
             selector.update(state, mockedP5GraphicsContext);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
-            const endTurnActionInstruction: SquaddieActionsForThisRound = state.squaddieCurrentlyActing.squaddieActionsForThisRound;
+            const endTurnActionInstruction: SquaddieActionsForThisRound = state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound;
             const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(endTurnActionInstruction);
             expect(mostRecentAction.type).toBe(SquaddieActionType.END_TURN);
 
@@ -331,16 +346,21 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseState,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             squaddieRepository: squaddieRepo,
-            missionMap,
-            teamStrategyByAffiliation: {
-                ENEMY: [{
-                    type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                    options: {},
-                }],
-            },
-            teamsByAffiliation,
+            battleState: BattleStateHelper.newBattleState({
+                recording: {history: []},
+                battlePhaseState,
+                missionMap,
+                teamStrategyByAffiliation: {
+                    ENEMY: [{
+                        type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                        options: {},
+                    }],
+                },
+                teamsByAffiliation,
+            })
         });
 
         jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(squaddieSquaddieAction);
@@ -404,17 +424,22 @@ describe('BattleComputerSquaddieSelector', () => {
             );
 
             const state: BattleOrchestratorState = new BattleOrchestratorState({
-                battlePhaseState,
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
-                camera,
-                missionMap,
-                teamStrategyByAffiliation: {
-                    ENEMY: [{
-                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                        options: {}
-                    }]
-                },
-                teamsByAffiliation,
+                battleState: BattleStateHelper.newBattleState({
+                    recording: {history: []},
+                    battlePhaseState,
+                    camera,
+                    missionMap,
+                    teamStrategyByAffiliation: {
+                        ENEMY: [{
+                            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            options: {}
+                        }]
+                    },
+                    teamsByAffiliation,
+                })
             });
 
             jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(moveAction);
@@ -424,10 +449,10 @@ describe('BattleComputerSquaddieSelector', () => {
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
-            expect(state.squaddieMovePath.destination).toStrictEqual(SquaddieActionsForThisRoundHandler.destinationLocation(moveAction));
-            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe("enemy_demon_0");
-            expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
-            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.MOVEMENT);
+            expect(state.battleState.squaddieMovePath.destination).toStrictEqual(SquaddieActionsForThisRoundHandler.destinationLocation(moveAction));
+            expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)).toBe("enemy_demon_0");
+            expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
+            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.MOVEMENT);
             expect(hexMapHighlightTilesSpy).toBeCalled();
         });
 
@@ -450,17 +475,22 @@ describe('BattleComputerSquaddieSelector', () => {
                 });
 
                 state = new BattleOrchestratorState({
-                    battlePhaseState,
+                    resourceHandler: undefined,
+                    battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepo,
-                    camera,
-                    missionMap,
-                    teamStrategyByAffiliation: {
-                        ENEMY: [{
-                            type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                            options: {}
-                        }]
-                    },
-                    teamsByAffiliation,
+                    battleState: BattleStateHelper.newBattleState({
+                        battlePhaseState,
+                        camera,
+                        missionMap,
+                        teamStrategyByAffiliation: {
+                            ENEMY: [{
+                                type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                options: {}
+                            }]
+                        },
+                        teamsByAffiliation,
+                        recording: {history: []},
+                    })
                 });
                 jest.spyOn(determineNextInstruction, "DetermineNextInstruction").mockReturnValue(squaddieSquaddieAction);
 
@@ -469,9 +499,9 @@ describe('BattleComputerSquaddieSelector', () => {
             });
 
             it('will indicate the next action', () => {
-                expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)).toBe(enemyDemonDynamic.battleSquaddieId);
-                expect(state.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
-                expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.SQUADDIE);
+                expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)).toBe(enemyDemonDynamic.battleSquaddieId);
+                expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
+                expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.SQUADDIE);
             });
 
             it('highlight the map target and its spread', () => {
@@ -522,8 +552,8 @@ describe('BattleComputerSquaddieSelector', () => {
             });
 
             it('should add the results to the history', () => {
-                expect(state.battleEventRecording.history).toHaveLength(1);
-                const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
+                expect(state.battleState.recording.history).toHaveLength(1);
+                const mostRecentEvent: BattleEvent = state.battleState.recording.history[0];
                 expect(mostRecentEvent.instruction.squaddieActionsForThisRound.actions).toHaveLength(1);
                 expect((
                     mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0].data as SquaddieSquaddieActionData
@@ -536,7 +566,7 @@ describe('BattleComputerSquaddieSelector', () => {
             });
 
             it('should store the calculated results', () => {
-                const mostRecentEvent: BattleEvent = state.battleEventRecording.history[0];
+                const mostRecentEvent: BattleEvent = state.battleState.recording.history[0];
                 const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[enemyDemonDynamic2.battleSquaddieId];
                 expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(demonBiteAction.damageDescriptions[DamageType.Body]);
 

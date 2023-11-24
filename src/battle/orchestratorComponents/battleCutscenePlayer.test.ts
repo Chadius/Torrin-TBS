@@ -3,6 +3,7 @@ import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
+import {BattleStateHelper} from "../orchestrator/battleState";
 
 describe('BattleCutscenePlayer', () => {
     let dinnerDate: Cutscene;
@@ -33,7 +34,15 @@ describe('BattleCutscenePlayer', () => {
 
     it('is complete when there is no cutscene to play', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+
+                cutsceneCollection
+            })
+        });
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         expect(cutscenePlayer.hasCompleted(initialState)).toBeTruthy();
     });
@@ -43,7 +52,14 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                cutsceneCollection
+            })
+        });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         cutscenePlayer.startCutscene("dinner_date", initialState);
@@ -57,7 +73,15 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+
+                cutsceneCollection
+            })
+        });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         cutscenePlayer.startCutscene("dinner_date", initialState);
@@ -73,7 +97,15 @@ describe('BattleCutscenePlayer', () => {
                 "lunch_date": lunchDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+
+                cutsceneCollection
+            })
+        });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         cutscenePlayer.startCutscene("dinner_date", initialState);
@@ -95,7 +127,15 @@ describe('BattleCutscenePlayer', () => {
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+
+                cutsceneCollection
+            })
+        });
 
         const shouldThrowError = () => {
             cutscenePlayer.startCutscene("dinner_date", initialState);
@@ -114,7 +154,15 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({cutsceneCollection});
+        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+
+                cutsceneCollection
+            })
+        });
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
 
         cutscenePlayer.startCutscene("dinner_date", initialState);

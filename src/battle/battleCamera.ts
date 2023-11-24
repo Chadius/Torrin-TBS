@@ -224,7 +224,11 @@ export class BattleCamera {
         }
     }
 
-    cut(cutInfo: { yDestination: number; xDestination: number; respectConstraints: boolean }) {
+    cut(cutInfo: {
+        yDestination: number;
+        xDestination: number;
+        respectConstraints: boolean
+    }) {
         this.pan({
             xDestination: cutInfo.xDestination,
             yDestination: cutInfo.yDestination,

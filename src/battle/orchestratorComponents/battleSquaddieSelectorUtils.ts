@@ -18,7 +18,7 @@ import {RecordingHandler} from "../history/recording";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
-    const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
+    const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
     const searchResults: SearchResults = getResultOrThrowError(
         Pathfinder.findPathToStopLocation(
@@ -50,7 +50,7 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
                     }
                 }
             ),
-            state.missionMap,
+            state.battleState.missionMap,
             state.squaddieRepository,
         )
     );
@@ -62,7 +62,7 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
         return;
     }
 
-    state.squaddieMovePath = closestRoute;
+    state.battleState.squaddieMovePath = closestRoute;
     let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
 
     const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(
@@ -72,8 +72,8 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
             )
         )
     );
-    state.missionMap.terrainTileMap.stopHighlightingTiles();
-    state.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);
+    state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+    state.battleState.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);
 
     state.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
@@ -83,23 +83,23 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
 
     const moveAction = new SquaddieMovementAction({
         destination: destinationHexCoordinate,
-        numberOfActionPointsSpent: SearchPathHelper.getNumberOfMovementActions(state.squaddieMovePath),
+        numberOfActionPointsSpent: SearchPathHelper.getNumberOfMovementActions(state.battleState.squaddieMovePath),
     });
 
-    SquaddieInstructionInProgressHandler.addConfirmedAction(state.squaddieCurrentlyActing, moveAction);
-    RecordingHandler.addEvent(state.battleEventRecording, {
-        instruction: state.squaddieCurrentlyActing,
+    SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, moveAction);
+    RecordingHandler.addEvent(state.battleState.recording, {
+        instruction: state.battleState.squaddieCurrentlyActing,
         results: undefined,
     });
     return moveAction;
 }
 
 export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) {
-    if (SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.squaddieCurrentlyActing)) {
-        const datum = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
+    if (SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)) {
+        const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
-        state.squaddieCurrentlyActing = {
+        state.battleState.squaddieCurrentlyActing = {
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: {
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
@@ -118,11 +118,11 @@ export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, b
 }
 
 export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
-    if (!state.squaddieCurrentlyActing) {
+    if (!state.battleState.squaddieCurrentlyActing) {
         return;
     }
 
-    if (!SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)) {
+    if (!SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)) {
         return;
     }
 
@@ -130,7 +130,7 @@ export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
     } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
-        SquaddieInstructionInProgressHandler.battleSquaddieId(state.squaddieCurrentlyActing)
+        SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     TintSquaddieIfTurnIsComplete(state.squaddieRepository, actingBattleSquaddie, actingSquaddieTemplate);

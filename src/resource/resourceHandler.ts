@@ -82,9 +82,13 @@ class p5ImageLoader implements ResourceTypeLoader {
 
 export class ResourceHandler {
     imageLoader: ResourceTypeLoader;
-    resourcesByKey: { [key: string]: ResourceLocator };
+    resourcesByKey: {
+        [key: string]: ResourceLocator
+    };
 
-    imagesByKey: { [key: string]: ImageResource };
+    imagesByKey: {
+        [key: string]: ImageResource
+    };
 
     constructor(options: RequiredOptions & Partial<Options>) {
         this.imageLoader = options.imageLoader || new p5ImageLoader(

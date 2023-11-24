@@ -10,6 +10,7 @@ import {MissionCondition, MissionConditionType, MissionShouldBeComplete} from ".
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
+import {BattleStateHelper} from "../orchestrator/battleState";
 
 describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () => {
     let missionMap: MissionMap;
@@ -144,34 +145,38 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         };
 
         state = new BattleOrchestratorState({
-            missionMap,
             squaddieRepository: squaddieRepository,
-            missionCompletionStatus: {
-                "player objective id": {
-                    isComplete: undefined,
-                    conditions: {
-                        [conditionDefeatAllPlayers.id]: undefined,
-                    }
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionMap,
+                missionCompletionStatus: {
+                    "player objective id": {
+                        isComplete: undefined,
+                        conditions: {
+                            [conditionDefeatAllPlayers.id]: undefined,
+                        }
+                    },
+                    "enemy objective id": {
+                        isComplete: undefined,
+                        conditions: {
+                            [conditionDefeatAllEnemies.id]: undefined,
+                        }
+                    },
+                    "ally objective id": {
+                        isComplete: undefined,
+                        conditions: {
+                            [conditionDefeatAllAllies.id]: undefined,
+                        }
+                    },
+                    "no affiliation objective id": {
+                        isComplete: undefined,
+                        conditions: {
+                            [conditionDefeatAllNoAffiliation.id]: undefined,
+                        }
+                    },
                 },
-                "enemy objective id": {
-                    isComplete: undefined,
-                    conditions: {
-                        [conditionDefeatAllEnemies.id]: undefined,
-                    }
-                },
-                "ally objective id": {
-                    isComplete: undefined,
-                    conditions: {
-                        [conditionDefeatAllAllies.id]: undefined,
-                    }
-                },
-                "no affiliation objective id": {
-                    isComplete: undefined,
-                    conditions: {
-                        [conditionDefeatAllNoAffiliation.id]: undefined,
-                    }
-                },
-            },
+            }),
         })
     });
 
@@ -196,7 +201,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     });
 
     it('is complete if it was already marked complete', () => {
-        state.missionCompletionStatus["enemy objective id"].conditions[conditionDefeatAllEnemies.id] = true;
+        state.battleState.missionCompletionStatus["enemy objective id"].conditions[conditionDefeatAllEnemies.id] = true;
         missionMap.addSquaddie(enemy1Static.squaddieId.templateId, enemy1Dynamic.battleSquaddieId, {
             q: 0,
             r: 0

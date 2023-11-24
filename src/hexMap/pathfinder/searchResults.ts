@@ -10,7 +10,9 @@ export type SearchResultOptions = {
 
 export class SearchResults {
     allReachableTiles: HexCoordinate[];
-    lowestCostRoutes: { [key: string]: SearchPath };
+    lowestCostRoutes: {
+        [key: string]: SearchPath
+    };
     stopLocation?: HexCoordinate;
     reachableSquaddies: ReachableSquaddiesResults;
 
@@ -72,10 +74,20 @@ export class SearchResults {
     }
 
     getReachableTilesByNumberOfMovementActions(): {
-        reachableTiles: { [numberOfActionPoints: number]: [{ q: number; r: number }?] };
+        reachableTiles: {
+            [numberOfActionPoints: number]: [{
+                q: number;
+                r: number
+            }?]
+        };
         sortedMovementActionPoints: number[]
     } {
-        const reachableTiles: { [numberOfActionPoints: number]: [{ q: number, r: number }?] } = {};
+        const reachableTiles: {
+            [numberOfActionPoints: number]: [{
+                q: number,
+                r: number
+            }?]
+        } = {};
         Object.entries(this.lowestCostRoutes).forEach(([_, path]) => {
             const numberOfActions: number = SearchPathHelper.getNumberOfMovementActions(path);
             if (!reachableTiles[numberOfActions]) {
@@ -105,7 +117,11 @@ export class SearchResults {
         };
     }
 
-    getClosestTilesToDestination(): { coordinate: HexCoordinate, searchPath: SearchPath, distance: number }[] {
+    getClosestTilesToDestination(): {
+        coordinate: HexCoordinate,
+        searchPath: SearchPath,
+        distance: number
+    }[] {
         return Object.values(this.lowestCostRoutes).map((searchPath: SearchPath) => {
             const coordinate: HexCoordinate = {
                 q: SearchPathHelper.getMostRecentTileLocation(searchPath).hexCoordinate.q,

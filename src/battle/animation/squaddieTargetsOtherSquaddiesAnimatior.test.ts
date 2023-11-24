@@ -24,6 +24,7 @@ import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquad
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {BattleStateHelper} from "../orchestrator/battleState";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -129,10 +130,13 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleEventRecording,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
+                recording: battleEventRecording,
+            }),
         })
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
@@ -149,10 +153,13 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleEventRecording,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
+                recording: battleEventRecording,
+            }),
         })
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
@@ -177,10 +184,13 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = new BattleOrchestratorState({
-            squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
-            battleEventRecording,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
+                recording: battleEventRecording,
+            }),
         })
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);

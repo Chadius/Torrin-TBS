@@ -11,6 +11,7 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
+import {BattleStateHelper} from "../orchestrator/battleState";
 
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
@@ -36,7 +37,12 @@ describe('battleMapDisplay', () => {
         camera.setYVelocity = jest.fn();
 
         const state = new BattleOrchestratorState({
-            camera,
+            squaddieRepository: undefined,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+            battleState: BattleStateHelper.newBattleState({
+                camera,
+            })
         });
         battleMapDisplay.mouseEventHappened(state, {
             eventType: OrchestratorComponentMouseEventType.MOVED,
@@ -57,14 +63,17 @@ describe('battleMapDisplay', () => {
             camera = new BattleCamera(...initialCameraCoordinates)
 
             state = new BattleOrchestratorState({
-                camera,
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
-                missionMap: new MissionMap({
-                    terrainTileMap: new TerrainTileMap({
-                        movementCost: ["1 "]
-                    })
-                }),
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    camera,
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 "]
+                        })
+                    }),
+                })
             });
         });
 
@@ -114,9 +123,12 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
             state = new BattleOrchestratorState({
-                camera,
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    camera,
+                })
             });
         });
 
@@ -175,9 +187,12 @@ describe('battleMapDisplay', () => {
             camera = new BattleCamera(...initialCameraCoordinates)
 
             state = new BattleOrchestratorState({
-                camera,
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    camera,
+                })
             });
         });
 
@@ -211,17 +226,20 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = new BattleOrchestratorState({
-            camera,
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                camera,
+            })
         });
 
         it.each(tests)(`when hovering over the HUD at mouseY $mouseY, do not move the camera`, ({mouseY}) => {
-            stateWithOpenedHUD.camera.setXVelocity(0);
-            stateWithOpenedHUD.camera.setYVelocity(0);
+            stateWithOpenedHUD.battleState.camera.setXVelocity(0);
+            stateWithOpenedHUD.battleState.camera.setYVelocity(0);
             hudIsOpen.createWindowPosition(mouseY);
             battleMapDisplay.moveCameraBasedOnMouseMovement(stateWithOpenedHUD, ScreenDimensions.SCREEN_WIDTH / 2, mouseY);
-            expect(stateWithOpenedHUD.camera.getVelocity()[1]).toBe(0);
+            expect(stateWithOpenedHUD.battleState.camera.getVelocity()[1]).toBe(0);
         });
     });
 
@@ -235,9 +253,12 @@ describe('battleMapDisplay', () => {
             camera = new BattleCamera(...initialCameraCoordinates)
 
             state = new BattleOrchestratorState({
-                camera,
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    camera,
+                })
             });
         });
 
@@ -284,9 +305,12 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = new BattleOrchestratorState({
-            camera,
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
+            resourceHandler: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                camera,
+            })
         });
 
         it.each(tests)(`when hovering over the HUD at mouseX $mouseX, the camera should $cameraDescription`, ({
@@ -294,11 +318,11 @@ describe('battleMapDisplay', () => {
                                                                                                                   mouseX,
                                                                                                                   cameraVelocityTest
                                                                                                               }) => {
-            stateWithOpenedHUD.camera.setXVelocity(0);
-            stateWithOpenedHUD.camera.setYVelocity(0);
+            stateWithOpenedHUD.battleState.camera.setXVelocity(0);
+            stateWithOpenedHUD.battleState.camera.setYVelocity(0);
             hudIsOpen.createWindowPosition(ScreenDimensions.SCREEN_HEIGHT / 2);
             battleMapDisplay.moveCameraBasedOnMouseMovement(stateWithOpenedHUD, mouseX, ScreenDimensions.SCREEN_HEIGHT / 2);
-            expect(cameraVelocityTest(stateWithOpenedHUD.camera)).toBeTruthy();
+            expect(cameraVelocityTest(stateWithOpenedHUD.battleState.camera)).toBeTruthy();
         });
     });
 });

@@ -2,14 +2,20 @@ import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestrator
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {SubstituteTextUsingBattleOrchestraState} from "./BattleOrchestratorStateSubstitution";
 import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
+import {BattleStateHelper} from "../battle/orchestrator/battleState";
 
 describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute the same token multiple times in the same input', () => {
         const battleState: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseState: {
-                currentAffiliation: BattlePhase.UNKNOWN,
-                turnCount: 5
-            }
+            resourceHandler: undefined,
+            squaddieRepository: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                    turnCount: 5
+                }
+            })
         });
 
         const newText = SubstituteTextUsingBattleOrchestraState(
@@ -20,7 +26,12 @@ describe("BattleOrchestratorStateSubstitution", () => {
     });
 
     it('does not change the input if there are no recognized tags', () => {
-        const battleState: BattleOrchestratorState = new BattleOrchestratorState({});
+        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+            battleState: BattleStateHelper.newBattleState({}),
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            squaddieRepository: undefined,
+        });
 
         const newText = SubstituteTextUsingBattleOrchestraState(
             "$$KWYJIBO. Input should be unchanged",
@@ -31,10 +42,15 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute Turn Count', () => {
         const battleState: BattleOrchestratorState = new BattleOrchestratorState({
-            battlePhaseState: {
-                currentAffiliation: BattlePhase.UNKNOWN,
-                turnCount: 5
-            }
+            battleState: BattleStateHelper.newBattleState({
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                    turnCount: 5
+                }
+            }),
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            squaddieRepository: undefined,
         });
 
         const newText = SubstituteTextUsingBattleOrchestraState(
@@ -56,10 +72,16 @@ describe("BattleOrchestratorStateSubstitution", () => {
             secondsPassed = (hours * 60 * 60 + minutes * 60 + seconds);
 
             battleState = new BattleOrchestratorState({
-                missionStatistics: {
-                    ...MissionStatisticsHandler.new(),
-                    timeElapsedInMilliseconds: secondsPassed * 1000 + milliseconds,
-                }
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                squaddieRepository: undefined,
+                battleState: BattleStateHelper.newBattleState({
+
+                    missionStatistics: {
+                        ...MissionStatisticsHandler.new(),
+                        timeElapsedInMilliseconds: secondsPassed * 1000 + milliseconds,
+                    }
+                }),
             });
         });
 
@@ -82,10 +104,15 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute damage dealt by player team', () => {
         const battleState = new BattleOrchestratorState({
-            missionStatistics: {
-                ...MissionStatisticsHandler.new(),
-                damageDealtByPlayerTeam: 9001,
-            }
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            squaddieRepository: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionStatistics: {
+                    ...MissionStatisticsHandler.new(),
+                    damageDealtByPlayerTeam: 9001,
+                }
+            }),
         });
         const newText = SubstituteTextUsingBattleOrchestraState(
             "How much damage did the player team deal? $$DAMAGE_DEALT_BY_PLAYER_TEAM",
@@ -96,10 +123,15 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute damage received by player team', () => {
         const battleState = new BattleOrchestratorState({
-            missionStatistics: {
-                ...MissionStatisticsHandler.new(),
-                damageTakenByPlayerTeam: 42,
-            }
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            squaddieRepository: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionStatistics: {
+                    ...MissionStatisticsHandler.new(),
+                    damageTakenByPlayerTeam: 42,
+                }
+            }),
         });
         const newText = SubstituteTextUsingBattleOrchestraState(
             "How much damage did the player team receive? $$DAMAGE_TAKEN_BY_PLAYER_TEAM",
@@ -110,10 +142,15 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute healing received by player team', () => {
         const battleState = new BattleOrchestratorState({
-            missionStatistics: {
-                ...MissionStatisticsHandler.new(),
-                healingReceivedByPlayerTeam: 1024,
-            }
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            squaddieRepository: undefined,
+            battleState: BattleStateHelper.newBattleState({
+                missionStatistics: {
+                    ...MissionStatisticsHandler.new(),
+                    healingReceivedByPlayerTeam: 1024,
+                }
+            }),
         });
         const newText = SubstituteTextUsingBattleOrchestraState(
             "How much healing did the player team receive? $$HEALING_RECEIVED_BY_PLAYER_TEAM",

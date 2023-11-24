@@ -27,7 +27,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
     }
 
     reset(state: BattleOrchestratorState): void {
-        const playerTeam = state.teamsByAffiliation[SquaddieAffiliation.PLAYER];
+        const playerTeam = state.battleState.teamsByAffiliation[SquaddieAffiliation.PLAYER];
         if (playerTeam) {
             playerTeam.battleSquaddieIds.forEach((battleId) => {
                 const {

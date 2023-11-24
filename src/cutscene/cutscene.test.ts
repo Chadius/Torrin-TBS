@@ -5,6 +5,7 @@ import {DecisionTrigger} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleStateHelper} from "../battle/orchestrator/battleState";
 
 describe('Cutscene', () => {
     const splash1 = new SplashScreen({id: "splash1"})
@@ -445,7 +446,12 @@ describe('Cutscene', () => {
                 frontDoorGreeting
             ]
         });
-        const battleState: BattleOrchestratorState = new BattleOrchestratorState({});
+        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+            squaddieRepository: undefined,
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateHelper.newBattleState({}),
+        });
         const greetingSpy = jest.spyOn(frontDoorGreeting, "start");
         dinnerDate.start({battleOrchestratorState: battleState});
         expect(greetingSpy).toBeCalledWith(

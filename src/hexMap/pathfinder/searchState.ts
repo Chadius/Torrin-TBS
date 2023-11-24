@@ -13,8 +13,12 @@ import {SearchParameters} from "./searchParams";
 
 export interface SearchState {
     tilesSearchCanStopAt: HexCoordinate[];
-    tileLocationsAlreadyVisited: { [loc: string]: boolean };
-    tileLocationsAlreadyConsideredForQueue: { [loc: string]: boolean };
+    tileLocationsAlreadyVisited: {
+        [loc: string]: boolean
+    };
+    tileLocationsAlreadyConsideredForQueue: {
+        [loc: string]: boolean
+    };
     searchPathQueue: PriorityQueue<SearchPath>;
     results: SearchResults;
     shapeGenerator: TargetingShapeGenerator;

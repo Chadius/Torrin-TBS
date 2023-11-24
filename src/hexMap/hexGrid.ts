@@ -1,7 +1,9 @@
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {assertsInteger} from "../utils/mathAssert";
 
-export type Integer = number & { _brand: 'Integer' }
+export type Integer = number & {
+    _brand: 'Integer'
+}
 
 export const HexGridTileHelper = {
     assertIsValid: (data: HexGridTile) => {
