@@ -60,6 +60,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: {
                     squaddieActionsForThisRound: endTurnInstruction,
                     movingBattleSquaddieIds: [],

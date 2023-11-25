@@ -15,6 +15,7 @@ describe('orchestratorState', () => {
 
     beforeEach(() => {
         validBattleState = BattleStateHelper.newBattleState({
+            missionId: "test mission",
             missionMap: NullMissionMap(),
             teamsByAffiliation: {
                 [SquaddieAffiliation.PLAYER]: {
@@ -143,7 +144,9 @@ describe('orchestratorState', () => {
         expect(originalBattleOrchestratorState.isValid).toBeTruthy();
 
         const cloned: BattleOrchestratorState = new BattleOrchestratorState({
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,

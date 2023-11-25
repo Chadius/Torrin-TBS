@@ -52,6 +52,7 @@ export interface MissionLoaderCompletionProgress {
 }
 
 export interface MissionLoaderStatus {
+    id: string;
     objectives: MissionObjective[];
     missionMap: MissionMap | undefined;
     resourcesPendingLoading: string[];
@@ -72,6 +73,7 @@ export interface MissionLoaderStatus {
 export const MissionLoader = {
     newEmptyMissionLoaderStatus: (): MissionLoaderStatus => {
         return {
+            id: "",
             missionMap: undefined,
             objectives: [],
             resourcesPendingLoading: [],
@@ -103,6 +105,8 @@ export const MissionLoader = {
     }) => {
         missionLoaderStatus.completionProgress.started = true;
         const missionData: MissionFileFormat = await LoadMissionFromFile(missionId);
+
+        missionLoaderStatus.id = missionData.id;
 
         missionLoaderStatus.missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({

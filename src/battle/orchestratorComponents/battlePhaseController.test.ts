@@ -114,6 +114,7 @@ describe('BattlePhaseController', () => {
             resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
                     turnCount: 0,
@@ -151,6 +152,7 @@ describe('BattlePhaseController', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 teamsByAffiliation,
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
@@ -186,6 +188,7 @@ describe('BattlePhaseController', () => {
             squaddieRepository: squaddieRepo,
             resourceHandler,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 teamsByAffiliation,
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
@@ -234,6 +237,7 @@ describe('BattlePhaseController', () => {
                 squaddieRepository: squaddieRepo,
                 resourceHandler,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     teamsByAffiliation,
                     missionMap,
                     camera,
@@ -321,6 +325,7 @@ describe('BattlePhaseController', () => {
             resourceHandler,
             squaddieRepository: squaddieRepo,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 teamsByAffiliation,
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
@@ -361,7 +366,9 @@ describe('BattlePhaseController', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         }));
         expect(battlePhaseController.affiliationImageUI).toBeFalsy();
     });
@@ -381,6 +388,7 @@ describe('BattlePhaseController', () => {
             resourceHandler,
             squaddieRepository: squaddieRepo,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState: phase,
                 teamsByAffiliation,
                 missionMap: new MissionMap({

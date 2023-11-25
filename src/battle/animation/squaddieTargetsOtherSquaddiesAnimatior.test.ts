@@ -134,6 +134,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
                 recording: battleEventRecording,
             }),
@@ -157,6 +158,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
                 recording: battleEventRecording,
             }),
@@ -188,6 +190,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
                 recording: battleEventRecording,
             }),

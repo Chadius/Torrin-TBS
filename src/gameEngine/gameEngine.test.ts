@@ -148,12 +148,15 @@ describe('Game Engine', () => {
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
             newGameEngine.battleOrchestratorState.battleState.missionMap = NullMissionMap();
             newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress = true;
+            newGameEngine.battleOrchestratorState.battleState.missionId = "save with this mission id";
             const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockReturnValue(null);
 
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
             expect(newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress).toBeFalsy();
+            const battleSaveStateSaved: BattleSaveState = saveSpy.mock.calls[0][0];
+            expect(battleSaveStateSaved.mission_id).toBe(newGameEngine.battleOrchestratorState.battleState.missionId);
         });
         it('will set the error flag if there is an error while saving', async () => {
             const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {
@@ -232,6 +235,7 @@ describe('Game Engine', () => {
                 squaddieRepository: new BattleSquaddieRepository(),
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     camera: new BattleCamera(100, 200),
                     missionMap: NullMissionMap(),
                     missionStatistics: {

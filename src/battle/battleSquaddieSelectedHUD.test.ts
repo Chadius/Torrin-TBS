@@ -137,6 +137,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepository,
                     battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                     }),
@@ -158,6 +159,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -190,6 +192,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -217,6 +220,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -243,6 +247,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -276,6 +281,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -315,6 +321,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -349,6 +356,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     squaddieCurrentlyActing: {
@@ -393,6 +401,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -422,6 +431,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
             }),
@@ -455,6 +465,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     battlePhaseState: {
@@ -490,7 +501,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
-
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     battlePhaseState: {
@@ -516,7 +527,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
-
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     battlePhaseState: {
@@ -562,6 +573,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                         battlePhaseState: {
@@ -675,6 +687,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                     battlePhaseState: {
@@ -716,6 +729,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
                         battlePhaseState: {
@@ -816,6 +830,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -842,6 +857,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -869,6 +885,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -886,6 +903,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             const state = new BattleOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
                 }),
@@ -921,6 +939,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: battleCamera,
                 }),
@@ -974,6 +993,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera: battleCamera,
                 }),

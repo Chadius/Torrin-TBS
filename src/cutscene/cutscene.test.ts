@@ -450,7 +450,9 @@ describe('Cutscene', () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         const greetingSpy = jest.spyOn(frontDoorGreeting, "start");
         dinnerDate.start({battleOrchestratorState: battleState});

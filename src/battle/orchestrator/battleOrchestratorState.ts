@@ -83,6 +83,7 @@ export const BattleOrchestratorStateHelper = {
             squaddieRepository: new BattleSquaddieRepository(),
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,

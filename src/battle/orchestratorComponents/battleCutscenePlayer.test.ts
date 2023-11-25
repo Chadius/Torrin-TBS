@@ -39,7 +39,7 @@ describe('BattleCutscenePlayer', () => {
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
-
+                missionId: "test mission",
                 cutsceneCollection
             })
         });
@@ -57,6 +57,7 @@ describe('BattleCutscenePlayer', () => {
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 cutsceneCollection
             })
         });
@@ -78,7 +79,7 @@ describe('BattleCutscenePlayer', () => {
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
-
+                missionId: "test mission",
                 cutsceneCollection
             })
         });
@@ -102,7 +103,7 @@ describe('BattleCutscenePlayer', () => {
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
-
+                missionId: "test mission",
                 cutsceneCollection
             })
         });
@@ -132,7 +133,7 @@ describe('BattleCutscenePlayer', () => {
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
-
+                missionId: "test mission",
                 cutsceneCollection
             })
         });
@@ -159,7 +160,7 @@ describe('BattleCutscenePlayer', () => {
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
-
+                missionId: "test mission",
                 cutsceneCollection
             })
         });

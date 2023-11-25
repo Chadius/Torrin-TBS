@@ -158,6 +158,7 @@ describe('BattleSquaddieTarget', () => {
         state = new BattleOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: battleMap,
                 squaddieCurrentlyActing: currentInstruction,
                 recording: {history: []},
@@ -380,6 +381,7 @@ describe('BattleSquaddieTarget', () => {
             state = new BattleOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap: battleMap,
                     squaddieCurrentlyActing: currentInstruction,
                     recording: {history: []}
@@ -560,6 +562,7 @@ describe('BattleSquaddieTarget', () => {
                 resourceHandler: mockResourceHandler,
                 squaddieRepository: squaddieRepo,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     squaddieCurrentlyActing: currentInstruction,
                     missionMap: battleMap,
                 }),

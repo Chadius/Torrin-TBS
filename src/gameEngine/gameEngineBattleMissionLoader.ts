@@ -76,6 +76,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
                 squaddieRepository: (state as BattleOrchestratorState).squaddieRepository,
             });
 
+            (state as BattleOrchestratorState).battleState.missionId = this.missionLoaderStatus.id;
             (state as BattleOrchestratorState).battleState.missionMap = this.missionLoaderStatus.missionMap;
             (state as BattleOrchestratorState).battleState.cutsceneCollection = this.missionLoaderStatus.cutsceneInfo.cutsceneCollection;
             (state as BattleOrchestratorState).battleState.cutsceneTriggers = [...this.missionLoaderStatus.cutsceneInfo.cutsceneTriggers];

@@ -13,7 +13,9 @@ describe("TextSubstitution", () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         SubstituteText("With battle orchestrator state", {
             battleOrchestratorState: state,

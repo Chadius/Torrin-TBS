@@ -171,6 +171,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 missionMap,
                 recording: battleEventRecording,
@@ -224,6 +225,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 squaddieCurrentlyActing: squaddieInstructionInProgress,
                 recording: battleEventRecording,

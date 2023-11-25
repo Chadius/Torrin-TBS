@@ -41,6 +41,7 @@ describe('battleMapDisplay', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 camera,
             })
         });
@@ -67,6 +68,7 @@ describe('battleMapDisplay', () => {
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     camera,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
@@ -127,6 +129,7 @@ describe('battleMapDisplay', () => {
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     camera,
                 })
             });
@@ -191,6 +194,7 @@ describe('battleMapDisplay', () => {
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     camera,
                 })
             });
@@ -230,6 +234,7 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 camera,
             })
         });
@@ -257,6 +262,7 @@ describe('battleMapDisplay', () => {
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     camera,
                 })
             });
@@ -309,6 +315,7 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 camera,
             })
         });

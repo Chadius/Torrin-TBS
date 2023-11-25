@@ -2,6 +2,7 @@ import {MissionObjective} from "../battle/missionResult/missionObjective";
 import {LoadFileIntoFormat} from "./dataLoader";
 
 export interface MissionFileFormat {
+    id: string,
     terrain: string[],
     objectives: MissionObjective[],
 }

@@ -44,10 +44,13 @@ describe('GameEngineBattleMissionLoader', () => {
             resourceHandler,
             squaddieRepository,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "",
+            }),
         });
 
         missionData = {
+            "id": "test mission",
             "terrain": [
                 "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
                 " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
@@ -148,6 +151,10 @@ describe('GameEngineBattleMissionLoader', () => {
             expect(loader.recommendStateChanges(state).nextMode).toBe(GameModeEnum.BATTLE);
         });
 
+        it('mission id', () => {
+            expect(state.battleState.missionId).toEqual(missionData.id);
+        });
+
         it('mission map', () => {
             expect(state.battleState.missionMap.terrainTileMap).toEqual(loader.missionLoaderStatus.missionMap.terrainTileMap);
         });
@@ -236,6 +243,7 @@ describe('GameEngineBattleMissionLoader', () => {
                 resourceHandler,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     camera: new BattleCamera(100, 200),
                     missionMap: NullMissionMap(),
                     missionStatistics: {

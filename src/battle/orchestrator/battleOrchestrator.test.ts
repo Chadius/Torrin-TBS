@@ -174,6 +174,7 @@ describe('Battle Orchestrator', () => {
             resourceHandler: undefined,
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 1 "]
@@ -249,6 +250,7 @@ describe('Battle Orchestrator', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 1 "]
@@ -288,6 +290,7 @@ describe('Battle Orchestrator', () => {
             squaddieRepository: new BattleSquaddieRepository(),
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 cutsceneCollection,
                 cutsceneTriggers: [
                     {
@@ -325,6 +328,7 @@ describe('Battle Orchestrator', () => {
             squaddieRepository: new BattleSquaddieRepository(),
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 cutsceneCollection,
                 cutsceneTriggers: [
                     {
@@ -561,6 +565,7 @@ describe('Battle Orchestrator', () => {
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 "]
@@ -601,7 +606,7 @@ describe('Battle Orchestrator', () => {
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
                 battleState: BattleStateHelper.newBattleState({
-
+                    missionId: "test mission",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 "]
@@ -640,6 +645,7 @@ describe('Battle Orchestrator', () => {
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 "]
@@ -841,7 +847,9 @@ describe('Battle Orchestrator', () => {
         ) => {
             const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({
                 squaddieRepository: undefined,
-                battleState: BattleStateHelper.newBattleState({}),
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                }),
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
             });
@@ -886,7 +894,9 @@ describe('Battle Orchestrator', () => {
 
             const state = new BattleOrchestratorState({
                 squaddieRepository: undefined,
-                battleState: BattleStateHelper.newBattleState({}),
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                }),
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 resourceHandler: undefined,
             });
@@ -918,7 +928,9 @@ describe('Battle Orchestrator', () => {
             component: BattleOrchestratorComponent
         ) => {
             const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({
-                battleState: BattleStateHelper.newBattleState({}),
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                }),
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: undefined,
@@ -940,7 +952,9 @@ describe('Battle Orchestrator', () => {
         });
 
         const state = new BattleOrchestratorState({
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,

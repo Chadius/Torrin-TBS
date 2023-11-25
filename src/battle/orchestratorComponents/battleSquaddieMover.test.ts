@@ -127,6 +127,7 @@ describe('BattleSquaddieMover', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: map,
                 searchPath: movePath,
                 squaddieCurrentlyActing: {
@@ -198,6 +199,7 @@ describe('BattleSquaddieMover', () => {
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
                     squaddieCurrentlyActing: {

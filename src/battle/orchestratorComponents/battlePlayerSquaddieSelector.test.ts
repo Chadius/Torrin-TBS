@@ -211,6 +211,7 @@ describe('BattleSquaddieSelector', () => {
         const state: BattleOrchestratorState = new BattleOrchestratorState({
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState,
                 teamsByAffiliation,
                 missionMap,
@@ -252,6 +253,7 @@ describe('BattleSquaddieSelector', () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState,
                 teamsByAffiliation,
                 camera,
@@ -282,6 +284,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepository: squaddieRepo,
             resourceHandler: mocks.mockResourceHandler(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera,
                 battlePhaseState,
@@ -381,6 +384,7 @@ describe('BattleSquaddieSelector', () => {
                 squaddieRepository: squaddieRepo,
                 resourceHandler: mockResourceHandler,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -448,6 +452,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: mockHud,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera,
                 battlePhaseState,
@@ -482,6 +487,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: mockHud,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera,
                 battlePhaseState,
@@ -548,6 +554,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: mockHud,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera,
                 battlePhaseState,
@@ -654,6 +661,7 @@ describe('BattleSquaddieSelector', () => {
                 battleSquaddieSelectedHUD: mockHud,
                 squaddieRepository: squaddieRepo,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap,
                     camera,
                     battlePhaseState,
@@ -768,6 +776,7 @@ describe('BattleSquaddieSelector', () => {
             battleSquaddieSelectedHUD: mockHud,
             squaddieRepository: squaddieRepo,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap,
                 camera,
                 battlePhaseState,

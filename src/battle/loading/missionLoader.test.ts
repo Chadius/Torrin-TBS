@@ -29,6 +29,7 @@ describe('Mission Loader', () => {
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);
 
         missionData = {
+            "id": "test mission",
             "terrain": [
                 "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
                 " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
@@ -105,6 +106,10 @@ describe('Mission Loader', () => {
 
         it('reports file loading was a success', () => {
             expect(missionLoaderStatus.completionProgress.loadedFileData).toBeTruthy();
+        });
+
+        it('loads the mission id', () => {
+            expect(missionLoaderStatus.id).toBe("test mission");
         });
 
         it('loaded the mission map', () => {

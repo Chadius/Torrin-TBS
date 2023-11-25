@@ -208,6 +208,7 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: new BattleSquaddieRepository(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 camera: new BattleCamera(100, 200),
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
@@ -231,6 +232,7 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: new BattleSquaddieRepository(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: NullMissionMap(),
             }),
         });
@@ -249,6 +251,7 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.PLAYER,
@@ -269,7 +272,9 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
@@ -316,6 +321,7 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: NullMissionMap(),
                 recording: eventRecording0,
                 battlePhaseState: {
@@ -337,7 +343,9 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
@@ -365,6 +373,7 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: new BattleSquaddieRepository(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: missionMap,
                 battlePhaseState: {
                     turnCount: 0,
@@ -385,6 +394,7 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 2 - x "]
@@ -426,6 +436,7 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionStatistics,
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
@@ -449,7 +460,9 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
@@ -464,6 +477,7 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
@@ -483,7 +497,9 @@ describe("BattleSaveState", () => {
         const newBattleState: BattleOrchestratorState = new BattleOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
             squaddieRepository: newSquaddieRepository,
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -510,6 +526,7 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: NullMissionMap(),
                 teamsByAffiliation,
                 battlePhaseState: {
@@ -531,7 +548,9 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
@@ -574,6 +593,7 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: new BattleSquaddieRepository(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: NullMissionMap(),
                 teamStrategyByAffiliation,
                 battlePhaseState: {
@@ -594,7 +614,9 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
@@ -625,6 +647,7 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: new BattleSquaddieRepository(),
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: NullMissionMap(),
                 cutsceneTriggers: triggers,
                 battlePhaseState: {
@@ -645,7 +668,9 @@ describe("BattleSaveState", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
@@ -760,6 +785,7 @@ describe("BattleSaveState", () => {
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 2 - x "]
@@ -858,6 +884,7 @@ describe("BattleSaveState", () => {
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: originalSquaddieRepository,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     camera: new BattleCamera(100, 200),
                     battlePhaseState: {
                         currentAffiliation: BattlePhase.PLAYER,

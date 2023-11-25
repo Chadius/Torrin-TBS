@@ -109,6 +109,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 recording: battleEventRecording,
             }),
@@ -137,6 +138,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 recording: battleEventRecording,
             }),
@@ -158,6 +160,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 recording: battleEventRecording,
             }),

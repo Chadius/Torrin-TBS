@@ -11,6 +11,7 @@ import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 describe('Battle State', () => {
     it('overrides team strategy for non-player teams', () => {
         const state: BattleState = BattleStateHelper.newBattleState({
+            missionId: "test mission",
             teamStrategyByAffiliation: {
                 ENEMY: [
                     {
@@ -95,6 +96,7 @@ describe('Battle State', () => {
 
     it('can clone existing objects', () => {
         let originalBattleState: BattleState = BattleStateHelper.newBattleState({
+            missionId: "test mission",
             missionMap: NullMissionMap(),
             teamsByAffiliation: {
                 [SquaddieAffiliation.PLAYER]: {
@@ -142,6 +144,7 @@ describe('Battle State', () => {
 
     it('can change itself to match other objects', () => {
         let originalBattleState: BattleState = BattleStateHelper.newBattleState({
+            missionId: "test mission",
             missionMap: NullMissionMap(),
             teamsByAffiliation: {
                 [SquaddieAffiliation.PLAYER]: {
@@ -181,7 +184,9 @@ describe('Battle State', () => {
 
         expect(BattleStateHelper.isValid(originalBattleState)).toBeTruthy();
 
-        const cloned: BattleState = BattleStateHelper.newBattleState({});
+        const cloned: BattleState = BattleStateHelper.newBattleState({
+            missionId: "test mission",
+        });
         BattleStateHelper.update(cloned, originalBattleState);
 
         expect(BattleStateHelper.isValid(cloned)).toBeTruthy();

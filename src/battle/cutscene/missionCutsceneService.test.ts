@@ -54,6 +54,7 @@ describe('Mission Cutscene Service', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 1 "]
@@ -91,6 +92,7 @@ describe('Mission Cutscene Service', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 1 "]
@@ -121,6 +123,7 @@ describe('Mission Cutscene Service', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 1 "]
@@ -168,6 +171,7 @@ describe('Mission Cutscene Service', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 1 "]

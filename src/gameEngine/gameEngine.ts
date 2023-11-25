@@ -370,7 +370,7 @@ export class GameEngine {
     private saveGameAndDownloadFile() {
         const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
             saveVersion: SAVE_VERSION,
-            missionId: "Test demo mission",
+            missionId: this.battleOrchestratorState.battleState.missionId,
             battleOrchestratorState: this.battleOrchestratorState,
         });
         try {

@@ -109,6 +109,7 @@ describe('dialogue box', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
                     turnCount: 5

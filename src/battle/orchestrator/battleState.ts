@@ -25,6 +25,7 @@ export enum BattleStateValidityMissingComponent {
 }
 
 export interface BattleState extends MissionObjectivesAndCutscenes {
+    missionId: string;
     missionMap: MissionMap;
     teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
     teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
@@ -46,6 +47,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
 
 export const BattleStateHelper = {
     newBattleState: ({
+                         missionId,
                          objectives,
                          cutsceneCollection,
                          cutsceneTriggers,
@@ -62,6 +64,7 @@ export const BattleStateHelper = {
                          gameSaveFlags,
                          battleCompletionStatus,
                      }: {
+        missionId: string;
         cutsceneCollection?: MissionCutsceneCollection;
         cutsceneTriggers?: CutsceneTrigger[];
         objectives?: MissionObjective[];
@@ -94,6 +97,7 @@ export const BattleStateHelper = {
 
         return {
             ...missionObjectivesAndCutscenes,
+            missionId: missionId,
             missionMap: missionMap,
             teamsByAffiliation: {...teamsByAffiliation},
             teamStrategyByAffiliation: copyTeamStrategyByAffiliation(teamStrategyByAffiliation),

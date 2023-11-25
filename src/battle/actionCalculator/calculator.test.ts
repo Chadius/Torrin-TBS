@@ -129,6 +129,7 @@ describe('calculator', () => {
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
                             missionMap,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                         }),
@@ -158,6 +159,7 @@ describe('calculator', () => {
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
                             missionMap,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                             missionStatistics,
@@ -186,6 +188,7 @@ describe('calculator', () => {
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
                             missionMap,
                             missionStatistics,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
@@ -216,6 +219,7 @@ describe('calculator', () => {
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
                             missionMap,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                         }),
@@ -252,6 +256,7 @@ describe('calculator', () => {
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
                             missionMap,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
                             missionStatistics,

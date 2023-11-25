@@ -11,6 +11,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
                     turnCount: 5
@@ -27,7 +28,9 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('does not change the input if there are no recognized tags', () => {
         const battleState: BattleOrchestratorState = new BattleOrchestratorState({
-            battleState: BattleStateHelper.newBattleState({}),
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
@@ -43,6 +46,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute Turn Count', () => {
         const battleState: BattleOrchestratorState = new BattleOrchestratorState({
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
                     turnCount: 5
@@ -76,7 +80,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: undefined,
                 battleState: BattleStateHelper.newBattleState({
-
+                    missionId: "test mission",
                     missionStatistics: {
                         ...MissionStatisticsHandler.new(),
                         timeElapsedInMilliseconds: secondsPassed * 1000 + milliseconds,
@@ -108,6 +112,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     damageDealtByPlayerTeam: 9001,
@@ -127,6 +132,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     damageTakenByPlayerTeam: 42,
@@ -146,6 +152,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     healingReceivedByPlayerTeam: 1024,

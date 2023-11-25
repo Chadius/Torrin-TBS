@@ -204,6 +204,7 @@ describe('BattleComputerSquaddieSelector', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 battlePhaseState,
                 camera,
                 missionMap,
@@ -250,6 +251,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     battlePhaseState,
                     missionMap,
                     recording: {history: []},
@@ -301,6 +303,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     battlePhaseState,
                     missionMap,
                     recording: {history: []},
@@ -350,6 +353,7 @@ describe('BattleComputerSquaddieSelector', () => {
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             squaddieRepository: squaddieRepo,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 recording: {history: []},
                 battlePhaseState,
                 missionMap,
@@ -428,6 +432,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
                 battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
                     recording: {history: []},
                     battlePhaseState,
                     camera,
@@ -479,6 +484,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepo,
                     battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
                         battlePhaseState,
                         camera,
                         missionMap,

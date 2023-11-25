@@ -43,6 +43,7 @@ describe('Mission Objective', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionCompletionStatus: {
                     "test objective": {
                         isComplete: undefined,
@@ -107,6 +108,7 @@ describe('Mission Objective', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionCompletionStatus: {
                     "test objective": {
                         isComplete: undefined,
@@ -172,6 +174,7 @@ describe('Mission Objective', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionCompletionStatus: {
                     "test objective": {
                         isComplete: undefined,
@@ -221,6 +224,7 @@ describe('Mission Objective', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionCompletionStatus: {
                     "test objective": {
                         isComplete: true,
@@ -271,6 +275,7 @@ describe('Mission Objective', () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
                 missionCompletionStatus: {
                     "test objective": {
                         isComplete: undefined,
