@@ -739,6 +739,7 @@ describe("BattleSaveState", () => {
             saveData = {
                 save_version: 90210,
                 mission_id: "the mission",
+                current_phase: BattlePhase.ALLY,
                 turn_count: 7,
                 camera: {
                     xCoordinate: 100,
@@ -944,44 +945,48 @@ describe("BattleSaveState", () => {
             });
 
 
-            const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+            const newSaveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
                 saveVersion: 9001,
                 missionId: "This mission",
                 battleOrchestratorState,
             });
 
-            expect(saveData.mission_id).toBe("This mission");
-            expect(saveData.camera.xCoordinate).toBe(100);
-            expect(saveData.camera.yCoordinate).toBe(200);
-            expect(saveData.turn_count).toBe(3);
+            expect(newSaveData.mission_id).toBe("This mission");
+            expect(newSaveData.camera.xCoordinate).toBe(100);
+            expect(newSaveData.camera.yCoordinate).toBe(200);
+            expect(newSaveData.turn_count).toBe(3);
+            expect(newSaveData.current_phase).toBe(BattlePhase.PLAYER);
 
-            expect(saveData.battle_event_recording.history).toHaveLength(1);
-            expect(saveData.battle_event_recording.history[0]).toStrictEqual(firstBattleEvent);
-            expect(saveData.squaddie_map_placements).toHaveLength(2);
-            expect(saveData.squaddie_map_placements[0]).toStrictEqual({
+            expect(newSaveData.battle_event_recording.history).toHaveLength(1);
+            expect(newSaveData.battle_event_recording.history[0]).toStrictEqual(firstBattleEvent);
+            expect(newSaveData.squaddie_map_placements).toHaveLength(2);
+            expect(newSaveData.squaddie_map_placements[0]).toStrictEqual({
                 squaddieTemplateId: "template 0",
                 battleSquaddieId: "battle 0",
                 mapLocation: {q: 0, r: 0}
             });
-            expect(saveData.squaddie_map_placements[1]).toStrictEqual({
+            expect(newSaveData.squaddie_map_placements[1]).toStrictEqual({
                 squaddieTemplateId: "template 1",
                 battleSquaddieId: "battle 1",
                 mapLocation: {q: 0, r: 1}
             });
 
-            expect(saveData.mission_statistics).toStrictEqual(missionStatistics);
-            expect(Object.keys(saveData.in_battle_attributes_by_squaddie_battle_id)).toEqual(["player battle 0", "enemy battle 0"])
+            expect(newSaveData.mission_statistics).toStrictEqual(missionStatistics);
+            expect(Object.keys(newSaveData.in_battle_attributes_by_squaddie_battle_id)).toEqual(["player battle 0", "enemy battle 0"])
 
-            expect(saveData.teams_by_affiliation).toEqual({
+            expect(newSaveData.teams_by_affiliation).toEqual({
                 [SquaddieAffiliation.PLAYER]: playerTeam,
                 [SquaddieAffiliation.ENEMY]: enemyTeam,
             });
 
-            expect(saveData.team_strategy_by_affiliation).toEqual(teamStrategyByAffiliation);
+            expect(newSaveData.team_strategy_by_affiliation).toEqual(teamStrategyByAffiliation);
 
-            expect(saveData.mission_completion_status).toEqual(missionCompletionStatus);
+            expect(newSaveData.mission_completion_status).toEqual(missionCompletionStatus);
 
-            expect(saveData.cutscene_trigger_completion).toEqual(triggers);
+            expect(newSaveData.cutscene_trigger_completion).toEqual(triggers);
+
+            expect(newSaveData.turn_count).toBe(battleOrchestratorState.battleState.battlePhaseState.turnCount);
+            expect(newSaveData.current_phase).toBe(battleOrchestratorState.battleState.battlePhaseState.currentAffiliation);
         });
     });
 });

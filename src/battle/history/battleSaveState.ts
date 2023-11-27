@@ -13,6 +13,7 @@ import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus"
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
 export type InBattleAttributesAndTurn = {
     in_battle_attributes: InBattleAttributes,
@@ -20,6 +21,7 @@ export type InBattleAttributesAndTurn = {
 };
 
 export interface BattleSaveState {
+    current_phase: BattlePhase;
     save_version: number;
     mission_id: string;
     turn_count: number;
@@ -52,7 +54,7 @@ export const BattleSaveStateHandler = {
     }): void => {
         battleOrchestratorState.battleState.camera = new BattleCamera(battleSaveState.camera.xCoordinate, battleSaveState.camera.yCoordinate);
         battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: battleOrchestratorState.battleState.battlePhaseState.currentAffiliation,
+            currentAffiliation: battleSaveState.current_phase,
             turnCount: battleSaveState.turn_count,
         };
         battleOrchestratorState.battleState.recording = {...battleSaveState.battle_event_recording};
@@ -103,6 +105,7 @@ export const BattleSaveStateHandler = {
         return {
             save_version: saveVersion,
             mission_id: missionId,
+            current_phase: battleOrchestratorState.battleState.battlePhaseState.currentAffiliation,
             turn_count: battleOrchestratorState.battleState.battlePhaseState.turnCount,
             camera: {
                 xCoordinate: cameraCoordinates[0],
@@ -140,6 +143,7 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
     return {
         save_version: SAVE_VERSION,
         mission_id: "",
+        current_phase: BattlePhase.UNKNOWN,
         turn_count: 0,
         camera: {
             xCoordinate: 0,
