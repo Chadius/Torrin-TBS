@@ -3,6 +3,7 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleState, BattleStateHelper} from "./battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
+import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -87,7 +88,8 @@ export const BattleOrchestratorStateHelper = {
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
-                }
+                },
+                battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             }),
         });
     },

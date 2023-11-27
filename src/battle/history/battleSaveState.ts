@@ -1,6 +1,5 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleCamera} from "../battleCamera";
-import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {Recording} from "./recording";
 import {MissionStatistics} from "../missionStatistics/missionStatistics";
 import {InBattleAttributes} from "../stats/inBattleAttributes";
@@ -53,7 +52,7 @@ export const BattleSaveStateHandler = {
     }): void => {
         battleOrchestratorState.battleState.camera = new BattleCamera(battleSaveState.camera.xCoordinate, battleSaveState.camera.yCoordinate);
         battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: BattlePhase.PLAYER,
+            currentAffiliation: battleOrchestratorState.battleState.battlePhaseState.currentAffiliation,
             turnCount: battleSaveState.turn_count,
         };
         battleOrchestratorState.battleState.recording = {...battleSaveState.battle_event_recording};

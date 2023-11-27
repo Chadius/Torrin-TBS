@@ -3,7 +3,7 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import * as mocks from "./../utils/test/mocks";
 import * as DataLoader from "../dataLoader/dataLoader";
 import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
-import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {MissionFileFormat} from "../dataLoader/missionLoader";
 import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
@@ -23,6 +23,8 @@ import {BattleCamera} from "../battle/battleCamera";
 import {TriggeringEvent} from "../cutscene/cutsceneTrigger";
 import {BattleStateHelper} from "../battle/orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../battle/battleSquaddieSelectedHUD";
+import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
+import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 
 describe('GameEngineBattleMissionLoader', () => {
     let loader: GameEngineBattleMissionLoader;
@@ -127,8 +129,11 @@ describe('GameEngineBattleMissionLoader', () => {
     });
 
     describe('will wait for the resources to load before finishing', () => {
+        let squaddieRepositorySize: number;
+
         beforeEach(async () => {
             await loader.update(state);
+            squaddieRepositorySize = state.squaddieRepository.getBattleSquaddieIterator().length;
             await loader.update(state);
         });
 
@@ -184,7 +189,7 @@ describe('GameEngineBattleMissionLoader', () => {
             expect(state.squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
             expect(Object.keys(state.battleState.teamsByAffiliation).length).toBeGreaterThan(0);
             expect(Object.keys(state.battleState.teamStrategyByAffiliation).length).toBeGreaterThan(0);
-            expect(Object.keys(state.squaddieRepository.imageUIByBattleSquaddieId)).toHaveLength(squaddieRepository.getBattleSquaddieIterator().length);
+            expect(Object.keys(state.squaddieRepository.imageUIByBattleSquaddieId)).toHaveLength(squaddieRepositorySize);
         });
 
         it('cutscenes', () => {
@@ -201,7 +206,6 @@ describe('GameEngineBattleMissionLoader', () => {
     describe('user wants to load a file', () => {
         let openDialogSpy: jest.SpyInstance;
         let loadedBattleSaveState: BattleSaveState;
-        let hasCompletedSpy: jest.SpyInstance;
         let originalState: BattleOrchestratorState;
         let currentState: BattleOrchestratorState;
 
@@ -302,12 +306,22 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('will try to apply the saved data', async () => {
+            currentState.battleState.battleCompletionStatus = BattleCompletionStatus.VICTORY;
+            currentState.battleState.battlePhaseState = {
+                turnCount: 1,
+                currentAffiliation: BattlePhase.PLAYER,
+            };
             await loader.update(currentState);
             await loader.update(currentState);
             expect(loader.missionLoaderStatus.resourcesPendingLoading).toHaveLength(0);
             expect(currentState.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
             expect(currentState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
             expect(currentState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(1);
+            expect(currentState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+            expect(currentState.battleState.battlePhaseState).toEqual({
+                turnCount: 0,
+                currentAffiliation: BattlePhase.UNKNOWN,
+            });
 
             expect(currentState.missingComponents).toHaveLength(0);
             expect(currentState.isValid).toBeTruthy();
@@ -335,7 +349,7 @@ describe('GameEngineBattleMissionLoader', () => {
             let consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
             jest.spyOn(currentState, "isValid", "get").mockReturnValue(false);
             await loader.update(currentState);
-            expect(currentState).toEqual(loader.backupBattleOrchestratorState);
+            expect(loader.backupBattleOrchestratorState).toEqual(originalState);
             await loader.update(currentState);
             expect(currentState.battleState.gameSaveFlags.loadingInProgress).toBeFalsy();
             expect(currentState.battleState.gameSaveFlags.loadRequested).toBeFalsy();
@@ -345,6 +359,30 @@ describe('GameEngineBattleMissionLoader', () => {
 
             expect(consoleErrorSpy).toBeCalledWith("Save file is incompatible. Reverting.");
             expect(loader.hasCompleted(currentState)).toBeTruthy();
-        })
+        });
+    });
+
+    it('will try to load once then wait for resources, even after completing once', async () => {
+        await loader.update(state);
+        await loader.update(state);
+
+        expect(loader.appliedResources).toBeTruthy();
+        expect(loader.hasCompleted(state)).toBeTruthy();
+        const missionLoadSpyCalls = missionLoadSpy.mock.calls.length;
+
+        loader.reset(state);
+        state.copyOtherOrchestratorState(BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler}));
+
+        await loader.update(state);
+        expect(missionLoadSpy).toBeCalledTimes(missionLoadSpyCalls + 1);
+        expect(loader.missionLoaderStatus.completionProgress.started).toBeTruthy();
+        expect(loader.missionLoaderStatus.completionProgress.loadedFileData).toBeTruthy();
+        expect(loader.appliedResources).toBeFalsy();
+        expect(loader.hasCompleted(state)).toBeFalsy();
+
+        await loader.update(state);
+        expect(loader.appliedResources).toBeTruthy();
+        expect(loader.hasCompleted(state)).toBeTruthy();
+        expect(loader.recommendStateChanges(state).nextMode).toBe(GameModeEnum.BATTLE);
     });
 });

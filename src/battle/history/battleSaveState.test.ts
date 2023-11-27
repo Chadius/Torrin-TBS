@@ -234,6 +234,10 @@ describe("BattleSaveState", () => {
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -274,6 +278,10 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.PLAYER,
+                },
             }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -345,6 +353,10 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -399,7 +411,11 @@ describe("BattleSaveState", () => {
                     terrainTileMap: new TerrainTileMap({
                         movementCost: ["1 2 - x "]
                     })
-                })
+                }),
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
         });
         newBattleState.battleState.missionMap.addSquaddie("template 0", "battle 0", {q: 0, r: 2});
@@ -462,6 +478,10 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -499,6 +519,10 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
             squaddieRepository: newSquaddieRepository,
         });
@@ -550,6 +574,10 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -616,6 +644,10 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -670,6 +702,10 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
             }),
         });
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -804,6 +840,10 @@ describe("BattleSaveState", () => {
                             turn: 0,
                         }
                     ],
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    },
                 }),
             });
             BattleSaveStateHandler.applySaveStateToOrchestratorState({
