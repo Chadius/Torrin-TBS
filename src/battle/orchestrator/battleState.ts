@@ -17,6 +17,8 @@ import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInPro
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective} from "../missionResult/missionObjective";
+import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -46,74 +48,8 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
 }
 
 export const BattleStateHelper = {
-    newBattleState: ({
-                         missionId,
-                         objectives,
-                         cutsceneCollection,
-                         cutsceneTriggers,
-                         missionMap,
-                         camera,
-                         battlePhaseState,
-                         squaddieCurrentlyActing,
-                         recording,
-                         teamStrategyByAffiliation,
-                         teamsByAffiliation,
-                         missionStatistics,
-                         missionCompletionStatus,
-                         searchPath,
-                         gameSaveFlags,
-                         battleCompletionStatus,
-                     }: {
-        missionId: string;
-        cutsceneCollection?: MissionCutsceneCollection;
-        cutsceneTriggers?: CutsceneTrigger[];
-        objectives?: MissionObjective[];
-        missionMap?: MissionMap;
-        camera?: BattleCamera;
-        battlePhaseState?: BattlePhaseState;
-        squaddieCurrentlyActing?: SquaddieInstructionInProgress;
-        recording?: Recording;
-        teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] };
-        teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
-        missionCompletionStatus?: MissionCompletionStatus;
-        missionStatistics?: MissionStatistics;
-        searchPath?: SearchPath;
-        gameSaveFlags?: {
-            errorDuringLoading: boolean;
-            errorDuringSaving: boolean;
-            loadingInProgress: boolean;
-            savingInProgress: boolean;
-            loadRequested: boolean;
-        };
-        battleCompletionStatus?: BattleCompletionStatus;
-    }): BattleState => {
-        const missionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
-            objectives,
-            cutsceneCollection,
-            cutsceneTriggers,
-            missionCompletionStatus,
-            battleCompletionStatus,
-        });
-
-        return {
-            ...missionObjectivesAndCutscenes,
-            missionId: missionId,
-            missionMap: missionMap,
-            teamsByAffiliation: {...teamsByAffiliation},
-            teamStrategyByAffiliation: copyTeamStrategyByAffiliation(teamStrategyByAffiliation),
-            battlePhaseState: battlePhaseState,
-            squaddieMovePath: searchPath || undefined,
-            camera: camera || new BattleCamera(),
-            recording: recording || {history: []},
-            gameSaveFlags: {...gameSaveFlags},
-            missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-            squaddieCurrentlyActing: squaddieCurrentlyActing || {
-                movingBattleSquaddieIds: [],
-                currentlySelectedAction: undefined,
-                squaddieActionsForThisRound: undefined,
-            },
-            battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
-        };
+    newBattleState: (params: BattleStateConstructorParameters): BattleState => {
+        return newBattleState(params);
     },
     isValid: (battleState: BattleState): boolean => {
         if (!battleState) {
@@ -144,7 +80,94 @@ export const BattleStateHelper = {
     update: (battleState: BattleState, other: BattleState): void => {
         Object.assign(battleState, other);
     },
+    defaultBattleState: (params: BattleStateConstructorParameters): BattleState => {
+        const defaultParameters: BattleStateConstructorParameters = {
+            ...{
+                missionId: "default mission id",
+                missionMap: NullMissionMap(),
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
+            },
+            ...params,
+        };
+
+        return newBattleState(defaultParameters);
+    }
 }
+
+interface BattleStateConstructorParameters {
+    missionId: string;
+    cutsceneCollection?: MissionCutsceneCollection;
+    cutsceneTriggers?: CutsceneTrigger[];
+    objectives?: MissionObjective[];
+    missionMap?: MissionMap;
+    camera?: BattleCamera;
+    battlePhaseState?: BattlePhaseState;
+    squaddieCurrentlyActing?: SquaddieInstructionInProgress;
+    recording?: Recording;
+    teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+    teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
+    missionCompletionStatus?: MissionCompletionStatus;
+    missionStatistics?: MissionStatistics;
+    searchPath?: SearchPath;
+    gameSaveFlags?: {
+        errorDuringLoading: boolean;
+        errorDuringSaving: boolean;
+        loadingInProgress: boolean;
+        savingInProgress: boolean;
+        loadRequested: boolean;
+    };
+    battleCompletionStatus?: BattleCompletionStatus;
+}
+
+const newBattleState = ({
+                            missionId,
+                            objectives,
+                            cutsceneCollection,
+                            cutsceneTriggers,
+                            missionMap,
+                            camera,
+                            battlePhaseState,
+                            squaddieCurrentlyActing,
+                            recording,
+                            teamStrategyByAffiliation,
+                            teamsByAffiliation,
+                            missionStatistics,
+                            missionCompletionStatus,
+                            searchPath,
+                            gameSaveFlags,
+                            battleCompletionStatus,
+                        }: BattleStateConstructorParameters): BattleState => {
+    const missionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
+        objectives,
+        cutsceneCollection,
+        cutsceneTriggers,
+        missionCompletionStatus,
+        battleCompletionStatus,
+    });
+
+    return {
+        ...missionObjectivesAndCutscenes,
+        missionId: missionId,
+        missionMap: missionMap,
+        teamsByAffiliation: {...teamsByAffiliation},
+        teamStrategyByAffiliation: copyTeamStrategyByAffiliation(teamStrategyByAffiliation),
+        battlePhaseState: battlePhaseState,
+        squaddieMovePath: searchPath || undefined,
+        camera: camera || new BattleCamera(),
+        recording: recording || {history: []},
+        gameSaveFlags: {...gameSaveFlags},
+        missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
+        squaddieCurrentlyActing: squaddieCurrentlyActing || {
+            movingBattleSquaddieIds: [],
+            currentlySelectedAction: undefined,
+            squaddieActionsForThisRound: undefined,
+        },
+        battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
+    };
+};
 
 const copyTeamStrategyByAffiliation = (
     teamStrategyByAffiliation: {

@@ -660,6 +660,57 @@ describe("BattleSaveState", () => {
         expect(newBattleState.battleState.teamStrategyByAffiliation[SquaddieAffiliation.NONE]).toEqual(teamStrategyByAffiliation[SquaddieAffiliation.NONE]);
     });
 
+    it("can record the mission completion status", () => {
+        const missionCompletionStatus: MissionCompletionStatus = {
+            "victory": {
+                isComplete: undefined,
+                conditions: {
+                    "defeat all enemies": undefined
+                }
+            },
+            "defeat": {
+                isComplete: undefined,
+                conditions: {
+                    "defeat all players": undefined
+                }
+            }
+        };
+
+        const originalOrchestratorState = new BattleOrchestratorState({
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            squaddieRepository: originalSquaddieRepository,
+            battleState: BattleStateHelper.defaultBattleState({
+                missionId: "test",
+                missionCompletionStatus,
+            }),
+        });
+
+        const battleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+            battleOrchestratorState: originalOrchestratorState,
+            missionId: "test mission",
+            saveVersion: 9001
+        });
+
+        expect(battleSaveState.mission_completion_status).toEqual(missionCompletionStatus);
+
+        const newOrchestratorState = new BattleOrchestratorState({
+            resourceHandler: undefined,
+            battleSquaddieSelectedHUD: undefined,
+            squaddieRepository: originalSquaddieRepository,
+            battleState: BattleStateHelper.newBattleState({
+                missionId: "test mission",
+            }),
+        })
+        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+            battleOrchestratorState: newOrchestratorState,
+            squaddieRepository: originalSquaddieRepository,
+            battleSaveState,
+        });
+
+        expect(newOrchestratorState.battleState.missionCompletionStatus).toEqual(originalOrchestratorState.battleState.missionCompletionStatus);
+    });
+
     it('updates the completion status on the cutscene triggers', () => {
         const triggers: CutsceneTrigger[] = [
             {
