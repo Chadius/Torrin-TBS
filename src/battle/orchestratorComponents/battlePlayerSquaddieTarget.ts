@@ -177,7 +177,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 width: ScreenDimensions.SCREEN_WIDTH,
                 height: ScreenDimensions.SCREEN_HEIGHT - BUTTON_TOP,
             }),
-            "Click on target or click Cancel",
+            "Click on target or click HERE to Cancel",
             graphicsContext,
         );
     }

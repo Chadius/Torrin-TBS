@@ -1,7 +1,7 @@
 import {RectArea} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4} from "../../../ui/constants";
+import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
