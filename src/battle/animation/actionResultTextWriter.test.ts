@@ -9,6 +9,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {FormatIntent, FormatResult} from "./actionResultTextWriter";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
+import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 
 describe('Action Result Text Writer', () => {
     let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -122,13 +123,19 @@ describe('Action Result Text Writer', () => {
             resultPerTarget: {
                 [thiefDynamic.battleSquaddieId]: {
                     healingReceived: 0,
-                    damageTaken: 1
+                    damageTaken: 1,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 },
                 [rogueDynamic.battleSquaddieId]: {
                     healingReceived: 0,
-                    damageTaken: 1
+                    damageTaken: 1,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 }
-            }
+            },
+            actingSquaddieRoll: {
+                occurred: false,
+                rolls: [],
+            },
         };
 
         const outputStrings: string[] = FormatResult({
@@ -150,13 +157,19 @@ describe('Action Result Text Writer', () => {
             resultPerTarget: {
                 [knightDynamic.battleSquaddieId]: {
                     damageTaken: 0,
-                    healingReceived: 1
+                    healingReceived: 1,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 },
                 [citizenDynamic.battleSquaddieId]: {
                     damageTaken: 0,
-                    healingReceived: 2
+                    healingReceived: 2,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 },
-            }
+            },
+            actingSquaddieRoll: {
+                occurred: false,
+                rolls: [],
+            },
         };
 
         const outputStrings: string[] = FormatResult({
@@ -180,5 +193,75 @@ describe('Action Result Text Writer', () => {
 
         expect(outputStrings).toHaveLength(1);
         expect(outputStrings[0]).toBe("Knight uses Longsword Sweep")
+    });
+
+    it('Will mention the actor roll, if the actor rolled', () => {
+        const damagingResult: SquaddieSquaddieResults = {
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+            targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId, rogueDynamic.battleSquaddieId],
+            resultPerTarget: {
+                [thiefDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 1,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                },
+                [rogueDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 1,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                }
+            },
+            actingSquaddieRoll: {
+                occurred: true,
+                rolls: [2, 6],
+            },
+        };
+
+        const outputStrings: string[] = FormatResult({
+            currentAction: longswordSweepAction,
+            result: damagingResult,
+            squaddieRepository,
+        });
+
+        expect(outputStrings).toHaveLength(4);
+        expect(outputStrings[0]).toBe("Knight uses Longsword Sweep");
+        expect(outputStrings[1]).toBe("   rolls (2, 6)");
+        expect(outputStrings[2]).toBe("Thief takes 1 damage");
+        expect(outputStrings[3]).toBe("Rogue takes 1 damage");
+    });
+
+    it('Will mention if the attacker missed or did no damage', () => {
+        const damagingResult: SquaddieSquaddieResults = {
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+            targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId, rogueDynamic.battleSquaddieId],
+            resultPerTarget: {
+                [thiefDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 0,
+                    actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
+                },
+                [rogueDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 0,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                }
+            },
+            actingSquaddieRoll: {
+                occurred: true,
+                rolls: [1, 2],
+            },
+        };
+
+        const outputStrings: string[] = FormatResult({
+            currentAction: longswordSweepAction,
+            result: damagingResult,
+            squaddieRepository,
+        });
+
+        expect(outputStrings).toHaveLength(4);
+        expect(outputStrings[0]).toBe("Knight uses Longsword Sweep");
+        expect(outputStrings[1]).toBe("   rolls (1, 2)");
+        expect(outputStrings[2]).toBe("Thief: MISS!");
+        expect(outputStrings[3]).toBe("Rogue: NO DAMAGE");
     });
 });

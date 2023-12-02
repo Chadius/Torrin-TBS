@@ -588,7 +588,7 @@ const loadTorrin = ({
             },
             attributes: {
                 maxHitPoints: 3,
-                armorClass: 0,
+                armorClass: 6,
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -614,6 +614,7 @@ const loadTorrin = ({
                     maximumRange: 1,
                     traits: TraitStatusStorageHelper.newUsingTraitValues({
                         [Trait.SKIP_ANIMATION]: true,
+                        [Trait.ALWAYS_SUCCEEDS]: true,
                         [Trait.TARGETS_ALLIES]: true,
                         [Trait.HEALING]: true,
                     }),
@@ -651,7 +652,7 @@ const loadSirCamil = ({
         {
             attributes: {
                 maxHitPoints: 5,
-                armorClass: 2,
+                armorClass: 8,
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -724,7 +725,7 @@ const loadSlitherDemons = ({
     const demonSlitherMold: SquaddieTemplate = {
         attributes: {
             maxHitPoints: 3,
-            armorClass: -5,
+            armorClass: 5,
             movement: CreateNewSquaddieMovementWithTraits({
                 movementPerAction: 2,
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),

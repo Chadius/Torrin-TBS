@@ -1,6 +1,9 @@
 import {DialogueBox} from "./dialogueBox";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {BattleOrchestratorState} from "../../battle/orchestrator/battleOrchestratorState";
+import {
+    BattleOrchestratorState,
+    BattleOrchestratorStateHelper
+} from "../../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../../battle/orchestratorComponents/battlePhaseTracker";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {BattleStateHelper} from "../../battle/orchestrator/battleState";
@@ -104,7 +107,7 @@ describe('dialogue box', () => {
             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
         });
 
-        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+        const battleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,

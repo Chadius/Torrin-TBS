@@ -1,5 +1,5 @@
 import {BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
-import {BattleOrchestratorState} from "./battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "./battleOrchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
@@ -169,7 +169,7 @@ describe('Battle Orchestrator', () => {
     }
 
     beforeEach(() => {
-        nullState = new BattleOrchestratorState({
+        nullState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: mockHud,
             resourceHandler: undefined,
             squaddieRepository: undefined,
@@ -245,7 +245,7 @@ describe('Battle Orchestrator', () => {
             turn: 0,
         }
 
-        const turn0State = new BattleOrchestratorState({
+        const turn0State = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -285,7 +285,7 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
 
-        const stateWithCutscene = new BattleOrchestratorState({
+        const stateWithCutscene = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: nullState.resourceHandler,
             squaddieRepository: new BattleSquaddieRepository(),
             battleSquaddieSelectedHUD: undefined,
@@ -323,7 +323,7 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.UNKNOWN,
         });
 
-        const stateWithCutscene = new BattleOrchestratorState({
+        const stateWithCutscene = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: nullState.resourceHandler,
             squaddieRepository: new BattleSquaddieRepository(),
             battleSquaddieSelectedHUD: undefined,
@@ -560,7 +560,7 @@ describe('Battle Orchestrator', () => {
             });
             cutscenePlayer = new BattleCutscenePlayer();
 
-            victoryState = new BattleOrchestratorState({
+            victoryState = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: mockHud,
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
@@ -601,7 +601,7 @@ describe('Battle Orchestrator', () => {
                 }),
             });
 
-            defeatState = new BattleOrchestratorState({
+            defeatState = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: mockHud,
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
@@ -640,7 +640,7 @@ describe('Battle Orchestrator', () => {
                 })
             });
 
-            victoryAndDefeatState = new BattleOrchestratorState({
+            victoryAndDefeatState = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: mockHud,
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
@@ -845,7 +845,7 @@ describe('Battle Orchestrator', () => {
             squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
             component: BattleOrchestratorComponent
         ) => {
-            const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({
+            const stateWantsToDisplayTheMap: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: undefined,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
@@ -892,7 +892,7 @@ describe('Battle Orchestrator', () => {
 
             mockPlayerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: false}));
 
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: undefined,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
@@ -927,7 +927,7 @@ describe('Battle Orchestrator', () => {
             squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
             component: BattleOrchestratorComponent
         ) => {
-            const stateWantsToDisplayTheMap: BattleOrchestratorState = new BattleOrchestratorState({
+            const stateWantsToDisplayTheMap: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
                 }),
@@ -951,7 +951,7 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
         });
 
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
             }),

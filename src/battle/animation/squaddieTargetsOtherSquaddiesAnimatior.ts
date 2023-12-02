@@ -162,6 +162,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             actorTemplate: actorTemplate,
             actorBattle: actorBattle,
             action: action,
+            results: mostRecentResults.results,
         });
 
         this.actorSprite.start({
@@ -209,6 +210,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 targetTemplate: targetTemplate,
                 targetBattle: targetBattle,
                 result: resultPerTarget[battleId],
+                action: RecordingHandler.mostRecentEvent(state.battleState.recording).instruction.currentlySelectedAction,
             });
             return targetTextWindow;
         });
@@ -247,7 +249,10 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.actorSprite.draw(this.actionAnimationTimer, graphicsContext);
         this.weaponIcon.draw(graphicsContext, this.actorSprite.getSquaddieImageBasedOnTimer(this.actionAnimationTimer, graphicsContext).area);
         this.targetTextWindows.forEach((t) => t.draw(graphicsContext, this.actionAnimationTimer));
-        this.targetSprites.forEach((t) => t.draw(this.actionAnimationTimer, graphicsContext));
+        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording).results;
+        this.targetSprites.forEach((t) => {
+            t.draw(this.actionAnimationTimer, graphicsContext, state.battleState.squaddieCurrentlyActing.currentlySelectedAction, mostRecentResults.resultPerTarget[t.battleSquaddieId])
+        });
         Object.values(this.targetHitPointMeters).forEach((t) => t.draw(graphicsContext));
     }
 

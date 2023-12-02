@@ -15,7 +15,7 @@ import {
     SquaddieInstructionInProgressHandler
 } from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -95,6 +95,10 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                 actingBattleSquaddieId: monkDynamicId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
         RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
@@ -104,7 +108,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     });
 
     it('will create a text window with the action results', () => {
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -133,7 +137,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will complete at the end of the display time', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -155,7 +159,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will skip displaying the results if the user clicks', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,

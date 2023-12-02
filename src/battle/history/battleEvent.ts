@@ -13,8 +13,8 @@ export const BattleEventHandler = {
     },
     clone: (original: BattleEvent): BattleEvent => {
         return {
-            instruction: original.instruction,
-            results: original.results,
+            instruction: {...original.instruction},
+            results: {...original.results},
         };
     }
 }

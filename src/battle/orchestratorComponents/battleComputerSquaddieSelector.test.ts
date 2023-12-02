@@ -1,4 +1,4 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -199,7 +199,7 @@ describe('BattleComputerSquaddieSelector', () => {
             squaddieLocation[0] + (ScreenDimensions.SCREEN_WIDTH * 2),
             squaddieLocation[1] + (ScreenDimensions.SCREEN_HEIGHT * 2),
         );
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepo,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -246,7 +246,7 @@ describe('BattleComputerSquaddieSelector', () => {
         it('instructs the squaddie to end turn when the player cannot control the team squaddies', () => {
             const strategySpy = jest.spyOn(determineNextInstruction, "DetermineNextInstruction");
 
-            const state: BattleOrchestratorState = new BattleOrchestratorState({
+            const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
@@ -298,7 +298,7 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         it('will default to ending its turn if none of the strategies provide instruction', () => {
-            const state: BattleOrchestratorState = new BattleOrchestratorState({
+            const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
@@ -348,7 +348,7 @@ describe('BattleComputerSquaddieSelector', () => {
             }
         });
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             squaddieRepository: squaddieRepo,
@@ -427,7 +427,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 enemyDemonDynamic.battleSquaddieId,
             );
 
-            const state: BattleOrchestratorState = new BattleOrchestratorState({
+            const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
@@ -479,7 +479,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     }
                 });
 
-                state = new BattleOrchestratorState({
+                state = BattleOrchestratorStateHelper.newOrchestratorState({
                     resourceHandler: undefined,
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepo,

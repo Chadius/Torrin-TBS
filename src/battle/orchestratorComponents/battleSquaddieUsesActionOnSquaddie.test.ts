@@ -1,4 +1,4 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -35,6 +35,7 @@ import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -163,12 +164,16 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
 
         RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
@@ -217,12 +222,22 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             results: {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
-                resultPerTarget: {["target_dynamic_squaddie"]: {damageTaken: 9001, healingReceived: 0}}
+                resultPerTarget: {
+                    ["target_dynamic_squaddie"]: {
+                        damageTaken: 9001,
+                        healingReceived: 0,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+                    }
+                },
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
         RecordingHandler.addEvent(battleEventRecording, newEvent);
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",

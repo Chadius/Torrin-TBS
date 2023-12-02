@@ -9,8 +9,15 @@ import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
+import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
+import {ActionResultTextWriter} from "../actionResultTextWriter";
 
 export class ActorTextWindow {
+    results: SquaddieSquaddieResults;
+    actorTemplate: SquaddieTemplate;
+    actorBattle: BattleSquaddie;
+    action: SquaddieAction;
+
     constructor() {
 
     }
@@ -34,24 +41,35 @@ export class ActorTextWindow {
     }
 
     reset() {
+        this.actorTemplate = undefined;
+        this.actorBattle = undefined;
+        this.action = undefined;
+        this.results = undefined;
         this._actorLabel = undefined;
         this._actorUsesActionDescriptionText = "";
     }
 
-    start({actorTemplate, actorBattle, action}: {
+    start({actorTemplate, actorBattle, action, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
         action: SquaddieAction,
+        results: SquaddieSquaddieResults,
     }) {
         this.reset();
+
+        this.actorTemplate = actorTemplate;
+        this.actorBattle = actorBattle;
+        this.action = action;
+        this.results = results;
 
         const actorName: string = actorTemplate.squaddieId.name;
         const actionName: string = action.name;
 
         this._actorUsesActionDescriptionText = `${actorName} uses\n${actionName}`;
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[actorTemplate.squaddieId.affiliation];
+        this.results = results;
 
-        this.createActorLabel();
+        this.updateActorLabel({});
     }
 
     draw(graphicsContext: GraphicsContext, timer: ActionTimer) {
@@ -59,13 +77,17 @@ export class ActorTextWindow {
             return;
         }
 
-        if (this.actorLabel === undefined) {
-            this.createActorLabel();
-        }
+        this.updateActorLabel({timer});
         this.actorLabel.draw(graphicsContext);
     }
 
-    private createActorLabel() {
+    private updateActorLabel({timer}: { timer?: ActionTimer }) {
+        const actorUsesActionDescriptionText = this.calculateActorUsesActionDescriptionText({timer});
+        if (this.actorLabel && this.actorUsesActionDescriptionText === actorUsesActionDescriptionText) {
+            return;
+        }
+        this._actorUsesActionDescriptionText = actorUsesActionDescriptionText;
+
         const labelBackgroundColor = [
             this.backgroundHue,
             10,
@@ -87,5 +109,28 @@ export class ActorTextWindow {
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,
         });
+    }
+
+    private calculateActorUsesActionDescriptionText({timer}: { timer?: ActionTimer }): string {
+        let actorUsesActionDescriptionText = ActionResultTextWriter.getSquaddieUsesActionString({
+            squaddieTemplate: this.actorTemplate,
+            action: this.action,
+            newline: true,
+        });
+        if (!timer) {
+            return actorUsesActionDescriptionText;
+        }
+        if ([
+                ActionAnimationPhase.DURING_ACTION,
+                ActionAnimationPhase.TARGET_REACTS,
+                ActionAnimationPhase.SHOWING_RESULTS,
+                ActionAnimationPhase.FINISHED_SHOWING_RESULTS,
+            ].includes(timer.currentPhase)
+            && this.results.actingSquaddieRoll.occurred
+        ) {
+            actorUsesActionDescriptionText += `\n\n`;
+            actorUsesActionDescriptionText += `   rolls(${this.results.actingSquaddieRoll.rolls[0]}, ${this.results.actingSquaddieRoll.rolls[1]})`;
+        }
+        return actorUsesActionDescriptionText;
     }
 }

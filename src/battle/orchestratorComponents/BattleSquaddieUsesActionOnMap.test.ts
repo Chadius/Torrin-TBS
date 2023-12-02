@@ -1,4 +1,4 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -55,7 +55,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
         const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
