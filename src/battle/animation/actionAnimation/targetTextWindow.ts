@@ -93,7 +93,7 @@ export class TargetTextWindow {
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
-                margin: [WINDOW_SPACING1, WINDOW_SPACING4, 0, 0],
+                margin: [WINDOW_SPACING1, 0, 0, WINDOW_SPACING1],
             }),
             text: this.targetBeforeActionText,
             textSize: WINDOW_SPACING2,

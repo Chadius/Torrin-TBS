@@ -205,237 +205,248 @@ export class RectArea {
     }
 
     private setRectTop(params: RectTop) {
-        let top = undefined;
-        const {baseRectangle} = (params as BaseRectangle);
-        if (baseRectangle && !notFound.includes(baseRectangle._top)) {
-            top = top ?? 0;
-            top = baseRectangle.top;
+        const baseRectangleIsValid = (params as BaseRectangle).baseRectangle && isValidValue((params as BaseRectangle).baseRectangle._top);
+        const paramIsValid = {
+            baseRectangle: baseRectangleIsValid,
+            positionTop: (params as PositionTop) && isValidValue((params as PositionTop).top),
+            percentTop: (params as (ScreenHeight & ScreenPercentTop)) && isValidValue((params as (ScreenHeight & ScreenPercentTop)).percentTop) && isValidValue((params as (ScreenHeight & ScreenPercentTop)).screenHeight),
+            anchorTop: baseRectangleIsValid && (params as AnchorTop) && isValidValue((params as AnchorTop).anchorTop) && (params as AnchorTop).anchorTop != VerticalAnchor.NONE,
         }
 
-        const positionTop = (params as PositionTop)
-        if (!notFound.includes(positionTop.top)) {
-            top = top ?? 0;
-            top += positionTop.top;
+        const paramValue = {
+            baseRectangle: paramIsValid.baseRectangle ? (params as BaseRectangle).baseRectangle : undefined,
+            positionTop: paramIsValid.positionTop ? (params as PositionTop).top : 0,
+            percentTop: paramIsValid.percentTop ? {
+                screenHeight: (params as (ScreenHeight & ScreenPercentTop)).screenHeight,
+                percentTop: (params as (ScreenHeight & ScreenPercentTop)).percentTop,
+            } : {
+                screenHeight: 0,
+                percentTop: 0,
+            },
+            anchorTop: paramIsValid.anchorTop ? (params as AnchorTop).anchorTop : VerticalAnchor.NONE,
         }
 
-        const percentTop = (params as (ScreenHeight & ScreenPercentTop))
-        if (
-            !notFound.includes(percentTop.screenHeight)
-            && !notFound.includes(percentTop.percentTop)
-        ) {
-            top = top ?? 0;
-            top += percentTop.screenHeight * percentTop.percentTop / 100;
+        let top = 0;
+        if (paramIsValid.baseRectangle) {
+            top = paramValue.baseRectangle.top;
         }
 
-        const anchorTop = (params as AnchorTop)
-        const anchorTopIsValid: boolean = !notFound.includes(anchorTop.anchorTop)
-            && anchorTop.anchorTop != VerticalAnchor.NONE
-            && baseRectangle !== undefined;
+        if (paramIsValid.positionTop) {
+            top += paramValue.positionTop;
+        }
+
+        if (paramIsValid.percentTop) {
+            top += paramValue.percentTop.screenHeight * paramValue.percentTop.percentTop / 100;
+        }
+
+        if (paramIsValid.anchorTop) {
+            if (paramValue.anchorTop == VerticalAnchor.CENTER) {
+                top += paramValue.baseRectangle._height / 2;
+            } else if (paramValue.anchorTop == VerticalAnchor.BOTTOM) {
+                top += paramValue.baseRectangle._height;
+            }
+        }
 
         const marginsAll = (params as Margins);
-        const marginsAllIsValid: boolean = (marginsAll.margin || marginsAll.margin === 0)
-            && baseRectangle !== undefined;
-
-        if (anchorTopIsValid) {
-            if (anchorTop.anchorTop == VerticalAnchor.CENTER) {
-                top += baseRectangle._height / 2;
-            } else if (anchorTop.anchorTop == VerticalAnchor.BOTTOM) {
-                top += baseRectangle._height;
-            }
-        }
-
+        const marginsAllIsValid: boolean = marginsAreValid(marginsAll);
         if (marginsAllIsValid) {
-            if (typeof marginsAll.margin === "number") {
-                top += marginsAll.margin;
-            } else {
-                top += marginsAll.margin[0];
-            }
+            const marginValues1 = marginValues(marginsAll);
+            top += marginValues1[0];
         }
 
         this._top = top;
     }
 
     private setRectLeft(params: RectLeft) {
-        let left = undefined;
-        const {baseRectangle} = (params as BaseRectangle);
-        if (baseRectangle && !notFound.includes(baseRectangle._left)) {
-            left = baseRectangle._left;
+        const baseRectangleIsValid = (params as BaseRectangle).baseRectangle && isValidValue((params as BaseRectangle).baseRectangle._left);
+        const paramIsValid = {
+            baseRectangle: baseRectangleIsValid,
+            positionLeft: (params as PositionLeft) && isValidValue((params as PositionLeft).left),
+            percentLeft: (params as (ScreenWidth & ScreenPercentLeft)) && isValidValue((params as (ScreenWidth & ScreenPercentLeft)).percentLeft) && isValidValue((params as (ScreenWidth & ScreenPercentLeft)).screenWidth),
+            columnLeft: (params as (ScreenWidth & TwelvePointColumnStart)) && isValidValue((params as (ScreenWidth & TwelvePointColumnStart)).screenWidth) && isValidValue((params as (ScreenWidth & TwelvePointColumnStart)).startColumn),
+            anchorLeft: baseRectangleIsValid && (params as AnchorLeft) && isValidValue((params as AnchorLeft).anchorLeft) && (params as AnchorLeft).anchorLeft != HorizontalAnchor.NONE,
         }
 
-        const positionLeft = (params as PositionLeft)
-        if (!notFound.includes(positionLeft.left)) {
-            left = left ?? 0;
-            left += positionLeft.left;
+        const paramValue = {
+            baseRectangle: paramIsValid.baseRectangle ? (params as BaseRectangle).baseRectangle : undefined,
+            positionLeft: paramIsValid.positionLeft ? (params as PositionLeft).left : 0,
+            percentLeft: paramIsValid.percentLeft ? {
+                screenWidth: (params as (ScreenWidth & ScreenPercentLeft)).screenWidth,
+                percentLeft: (params as (ScreenWidth & ScreenPercentLeft)).percentLeft,
+            } : {
+                screenWidth: 0,
+                percentLeft: 0,
+            },
+            columnLeft: paramIsValid.columnLeft ? {
+                    screenWidth: (params as (ScreenWidth & TwelvePointColumnStart)).screenWidth,
+                    startColumn: (params as (ScreenWidth & TwelvePointColumnStart)).startColumn,
+                }
+                : {
+                    screenWidth: 0,
+                    startColumn: 0,
+                },
+            anchorLeft: paramIsValid.anchorLeft ? (params as AnchorLeft).anchorLeft : HorizontalAnchor.NONE,
         }
 
-        const percentLeft = (params as (ScreenWidth & ScreenPercentLeft))
-        if (
-            !notFound.includes(percentLeft.screenWidth)
-            && !notFound.includes(percentLeft.percentLeft)
-        ) {
-            left = left ?? 0;
-            left += percentLeft.screenWidth * percentLeft.percentLeft / 100;
+        let left = 0;
+        if (paramIsValid.baseRectangle) {
+            left = paramValue.baseRectangle._left;
         }
 
-        const columnLeft = (params as (ScreenWidth & TwelvePointColumnStart))
-        if (
-            !notFound.includes(columnLeft.screenWidth)
-            && !notFound.includes(columnLeft.startColumn)
-        ) {
-            left = left ?? 0;
-            left += columnLeft.screenWidth * columnLeft.startColumn / 12;
+        if (paramIsValid.positionLeft) {
+            left += paramValue.positionLeft;
         }
 
-        const anchorLeft = (params as AnchorLeft);
-        const anchorLeftIsValid: boolean = !notFound.includes(anchorLeft.anchorLeft)
-            && anchorLeft.anchorLeft != HorizontalAnchor.NONE
-            && baseRectangle !== undefined;
+        if (paramIsValid.percentLeft) {
+            left += paramValue.percentLeft.screenWidth * paramValue.percentLeft.percentLeft / 100;
+        }
+
+        if (paramIsValid.columnLeft) {
+            left += paramValue.columnLeft.screenWidth * paramValue.columnLeft.startColumn / 12;
+        }
+
+        if (paramIsValid.anchorLeft) {
+            if (paramValue.anchorLeft == HorizontalAnchor.MIDDLE) {
+                left += paramValue.baseRectangle._width / 2;
+            } else if (paramValue.anchorLeft == HorizontalAnchor.RIGHT) {
+                left += paramValue.baseRectangle._width;
+            }
+        }
 
         const marginsAll = (params as Margins);
-        const marginsAllIsValid: boolean = (marginsAll.margin || marginsAll.margin === 0)
-            && baseRectangle !== undefined;
-
-        if (anchorLeftIsValid) {
-            if (anchorLeft.anchorLeft == HorizontalAnchor.MIDDLE) {
-                left += baseRectangle._width / 2;
-            } else if (anchorLeft.anchorLeft == HorizontalAnchor.RIGHT) {
-                left += baseRectangle._width;
-            }
-        }
-
+        const marginsAllIsValid: boolean = marginsAreValid(marginsAll);
         if (marginsAllIsValid) {
-            if (typeof marginsAll.margin === "number") {
-                left += marginsAll.margin;
-            } else if ([2, 3].includes(marginsAll.margin.length)) {
-                left += marginsAll.margin[1];
-            } else if (marginsAll.margin.length > 3) {
-                left += marginsAll.margin[3];
-            }
+            const marginValues1 = marginValues(marginsAll);
+            left += marginValues1[3];
         }
 
         this._left = left;
     }
 
     private setRectHeight(params: RectHeight) {
-        const height = (params as PositionHeight)
-        const {baseRectangle} = (params as BaseRectangle);
-        if (baseRectangle && !notFound.includes(baseRectangle._height)) {
-            this._height = baseRectangle._height;
+        const paramIsValid = {
+            baseRectangle: (params as BaseRectangle).baseRectangle && isValidValue((params as BaseRectangle).baseRectangle._height),
+            positionHeight: (params as PositionHeight) && isValidValue((params as PositionHeight).height),
+            topBottom: (params as RectHeightTopBottom) && isValidValue(this._top) && isValidValue((params as RectHeightTopBottom).bottom),
+            percentHeight: (params as RectHeightPercentHeight) && isValidValue((params as RectHeightPercentHeight).screenHeight) && isValidValue((params as RectHeightPercentHeight).percentHeight),
+            percentTopBottom: (params as RectHeightTopPercentBottom) && isValidValue(this._top) && isValidValue((params as RectHeightTopPercentBottom).percentBottom) && isValidValue((params as RectHeightTopPercentBottom).screenHeight),
+        };
+
+        const paramValue = {
+            baseRectangle: paramIsValid.baseRectangle ? (params as BaseRectangle).baseRectangle : undefined,
+            positionHeight: paramIsValid.positionHeight ? (params as PositionHeight).height : 0,
+            topBottom: paramIsValid.topBottom ? (params as RectHeightTopBottom).bottom : 0,
+            percentHeight: paramIsValid.percentHeight ? {
+                    screenHeight: (params as RectHeightPercentHeight).screenHeight,
+                    percentHeight: (params as RectHeightPercentHeight).percentHeight,
+                }
+                : {
+                    screenHeight: 0,
+                    percentHeight: 0,
+                },
+            percentTopBottom: paramIsValid.percentTopBottom ? {
+                    screenHeight: (params as RectHeightTopPercentBottom).screenHeight,
+                    percentBottom: (params as RectHeightTopPercentBottom).percentBottom,
+                }
+                : {
+                    screenHeight: 0,
+                    percentBottom: 0,
+                },
+        };
+
+        if (paramIsValid.baseRectangle) {
+            this._height = paramValue.baseRectangle._height;
         }
 
-        if (!notFound.includes(height.height)) {
-            this._height = height.height;
-            return;
-        }
-
-        const topBottom = (params as RectHeightTopBottom)
-        if (
-            !notFound.includes(this._top)
-            && !notFound.includes(topBottom.bottom)
-        ) {
-            this._height = topBottom.bottom - this._top;
-            return;
-        }
-        const percentHeight = (params as RectHeightPercentHeight)
-
-        if (
-            !notFound.includes(percentHeight.screenHeight)
-            && !notFound.includes(percentHeight.percentHeight)
-        ) {
-            this._height = percentHeight.screenHeight * percentHeight.percentHeight / 100;
-            return;
-        }
-
-        const percentTopBottom = (params as RectHeightTopPercentBottom)
-        if (
-            !notFound.includes(this._top)
-            && !notFound.includes(percentTopBottom.percentBottom)
-            && !notFound.includes(percentTopBottom.screenHeight)
-        ) {
-            this._height = ((percentTopBottom.screenHeight * percentTopBottom.percentBottom) / 100) - this._top;
-            return;
+        if (paramIsValid.positionHeight) {
+            this._height = paramValue.positionHeight;
+        } else if (paramIsValid.topBottom) {
+            this._height = paramValue.topBottom - this._top;
+        } else if (paramIsValid.percentHeight) {
+            this._height = paramValue.percentHeight.screenHeight * paramValue.percentHeight.percentHeight / 100;
+        } else if (paramIsValid.percentTopBottom) {
+            this._height = ((paramValue.percentTopBottom.screenHeight * paramValue.percentTopBottom.percentBottom) / 100) - this._top;
         }
 
         const marginsAll = (params as Margins)
         if (
-            (marginsAll.margin || marginsAll.margin === 0)
-            && baseRectangle
+            marginsAreValid(marginsAll)
         ) {
-            if (typeof marginsAll.margin === "number") {
-                const margin = marginsAll.margin
-                this._height = baseRectangle._height - 2 * margin;
-            } else if (marginsAll.margin.length == 2) {
-                const margin = marginsAll.margin[0]
-                this._height = baseRectangle._height - 2 * margin;
-            } else if (marginsAll.margin.length >= 3) {
-                this._height = baseRectangle._height - marginsAll.margin[0] - marginsAll.margin[2];
+            const marginValues1 = marginValues(marginsAll);
+            if (paramIsValid.baseRectangle) {
+                const {baseRectangle} = (params as BaseRectangle)
+                this._height = baseRectangle._height - marginValues1[0] - marginValues1[2];
+            } else {
+                this._height = this._height - marginValues1[2];
             }
         }
     }
 
     private setRectWidth(params: RectWidth) {
-        const width = (params as PositionWidth)
-        const {baseRectangle} = (params as BaseRectangle);
-        if (baseRectangle && !notFound.includes(baseRectangle._width)) {
-            this._width = baseRectangle._width;
+        const paramIsValid = {
+            baseRectangle: (params as BaseRectangle).baseRectangle && isValidValue((params as BaseRectangle).baseRectangle._width),
+            positionWidth: (params as PositionWidth) && isValidValue((params as PositionWidth).width),
+            leftRight: (params as RectWidthLeftRight) && isValidValue(this._left) && isValidValue((params as RectWidthLeftRight).right),
+            percentWidth: (params as RectWidthPercentWidth) && isValidValue((params as RectWidthPercentWidth).screenWidth) && isValidValue((params as RectWidthPercentWidth).percentWidth),
+            percentLeftRight: (params as RectWidthLeftPercentRight) && isValidValue(this._top) && isValidValue((params as RectWidthLeftPercentRight).percentRight) && isValidValue((params as RectWidthLeftPercentRight).screenWidth),
+            columnLeftRight: (params as RectWidthLeftColumnEnd) && isValidValue((params as RectWidthLeftColumnEnd).screenWidth) && isValidValue((params as RectWidthLeftColumnEnd).endColumn) && isValidValue(this._left),
+        };
+
+        const paramValue = {
+            baseRectangle: paramIsValid.baseRectangle ? (params as BaseRectangle).baseRectangle : undefined,
+            positionWidth: paramIsValid.positionWidth ? (params as PositionWidth).width : 0,
+            leftRight: paramIsValid.leftRight ? (params as RectWidthLeftRight).right : 0,
+            percentWidth: paramIsValid.percentWidth ? {
+                    screenWidth: (params as RectWidthPercentWidth).screenWidth,
+                    percentWidth: (params as RectWidthPercentWidth).percentWidth,
+                }
+                : {
+                    screenWidth: 0,
+                    percentWidth: 0,
+                },
+            percentLeftRight: paramIsValid.percentLeftRight ? {
+                    screenWidth: (params as RectWidthLeftPercentRight).screenWidth,
+                    percentRight: (params as RectWidthLeftPercentRight).percentRight,
+                }
+                : {
+                    screenWidth: 0,
+                    percentRight: 0,
+                },
+            columnLeftRight: paramIsValid.columnLeftRight ? {
+                    screenWidth: (params as RectWidthLeftColumnEnd).screenWidth,
+                    endColumn: (params as RectWidthLeftColumnEnd).endColumn,
+                }
+                : {
+                    screenWidth: 0,
+                    endColumn: 0,
+                }
+        };
+
+        if (paramIsValid.baseRectangle) {
+            this._width = paramValue.baseRectangle._width;
         }
 
-        if (!notFound.includes(width.width)) {
-            this._width = width.width;
-            return;
-        }
-
-        const leftRight = (params as RectWidthLeftRight)
-        if (
-            !notFound.includes(this._left)
-            && !notFound.includes(leftRight.right)
-        ) {
-            this._width = leftRight.right - this._left;
-            return;
-        }
-
-        const percentWidth = (params as RectWidthPercentWidth)
-        if (
-            !notFound.includes(percentWidth.screenWidth)
-            && !notFound.includes(percentWidth.percentWidth)
-        ) {
-            this._width = percentWidth.screenWidth * percentWidth.percentWidth / 100;
-            return;
-        }
-
-        const percentLeftRight = (params as RectWidthLeftPercentRight)
-        if (
-            !notFound.includes(this._left)
-            && !notFound.includes(percentLeftRight.percentRight)
-            && !notFound.includes(percentLeftRight.screenWidth)
-        ) {
-            this._width = ((percentLeftRight.screenWidth * percentLeftRight.percentRight) / 100) - this._left;
-            return;
-        }
-
-        const columnLeftRight = (params as RectWidthLeftColumnEnd)
-        if (
-            !notFound.includes(columnLeftRight.screenWidth)
-            && !notFound.includes(this._left)
-            && !notFound.includes(columnLeftRight.endColumn)
-        ) {
-            this._width = (columnLeftRight.screenWidth * (columnLeftRight.endColumn + 1) / 12) - this._left;
-            return;
+        if (paramIsValid.positionWidth) {
+            this._width = paramValue.positionWidth;
+        } else if (paramIsValid.leftRight) {
+            this._width = paramValue.leftRight - this._left;
+        } else if (paramIsValid.percentWidth) {
+            this._width = paramValue.percentWidth.screenWidth * paramValue.percentWidth.percentWidth / 100;
+        } else if (paramIsValid.percentLeftRight) {
+            this._width = ((paramValue.percentLeftRight.screenWidth * paramValue.percentLeftRight.percentRight) / 100) - this._left;
+        } else if (paramIsValid.columnLeftRight) {
+            this._width = (paramValue.columnLeftRight.screenWidth * (paramValue.columnLeftRight.endColumn + 1) / 12) - this._left;
         }
 
         const marginsAll = (params as Margins)
         if (
-            (marginsAll.margin || marginsAll.margin === 0)
-            && baseRectangle
+            marginsAreValid(marginsAll)
         ) {
-            if (typeof marginsAll.margin === "number") {
-                const margin = marginsAll.margin
-                this._width = baseRectangle._width - 2 * margin;
-            } else if ([2, 3].includes(marginsAll.margin.length)) {
-                const margin = marginsAll.margin[1]
-                this._width = baseRectangle._width - 2 * margin;
-            } else if (marginsAll.margin.length > 3) {
-                this._width = baseRectangle._width - marginsAll.margin[1] - marginsAll.margin[3];
+            const marginValues1 = marginValues(marginsAll);
+            if (paramIsValid.baseRectangle) {
+                this._width = paramValue.baseRectangle._width - marginValues1[1] - marginValues1[3];
+            } else {
+                this._width = this._width - marginValues1[1];
             }
         }
     }
@@ -467,4 +478,30 @@ export class RectArea {
                 break;
         }
     }
+}
+
+const isValidValue = (value: number): boolean => {
+    return !notFound.includes(value);
+}
+
+const marginsAreValid = (marginsAll: Margins): boolean => {
+    return !!marginsAll.margin || marginsAll.margin === 0;
+}
+
+const marginValues = (marginsAll: Margins): [number, number, number, number] => {
+    if (typeof marginsAll.margin === "undefined") {
+        return [0, 0, 0, 0];
+    }
+
+    if (typeof marginsAll.margin === "number") {
+        return [marginsAll.margin, marginsAll.margin, marginsAll.margin, marginsAll.margin];
+    } else if (marginsAll.margin.length == 2) {
+        return [marginsAll.margin[0], marginsAll.margin[1], marginsAll.margin[0], marginsAll.margin[1]];
+    } else if (marginsAll.margin.length == 3) {
+        return [marginsAll.margin[0], marginsAll.margin[1], marginsAll.margin[2], marginsAll.margin[1]];
+    } else if (marginsAll.margin.length > 3) {
+        return [marginsAll.margin[0], marginsAll.margin[1], marginsAll.margin[2], marginsAll.margin[3]];
+    }
+
+    return [0, 0, 0, 0];
 }

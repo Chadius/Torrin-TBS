@@ -119,6 +119,23 @@ describe('RectArea', () => {
             expect(rect.height).toBe(140);
             expect(rect.width).toBe(1100);
         });
+
+        it('can apply margins to a rectangle created with columns', () => {
+            const rect = new RectArea({
+                screenWidth: 1200,
+                screenHeight: 500,
+                startColumn: 1,
+                endColumn: 3,
+                top: 20,
+                bottom: 100,
+                margin: [10, 20, 30, 40],
+            });
+
+            expect(rect.top).toBe(20 + 10);
+            expect(rect.left).toBe(100 + 40);
+            expect(rect.height).toBe((100 - 30) - (20 + 10));
+            expect(rect.width).toBe((400 - 20) - (100 + 40));
+        });
     });
     describe('RectArea anchored to another rect', () => {
         it('can create a rect with the same top and left corner', () => {
