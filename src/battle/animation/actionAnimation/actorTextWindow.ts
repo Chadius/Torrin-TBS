@@ -75,8 +75,8 @@ export class ActorTextWindow {
         this._actorLabel = new Label({
             padding: WINDOW_SPACING1,
             area: new RectArea({
-                startColumn: 0,
-                endColumn: 2,
+                startColumn: 4,
+                endColumn: 5,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,

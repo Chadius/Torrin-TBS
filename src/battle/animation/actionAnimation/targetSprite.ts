@@ -1,4 +1,3 @@
-import {RectArea} from "../../../ui/rectArea";
 import {
     ACTION_ANIMATION_ACTION_TIME,
     ACTION_ANIMATION_BEFORE_ACTION_TIME,
@@ -60,17 +59,17 @@ export class TargetSprite {
         this._actionResult = undefined;
     }
 
-    start({targetBattleSquaddieId, squaddieRepository, action, result, windowArea, resourceHandler}: {
+    start({targetBattleSquaddieId, squaddieRepository, action, result, startingPosition, resourceHandler}: {
         targetBattleSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
         action: SquaddieAction,
         result: ActionResultPerSquaddie,
-        windowArea: RectArea,
+        startingPosition: number,
         resourceHandler: ResourceHandler,
     }) {
         this.reset();
 
-        this._startingPosition = windowArea.left;
+        this._startingPosition = startingPosition;
         this._squaddieRepository = squaddieRepository;
         this._battleSquaddieId = targetBattleSquaddieId;
         this._actionResult = result;

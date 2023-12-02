@@ -20,6 +20,7 @@ import {SquaddieAction} from "../../squaddie/action";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;
@@ -167,8 +168,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             actorBattleSquaddieId: actorBattle.battleSquaddieId,
             squaddieRepository: state.squaddieRepository,
             resourceHandler: state.resourceHandler,
-            windowArea: this.actorTextWindow.actorLabel.rectangle.area,
-        })
+            startingPosition: (2 * ScreenDimensions.SCREEN_WIDTH / 12) + WINDOW_SPACING1,
+        });
         this.weaponIcon.start();
 
         const resultPerTarget = RecordingHandler.mostRecentEvent(state.battleState.recording).results.resultPerTarget;
@@ -188,7 +189,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 action: action,
                 result: resultPerTarget[battleId],
                 resourceHandler: state.resourceHandler,
-                windowArea: this.targetTextWindows[index].targetLabel.rectangle.area,
+                startingPosition: this.targetTextWindows[index].targetLabel.rectangle.area.right,
             });
             return targetSprite;
         });

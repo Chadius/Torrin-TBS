@@ -8,7 +8,6 @@ import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants"
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import * as squaddieService from "../../../squaddie/squaddieService";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
-import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 
@@ -62,7 +61,7 @@ describe('Target Sprite', () => {
             result: resultTookDamage,
             squaddieRepository,
             targetBattleSquaddieId: battleSquaddieId,
-            windowArea: new RectArea({top: 0, left: 0, width: 10, height: 20})
+            startingPosition: 0,
         });
 
         sprite.draw(timer, mockedP5GraphicsContext);

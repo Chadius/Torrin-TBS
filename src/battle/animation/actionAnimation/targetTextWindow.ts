@@ -88,8 +88,8 @@ export class TargetTextWindow {
         this._targetLabel = new Label({
             padding: WINDOW_SPACING1,
             area: new RectArea({
-                startColumn: 9,
-                endColumn: 12,
+                startColumn: 6,
+                endColumn: 7,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 height: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,

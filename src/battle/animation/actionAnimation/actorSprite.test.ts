@@ -6,7 +6,6 @@ import {ActorSprite} from "./actorSprite";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
-import {RectArea} from "../../../ui/rectArea";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 
@@ -51,7 +50,7 @@ describe('Actor Sprite', () => {
             resourceHandler: undefined,
             squaddieRepository,
             actorBattleSquaddieId: battleSquaddieId,
-            windowArea: new RectArea({top: 0, left: 0, width: 10, height: 20})
+            startingPosition: 0,
         });
 
         sprite.draw(timer, mockedP5GraphicsContext);

@@ -1,4 +1,3 @@
-import {RectArea} from "../../../ui/rectArea";
 import {
     ACTION_ANIMATION_ACTION_TIME,
     ACTION_ANIMATION_BEFORE_ACTION_TIME,
@@ -9,7 +8,6 @@ import {
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
-import {WINDOW_SPACING1} from "../../../ui/constants";
 import {SquaddieSprite} from "./squaddieSprite";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
@@ -51,15 +49,15 @@ export class ActorSprite {
         this._squaddieRepository = undefined;
     }
 
-    start({actorBattleSquaddieId, squaddieRepository, windowArea, resourceHandler}: {
+    start({actorBattleSquaddieId, squaddieRepository, startingPosition, resourceHandler}: {
         actorBattleSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
-        windowArea: RectArea,
+        startingPosition: number,
         resourceHandler: ResourceHandler,
     }) {
         this.reset();
 
-        this._startingPosition = windowArea.right + WINDOW_SPACING1;
+        this._startingPosition = startingPosition;
         this._squaddieRepository = squaddieRepository;
         this._battleSquaddieId = actorBattleSquaddieId;
 
