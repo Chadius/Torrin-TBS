@@ -58,4 +58,19 @@ describe('stream number generator', () => {
             shouldThrowErrorNotANumber()
         }).toThrow("Stream Number Generator must set numbers between 1 and 360, got: undefined");
     });
+
+    it('can clone an existing generator with its own stream values', () => {
+        const originalGenerator: NumberGeneratorStrategy = new StreamNumberGenerator({
+            results: [1, 2, 3, 4, 5, 6]
+        });
+
+        const newGenerator: NumberGeneratorStrategy = originalGenerator.clone();
+        expect((newGenerator as StreamNumberGenerator).results).toEqual((originalGenerator as StreamNumberGenerator).results);
+
+        expect(originalGenerator.next()).toBe(1);
+        expect(originalGenerator.next()).toBe(2);
+        expect(originalGenerator.next()).toBe(3);
+
+        expect(newGenerator.next()).toBe(1);
+    });
 });

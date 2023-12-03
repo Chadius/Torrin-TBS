@@ -1,4 +1,4 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -109,7 +109,7 @@ describe('BattlePhaseController', () => {
         resourceHandler = new (<new (options: any) => ResourceHandler>ResourceHandler)({}) as jest.Mocked<ResourceHandler>;
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult("Hi"));
 
-        state = new BattleOrchestratorState({
+        state = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepo,
             resourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -147,7 +147,7 @@ describe('BattlePhaseController', () => {
     });
 
     it('starts showing the player phase banner by default', () => {
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
@@ -183,7 +183,7 @@ describe('BattlePhaseController', () => {
     });
 
     it('stops the camera when it displays the banner if it is not the player phase', () => {
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
             resourceHandler,
@@ -232,7 +232,7 @@ describe('BattlePhaseController', () => {
             camera: BattleCamera,
         }) => {
             missionMap.addSquaddie(squaddieTemplateIdToAdd, battleSquaddieIdToAdd, {q: 0, r: 0});
-            const state: BattleOrchestratorState = new BattleOrchestratorState({
+            const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
                 resourceHandler,
@@ -320,7 +320,7 @@ describe('BattlePhaseController', () => {
     });
 
     it('only draws the banner while the timer is going', () => {
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: undefined,
             resourceHandler,
             squaddieRepository: squaddieRepo,
@@ -362,7 +362,7 @@ describe('BattlePhaseController', () => {
         battlePhaseController.affiliationImageUI = mocks.mockImageUI();
 
         expect(battlePhaseController.affiliationImageUI).toBeTruthy();
-        battlePhaseController.reset(new BattleOrchestratorState({
+        battlePhaseController.reset(BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
@@ -383,7 +383,7 @@ describe('BattlePhaseController', () => {
             turnCount: 0,
         };
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: undefined,
             resourceHandler,
             squaddieRepository: squaddieRepo,

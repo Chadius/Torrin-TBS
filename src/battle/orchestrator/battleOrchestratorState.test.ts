@@ -1,4 +1,8 @@
-import {BattleOrchestratorState, BattleOrchestratorStateValidityMissingComponent} from "./battleOrchestratorState";
+import {
+    BattleOrchestratorState,
+    BattleOrchestratorStateHelper,
+    BattleOrchestratorStateValidityReason
+} from "./battleOrchestratorState";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
@@ -9,6 +13,8 @@ import {MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleState, BattleStateHelper} from "./battleState";
+import {FixedNumberGenerator} from "../numberGenerator/fixed";
+import {RandomNumberGenerator} from "../numberGenerator/random";
 
 describe('orchestratorState', () => {
     let validBattleState: BattleState;
@@ -47,7 +53,7 @@ describe('orchestratorState', () => {
     });
 
     it('will indicate if it is ready for battle', () => {
-        const validityCheck = (args: any, isValid: boolean, reasons: BattleOrchestratorStateValidityMissingComponent[]) => {
+        const validityCheck = (args: any, isValid: boolean, reasons: BattleOrchestratorStateValidityReason[]) => {
             const state: BattleOrchestratorState = new BattleOrchestratorState(args);
             expect(state.isValid).toBe(isValid);
             expect(state.missingComponents.sort()).toStrictEqual(reasons.sort());
@@ -55,10 +61,11 @@ describe('orchestratorState', () => {
 
         let args = {};
         validityCheck(args, false, [
-            BattleOrchestratorStateValidityMissingComponent.BATTLE_SQUADDIE_SELECTED_HUD,
-            BattleOrchestratorStateValidityMissingComponent.RESOURCE_HANDLER,
-            BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
-            BattleOrchestratorStateValidityMissingComponent.INVALID_BATTLE_STATE,
+            BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
+            BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
+            BattleOrchestratorStateValidityReason.MISSING_RESOURCE_HANDLER,
+            BattleOrchestratorStateValidityReason.MISSING_SQUADDIE_REPOSITORY,
+            BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
 
@@ -70,9 +77,10 @@ describe('orchestratorState', () => {
             }),
         }
         validityCheck(args, false, [
-            BattleOrchestratorStateValidityMissingComponent.SQUADDIE_REPOSITORY,
-            BattleOrchestratorStateValidityMissingComponent.BATTLE_SQUADDIE_SELECTED_HUD,
-            BattleOrchestratorStateValidityMissingComponent.INVALID_BATTLE_STATE,
+            BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
+            BattleOrchestratorStateValidityReason.MISSING_SQUADDIE_REPOSITORY,
+            BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
+            BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
         const squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -81,8 +89,9 @@ describe('orchestratorState', () => {
             squaddieRepository,
         }
         validityCheck(args, false, [
-            BattleOrchestratorStateValidityMissingComponent.BATTLE_SQUADDIE_SELECTED_HUD,
-            BattleOrchestratorStateValidityMissingComponent.INVALID_BATTLE_STATE,
+            BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
+            BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
+            BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
         args = {
@@ -90,18 +99,27 @@ describe('orchestratorState', () => {
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD()
         }
         validityCheck(args, false, [
-            BattleOrchestratorStateValidityMissingComponent.INVALID_BATTLE_STATE,
+            BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
+            BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
         args = {
             ...args,
             battleState: validBattleState,
         }
+        validityCheck(args, false, [
+            BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
+        ]);
+
+        args = {
+            ...args,
+            numberGenerator: new FixedNumberGenerator({result: 10}),
+        }
         validityCheck(args, true, []);
     });
 
     it('can clone existing objects', () => {
-        let originalBattleOrchestratorState: BattleOrchestratorState = new BattleOrchestratorState({
+        let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: new BattleSquaddieRepository(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
@@ -115,6 +133,7 @@ describe('orchestratorState', () => {
                     savingInProgress: true,
                 }
             },
+            numberGenerator: new FixedNumberGenerator({result: 3}),
         });
 
         expect(originalBattleOrchestratorState.isValid).toBeTruthy();
@@ -123,10 +142,11 @@ describe('orchestratorState', () => {
 
         expect(cloned.isValid).toBeTruthy();
         expect(cloned).toEqual(originalBattleOrchestratorState);
+        expect(Object.is(cloned.numberGenerator, originalBattleOrchestratorState.numberGenerator)).toBeFalsy();
     });
 
     it('can change itself to match other objects', () => {
-        let originalBattleOrchestratorState: BattleOrchestratorState = new BattleOrchestratorState({
+        let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: new BattleSquaddieRepository(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
@@ -140,20 +160,44 @@ describe('orchestratorState', () => {
                     savingInProgress: true,
                 }
             },
+            numberGenerator: new FixedNumberGenerator({result: 3}),
         });
         expect(originalBattleOrchestratorState.isValid).toBeTruthy();
 
-        const cloned: BattleOrchestratorState = new BattleOrchestratorState({
+        const cloned: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
             }),
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
+            numberGenerator: undefined,
         });
         cloned.copyOtherOrchestratorState(originalBattleOrchestratorState);
 
         expect(cloned.isValid).toBeTruthy();
         expect(cloned).toEqual(originalBattleOrchestratorState);
+    });
+
+    it('can make a new object using creator function', () => {
+        const numberGenerator = new RandomNumberGenerator();
+        const battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
+        const squaddieRepository = new BattleSquaddieRepository();
+
+        const newBattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+            battleState: validBattleState,
+            numberGenerator,
+            battleSquaddieSelectedHUD,
+            squaddieRepository,
+            resourceHandler: undefined,
+        });
+
+        expect(newBattleOrchestratorState.resourceHandler).toBeUndefined();
+        expect(newBattleOrchestratorState.battleState).toEqual(validBattleState);
+
+        expect(newBattleOrchestratorState.numberGenerator).toEqual(numberGenerator);
+
+        expect(newBattleOrchestratorState.squaddieRepository).toEqual(squaddieRepository);
+        expect(newBattleOrchestratorState.battleSquaddieSelectedHUD).toEqual(battleSquaddieSelectedHUD);
     });
 });

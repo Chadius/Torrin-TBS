@@ -42,7 +42,7 @@ describe('GameEngineBattleMissionLoader', () => {
         resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
         squaddieRepository = new BattleSquaddieRepository();
 
-        state = new BattleOrchestratorState({
+        state = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler,
             squaddieRepository,
             battleSquaddieSelectedHUD: undefined,
@@ -242,7 +242,7 @@ describe('GameEngineBattleMissionLoader', () => {
                 loadedBattleSaveState
             );
 
-            originalState = new BattleOrchestratorState({
+            originalState = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository,
                 resourceHandler,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),

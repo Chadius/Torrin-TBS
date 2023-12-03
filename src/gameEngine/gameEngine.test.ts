@@ -4,7 +4,7 @@ import {GameModeEnum} from "../utils/startupConfig";
 import {MouseButton} from "../utils/mouseConfig";
 import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState} from "../titleScreen/titleScreenState";
-import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
 import {SaveFile} from "../utils/fileHandling/saveFile";
 import {NullMissionMap} from "../utils/test/battleOrchestratorState";
@@ -231,7 +231,7 @@ describe('Game Engine', () => {
                 loadedBattleSaveState
             );
 
-            originalState = new BattleOrchestratorState({
+            originalState = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: new BattleSquaddieRepository(),
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({

@@ -1,5 +1,5 @@
 import {BattleMapDisplay} from "./battleMapDisplay";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
@@ -36,7 +36,7 @@ describe('battleMapDisplay', () => {
         camera.setXVelocity = jest.fn();
         camera.setYVelocity = jest.fn();
 
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
@@ -63,7 +63,7 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
@@ -124,7 +124,7 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD.isMouseInsideHUD = jest.fn().mockReturnValue(false);
             battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
@@ -189,7 +189,7 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
@@ -229,7 +229,7 @@ describe('battleMapDisplay', () => {
             })
         );
 
-        const stateWithOpenedHUD = new BattleOrchestratorState({
+        const stateWithOpenedHUD = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,
@@ -257,7 +257,7 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
@@ -310,7 +310,7 @@ describe('battleMapDisplay', () => {
             })
         );
 
-        const stateWithOpenedHUD = new BattleOrchestratorState({
+        const stateWithOpenedHUD = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,

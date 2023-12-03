@@ -1,4 +1,4 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
@@ -34,7 +34,7 @@ describe('BattleCutscenePlayer', () => {
 
     it('is complete when there is no cutscene to play', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
@@ -52,7 +52,7 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
@@ -74,7 +74,7 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
@@ -98,7 +98,7 @@ describe('BattleCutscenePlayer', () => {
                 "lunch_date": lunchDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
@@ -128,7 +128,7 @@ describe('BattleCutscenePlayer', () => {
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
@@ -155,7 +155,7 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = new BattleOrchestratorState({
+        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,

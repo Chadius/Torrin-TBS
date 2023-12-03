@@ -43,4 +43,14 @@ describe('fixed number generator', () => {
             shouldThrowErrorNotANumber()
         }).toThrow("Fixed Number Generator must set number between 1 and 360, got: undefined");
     });
+
+    it('can clone an existing generator with its own stream values', () => {
+        const originalGenerator: NumberGeneratorStrategy = new FixedNumberGenerator({result: 5});
+
+        const newGenerator: NumberGeneratorStrategy = originalGenerator.clone();
+        expect((newGenerator as FixedNumberGenerator).result).toEqual((originalGenerator as FixedNumberGenerator).result);
+
+        expect(originalGenerator.next()).toBe(5);
+        expect(newGenerator.next()).toBe(5);
+    });
 });

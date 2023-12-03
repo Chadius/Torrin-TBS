@@ -1,5 +1,5 @@
 import {BattlePlayerSquaddieSelector} from "./battlePlayerSquaddieSelector";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -208,7 +208,7 @@ describe('BattleSquaddieSelector', () => {
         mockHud.wasAnyActionSelected = jest.fn().mockReturnValue(false);
         mockHud.selectSquaddieAndDrawWindow = jest.fn();
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
@@ -248,7 +248,7 @@ describe('BattleSquaddieSelector', () => {
         const battlePhaseState = makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepo,
@@ -279,7 +279,7 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             squaddieRepository: squaddieRepo,
             resourceHandler: mocks.mockResourceHandler(),
@@ -379,7 +379,7 @@ describe('BattleSquaddieSelector', () => {
                 numberOfActionPointsSpent: 1
             }));
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
                 resourceHandler: mockResourceHandler,
@@ -447,7 +447,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: mockHud,
@@ -482,7 +482,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: mockHud,
@@ -549,7 +549,7 @@ describe('BattleSquaddieSelector', () => {
         mockHud.mouseClicked = jest.fn();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: mockHud,
@@ -656,7 +656,7 @@ describe('BattleSquaddieSelector', () => {
             camera = new BattleCamera();
             selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: mockHud,
                 squaddieRepository: squaddieRepo,
@@ -771,7 +771,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.keyPressed = jest.fn();
 
-        const state: BattleOrchestratorState = new BattleOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: mockHud,
             squaddieRepository: squaddieRepo,

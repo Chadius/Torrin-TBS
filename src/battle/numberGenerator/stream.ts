@@ -25,4 +25,8 @@ export class StreamNumberGenerator implements NumberGeneratorStrategy {
 
         return this.results.shift();
     }
+
+    clone(): NumberGeneratorStrategy {
+        return new StreamNumberGenerator({results: [...this.results]});
+    }
 }

@@ -7,7 +7,7 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinateToKey} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
@@ -155,7 +155,7 @@ describe('BattleSquaddieTarget', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        state = new BattleOrchestratorState({
+        state = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
@@ -378,7 +378,7 @@ describe('BattleSquaddieTarget', () => {
                 movingBattleSquaddieIds: [],
             };
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
@@ -557,7 +557,7 @@ describe('BattleSquaddieTarget', () => {
                 movingBattleSquaddieIds: [],
             };
 
-            state = new BattleOrchestratorState({
+            state = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 resourceHandler: mockResourceHandler,
                 squaddieRepository: squaddieRepo,

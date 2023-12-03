@@ -6,7 +6,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
@@ -124,7 +124,7 @@ describe('calculator', () => {
             };
 
             const results = CalculateResults({
-                    state: new BattleOrchestratorState({
+                    state: BattleOrchestratorStateHelper.newOrchestratorState({
                         squaddieRepository: squaddieRepository,
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
@@ -154,7 +154,7 @@ describe('calculator', () => {
             };
 
             CalculateResults({
-                    state: new BattleOrchestratorState({
+                    state: BattleOrchestratorStateHelper.newOrchestratorState({
                         squaddieRepository: squaddieRepository,
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
@@ -184,7 +184,7 @@ describe('calculator', () => {
                 squaddieActionsForThisRound: undefined,
             };
             CalculateResults({
-                    state: new BattleOrchestratorState({
+                    state: BattleOrchestratorStateHelper.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
@@ -215,7 +215,7 @@ describe('calculator', () => {
             };
 
             const results = CalculateResults({
-                    state: new BattleOrchestratorState({
+                    state: BattleOrchestratorStateHelper.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
@@ -252,7 +252,7 @@ describe('calculator', () => {
             };
 
             CalculateResults({
-                    state: new BattleOrchestratorState({
+                    state: BattleOrchestratorStateHelper.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({

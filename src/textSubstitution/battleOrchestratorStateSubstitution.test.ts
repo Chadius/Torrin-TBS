@@ -1,4 +1,4 @@
-import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {SubstituteTextUsingBattleOrchestraState} from "./BattleOrchestratorStateSubstitution";
 import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
@@ -6,7 +6,7 @@ import {BattleStateHelper} from "../battle/orchestrator/battleState";
 
 describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute the same token multiple times in the same input', () => {
-        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+        const battleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -27,7 +27,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
     });
 
     it('does not change the input if there are no recognized tags', () => {
-        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+        const battleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
             }),
@@ -44,7 +44,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
     });
 
     it('can substitute Turn Count', () => {
-        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+        const battleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
                 battlePhaseState: {
@@ -75,7 +75,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
         beforeEach(() => {
             secondsPassed = (hours * 60 * 60 + minutes * 60 + seconds);
 
-            battleState = new BattleOrchestratorState({
+            battleState = BattleOrchestratorStateHelper.newOrchestratorState({
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: undefined,
@@ -107,7 +107,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
     });
 
     it('can substitute damage dealt by player team', () => {
-        const battleState = new BattleOrchestratorState({
+        const battleState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
@@ -127,7 +127,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
     });
 
     it('can substitute damage received by player team', () => {
-        const battleState = new BattleOrchestratorState({
+        const battleState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
@@ -147,7 +147,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
     });
 
     it('can substitute healing received by player team', () => {
-        const battleState = new BattleOrchestratorState({
+        const battleState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,

@@ -14,7 +14,7 @@ import {getResultOrThrowError, makeResult} from "../utils/ResultOrError";
 import {CreateNewSquaddieAndAddToRepository} from "../utils/test/squaddie";
 import {BattleCamera} from "./battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
-import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "./orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
 import * as mocks from "../utils/test/mocks";
@@ -132,7 +132,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         hud.selectSquaddieAndDrawWindow({
                 battleId: playerSquaddieDynamicID,
                 repositionWindow: {mouseX: 0, mouseY: 0},
-                state: new BattleOrchestratorState({
+                state: BattleOrchestratorStateHelper.newOrchestratorState({
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepository,
@@ -154,7 +154,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when an action button is clicked', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
@@ -187,7 +187,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when an action button is hovered', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
@@ -215,7 +215,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('generates a Wait Turn action button when a squaddie is selected', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
@@ -242,7 +242,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when a Wait Turn action button was clicked on', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
@@ -276,7 +276,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('can reopen the window in the previous position if no mouse location is given', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
@@ -316,7 +316,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(playerSquaddieDynamicID));
         squaddieTemplate.actions.push(notEnoughActionPointsAction);
 
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
@@ -351,7 +351,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user if another squaddie is still completing their turn', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
@@ -396,7 +396,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user they cannot control enemy squaddies', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -426,7 +426,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will not let the player command uncontrollable enemy squaddies', () => {
-        const state = new BattleOrchestratorState({
+        const state = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -460,7 +460,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     describe("Save game button", () => {
         it('should show the button during the player phase', () => {
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -496,7 +496,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(hud.shouldDrawSaveAndLoadButton(state)).toBeTruthy();
         });
         it('should not show the button during other phases', () => {
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -522,7 +522,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
         });
         it('should not show the button if the player controlled squaddie is mid way through their turn', () => {
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -568,7 +568,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             let state: BattleOrchestratorState;
 
             beforeEach(() => {
-                state = new BattleOrchestratorState({
+                state = BattleOrchestratorStateHelper.newOrchestratorState({
                     squaddieRepository: squaddieRepository,
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
@@ -682,7 +682,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     describe("Load game button", () => {
         it('should remember the user requested a load function', () => {
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -724,7 +724,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             let state: BattleOrchestratorState;
 
             beforeEach(() => {
-                state = new BattleOrchestratorState({
+                state = BattleOrchestratorStateHelper.newOrchestratorState({
                     squaddieRepository: squaddieRepository,
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
@@ -825,7 +825,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     describe("Next Squaddie button", () => {
         it('should show the button if there are at least 2 player controllable squaddies', () => {
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -852,7 +852,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
             onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
 
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -880,7 +880,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
             onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
 
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: onePlayerOneEnemy,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -900,7 +900,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             const onePlayerOneEnemy = new BattleSquaddieRepository();
             onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
             onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
@@ -934,7 +934,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 r: 1
             });
 
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
@@ -988,7 +988,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 r: 1
             });
 
-            const state = new BattleOrchestratorState({
+            const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,

@@ -19,4 +19,8 @@ export class FixedNumberGenerator implements NumberGeneratorStrategy {
     next(): number {
         return this.result;
     }
+
+    clone(): NumberGeneratorStrategy {
+        return new FixedNumberGenerator({result: this.result});
+    }
 }

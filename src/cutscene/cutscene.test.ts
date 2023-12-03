@@ -4,7 +4,7 @@ import {Cutscene} from "./cutscene";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
-import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleStateHelper} from "../battle/orchestrator/battleState";
 
 describe('Cutscene', () => {
@@ -446,7 +446,7 @@ describe('Cutscene', () => {
                 frontDoorGreeting
             ]
         });
-        const battleState: BattleOrchestratorState = new BattleOrchestratorState({
+        const battleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,

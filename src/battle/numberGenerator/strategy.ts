@@ -3,6 +3,8 @@ export const NUMBER_GENERATOR_MAXIMUM = 360
 
 export interface NumberGeneratorStrategy {
     next(): number;
+
+    clone(): NumberGeneratorStrategy;
 }
 
 export const isNumberInGeneratorRange = (result: number) => {
