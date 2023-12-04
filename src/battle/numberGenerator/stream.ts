@@ -15,7 +15,7 @@ export class StreamNumberGenerator implements NumberGeneratorStrategy {
             }
         })
 
-        this.results = results;
+        this.results = [...results];
     }
 
     next(): number {

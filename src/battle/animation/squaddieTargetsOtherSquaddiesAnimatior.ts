@@ -162,6 +162,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             actorTemplate: actorTemplate,
             actorBattle: actorBattle,
             action: action,
+            results: mostRecentResults.results,
         });
 
         this.actorSprite.start({

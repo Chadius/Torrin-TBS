@@ -163,6 +163,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
 
@@ -217,7 +221,11 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             results: {
                 actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
-                resultPerTarget: {["target_dynamic_squaddie"]: {damageTaken: 9001, healingReceived: 0}}
+                resultPerTarget: {["target_dynamic_squaddie"]: {damageTaken: 9001, healingReceived: 0}},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
         RecordingHandler.addEvent(battleEventRecording, newEvent);

@@ -95,6 +95,10 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                 actingBattleSquaddieId: monkDynamicId,
                 targetedBattleSquaddieIds: [],
                 resultPerTarget: {},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
         RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);

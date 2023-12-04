@@ -101,7 +101,11 @@ describe("BattleSaveState", () => {
                         damageTaken: 1,
                         healingReceived: 3,
                     },
-                }
+                },
+                actingSquaddieRoll: {
+                    occurred: true,
+                    rolls: [3, 5],
+                },
             }
         };
         eventRecording0.history.push(
@@ -318,7 +322,11 @@ describe("BattleSaveState", () => {
             results: {
                 actingBattleSquaddieId: undefined,
                 targetedBattleSquaddieIds: [],
-                resultPerTarget: {}
+                resultPerTarget: {},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
         eventRecording0.history.push(

@@ -117,6 +117,10 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                 actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamicId],
                 resultPerTarget: {[thiefDynamicId]: {damageTaken: 1, healingReceived: 0}},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
             }
         };
         battleEventRecording = {history: []};

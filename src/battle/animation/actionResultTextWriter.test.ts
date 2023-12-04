@@ -128,7 +128,11 @@ describe('Action Result Text Writer', () => {
                     healingReceived: 0,
                     damageTaken: 1
                 }
-            }
+            },
+            actingSquaddieRoll: {
+                occurred: false,
+                rolls: [],
+            },
         };
 
         const outputStrings: string[] = FormatResult({
@@ -156,7 +160,11 @@ describe('Action Result Text Writer', () => {
                     damageTaken: 0,
                     healingReceived: 2
                 },
-            }
+            },
+            actingSquaddieRoll: {
+                occurred: false,
+                rolls: [],
+            },
         };
 
         const outputStrings: string[] = FormatResult({
@@ -180,5 +188,38 @@ describe('Action Result Text Writer', () => {
 
         expect(outputStrings).toHaveLength(1);
         expect(outputStrings[0]).toBe("Knight uses Longsword Sweep")
+    });
+
+    it('Will mention the actor roll, if the actor rolled', () => {
+        const damagingResult: SquaddieSquaddieResults = {
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+            targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId, rogueDynamic.battleSquaddieId],
+            resultPerTarget: {
+                [thiefDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 1
+                },
+                [rogueDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 1
+                }
+            },
+            actingSquaddieRoll: {
+                occurred: true,
+                rolls: [2, 6],
+            },
+        };
+
+        const outputStrings: string[] = FormatResult({
+            currentAction: longswordSweepAction,
+            result: damagingResult,
+            squaddieRepository,
+        });
+
+        expect(outputStrings).toHaveLength(4);
+        expect(outputStrings[0]).toBe("Knight uses Longsword Sweep");
+        expect(outputStrings[1]).toBe("   rolls (2, 6)");
+        expect(outputStrings[2]).toBe("Thief takes 1 damage");
+        expect(outputStrings[3]).toBe("Rogue takes 1 damage");
     });
 });
