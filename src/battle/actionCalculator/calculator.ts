@@ -79,7 +79,7 @@ const compareAttackRollToGetDegreeOfSuccess = ({
     action: SquaddieAction;
     target: BattleSquaddie
 }): DegreeOfSuccess => {
-    if (TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_HITS)) {
+    if (TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS)) {
         return DegreeOfSuccess.SUCCESS;
     }
 
@@ -164,7 +164,7 @@ function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate
 }
 
 function doesActionNeedAnAttackRoll(action: SquaddieAction): boolean {
-    return TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_HITS) !== true;
+    return TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS) !== true;
 }
 
 function conformToSixSidedDieRoll(numberGeneratorResult: number): number {

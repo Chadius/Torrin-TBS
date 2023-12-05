@@ -13,7 +13,7 @@ export enum Trait {
     TARGETS_SELF = "TARGETS_SELF",
     TARGETS_FOE = "TARGETS_FOE",
     TARGETS_ALLIES = "TARGETS_ALLIES",
-    ALWAYS_HITS = "ALWAYS_HITS",
+    ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
 }
 
 export enum TraitCategory {
@@ -86,7 +86,7 @@ const traitInformation: {
         description: "The acting Squaddie can target allies with this action.",
         categories: [TraitCategory.ACTION],
     },
-    [Trait.ALWAYS_HITS]: {
+    [Trait.ALWAYS_SUCCEEDS]: {
         description: "This ability always hits the target.",
         categories: [TraitCategory.ACTION],
     }

@@ -91,7 +91,7 @@ describe('calculator', () => {
             name: "deal body damage (Auto Hit)",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                     [Trait.ATTACK]: true,
-                    [Trait.ALWAYS_HITS]: true,
+                    [Trait.ALWAYS_SUCCEEDS]: true,
                 }
             ),
             minimumRange: 0,
@@ -215,7 +215,7 @@ describe('calculator', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(
                     {
                         [Trait.HEALING]: true,
-                        [Trait.ALWAYS_HITS]: true,
+                        [Trait.ALWAYS_SUCCEEDS]: true,
                     }
                 ),
                 minimumRange: 0,

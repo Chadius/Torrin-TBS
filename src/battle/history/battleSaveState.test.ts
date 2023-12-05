@@ -52,7 +52,7 @@ describe("BattleSaveState", () => {
                 traits: {
                     booleanTraits: {
                         [Trait.ATTACK]: true,
-                        [Trait.ALWAYS_HITS]: true,
+                        [Trait.ALWAYS_SUCCEEDS]: true,
                     }
                 },
                 maximumRange: 1,

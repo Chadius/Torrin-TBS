@@ -151,15 +151,17 @@ export class TargetSprite {
         let horizontalDistance: number = 0;
         let verticalDistance: number = 0;
 
+        const emotion = this.getSquaddieEmotion({timer, battleSquaddieId: this.battleSquaddieId, squaddieRepository: this.squaddieRepository, result});
+
         if ([ActionAnimationPhase.BEFORE_ACTION,
             ActionAnimationPhase.DURING_ACTION,
         ].includes(timer.currentPhase)) {
-            ({horizontalDistance, verticalDistance} = this.getSpritePositionBeforeActionAndDuringAction(timer));
+            ({horizontalDistance, verticalDistance} = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
         } else if (SquaddieActionHandler.isHindering(action)) {
             if (result.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS && result.damageTaken > 0) {
-                ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndTakesDamage(timer));
+                ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndTakesDamage(timer, emotion));
             } else if (result.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS && result.damageTaken === 0) {
-                ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndNoDamage(timer));
+                ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndNoDamage(timer, emotion));
             }
             if (result.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE) {
                 ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndMisses(timer));
@@ -173,18 +175,20 @@ export class TargetSprite {
         spriteToDraw.draw(graphicsContext);
     }
 
-    private getSpritePositionBeforeActionAndDuringAction(timer: ActionTimer): { horizontalDistance: number, verticalDistance: number } {
+    private getSpritePositionBeforeActionAndDuringAction(timer: ActionTimer, emotion: SquaddieEmotion): { horizontalDistance: number; verticalDistance: number } {
         return {
             horizontalDistance: 0,
             verticalDistance: 0,
         }
     }
 
-    private getSpritePositionTargetReactsAndTakesDamage(timer: ActionTimer): { horizontalDistance: number, verticalDistance: number } {
+    private getSpritePositionTargetReactsAndTakesDamage(timer: ActionTimer, emotion: SquaddieEmotion): { horizontalDistance: number; verticalDistance: number } {
         const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
 
         let horizontalDistance: number = 0;
-        let maximumHorizontalDistance: number = (1 * ScreenDimensions.SCREEN_WIDTH / 12);
+        let verticalDistance: number = 0;
+        let maximumHorizontalDistance: number = ScreenDimensions.SCREEN_WIDTH / 12;
+        let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion.NEUTRAL ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 8 : ScreenDimensions.SCREEN_HEIGHT / 24;
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
                 const attackTime = timeElapsed - (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME);
@@ -194,20 +198,28 @@ export class TargetSprite {
                 } else {
                     horizontalDistance = maximumHorizontalDistance;
                 }
+
+                if (attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME && emotion !== SquaddieEmotion.DEAD) {
+                    const angle = (attackTime / ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) * 2 * Math.PI;
+                    verticalDistance = Math.sin(angle) * maximumVerticalDistance;
+                } else {
+                    verticalDistance = 0;
+                }
                 break;
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
                 horizontalDistance = maximumHorizontalDistance;
+                verticalDistance = 0;
                 break;
         }
 
         return {
             horizontalDistance,
-            verticalDistance: 0,
+            verticalDistance,
         }
     }
 
-    private getSpritePositionTargetReactsAndNoDamage(timer: ActionTimer): { horizontalDistance: number, verticalDistance: number } {
+    private getSpritePositionTargetReactsAndNoDamage(timer: ActionTimer, emotion: SquaddieEmotion): { horizontalDistance: number; verticalDistance: number } {
         const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
 
         let horizontalDistance: number = 0;
@@ -215,16 +227,16 @@ export class TargetSprite {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.TARGET_REACTS:
                 const attackTime = timeElapsed - (ACTION_ANIMATION_BEFORE_ACTION_TIME + ACTION_ANIMATION_ACTION_TIME);
-                if (attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) {
+                if (attackTime < ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 10) {
                     horizontalDistance =
-                        maximumHorizontalDistance * (attackTime / ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME);
+                        maximumHorizontalDistance * (attackTime / (ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 10));
                 } else {
                     horizontalDistance = maximumHorizontalDistance;
                 }
                 break;
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                horizontalDistance = 0;
+                horizontalDistance = maximumHorizontalDistance;
                 break;
         }
 

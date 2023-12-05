@@ -210,6 +210,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 targetTemplate: targetTemplate,
                 targetBattle: targetBattle,
                 result: resultPerTarget[battleId],
+                action: RecordingHandler.mostRecentEvent(state.battleState.recording).instruction.currentlySelectedAction,
             });
             return targetTextWindow;
         });

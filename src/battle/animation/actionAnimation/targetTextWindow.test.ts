@@ -1,7 +1,7 @@
 import {TargetTextWindow} from "./targetTextWindow";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
-import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {BattleSquaddie} from "../../battleSquaddie";
 import {SquaddieTurnHandler} from "../../../squaddie/turn";
@@ -10,6 +10,8 @@ import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResu
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
+import {SquaddieAction, SquaddieActionHandler} from "../../../squaddie/action";
+import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 
 describe('TargetTextWindow', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -21,7 +23,35 @@ describe('TargetTextWindow', () => {
     let targetResultTakenDamage: ActionResultPerSquaddie;
     let targetResultHealingReceived: ActionResultPerSquaddie;
 
+    let attackAction: SquaddieAction;
+    let healingAction: SquaddieAction;
+
     beforeEach(() => {
+        attackAction = SquaddieActionHandler.new({
+            id: "attack",
+            name: "attack action",
+            damageDescriptions: {
+                [DamageType.Body]: 2,
+            },
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGETS_FOE]: true,
+            })
+        });
+
+        healingAction = SquaddieActionHandler.new({
+            id: "heal",
+            name: "healing action",
+            healingDescriptions: {
+                [HealingType.LostHitPoints]: 3,
+            },
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ALWAYS_SUCCEEDS]: true,
+                [Trait.TARGETS_SELF]: true,
+                [Trait.TARGETS_ALLIES]: true,
+            }),
+        })
+
         targetSquaddie = {
             squaddieId: {
                 name: "Target",
@@ -61,9 +91,32 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
+            action: attackAction,
         });
 
-        expect(targetWindow.targetLabel.textBox.text).toBe(targetSquaddie.squaddieId.name);
+        expect(targetWindow.targetLabel.textBox.text).toContain(targetSquaddie.squaddieId.name);
+    });
+
+    it('shows the target armor if the attack deals body damage', () => {
+        targetWindow.start({
+            targetTemplate: targetSquaddie,
+            targetBattle: targetBattle,
+            result: targetResultTakenDamage,
+            action: attackAction,
+        });
+
+        expect(targetWindow.targetLabel.textBox.text).toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
+    });
+
+    it('does not show the target armor if the action heals', () => {
+        targetWindow.start({
+            targetTemplate: targetSquaddie,
+            targetBattle: targetBattle,
+            result: targetResultHealingReceived,
+            action: healingAction,
+        });
+
+        expect(targetWindow.targetLabel.textBox.text).not.toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
     });
 
     it('shows the damage taken', () => {
@@ -71,6 +124,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
+            action: attackAction,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
@@ -84,6 +138,7 @@ describe('TargetTextWindow', () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
+            action: attackAction,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
                 damageTaken: 0,
@@ -102,6 +157,7 @@ describe('TargetTextWindow', () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
+            action: attackAction,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 damageTaken: 0,
@@ -127,6 +183,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
+            action: healingAction,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);

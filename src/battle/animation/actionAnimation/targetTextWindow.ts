@@ -9,6 +9,7 @@ import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResu
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
+import {SquaddieAction, SquaddieActionHandler} from "../../../squaddie/action";
 
 export class TargetTextWindow {
     constructor() {
@@ -51,15 +52,16 @@ export class TargetTextWindow {
         this._targetAfterActionText = "";
     }
 
-    start({targetTemplate, targetBattle, result}: {
+    start({targetTemplate, targetBattle, result, action}: {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
+        action: SquaddieAction,
     }) {
         this.reset();
         const defenderName: string = targetTemplate.squaddieId.name;
 
-        this._targetBeforeActionText = `${defenderName}`;
+        this.createBeforeActionText({targetTemplate, targetBattle, result, action});
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[targetTemplate.squaddieId.affiliation];
 
         this._result = result;
@@ -76,6 +78,19 @@ export class TargetTextWindow {
         }
 
         this.targetLabel.draw(graphicsContext);
+    }
+
+    private createBeforeActionText({targetTemplate, targetBattle, result, action}: {
+        targetTemplate: SquaddieTemplate,
+        targetBattle: BattleSquaddie,
+        result: ActionResultPerSquaddie,
+        action: SquaddieAction,
+    }) {
+        this._targetBeforeActionText = `${targetTemplate.squaddieId.name}`;
+
+        if (SquaddieActionHandler.isHindering(action)) {
+            this._targetBeforeActionText += `\nAC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`;
+        }
     }
 
     private createActorTextBox() {
