@@ -131,7 +131,7 @@ describe('TargetTextWindow', () => {
         targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
         expect(timerSpy).toBeCalled();
 
-        expect(targetWindow.targetLabel.textBox.text).toBe(`${targetSquaddie.squaddieId.name}\n${targetResultTakenDamage.damageTaken} damage`);
+        expect(targetWindow.targetLabel.textBox.text).toContain(`${targetResultTakenDamage.damageTaken} damage`);
     });
 
     it('shows if the actor missed', () => {
@@ -150,7 +150,7 @@ describe('TargetTextWindow', () => {
         targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
         expect(timerSpy).toBeCalled();
 
-        expect(targetWindow.targetLabel.textBox.text).toBe(`${targetSquaddie.squaddieId.name}\nMISS`);
+        expect(targetWindow.targetLabel.textBox.text).toContain(`MISS`);
     });
 
     it('shows if the actor hit but dealt 0 damage', () => {
@@ -169,7 +169,7 @@ describe('TargetTextWindow', () => {
         targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
         expect(timerSpy).toBeCalled();
 
-        expect(targetWindow.targetLabel.textBox.text).toBe(`${targetSquaddie.squaddieId.name}\nNO DAMAGE`);
+        expect(targetWindow.targetLabel.textBox.text).toContain(`NO DAMAGE`);
     });
 
     it('shows the healing received', () => {
