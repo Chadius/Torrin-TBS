@@ -5,7 +5,7 @@ import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
-import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
+import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
@@ -103,7 +103,26 @@ export class TargetTextWindow {
     }
 
     private updateCreateActorTextBox() {
-        this._targetAfterActionText = `${this.result.damageTaken} damage`;
+        this._targetAfterActionText = "";
+
+        switch (this.result.actorDegreeOfSuccess) {
+            case DegreeOfSuccess.FAILURE:
+                this._targetAfterActionText = `MISS`;
+                break;
+            case DegreeOfSuccess.SUCCESS:
+                if (this.result.damageTaken === 0 && this.result.healingReceived === 0) {
+                    this._targetAfterActionText = `NO DAMAGE`;
+                } else if (this.result.damageTaken > 0) {
+                    this._targetAfterActionText = `${this.result.damageTaken} damage`;
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (this.result.healingReceived > 0) {
+            this._targetAfterActionText += `${this.result.healingReceived} healed`;
+        }
 
         this.targetLabel.textBox.text = `${this.targetBeforeActionText}\n${this.targetAfterActionText}`;
     }

@@ -3,6 +3,7 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {DegreeOfSuccessHelper} from "../history/actionResultPerSquaddie";
 
 export const FormatResult = ({currentAction, result, squaddieRepository}: {
     currentAction: SquaddieAction,
@@ -12,7 +13,7 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
     const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(result.actingBattleSquaddieId))
 
     let output: string[] = [];
-    let actorUsesActionDescriptionText = GetSquaddieUsesActionString({
+    let actorUsesActionDescriptionText = ActionResultTextWriter.getSquaddieUsesActionString({
         squaddieTemplate: actingSquaddieTemplate,
         action: currentAction,
         newline: false,
@@ -20,16 +21,33 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
     output.push(actorUsesActionDescriptionText);
 
     if (result.actingSquaddieRoll.occurred) {
-        output.push(GetRollsDescriptionString({rolls: result.actingSquaddieRoll.rolls, addSpacing: true}));
+        output.push(ActionResultTextWriter.getRollsDescriptionString({
+            rolls: result.actingSquaddieRoll.rolls,
+            addSpacing: true
+        }));
     }
 
     result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
         const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(targetSquaddieId));
+        const resultPerTarget = result.resultPerTarget[targetSquaddieId];
+
         if (SquaddieActionHandler.isHindering(currentAction)) {
-            output.push(`${targetSquaddieTemplate.squaddieId.name} takes ${result.resultPerTarget[targetSquaddieId].damageTaken} damage`);
+            if (DegreeOfSuccessHelper.atLeastSuccessful(resultPerTarget.actorDegreeOfSuccess) !== true) {
+                output.push(ActionResultTextWriter.getHinderingActionMissedString({squaddieTemplate: targetSquaddieTemplate}));
+            } else if (resultPerTarget.damageTaken === 0) {
+                output.push(ActionResultTextWriter.getHinderingActionDealtNoDamageString({squaddieTemplate: targetSquaddieTemplate}));
+            } else {
+                output.push(ActionResultTextWriter.getHinderingActionDealtDamageString({
+                    squaddieTemplate: targetSquaddieTemplate,
+                    damageTaken: resultPerTarget.damageTaken,
+                }));
+            }
         }
         if (SquaddieActionHandler.isHelpful(currentAction)) {
-            output.push(`${targetSquaddieTemplate.squaddieId.name} receives ${result.resultPerTarget[targetSquaddieId].healingReceived} healing`);
+            output.push(ActionResultTextWriter.getHelpfulActionHealingReceivedString({
+                squaddieTemplate: targetSquaddieTemplate,
+                healingReceived: resultPerTarget.healingReceived,
+            }));
         }
     });
 
@@ -49,14 +67,33 @@ export const FormatIntent = ({currentAction, actingBattleSquaddieId, squaddieRep
     return output;
 }
 
-export const GetSquaddieUsesActionString = ({squaddieTemplate, action, newline}: {
-    squaddieTemplate: SquaddieTemplate,
-    action: SquaddieAction,
-    newline: boolean
-}): string => {
-    return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${action.name}`;
-}
-
-export const GetRollsDescriptionString = ({rolls, addSpacing}: { rolls: number[], addSpacing: boolean }): string => {
-    return `${addSpacing ? '   ' : ''}rolls (${rolls[0]}, ${rolls[1]})`;
-}
+export const ActionResultTextWriter = {
+    getSquaddieUsesActionString: ({squaddieTemplate, action, newline}: {
+        squaddieTemplate: SquaddieTemplate,
+        action: SquaddieAction,
+        newline: boolean
+    }): string => {
+        return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${action.name}`;
+    },
+    getRollsDescriptionString: ({rolls, addSpacing}: { rolls: number[], addSpacing: boolean }): string => {
+        return `${addSpacing ? '   ' : ''}rolls (${rolls[0]}, ${rolls[1]})`;
+    },
+    getHinderingActionMissedString: ({squaddieTemplate}: { squaddieTemplate: SquaddieTemplate }): string => {
+        return `${squaddieTemplate.squaddieId.name}: MISS!`;
+    },
+    getHinderingActionDealtNoDamageString: ({squaddieTemplate}: { squaddieTemplate: SquaddieTemplate }): string => {
+        return `${squaddieTemplate.squaddieId.name}: NO DAMAGE`;
+    },
+    getHinderingActionDealtDamageString: ({squaddieTemplate, damageTaken}: {
+        squaddieTemplate: SquaddieTemplate,
+        damageTaken: number
+    }): string => {
+        return `${squaddieTemplate.squaddieId.name} takes ${damageTaken} damage`;
+    },
+    getHelpfulActionHealingReceivedString({squaddieTemplate, healingReceived}: {
+        squaddieTemplate: SquaddieTemplate;
+        healingReceived: number
+    }): string {
+        return `${squaddieTemplate.squaddieId.name} receives ${healingReceived} healing`;
+    }
+};

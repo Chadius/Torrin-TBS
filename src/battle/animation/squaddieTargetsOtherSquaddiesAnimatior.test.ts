@@ -25,6 +25,7 @@ import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleStateHelper} from "../orchestrator/battleState";
+import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -116,7 +117,13 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             results: {
                 actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
                 targetedBattleSquaddieIds: [thiefDynamicId],
-                resultPerTarget: {[thiefDynamicId]: {damageTaken: 1, healingReceived: 0}},
+                resultPerTarget: {
+                    [thiefDynamicId]: {
+                        damageTaken: 1,
+                        healingReceived: 0,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+                    }
+                },
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],

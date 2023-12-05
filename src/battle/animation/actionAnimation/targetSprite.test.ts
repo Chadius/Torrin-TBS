@@ -1,4 +1,4 @@
-import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
+import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResultPerSquaddie";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -38,8 +38,12 @@ describe('Target Sprite', () => {
 
         const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
-        resultTookDamage = {damageTaken: 1, healingReceived: 0};
-        resultTookLethalDamage = {damageTaken: squaddieTemplate.attributes.maxHitPoints, healingReceived: 0};
+        resultTookDamage = {damageTaken: 1, healingReceived: 0, actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS};
+        resultTookLethalDamage = {
+            damageTaken: squaddieTemplate.attributes.maxHitPoints,
+            healingReceived: 0,
+            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+        };
 
         timer = new ActionTimer();
         timer.start();

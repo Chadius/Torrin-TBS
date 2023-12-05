@@ -10,7 +10,7 @@ import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
-import {GetSquaddieUsesActionString} from "../actionResultTextWriter";
+import {ActionResultTextWriter} from "../actionResultTextWriter";
 
 export class ActorTextWindow {
     results: SquaddieSquaddieResults;
@@ -112,7 +112,7 @@ export class ActorTextWindow {
     }
 
     private calculateActorUsesActionDescriptionText({timer}: { timer?: ActionTimer }): string {
-        let actorUsesActionDescriptionText = GetSquaddieUsesActionString({
+        let actorUsesActionDescriptionText = ActionResultTextWriter.getSquaddieUsesActionString({
             squaddieTemplate: this.actorTemplate,
             action: this.action,
             newline: true,

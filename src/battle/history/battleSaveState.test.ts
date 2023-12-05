@@ -32,6 +32,7 @@ import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus"
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {BattleStateHelper} from "../orchestrator/battleState";
+import {DegreeOfSuccess} from "./actionResultPerSquaddie";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -96,10 +97,12 @@ describe("BattleSaveState", () => {
                     "target 0": {
                         damageTaken: 2,
                         healingReceived: 0,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
                     },
                     "target 1": {
                         damageTaken: 1,
                         healingReceived: 3,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
                     },
                 },
                 actingSquaddieRoll: {
