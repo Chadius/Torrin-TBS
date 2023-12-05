@@ -89,16 +89,21 @@ describe('Actor Sprite', () => {
     });
 
     describe('should keep the same emotion in DURING_ACTION, TARGET_REACTS, SHOWING_RESULTS and FINISHED_SHOWING_RESULTS', () => {
-        const tests = [
+        let mapping: { [name: string]: ActionResultPerSquaddie };
+        const tests: { name: string }[] = [
             {
                 name: 'deals damage',
-                actionResult: resultTookDamage,
             }
         ]
+        beforeEach(() => {
+            mapping = {
+                'deals damage': resultTookDamage,
+            }
+        })
         it.each(tests)(`$name will show the same emotion`, ({
                                                                 name,
-                                                                actionResult,
                                                             }) => {
+            const result = mapping[name];
             const sprite = new ActorSprite();
             mockActionTimerPhase(ActionAnimationPhase.DURING_ACTION);
             const duringActionEmotion = sprite.getSquaddieEmotion({

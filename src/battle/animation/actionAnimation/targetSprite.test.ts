@@ -6,14 +6,16 @@ import {TargetSprite} from "./targetSprite";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
-import * as squaddieService from "../../../squaddie/squaddieService";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
+import {SquaddieActionHandler} from "../../../squaddie/action";
 
 describe('Target Sprite', () => {
     let resultTookDamage: ActionResultPerSquaddie;
     let resultTookLethalDamage: ActionResultPerSquaddie;
+    let resultMissed: ActionResultPerSquaddie;
+    let resultDealsNoDamage: ActionResultPerSquaddie;
     let squaddieRepository: BattleSquaddieRepository;
     let timer: ActionTimer;
     const battleSquaddieId = "target0";
@@ -44,6 +46,8 @@ describe('Target Sprite', () => {
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
         };
+        resultMissed = {damageTaken: 0, healingReceived: 0, actorDegreeOfSuccess: DegreeOfSuccess.FAILURE};
+        resultDealsNoDamage = {damageTaken: 0, healingReceived: 0, actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS};
 
         timer = new ActionTimer();
         timer.start();
@@ -68,7 +72,7 @@ describe('Target Sprite', () => {
             startingPosition: 0,
         });
 
-        sprite.draw(timer, mockedP5GraphicsContext);
+        sprite.draw(timer, mockedP5GraphicsContext, SquaddieActionHandler.new({}), resultTookDamage);
 
         expect(getSquaddieEmotionSpy).toBeCalled();
         expect(getterSpy).toBeCalled();
@@ -118,7 +122,9 @@ describe('Target Sprite', () => {
         expect(getterSpy).toBeCalled();
     });
     it('transitions to DEAD if it kills the target', () => {
-        const stillAliveSpy = jest.spyOn(squaddieService, "IsSquaddieAlive").mockReturnValue(false);
+        const {battleSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+        battleSquaddie.inBattleAttributes.currentHitPoints = 0;
+
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
@@ -130,23 +136,62 @@ describe('Target Sprite', () => {
 
         expect(emotion).toBe(SquaddieEmotion.DEAD);
         expect(getterSpy).toBeCalled();
-        expect(stillAliveSpy).toBeCalled();
     });
+    // // TODO different slide animation
+    it('transition to neutral when the attack misses', () => {
+        // const stillAliveSpy = jest.spyOn(squaddieService, "IsSquaddieAlive").mockReturnValue(true);
+        const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
+        const sprite = new TargetSprite();
+        const emotion = sprite.getSquaddieEmotion({
+            timer,
+            battleSquaddieId,
+            squaddieRepository,
+            result: resultMissed,
+        });
+
+        expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
+        expect(getterSpy).toBeCalled();
+    });
+    // // TODO Don't move at all
+    it('transition to neutral when the attack deals no damage', () => {
+        const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
+        const sprite = new TargetSprite();
+        const emotion = sprite.getSquaddieEmotion({
+            timer,
+            battleSquaddieId,
+            squaddieRepository,
+            result: resultDealsNoDamage,
+        });
+
+        expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
+        expect(getterSpy).toBeCalled();
+    });
+
     describe('should keep the same emotion in TARGET_REACTS, SHOWING_RESULTS and FINISHED_SHOWING_RESULTS', () => {
-        const tests = [
+        let mapping: { [name: string]: ActionResultPerSquaddie };
+
+        const tests: {
+            name: string
+        }[] = [
             {
                 name: 'deals nonlethal damage',
-                result: resultTookDamage,
             },
             {
                 name: 'deals lethal damage',
-                result: resultTookLethalDamage,
             }
         ]
+
+        beforeEach(() => {
+            mapping = {
+                'deals nonlethal damage': resultTookDamage,
+                'deals lethal damage': resultTookLethalDamage,
+            }
+        })
+
         it.each(tests)(`$name will show the same emotion`, ({
-                                                                name,
-                                                                result,
+                                                                name
                                                             }) => {
+            const result = mapping[name];
             const sprite = new TargetSprite();
             mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
             const targetReactsEmotion = sprite.getSquaddieEmotion({
