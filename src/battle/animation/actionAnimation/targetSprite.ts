@@ -151,17 +151,31 @@ export class TargetSprite {
         let horizontalDistance: number = 0;
         let verticalDistance: number = 0;
 
-        const emotion = this.getSquaddieEmotion({timer, battleSquaddieId: this.battleSquaddieId, squaddieRepository: this.squaddieRepository, result});
+        const emotion = this.getSquaddieEmotion({
+            timer,
+            battleSquaddieId: this.battleSquaddieId,
+            squaddieRepository: this.squaddieRepository,
+            result
+        });
 
         if ([ActionAnimationPhase.BEFORE_ACTION,
             ActionAnimationPhase.DURING_ACTION,
         ].includes(timer.currentPhase)) {
-            ({horizontalDistance, verticalDistance} = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
+            ({
+                horizontalDistance,
+                verticalDistance
+            } = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
         } else if (SquaddieActionHandler.isHindering(action)) {
             if (result.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS && result.damageTaken > 0) {
-                ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndTakesDamage(timer, emotion));
+                ({
+                    horizontalDistance,
+                    verticalDistance
+                } = this.getSpritePositionTargetReactsAndTakesDamage(timer, emotion));
             } else if (result.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS && result.damageTaken === 0) {
-                ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndNoDamage(timer, emotion));
+                ({
+                    horizontalDistance,
+                    verticalDistance
+                } = this.getSpritePositionTargetReactsAndNoDamage(timer, emotion));
             }
             if (result.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE) {
                 ({horizontalDistance, verticalDistance} = this.getSpritePositionTargetReactsAndMisses(timer));
@@ -175,14 +189,20 @@ export class TargetSprite {
         spriteToDraw.draw(graphicsContext);
     }
 
-    private getSpritePositionBeforeActionAndDuringAction(timer: ActionTimer, emotion: SquaddieEmotion): { horizontalDistance: number; verticalDistance: number } {
+    private getSpritePositionBeforeActionAndDuringAction(timer: ActionTimer, emotion: SquaddieEmotion): {
+        horizontalDistance: number;
+        verticalDistance: number
+    } {
         return {
             horizontalDistance: 0,
             verticalDistance: 0,
         }
     }
 
-    private getSpritePositionTargetReactsAndTakesDamage(timer: ActionTimer, emotion: SquaddieEmotion): { horizontalDistance: number; verticalDistance: number } {
+    private getSpritePositionTargetReactsAndTakesDamage(timer: ActionTimer, emotion: SquaddieEmotion): {
+        horizontalDistance: number;
+        verticalDistance: number
+    } {
         const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
 
         let horizontalDistance: number = 0;
@@ -219,7 +239,10 @@ export class TargetSprite {
         }
     }
 
-    private getSpritePositionTargetReactsAndNoDamage(timer: ActionTimer, emotion: SquaddieEmotion): { horizontalDistance: number; verticalDistance: number } {
+    private getSpritePositionTargetReactsAndNoDamage(timer: ActionTimer, emotion: SquaddieEmotion): {
+        horizontalDistance: number;
+        verticalDistance: number
+    } {
         const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
 
         let horizontalDistance: number = 0;
@@ -246,7 +269,10 @@ export class TargetSprite {
         }
     }
 
-    private getSpritePositionTargetReactsAndMisses(timer: ActionTimer): { horizontalDistance: number, verticalDistance: number } {
+    private getSpritePositionTargetReactsAndMisses(timer: ActionTimer): {
+        horizontalDistance: number,
+        verticalDistance: number
+    } {
         const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
 
         let horizontalDistance: number = 0;

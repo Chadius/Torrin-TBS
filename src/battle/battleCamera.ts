@@ -13,6 +13,16 @@ export type PanningInformation = {
     respectConstraints: boolean,
 };
 
+export const BattleCameraHelper = {
+    clone: ({original}: { original: BattleCamera }): BattleCamera => {
+        const newCamera: BattleCamera = new BattleCamera(original.xCoord, original.yCoord);
+        newCamera.setMapDimensionBoundaries(original.mapDimensionBoundaries.widthOfWidestRow, original.mapDimensionBoundaries.numberOfRows);
+        newCamera.setXVelocity(original.xVelocity);
+        newCamera.setYVelocity(original.yVelocity);
+        return newCamera;
+    }
+}
+
 export class BattleCamera {
     xCoord: number;
     yCoord: number;

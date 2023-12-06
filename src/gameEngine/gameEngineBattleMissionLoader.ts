@@ -12,6 +12,7 @@ import {SaveFile} from "../utils/fileHandling/saveFile";
 import {TintSquaddieIfTurnIsComplete} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
+import {BattleCameraHelper} from "../battle/battleCamera";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
     missionLoaderStatus: MissionLoaderStatus;
@@ -126,8 +127,9 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         battleOrchestratorState.battleState.teamsByAffiliation = {...this.missionLoaderStatus.squaddieData.teamsByAffiliation};
         battleOrchestratorState.battleState.teamStrategyByAffiliation = {...this.missionLoaderStatus.squaddieData.teamStrategyByAffiliation};
         battleOrchestratorState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
-        battleOrchestratorState.battleState.missionCompletionStatus = {};
+        battleOrchestratorState.battleState.camera = BattleCameraHelper.clone({original: this.missionLoaderStatus.mapSettings.camera});
 
+        battleOrchestratorState.battleState.missionCompletionStatus = {};
         battleOrchestratorState.battleState.objectives = this.missionLoaderStatus.objectives;
         battleOrchestratorState.battleState.objectives.forEach((objective: MissionObjective) => {
             const conditions: {

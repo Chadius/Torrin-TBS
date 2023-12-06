@@ -200,6 +200,9 @@ describe('GameEngineBattleMissionLoader', () => {
         it('initializes the camera', () => {
             expect(loader.missionLoaderStatus.mapSettings.camera.mapDimensionBoundaries.widthOfWidestRow).toBe(17);
             expect(loader.missionLoaderStatus.mapSettings.camera.mapDimensionBoundaries.numberOfRows).toBe(18);
+
+            expect(state.battleState.camera.mapDimensionBoundaries.widthOfWidestRow).toBe(17);
+            expect(state.battleState.camera.mapDimensionBoundaries.numberOfRows).toBe(18);
         });
     });
 
