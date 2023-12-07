@@ -5,8 +5,8 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {FormatResult} from "./actionResultTextWriter";
-import {Label} from "../../ui/label";
-import {RectArea} from "../../ui/rectArea";
+import {Label, LabelHelper} from "../../ui/label";
+import {RectAreaHelper} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
@@ -66,8 +66,8 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
             const textToDraw = this.outputTextStrings.join("\n");
 
-            this.outputTextDisplay = new Label({
-                area: new RectArea({
+            this.outputTextDisplay = LabelHelper.new({
+                area: RectAreaHelper.new({
                     startColumn: 4,
                     endColumn: 10,
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
@@ -86,7 +86,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             });
         }
 
-        this.outputTextDisplay.draw(graphicsContext);
+        LabelHelper.draw(this.outputTextDisplay, graphicsContext);
     }
 
     private draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {

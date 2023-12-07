@@ -4,7 +4,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/battleSquaddieSelectedHUD";
 import {SquaddieEndTurnAction} from "../../battle/history/squaddieEndTurnAction";
-import {RectArea} from "../../ui/rectArea";
+import {RectAreaHelper} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
 import {makeResult} from "../ResultOrError";
 
@@ -47,7 +47,7 @@ export const mockedP5 = () => {
 
 export const mockImageUI = () => {
     const imageUI = new (<new (options: any) => ImageUI>ImageUI)({}) as jest.Mocked<ImageUI>;
-    imageUI.area = new RectArea({left: 10, right: 20, top: 10, bottom: 20});
+    imageUI.area = RectAreaHelper.new({left: 10, right: 20, top: 10, bottom: 20});
     imageUI.draw = jest.fn();
     return imageUI;
 }

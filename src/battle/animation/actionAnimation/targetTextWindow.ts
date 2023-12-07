@@ -1,9 +1,9 @@
-import {RectArea} from "../../../ui/rectArea";
+import {RectAreaHelper} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
-import {Label} from "../../../ui/label";
+import {Label, LabelHelper} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
@@ -77,7 +77,7 @@ export class TargetTextWindow {
             this.updateCreateActorTextBox();
         }
 
-        this.targetLabel.draw(graphicsContext);
+        LabelHelper.draw(this.targetLabel, graphicsContext);
     }
 
     private createBeforeActionText({targetTemplate, targetBattle, result, action}: {
@@ -100,9 +100,9 @@ export class TargetTextWindow {
             80
         ];
 
-        this._targetLabel = new Label({
+        this._targetLabel = LabelHelper.new({
             padding: WINDOW_SPACING1,
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 startColumn: 6,
                 endColumn: 7,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,

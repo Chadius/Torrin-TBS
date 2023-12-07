@@ -21,6 +21,7 @@ import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {RectAreaHelper} from "../../ui/rectArea";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;
@@ -190,7 +191,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 action: action,
                 result: resultPerTarget[battleId],
                 resourceHandler: state.resourceHandler,
-                startingPosition: this.targetTextWindows[index].targetLabel.rectangle.area.right,
+                startingPosition: RectAreaHelper.right(this.targetTextWindows[index].targetLabel.rectangle.area),
             });
             return targetSprite;
         });

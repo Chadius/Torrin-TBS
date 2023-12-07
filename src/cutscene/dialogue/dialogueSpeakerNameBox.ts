@@ -1,5 +1,5 @@
-import {Label} from "../../ui/label";
-import {RectArea} from "../../ui/rectArea";
+import {Label, LabelHelper} from "../../ui/label";
+import {RectAreaHelper} from "../../ui/rectArea";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE, WINDOW_SPACING2} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
@@ -21,7 +21,7 @@ export class DialogueSpeakerNameBox {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        this.speakerNameLabel.draw(graphicsContext);
+        LabelHelper.draw(this.speakerNameLabel, graphicsContext);
     }
 
     private createUIObjects() {
@@ -35,9 +35,9 @@ export class DialogueSpeakerNameBox {
 
         const speakerBoxTextColor: [number, number, number] = [0, 0, 0];
 
-        this.speakerNameLabel = new Label({
+        this.speakerNameLabel = LabelHelper.new({
             padding: [WINDOW_SPACING2, 0, 0, WINDOW_SPACING2 * 0.5],
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 left: speakerBoxLeft,
                 top: speakerBoxTop,
                 width: this.screenDimensions[0] * 0.3,

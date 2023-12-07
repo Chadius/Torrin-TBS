@@ -1,10 +1,10 @@
-import {RectArea} from "../../../ui/rectArea";
+import {RectAreaHelper} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
 import {SquaddieAction} from "../../../squaddie/action";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
-import {Label} from "../../../ui/label";
+import {Label, LabelHelper} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
@@ -78,7 +78,7 @@ export class ActorTextWindow {
         }
 
         this.updateActorLabel({timer});
-        this.actorLabel.draw(graphicsContext);
+        LabelHelper.draw(this.actorLabel, graphicsContext);
     }
 
     private updateActorLabel({timer}: { timer?: ActionTimer }) {
@@ -94,9 +94,9 @@ export class ActorTextWindow {
             80
         ];
 
-        this._actorLabel = new Label({
+        this._actorLabel = LabelHelper.new({
             padding: WINDOW_SPACING1,
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 startColumn: 4,
                 endColumn: 5,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,

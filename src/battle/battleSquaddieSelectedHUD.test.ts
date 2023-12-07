@@ -9,7 +9,7 @@ import {UseActionButton} from "../squaddie/useActionButton";
 import {SquaddieAction, SquaddieActionHandler} from "../squaddie/action";
 import {TargetingShape} from "./targeting/targetingShapeGenerator";
 import {SquaddieEndTurnAction} from "./history/squaddieEndTurnAction";
-import {RectArea} from "../ui/rectArea";
+import {RectArea, RectAreaHelper} from "../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../utils/ResultOrError";
 import {CreateNewSquaddieAndAddToRepository} from "../utils/test/squaddie";
 import {BattleCamera} from "./battleCamera";
@@ -292,7 +292,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state,
         });
-        const initialWindowPosition: RectArea = new RectArea({baseRectangle: hud.background.area, left: 0, top: 0});
+        const initialWindowPosition: RectArea = RectAreaHelper.new({
+            baseRectangle: hud.background.area,
+            left: 0,
+            top: 0
+        });
         hud.selectSquaddieAndDrawWindow({
             battleId: playerSquaddieDynamicID,
             state,
@@ -603,7 +607,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     state,
                 });
 
-                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.saveGameButton.rectangle.area), RectAreaHelper.centerY(hud.saveGameButton.rectangle.area), state,);
                 expect(saveGame).toBeCalled();
 
                 expect(state.battleState.gameSaveFlags.savingInProgress).toBeTruthy();
@@ -614,10 +618,10 @@ describe('BattleSquaddieSelectedHUD', () => {
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state,
                 });
-                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.saveGameButton.rectangle.area), RectAreaHelper.centerY(hud.saveGameButton.rectangle.area), state,);
 
                 expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
-                hud.mouseClicked(hud.nextSquaddieButton.rectangle.area.centerX, hud.nextSquaddieButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.nextSquaddieButton.rectangle.area), RectAreaHelper.centerY(hud.nextSquaddieButton.rectangle.area), state,);
                 expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
             });
             it('should show a Saving message while saving is active', () => {
@@ -628,7 +632,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     state,
                 });
 
-                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.saveGameButton.rectangle.area), RectAreaHelper.centerY(hud.saveGameButton.rectangle.area), state,);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
                 hud.draw(state.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
@@ -651,7 +655,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     state,
                 });
 
-                hud.mouseClicked(hud.saveGameButton.rectangle.area.centerX, hud.saveGameButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.saveGameButton.rectangle.area), RectAreaHelper.centerY(hud.saveGameButton.rectangle.area), state,);
                 state.battleState.gameSaveFlags.errorDuringSaving = true;
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
@@ -715,7 +719,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 state,
             });
 
-            hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state);
+            hud.mouseClicked(RectAreaHelper.centerX(hud.loadGameButton.rectangle.area), RectAreaHelper.centerY(hud.loadGameButton.rectangle.area), state);
             expect(loadGame).toBeCalled();
 
             expect(state.battleState.gameSaveFlags.loadRequested).toBeTruthy();
@@ -757,10 +761,10 @@ describe('BattleSquaddieSelectedHUD', () => {
                     repositionWindow: {mouseX: 0, mouseY: 0},
                     state,
                 });
-                hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.loadGameButton.rectangle.area), RectAreaHelper.centerY(hud.loadGameButton.rectangle.area), state,);
 
                 expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
-                hud.mouseClicked(hud.nextSquaddieButton.rectangle.area.centerX, hud.nextSquaddieButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.nextSquaddieButton.rectangle.area), RectAreaHelper.centerY(hud.nextSquaddieButton.rectangle.area), state,);
                 expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
             });
             it('should show a Loading message while loading is active', () => {
@@ -771,7 +775,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     state,
                 });
 
-                hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.loadGameButton.rectangle.area), RectAreaHelper.centerY(hud.loadGameButton.rectangle.area), state,);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
                 hud.draw(state.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
@@ -794,7 +798,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     state,
                 });
 
-                hud.mouseClicked(hud.loadGameButton.rectangle.area.centerX, hud.loadGameButton.rectangle.area.centerY, state,);
+                hud.mouseClicked(RectAreaHelper.centerX(hud.loadGameButton.rectangle.area), RectAreaHelper.centerY(hud.loadGameButton.rectangle.area), state,);
                 state.battleState.gameSaveFlags.errorDuringLoading = true;
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
@@ -952,7 +956,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             });
 
             expect(hud.selectedBattleSquaddieId).toBe(playerSquaddieDynamic.battleSquaddieId);
-            hud.mouseClicked(hud.nextSquaddieButton.rectangle.area.centerX, hud.nextSquaddieButton.rectangle.area.centerY, state,);
+            hud.mouseClicked(RectAreaHelper.centerX(hud.nextSquaddieButton.rectangle.area), RectAreaHelper.centerY(hud.nextSquaddieButton.rectangle.area), state,);
             expect(hud.selectedBattleSquaddieId).toBe(player2SquaddieDynamic.battleSquaddieId);
             const panningInfo = battleCamera.getPanningInformation();
             const player2MapCoordinates = missionMap.getSquaddieByBattleId(player2SquaddieDynamicId);

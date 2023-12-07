@@ -1,6 +1,6 @@
-import {TextBox} from "../../../ui/textBox";
-import {RectArea} from "../../../ui/rectArea";
-import {Rectangle} from "../../../ui/rectangle";
+import {TextBox, TextBoxHelper} from "../../../ui/textBox";
+import {RectAreaHelper} from "../../../ui/rectArea";
+import {Rectangle, RectangleHelper} from "../../../ui/rectangle";
 import {ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME} from "./actionAnimationConstants";
 import {WINDOW_SPACING1} from "../../../ui/constants";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
@@ -90,25 +90,25 @@ export class HitPointMeter {
     }
 
     private drawHitPointRectangle(graphicsContext: GraphicsContext) {
-        this.maxHitPointsRectangle.draw(graphicsContext);
-        this.currentHitPointsRectangle.draw(graphicsContext);
+        RectangleHelper.draw(this.maxHitPointsRectangle, graphicsContext);
+        RectangleHelper.draw(this.currentHitPointsRectangle, graphicsContext);
         this.updateChangedHitPointsRectangle();
         if (this.changedHitPointsRectangle !== undefined) {
-            this.changedHitPointsRectangle.draw(graphicsContext);
+            RectangleHelper.draw(this.changedHitPointsRectangle, graphicsContext);
         }
     }
 
     private drawHitPointsText(graphicsContext: GraphicsContext) {
-        this.currentHitPointsTextBox.draw(graphicsContext);
-        this.maxHitPointsTextBox.draw(graphicsContext);
+        TextBoxHelper.draw(this.currentHitPointsTextBox, graphicsContext);
+        TextBoxHelper.draw(this.maxHitPointsTextBox, graphicsContext);
     }
 
     private createCurrentHitPointTextBox() {
-        this.currentHitPointsTextBox = new TextBox({
+        this.currentHitPointsTextBox = TextBoxHelper.new({
             text: this.currentHitPoints.toString(),
             textSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 left: this.left,
                 top: this.top,
                 width: HIT_POINT_TEXT_WIDTH / 2,
@@ -118,11 +118,11 @@ export class HitPointMeter {
     }
 
     private createMaxHitPointTextBox() {
-        this.maxHitPointsTextBox = new TextBox({
+        this.maxHitPointsTextBox = TextBoxHelper.new({
             text: `/${this.maxHitPoints}`,
             textSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 left: this.left + (HIT_POINT_TEXT_WIDTH / 2),
                 top: this.top,
                 width: HIT_POINT_TEXT_WIDTH / 2,
@@ -132,8 +132,8 @@ export class HitPointMeter {
     }
 
     private createMaxHitPointRect() {
-        this.maxHitPointsRectangle = new Rectangle({
-            area: new RectArea({
+        this.maxHitPointsRectangle = RectangleHelper.new({
+            area: RectAreaHelper.new({
                 left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING1,
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
@@ -146,8 +146,8 @@ export class HitPointMeter {
     }
 
     private createCurrentHitPointRect() {
-        this.currentHitPointsRectangle = new Rectangle({
-            area: new RectArea({
+        this.currentHitPointsRectangle = RectangleHelper.new({
+            area: RectAreaHelper.new({
                 left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING1,
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
@@ -174,9 +174,9 @@ export class HitPointMeter {
             this.changedHitPointsRectangleEndWidth = hitPointChange * HIT_POINT_METER_HP_WIDTH;
         }
 
-        this.changedHitPointsRectangle = new Rectangle({
-            area: new RectArea({
-                left: this.currentHitPointsRectangle.area.right,
+        this.changedHitPointsRectangle = RectangleHelper.new({
+            area: RectAreaHelper.new({
+                left: RectAreaHelper.right(this.currentHitPointsRectangle.area),
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
                 width: this.changedHitPointsRectangleStartWidth,
@@ -206,8 +206,8 @@ export class HitPointMeter {
             )
             + this.changedHitPointsRectangleStartWidth;
 
-        this.changedHitPointsRectangle = new Rectangle({
-            area: new RectArea({
+        this.changedHitPointsRectangle = RectangleHelper.new({
+            area: RectAreaHelper.new({
                 left: this.changedHitPointsRectangle.area.left,
                 top: this.changedHitPointsRectangle.area.top,
                 height: this.changedHitPointsRectangle.area.height,

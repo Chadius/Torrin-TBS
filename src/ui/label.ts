@@ -1,34 +1,40 @@
-import {RectArea} from "./rectArea";
-import {TextBox, TextBoxArguments} from "./textBox";
-import {Rectangle, RectangleArguments} from "./rectangle";
+import {RectAreaHelper} from "./rectArea";
+import {TextBox, TextBoxArguments, TextBoxHelper} from "./textBox";
+import {Rectangle, RectangleArguments, RectangleHelper} from "./rectangle";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
 export type Padding = {
     padding: number | [number, number] | [number, number, number] | [number, number, number, number];
 }
 
-export class Label {
+export interface Label {
     rectangle: Rectangle;
     textBox: TextBox;
+}
 
-    constructor(options: RectangleArguments & TextBoxArguments & Padding) {
-        this.rectangle = new Rectangle(options);
+export const LabelHelper = {
+    new: (options: RectangleArguments & TextBoxArguments & Padding): Label => {
+        let rectangle = RectangleHelper.new(options);
 
-        const textBoxWithPadding = new RectArea({
+        const textBoxWithPadding = RectAreaHelper.new({
             baseRectangle: options.area,
             margin: options.padding
         });
 
-        this.textBox = new TextBox({
+        let textBox = TextBoxHelper.new({
             ...options,
             ...{
                 area: textBoxWithPadding,
             }
         });
-    }
 
-    draw(graphicsContext: GraphicsContext) {
-        this.rectangle.draw(graphicsContext);
-        this.textBox.draw(graphicsContext);
+        return {
+            textBox,
+            rectangle,
+        };
+    },
+    draw: (label: Label, graphicsContext: GraphicsContext): void => {
+        RectangleHelper.draw(label.rectangle, graphicsContext);
+        TextBoxHelper.draw(label.textBox, graphicsContext);
     }
 }

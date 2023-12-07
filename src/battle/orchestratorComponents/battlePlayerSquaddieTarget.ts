@@ -14,9 +14,9 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
-import {RectArea} from "../../ui/rectArea";
+import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
-import {Label} from "../../ui/label";
+import {LabelHelper} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -171,7 +171,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.drawButton(
-            new RectArea({
+            RectAreaHelper.new({
                 left: 0,
                 top: BUTTON_TOP,
                 width: ScreenDimensions.SCREEN_WIDTH,
@@ -237,7 +237,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     private drawConfirmWindow(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.drawButton(
-            new RectArea({
+            RectAreaHelper.new({
                 left: 0,
                 top: BUTTON_TOP,
                 width: ScreenDimensions.SCREEN_WIDTH,
@@ -262,7 +262,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const messageToShow = intentMessages.join("\n");
 
         this.drawButton(
-            new RectArea({
+            RectAreaHelper.new({
                 left: ScreenDimensions.SCREEN_WIDTH / 12,
                 top: ScreenDimensions.SCREEN_HEIGHT / 2,
                 width: BUTTON_MIDDLE_DIVIDER,
@@ -274,7 +274,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private drawButton(area: RectArea, buttonText: string, graphicsContext: GraphicsContext) {
-        const buttonBackground = new Label({
+        const buttonBackground = LabelHelper.new({
             area,
             fillColor: [0, 0, 60],
             strokeColor: [0, 0, 0],
@@ -288,7 +288,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             padding: [0, 0, 0, 0],
         });
 
-        buttonBackground.draw(graphicsContext);
+        LabelHelper.draw(buttonBackground, graphicsContext);
     }
 
     private cancelTargetSelection(state: BattleOrchestratorState) {

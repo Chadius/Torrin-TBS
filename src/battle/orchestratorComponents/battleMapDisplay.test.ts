@@ -5,8 +5,8 @@ import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {OrchestratorComponentMouseEventType} from "../orchestrator/battleOrchestratorComponent";
-import {Rectangle} from "../../ui/rectangle";
-import {RectArea} from "../../ui/rectArea";
+import {RectangleHelper} from "../../ui/rectangle";
+import {RectAreaHelper} from "../../ui/rectArea";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -219,8 +219,8 @@ describe('battleMapDisplay', () => {
         const hudIsOpen = mocks.battleSquaddieSelectedHUD();
         hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
         jest.spyOn(hudIsOpen, "background", "get").mockReturnValue(
-            new Rectangle({
-                area: new RectArea({
+            RectangleHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     right: ScreenDimensions.SCREEN_WIDTH - 10,
                     top: 0,
@@ -300,8 +300,8 @@ describe('battleMapDisplay', () => {
         const hudIsOpen = mocks.battleSquaddieSelectedHUD();
         hudIsOpen.isMouseInsideHUD = jest.fn().mockReturnValue(true);
         jest.spyOn(hudIsOpen, "background", "get").mockReturnValue(
-            new Rectangle({
-                area: new RectArea({
+            RectangleHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     right: ScreenDimensions.SCREEN_WIDTH - 10,
                     top: 0,

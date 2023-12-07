@@ -246,7 +246,8 @@ describe('Cutscene', () => {
                         source_dialog_id: "reconsider",
                         destination_dialog_id: "buy my stuff"
                     })
-                ]
+                ],
+                screenDimensions: [1000, 800],
             });
 
             purchasePrompt.start({});

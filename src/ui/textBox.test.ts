@@ -1,5 +1,5 @@
-import {TextBox} from "./textBox";
-import {RectArea} from "./rectArea";
+import {TextBox, TextBoxHelper} from "./textBox";
+import {RectAreaHelper} from "./rectArea";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 
 describe('Pop up text', () => {
@@ -13,11 +13,11 @@ describe('Pop up text', () => {
 
     it('will try to draw the text for a given amount of time', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const textBox: TextBox = new TextBox({
+        const textBox: TextBox = TextBoxHelper.new({
             text: "A text box",
             textSize: 18,
             fontColor: [0, 0, 0],
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 left: 0,
                 top: 0,
                 width: 100,
@@ -26,21 +26,21 @@ describe('Pop up text', () => {
             duration: 1000,
         });
 
-        textBox.draw(mockedP5GraphicsContext);
-        expect(textBox.isDone()).toBeFalsy();
+        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
+        expect(TextBoxHelper.isDone(textBox,)).toBeFalsy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1000);
-        textBox.draw(mockedP5GraphicsContext);
+        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
         expect(p5TextSpy).toBeCalledTimes(1);
-        expect(textBox.isDone()).toBeTruthy();
+        expect(TextBoxHelper.isDone(textBox,)).toBeTruthy();
     });
 
     it('will draw the text if there is no duration', () => {
-        const textBox: TextBox = new TextBox({
+        const textBox: TextBox = TextBoxHelper.new({
             text: "A text box",
             textSize: 18,
             fontColor: [0, 0, 0],
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 left: 0,
                 top: 0,
                 width: 100,
@@ -51,11 +51,11 @@ describe('Pop up text', () => {
 
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        textBox.draw(mockedP5GraphicsContext);
+        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1000);
-        textBox.draw(mockedP5GraphicsContext);
+        TextBoxHelper.draw(textBox, mockedP5GraphicsContext);
         expect(p5TextSpy).toBeCalledTimes(2);
-        expect(textBox.isDone()).toBeFalsy();
+        expect(TextBoxHelper.isDone(textBox,)).toBeFalsy();
     });
 });

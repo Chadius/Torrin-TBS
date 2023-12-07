@@ -1,4 +1,4 @@
-import {RectArea} from "../../ui/rectArea";
+import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {ResourceLocator, ResourceType} from "../../resource/resourceHandler";
 import {CutsceneAction} from "../cutsceneAction";
 import {DialogueTextBox} from "./dialogueTextBox";
@@ -148,7 +148,7 @@ export class DialogueBox implements CutsceneAction {
 
         if (this.answers.length == 1) {
             return [
-                new RectArea({
+                RectAreaHelper.new({
                     left: 0,
                     top: buttonTop,
                     width: this.screenDimensions[0],
@@ -173,7 +173,7 @@ export class DialogueBox implements CutsceneAction {
         let buttonWidth = totalButtonSpace / this.answers.length;
 
         return this.answers.map((text, index): RectArea => {
-            return new RectArea({
+            return RectAreaHelper.new({
                 left: (buttonWidth + buttonGapWidth) * index,
                 top: buttonTop,
                 width: buttonWidth,

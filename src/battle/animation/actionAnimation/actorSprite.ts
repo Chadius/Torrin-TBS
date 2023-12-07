@@ -12,6 +12,7 @@ import {SquaddieSprite} from "./squaddieSprite";
 import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {RectAreaHelper} from "../../../ui/rectArea";
 
 export class ActorSprite {
     constructor() {
@@ -113,7 +114,7 @@ export class ActorSprite {
     private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext);
         let horizontalDistance = this.getDistanceBasedOnTimer(timer);
-        spriteToDraw.area.move({
+        RectAreaHelper.move(spriteToDraw.area, {
             left: this.startingPosition + horizontalDistance,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - spriteToDraw.area.height,
         });

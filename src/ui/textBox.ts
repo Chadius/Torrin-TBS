@@ -11,9 +11,10 @@ export type TextBoxArguments = {
     horizAlign?: p5.HORIZ_ALIGN;
     vertAlign?: p5.VERT_ALIGN;
     duration?: number;
+    lastTimeDrawn?: number;
 };
 
-export class TextBox {
+export interface TextBox {
     textSize: number;
     fontColor: number[];
     area: RectArea;
@@ -21,70 +22,63 @@ export class TextBox {
     vertAlign: p5.VERT_ALIGN;
     duration: number;
     lastTimeDrawn: number;
+    text: string;
+}
 
-    constructor(options: {
-        text: string;
-        textSize: number;
-        fontColor: number[];
-        area: RectArea;
-        horizAlign?: p5.HORIZ_ALIGN;
-        vertAlign?: p5.VERT_ALIGN;
-        duration?: number;
-    } | TextBoxArguments) {
-        ({
-            duration: this.duration,
-            text: this._text,
-            textSize: this.textSize,
-            fontColor: this.fontColor,
-            area: this.area,
-        } = options);
-
-        this.horizAlign = options.horizAlign || HORIZ_ALIGN_LEFT;
-        this.vertAlign = options.vertAlign || VERT_ALIGN_BASELINE;
-
-        this.lastTimeDrawn = Date.now();
-    }
-
-    private _text: string;
-
-    get text(): string {
-        return this._text;
-    }
-
-    set text(value: string) {
-        this._text = value;
-    }
-
-    draw(graphicsContext: GraphicsContext) {
-        if (this.isDone()) {
+export const TextBoxHelper = {
+    new: ({
+              textSize,
+              fontColor,
+              area,
+              horizAlign,
+              vertAlign,
+              duration,
+              lastTimeDrawn,
+              text,
+          }: TextBoxArguments): TextBox => {
+        return {
+            textSize: textSize,
+            fontColor: fontColor,
+            area: area,
+            horizAlign: horizAlign || HORIZ_ALIGN_LEFT,
+            vertAlign: vertAlign || VERT_ALIGN_BASELINE,
+            duration: duration,
+            lastTimeDrawn: lastTimeDrawn || Date.now(),
+            text: text,
+        }
+    },
+    draw: (textBox: TextBox, graphicsContext: GraphicsContext): void => {
+        if (isDone(textBox)) {
             return;
         }
 
         graphicsContext.push();
-        graphicsContext.textSize(this.textSize);
-        graphicsContext.fill({hsb: this.fontColor});
+        graphicsContext.textSize(textBox.textSize);
+        graphicsContext.fill({hsb: textBox.fontColor});
         graphicsContext.textAlign(
-            this.horizAlign,
-            this.vertAlign
+            textBox.horizAlign,
+            textBox.vertAlign
         );
         graphicsContext.text(
-            this._text,
-            this.area.left,
-            this.area.top,
-            this.area.width,
-            this.area.height,
+            textBox.text,
+            textBox.area.left,
+            textBox.area.top,
+            textBox.area.width,
+            textBox.area.height,
         );
         graphicsContext.textAlign(HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE);
         graphicsContext.pop();
+    },
+    isDone: (textBox: TextBox): boolean => {
+        return isDone(textBox);
+    },
+    stop: (textBox: TextBox) => {
+        textBox.duration = 0;
     }
+}
 
-    isDone(): boolean {
-        return (
-            Date.now() - this.lastTimeDrawn >= this.duration
-        );
-    }
-
-    stop() {
-        this.duration = 0;
-    }
+const isDone = (textBox: TextBox): boolean => {
+    return (
+        Date.now() - textBox.lastTimeDrawn >= textBox.duration
+    );
 }

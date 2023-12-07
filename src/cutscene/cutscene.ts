@@ -3,8 +3,8 @@ import {DecisionTrigger} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
 import {Button, ButtonStatus} from "../ui/button";
-import {Label} from "../ui/label";
-import {RectArea} from "../ui/rectArea";
+import {LabelHelper} from "../ui/label";
+import {RectAreaHelper} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
@@ -263,7 +263,7 @@ export class Cutscene {
         const buttonDeactivateBackgroundColor: [number, number, number] = [200, 5, 30];
         const buttonTextColor: [number, number, number] = [0, 0, 0];
 
-        const buttonArea = new RectArea({
+        const buttonArea = RectAreaHelper.new({
             left: fastForwardButtonLocation.left,
             top: fastForwardButtonLocation.top,
             width: fastForwardButtonLocation.width,
@@ -271,7 +271,7 @@ export class Cutscene {
         });
 
         this.fastForwardButton = new Button({
-            activeLabel: new Label({
+            activeLabel: LabelHelper.new({
                 text: "Stop FF",
                 fillColor: buttonDeactivateBackgroundColor,
                 area: buttonArea,
@@ -281,7 +281,7 @@ export class Cutscene {
                 horizAlign: HORIZ_ALIGN_CENTER,
                 vertAlign: VERT_ALIGN_CENTER,
             }),
-            readyLabel: new Label({
+            readyLabel: LabelHelper.new({
                 text: "Fast-forward",
                 fillColor: buttonActivateBackgroundColor,
                 area: buttonArea,
@@ -291,7 +291,7 @@ export class Cutscene {
                 horizAlign: HORIZ_ALIGN_CENTER,
                 vertAlign: VERT_ALIGN_CENTER,
             }),
-            hoverLabel: new Label({
+            hoverLabel: LabelHelper.new({
                 text: "Click to FF",
                 fillColor: buttonActivateBackgroundColor,
                 area: buttonArea,

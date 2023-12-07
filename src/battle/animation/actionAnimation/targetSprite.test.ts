@@ -137,7 +137,6 @@ describe('Target Sprite', () => {
         expect(emotion).toBe(SquaddieEmotion.DEAD);
         expect(getterSpy).toBeCalled();
     });
-    // // TODO different slide animation
     it('transition to neutral when the attack misses', () => {
         // const stillAliveSpy = jest.spyOn(squaddieService, "IsSquaddieAlive").mockReturnValue(true);
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
@@ -152,7 +151,6 @@ describe('Target Sprite', () => {
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
         expect(getterSpy).toBeCalled();
     });
-    // // TODO Don't move at all
     it('transition to neutral when the attack deals no damage', () => {
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
         const sprite = new TargetSprite();

@@ -7,7 +7,7 @@ import {
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
-import {RectArea} from "../../ui/rectArea";
+import {RectAreaHelper} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {isCoordinateOnScreen, ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -142,7 +142,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
         this.bannerImageUI = new ImageUI({
             graphic: this.bannerImage,
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 left: 0,
                 top: (ScreenDimensions.SCREEN_HEIGHT - this.bannerImage.height) / 2,
                 width: this.bannerImage.width,
@@ -152,7 +152,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
         this.affiliationImageUI = new ImageUI({
             graphic: this.affiliationImage,
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 startColumn: 1,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
                 top: (ScreenDimensions.SCREEN_HEIGHT - this.affiliationImage.height) / 2,

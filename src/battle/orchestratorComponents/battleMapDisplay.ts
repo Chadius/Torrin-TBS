@@ -13,6 +13,7 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
+import {RectAreaHelper} from "../../ui/rectArea";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
@@ -57,7 +58,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             if (mouseX < state.battleSquaddieSelectedHUD.background.area.left) {
                 state.battleState.camera.setXVelocity(-5);
             }
-            if (mouseX > state.battleSquaddieSelectedHUD.background.area.right) {
+            if (mouseX > RectAreaHelper.right(state.battleSquaddieSelectedHUD.background.area)) {
                 state.battleState.camera.setXVelocity(5);
             }
 

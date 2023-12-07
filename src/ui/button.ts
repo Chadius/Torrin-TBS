@@ -1,5 +1,6 @@
-import {Label} from "./label";
+import {Label, LabelHelper} from "./label";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {RectAreaHelper} from "./rectArea";
 
 type RequiredOptions = {
     readyLabel: Label;
@@ -93,7 +94,7 @@ export class Button {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        this.getCurrentLabel().draw(graphicsContext);
+        LabelHelper.draw(this.getCurrentLabel(), graphicsContext);
     }
 
     private getCurrentLabel(): Label {
@@ -109,11 +110,6 @@ export class Button {
 
     private isMouseOnButton(mouseX: number, mouseY: number): boolean {
         const label = this.getCurrentLabel();
-        return (
-            mouseX >= label.rectangle.area.left
-            && mouseX < label.rectangle.area.right
-            && mouseY >= label.rectangle.area.top
-            && mouseY < label.rectangle.area.bottom
-        );
+        return RectAreaHelper.isInside(label.rectangle.area, mouseX, mouseY);
     }
 }

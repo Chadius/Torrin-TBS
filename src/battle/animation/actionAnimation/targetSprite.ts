@@ -16,6 +16,7 @@ import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {RectAreaHelper} from "../../../ui/rectArea";
 
 export class TargetSprite {
     constructor() {
@@ -182,7 +183,7 @@ export class TargetSprite {
             }
         }
 
-        spriteToDraw.area.move({
+        RectAreaHelper.move(spriteToDraw.area, {
             left: this.startingPosition + horizontalDistance,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - spriteToDraw.area.height + verticalDistance,
         });

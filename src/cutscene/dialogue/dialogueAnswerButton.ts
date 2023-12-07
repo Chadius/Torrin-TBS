@@ -1,5 +1,5 @@
-import {Label} from "../../ui/label";
-import {RectArea} from "../../ui/rectArea";
+import {Label, LabelHelper} from "../../ui/label";
+import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
@@ -24,7 +24,7 @@ export class DialogueAnswerButton {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        this.answerLabel.draw(graphicsContext);
+        LabelHelper.draw(this.answerLabel, graphicsContext);
     }
 
     buttonWasClicked(mouseX: number, mouseY: number): boolean {
@@ -40,9 +40,9 @@ export class DialogueAnswerButton {
         const dialogueBoxBackgroundColor: [number, number, number] = [200, 10, 50];
         const dialogueBoxTextColor: [number, number, number] = [0, 0, 0];
 
-        this.answerLabel = new Label({
+        this.answerLabel = LabelHelper.new({
             padding: [this.buttonRect.height * 0.1, this.buttonRect.width * 0.1],
-            area: new RectArea({
+            area: RectAreaHelper.new({
                 left: this.buttonRect.left,
                 top: this.buttonRect.top,
                 width: this.buttonRect.width,

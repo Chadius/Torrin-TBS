@@ -1,10 +1,10 @@
-import {RectArea} from "../ui/rectArea";
+import {RectArea, RectAreaHelper} from "../ui/rectArea";
 import {SquaddieAction} from "./action";
-import {Rectangle} from "../ui/rectangle";
+import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieEndTurnAction} from "../battle/history/squaddieEndTurnAction";
-import {TextBox} from "../ui/textBox";
+import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 
@@ -37,25 +37,25 @@ export class UseActionButton {
     }
 
     draw(graphicsContext: GraphicsContext) {
-        const background = new Rectangle({
+        const background = RectangleHelper.new({
             area: this.buttonArea,
             fillColor: [this.hue, 40, 60],
             strokeColor: [0, 0, 0],
             strokeWeight: 0,
         });
 
-        background.draw(graphicsContext);
+        RectangleHelper.draw(background, graphicsContext);
 
         if (
             this.status === ButtonStatus.HOVER
         ) {
-            const hoverOutline = new Rectangle({
+            const hoverOutline = RectangleHelper.new({
                 area: this.buttonArea,
                 strokeColor: [255, 255, 255],
                 strokeWeight: 4,
             });
 
-            hoverOutline.draw(graphicsContext);
+            RectangleHelper.draw(hoverOutline, graphicsContext);
         }
 
         let actionDescription: string;
@@ -65,18 +65,18 @@ export class UseActionButton {
             actionDescription = this.action.name;
         }
 
-        const buttonTextBox: TextBox = new TextBox({
-            area: new RectArea({
-                left: background.area.left,
-                top: background.area.bottom + 4,
-                width: background.area.width * 2,
-                height: background.area.height,
+        const buttonTextBox: TextBox = TextBoxHelper.new({
+            area: RectAreaHelper.new({
+                left: RectAreaHelper.left(background.area),
+                top: RectAreaHelper.bottom(background.area) + 4,
+                width: RectAreaHelper.width(background.area) * 2,
+                height: RectAreaHelper.height(background.area),
             }),
             fontColor: [0, 0, 192],
             text: actionDescription,
             textSize: 12,
         });
 
-        buttonTextBox.draw(graphicsContext);
+        TextBoxHelper.draw(buttonTextBox, graphicsContext);
     }
 }

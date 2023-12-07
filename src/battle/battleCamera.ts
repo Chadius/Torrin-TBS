@@ -1,7 +1,7 @@
 import {assertsInteger, assertsNonNegativeNumber} from "../utils/mathAssert";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {RectArea} from "../ui/rectArea";
+import {RectArea, RectAreaHelper} from "../ui/rectArea";
 
 export type PanningInformation = {
     xStartCoordinate: number,
@@ -108,8 +108,8 @@ export class BattleCamera {
             return;
         }
 
-        if (this.yCoord > coordinateLimits.bottom) {
-            this.yCoord = coordinateLimits.bottom;
+        if (this.yCoord > RectAreaHelper.bottom(coordinateLimits)) {
+            this.yCoord = RectAreaHelper.bottom(coordinateLimits);
             this.setYVelocity(0);
             return;
         }
@@ -138,8 +138,8 @@ export class BattleCamera {
             return;
         }
 
-        if (this.xCoord > coordinateLimits.right) {
-            this.xCoord = coordinateLimits.right;
+        if (this.xCoord > RectAreaHelper.right(coordinateLimits)) {
+            this.xCoord = RectAreaHelper.right(coordinateLimits);
             this.setXVelocity(0);
             return;
         }
@@ -171,15 +171,15 @@ export class BattleCamera {
             if (xDestination < coordinateLimits.left) {
                 xDestination = coordinateLimits.left;
             }
-            if (xDestination > coordinateLimits.right) {
-                xDestination = coordinateLimits.right;
+            if (xDestination > RectAreaHelper.right(coordinateLimits)) {
+                xDestination = RectAreaHelper.right(coordinateLimits);
             }
 
             if (yDestination < coordinateLimits.top) {
                 yDestination = coordinateLimits.top;
             }
-            if (yDestination > coordinateLimits.bottom) {
-                yDestination = coordinateLimits.bottom;
+            if (yDestination > RectAreaHelper.bottom(coordinateLimits)) {
+                yDestination = RectAreaHelper.bottom(coordinateLimits);
             }
         }
 
@@ -254,7 +254,7 @@ export class BattleCamera {
     } {
         if (!this.mapDimensionBoundaries) {
             return {
-                coordinateLimits: new RectArea({
+                coordinateLimits: RectAreaHelper.new({
                     top: 0,
                     left: 0,
                     right: 0,
@@ -272,7 +272,7 @@ export class BattleCamera {
         const worldLocationOfEndOfLastRow: [number, number] = convertMapCoordinatesToWorldCoordinates(this.mapDimensionBoundaries.numberOfRows, this.mapDimensionBoundaries.widthOfWidestRow);
 
         return {
-            coordinateLimits: new RectArea({
+            coordinateLimits: RectAreaHelper.new({
                 left: worldLocationOfStartOfFirstRow[0] + horizontalCameraBuffer,
                 right: worldLocationOfEndOfLastRow[0] - horizontalCameraBuffer,
                 top: worldLocationOfStartOfFirstRow[1] - verticalCameraBuffer + (ScreenDimensions.SCREEN_HEIGHT / 2),

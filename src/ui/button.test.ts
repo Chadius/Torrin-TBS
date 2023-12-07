@@ -1,11 +1,11 @@
 import {Button, ButtonStatus} from "./button";
-import {Label} from "./label";
-import {RectArea} from "./rectArea";
+import {LabelHelper} from "./label";
+import {RectAreaHelper} from "./rectArea";
 
 describe('Button UI', () => {
     it('defaults to ready status', () => {
         const button = new Button({
-            readyLabel: new Label({
+            readyLabel: LabelHelper.new({
                 area: undefined,
                 padding: undefined,
                 text: "ready",
@@ -19,7 +19,7 @@ describe('Button UI', () => {
 
     it('can change initial status', () => {
         const button = new Button({
-            readyLabel: new Label({
+            readyLabel: LabelHelper.new({
                 area: undefined,
                 padding: undefined,
                 text: "should be active",
@@ -34,7 +34,7 @@ describe('Button UI', () => {
 
     it('can change status', () => {
         const button = new Button({
-            readyLabel: new Label({
+            readyLabel: LabelHelper.new({
                 area: undefined,
                 padding: undefined,
                 text: "active then ready",
@@ -54,8 +54,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -82,8 +82,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -94,8 +94,8 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: new Label({
-                area: new RectArea({
+            hoverLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -123,8 +123,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -150,8 +150,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -162,8 +162,8 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: new Label({
-                area: new RectArea({
+            hoverLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -191,8 +191,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -217,8 +217,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -229,8 +229,8 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: new Label({
-                area: new RectArea({
+            hoverLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -255,8 +255,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -267,8 +267,8 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: new Label({
-                area: new RectArea({
+            hoverLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -292,8 +292,8 @@ describe('Button UI', () => {
         const callerObject = jest.fn();
 
         const button = new Button({
-            readyLabel: new Label({
-                area: new RectArea({
+            readyLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -304,8 +304,8 @@ describe('Button UI', () => {
                 textSize: 8,
                 fontColor: [],
             }),
-            hoverLabel: new Label({
-                area: new RectArea({
+            hoverLabel: LabelHelper.new({
+                area: RectAreaHelper.new({
                     left: 10,
                     top: 25,
                     right: 100,

@@ -14,53 +14,56 @@ type Options = {
 
 export type RectangleArguments = RequiredOptions & Partial<Options>;
 
-export class Rectangle {
+export interface Rectangle {
     area: RectArea;
     fillColor?: number[];
     strokeColor?: number[];
     strokeWeight?: number;
     noStroke?: boolean;
+}
 
-    constructor({
-                    area,
-                    fillColor,
-                    strokeColor,
-                    strokeWeight,
-                    noStroke,
-                }:
-                    {
-                        area: RectArea;
-                        fillColor?: number[];
-                        strokeColor?: number[];
-                        strokeWeight?: number;
-                        noStroke?: boolean;
-                    } | RectangleArguments) {
-        this.area = area;
-        this.fillColor = fillColor;
-        this.strokeColor = strokeColor;
-        this.strokeWeight = strokeWeight;
-        this.noStroke = noStroke;
-    }
-
-    draw(graphicsContext: GraphicsContext) {
+export const RectangleHelper = {
+    new: ({
+              area,
+              fillColor,
+              strokeColor,
+              strokeWeight,
+              noStroke,
+          }:
+              {
+                  area: RectArea;
+                  fillColor?: number[];
+                  strokeColor?: number[];
+                  strokeWeight?: number;
+                  noStroke?: boolean;
+              } | RectangleArguments): Rectangle => {
+        return {
+            area: area,
+            fillColor: fillColor,
+            strokeColor: strokeColor,
+            strokeWeight: strokeWeight,
+            noStroke: noStroke,
+        }
+    },
+    draw: (rectangle: Rectangle, graphicsContext: GraphicsContext): void => {
         graphicsContext.push();
-        if (this.fillColor) {
-            graphicsContext.fill({hsb: this.fillColor});
+        if (rectangle.fillColor) {
+            graphicsContext.fill({hsb: rectangle.fillColor});
         }
-        if (this.strokeColor) {
-            graphicsContext.stroke({hsb: this.strokeColor});
+        if (rectangle.strokeColor) {
+            graphicsContext.stroke({hsb: rectangle.strokeColor});
         }
-        if (this.strokeWeight) {
-            graphicsContext.strokeWeight(this.strokeWeight);
+        if (rectangle.strokeWeight) {
+            graphicsContext.strokeWeight(rectangle.strokeWeight);
         }
-        if (this.noStroke) {
+        if (rectangle.noStroke) {
             graphicsContext.noStroke();
         }
         graphicsContext.rect(
-            this.area.left,
-            this.area.top,
-            this.area.width,
-            this.area.height,
+            rectangle.area.left,
+            rectangle.area.top,
+            rectangle.area.width,
+            rectangle.area.height,
         );
         graphicsContext.pop();
     }

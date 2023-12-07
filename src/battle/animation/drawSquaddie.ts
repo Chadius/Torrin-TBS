@@ -1,8 +1,8 @@
 import {BattleSquaddie} from "../battleSquaddie";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HEX_TILE_WIDTH, HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
-import {RectArea} from "../../ui/rectArea";
-import {Rectangle} from "../../ui/rectangle";
+import {RectArea, RectAreaHelper} from "../../ui/rectArea";
+import {Rectangle, RectangleHelper} from "../../ui/rectangle";
 import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
@@ -55,8 +55,8 @@ const setImageToLocation = (
     mapIcon: ImageUI,
     xyCoords: [number, number]
 ) => {
-    mapIcon.area.move({left: xyCoords[0], top: xyCoords[1]});
-    mapIcon.area.align({horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
+    RectAreaHelper.move(mapIcon.area, {left: xyCoords[0], top: xyCoords[1]});
+    RectAreaHelper.align(mapIcon.area, {horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 }
 
 export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
@@ -65,36 +65,36 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTe
 
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
 
-    const actionDrawingArea: RectArea = new RectArea({
+    const actionDrawingArea: RectArea = RectAreaHelper.new({
         left: xyCoords[0] - (HEX_TILE_WIDTH * 0.40),
         top: xyCoords[1] - (HEX_TILE_WIDTH * 0.25),
         width: HEX_TILE_WIDTH * 0.15,
         height: HEX_TILE_WIDTH * 0.45,
     });
 
-    const background: Rectangle = new Rectangle({
+    const background: Rectangle = RectangleHelper.new({
         area: actionDrawingArea,
         fillColor: [squaddieAffiliationHue, 10, 5],
         strokeWeight: 0,
     })
 
-    background.draw(graphicsContext);
+    RectangleHelper.draw(background, graphicsContext);
 
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
     const heightFromRemainingActionPoints = actionDrawingArea.height * actionPointsRemaining / 3;
-    const numberOfActionPointsArea: RectArea = new RectArea({
-        top: actionDrawingArea.bottom - heightFromRemainingActionPoints,
-        bottom: actionDrawingArea.bottom,
+    const numberOfActionPointsArea: RectArea = RectAreaHelper.new({
+        top: RectAreaHelper.bottom(actionDrawingArea) - heightFromRemainingActionPoints,
+        bottom: RectAreaHelper.bottom(actionDrawingArea),
         left: actionDrawingArea.left,
         width: actionDrawingArea.width,
     });
 
-    const numberOfActionPointsRect: Rectangle = new Rectangle({
+    const numberOfActionPointsRect: Rectangle = RectangleHelper.new({
         area: numberOfActionPointsArea,
         fillColor: [squaddieAffiliationHue, 50, 85],
     })
 
-    numberOfActionPointsRect.draw(graphicsContext);
+    RectangleHelper.draw(numberOfActionPointsRect, graphicsContext);
 }
 
 export const TintSquaddieIfTurnIsComplete = (squaddieRepository: BattleSquaddieRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {

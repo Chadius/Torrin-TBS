@@ -15,7 +15,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
-import {Label} from "../../ui/label";
+import {LabelHelper} from "../../ui/label";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
@@ -122,7 +122,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             minimumRange: 0,
         });
 
-        jest.spyOn(Label.prototype, "draw").mockReturnValue(null);
+        jest.spyOn(LabelHelper, "draw").mockReturnValue(null);
         jest.spyOn(orchestratorUtils, "DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
         });
 

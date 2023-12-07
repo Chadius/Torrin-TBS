@@ -20,7 +20,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
-import {Label} from "../../ui/label";
+import {LabelHelper} from "../../ui/label";
 import * as actionResultTextWriter from "./actionResultTextWriter";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleStateHelper} from "../orchestrator/battleState";
@@ -120,7 +120,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         })
 
         const formatResultSpy = jest.spyOn(actionResultTextWriter, "FormatResult");
-        const drawLabelSpy = jest.spyOn(Label.prototype, "draw");
+        const drawLabelSpy = jest.spyOn(LabelHelper, "draw");
 
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
