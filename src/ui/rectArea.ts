@@ -131,6 +131,7 @@ type RectWidth = PositionWidth
     | RectWidthLeftColumnEnd
     | Margins
     | BaseRectangle
+
 export type RectArguments = RectTop & RectLeft & RectHeight & RectWidth & Partial<Alignment>
 
 export interface RectArea {
@@ -153,6 +154,7 @@ export const RectAreaHelper = {
         setRectLeft(rectArea, params);
         setRectHeight(rectArea, params);
         setRectWidth(rectArea, params);
+
         alignVertically(rectArea, params as Alignment);
         alignHorizontally(rectArea, params as Alignment);
 
@@ -197,6 +199,22 @@ export const RectAreaHelper = {
     align: (rectArea: RectArea, params: Alignment) => {
         alignHorizontally(rectArea, params);
         alignVertically(rectArea, params);
+    },
+    setRight: (rectArea: RectArea, right: number) => {
+        rectArea.left = right - rectArea.width;
+    },
+    setBottom: (rectArea: RectArea, bottom: number) => {
+        rectArea.top = bottom - rectArea.height;
+    },
+    changeAspectRatio: (rectArea: RectArea, newAspectRatio: number, preserveSide: "WIDTH" | "HEIGHT") => {
+        switch (preserveSide) {
+            case "WIDTH":
+                rectArea.height = rectArea.width / newAspectRatio;
+                return;
+            case "HEIGHT":
+                rectArea.width = newAspectRatio * rectArea.height;
+                return;
+        }
     },
 }
 

@@ -23,7 +23,6 @@ describe('RectArea', () => {
             expect(rect.height).toBe(30);
             expect(rect.width).toBe(20);
         });
-
         it('can make a new Rectangle with top, left, bottom and right', () => {
             const rect = RectAreaHelper.new({
                 top: 0,
@@ -432,5 +431,51 @@ describe('RectArea', () => {
         RectAreaHelper.move(rect, {left: 40, top: 50});
         expect(rect.left).toBe(40);
         expect(rect.top).toBe(50);
+    });
+    describe('RectArea can set width and height based on aspect ratio', () => {
+        it('given ratio and width, RectArea calculates the height', () => {
+            const rect = RectAreaHelper.new({
+                top: 0,
+                left: 10,
+                width: 20,
+                height: 0,
+            });
+
+            RectAreaHelper.changeAspectRatio(rect, 2, "WIDTH");
+
+            expect(rect.height).toBe(10);
+            expect(rect.width).toBe(20);
+        });
+        it('given ratio and height, RectArea calculates the width', () => {
+            const rect = RectAreaHelper.new({
+                top: 0,
+                left: 10,
+                height: 20,
+                width: 0,
+            });
+
+            RectAreaHelper.changeAspectRatio(rect, 2, "HEIGHT");
+
+            expect(rect.height).toBe(20);
+            expect(rect.width).toBe(40);
+        });
+    });
+    it('can align a RectArea against a right and bottom side', () => {
+        const rect = RectAreaHelper.new({
+            top: 0,
+            left: 0,
+            height: 30,
+            width: 20,
+        });
+
+        RectAreaHelper.setRight(rect, 100);
+        RectAreaHelper.setBottom(rect, 200);
+
+        expect(RectAreaHelper.top(rect)).toBe(200 - 30);
+        expect(RectAreaHelper.left(rect)).toBe(100 - 20);
+        expect(RectAreaHelper.right(rect)).toBe(100);
+        expect(RectAreaHelper.bottom(rect)).toBe(200);
+        expect(RectAreaHelper.height(rect)).toBe(30);
+        expect(RectAreaHelper.width(rect)).toBe(20);
     });
 });
