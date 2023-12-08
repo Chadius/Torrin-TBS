@@ -128,10 +128,6 @@ describe('orchestratorState', () => {
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: {
                 ...validBattleState,
-                gameSaveFlags: {
-                    ...validBattleState.gameSaveFlags,
-                    savingInProgress: true,
-                }
             },
             numberGenerator: new FixedNumberGenerator({result: 3}),
         });
@@ -155,10 +151,6 @@ describe('orchestratorState', () => {
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: {
                 ...validBattleState,
-                gameSaveFlags: {
-                    ...validBattleState.gameSaveFlags,
-                    savingInProgress: true,
-                }
             },
             numberGenerator: new FixedNumberGenerator({result: 3}),
         });

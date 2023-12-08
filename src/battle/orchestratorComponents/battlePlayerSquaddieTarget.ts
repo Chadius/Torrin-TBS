@@ -29,6 +29,7 @@ import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -49,40 +50,40 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         return this.highlightedTargetRange.length > 0;
     }
 
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         const userWantsADifferentAbility: boolean = this.cancelAbility === true;
         const userConfirmedTarget: boolean = this.hasConfirmedAction === true;
         return userWantsADifferentAbility || userConfirmedTarget;
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
-                    SquaddieInstructionInProgressHandler.cancelSelectedAction(state.battleState.squaddieCurrentlyActing);
-                    state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+                    SquaddieInstructionInProgressHandler.cancelSelectedAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+                    state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
                     return;
                 } else {
-                    return this.tryToSelectValidTarget(event.mouseX, event.mouseY, state);
+                    return this.tryToSelectValidTarget(event.mouseX, event.mouseY, state.battleOrchestratorState);
                 }
             }
 
             if (!this.hasConfirmedAction) {
                 if (event.mouseY > BUTTON_TOP) {
-                    return this.cancelTargetSelection(state);
+                    return this.cancelTargetSelection(state.battleOrchestratorState);
                 }
 
-                return this.confirmTargetSelection(state);
+                return this.confirmTargetSelection(state.battleOrchestratorState);
             }
         }
         return;
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: !this.shouldDrawConfirmWindow(),
             displayMap: true,
@@ -90,22 +91,22 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (!this.hasHighlightedTargetRange) {
-            return this.highlightTargetRange(state);
+            return this.highlightTargetRange(state.battleOrchestratorState);
         }
 
         if (this.hasHighlightedTargetRange && !this.hasSelectedValidTarget) {
-            this.drawCancelAbilityButton(state, graphicsContext);
+            this.drawCancelAbilityButton(state.battleOrchestratorState, graphicsContext);
         }
 
         if (this.hasHighlightedTargetRange && this.hasSelectedValidTarget && !this.hasConfirmedAction) {
-            this.drawConfirmWindow(state, graphicsContext);
+            this.drawConfirmWindow(state.battleOrchestratorState, graphicsContext);
         }
         return;
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         if (this.cancelAbility) {
             return {
                 displayMap: true,
@@ -122,9 +123,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         return undefined;
     }
 
-    reset(state: BattleOrchestratorState) {
+    reset(state: GameEngineState) {
         this.resetObject();
-        state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
     }
 
     shouldDrawConfirmWindow(): boolean {

@@ -4,6 +4,7 @@ import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
 import {BattleStateHelper} from "../orchestrator/battleState";
+import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleCutscenePlayer', () => {
     let dinnerDate: Cutscene;
@@ -34,13 +35,15 @@ describe('BattleCutscenePlayer', () => {
 
     it('is complete when there is no cutscene to play', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
-        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection
+        const initialState: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                squaddieRepository: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    cutsceneCollection
+                })
             })
         });
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
@@ -52,18 +55,20 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection
+        const initialState: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                squaddieRepository: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    cutsceneCollection
+                })
             })
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        cutscenePlayer.startCutscene("dinner_date", initialState);
+        cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
         expect(cutscenePlayer.currentCutsceneId).toBe("dinner_date");
         expect(cutscenePlayer.currentCutscene).toBe(dinnerDate);
         expect(dinnerDate.isInProgress()).toBeTruthy();
@@ -74,18 +79,20 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection
+        const initialState: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                squaddieRepository: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    cutsceneCollection
+                })
             })
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        cutscenePlayer.startCutscene("dinner_date", initialState);
+        cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
         expect(cutscenePlayer.hasCompleted(initialState)).toBeFalsy();
 
         dinnerDate.stop();
@@ -155,18 +162,20 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection
+        const initialState: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                squaddieRepository: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                resourceHandler: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    cutsceneCollection
+                })
             })
         });
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
 
-        cutscenePlayer.startCutscene("dinner_date", initialState);
+        cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
         dinnerDate.stop();
         cutscenePlayer.reset(initialState);
         expect(cutscenePlayer.currentCutscene).toBeUndefined();

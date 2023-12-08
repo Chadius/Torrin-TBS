@@ -4,7 +4,6 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
@@ -13,6 +12,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieHelper} from "../battleSquaddie";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -23,17 +23,17 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
         this.animationCompleteStartTime = undefined;
     }
 
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         return this.animationCompleteStartTime !== undefined && (Date.now() - this.animationCompleteStartTime) >= ACTION_COMPLETED_WAIT_TIME_MS;
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             displayMap: true,
             scrollCamera: false,
@@ -41,31 +41,31 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
         });
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
             checkMissionObjectives: true,
         }
     }
 
-    reset(state: BattleOrchestratorState): void {
+    reset(state: GameEngineState): void {
         this.animationCompleteStartTime = undefined;
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (this.animationCompleteStartTime === undefined) {
-            const battleSquaddieId = state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId;
+            const battleSquaddieId = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId;
             const {
                 battleSquaddie,
                 squaddieTemplate
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+            } = getResultOrThrowError(state.battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
 
-            const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
+            const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
 
             if (mostRecentAction.type === SquaddieActionType.END_TURN) {
                 BattleSquaddieHelper.endTurn(battleSquaddie);
-                TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
+                TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             }
             this.animationCompleteStartTime = Date.now();
         }

@@ -12,6 +12,7 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleStateHelper} from "../orchestrator/battleState";
+import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
@@ -36,13 +37,15 @@ describe('battleMapDisplay', () => {
         camera.setXVelocity = jest.fn();
         camera.setYVelocity = jest.fn();
 
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: undefined,
-            resourceHandler: undefined,
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                camera,
+        const state: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                squaddieRepository: undefined,
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    camera,
+                })
             })
         });
         battleMapDisplay.mouseEventHappened(state, {
@@ -55,7 +58,7 @@ describe('battleMapDisplay', () => {
     });
 
     describe('panning the camera', () => {
-        let state: BattleOrchestratorState;
+        let state: GameEngineState;
         let camera: BattleCamera;
         let initialCameraCoordinates: number[];
 
@@ -63,19 +66,22 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = BattleOrchestratorStateHelper.newOrchestratorState({
-                squaddieRepository: squaddieRepo,
-                battleSquaddieSelectedHUD,
-                resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                    camera,
-                    missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
-                            movementCost: ["1 "]
+            state = GameEngineStateHelper.new({
+                battleOrchestratorState:
+                    BattleOrchestratorStateHelper.newOrchestratorState({
+                        squaddieRepository: squaddieRepo,
+                        battleSquaddieSelectedHUD,
+                        resourceHandler: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
+                            camera,
+                            missionMap: new MissionMap({
+                                terrainTileMap: new TerrainTileMap({
+                                    movementCost: ["1 "]
+                                })
+                            }),
                         })
-                    }),
-                })
+                    })
             });
         });
 

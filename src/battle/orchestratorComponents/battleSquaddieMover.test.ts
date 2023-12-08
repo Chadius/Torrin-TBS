@@ -23,6 +23,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: BattleSquaddieRepository;
@@ -122,34 +123,36 @@ describe('BattleSquaddieMover', () => {
         };
         SquaddieInstructionInProgressHandler.markBattleSquaddieIdAsMoving(squaddieCurrentlyActing, "player_1");
 
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: squaddieRepo,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                missionMap: map,
-                searchPath: movePath,
-                squaddieCurrentlyActing: {
-                    squaddieActionsForThisRound: moveAction,
-                    movingBattleSquaddieIds: [],
-                    currentlySelectedAction: undefined,
-                },
-            }),
+        const state: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                squaddieRepository: squaddieRepo,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    missionMap: map,
+                    searchPath: movePath,
+                    squaddieCurrentlyActing: {
+                        squaddieActionsForThisRound: moveAction,
+                        movingBattleSquaddieIds: [],
+                        currentlySelectedAction: undefined,
+                    },
+                }),
+            })
         });
         const mover: BattleSquaddieMover = new BattleSquaddieMover();
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
         mover.update(state, mockedP5GraphicsContext);
         expect(mover.hasCompleted(state)).toBeFalsy();
-        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleState.squaddieCurrentlyActing, "player_1")).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, "player_1")).toBeTruthy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
         mover.update(state, mockedP5GraphicsContext);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
-        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleState.squaddieCurrentlyActing, "player_1")).toBeFalsy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, "player_1")).toBeFalsy();
     });
 
     describe('reset actions based on squaddie', () => {
@@ -228,10 +231,12 @@ describe('BattleSquaddieMover', () => {
                 }
             });
 
-            const state = setupSquaddie({
-                battleSquaddieId: "player_1",
-                squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                newInstruction: moveAction,
+            const state: GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState: setupSquaddie({
+                    battleSquaddieId: "player_1",
+                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                    newInstruction: moveAction,
+                })
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -240,9 +245,9 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
+            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
 
-            expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+            expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
 
         it('should open the HUD if the squaddie turn is incomplete', () => {
@@ -262,16 +267,18 @@ describe('BattleSquaddieMover', () => {
                 }
             });
 
-            const state = setupSquaddie({
-                battleSquaddieId: "player_1",
-                squaddieAffiliation: SquaddieAffiliation.PLAYER,
-                newInstruction: moveAction,
+            const state: GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState: setupSquaddie({
+                    battleSquaddieId: "player_1",
+                    squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                    newInstruction: moveAction,
+                })
             });
 
-            state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+            state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
                 battleId: "player_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
-                state,
+                state: state.battleOrchestratorState,
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -281,8 +288,8 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
 
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeFalsy();
-            expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
+            expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
 
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
@@ -302,16 +309,18 @@ describe('BattleSquaddieMover', () => {
                 }
             });
 
-            const state = setupSquaddie({
-                battleSquaddieId: "enemy_1",
-                squaddieAffiliation: SquaddieAffiliation.ENEMY,
-                newInstruction: moveAction,
+            const state: GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState: setupSquaddie({
+                    battleSquaddieId: "enemy_1",
+                    squaddieAffiliation: SquaddieAffiliation.ENEMY,
+                    newInstruction: moveAction,
+                })
             });
 
-            state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+            state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
                 battleId: "enemy_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
-                state,
+                state: state.battleOrchestratorState,
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -321,8 +330,8 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
 
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeFalsy();
-            expect(state.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
+            expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });
     });
 });

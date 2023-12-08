@@ -1,26 +1,15 @@
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
-import {GameEngine, GameEngineComponentState} from "./gameEngine";
+import {GameEngine} from "./gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MouseButton} from "../utils/mouseConfig";
 import {TitleScreen} from "../titleScreen/titleScreen";
-import {TitleScreenState} from "../titleScreen/titleScreenState";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
-import {SaveFile} from "../utils/fileHandling/saveFile";
 import {NullMissionMap} from "../utils/test/battleOrchestratorState";
 import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
-import {TriggeringEvent} from "../cutscene/cutsceneTrigger";
-import {BattleSaveState, BattleSaveStateHandler, DefaultBattleSaveState} from "../battle/history/battleSaveState";
+import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
 import {MissionObjectiveHelper} from "../battle/missionResult/missionObjective";
 import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
-import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {BattleCamera} from "../battle/battleCamera";
-import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
-import {ResourceHandler} from "../resource/resourceHandler";
-import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
-import {BattleStateHelper} from "../battle/orchestrator/battleState";
 
 describe('Game Engine', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -49,44 +38,36 @@ describe('Game Engine', () => {
     });
 
     describe('Game Engine component hooks ', () => {
-        async function expectUpdate(newGameEngine: GameEngine, expectedStateType: GameEngineComponentState) {
+        async function expectUpdate(newGameEngine: GameEngine) {
             const updateSpy = jest.spyOn(newGameEngine.component, "update").mockImplementation(() => {
             });
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
             expect(updateSpy).toBeCalled();
-            const updateGameEngineComponentState: GameEngineComponentState = updateSpy.mock.calls[0][0];
-            expect(updateGameEngineComponentState).toBeInstanceOf(expectedStateType);
         }
 
-        function expectKeyPressed(newGameEngine: GameEngine, expectedStateType: GameEngineComponentState) {
+        function expectKeyPressed(newGameEngine: GameEngine) {
             const keyPressedSpy = jest.spyOn(newGameEngine.component, "keyPressed").mockImplementation(() => {
             });
             newGameEngine.keyPressed(10);
             expect(keyPressedSpy).toBeCalled();
-            const keyPressedGameEngineComponentState: GameEngineComponentState = keyPressedSpy.mock.calls[0][0];
-            expect(keyPressedGameEngineComponentState).toBeInstanceOf(expectedStateType);
             expect(keyPressedSpy.mock.calls[0][1]).toBe(10);
         }
 
-        function expectMouseClicked(newGameEngine: GameEngine, expectedStateType: GameEngineComponentState) {
+        function expectMouseClicked(newGameEngine: GameEngine) {
             const mouseClickedSpy = jest.spyOn(newGameEngine.component, "mouseClicked").mockImplementation(() => {
             });
             newGameEngine.mouseClicked(MouseButton.LEFT, 100, 200);
             expect(mouseClickedSpy).toBeCalled();
-            const mouseClickedGameEngineComponentState: GameEngineComponentState = mouseClickedSpy.mock.calls[0][0];
-            expect(mouseClickedGameEngineComponentState).toBeInstanceOf(expectedStateType);
             expect(mouseClickedSpy.mock.calls[0][1]).toBe(MouseButton.LEFT);
             expect(mouseClickedSpy.mock.calls[0][2]).toBe(100);
             expect(mouseClickedSpy.mock.calls[0][3]).toBe(200);
         }
 
-        function expectMouseMoved(newGameEngine: GameEngine, expectedStateType: GameEngineComponentState) {
+        function expectMouseMoved(newGameEngine: GameEngine) {
             const mouseMovedSpy = jest.spyOn(newGameEngine.component, "mouseMoved").mockImplementation(() => {
             });
             newGameEngine.mouseMoved(100, 200);
             expect(mouseMovedSpy).toBeCalled();
-            const mouseMovedGameEngineComponentState: GameEngineComponentState = mouseMovedSpy.mock.calls[0][0];
-            expect(mouseMovedGameEngineComponentState).toBeInstanceOf(expectedStateType);
             expect(mouseMovedSpy.mock.calls[0][1]).toBe(100);
             expect(mouseMovedSpy.mock.calls[0][2]).toBe(200);
         }
@@ -94,11 +75,9 @@ describe('Game Engine', () => {
         const loadAndExpect = ({
                                    startupMode,
                                    componentType,
-                                   expectedStateType,
                                }: {
             startupMode: GameModeEnum,
             componentType: any,
-            expectedStateType: GameEngineComponentState
         }) => {
             const newGameEngine = new GameEngine({
                 startupMode,
@@ -108,17 +87,16 @@ describe('Game Engine', () => {
             expect(newGameEngine.currentMode).toBe(startupMode);
             expect(newGameEngine.component).toBeInstanceOf(componentType);
 
-            expectUpdate(newGameEngine, expectedStateType);
-            expectKeyPressed(newGameEngine, expectedStateType);
-            expectMouseClicked(newGameEngine, expectedStateType);
-            expectMouseMoved(newGameEngine, expectedStateType);
+            expectUpdate(newGameEngine);
+            expectKeyPressed(newGameEngine);
+            expectMouseClicked(newGameEngine);
+            expectMouseMoved(newGameEngine);
         }
 
         it('works on title screen', () => {
             loadAndExpect({
                 startupMode: GameModeEnum.TITLE_SCREEN,
                 componentType: TitleScreen,
-                expectedStateType: TitleScreenState,
             })
         });
 
@@ -126,7 +104,6 @@ describe('Game Engine', () => {
             loadAndExpect({
                 startupMode: GameModeEnum.BATTLE,
                 componentType: BattleOrchestrator,
-                expectedStateType: BattleOrchestratorState,
             })
         });
 
@@ -134,7 +111,6 @@ describe('Game Engine', () => {
             loadAndExpect({
                 startupMode: GameModeEnum.LOADING_BATTLE,
                 componentType: GameEngineBattleMissionLoader,
-                expectedStateType: BattleOrchestratorState,
             })
         });
     });
@@ -146,17 +122,17 @@ describe('Game Engine', () => {
                 graphicsContext: mockedP5GraphicsContext,
             });
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress = true;
-            newGameEngine.battleOrchestratorState.battleState.missionId = "save with this mission id";
+            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.gameEngineState.gameSaveFlags.savingInProgress = true;
+            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId = "save with this mission id";
             const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockReturnValue(null);
 
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress).toBeFalsy();
+            expect(newGameEngine.gameEngineState.gameSaveFlags.savingInProgress).toBeFalsy();
             const battleSaveStateSaved: BattleSaveState = saveSpy.mock.calls[0][0];
-            expect(battleSaveStateSaved.mission_id).toBe(newGameEngine.battleOrchestratorState.battleState.missionId);
+            expect(battleSaveStateSaved.mission_id).toBe(newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId);
         });
         it('will set the error flag if there is an error while saving', async () => {
             const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {
@@ -166,8 +142,8 @@ describe('Game Engine', () => {
                 graphicsContext: mockedP5GraphicsContext,
             });
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress = true;
+            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.gameEngineState.gameSaveFlags.savingInProgress = true;
             const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockImplementation(() => {
                 throw new Error("Failed for some reason");
             });
@@ -175,8 +151,8 @@ describe('Game Engine', () => {
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
 
             expect(saveSpy).toBeCalled();
-            expect(newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress).toBeFalsy();
-            expect(newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.errorDuringSaving).toBeTruthy();
+            expect(newGameEngine.gameEngineState.gameSaveFlags.savingInProgress).toBeFalsy();
+            expect(newGameEngine.gameEngineState.gameSaveFlags.errorDuringSaving).toBeTruthy();
 
             expect(consoleLoggerSpy).toBeCalled();
         });
@@ -184,10 +160,6 @@ describe('Game Engine', () => {
 
     describe('load the game', () => {
         let newGameEngine: GameEngine;
-        let openDialogSpy: jest.SpyInstance;
-        let loadedBattleSaveState: BattleSaveState;
-        let hasCompletedSpy: jest.SpyInstance;
-        let originalState: BattleOrchestratorState;
 
         beforeEach(() => {
             newGameEngine = new GameEngine({
@@ -195,9 +167,9 @@ describe('Game Engine', () => {
                 graphicsContext: mockedP5GraphicsContext,
             });
             newGameEngine.setup({graphicsContext: mockedP5GraphicsContext});
-            newGameEngine.battleOrchestratorState.battleState.missionMap = NullMissionMap();
-            newGameEngine.battleOrchestratorState.battleState.gameSaveFlags.loadRequested = true;
-            newGameEngine.battleOrchestratorState.battleState.objectives = [
+            newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
+            newGameEngine.gameEngineState.gameSaveFlags.loadRequested = true;
+            newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives = [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "test",
                     reward: {rewardType: MissionRewardType.VICTORY},
@@ -212,66 +184,6 @@ describe('Game Engine', () => {
                 })
             ];
             jest.spyOn(newGameEngine.battleOrchestrator, "hasCompleted").mockReturnValue(true);
-
-            loadedBattleSaveState = {
-                ...DefaultBattleSaveState(),
-                mission_statistics: {
-                    ...MissionStatisticsHandler.new(),
-                    timeElapsedInMilliseconds: 1,
-                },
-                teams_by_affiliation: {
-                    [SquaddieAffiliation.PLAYER]: {
-                        name: "Players",
-                        affiliation: SquaddieAffiliation.PLAYER,
-                        battleSquaddieIds: [],
-                    }
-                }
-            };
-            openDialogSpy = jest.spyOn(SaveFile, "RetrieveFileContent").mockResolvedValue(
-                loadedBattleSaveState
-            );
-
-            originalState = BattleOrchestratorStateHelper.newOrchestratorState({
-                squaddieRepository: new BattleSquaddieRepository(),
-                battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                    camera: new BattleCamera(100, 200),
-                    missionMap: NullMissionMap(),
-                    missionStatistics: {
-                        ...MissionStatisticsHandler.new(),
-                        timeElapsedInMilliseconds: 9001,
-                    },
-                    objectives: [
-                        MissionObjectiveHelper.validateMissionObjective({
-                            id: "test",
-                            reward: {rewardType: MissionRewardType.VICTORY},
-                            hasGivenReward: false,
-                            numberOfRequiredConditionsToComplete: 1,
-                            conditions: [
-                                {
-                                    id: "test",
-                                    type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                }
-                            ],
-
-                        })
-                    ],
-                    cutsceneTriggers: [
-                        {
-                            cutsceneId: "introductory",
-                            triggeringEvent: TriggeringEvent.START_OF_TURN,
-                            turn: 0,
-                            systemReactedToTrigger: true,
-                        }
-                    ],
-                    missionCompletionStatus: {},
-                }),
-                resourceHandler: new ResourceHandler({
-                    imageLoader: new StubImmediateLoader(),
-                    allResources: []
-                }),
-            });
         });
         afterEach(() => {
             jest.clearAllMocks();
@@ -282,7 +194,7 @@ describe('Game Engine', () => {
         });
         it('will not reset the battle orchestrator state', () => {
             newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
-            expect(newGameEngine.battleOrchestratorState.battleState.objectives[0].id).toBe("test");
+            expect(newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives[0].id).toBe("test");
         });
     });
 });

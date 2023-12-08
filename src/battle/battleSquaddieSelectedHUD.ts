@@ -30,6 +30,7 @@ import {ButtonStatus} from "../ui/button";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
 import {BattlePhase} from "./orchestratorComponents/battlePhaseTracker";
+import {GameEngineState} from "../gameEngine/gameEngine";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -129,23 +130,23 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedBattleSquaddieId;
     }
 
-    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: GameEngineState, graphicsContext: GraphicsContext) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
         RectangleHelper.draw(this._background, graphicsContext);
-        this.drawSquaddieID(state, graphicsContext);
-        this.drawSquaddieAttributes(state, graphicsContext);
-        this.drawNumberOfActionPoints(state, graphicsContext);
+        this.drawSquaddieID(state.battleOrchestratorState, graphicsContext);
+        this.drawSquaddieAttributes(state.battleOrchestratorState, graphicsContext);
+        this.drawNumberOfActionPoints(state.battleOrchestratorState, graphicsContext);
         this.drawSquaddieActions(graphicsContext);
-        this.drawUncontrollableSquaddieWarning(state);
-        this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state);
+        this.drawUncontrollableSquaddieWarning(state.battleOrchestratorState);
+        this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state.battleOrchestratorState);
         this.drawFileAccessWarning(state);
         TextBoxHelper.draw(this.invalidCommandWarningTextBox, graphicsContext);
-        if (this.shouldDrawNextButton(state)) {
+        if (this.shouldDrawNextButton(state.battleOrchestratorState)) {
             LabelHelper.draw(this.nextSquaddieButton, graphicsContext);
         }
-        if (this.shouldDrawSaveAndLoadButton(state)) {
+        if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)) {
             LabelHelper.draw(this.saveGameButton, graphicsContext);
             LabelHelper.draw(this.loadGameButton, graphicsContext);
         }
@@ -174,11 +175,11 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    mouseClicked(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
+    mouseClicked(mouseX: number, mouseY: number, state: GameEngineState) {
         if (
-            state.battleState.gameSaveFlags.savingInProgress
-            || state.battleState.gameSaveFlags.loadingInProgress
-            || state.battleState.gameSaveFlags.loadRequested
+            state.gameSaveFlags.savingInProgress
+            || state.gameSaveFlags.loadingInProgress
+            || state.gameSaveFlags.loadRequested
         ) {
             return;
         }
@@ -191,7 +192,7 @@ export class BattleSquaddieSelectedHUD {
             const actionToCheck = selectedUseActionButton.endTurnAction || selectedUseActionButton.action;
             const actionValidityCheck = this.checkIfActionIsValid(
                 actionToCheck,
-                state
+                state.battleOrchestratorState,
             );
             if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
                 this.selectedAction = actionToCheck;
@@ -200,15 +201,15 @@ export class BattleSquaddieSelectedHUD {
             this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.action);
         }
 
-        const clickedOnNextButton: boolean = this.shouldDrawNextButton(state) && RectAreaHelper.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY);
+        const clickedOnNextButton: boolean = this.shouldDrawNextButton(state.battleOrchestratorState) && RectAreaHelper.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY);
         if (clickedOnNextButton) {
-            this.selectNextSquaddie(state);
+            this.selectNextSquaddie(state.battleOrchestratorState);
         }
 
-        if (this.shouldDrawSaveAndLoadButton(state) && RectAreaHelper.isInside(this.saveGameButton.rectangle.area, mouseX, mouseY)) {
+        if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState) && RectAreaHelper.isInside(this.saveGameButton.rectangle.area, mouseX, mouseY)) {
             this.markGameToBeSaved(state);
         }
-        if (this.shouldDrawSaveAndLoadButton(state) && RectAreaHelper.isInside(this.loadGameButton.rectangle.area, mouseX, mouseY)) {
+        if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState) && RectAreaHelper.isInside(this.loadGameButton.rectangle.area, mouseX, mouseY)) {
             this.markGameToBeLoaded(state);
         }
     }
@@ -273,12 +274,12 @@ export class BattleSquaddieSelectedHUD {
         return true;
     }
 
-    markGameToBeSaved(state: BattleOrchestratorState): void {
-        state.battleState.gameSaveFlags.savingInProgress = true;
+    markGameToBeSaved(state: GameEngineState): void {
+        state.gameSaveFlags.savingInProgress = true;
     }
 
-    markGameToBeLoaded(state: BattleOrchestratorState): void {
-        state.battleState.gameSaveFlags.loadRequested = true;
+    markGameToBeLoaded(state: GameEngineState): void {
+        state.gameSaveFlags.loadRequested = true;
     }
 
     private generateUseActionButtons(
@@ -485,30 +486,30 @@ export class BattleSquaddieSelectedHUD {
 
     }
 
-    private drawFileAccessWarning(state: BattleOrchestratorState) {
+    private drawFileAccessWarning(state: GameEngineState) {
         const WARNING_LOAD_FILE_FAILED = "Loading failed. Check logs.";
-        if (state.battleState.gameSaveFlags.errorDuringLoading && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE_FAILED) {
+        if (state.gameSaveFlags.errorDuringLoading && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE_FAILED) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
-            state.battleState.gameSaveFlags.errorDuringLoading = false;
+            state.gameSaveFlags.errorDuringLoading = false;
             return;
         }
 
         const WARNING_SAVE_FILE_FAILED = "Saving failed. Check logs.";
-        if (state.battleState.gameSaveFlags.errorDuringSaving && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE_FAILED) {
+        if (state.gameSaveFlags.errorDuringSaving && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE_FAILED) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
-            state.battleState.gameSaveFlags.errorDuringSaving = false;
+            state.gameSaveFlags.errorDuringSaving = false;
             return;
         }
 
         const WARNING_SAVE_FILE = "Saving...";
-        if (state.battleState.gameSaveFlags.savingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE) {
+        if (state.gameSaveFlags.savingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE, FILE_MESSAGE_DISPLAY_DURATION);
             return;
 
         }
 
         const WARNING_LOAD_FILE = "Loading...";
-        if ((state.battleState.gameSaveFlags.loadingInProgress || state.battleState.gameSaveFlags.loadRequested) && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE) {
+        if ((state.gameSaveFlags.loadingInProgress || state.gameSaveFlags.loadRequested) && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE, FILE_MESSAGE_DISPLAY_DURATION);
             return;
         }

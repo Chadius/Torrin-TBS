@@ -9,6 +9,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene} from "../../cutscene/cutscene";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     constructor() {
@@ -26,49 +27,49 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         return this._currentCutsceneId;
     }
 
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         return !(this.currentCutscene && this.currentCutscene.isInProgress());
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED && this.currentCutscene && this.currentCutscene.isInProgress()) {
             this.currentCutscene.mouseMoved(event.mouseX, event.mouseY);
             return;
         }
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED && this.currentCutscene && this.currentCutscene.isInProgress()) {
-            this.currentCutscene.mouseClicked(event.mouseX, event.mouseY, {battleOrchestratorState: state});
+            this.currentCutscene.mouseClicked(event.mouseX, event.mouseY, {battleOrchestratorState: state.battleOrchestratorState});
             return;
         }
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             pauseTimer: true,
         });
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.isInProgress()) {
             this.currentCutscene.setResources();
-            this.currentCutscene.start({battleOrchestratorState: state});
+            this.currentCutscene.start({battleOrchestratorState: state.battleOrchestratorState});
         }
         if (this.currentCutscene && this.currentCutscene.isInProgress()) {
-            this.currentCutscene.update({battleOrchestratorState: state});
+            this.currentCutscene.update({battleOrchestratorState: state.battleOrchestratorState});
             this.currentCutscene.draw(graphicsContext);
         }
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
         }
     }
 
-    reset(state: BattleOrchestratorState) {
+    reset(state: GameEngineState) {
         this._currentCutsceneId = undefined;
         this._currentCutscene = undefined;
     }

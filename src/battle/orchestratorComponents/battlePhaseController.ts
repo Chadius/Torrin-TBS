@@ -21,6 +21,7 @@ import {
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleStateHelper} from "../orchestrator/battleState";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -41,9 +42,9 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         this.newBannerShown = false;
     }
 
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         if (!this.newBannerShown
-            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository)
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository)
         ) {
             return true;
         }
@@ -59,53 +60,53 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         return true;
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
         });
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (!this.newBannerShown
-            && state.battleState.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
-            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository)
+            && state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
+            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository)
         ) {
             return;
         }
 
         if (this.bannerDisplayAnimationStartTime !== undefined && Date.now() - this.bannerDisplayAnimationStartTime < BANNER_ANIMATION_TIME) {
-            this.draw(state, graphicsContext);
+            this.draw(state.battleOrchestratorState, graphicsContext);
             return;
         }
 
-        if (state.battleState.battlePhaseState.currentAffiliation === BattlePhase.UNKNOWN
-            || !BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository)
+        if (state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation === BattlePhase.UNKNOWN
+            || !BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository)
         ) {
-            const oldTeam = BattleStateHelper.getCurrentTeam(state.battleState);
+            const oldTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState);
             if (oldTeam) {
-                BattleSquaddieTeamHelper.beginNewRound(oldTeam, state.squaddieRepository);
+                BattleSquaddieTeamHelper.beginNewRound(oldTeam, state.battleOrchestratorState.squaddieRepository);
             }
 
             this.newBannerShown = true;
-            AdvanceToNextPhase(state.battleState.battlePhaseState, state.battleState.teamsByAffiliation);
+            AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, state.battleOrchestratorState.battleState.teamsByAffiliation);
             this.bannerDisplayAnimationStartTime = Date.now();
-            this.setBannerImage(state);
+            this.setBannerImage(state.battleOrchestratorState);
 
-            state.battleState.camera.setXVelocity(0);
-            state.battleState.camera.setYVelocity(0);
+            state.battleOrchestratorState.battleState.camera.setXVelocity(0);
+            state.battleOrchestratorState.battleState.camera.setYVelocity(0);
 
-            this.panToControllablePlayerSquaddieIfPlayerPhase(state);
+            this.panToControllablePlayerSquaddieIfPlayerPhase(state.battleOrchestratorState);
 
-            BattleSquaddieTeamHelper.beginNewRound(BattleStateHelper.getCurrentTeam(state.battleState), state.squaddieRepository);
+            BattleSquaddieTeamHelper.beginNewRound(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository);
 
-            state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         }
     }
 
@@ -169,13 +170,13 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
         }
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
         }
     }
 
-    reset(state: BattleOrchestratorState) {
+    reset(state: GameEngineState) {
         this.bannerImage = undefined;
         this.bannerImageUI = undefined;
         this.affiliationImage = undefined;

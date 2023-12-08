@@ -14,38 +14,39 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {RectAreaHelper} from "../../ui/rectArea";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
-    draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    draw(state: GameEngineState, graphicsContext: GraphicsContext): void {
         graphicsContext.background(50, 10, 20);
 
-        if (state.battleState.missionMap.terrainTileMap) {
-            drawHexMap(graphicsContext, state.battleState.missionMap.terrainTileMap, ...state.battleState.camera.getCoordinates());
+        if (state.battleOrchestratorState.battleState.missionMap.terrainTileMap) {
+            drawHexMap(graphicsContext, state.battleOrchestratorState.battleState.missionMap.terrainTileMap, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
         }
 
-        this.drawSquaddieMapIcons(state, graphicsContext);
-        state.battleState.camera.moveCamera();
+        this.drawSquaddieMapIcons(state.battleOrchestratorState, graphicsContext);
+        state.battleOrchestratorState.battleState.camera.moveCamera();
 
-        state.battleSquaddieSelectedHUD.draw(state.battleState.squaddieCurrentlyActing, state, graphicsContext);
+        state.battleOrchestratorState.battleSquaddieSelectedHUD.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, graphicsContext);
     }
 
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         return false;
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
-            state.battleState.missionMap.terrainTileMap.mouseClicked(event.mouseX, event.mouseY, ...state.battleState.camera.getCoordinates());
+            state.battleOrchestratorState.battleState.missionMap.terrainTileMap.mouseClicked(event.mouseX, event.mouseY, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
         }
         if (event.eventType === OrchestratorComponentMouseEventType.MOVED) {
-            this.moveCameraBasedOnMouseMovement(state, event.mouseX, event.mouseY);
+            this.moveCameraBasedOnMouseMovement(state.battleOrchestratorState, event.mouseX, event.mouseY);
         }
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({});
     }
 
@@ -116,15 +117,15 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         this.draw(state, graphicsContext);
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         return undefined;
     }
 
-    reset(state: BattleOrchestratorState) {
+    reset(state: GameEngineState) {
     }
 
     private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {

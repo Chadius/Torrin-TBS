@@ -1,4 +1,4 @@
-import {GameEngineComponentState} from "./gameEngine";
+import {GameEngineState} from "./gameEngine";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {MissionLoader, MissionLoaderStatus} from "../battle/loading/missionLoader";
@@ -25,24 +25,23 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         this.resetInternalFields();
     }
 
-    async update(state: GameEngineComponentState) {
+    async update(state: GameEngineState) {
         if (this.missionLoaderStatus.completionProgress.started !== true) {
-            this.backupBattleOrchestratorState = (state as BattleOrchestratorState).clone();
+            this.backupBattleOrchestratorState = state.battleOrchestratorState.clone();
 
-            const errorFound: Error = await this.loadBattleSaveStateFromFile((state as BattleOrchestratorState));
+            const errorFound: Error = await this.loadBattleSaveStateFromFile(state);
             if (errorFound) {
                 return;
             }
 
-            (state as BattleOrchestratorState).battleState.gameSaveFlags.loadingInProgress = true;
-            this.resetBattleOrchestratorState(state as BattleOrchestratorState);
-            await this.loadMissionDataFromFile(state as BattleOrchestratorState);
+            this.resetBattleOrchestratorState(state.battleOrchestratorState);
+            await this.loadMissionDataFromFile(state.battleOrchestratorState);
             return;
         }
 
         MissionLoader.checkResourcesPendingLoading({
             missionLoaderStatus: this.missionLoaderStatus,
-            resourceHandler: (state as BattleOrchestratorState).resourceHandler,
+            resourceHandler: state.battleOrchestratorState.resourceHandler,
         });
         if (
             this.missionLoaderStatus.resourcesPendingLoading.length > 0
@@ -52,16 +51,16 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         } else {
             MissionLoader.assignResourceHandlerResources({
                 missionLoaderStatus: this.missionLoaderStatus,
-                resourceHandler: (state as BattleOrchestratorState).resourceHandler,
-                squaddieRepository: (state as BattleOrchestratorState).squaddieRepository,
+                resourceHandler: state.battleOrchestratorState.resourceHandler,
+                squaddieRepository: state.battleOrchestratorState.squaddieRepository,
             });
-            this.applyMissionLoaderStatusToBattleOrchestratorState(state as BattleOrchestratorState);
-            this.applySaveStateToBattleOrchestratorState(state as BattleOrchestratorState);
+            this.applyMissionLoaderStatusToBattleOrchestratorState(state.battleOrchestratorState);
+            this.applySaveStateToBattleOrchestratorState(state);
             this.appliedResources = true;
         }
     }
 
-    uiControlSettings(state: GameEngineComponentState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: false,
@@ -69,7 +68,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         });
     }
 
-    hasCompleted(state: GameEngineComponentState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         if (this.errorFoundWhileLoading) {
             return true;
         }
@@ -79,27 +78,28 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             && this.appliedResources;
     }
 
-    recommendStateChanges(state: GameEngineComponentState): GameEngineChanges | undefined {
+    recommendStateChanges(state: GameEngineState): GameEngineChanges | undefined {
         return {
             nextMode: GameModeEnum.BATTLE,
         }
     }
 
-    reset(state: GameEngineComponentState) {
+    reset(state: GameEngineState) {
         this.resetInternalFields();
     }
 
-    keyPressed(state: GameEngineComponentState, keyCode: number): void {
+    keyPressed(state: GameEngineState, keyCode: number): void {
     }
 
-    mouseClicked(state: GameEngineComponentState, mouseButton: MouseButton, mouseX: number, mouseY: number): void {
+    mouseClicked(state: GameEngineState, mouseButton: MouseButton, mouseX: number, mouseY: number): void {
     }
 
-    mouseMoved(state: GameEngineComponentState, mouseX: number, mouseY: number): void {
+    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void {
     }
 
-    private applySaveStateToBattleOrchestratorState(battleOrchestratorState: BattleOrchestratorState) {
-        if (this.backupBattleOrchestratorState.battleState.gameSaveFlags.loadRequested) {
+    private applySaveStateToBattleOrchestratorState(gameEngineState: GameEngineState) {
+        let battleOrchestratorState = gameEngineState.battleOrchestratorState;
+        if (gameEngineState.gameSaveFlags.loadRequested) {
             BattleSaveStateHandler.applySaveStateToOrchestratorState({
                 battleSaveState: this.loadedBattleSaveState,
                 battleOrchestratorState: battleOrchestratorState,
@@ -114,8 +114,8 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
                 battleOrchestratorState.copyOtherOrchestratorState(this.backupBattleOrchestratorState);
                 this.errorFoundWhileLoading = true;
             }
-            battleOrchestratorState.battleState.gameSaveFlags.loadingInProgress = false;
-            battleOrchestratorState.battleState.gameSaveFlags.loadRequested = false;
+            gameEngineState.gameSaveFlags.loadingInProgress = false;
+            gameEngineState.gameSaveFlags.loadRequested = false;
         }
     }
 
@@ -190,8 +190,8 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         });
     }
 
-    private async loadBattleSaveStateFromFile(battleOrchestratorState: BattleOrchestratorState): Promise<Error> {
-        if (!battleOrchestratorState.battleState.gameSaveFlags.loadRequested) {
+    private async loadBattleSaveStateFromFile(gameEngineState: GameEngineState): Promise<Error> {
+        if (!gameEngineState.gameSaveFlags.loadRequested) {
             return;
         }
 
@@ -199,8 +199,8 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         try {
             this.loadedBattleSaveState = await SaveFile.RetrieveFileContent();
         } catch (e) {
-            battleOrchestratorState.battleState.gameSaveFlags.loadingInProgress = false;
-            battleOrchestratorState.battleState.gameSaveFlags.loadRequested = false;
+            gameEngineState.gameSaveFlags.loadingInProgress = false;
+            gameEngineState.gameSaveFlags.loadRequested = false;
             this.errorFoundWhileLoading = true;
             console.error("Failed to load progress file from storage.");
             console.error(e);

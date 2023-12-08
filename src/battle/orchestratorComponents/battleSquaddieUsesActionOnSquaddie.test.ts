@@ -36,6 +36,7 @@ import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
+import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -136,7 +137,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
     function useMonkKoanAndReturnState({missionMap}: {
         missionMap?: MissionMap
-    }) {
+    }): GameEngineState {
         const instruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
@@ -173,7 +174,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
 
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
@@ -185,18 +186,20 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             resourceHandler: mockResourceHandler,
         })
 
-        state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+        battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
-            state,
+            state: battleOrchestratorState,
         });
         SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
-        return state;
+        return GameEngineStateHelper.new({
+            battleOrchestratorState,
+        });
     }
 
     function usePowerAttackLongswordAndReturnState({missionMap}: {
         missionMap?: MissionMap
-    }) {
+    }): GameEngineState {
         const wholeTurnInstruction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
@@ -237,7 +240,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         };
         RecordingHandler.addEvent(battleEventRecording, newEvent);
 
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
@@ -249,13 +252,15 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             resourceHandler: mockResourceHandler,
         })
 
-        state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+        battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
-            state,
+            state: battleOrchestratorState,
         });
         SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
-        return state;
+        return GameEngineStateHelper.new({
+            battleOrchestratorState
+        });
     }
 
     it('hides dead squaddies after the action animates', () => {
@@ -305,7 +310,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes', () => {
@@ -329,7 +334,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('passes mouse events on to the animator', () => {

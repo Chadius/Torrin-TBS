@@ -1,4 +1,4 @@
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -11,6 +11,7 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateHelper} from "../orchestrator/battleState";
+import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -55,18 +56,20 @@ describe('BattleSquaddieUsesActionOnMap', () => {
         const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: squaddieRepository,
-            resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                squaddieCurrentlyActing: {
-                    squaddieActionsForThisRound: endTurnInstruction,
-                    movingBattleSquaddieIds: [],
-                    currentlySelectedAction: undefined,
-                },
-            }),
+        const state: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                squaddieRepository: squaddieRepository,
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    squaddieCurrentlyActing: {
+                        squaddieActionsForThisRound: endTurnInstruction,
+                        movingBattleSquaddieIds: [],
+                        currentlySelectedAction: undefined,
+                    },
+                }),
+            })
         })
 
         mapAction.update(state, mockedP5GraphicsContext);
@@ -83,6 +86,6 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
         mapAction.reset(state);
         expect(mapAction.animationCompleteStartTime).toBeUndefined();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 });

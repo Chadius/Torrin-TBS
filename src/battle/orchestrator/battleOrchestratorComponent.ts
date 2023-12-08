@@ -1,7 +1,7 @@
-import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {BattleOrchestratorMode} from "./battleOrchestrator";
 import {UIControlSettings} from "./uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export enum OrchestratorComponentMouseEventType {
     UNKNOWN,
@@ -32,17 +32,17 @@ export type BattleOrchestratorChanges = {
 }
 
 export interface BattleOrchestratorComponent {
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void;
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void;
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings;
+    uiControlSettings(state: GameEngineState): UIControlSettings;
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void;
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void;
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void;
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void;
 
-    hasCompleted(state: BattleOrchestratorState): boolean;
+    hasCompleted(state: GameEngineState): boolean;
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined;
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined;
 
-    reset(state: BattleOrchestratorState): void;
+    reset(state: GameEngineState): void;
 }

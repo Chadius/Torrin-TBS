@@ -1,4 +1,3 @@
-import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {UIControlSettings} from "./uiControlSettings";
 import {
     BattleOrchestratorChanges,
@@ -10,39 +9,40 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class InitializeBattle implements BattleOrchestratorComponent {
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         return true;
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         return {};
     }
 
-    reset(state: BattleOrchestratorState): void {
-        const playerTeam = state.battleState.teamsByAffiliation[SquaddieAffiliation.PLAYER];
+    reset(state: GameEngineState): void {
+        const playerTeam = state.battleOrchestratorState.battleState.teamsByAffiliation[SquaddieAffiliation.PLAYER];
         if (playerTeam) {
             playerTeam.battleSquaddieIds.forEach((battleId) => {
                 const {
                     battleSquaddie,
                     squaddieTemplate,
-                } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId))
-                TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
+                } = getResultOrThrowError(state.battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(battleId))
+                TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             });
         }
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return undefined;
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
     }
 }

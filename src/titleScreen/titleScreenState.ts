@@ -1,5 +1,8 @@
-export class TitleScreenState {
-    constructor({}: {}) {
+export interface TitleScreenState {
+}
 
+export const TitleScreenStateHelper = {
+    new: (): TitleScreenState => {
+        return {}
     }
 }

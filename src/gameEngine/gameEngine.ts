@@ -1,5 +1,5 @@
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
-import {BattleOrchestratorState} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../battle/orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleComputerSquaddieSelector} from "../battle/orchestratorComponents/battleComputerSquaddieSelector";
@@ -13,7 +13,7 @@ import {MouseButton} from "../utils/mouseConfig";
 import {GameModeEnum} from "../utils/startupConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {TitleScreen} from "../titleScreen/titleScreen";
-import {TitleScreenState} from "../titleScreen/titleScreenState";
+import {TitleScreenState, TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
@@ -21,15 +21,49 @@ import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
 
-export type GameEngineComponentState = BattleOrchestratorState | TitleScreenState;
+export interface GameEngineState {
+    battleOrchestratorState: BattleOrchestratorState;
+    titleScreenState: TitleScreenState;
+    gameSaveFlags: {
+        errorDuringLoading: boolean;
+        loadingInProgress: boolean;
+        loadRequested: boolean;
+        errorDuringSaving: boolean;
+        savingInProgress: boolean;
+    }
+}
 
-interface GameLoadContext {
-    backupBattleOrchestratorState: BattleOrchestratorState;
+export const GameEngineStateHelper = {
+    new: ({battleOrchestratorState, titleScreenState, resourceHandler}: {
+        battleOrchestratorState?: BattleOrchestratorState;
+        titleScreenState?: TitleScreenState;
+        resourceHandler?: ResourceHandler;
+    }): GameEngineState => {
+        return {
+            battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateHelper.newOrchestratorState({
+                resourceHandler,
+            }),
+            titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
+            gameSaveFlags: {
+                errorDuringLoading: false,
+                loadingInProgress: false,
+                loadRequested: false,
+                errorDuringSaving: false,
+                savingInProgress: false,
+            },
+        }
+    },
+    clone: ({original}: { original: GameEngineState }): GameEngineState => {
+        return {
+            titleScreenState: {...original.titleScreenState},
+            battleOrchestratorState: original.battleOrchestratorState.clone(),
+            gameSaveFlags: {...original.gameSaveFlags},
+        }
+    }
 }
 
 export class GameEngine {
-    battleOrchestratorState: BattleOrchestratorState;
-    titleScreenState: TitleScreenState;
+    gameEngineState: GameEngineState;
     battleMissionLoader: GameEngineBattleMissionLoader;
     private readonly graphicsContext: GraphicsContext;
 
@@ -106,53 +140,55 @@ export class GameEngine {
     }
 
     keyPressed(keyCode: number) {
-        this.component.keyPressed(this.getComponentState(), keyCode);
+        this.component.keyPressed(this.gameEngineState, keyCode);
     }
 
     mouseClicked(mouseButton: MouseButton, mouseX: number, mouseY: number) {
-        this.component.mouseClicked(this.getComponentState(), mouseButton, mouseX, mouseY);
+        this.component.mouseClicked(this.gameEngineState, mouseButton, mouseX, mouseY);
     }
 
     mouseMoved(mouseX: number, mouseY: number) {
-        this.component.mouseMoved(this.getComponentState(), mouseX, mouseY);
+        this.component.mouseMoved(this.gameEngineState, mouseX, mouseY);
     }
 
     async update({graphicsContext}: {
         graphicsContext: GraphicsContext
     }) {
-        this.component.update(this.getComponentState(), graphicsContext);
+        this.component.update(this.gameEngineState, graphicsContext);
 
-        if (this.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress) {
+        if (this.gameEngineState.gameSaveFlags.savingInProgress) {
             this.saveGameAndDownloadFile();
         }
 
-        if (this.component.hasCompleted(this.getComponentState())) {
-            const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.getComponentState());
+        if (this.component.hasCompleted(this.gameEngineState)) {
+            const orchestrationChanges: GameEngineChanges = this.component.recommendStateChanges(this.gameEngineState);
             if (!(
                 orchestrationChanges.nextMode === GameModeEnum.LOADING_BATTLE
                 && this.currentMode === GameModeEnum.BATTLE
             )) {
-                this.component.reset(this.getComponentState());
+                this.component.reset(this.gameEngineState);
             }
             this._currentMode = orchestrationChanges.nextMode || GameModeEnum.TITLE_SCREEN;
             if (this.currentMode === GameModeEnum.TITLE_SCREEN) {
-                this.titleScreenState = new TitleScreenState({});
+                this.gameEngineState.titleScreenState = TitleScreenStateHelper.new();
             }
         }
     }
 
     private resetComponentStates(graphicsContext: GraphicsContext) {
-        this.battleOrchestratorState = this.battleOrchestrator.setup({resourceHandler: this.resourceHandler});
-        this.titleScreenState = this.titleScreen.setup();
+        this.gameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: this.battleOrchestrator.setup({resourceHandler: this.resourceHandler}),
+            titleScreenState: this.titleScreen.setup(),
+        });
     }
 
-    private getComponentState(): GameEngineComponentState {
+    private getComponentState(): BattleOrchestratorState | TitleScreenState {
         switch (this.currentMode) {
             case GameModeEnum.TITLE_SCREEN:
-                return this.titleScreenState;
+                return this.gameEngineState.titleScreenState;
             case GameModeEnum.BATTLE:
             case GameModeEnum.LOADING_BATTLE:
-                return this.battleOrchestratorState;
+                return this.gameEngineState.battleOrchestratorState;
             default:
                 throw new Error(`Cannot find component state for Game Engine mode ${this.currentMode}`);
         }
@@ -370,15 +406,15 @@ export class GameEngine {
     private saveGameAndDownloadFile() {
         const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
             saveVersion: SAVE_VERSION,
-            missionId: this.battleOrchestratorState.battleState.missionId,
-            battleOrchestratorState: this.battleOrchestratorState,
+            missionId: this.gameEngineState.battleOrchestratorState.battleState.missionId,
+            battleOrchestratorState: this.gameEngineState.battleOrchestratorState,
         });
         try {
             BattleSaveStateHandler.SaveToFile(saveData);
         } catch (error) {
             console.log(`Save game failed: ${error}`);
-            this.battleOrchestratorState.battleState.gameSaveFlags.errorDuringSaving = true;
+            this.gameEngineState.gameSaveFlags.errorDuringSaving = true;
         }
-        this.battleOrchestratorState.battleState.gameSaveFlags.savingInProgress = false;
+        this.gameEngineState.gameSaveFlags.savingInProgress = false;
     }
 }

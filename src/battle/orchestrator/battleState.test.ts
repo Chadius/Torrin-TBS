@@ -132,7 +132,6 @@ describe('Battle State', () => {
                 currentAffiliation: BattlePhase.ENEMY,
             }
         });
-        originalBattleState.gameSaveFlags.savingInProgress = true;
 
         expect(BattleStateHelper.isValid(originalBattleState)).toBeTruthy();
 
@@ -180,7 +179,6 @@ describe('Battle State', () => {
                 currentAffiliation: BattlePhase.ENEMY,
             }
         });
-        originalBattleState.gameSaveFlags.savingInProgress = true;
 
         expect(BattleStateHelper.isValid(originalBattleState)).toBeTruthy();
 

@@ -1,4 +1,3 @@
-import {BattleOrchestratorState} from "./battleOrchestratorState";
 import {UIControlSettings} from "./uiControlSettings";
 import {
     BattleOrchestratorChanges,
@@ -7,29 +6,30 @@ import {
     OrchestratorComponentMouseEvent
 } from "./battleOrchestratorComponent";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class DefaultBattleOrchestrator implements BattleOrchestratorComponent {
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         return true;
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         return {};
     }
 
-    reset(state: BattleOrchestratorState): void {
+    reset(state: GameEngineState): void {
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return undefined;
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
     }
 }

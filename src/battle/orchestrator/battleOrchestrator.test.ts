@@ -1,5 +1,5 @@
 import {BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "./battleOrchestratorState";
+import {BattleOrchestratorStateHelper} from "./battleOrchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
@@ -40,6 +40,7 @@ import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhas
 import {InitializeBattle} from "./initializeBattle";
 import {BattleStateHelper} from "./battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
+import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 
 describe('Battle Orchestrator', () => {
@@ -72,7 +73,7 @@ describe('Battle Orchestrator', () => {
     let defaultBattleOrchestrator: DefaultBattleOrchestrator;
     let mockHud: BattleSquaddieSelectedHUD;
 
-    let nullState: BattleOrchestratorState;
+    let nullState: GameEngineState;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     function setupMocks() {
@@ -169,28 +170,31 @@ describe('Battle Orchestrator', () => {
     }
 
     beforeEach(() => {
-        nullState = BattleOrchestratorStateHelper.newOrchestratorState({
-            battleSquaddieSelectedHUD: mockHud,
-            resourceHandler: undefined,
-            squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                missionMap: new MissionMap({
-                    terrainTileMap: new TerrainTileMap({
-                        movementCost: ["1 1 "]
-                    }),
-                }),
-                missionCompletionStatus: {
-                    "default": {
-                        isComplete: undefined,
-                        conditions: {}
-                    }
-                },
-                battlePhaseState: {
-                    turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
-                }
-            })
+        nullState = GameEngineStateHelper.new({
+            battleOrchestratorState:
+                BattleOrchestratorStateHelper.newOrchestratorState({
+                    battleSquaddieSelectedHUD: mockHud,
+                    resourceHandler: undefined,
+                    squaddieRepository: undefined,
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 "]
+                            }),
+                        }),
+                        missionCompletionStatus: {
+                            "default": {
+                                isComplete: undefined,
+                                conditions: {}
+                            }
+                        },
+                        battlePhaseState: {
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.UNKNOWN,
+                        }
+                    })
+                })
         });
         setupMocks();
     });
@@ -245,26 +249,28 @@ describe('Battle Orchestrator', () => {
             turn: 0,
         }
 
-        const turn0State = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: undefined,
-            resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                missionMap: new MissionMap({
-                    terrainTileMap: new TerrainTileMap({
-                        movementCost: ["1 1 "]
+        const turn0State: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                squaddieRepository: undefined,
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    missionMap: new MissionMap({
+                        terrainTileMap: new TerrainTileMap({
+                            movementCost: ["1 1 "]
+                        }),
                     }),
-                }),
-                cutsceneCollection,
-                objectives: [],
-                cutsceneTriggers: [
-                    turn0CutsceneTrigger
-                ],
-                battlePhaseState: {
-                    turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
-                }
+                    cutsceneCollection,
+                    objectives: [],
+                    cutsceneTriggers: [
+                        turn0CutsceneTrigger
+                    ],
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    }
+                })
             })
         });
 
@@ -285,25 +291,27 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
 
-        const stateWithCutscene = BattleOrchestratorStateHelper.newOrchestratorState({
-            resourceHandler: nullState.resourceHandler,
-            squaddieRepository: new BattleSquaddieRepository(),
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection,
-                cutsceneTriggers: [
-                    {
-                        cutsceneId: "starting",
-                        turn: 0,
-                        triggeringEvent: TriggeringEvent.START_OF_TURN,
-                        systemReactedToTrigger: false,
-                    },
-                ],
-                battlePhaseState: {
-                    turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
-                }
+        const stateWithCutscene: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                resourceHandler: nullState.battleOrchestratorState.resourceHandler,
+                squaddieRepository: new BattleSquaddieRepository(),
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    cutsceneCollection,
+                    cutsceneTriggers: [
+                        {
+                            cutsceneId: "starting",
+                            turn: 0,
+                            triggeringEvent: TriggeringEvent.START_OF_TURN,
+                            systemReactedToTrigger: false,
+                        },
+                    ],
+                    battlePhaseState: {
+                        turnCount: 0,
+                        currentAffiliation: BattlePhase.UNKNOWN,
+                    }
+                })
             })
         });
 
@@ -323,39 +331,42 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.UNKNOWN,
         });
 
-        const stateWithCutscene = BattleOrchestratorStateHelper.newOrchestratorState({
-            resourceHandler: nullState.resourceHandler,
-            squaddieRepository: new BattleSquaddieRepository(),
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection,
-                cutsceneTriggers: [
-                    {
-                        cutsceneId: "starting",
-                        turn: 0,
-                        triggeringEvent: TriggeringEvent.START_OF_TURN,
-                        systemReactedToTrigger: false,
-                    },
-                    {
-                        cutsceneId: "next scene",
-                        turn: 1,
-                        triggeringEvent: TriggeringEvent.START_OF_TURN,
-                        systemReactedToTrigger: false,
-                    },
-                    {
-                        cutsceneId: "victory",
-                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
-                        systemReactedToTrigger: false,
-                    },
-                ],
-                battlePhaseState: {
-                    turnCount: 0,
-                    currentAffiliation: BattlePhase.UNKNOWN,
-                }
-            })
+        const stateWithCutscene: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState:
+                BattleOrchestratorStateHelper.newOrchestratorState({
+                    resourceHandler: nullState.battleOrchestratorState.resourceHandler,
+                    squaddieRepository: new BattleSquaddieRepository(),
+                    battleSquaddieSelectedHUD: undefined,
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                        cutsceneCollection,
+                        cutsceneTriggers: [
+                            {
+                                cutsceneId: "starting",
+                                turn: 0,
+                                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                                systemReactedToTrigger: false,
+                            },
+                            {
+                                cutsceneId: "next scene",
+                                turn: 1,
+                                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                                systemReactedToTrigger: false,
+                            },
+                            {
+                                cutsceneId: "victory",
+                                triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                                systemReactedToTrigger: false,
+                            },
+                        ],
+                        battlePhaseState: {
+                            turnCount: 0,
+                            currentAffiliation: BattlePhase.UNKNOWN,
+                        }
+                    })
+                })
         });
-        stateWithCutscene.battleState.gameSaveFlags.loadingInProgress = true;
+        stateWithCutscene.gameSaveFlags.loadingInProgress = true;
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
@@ -378,7 +389,7 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.PHASE_CONTROLLER,
         });
 
-        nullState.battleState.squaddieCurrentlyActing =
+        nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
             {
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: {
@@ -389,7 +400,7 @@ describe('Battle Orchestrator', () => {
                 },
                 currentlySelectedAction: undefined,
             };
-        SquaddieActionsForThisRoundHandler.addAction(nullState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
+        SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 1, r: 2},
@@ -409,16 +420,16 @@ describe('Battle Orchestrator', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
         });
-        nullState.squaddieRepository = new BattleSquaddieRepository();
+        nullState.battleOrchestratorState.squaddieRepository = new BattleSquaddieRepository();
         CreateNewSquaddieAndAddToRepository({
             name: "new static squaddie",
             templateId: "new static squaddie",
             battleId: "new dynamic squaddie",
             affiliation: SquaddieAffiliation.PLAYER,
-            squaddieRepository: nullState.squaddieRepository,
+            squaddieRepository: nullState.battleOrchestratorState.squaddieRepository,
         });
 
-        nullState.battleState.squaddieCurrentlyActing =
+        nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
             {
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: {
@@ -430,7 +441,7 @@ describe('Battle Orchestrator', () => {
                 currentlySelectedAction: undefined,
             };
 
-        SquaddieActionsForThisRoundHandler.addAction(nullState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
+        SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
             {
                 type: SquaddieActionType.MOVEMENT,
                 data: {
@@ -546,9 +557,9 @@ describe('Battle Orchestrator', () => {
         let cutscenePlayer: BattleCutscenePlayer;
         let missionObjectiveCompleteCheck: jest.SpyInstance;
 
-        let victoryState: BattleOrchestratorState;
-        let defeatState: BattleOrchestratorState;
-        let victoryAndDefeatState: BattleOrchestratorState;
+        let victoryState: GameEngineState;
+        let defeatState: GameEngineState;
+        let victoryAndDefeatState: GameEngineState;
 
         beforeEach(() => {
             mockCutscene = new Cutscene({});
@@ -560,135 +571,145 @@ describe('Battle Orchestrator', () => {
             });
             cutscenePlayer = new BattleCutscenePlayer();
 
-            victoryState = BattleOrchestratorStateHelper.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
-                squaddieRepository: undefined,
-                resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                    missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
-                            movementCost: ["1 1 "]
-                        }),
-                    }),
-                    objectives: [
-                        MissionObjectiveHelper.validateMissionObjective({
-                            id: "test",
-                            reward: {rewardType: MissionRewardType.VICTORY},
-                            numberOfRequiredConditionsToComplete: 1,
-                            hasGivenReward: false,
-                            conditions: [
-                                {
+            victoryState = GameEngineStateHelper.new({
+                battleOrchestratorState:
+                    BattleOrchestratorStateHelper.newOrchestratorState({
+                        battleSquaddieSelectedHUD: mockHud,
+                        squaddieRepository: undefined,
+                        resourceHandler: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
+                            missionMap: new MissionMap({
+                                terrainTileMap: new TerrainTileMap({
+                                    movementCost: ["1 1 "]
+                                }),
+                            }),
+                            objectives: [
+                                MissionObjectiveHelper.validateMissionObjective({
                                     id: "test",
-                                    type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                                }
+                                    reward: {rewardType: MissionRewardType.VICTORY},
+                                    numberOfRequiredConditionsToComplete: 1,
+                                    hasGivenReward: false,
+                                    conditions: [
+                                        {
+                                            id: "test",
+                                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                        }
+                                    ],
+                                })
                             ],
-                        })
-                    ],
-                    cutsceneCollection,
-                    cutsceneTriggers: [
-                        {
-                            cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                            triggeringEvent: TriggeringEvent.MISSION_VICTORY,
-                            systemReactedToTrigger: false,
-                        },
-                    ],
-                    battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
-                    battlePhaseState: {
-                        turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
-                    },
-                }),
+                            cutsceneCollection,
+                            cutsceneTriggers: [
+                                {
+                                    cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+                                    triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                                    systemReactedToTrigger: false,
+                                },
+                            ],
+                            battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
+                            battlePhaseState: {
+                                turnCount: 0,
+                                currentAffiliation: BattlePhase.UNKNOWN,
+                            },
+                        }),
+                    })
             });
 
-            defeatState = BattleOrchestratorStateHelper.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
-                squaddieRepository: undefined,
-                resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                    missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
-                            movementCost: ["1 1 "]
-                        }),
-                    }),
-                    objectives: [
-                        MissionObjectiveHelper.validateMissionObjective({
-                            id: "test",
-                            reward: {rewardType: MissionRewardType.DEFEAT},
-                            numberOfRequiredConditionsToComplete: 1,
-                            hasGivenReward: false,
-                            conditions: [{
-                                id: "test",
-                                type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                            }],
+            defeatState = GameEngineStateHelper.new({
+                battleOrchestratorState:
+                    BattleOrchestratorStateHelper.newOrchestratorState({
+                        battleSquaddieSelectedHUD: mockHud,
+                        squaddieRepository: undefined,
+                        resourceHandler: undefined,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
+                            missionMap: new MissionMap({
+                                terrainTileMap: new TerrainTileMap({
+                                    movementCost: ["1 1 "]
+                                }),
+                            }),
+                            objectives: [
+                                MissionObjectiveHelper.validateMissionObjective({
+                                    id: "test",
+                                    reward: {rewardType: MissionRewardType.DEFEAT},
+                                    numberOfRequiredConditionsToComplete: 1,
+                                    hasGivenReward: false,
+                                    conditions: [{
+                                        id: "test",
+                                        type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                                    }],
+                                })
+                            ],
+                            cutsceneCollection,
+                            cutsceneTriggers: [
+                                {
+                                    cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+                                    triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                                    systemReactedToTrigger: false,
+                                },
+                            ],
+                            battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
+                            battlePhaseState: {
+                                turnCount: 0,
+                                currentAffiliation: BattlePhase.UNKNOWN,
+                            },
                         })
-                    ],
-                    cutsceneCollection,
-                    cutsceneTriggers: [
-                        {
-                            cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-                            triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
-                            systemReactedToTrigger: false,
-                        },
-                    ],
-                    battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
-                    battlePhaseState: {
-                        turnCount: 0,
-                        currentAffiliation: BattlePhase.UNKNOWN,
-                    },
-                })
+                    })
             });
 
-            victoryAndDefeatState = BattleOrchestratorStateHelper.newOrchestratorState({
-                battleSquaddieSelectedHUD: mockHud,
-                squaddieRepository: undefined,
-                resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                    missionMap: new MissionMap({
-                        terrainTileMap: new TerrainTileMap({
-                            movementCost: ["1 1 "]
-                        }),
-                    }),
-                    objectives: [
-                        MissionObjectiveHelper.validateMissionObjective({
-                            id: "test",
-                            reward: {rewardType: MissionRewardType.VICTORY},
-                            numberOfRequiredConditionsToComplete: 1,
-                            hasGivenReward: false,
-                            conditions: [{
-                                id: "test",
-                                type: MissionConditionType.DEFEAT_ALL_ENEMIES,
-                            }],
-                        }),
-                        MissionObjectiveHelper.validateMissionObjective({
-                            id: "test1",
-                            reward: {rewardType: MissionRewardType.DEFEAT},
-                            numberOfRequiredConditionsToComplete: 1,
-                            hasGivenReward: false,
-                            conditions: [{
-                                id: "test",
-                                type: MissionConditionType.DEFEAT_ALL_PLAYERS,
-                            }],
+            victoryAndDefeatState =
+                GameEngineStateHelper.new({
+                    battleOrchestratorState:
+                        BattleOrchestratorStateHelper.newOrchestratorState({
+                            battleSquaddieSelectedHUD: mockHud,
+                            squaddieRepository: undefined,
+                            resourceHandler: undefined,
+                            battleState: BattleStateHelper.newBattleState({
+                                missionId: "test mission",
+                                missionMap: new MissionMap({
+                                    terrainTileMap: new TerrainTileMap({
+                                        movementCost: ["1 1 "]
+                                    }),
+                                }),
+                                objectives: [
+                                    MissionObjectiveHelper.validateMissionObjective({
+                                        id: "test",
+                                        reward: {rewardType: MissionRewardType.VICTORY},
+                                        numberOfRequiredConditionsToComplete: 1,
+                                        hasGivenReward: false,
+                                        conditions: [{
+                                            id: "test",
+                                            type: MissionConditionType.DEFEAT_ALL_ENEMIES,
+                                        }],
+                                    }),
+                                    MissionObjectiveHelper.validateMissionObjective({
+                                        id: "test1",
+                                        reward: {rewardType: MissionRewardType.DEFEAT},
+                                        numberOfRequiredConditionsToComplete: 1,
+                                        hasGivenReward: false,
+                                        conditions: [{
+                                            id: "test",
+                                            type: MissionConditionType.DEFEAT_ALL_PLAYERS,
+                                        }],
+                                    })
+                                ],
+                                cutsceneCollection,
+                                cutsceneTriggers: [
+                                    {
+                                        cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
+                                        triggeringEvent: TriggeringEvent.MISSION_VICTORY,
+                                        systemReactedToTrigger: false,
+                                    },
+                                    {
+                                        cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
+                                        triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
+                                        systemReactedToTrigger: false,
+                                    },
+                                ],
+                                battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
+                            })
                         })
-                    ],
-                    cutsceneCollection,
-                    cutsceneTriggers: [
-                        {
-                            cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-                            triggeringEvent: TriggeringEvent.MISSION_VICTORY,
-                            systemReactedToTrigger: false,
-                        },
-                        {
-                            cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-                            triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
-                            systemReactedToTrigger: false,
-                        },
-                    ],
-                    battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
-                })
-            });
+                });
 
             orchestrator = createOrchestrator({
                 initialMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
@@ -699,7 +720,7 @@ describe('Battle Orchestrator', () => {
         });
 
         it('will check for victory conditions once the squaddie finishes moving', () => {
-            expect(victoryState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+            expect(victoryState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
             orchestrator.update(victoryState, mockedP5GraphicsContext);
             expect(cutscenePlayer.hasCompleted(victoryState)).toBeTruthy();
@@ -707,13 +728,13 @@ describe('Battle Orchestrator', () => {
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
-            expect(victoryState.battleState.cutsceneTriggers[0].systemReactedToTrigger).toBeTruthy();
+            expect(victoryState.battleOrchestratorState.battleState.cutsceneTriggers[0].systemReactedToTrigger).toBeTruthy();
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
             expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
 
             orchestrator.update(victoryState, mockedP5GraphicsContext);
             expect(cutscenePlayer.hasCompleted(victoryState)).toBeTruthy();
-            expect(victoryState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.VICTORY);
+            expect(victoryState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.VICTORY);
         });
 
         it('will mark the battle as complete once the victory cutscene ends', () => {
@@ -736,7 +757,7 @@ describe('Battle Orchestrator', () => {
         });
 
         it('will check for defeat conditions once the squaddie finishes moving', () => {
-            expect(defeatState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+            expect(defeatState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
             orchestrator.update(defeatState, mockedP5GraphicsContext);
             expect(cutscenePlayer.hasCompleted(defeatState)).toBeTruthy();
@@ -744,13 +765,13 @@ describe('Battle Orchestrator', () => {
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
-            expect(defeatState.battleState.cutsceneTriggers[0].systemReactedToTrigger).toBeTruthy();
+            expect(defeatState.battleOrchestratorState.battleState.cutsceneTriggers[0].systemReactedToTrigger).toBeTruthy();
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
             expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
 
             orchestrator.update(defeatState, mockedP5GraphicsContext);
             expect(cutscenePlayer.hasCompleted(defeatState)).toBeTruthy();
-            expect(defeatState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.DEFEAT);
+            expect(defeatState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.DEFEAT);
         });
 
         it('will mark the battle as complete once the defeat cutscene ends', () => {
@@ -773,7 +794,7 @@ describe('Battle Orchestrator', () => {
         });
 
         it('if you trigger victory and defeat, defeat takes precedence', () => {
-            expect(victoryAndDefeatState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
+            expect(victoryAndDefeatState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
 
             orchestrator.update(victoryAndDefeatState, mockedP5GraphicsContext);
             expect(cutscenePlayer.hasCompleted(victoryAndDefeatState)).toBeTruthy();
@@ -781,13 +802,13 @@ describe('Battle Orchestrator', () => {
             expect(missionObjectiveCompleteCheck).toBeCalled();
 
             expect(cutscenePlayer.currentCutscene).toBe(mockCutscene);
-            expect(victoryAndDefeatState.battleState.cutsceneTriggers[1].systemReactedToTrigger).toBeTruthy();
+            expect(victoryAndDefeatState.battleOrchestratorState.battleState.cutsceneTriggers[1].systemReactedToTrigger).toBeTruthy();
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.CUTSCENE_PLAYER);
             expect(orchestrator.getCurrentComponent()).toBe(cutscenePlayer);
 
             orchestrator.update(victoryAndDefeatState, mockedP5GraphicsContext);
             expect(cutscenePlayer.hasCompleted(victoryAndDefeatState)).toBeTruthy();
-            expect(victoryAndDefeatState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.DEFEAT);
+            expect(victoryAndDefeatState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.DEFEAT);
         });
     });
 
@@ -845,13 +866,15 @@ describe('Battle Orchestrator', () => {
             squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
             component: BattleOrchestratorComponent
         ) => {
-            const stateWantsToDisplayTheMap: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-                squaddieRepository: undefined,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                }),
-                resourceHandler: undefined,
-                battleSquaddieSelectedHUD: undefined,
+            const stateWantsToDisplayTheMap: GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                    squaddieRepository: undefined,
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                    }),
+                    resourceHandler: undefined,
+                    battleSquaddieSelectedHUD: undefined,
+                })
             });
 
             squaddieSelectorOrchestratorShouldDisplayMap.mouseMoved(stateWantsToDisplayTheMap, 0, 0);
@@ -892,48 +915,54 @@ describe('Battle Orchestrator', () => {
 
             mockPlayerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: false}));
 
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
-                squaddieRepository: undefined,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                }),
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                resourceHandler: undefined,
+            const state: GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                    squaddieRepository: undefined,
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                    }),
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    resourceHandler: undefined,
+                })
             });
 
             orchestrator = createOrchestrator({
                 playerSquaddieSelector: mockPlayerSquaddieSelector,
                 initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
             });
-            expect(state.battleState.missionStatistics.timeElapsedInMilliseconds).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBeUndefined();
 
             orchestrator.update(state, mockedP5GraphicsContext);
 
-            expect(state.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+            expect(state.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);
             orchestrator.update(state, mockedP5GraphicsContext);
-            expect(state.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+            expect(state.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);
 
             expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
             expect(orchestrator.getCurrentComponent()).toBe(mockPlayerSquaddieSelector);
             jest.spyOn(Date, "now").mockReturnValue(0);
             orchestrator.update(state, mockedP5GraphicsContext);
-            expect(state.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);
+            expect(state.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(0);
 
             jest.spyOn(Date, "now").mockReturnValue(100);
             orchestrator.update(state, mockedP5GraphicsContext);
-            expect(state.battleState.missionStatistics.timeElapsedInMilliseconds).toBeGreaterThan(0);
+            expect(state.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBeGreaterThan(0);
         });
         const expectKeyEventsWillGoToMapDisplay = (
             squaddieSelectorOrchestratorShouldDisplayMap: BattleOrchestrator,
             component: BattleOrchestratorComponent
         ) => {
-            const stateWantsToDisplayTheMap: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                }),
-                resourceHandler: undefined,
-                battleSquaddieSelectedHUD: undefined,
-                squaddieRepository: undefined,
+            const stateWantsToDisplayTheMap
+                : GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState:
+                    BattleOrchestratorStateHelper.newOrchestratorState({
+                        battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
+                        }),
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        squaddieRepository: undefined,
+                    })
             });
 
             squaddieSelectorOrchestratorShouldDisplayMap.keyPressed(stateWantsToDisplayTheMap, 0);
@@ -951,15 +980,17 @@ describe('Battle Orchestrator', () => {
             initialMode: BattleOrchestratorMode.CUTSCENE_PLAYER,
         });
 
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-            }),
-            resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: undefined,
+        const state: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                }),
+                resourceHandler: undefined,
+                battleSquaddieSelectedHUD: undefined,
+                squaddieRepository: undefined,
+            })
         });
-        state.battleState.gameSaveFlags.loadRequested = true;
+        state.gameSaveFlags.loadRequested = true;
 
         orchestrator.update(state, mockedP5GraphicsContext);
         expect(orchestrator.hasCompleted(state)).toBeTruthy();

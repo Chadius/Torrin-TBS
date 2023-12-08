@@ -1,7 +1,7 @@
-import {TitleScreenState} from "./titleScreenState";
+import {TitleScreenState, TitleScreenStateHelper} from "./titleScreenState";
 import {GameEngineChanges, GameEngineComponent} from "../gameEngine/gameEngineComponent";
 import {MouseButton} from "../utils/mouseConfig";
-import {GameEngineComponentState} from "../gameEngine/gameEngine";
+import {GameEngineState} from "../gameEngine/gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
 import {LabelHelper} from "../ui/label";
 import {Button, ButtonStatus} from "../ui/button";
@@ -22,6 +22,13 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
+import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/battleSquaddieSelectedHUD";
+
+enum TitleScreenMenuSelection {
+    NONE = "NONE",
+    NEW_GAME = "NEW_GAME",
+    CONTINUE_GAME = "CONTINUE_GAME",
+}
 
 const colors = {
     background: [73, 10, 46],
@@ -43,7 +50,10 @@ const resourceKeys: string[] = [
 
 export class TitleScreen implements GameEngineComponent {
     startLoadingResources: boolean;
-    private playButton: Button;
+    continueGameButton: Button;
+    continueGameButtonLabel: string;
+    errorDuringLoadingDisplayStartTimestamp: number;
+    menuSelection: TitleScreenMenuSelection;
     private byLine: TextBox;
     private titleText: TextBox;
     private gameDescription: TextBox;
@@ -56,8 +66,8 @@ export class TitleScreen implements GameEngineComponent {
     private sirCamilIcon: ImageUI;
     private sirCamilIconArea: RectArea;
     private sirCamilDescriptionText: TextBox;
-    private _showingLoadingMessage: boolean;
-    private playButtonLabel: string;
+    private startNewGameButton: Button;
+    private startNewGameButtonLabel: string;
 
     constructor({
                     resourceHandler
@@ -74,51 +84,54 @@ export class TitleScreen implements GameEngineComponent {
         return this._resourceHandler;
     }
 
-    private _newGameSelected: boolean;
-
     get newGameSelected(): boolean {
-        return this._newGameSelected;
+        return this.menuSelection === TitleScreenMenuSelection.NEW_GAME;
     }
 
-    update(state: TitleScreenState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (this.startLoadingResources === false) {
             this.loadResourcesFromHandler();
         }
         this.draw(state, graphicsContext);
     }
 
-    keyPressed(state: TitleScreenState, keyCode: number): void {
+    keyPressed(state: GameEngineState, keyCode: number): void {
         if (KeyWasPressed(KeyButtonName.ACCEPT, keyCode)) {
-            this.playButton.onClickHandler(0, 0, this.playButton, this);
+            this.startNewGameButton.onClickHandler(0, 0, this.startNewGameButton, this);
         }
     }
 
-    mouseClicked(state: TitleScreenState, mouseButton: MouseButton, mouseX: number, mouseY: number): void {
-        this.playButton.mouseClicked(mouseX, mouseY, this);
+    mouseClicked(state: GameEngineState, mouseButton: MouseButton, mouseX: number, mouseY: number): void {
+        this.startNewGameButton.mouseClicked(mouseX, mouseY, this);
+        this.continueGameButton.mouseClicked(mouseX, mouseY, this);
     }
 
-    mouseMoved(state: TitleScreenState, mouseX: number, mouseY: number): void {
+    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void {
     }
 
-    hasCompleted(state: TitleScreenState): boolean {
-        return this.newGameSelected === true;
+    hasCompleted(state: GameEngineState): boolean {
+        return this.menuSelection !== TitleScreenMenuSelection.NONE;
     }
 
-    reset(state: TitleScreenState): void {
+    reset(state: GameEngineState): void {
         this.resetInternalState();
     }
 
     setup(): TitleScreenState {
-        return new TitleScreenState({});
+        return TitleScreenStateHelper.new();
     }
 
-    recommendStateChanges(state: GameEngineComponentState): GameEngineChanges | undefined {
+    recommendStateChanges(state: GameEngineState): GameEngineChanges | undefined {
         return {
             nextMode: GameModeEnum.LOADING_BATTLE,
         }
     }
 
-    private draw(state: TitleScreenState, graphicsContext: GraphicsContext) {
+    markGameToBeLoaded(state: GameEngineState): void {
+        state.gameSaveFlags.loadRequested = true;
+    }
+
+    private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
         RectangleHelper.draw(this.lazyLoadBackground(), graphicsContext);
         this.drawTitleBanner(graphicsContext);
 
@@ -126,15 +139,9 @@ export class TitleScreen implements GameEngineComponent {
         TextBoxHelper.draw(this.lazyLoadByLine(), graphicsContext);
         TextBoxHelper.draw(this.lazyLoadGameDescription(), graphicsContext);
 
-        this.updatePlayButton(graphicsContext).draw(graphicsContext);
-        if (this._showingLoadingMessage) {
-            this._newGameSelected = true;
-        }
+        this.updateStartGameButton(graphicsContext).draw(graphicsContext);
+        this.updateContinueGameButton(state, graphicsContext).draw(graphicsContext);
         this.drawCharacterIntroductions(state, graphicsContext);
-    }
-
-    private loadGameAndComplete() {
-        this._showingLoadingMessage = true;
     }
 
     private resetInternalState() {
@@ -153,11 +160,12 @@ export class TitleScreen implements GameEngineComponent {
         }
 
         this.titleBanner = undefined;
-        this.playButton = undefined;
+        this.startNewGameButton = undefined;
+        this.continueGameButton = undefined;
         this.byLine = undefined;
         this.titleText = undefined;
-        this._showingLoadingMessage = false;
-        this._newGameSelected = false;
+        this.menuSelection = TitleScreenMenuSelection.NONE;
+        this.errorDuringLoadingDisplayStartTimestamp = undefined;
     }
 
     private drawTitleBanner(graphicsContext: GraphicsContext) {
@@ -262,7 +270,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.gameDescription;
     }
 
-    private updatePlayButton(graphicsContext: GraphicsContext) {
+    private updateStartGameButton(graphicsContext: GraphicsContext) {
         const windowIsTooSmall: boolean = graphicsContext.windowWidth() < ScreenDimensions.SCREEN_WIDTH
             || graphicsContext.windowHeight() < ScreenDimensions.SCREEN_HEIGHT;
 
@@ -270,29 +278,29 @@ export class TitleScreen implements GameEngineComponent {
             ? ScreenDimensions.SCREEN_WIDTH
             : graphicsContext.windowWidth();
 
-        this.playButtonLabel = "";
-        const playButtonHasBeenClicked: boolean = this.playButton && this.playButton.getStatus() === ButtonStatus.ACTIVE;
+        this.startNewGameButtonLabel = "";
+        const playButtonHasBeenClicked: boolean = this.startNewGameButton && this.startNewGameButton.getStatus() === ButtonStatus.ACTIVE;
         let changePlayButtonLabel: boolean = false;
         let buttonTextSize = WINDOW_SPACING4;
         if (windowIsTooSmall) {
             buttonTextSize = buttonWidth / 35;
-            this.playButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
+            this.startNewGameButtonLabel = `Set browser window size to ${ScreenDimensions.SCREEN_WIDTH}x${ScreenDimensions.SCREEN_HEIGHT}\n currently ${graphicsContext.windowWidth()}x${graphicsContext.windowHeight()}`;
 
             const buttonTextMinimumSize = 18;
             if (buttonTextSize < buttonTextMinimumSize) {
                 buttonTextSize = buttonTextMinimumSize;
-                this.playButtonLabel = "Window is too small";
+                this.startNewGameButtonLabel = "Window is too small";
             }
             changePlayButtonLabel = true;
         } else if (
             !windowIsTooSmall
             && !playButtonHasBeenClicked
-            && this.playButtonLabel !== "Click here to Play Demo"
+            && this.startNewGameButtonLabel !== "Click here to Play Demo"
         ) {
-            this.playButtonLabel = "Click here to Play Demo";
+            this.startNewGameButtonLabel = "Click here to Play Demo";
             changePlayButtonLabel = true;
-        } else if (this.playButton === undefined) {
-            this.playButtonLabel = "Click here to Play Demo";
+        } else if (this.startNewGameButton === undefined) {
+            this.startNewGameButtonLabel = "Click here to Play Demo";
             changePlayButtonLabel = true;
         }
 
@@ -307,8 +315,8 @@ export class TitleScreen implements GameEngineComponent {
             bottom: ScreenDimensions.SCREEN_HEIGHT,
         })
 
-        if (this.playButton === undefined || changePlayButtonLabel) {
-            this.playButton = new Button({
+        if (this.startNewGameButton === undefined || changePlayButtonLabel) {
+            this.startNewGameButton = new Button({
                 activeLabel: LabelHelper.new({
                     text: "Now loading...",
                     fillColor: colors.playButtonActive,
@@ -321,7 +329,7 @@ export class TitleScreen implements GameEngineComponent {
                     strokeColor: colors.playButtonStroke,
                 }),
                 readyLabel: LabelHelper.new({
-                    text: this.playButtonLabel,
+                    text: this.startNewGameButtonLabel,
                     fillColor: colors.playButton,
                     area: buttonArea,
                     textSize: buttonTextSize,
@@ -333,14 +341,91 @@ export class TitleScreen implements GameEngineComponent {
                 }),
                 initialStatus: ButtonStatus.READY,
                 onClickHandler(mouseX: number, mouseY: number, button: Button, caller: TitleScreen): {} {
-                    caller.loadGameAndComplete();
-                    button.setStatus(ButtonStatus.ACTIVE);
+                    if (caller.menuSelection === TitleScreenMenuSelection.NONE) {
+                        caller.menuSelection = TitleScreenMenuSelection.NEW_GAME;
+                        button.setStatus(ButtonStatus.ACTIVE);
+                    }
                     return;
                 }
             })
         }
 
-        return this.playButton;
+        return this.startNewGameButton;
+    }
+
+    private updateContinueGameButton(state: GameEngineState, graphicsContext: GraphicsContext) {
+        let newButtonLabel: string;
+        newButtonLabel = "Continue";
+        if (state.gameSaveFlags.loadRequested) {
+            newButtonLabel = "Now loading...";
+        }
+
+        if (
+            state.gameSaveFlags.errorDuringLoading
+        ) {
+            newButtonLabel = 'Loading failed. Check logs.';
+            this.continueGameButton.buttonStatus = ButtonStatus.READY;
+            state.gameSaveFlags.errorDuringLoading = false;
+            this.errorDuringLoadingDisplayStartTimestamp = Date.now();
+        } else if (
+            this.errorDuringLoadingDisplayStartTimestamp !== undefined
+            && Date.now() - this.errorDuringLoadingDisplayStartTimestamp < FILE_MESSAGE_DISPLAY_DURATION
+        ) {
+            newButtonLabel = 'Loading failed. Check logs.';
+        }
+
+        let changePlayButtonLabel: boolean = (newButtonLabel !== this.continueGameButtonLabel);
+        if (changePlayButtonLabel) {
+            this.continueGameButtonLabel = newButtonLabel;
+        }
+        let buttonTextSize = WINDOW_SPACING2;
+
+        const playButtonHorizontalAlignment = HORIZ_ALIGN_CENTER;
+
+        const buttonArea = RectAreaHelper.new({
+            left: ScreenDimensions.SCREEN_WIDTH * 3 / 4,
+            width: ScreenDimensions.SCREEN_WIDTH / 4,
+            top: ScreenDimensions.SCREEN_HEIGHT * 0.7,
+            bottom: ScreenDimensions.SCREEN_HEIGHT * 0.8,
+        })
+
+        if (this.continueGameButton === undefined || changePlayButtonLabel) {
+            this.continueGameButton = new Button({
+                activeLabel: LabelHelper.new({
+                    text: "Now loading...",
+                    fillColor: colors.playButtonActive,
+                    area: buttonArea,
+                    textSize: buttonTextSize,
+                    fontColor: colors.playButtonText,
+                    padding: WINDOW_SPACING1,
+                    horizAlign: HORIZ_ALIGN_CENTER,
+                    vertAlign: VERT_ALIGN_CENTER,
+                    strokeColor: colors.playButtonStroke,
+                }),
+                readyLabel: LabelHelper.new({
+                    text: this.continueGameButtonLabel,
+                    fillColor: colors.playButton,
+                    area: buttonArea,
+                    textSize: buttonTextSize,
+                    fontColor: colors.playButtonText,
+                    padding: WINDOW_SPACING1,
+                    horizAlign: playButtonHorizontalAlignment,
+                    vertAlign: VERT_ALIGN_CENTER,
+                    strokeColor: colors.playButtonStroke,
+                }),
+                initialStatus: ButtonStatus.READY,
+                onClickHandler(mouseX: number, mouseY: number, button: Button, caller: TitleScreen): {} {
+                    if (caller.menuSelection === TitleScreenMenuSelection.NONE) {
+                        caller.menuSelection = TitleScreenMenuSelection.CONTINUE_GAME;
+                        caller.markGameToBeLoaded(state);
+                        button.setStatus(ButtonStatus.ACTIVE);
+                    }
+                    return;
+                }
+            })
+        }
+
+        return this.continueGameButton;
     }
 
     private lazyLoadBackground() {
@@ -372,7 +457,7 @@ export class TitleScreen implements GameEngineComponent {
         return this.resourceHandler.areAllResourcesLoaded(resourceKeys);
     }
 
-    private drawCharacterIntroductions(state: TitleScreenState, graphicsContext: GraphicsContext) {
+    private drawCharacterIntroductions(state: GameEngineState, graphicsContext: GraphicsContext) {
         if (this.torrinIcon === undefined) {
             this.createPlaceholderTorrinIconArea();
         }

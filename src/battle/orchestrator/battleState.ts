@@ -35,13 +35,6 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     squaddieMovePath?: SearchPath;
     camera: BattleCamera;
     recording: Recording;
-    gameSaveFlags: {
-        errorDuringLoading: boolean;
-        errorDuringSaving: boolean;
-        loadingInProgress: boolean;
-        savingInProgress: boolean;
-        loadRequested: boolean;
-    }
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
     squaddieCurrentlyActing: SquaddieInstructionInProgress;
@@ -158,7 +151,6 @@ const newBattleState = ({
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
-        gameSaveFlags: {...gameSaveFlags},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
         squaddieCurrentlyActing: squaddieCurrentlyActing || {
             movingBattleSquaddieIds: [],

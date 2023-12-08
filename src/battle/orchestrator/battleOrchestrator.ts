@@ -19,7 +19,7 @@ import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {GameEngineChanges, GameEngineComponent} from "../../gameEngine/gameEngineComponent";
 import {MouseButton} from "../../utils/mouseConfig";
-import {GameEngineComponentState} from "../../gameEngine/gameEngine";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
@@ -115,8 +115,8 @@ export class BattleOrchestrator implements GameEngineComponent {
         return this._uiControlSettings;
     }
 
-    recommendStateChanges(state: GameEngineComponentState): GameEngineChanges {
-        if ((state as BattleOrchestratorState).battleState.gameSaveFlags.loadRequested) {
+    recommendStateChanges(state: GameEngineState): GameEngineChanges {
+        if (state.gameSaveFlags.loadRequested) {
             return {
                 nextMode: GameModeEnum.LOADING_BATTLE
             };
@@ -156,8 +156,8 @@ export class BattleOrchestrator implements GameEngineComponent {
         return this.mode;
     }
 
-    public update(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
-        if ((state as BattleOrchestratorState).battleState.gameSaveFlags.loadRequested) {
+    public update(state: GameEngineState, graphicsContext: GraphicsContext) {
+        if (state.gameSaveFlags.loadRequested) {
             return;
         }
 
@@ -198,12 +198,12 @@ export class BattleOrchestrator implements GameEngineComponent {
                 break;
         }
 
-        if (!MissionStatisticsHandler.hasStarted(state.battleState.missionStatistics)) {
-            MissionStatisticsHandler.startRecording(state.battleState.missionStatistics);
+        if (!MissionStatisticsHandler.hasStarted(state.battleOrchestratorState.battleState.missionStatistics)) {
+            MissionStatisticsHandler.startRecording(state.battleOrchestratorState.battleState.missionStatistics);
         } else if (this.uiControlSettings.pauseTimer === false) {
             if (this.previousUpdateTimestamp != undefined) {
                 MissionStatisticsHandler.addTimeElapsed(
-                    state.battleState.missionStatistics,
+                    state.battleOrchestratorState.battleState.missionStatistics,
                     Date.now() - this.previousUpdateTimestamp,
                 );
             }
@@ -211,15 +211,15 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public updateComponent(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, graphicsContext: GraphicsContext, defaultNextMode: BattleOrchestratorMode) {
+    public updateComponent(state: GameEngineState, currentComponent: BattleOrchestratorComponent, graphicsContext: GraphicsContext, defaultNextMode: BattleOrchestratorMode) {
         currentComponent.update(state, graphicsContext);
         const newUIControlSettingsChanges = currentComponent.uiControlSettings(state);
         this.uiControlSettings.update(newUIControlSettingsChanges);
 
         if (currentComponent.hasCompleted(state)) {
             if (
-                state.battleState.battleCompletionStatus === BattleCompletionStatus.VICTORY
-                || state.battleState.battleCompletionStatus === BattleCompletionStatus.DEFEAT
+                state.battleOrchestratorState.battleState.battleCompletionStatus === BattleCompletionStatus.VICTORY
+                || state.battleOrchestratorState.battleState.battleCompletionStatus === BattleCompletionStatus.DEFEAT
             ) {
                 this._battleComplete = true;
             }
@@ -229,7 +229,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public mouseClicked(state: BattleOrchestratorState, mouseButton: MouseButton, mouseX: number, mouseY: number) {
+    public mouseClicked(state: GameEngineState, mouseButton: MouseButton, mouseX: number, mouseY: number) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -248,7 +248,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public mouseMoved(state: BattleOrchestratorState, mouseX: number, mouseY: number) {
+    public mouseMoved(state: GameEngineState, mouseX: number, mouseY: number) {
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.MOVED,
             mouseX,
@@ -264,7 +264,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    public keyPressed(state: BattleOrchestratorState, keyCode: number) {
+    public keyPressed(state: GameEngineState, keyCode: number) {
         const keyEvent: OrchestratorComponentKeyEvent = {
             eventType: OrchestratorComponentKeyEventType.PRESSED,
             keyCode,
@@ -278,11 +278,11 @@ export class BattleOrchestrator implements GameEngineComponent {
         }
     }
 
-    hasCompleted(state: GameEngineComponentState): boolean {
-        return this.battleComplete || (state as BattleOrchestratorState).battleState.gameSaveFlags.loadRequested;
+    hasCompleted(state: GameEngineState): boolean {
+        return this.battleComplete || state.gameSaveFlags.loadRequested;
     }
 
-    reset(state: GameEngineComponentState): void {
+    reset(state: GameEngineState): void {
         [
             this.cutscenePlayer,
             this.playerSquaddieSelector,
@@ -295,12 +295,12 @@ export class BattleOrchestrator implements GameEngineComponent {
             this.squaddieUsesActionOnSquaddie,
         ].filter((component: BattleOrchestratorComponent) => component)
             .forEach((component: BattleOrchestratorComponent) => {
-                component.reset(state as BattleOrchestratorState);
+                component.reset(state);
             });
 
         this.resetInternalState();
 
-        const squaddieRepo = (state as BattleOrchestratorState).squaddieRepository;
+        const squaddieRepo = state.battleOrchestratorState.squaddieRepository;
         if (squaddieRepo) {
             squaddieRepo.reset();
         }
@@ -314,18 +314,18 @@ export class BattleOrchestrator implements GameEngineComponent {
         return BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler});
     }
 
-    private setNextComponentMode(state: BattleOrchestratorState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
+    private setNextComponentMode(state: GameEngineState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
         const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
-        let cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(state, this.mode);
+        let cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(state.battleOrchestratorState, this.mode);
 
         if (orchestrationChanges.checkMissionObjectives === true) {
-            let completionStatus: BattleCompletionStatus = this.checkMissionCompleteStatus(state);
+            let completionStatus: BattleCompletionStatus = this.checkMissionCompleteStatus(state.battleOrchestratorState);
             if (completionStatus) {
-                state.battleState.battleCompletionStatus = completionStatus;
+                state.battleOrchestratorState.battleState.battleCompletionStatus = completionStatus;
             }
         }
 
-        if (state.battleState.gameSaveFlags.loadingInProgress === true && state.battleState.battlePhaseState.turnCount === 0) {
+        if (state.gameSaveFlags.loadingInProgress === true && state.battleOrchestratorState.battleState.battlePhaseState.turnCount === 0) {
             cutsceneTriggersToActivate = cutsceneTriggersToActivate.filter((cutsceneTrigger) =>
                 cutsceneTrigger.triggeringEvent !== TriggeringEvent.START_OF_TURN
                 || cutsceneTrigger.turn !== 0
@@ -334,7 +334,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (cutsceneTriggersToActivate.length > 0) {
             const nextCutscene = cutsceneTriggersToActivate[0];
-            this.cutscenePlayer.startCutscene(nextCutscene.cutsceneId, state);
+            this.cutscenePlayer.startCutscene(nextCutscene.cutsceneId, state.battleOrchestratorState);
             nextCutscene.systemReactedToTrigger = true;
             this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER;
             return;
@@ -361,7 +361,7 @@ export class BattleOrchestrator implements GameEngineComponent {
         return undefined;
     }
 
-    private displayBattleMap(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private displayBattleMap(state: GameEngineState, graphicsContext: GraphicsContext) {
         this.mapDisplay.update(state, graphicsContext);
     }
 

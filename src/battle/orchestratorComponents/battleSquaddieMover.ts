@@ -24,6 +24,7 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -32,20 +33,20 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         this.animationStartTime = undefined;
     }
 
-    hasCompleted(state: BattleOrchestratorState): boolean {
-        if (state.battleState.squaddieMovePath === undefined) {
+    hasCompleted(state: GameEngineState): boolean {
+        if (state.battleOrchestratorState.battleState.squaddieMovePath === undefined) {
             return true;
         }
-        return this.animationStartTime && hasMovementAnimationFinished(this.animationStartTime, state.battleState.squaddieMovePath);
+        return this.animationStartTime && hasMovementAnimationFinished(this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath);
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
     }
 
-    keyEventHappened(state: BattleOrchestratorState, event: OrchestratorComponentKeyEvent): void {
+    keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
     }
 
-    uiControlSettings(state: BattleOrchestratorState): UIControlSettings {
+    uiControlSettings(state: GameEngineState): UIControlSettings {
         return new UIControlSettings({
             scrollCamera: false,
             displayMap: true,
@@ -53,56 +54,56 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         });
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (!this.animationStartTime) {
             this.animationStartTime = Date.now();
 
             if (
-                state.battleState.squaddieCurrentlyActing
-                && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
-                && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type
+                state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+                && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
+                && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type
                 === SquaddieActionType.MOVEMENT
             ) {
                 SquaddieInstructionInProgressHandler.markBattleSquaddieIdAsMoving(
-                    state.battleState.squaddieCurrentlyActing,
-                    SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+                    state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
+                    SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
                 );
             }
         }
 
-        if (!hasMovementAnimationFinished(this.animationStartTime, state.battleState.squaddieMovePath)) {
-            this.updateWhileAnimationIsInProgress(state, graphicsContext);
+        if (!hasMovementAnimationFinished(this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath)) {
+            this.updateWhileAnimationIsInProgress(state.battleOrchestratorState, graphicsContext);
         } else {
-            this.updateWhenAnimationCompletes(state, graphicsContext);
+            this.updateWhenAnimationCompletes(state.battleOrchestratorState, graphicsContext);
         }
     }
 
-    recommendStateChanges(state: BattleOrchestratorState): BattleOrchestratorChanges | undefined {
+    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         return {
             displayMap: true,
             checkMissionObjectives: true,
         }
     }
 
-    reset(state: BattleOrchestratorState) {
-        state.battleState.squaddieMovePath = undefined;
+    reset(state: GameEngineState) {
+        state.battleOrchestratorState.battleState.squaddieMovePath = undefined;
         this.animationStartTime = undefined;
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
 
         if (
-            state.battleState.squaddieCurrentlyActing
-            && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
-            && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+            && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
+            && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type
             === SquaddieActionType.MOVEMENT
         ) {
             SquaddieInstructionInProgressHandler.removeBattleSquaddieIdAsMoving(
-                state.battleState.squaddieCurrentlyActing,
-                SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+                state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
+                SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
             );
         }
 
-        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
-        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
+        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
+        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
     }
 
     private updateWhileAnimationIsInProgress(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {

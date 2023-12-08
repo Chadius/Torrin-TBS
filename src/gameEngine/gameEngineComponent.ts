@@ -1,5 +1,5 @@
 import {MouseButton} from "../utils/mouseConfig";
-import {GameEngineComponentState} from "./gameEngine";
+import {GameEngineState} from "./gameEngine";
 import {GameModeEnum} from "../utils/startupConfig";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 
@@ -8,17 +8,17 @@ export type GameEngineChanges = {
 }
 
 export interface GameEngineComponent {
-    update(state: GameEngineComponentState, graphicsContext: GraphicsContext): void;
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void;
 
-    keyPressed(state: GameEngineComponentState, keyCode: number): void;
+    keyPressed(state: GameEngineState, keyCode: number): void;
 
-    mouseClicked(state: GameEngineComponentState, mouseButton: MouseButton, mouseX: number, mouseY: number): void;
+    mouseClicked(state: GameEngineState, mouseButton: MouseButton, mouseX: number, mouseY: number): void;
 
-    mouseMoved(state: GameEngineComponentState, mouseX: number, mouseY: number): void;
+    mouseMoved(state: GameEngineState, mouseX: number, mouseY: number): void;
 
-    hasCompleted(state: GameEngineComponentState): boolean;
+    hasCompleted(state: GameEngineState): boolean;
 
-    recommendStateChanges(state: GameEngineComponentState): GameEngineChanges | undefined;
+    recommendStateChanges(state: GameEngineState): GameEngineChanges | undefined;
 
-    reset(state: GameEngineComponentState): void;
+    reset(state: GameEngineState): void;
 }

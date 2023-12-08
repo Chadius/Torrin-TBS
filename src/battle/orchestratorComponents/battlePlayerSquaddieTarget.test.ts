@@ -7,7 +7,7 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinateToKey} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
@@ -34,6 +34,7 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
@@ -49,7 +50,7 @@ describe('BattleSquaddieTarget', () => {
     let longswordActionId: "longsword";
     let bandageWoundsAction: SquaddieAction;
     let bandageWoundsActionId: "bandage wounds";
-    let state: BattleOrchestratorState;
+    let state: GameEngineState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -155,25 +156,27 @@ describe('BattleSquaddieTarget', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        state = BattleOrchestratorStateHelper.newOrchestratorState({
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            battleState: BattleStateHelper.newBattleState({
-                missionId: "test mission",
-                missionMap: battleMap,
-                squaddieCurrentlyActing: currentInstruction,
-                recording: {history: []},
-            }),
-            squaddieRepository: squaddieRepo,
-            resourceHandler: mockResourceHandler,
+        state = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleState: BattleStateHelper.newBattleState({
+                    missionId: "test mission",
+                    missionMap: battleMap,
+                    squaddieCurrentlyActing: currentInstruction,
+                    recording: {history: []},
+                }),
+                squaddieRepository: squaddieRepo,
+                resourceHandler: mockResourceHandler,
+            })
         });
     });
 
     function clickOnThief() {
-        const {mapLocation} = state.battleState.missionMap.getSquaddieByBattleId(thiefDynamic.battleSquaddieId);
+        const {mapLocation} = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(thiefDynamic.battleSquaddieId);
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
             mapLocation.q,
             mapLocation.r,
-            ...state.battleState.camera.getCoordinates()
+            ...state.battleOrchestratorState.battleState.camera.getCoordinates()
         );
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -185,11 +188,11 @@ describe('BattleSquaddieTarget', () => {
     }
 
     function clickOnCitizen() {
-        const {mapLocation} = state.battleState.missionMap.getSquaddieByBattleId(citizenDynamic.battleSquaddieId);
+        const {mapLocation} = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(citizenDynamic.battleSquaddieId);
         const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(
             mapLocation.q,
             mapLocation.r,
-            ...state.battleState.camera.getCoordinates()
+            ...state.battleOrchestratorState.battleState.camera.getCoordinates()
         );
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -257,7 +260,7 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-            expect(state.battleState.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
         });
     });
 
@@ -268,7 +271,7 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleState.squaddieCurrentlyActing = {
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = {
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
@@ -279,11 +282,11 @@ describe('BattleSquaddieTarget', () => {
             currentlySelectedAction: undefined,
         };
 
-        SquaddieInstructionInProgressHandler.addSelectedAction(state.battleState.squaddieCurrentlyActing, longswordAction);
+        SquaddieInstructionInProgressHandler.addSelectedAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, longswordAction);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
-        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.battleState.squaddieCurrentlyActing)).toBeFalsy();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('should remember the squaddie is still acting if they cancel midway through their turn', () => {
@@ -293,7 +296,7 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleState.squaddieCurrentlyActing = {
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = {
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: {
                 battleSquaddieId: knightDynamic.battleSquaddieId,
@@ -304,22 +307,22 @@ describe('BattleSquaddieTarget', () => {
             currentlySelectedAction: undefined,
         };
 
-        SquaddieActionsForThisRoundHandler.addAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
+        SquaddieActionsForThisRoundHandler.addAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
             type: SquaddieActionType.MOVEMENT,
             data: {
                 destination: {q: 0, r: 1},
                 numberOfActionPointsSpent: 1,
             }
         });
-        SquaddieInstructionInProgressHandler.addSelectedAction(state.battleState.squaddieCurrentlyActing, longswordAction);
+        SquaddieInstructionInProgressHandler.addSelectedAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, longswordAction);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
-        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.battleState.squaddieCurrentlyActing)).toBeTruthy();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)).toBeFalsy();
+        expect(SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
     });
 
     it('should ignore if the user does not click off of the map', () => {
-        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(battleMap.terrainTileMap.getDimensions().numberOfRows + 1, 0, ...state.battleState.camera.getCoordinates());
+        const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(battleMap.terrainTileMap.getDimensions().numberOfRows + 1, 0, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
         const mouseEvent: OrchestratorComponentMouseEvent = {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
             mouseX,
@@ -332,7 +335,10 @@ describe('BattleSquaddieTarget', () => {
     });
 
     it('should ignore if the target is out of range', () => {
-        state.battleState.missionMap.updateSquaddieLocation(thiefDynamic.battleSquaddieId, {q: 0, r: 0});
+        state.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(thiefDynamic.battleSquaddieId, {
+            q: 0,
+            r: 0
+        });
         targetComponent.update(state, mockedP5GraphicsContext);
         clickOnThief();
         expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
@@ -361,7 +367,7 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
-            expect(state.battleState.squaddieCurrentlyActing.currentlySelectedAction).toEqual(longswordAction);
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedAction).toEqual(longswordAction);
         });
     });
 
@@ -378,16 +384,18 @@ describe('BattleSquaddieTarget', () => {
                 movingBattleSquaddieIds: [],
             };
 
-            state = BattleOrchestratorStateHelper.newOrchestratorState({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                    missionMap: battleMap,
-                    squaddieCurrentlyActing: currentInstruction,
-                    recording: {history: []}
-                }),
-                resourceHandler: mockResourceHandler,
-                squaddieRepository: squaddieRepo,
+            state = GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                        missionMap: battleMap,
+                        squaddieCurrentlyActing: currentInstruction,
+                        recording: {history: []}
+                    }),
+                    resourceHandler: mockResourceHandler,
+                    squaddieRepository: squaddieRepo,
+                })
             });
 
             targetComponent.update(state, mockedP5GraphicsContext);
@@ -423,7 +431,7 @@ describe('BattleSquaddieTarget', () => {
                 }
             });
 
-            expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
         });
 
         it('should be completed', () => {
@@ -446,7 +454,7 @@ describe('BattleSquaddieTarget', () => {
 
     describe('confirming an action mid turn', () => {
         beforeEach(() => {
-            state.battleState.squaddieCurrentlyActing = {
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = {
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: {
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
@@ -480,7 +488,7 @@ describe('BattleSquaddieTarget', () => {
                 }
             });
 
-            expect(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
         });
 
         it('should spend the action resource cost after confirming but before showing results', () => {
@@ -492,8 +500,8 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should add the results to the history', () => {
-            expect(state.battleState.recording.history).toHaveLength(1);
-            const mostRecentEvent: BattleEvent = state.battleState.recording.history[0];
+            expect(state.battleOrchestratorState.battleState.recording.history).toHaveLength(1);
+            const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
             expect(mostRecentEvent.instruction.squaddieActionsForThisRound.actions).toHaveLength(1);
             expect((
                 mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0].data as SquaddieSquaddieActionData
@@ -506,7 +514,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should store the calculated results', () => {
-            const mostRecentEvent: BattleEvent = state.battleState.recording.history[0];
+            const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
             const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[thiefDynamic.battleSquaddieId];
             expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordAction.damageDescriptions[DamageType.Body]);
 
@@ -557,15 +565,17 @@ describe('BattleSquaddieTarget', () => {
                 movingBattleSquaddieIds: [],
             };
 
-            state = BattleOrchestratorStateHelper.newOrchestratorState({
-                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                resourceHandler: mockResourceHandler,
-                squaddieRepository: squaddieRepo,
-                battleState: BattleStateHelper.newBattleState({
-                    missionId: "test mission",
-                    squaddieCurrentlyActing: currentInstruction,
-                    missionMap: battleMap,
-                }),
+            state = GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                    battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                    resourceHandler: mockResourceHandler,
+                    squaddieRepository: squaddieRepo,
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                        squaddieCurrentlyActing: currentInstruction,
+                        missionMap: battleMap,
+                    }),
+                })
             });
 
             targetComponent.update(state, mockedP5GraphicsContext);
