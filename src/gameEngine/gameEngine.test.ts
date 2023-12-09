@@ -196,5 +196,14 @@ describe('Game Engine', () => {
             newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
             expect(newGameEngine.gameEngineState.battleOrchestratorState.battleState.objectives[0].id).toBe("test");
         });
+        it('loader will go to the previous mode upon completion', async () => {
+            const loaderUpdateSpy = jest.spyOn(newGameEngine.component, "update").mockImplementation(() => {
+            });
+            const loaderCompletedSpy = jest.spyOn(newGameEngine.component, "hasCompleted").mockReturnValue(true);
+            await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});
+            expect(loaderUpdateSpy).toBeCalled();
+            expect(loaderCompletedSpy).toBeCalled();
+            expect(newGameEngine.gameEngineState.modeThatInitiatedLoading).toBe(GameModeEnum.BATTLE);
+        });
     });
 });

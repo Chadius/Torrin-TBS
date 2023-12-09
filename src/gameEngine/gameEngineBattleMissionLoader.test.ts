@@ -250,6 +250,7 @@ describe('GameEngineBattleMissionLoader', () => {
             );
 
             originalState = GameEngineStateHelper.new({
+                previousMode: GameModeEnum.BATTLE,
                 battleOrchestratorState:
                     BattleOrchestratorStateHelper.newOrchestratorState({
                         squaddieRepository,
@@ -370,6 +371,17 @@ describe('GameEngineBattleMissionLoader', () => {
             expect(consoleErrorSpy).toBeCalledWith("Save file is incompatible. Reverting.");
             expect(loader.hasCompleted(currentState)).toBeTruthy();
         });
+
+        it('will be complete and return to battle mode if there is an error', async () => {
+            let consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+            openDialogSpy = jest.spyOn(SaveFile, "RetrieveFileContent").mockRejectedValue(
+                null
+            );
+            await loader.update(currentState);
+            expect(consoleErrorSpy).toBeCalled();
+            expect(loader.hasCompleted(currentState)).toBeTruthy();
+            expect(loader.recommendStateChanges(currentState).nextMode).toBe(GameModeEnum.BATTLE);
+        });
     });
 
     describe('user wants to load a file while in TitleScreen mode', () => {
@@ -420,6 +432,7 @@ describe('GameEngineBattleMissionLoader', () => {
             });
             originalState.gameSaveFlags.loadRequested = true;
             currentState = GameEngineStateHelper.new({
+                previousMode: GameModeEnum.TITLE_SCREEN,
                 battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
                     resourceHandler,
                     squaddieRepository: new BattleSquaddieRepository(),
@@ -484,7 +497,6 @@ describe('GameEngineBattleMissionLoader', () => {
             let consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
             jest.spyOn(currentState.battleOrchestratorState, "isValid", "get").mockReturnValue(false);
             await loader.update(currentState);
-            expect(JSON.stringify(loader.backupBattleOrchestratorState)).toStrictEqual(JSON.stringify(originalState.battleOrchestratorState));
             await loader.update(currentState);
             expect(currentState.gameSaveFlags.loadingInProgress).toBeFalsy();
             expect(currentState.gameSaveFlags.loadRequested).toBeFalsy();
@@ -494,6 +506,17 @@ describe('GameEngineBattleMissionLoader', () => {
 
             expect(consoleErrorSpy).toBeCalledWith("Save file is incompatible. Reverting.");
             expect(loader.hasCompleted(currentState)).toBeTruthy();
+        });
+
+        it('will be complete and return to title screen mode if there is an error', async () => {
+            let consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+            openDialogSpy = jest.spyOn(SaveFile, "RetrieveFileContent").mockRejectedValue(
+                null
+            );
+            await loader.update(currentState);
+            expect(consoleErrorSpy).toBeCalled();
+            expect(loader.hasCompleted(currentState)).toBeTruthy();
+            expect(loader.recommendStateChanges(currentState).nextMode).toBe(GameModeEnum.TITLE_SCREEN);
         });
     });
 

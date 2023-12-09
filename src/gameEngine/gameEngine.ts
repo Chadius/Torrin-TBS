@@ -22,6 +22,7 @@ import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
 
 export interface GameEngineState {
+    modeThatInitiatedLoading: GameModeEnum;
     battleOrchestratorState: BattleOrchestratorState;
     titleScreenState: TitleScreenState;
     gameSaveFlags: {
@@ -34,12 +35,14 @@ export interface GameEngineState {
 }
 
 export const GameEngineStateHelper = {
-    new: ({battleOrchestratorState, titleScreenState, resourceHandler}: {
+    new: ({battleOrchestratorState, titleScreenState, resourceHandler, previousMode}: {
         battleOrchestratorState?: BattleOrchestratorState;
         titleScreenState?: TitleScreenState;
         resourceHandler?: ResourceHandler;
+        previousMode?: GameModeEnum;
     }): GameEngineState => {
         return {
+            modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
             battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateHelper.newOrchestratorState({
                 resourceHandler,
             }),
@@ -55,6 +58,7 @@ export const GameEngineStateHelper = {
     },
     clone: ({original}: { original: GameEngineState }): GameEngineState => {
         return {
+            modeThatInitiatedLoading: original.modeThatInitiatedLoading,
             titleScreenState: {...original.titleScreenState},
             battleOrchestratorState: original.battleOrchestratorState.clone(),
             gameSaveFlags: {...original.gameSaveFlags},
@@ -168,6 +172,11 @@ export class GameEngine {
             )) {
                 this.component.reset(this.gameEngineState);
             }
+
+            if (orchestrationChanges.nextMode === GameModeEnum.LOADING_BATTLE) {
+                this.gameEngineState.modeThatInitiatedLoading = this.currentMode;
+            }
+
             this._currentMode = orchestrationChanges.nextMode || GameModeEnum.TITLE_SCREEN;
             if (this.currentMode === GameModeEnum.TITLE_SCREEN) {
                 this.gameEngineState.titleScreenState = TitleScreenStateHelper.new();

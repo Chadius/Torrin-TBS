@@ -29,8 +29,9 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         if (this.missionLoaderStatus.completionProgress.started !== true) {
             this.backupBattleOrchestratorState = state.battleOrchestratorState.clone();
 
-            const errorFound: Error = await this.loadBattleSaveStateFromFile(state);
-            if (errorFound) {
+            try {
+                await this.loadBattleSaveStateFromFile(state);
+            } catch {
                 return;
             }
 
@@ -79,6 +80,11 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
     }
 
     recommendStateChanges(state: GameEngineState): GameEngineChanges | undefined {
+        if (this.errorFoundWhileLoading) {
+            return {
+                nextMode: state.modeThatInitiatedLoading !== GameModeEnum.UNKNOWN ? state.modeThatInitiatedLoading : GameModeEnum.TITLE_SCREEN,
+            }
+        }
         return {
             nextMode: GameModeEnum.BATTLE,
         }
@@ -195,7 +201,6 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             return;
         }
 
-        let errorFound: Error = undefined;
         try {
             this.loadedBattleSaveState = await SaveFile.RetrieveFileContent();
         } catch (e) {
@@ -204,9 +209,9 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             this.errorFoundWhileLoading = true;
             console.error("Failed to load progress file from storage.");
             console.error(e);
-            errorFound = e;
+            return e;
         }
 
-        return errorFound;
+        return undefined;
     }
 }

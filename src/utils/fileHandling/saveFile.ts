@@ -38,6 +38,9 @@ async function OpenFileDialogToSelectAFile() {
             };
             reader.readAsText(file, 'UTF-8');
         }
+        input.oncancel = e => {
+            reject("user canceled");
+        }
         input.click();
     });
 }
