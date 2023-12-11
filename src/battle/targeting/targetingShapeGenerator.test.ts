@@ -4,13 +4,13 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 describe('Targeting Shape Generator', () => {
     it('generates a Snake Shape when requested', () => {
-        const snake: SnakeShapeGenerator = getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake));
+        const snake: SnakeShapeGenerator = getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE));
         expect(snake).toBeInstanceOf(SnakeShapeGenerator);
     });
 
     it('throws an error when asked to generate an unknown Shape', () => {
         const shouldThrowError = () => {
-            getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Unknown));
+            getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.UNKNOWN));
         }
 
         expect(() => {

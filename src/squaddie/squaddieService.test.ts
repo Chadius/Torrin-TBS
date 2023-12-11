@@ -113,7 +113,7 @@ describe('Squaddie Service', () => {
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,
                 damage: 1,
-                damageType: DamageType.Body,
+                damageType: DamageType.BODY,
             });
             expect(damageTaken).toBe(1);
 
@@ -133,14 +133,14 @@ describe('Squaddie Service', () => {
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,
                 damage: 2,
-                damageType: DamageType.Body,
+                damageType: DamageType.BODY,
             });
 
             let {healingReceived} = GiveHealingToTheSquaddie({
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,
                 healingAmount: 1,
-                healingType: HealingType.LostHitPoints,
+                healingType: HealingType.LOST_HIT_POINTS,
             });
             expect(healingReceived).toBe(1);
 
@@ -159,7 +159,7 @@ describe('Squaddie Service', () => {
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,
                 healingAmount: 9001,
-                healingType: HealingType.LostHitPoints,
+                healingType: HealingType.LOST_HIT_POINTS,
             }));
             expect(healingReceived).toBe(1);
 
@@ -188,7 +188,7 @@ describe('Squaddie Service', () => {
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,
                 damage: playerDynamic.inBattleAttributes.currentHitPoints * 2,
-                damageType: DamageType.Body,
+                damageType: DamageType.BODY,
             });
 
             const squaddieIsAlive = IsSquaddieAlive({
@@ -233,7 +233,7 @@ describe('Squaddie Service', () => {
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,
                 damage: playerDynamic.inBattleAttributes.currentHitPoints * 2,
-                damageType: DamageType.Body,
+                damageType: DamageType.BODY,
             });
 
             let {
@@ -298,7 +298,7 @@ describe('Squaddie Service', () => {
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,
                 damage: playerDynamic.inBattleAttributes.currentHitPoints * 2,
-                damageType: DamageType.Body,
+                damageType: DamageType.BODY,
             });
 
             let {

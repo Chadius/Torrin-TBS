@@ -88,7 +88,7 @@ describe('BattleComputerSquaddieSelector', () => {
             maximumRange: 1,
             actionPointCost: 2,
             damageDescriptions: {
-                [DamageType.Body]: 2,
+                [DamageType.BODY]: 2,
             },
         });
 
@@ -103,7 +103,7 @@ describe('BattleComputerSquaddieSelector', () => {
             maximumRange: 1,
             actionPointCost: 3,
             damageDescriptions: {
-                [DamageType.Body]: 2,
+                [DamageType.BODY]: 2,
             },
         });
 
@@ -119,7 +119,7 @@ describe('BattleComputerSquaddieSelector', () => {
             maximumRange: 1,
             actionPointCost: 3,
             damageDescriptions: {
-                [DamageType.Body]: 20,
+                [DamageType.BODY]: 20,
             },
         });
 
@@ -591,13 +591,13 @@ describe('BattleComputerSquaddieSelector', () => {
             it('should store the calculated results', () => {
                 const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
                 const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[enemyDemonDynamic2.battleSquaddieId];
-                expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(demonBiteAction.damageDescriptions[DamageType.Body]);
+                expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(demonBiteAction.damageDescriptions[DamageType.BODY]);
 
                 const {maxHitPoints, currentHitPoints} = GetHitPoints({
                     squaddieTemplate: enemyDemonStatic,
                     battleSquaddie: enemyDemonDynamic2
                 });
-                expect(currentHitPoints).toBe(maxHitPoints - demonBiteAction.damageDescriptions[DamageType.Body]);
+                expect(currentHitPoints).toBe(maxHitPoints - demonBiteAction.damageDescriptions[DamageType.BODY]);
             });
         });
     });

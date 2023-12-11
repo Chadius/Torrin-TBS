@@ -38,7 +38,7 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
                     crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
                     canStopOnSquaddies: false,
                     ignoreTerrainPenalty: false,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                 },
                 stopCondition: {
                     stopLocation: undefined,

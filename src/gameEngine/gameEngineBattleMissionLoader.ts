@@ -1,7 +1,7 @@
 import {GameEngineState} from "./gameEngine";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
-import {MissionLoader, MissionLoaderStatus} from "../battle/loading/missionLoader";
+import {MissionLoader, MissionLoaderContext} from "../battle/loading/missionLoader";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../battle/orchestrator/uiControlSettings";
 import {GameModeEnum} from "../utils/startupConfig";
@@ -13,9 +13,10 @@ import {TintSquaddieIfTurnIsComplete} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattleCameraHelper} from "../battle/battleCamera";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
-    missionLoaderStatus: MissionLoaderStatus;
+    missionLoaderStatus: MissionLoaderContext;
     appliedResources: boolean;
     backupBattleOrchestratorState: BattleOrchestratorState;
     loadedBattleSaveState: BattleSaveState;
@@ -131,7 +132,11 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         battleOrchestratorState.battleState.cutsceneCollection = this.missionLoaderStatus.cutsceneInfo.cutsceneCollection;
         battleOrchestratorState.battleState.cutsceneTriggers = [...this.missionLoaderStatus.cutsceneInfo.cutsceneTriggers];
         battleOrchestratorState.battleState.teamsByAffiliation = {...this.missionLoaderStatus.squaddieData.teamsByAffiliation};
-        battleOrchestratorState.battleState.teamStrategyByAffiliation = {...this.missionLoaderStatus.squaddieData.teamStrategyByAffiliation};
+
+        const team = this.missionLoaderStatus.squaddieData.teamsByAffiliation[SquaddieAffiliation.ENEMY];
+        const teamStrategies = this.missionLoaderStatus.squaddieData.teamStrategyByName[team.name];
+        battleOrchestratorState.battleState.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY] = [...teamStrategies];
+
         battleOrchestratorState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
         battleOrchestratorState.battleState.camera = BattleCameraHelper.clone({original: this.missionLoaderStatus.mapSettings.camera});
 
@@ -154,9 +159,10 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     private async loadMissionDataFromFile(battleOrchestratorState: BattleOrchestratorState) {
         await MissionLoader.loadMissionFromFile({
-            missionLoaderStatus: this.missionLoaderStatus,
+            missionLoaderContext: this.missionLoaderStatus,
             missionId: "0000",
             resourceHandler: battleOrchestratorState.resourceHandler,
+            squaddieRepository: battleOrchestratorState.squaddieRepository,
         }).then(() => {
             MissionLoader.loadMissionFromHardcodedData({
                 missionLoaderStatus: this.missionLoaderStatus,

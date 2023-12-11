@@ -109,7 +109,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             maximumRange: 1,
             actionPointCost: 3,
             damageDescriptions: {
-                [DamageType.Body]: 9001,
+                [DamageType.BODY]: 9001,
             },
         });
 
@@ -273,7 +273,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         InBattleAttributesHandler.takeDamage(
             targetDynamic.inBattleAttributes,
-            targetStatic.attributes.maxHitPoints, DamageType.Body
+            targetStatic.attributes.maxHitPoints, DamageType.BODY
         );
         expect(IsSquaddieAlive({battleSquaddie: targetDynamic, squaddieTemplate: targetStatic})).toBeFalsy();
 

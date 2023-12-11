@@ -124,7 +124,7 @@ export const CreateNewThiefSquaddie: (
         maximumRange: 1,
         actionPointCost: 1,
         damageDescriptions: {
-            [DamageType.Body]: 1,
+            [DamageType.BODY]: 1,
         },
     });
 
@@ -191,7 +191,7 @@ export const CreateNewKnightSquaddie: (
         maximumRange: 1,
         actionPointCost: 1,
         damageDescriptions: {
-            [DamageType.Body]: 2,
+            [DamageType.BODY]: 2,
         },
     });
 
@@ -207,7 +207,7 @@ export const CreateNewKnightSquaddie: (
         maximumRange: 1,
         actionPointCost: 3,
         damageDescriptions: {
-            [DamageType.Body]: 9001,
+            [DamageType.BODY]: 9001,
         },
     });
 

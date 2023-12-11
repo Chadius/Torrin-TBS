@@ -92,7 +92,7 @@ describe('pathfinder and squaddies', () => {
                         },
                         movement: {
                             movementPerAction: 3,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: false,
@@ -300,7 +300,7 @@ describe('pathfinder and squaddies', () => {
                     },
                     movement: {
                         movementPerAction: 10,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: 0,
                         canStopOnSquaddies: true,
@@ -362,7 +362,7 @@ describe('pathfinder and squaddies', () => {
                     },
                     movement: {
                         movementPerAction: 10,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: false,
@@ -436,7 +436,7 @@ describe('pathfinder and squaddies', () => {
             squaddieTemplate: enemyStatic,
             battleSquaddie: enemyDynamic,
             damage: enemyDynamic.inBattleAttributes.currentHitPoints,
-            damageType: DamageType.Body,
+            damageType: DamageType.BODY,
         });
 
         const searchResults: ResultOrError<SearchResults, Error> = Pathfinder.findPathToStopLocation(
@@ -448,7 +448,7 @@ describe('pathfinder and squaddies', () => {
                     },
                     movement: {
                         movementPerAction: 10,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: false,
@@ -546,7 +546,7 @@ describe('pathfinder and squaddies', () => {
                         },
                         movement: {
                             movementPerAction: 2,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: false,

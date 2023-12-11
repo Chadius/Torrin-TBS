@@ -8,7 +8,7 @@ export class ActionRange {
     }) {
         this._minimumRange = options.minimumRange;
         this._maximumRange = options.maximumRange;
-        this._targetingShape = options.targetingShape ?? TargetingShape.Snake;
+        this._targetingShape = options.targetingShape ?? TargetingShape.SNAKE;
     }
 
     private _minimumRange: number | undefined;

@@ -25,7 +25,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
     }
 
     DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
-        if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
+        if (!this.desiredBattleSquaddieId && (!this.desiredAffiliation || this.desiredAffiliation === SquaddieAffiliation.UNKNOWN)) {
             throw new Error("Target Squaddie In Range strategy has no target");
         }
 
@@ -89,8 +89,8 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
         if (this.desiredAffiliation !== SquaddieAffiliation.UNKNOWN) {
             const squaddiesOfDesiredAffiliation = targetingResults.battleSquaddieIdsInRange.filter((battleId) => {
-                const {squaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId))
-                return squaddieTemplate.squaddieId.affiliation === this.desiredAffiliation
+                const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId))
+                return targetSquaddieTemplate.squaddieId.affiliation === this.desiredAffiliation;
             });
 
             if (squaddiesOfDesiredAffiliation.length === 0) {

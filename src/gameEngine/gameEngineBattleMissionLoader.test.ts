@@ -27,6 +27,8 @@ import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAn
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {GameEngineState, GameEngineStateHelper} from "./gameEngine";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {TestMissionData} from "../utils/test/missionData";
 
 describe('GameEngineBattleMissionLoader', () => {
     let loader: GameEngineBattleMissionLoader;
@@ -55,60 +57,27 @@ describe('GameEngineBattleMissionLoader', () => {
             })
         });
 
-        missionData = {
-            "id": "test mission",
-            "terrain": [
-                "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
-                " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
-                "  x x x x 2 2 1 1 1 1 1 2 2 1 1 1 1 ",
-                "   x x x x x x x x x x x x x x 1 1 1 ",
-                "    1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
-                "     1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
-                "      1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 ",
-                "       1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 1 ",
-                "        x x x x x x x x x x x 2 1 1 1 1 1 ",
-                "         1 1 1 1 1 1 x 2 2 2 1 1 1 1 2 2 2 ",
-                "          1 1 1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 ",
-                "           1 1 1 1 x 2 1 1 1 2 2 2 1 1 1 1 2 ",
-                "            1 1 1 x 2 1 1 1 1 O O 1 1 1 1 1 2 ",
-                "             1 1 1 x 2 1 1 1 O O O 1 1 1 1 1 2 ",
-                "              1 1 1 x 2 1 1 1 O O 1 1 1 1 1 1 2 ",
-                "               1 1 1 x 2 1 1 1 1 1 1 1 1 1 1 2 x ",
-                "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
-                "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 "
-            ],
-            "objectives": [
-                {
-                    "id": "victory",
-                    "reward": {
-                        "rewardType": MissionRewardType.VICTORY
-                    },
-                    "hasGivenReward": false,
-                    "conditions": [
-                        {
-                            "id": "defeat_all_enemies",
-                            "type": MissionConditionType.DEFEAT_ALL_ENEMIES
-                        }
-                    ],
-                    "numberOfRequiredConditionsToComplete": "all"
-                },
-                {
-                    "id": "defeat",
-                    "reward": {
-                        "rewardType": MissionRewardType.DEFEAT
-                    },
-                    "hasGivenReward": false,
-                    "conditions": [
-                        {
-                            "id": "defeat_all_players",
-                            "type": MissionConditionType.DEFEAT_ALL_PLAYERS
-                        }
-                    ],
-                    "numberOfRequiredConditionsToComplete": "all"
-                }
-            ],
-        }
-        missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(missionData);
+        let enemyDemonSlitherTemplate: SquaddieTemplate;
+        let enemyDemonSlitherTemplate2: SquaddieTemplate;
+        ({
+            missionData,
+            enemyDemonSlitherTemplate,
+            enemyDemonSlitherTemplate2,
+        } = TestMissionData());
+
+        missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockImplementation(async (filename: string): Promise<MissionFileFormat | SquaddieTemplate> => {
+            if (filename === "assets/mission/0000.json") {
+                return missionData;
+            }
+
+            if (filename === "assets/npcData/templates/enemy_demon_slither.json") {
+                return enemyDemonSlitherTemplate;
+            }
+
+            if (filename === "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json") {
+                return enemyDemonSlitherTemplate2;
+            }
+        });
     });
 
     it('asks the mission loader to load the mission', async () => {
@@ -193,6 +162,10 @@ describe('GameEngineBattleMissionLoader', () => {
             expect(state.battleOrchestratorState.squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
             expect(Object.keys(state.battleOrchestratorState.battleState.teamsByAffiliation).length).toBeGreaterThan(0);
             expect(Object.keys(state.battleOrchestratorState.battleState.teamStrategyByAffiliation).length).toBeGreaterThan(0);
+            expect(state.battleOrchestratorState.battleState.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY]).toEqual(
+                missionData.enemy.teams[0].strategies
+            );
+
             expect(Object.keys(state.battleOrchestratorState.squaddieRepository.imageUIByBattleSquaddieId)).toHaveLength(squaddieRepositorySize);
         });
 
@@ -532,7 +505,13 @@ describe('GameEngineBattleMissionLoader', () => {
         state.battleOrchestratorState.copyOtherOrchestratorState(BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler}));
 
         await loader.update(state);
-        expect(missionLoadSpy).toBeCalledTimes(missionLoadSpyCalls + 1);
+        const missionMapCallsCount = 1;
+        const templateCallsCount = missionData.enemy.templateIds.length;
+        expect(missionLoadSpy).toBeCalledTimes(
+            missionLoadSpyCalls
+            + missionMapCallsCount
+            + templateCallsCount
+        );
         expect(loader.missionLoaderStatus.completionProgress.started).toBeTruthy();
         expect(loader.missionLoaderStatus.completionProgress.loadedFileData).toBeTruthy();
         expect(loader.appliedResources).toBeFalsy();

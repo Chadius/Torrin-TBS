@@ -48,15 +48,15 @@ export const GetHitPoints = ({
 }
 
 export enum DamageType {
-    Unknown = "Unknown",
-    Body = "Body",
-    Mind = "Mind",
-    Soul = "Soul",
+    UNKNOWN = "UNKNOWN",
+    BODY = "BODY",
+    MIND = "MIND",
+    SOUL = "SOUL",
 }
 
 export enum HealingType {
-    Unknown = "Unknown",
-    LostHitPoints = "LostHitPoints",
+    UNKNOWN = "UNKNOWN",
+    LOST_HIT_POINTS = "LOST_HIT_POINTS",
 }
 
 export const DealDamageToTheSquaddie = ({

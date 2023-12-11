@@ -23,7 +23,7 @@ describe('inBattleAttributes', () => {
         };
 
         const inBattleAttributes: InBattleAttributes = InBattleAttributesHandler.new(soldierAttributes);
-        const actualDamageTaken = InBattleAttributesHandler.takeDamage(inBattleAttributes, 2, DamageType.Body);
+        const actualDamageTaken = InBattleAttributesHandler.takeDamage(inBattleAttributes, 2, DamageType.BODY);
 
         expect(actualDamageTaken).toBe(2);
         expect(inBattleAttributes.currentHitPoints).toBe(soldierAttributes.maxHitPoints - actualDamageTaken);
@@ -36,7 +36,7 @@ describe('inBattleAttributes', () => {
         };
 
         const inBattleAttributes: InBattleAttributes = InBattleAttributesHandler.new(soldierAttributes);
-        const actualDamageTaken = InBattleAttributesHandler.takeDamage(inBattleAttributes, 9001, DamageType.Body);
+        const actualDamageTaken = InBattleAttributesHandler.takeDamage(inBattleAttributes, 9001, DamageType.BODY);
 
         expect(actualDamageTaken).toBe(soldierAttributes.maxHitPoints);
         expect(inBattleAttributes.currentHitPoints).toBe(0);
@@ -49,7 +49,7 @@ describe('inBattleAttributes', () => {
         };
 
         const inBattleAttributes: InBattleAttributes = InBattleAttributesHandler.new(soldierAttributes);
-        InBattleAttributesHandler.takeDamage(inBattleAttributes, 2, DamageType.Body);
+        InBattleAttributesHandler.takeDamage(inBattleAttributes, 2, DamageType.BODY);
         const actualAmountHealed = InBattleAttributesHandler.receiveHealing(inBattleAttributes, 9001);
 
         expect(actualAmountHealed).toBe(2);

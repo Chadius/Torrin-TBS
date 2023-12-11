@@ -1,0 +1,43 @@
+{
+  "squaddieId": {
+    "name": "Slither Demon",
+    "templateId": "enemy_demon_slither",
+    "resources": {
+      "mapIconResourceKey": "map icon demon slither",
+      "actionSpritesByEmotion": {
+        "NEUTRAL": "combat-demon-slither-neutral",
+        "ATTACK": "combat-demon-slither-attack",
+        "TARGETED": "combat-demon-slither-targeted",
+        "DAMAGED": "combat-demon-slither-damaged",
+        "DEAD": "combat-demon-slither-dead"
+      }
+    },
+    "traits": {
+      "DEMON": true
+    },
+    "affiliation": "ENEMY"
+  },
+  "attributes": {
+    "maxHitPoints": 3,
+    "armorClass": 5,
+    "movement": {
+      "movementPerAction": 2
+    }
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "id": "demon_slither_bite",
+      "minimumRange": 0,
+      "maximumRange": 1,
+      "traits": {
+        "booleanTraits": {
+          "ATTACK": true
+        }
+      },
+      "damageDescriptions": {
+        "BODY": 1
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 // - They can wrap around obstacles and barricades to reach their target.
 export class SnakeShapeGenerator implements TargetingShapeGenerator {
     getShape(): TargetingShape {
-        return TargetingShape.Snake;
+        return TargetingShape.SNAKE;
     }
 
     createNeighboringHexCoordinates(hexCoordinate: HexCoordinate): HexCoordinate[] {

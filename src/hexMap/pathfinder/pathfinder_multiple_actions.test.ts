@@ -31,7 +31,7 @@ describe('pathfinder move with multiple movement actions', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -84,7 +84,7 @@ describe('pathfinder move with multiple movement actions', () => {
                     },
                     movement: {
                         movementPerAction: 2,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,

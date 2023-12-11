@@ -33,7 +33,7 @@ describe('pathfinding with a single move', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -85,7 +85,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -128,7 +128,7 @@ describe('pathfinding with a single move', () => {
                     },
                     movement: {
                         movementPerAction: 10,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: 2,
                         canStopOnSquaddies: true,
@@ -175,7 +175,7 @@ describe('pathfinding with a single move', () => {
                     },
                     movement: {
                         movementPerAction: 10,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: 2,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -222,7 +222,7 @@ describe('pathfinding with a single move', () => {
                     },
                     movement: {
                         movementPerAction: 2,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -282,7 +282,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 2,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -327,7 +327,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 3,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -379,7 +379,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 3,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -424,7 +424,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 3,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -469,7 +469,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 2,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -551,7 +551,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -584,7 +584,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -625,7 +625,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -670,7 +670,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -707,7 +707,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -779,7 +779,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: 2,
                             canStopOnSquaddies: true,
@@ -839,7 +839,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: 2,
                             canStopOnSquaddies: true,
@@ -911,7 +911,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: undefined,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
@@ -952,7 +952,7 @@ describe('pathfinding with a single move', () => {
                         },
                         movement: {
                             movementPerAction: 3,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,

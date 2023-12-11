@@ -79,7 +79,7 @@ describe('BattleSquaddieTarget', () => {
             maximumRange: 1,
             actionPointCost: 1,
             damageDescriptions: {
-                [DamageType.Body]: 2,
+                [DamageType.BODY]: 2,
             },
         });
 
@@ -516,13 +516,13 @@ describe('BattleSquaddieTarget', () => {
         it('should store the calculated results', () => {
             const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
             const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[thiefDynamic.battleSquaddieId];
-            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordAction.damageDescriptions[DamageType.Body]);
+            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordAction.damageDescriptions[DamageType.BODY]);
 
             const {maxHitPoints, currentHitPoints} = GetHitPoints({
                 squaddieTemplate: thiefStatic,
                 battleSquaddie: thiefDynamic
             });
-            expect(currentHitPoints).toBe(maxHitPoints - longswordAction.damageDescriptions[DamageType.Body]);
+            expect(currentHitPoints).toBe(maxHitPoints - longswordAction.damageDescriptions[DamageType.BODY]);
         });
     });
 
