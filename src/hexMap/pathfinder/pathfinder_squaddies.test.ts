@@ -436,7 +436,7 @@ describe('pathfinder and squaddies', () => {
             squaddieTemplate: enemyStatic,
             battleSquaddie: enemyDynamic,
             damage: enemyDynamic.inBattleAttributes.currentHitPoints,
-            damageType: DamageType.Body,
+            damageType: DamageType.BODY,
         });
 
         const searchResults: ResultOrError<SearchResults, Error> = Pathfinder.findPathToStopLocation(

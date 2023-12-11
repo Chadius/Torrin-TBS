@@ -49,5 +49,10 @@
       ],
       "numberOfRequiredConditionsToComplete": "all"
     }
-  ]
+  ],
+  "enemy": {
+    "template_ids": [
+      "enemy_demon_slither"
+    ]
+  }
 }

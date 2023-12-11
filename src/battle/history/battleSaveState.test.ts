@@ -180,7 +180,7 @@ describe("BattleSaveState", () => {
         originalSquaddieRepository.addBattleSquaddie(player0BattleSquaddie);
         originalSquaddieRepository.addSquaddieTemplate(enemy0SquaddieTemplate);
         originalSquaddieRepository.addBattleSquaddie(enemy0BattleSquaddieWithWoundsAndTurnEnded);
-        InBattleAttributesHandler.takeDamage(enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes, 1, DamageType.Unknown);
+        InBattleAttributesHandler.takeDamage(enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes, 1, DamageType.UNKNOWN);
 
         newSquaddieRepository = new BattleSquaddieRepository();
         newSquaddieRepository.addSquaddieTemplate(player0SquaddieTemplate);

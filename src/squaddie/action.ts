@@ -6,10 +6,7 @@ import {ActionRange} from "./actionRange";
 
 export interface SquaddieAction {
     damageDescriptions: { [t in DamageType]?: number };
-    healingDescriptions: {
-        Unknown?: number;
-        LostHitPoints?: number
-    };
+    healingDescriptions: { [t in HealingType]?: number };
     name: string;
     id: string;
     traits: TraitStatusStorage;

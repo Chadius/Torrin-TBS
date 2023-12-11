@@ -140,12 +140,12 @@ const calculateTotalDamageDealt = (
 
 function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {
     let healingReceived = 0;
-    if (state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints) {
+    if (state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LOST_HIT_POINTS) {
         ({healingReceived} = GiveHealingToTheSquaddie({
             squaddieTemplate: targetedSquaddieTemplate,
             battleSquaddie: targetedBattleSquaddie,
-            healingAmount: state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LostHitPoints,
-            healingType: HealingType.LostHitPoints,
+            healingAmount: state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LOST_HIT_POINTS,
+            healingType: HealingType.LOST_HIT_POINTS,
         }));
     }
     return healingReceived;

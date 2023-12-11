@@ -14,7 +14,7 @@ describe('squaddieSquaddieAction', () => {
                 minimumRange: 0,
                 maximumRange: 1,
                 targetingShape: TargetingShape.Snake,
-                damageDescriptions: {[DamageType.Mind]: 1},
+                damageDescriptions: {[DamageType.MIND]: 1},
                 healingDescriptions: {},
                 traits: {booleanTraits: {[Trait.ATTACK]: true}},
                 actionPointCost: 1,

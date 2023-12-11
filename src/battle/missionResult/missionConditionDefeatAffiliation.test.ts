@@ -192,7 +192,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
         InBattleAttributesHandler.takeDamage(
             enemy1Dynamic.inBattleAttributes,
-            9001, DamageType.Unknown
+            9001, DamageType.UNKNOWN
         );
         const {
             isDead
@@ -230,7 +230,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         });
         InBattleAttributesHandler.takeDamage(
             enemy1Dynamic.inBattleAttributes,
-            9001, DamageType.Unknown);
+            9001, DamageType.UNKNOWN);
         const {
             isDead
         } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})

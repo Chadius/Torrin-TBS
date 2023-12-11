@@ -51,6 +51,10 @@ export interface MissionLoaderCompletionProgress {
     loadedFileData: boolean;
 }
 
+export interface NpcPhase {
+    templateIds: string[];
+}
+
 export interface MissionLoaderStatus {
     id: string;
     objectives: MissionObjective[];
@@ -60,6 +64,7 @@ export interface MissionLoaderStatus {
     squaddieData: {
         teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
         teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+        // templates: {[id: string]: SquaddieTemplate};
     };
     cutsceneInfo: {
         cutsceneCollection: MissionCutsceneCollection,
@@ -68,6 +73,7 @@ export interface MissionLoaderStatus {
     mapSettings: {
         camera: BattleCamera,
     };
+    // enemy: NpcPhase;
 }
 
 export const MissionLoader = {
@@ -83,7 +89,8 @@ export const MissionLoader = {
             },
             squaddieData: {
                 teamsByAffiliation: {},
-                teamStrategyByAffiliation: {}
+                teamStrategyByAffiliation: {},
+                // templates: {},
             },
             cutsceneInfo: {
                 cutsceneCollection: undefined,
@@ -92,6 +99,9 @@ export const MissionLoader = {
             mapSettings: {
                 camera: undefined,
             },
+            // enemy: {
+            //     templateIds: [],
+            // },
         }
     },
     loadMissionFromFile: async ({
@@ -604,7 +614,7 @@ const loadTorrin = ({
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.Body]: 2
+                        [DamageType.BODY]: 2
                     }
                 }),
                 SquaddieActionHandler.new({
@@ -619,7 +629,7 @@ const loadTorrin = ({
                         [Trait.HEALING]: true,
                     }),
                     actionPointCost: 2,
-                    healingDescriptions: {[HealingType.LostHitPoints]: 2}
+                    healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2}
                 })
             ],
         },
@@ -686,7 +696,7 @@ const loadSirCamil = ({
                         [Trait.ATTACK]: true,
                     }),
                     damageDescriptions: {
-                        [DamageType.Body]: 2
+                        [DamageType.BODY]: 2
                     }
                 })
             ],
@@ -715,6 +725,7 @@ const loadSlitherDemons = ({
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
+    // TODO load the slither demon file first into a template, call it demon slither mold
     const mapIconResourceKey = "map icon demon slither";
     resourceHandler.loadResources([mapIconResourceKey]);
     missionLoaderStatus.resourcesPendingLoading = [
@@ -722,6 +733,7 @@ const loadSlitherDemons = ({
         mapIconResourceKey
     ];
 
+    // TODO
     const demonSlitherMold: SquaddieTemplate = {
         attributes: {
             maxHitPoints: 3,
@@ -757,7 +769,7 @@ const loadSlitherDemons = ({
                 maximumRange: 1,
                 traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
                 damageDescriptions: {
-                    [DamageType.Body]: 1
+                    [DamageType.BODY]: 1
                 }
             })
         ],

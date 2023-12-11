@@ -1,0 +1,32 @@
+{
+  "enemy_demon_slither": {
+    "resources": {
+      "map_icon_resource_key": "map icon demon slither",
+      "action_sprites_by_emotion": {
+        "NEUTRAL": "combat-demon-slither-neutral",
+        "ATTACK": "combat-demon-slither-attack",
+        "TARGETED": "combat-demon-slither-targeted",
+        "DAMAGED": "combat-demon-slither-damaged",
+        "DEAD": "combat-demon-slither-dead"
+      }
+    },
+    "traits": {
+      "DEMON": true
+    },
+    "affiliation": "ENEMY"
+  },
+  "actions": [
+    {
+      "name": "Bite",
+      "id": "demon_slither_bite",
+      "minimum_range": 0,
+      "maximum_range": 1,
+      "traits": {
+        "ATTACK": true
+      },
+      "damage_descriptions": {
+        "BODY": 1
+      }
+    }
+  ]
+}

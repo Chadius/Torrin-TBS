@@ -9,7 +9,7 @@ describe('SquaddieAction', () => {
             id: "action123",
             name: "buster wolf",
             actionPointCost: 1,
-            damageDescriptions: {[DamageType.Soul]: 2},
+            damageDescriptions: {[DamageType.SOUL]: 2},
             healingDescriptions: {},
             maximumRange: 1,
             minimumRange: 4,

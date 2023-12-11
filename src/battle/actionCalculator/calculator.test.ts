@@ -96,7 +96,7 @@ describe('calculator', () => {
             ),
             minimumRange: 0,
             maximumRange: 9001,
-            damageDescriptions: {[DamageType.Body]: 2}
+            damageDescriptions: {[DamageType.BODY]: 2}
         });
         actionNeedsAnAttackRollToDealBodyDamage = SquaddieActionHandler.new({
             id: "deal body damage",
@@ -107,7 +107,7 @@ describe('calculator', () => {
             ),
             minimumRange: 0,
             maximumRange: 9001,
-            damageDescriptions: {[DamageType.Body]: 2}
+            damageDescriptions: {[DamageType.BODY]: 2}
         });
     })
 
@@ -220,14 +220,14 @@ describe('calculator', () => {
                 ),
                 minimumRange: 0,
                 maximumRange: 9001,
-                healingDescriptions: {[HealingType.LostHitPoints]: 2},
+                healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2},
             });
         });
 
         it('will heal allies fully', () => {
             InBattleAttributesHandler.takeDamage(
                 ally1BattleSquaddie.inBattleAttributes,
-                ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown);
+                ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN);
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
                 currentlySelectedAction: healsLostHitPoints,
@@ -263,7 +263,7 @@ describe('calculator', () => {
 
             InBattleAttributesHandler.takeDamage(
                 player1BattleSquaddie.inBattleAttributes,
-                ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.Unknown
+                ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN
             );
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
@@ -312,7 +312,7 @@ describe('calculator', () => {
                 numberGenerator,
             });
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.Body);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
         });
 
         it('will miss if the roll is under the defender armor', () => {
@@ -343,7 +343,7 @@ describe('calculator', () => {
             });
 
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
-            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.Body);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
         });
     });
 });

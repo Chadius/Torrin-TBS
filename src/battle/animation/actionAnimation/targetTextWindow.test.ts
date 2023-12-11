@@ -31,7 +31,7 @@ describe('TargetTextWindow', () => {
             id: "attack",
             name: "attack action",
             damageDescriptions: {
-                [DamageType.Body]: 2,
+                [DamageType.BODY]: 2,
             },
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
@@ -43,7 +43,7 @@ describe('TargetTextWindow', () => {
             id: "heal",
             name: "healing action",
             healingDescriptions: {
-                [HealingType.LostHitPoints]: 3,
+                [HealingType.LOST_HIT_POINTS]: 3,
             },
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ALWAYS_SUCCEEDS]: true,

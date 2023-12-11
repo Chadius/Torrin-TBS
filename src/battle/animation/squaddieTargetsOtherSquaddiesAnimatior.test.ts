@@ -72,7 +72,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             maximumRange: 1,
             actionPointCost: 1,
             damageDescriptions: {
-                [DamageType.Body]: 2,
+                [DamageType.BODY]: 2,
             },
         });
 
