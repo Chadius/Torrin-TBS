@@ -255,6 +255,7 @@ describe("BattleSaveState", () => {
         const newCameraCoordinates = newBattleState.battleState.camera.getCoordinates();
         expect(newCameraCoordinates[0]).toBe(100);
         expect(newCameraCoordinates[1]).toBe(200);
+        expect(newBattleState.battleState.camera.mapDimensionBoundaries).toEqual(NullMissionMap().terrainTileMap.getDimensions());
     });
 
     it("Can read the battle phase and create a similar one", () => {
@@ -285,6 +286,7 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.PLAYER,
@@ -364,6 +366,7 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -489,6 +492,7 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -530,6 +534,7 @@ describe("BattleSaveState", () => {
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -585,6 +590,7 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -655,6 +661,7 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -711,6 +718,7 @@ describe("BattleSaveState", () => {
             squaddieRepository: originalSquaddieRepository,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
             }),
         })
         BattleSaveStateHandler.applySaveStateToOrchestratorState({
@@ -764,6 +772,7 @@ describe("BattleSaveState", () => {
             squaddieRepository: undefined,
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
+                missionMap: NullMissionMap(),
                 battlePhaseState: {
                     turnCount: 0,
                     currentAffiliation: BattlePhase.UNKNOWN,

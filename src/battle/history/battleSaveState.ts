@@ -53,6 +53,11 @@ export const BattleSaveStateHandler = {
         squaddieRepository: BattleSquaddieRepository,
     }): void => {
         battleOrchestratorState.battleState.camera = new BattleCamera(battleSaveState.camera.xCoordinate, battleSaveState.camera.yCoordinate);
+        battleOrchestratorState.battleState.camera.setMapDimensionBoundaries(
+            battleOrchestratorState.battleState.missionMap.terrainTileMap.getDimensions().widthOfWidestRow,
+            battleOrchestratorState.battleState.missionMap.terrainTileMap.getDimensions().numberOfRows,
+        );
+
         battleOrchestratorState.battleState.battlePhaseState = {
             currentAffiliation: battleSaveState.current_phase,
             turnCount: battleSaveState.turn_count,
