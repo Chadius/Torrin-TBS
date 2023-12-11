@@ -64,7 +64,7 @@ export interface MissionLoaderStatus {
     squaddieData: {
         teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
         teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
-        // templates: {[id: string]: SquaddieTemplate};
+        templates: {[id: string]: SquaddieTemplate};
     };
     cutsceneInfo: {
         cutsceneCollection: MissionCutsceneCollection,
@@ -73,7 +73,6 @@ export interface MissionLoaderStatus {
     mapSettings: {
         camera: BattleCamera,
     };
-    // enemy: NpcPhase;
 }
 
 export const MissionLoader = {
@@ -90,7 +89,7 @@ export const MissionLoader = {
             squaddieData: {
                 teamsByAffiliation: {},
                 teamStrategyByAffiliation: {},
-                // templates: {},
+                templates: {},
             },
             cutsceneInfo: {
                 cutsceneCollection: undefined,
@@ -99,9 +98,6 @@ export const MissionLoader = {
             mapSettings: {
                 camera: undefined,
             },
-            // enemy: {
-            //     templateIds: [],
-            // },
         }
     },
     loadMissionFromFile: async ({
@@ -140,6 +136,9 @@ export const MissionLoader = {
         missionLoaderStatus.objectives = missionData.objectives.map(MissionObjectiveHelper.validateMissionObjective);
 
         missionLoaderStatus.completionProgress.loadedFileData = true;
+
+        missionLoaderStatus.squaddieData.templates = {};
+        missionData.enemy.template_ids.forEach(id => missionLoaderStatus.squaddieData.templates[id] = undefined);
 
         initializeCameraPosition({missionLoaderStatus});
     },
@@ -725,6 +724,8 @@ const loadSlitherDemons = ({
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
+    const desiredTemplateId = "enemy_demon_slither";
+
     // TODO load the slither demon file first into a template, call it demon slither mold
     const mapIconResourceKey = "map icon demon slither";
     resourceHandler.loadResources([mapIconResourceKey]);

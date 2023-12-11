@@ -5,6 +5,9 @@ export interface MissionFileFormat {
     id: string,
     terrain: string[],
     objectives: MissionObjective[],
+    enemy: {
+        template_ids: string[],
+    },
 }
 
 export const LoadMissionFromFile = async (missionId: string): Promise<MissionFileFormat> => {

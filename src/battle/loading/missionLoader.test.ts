@@ -80,6 +80,12 @@ describe('Mission Loader', () => {
                     "numberOfRequiredConditionsToComplete": "all"
                 }
             ],
+            "enemy": {
+                "template_ids": [
+                    "enemy template",
+                    "another enemy template",
+                ]
+            }
         }
         missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(missionData);
         missionLoaderStatus = MissionLoader.newEmptyMissionLoaderStatus();
@@ -168,6 +174,13 @@ describe('Mission Loader', () => {
             expect(missionLoaderStatus.mapSettings.camera.mapDimensionBoundaries.widthOfWidestRow).toBe(17);
             expect(missionLoaderStatus.mapSettings.camera.mapDimensionBoundaries.numberOfRows).toBe(18);
         });
+
+        describe('npc squaddie information', () => {
+            it('knows the template ids for this map', () => {
+                expect(missionLoaderStatus.squaddieData.templates).toHaveProperty("enemy template")
+                expect(missionLoaderStatus.squaddieData.templates).toHaveProperty("another enemy template")
+            });
+        })
     });
 
     describe('can load mission data from hardcoded assets', () => {
