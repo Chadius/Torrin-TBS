@@ -13,7 +13,7 @@ describe('SquaddieAction', () => {
             healingDescriptions: {},
             maximumRange: 1,
             minimumRange: 4,
-            targetingShape: TargetingShape.Snake,
+            targetingShape: TargetingShape.SNAKE,
             traits: {booleanTraits: {[Trait.ATTACK]: true}},
         };
 

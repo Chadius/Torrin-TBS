@@ -157,6 +157,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             missionLoaderStatus: this.missionLoaderStatus,
             missionId: "0000",
             resourceHandler: battleOrchestratorState.resourceHandler,
+            squaddieRepository: battleOrchestratorState.squaddieRepository,
         }).then(() => {
             MissionLoader.loadMissionFromHardcodedData({
                 missionLoaderStatus: this.missionLoaderStatus,

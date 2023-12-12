@@ -12,7 +12,7 @@ describe('SquaddieAction', () => {
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
-            targetingShape: TargetingShape.Snake,
+            targetingShape: TargetingShape.SNAKE,
         })
         const action = new SquaddieSquaddieAction({
             squaddieAction: longswordAction,

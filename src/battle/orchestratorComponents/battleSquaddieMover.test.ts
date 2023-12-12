@@ -84,7 +84,7 @@ describe('BattleSquaddieMover', () => {
                             movement: {
                                 canStopOnSquaddies: true,
                                 movementPerAction: 99,
-                                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                                 maximumDistanceMoved: undefined,
                                 minimumDistanceMoved: undefined,
                                 ignoreTerrainPenalty: false,
@@ -176,7 +176,7 @@ describe('BattleSquaddieMover', () => {
                                 movement: {
                                     canStopOnSquaddies: true,
                                     movementPerAction: 999,
-                                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                                     maximumDistanceMoved: undefined,
                                     minimumDistanceMoved: 0,
                                     ignoreTerrainPenalty: false,

@@ -33,6 +33,7 @@ import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {SplashScreen} from "../../cutscene/splashScreen";
+import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
 
 export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
     "map icon move 1 action",
@@ -64,7 +65,7 @@ export interface MissionLoaderStatus {
     squaddieData: {
         teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
         teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
-        templates: {[id: string]: SquaddieTemplate};
+        templates: { [id: string]: SquaddieTemplate };
     };
     cutsceneInfo: {
         cutsceneCollection: MissionCutsceneCollection,
@@ -104,10 +105,12 @@ export const MissionLoader = {
                                     missionLoaderStatus,
                                     missionId,
                                     resourceHandler,
+                                    squaddieRepository,
                                 }: {
         missionLoaderStatus: MissionLoaderStatus;
         missionId: string;
         resourceHandler: ResourceHandler;
+        squaddieRepository: BattleSquaddieRepository;
     }) => {
         missionLoaderStatus.completionProgress.started = true;
         const missionData: MissionFileFormat = await LoadMissionFromFile(missionId);
@@ -139,6 +142,8 @@ export const MissionLoader = {
 
         missionLoaderStatus.squaddieData.templates = {};
         missionData.enemy.template_ids.forEach(id => missionLoaderStatus.squaddieData.templates[id] = undefined);
+
+        await loadAndPrepareAllTemplateData({missionLoaderStatus, resourceHandler, squaddieRepository});
 
         initializeCameraPosition({missionLoaderStatus});
     },
@@ -724,59 +729,6 @@ const loadSlitherDemons = ({
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
-    const desiredTemplateId = "enemy_demon_slither";
-
-    // TODO load the slither demon file first into a template, call it demon slither mold
-    const mapIconResourceKey = "map icon demon slither";
-    resourceHandler.loadResources([mapIconResourceKey]);
-    missionLoaderStatus.resourcesPendingLoading = [
-        ...missionLoaderStatus.resourcesPendingLoading,
-        mapIconResourceKey
-    ];
-
-    // TODO
-    const demonSlitherMold: SquaddieTemplate = {
-        attributes: {
-            maxHitPoints: 3,
-            armorClass: 5,
-            movement: CreateNewSquaddieMovementWithTraits({
-                movementPerAction: 2,
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
-            }),
-        },
-        squaddieId: {
-            templateId: "enemy_demon_slither",
-            name: "Slither Demon",
-            resources: {
-                mapIconResourceKey: "map icon demon slither",
-                actionSpritesByEmotion: {
-                    [SquaddieEmotion.NEUTRAL]: "combat-demon-slither-neutral",
-                    [SquaddieEmotion.ATTACK]: "combat-demon-slither-attack",
-                    [SquaddieEmotion.TARGETED]: "combat-demon-slither-targeted",
-                    [SquaddieEmotion.DAMAGED]: "combat-demon-slither-damaged",
-                    [SquaddieEmotion.DEAD]: "combat-demon-slither-dead",
-                },
-            },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.DEMON]: true,
-            }),
-            affiliation: SquaddieAffiliation.ENEMY,
-        },
-        actions: [
-            SquaddieActionHandler.new({
-                name: "Bite",
-                id: "demon_slither_bite",
-                minimumRange: 0,
-                maximumRange: 1,
-                traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
-                damageDescriptions: {
-                    [DamageType.BODY]: 1
-                }
-            })
-        ],
-    };
-    squaddieRepository.addSquaddieTemplate(demonSlitherMold);
-
     [
         {
             battleSquaddieId: "enemy_demon_slither_0",
@@ -866,4 +818,44 @@ function loadTeamInfo({missionLoaderStatus}: {
             }
         },
     ]
+}
+
+const loadTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: string]: SquaddieTemplate }> => {
+    let squaddiesById: { [p: string]: SquaddieTemplate } = {};
+    for (const templateId of templateIds) {
+        try {
+            squaddiesById[templateId] = await LoadFileIntoFormat<SquaddieTemplate>(`assets/npcData/templates/${templateId}.json`)
+        } catch (e) {
+            console.error(`Failed to load template: ${templateId}`);
+            console.error(e);
+            throw e;
+        }
+    }
+    return squaddiesById;
+}
+
+const loadAndPrepareAllTemplateData = async ({
+                                                 missionLoaderStatus,
+                                                 resourceHandler,
+                                                 squaddieRepository,
+                                             }: {
+    missionLoaderStatus: MissionLoaderStatus;
+    resourceHandler: ResourceHandler
+    squaddieRepository: BattleSquaddieRepository;
+}) => {
+    let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {};
+    loadedTemplatesById = await loadTemplatesFromFile(Object.keys(missionLoaderStatus.squaddieData.templates));
+    Object.assign(missionLoaderStatus.squaddieData.templates, loadedTemplatesById);
+
+    Object.values(loadedTemplatesById).forEach(template => {
+        resourceHandler.loadResource(template.squaddieId.resources.mapIconResourceKey);
+        missionLoaderStatus.resourcesPendingLoading.push(template.squaddieId.resources.mapIconResourceKey);
+
+        resourceHandler.loadResources(Object.values(template.squaddieId.resources.actionSpritesByEmotion));
+        missionLoaderStatus.resourcesPendingLoading.push(
+            ...Object.values(template.squaddieId.resources.actionSpritesByEmotion)
+        );
+
+        squaddieRepository.addSquaddieTemplate(template);
+    });
 }

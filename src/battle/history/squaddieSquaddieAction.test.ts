@@ -13,7 +13,7 @@ describe('squaddieSquaddieAction', () => {
                 name: "cool attack",
                 minimumRange: 0,
                 maximumRange: 1,
-                targetingShape: TargetingShape.Snake,
+                targetingShape: TargetingShape.SNAKE,
                 damageDescriptions: {[DamageType.MIND]: 1},
                 healingDescriptions: {},
                 traits: {booleanTraits: {[Trait.ATTACK]: true}},

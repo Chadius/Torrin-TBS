@@ -39,7 +39,7 @@ describe('ActorTextWindow', () => {
             }),
             damageDescriptions: {},
             healingDescriptions: {},
-            targetingShape: TargetingShape.Snake,
+            targetingShape: TargetingShape.SNAKE,
             actionPointCost: 1,
             minimumRange: 1,
             maximumRange: 1,

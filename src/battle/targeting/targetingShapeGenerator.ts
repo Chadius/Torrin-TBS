@@ -9,18 +9,18 @@ export interface TargetingShapeGenerator {
 }
 
 export enum TargetingShape {
-    Unknown = 0,
-    Snake = 1,
+    UNKNOWN = "UNKNOWN",
+    SNAKE = "SNAKE",
 }
 
 const TargetingShapeToName: { [value in TargetingShape]: string } = {
-    [TargetingShape.Unknown]: "Unknown",
-    [TargetingShape.Snake]: "Snake",
+    [TargetingShape.UNKNOWN]: "Unknown",
+    [TargetingShape.SNAKE]: "Snake",
 }
 
 export const GetTargetingShapeGenerator = (shape: TargetingShape): ResultOrError<TargetingShapeGenerator, Error> => {
     switch (shape) {
-        case TargetingShape.Snake:
+        case TargetingShape.SNAKE:
             return makeResult(new SnakeShapeGenerator());
         default:
             return makeError(new Error(`Unexpected shape generator: ${TargetingShapeToName[shape]}`));

@@ -15,6 +15,11 @@ import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {makeResult} from "../../utils/ResultOrError";
 import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestrator/missionCutsceneCollection";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {Trait} from "../../trait/traitStatusStorage";
+import {DamageType} from "../../squaddie/squaddieService";
+import {TargetingShape} from "../targeting/targetingShapeGenerator";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -22,10 +27,13 @@ describe('Mission Loader', () => {
     let missionLoadSpy: jest.SpyInstance;
     let missionLoaderStatus: MissionLoaderStatus;
     let squaddieRepository: BattleSquaddieRepository;
+    let enemyDemonSlitherTemplate: SquaddieTemplate;
+    let enemyDemonSlitherTemplate2: SquaddieTemplate;
 
     beforeEach(() => {
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.loadResources = jest.fn();
+        resourceHandler.loadResource = jest.fn();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);
 
         missionData = {
@@ -85,9 +93,80 @@ describe('Mission Loader', () => {
                     "enemy template",
                     "another enemy template",
                 ]
-            }
+            },
         }
-        missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(missionData);
+
+        enemyDemonSlitherTemplate = {
+            "squaddieId": {
+                "name": "Slither Demon",
+                "templateId": "enemy_demon_slither",
+                "resources": {
+                    "mapIconResourceKey": "map icon demon slither",
+                    "actionSpritesByEmotion": {
+                        "NEUTRAL": "combat-demon-slither-neutral",
+                        "ATTACK": "combat-demon-slither-attack",
+                        "TARGETED": "combat-demon-slither-targeted",
+                        "DAMAGED": "combat-demon-slither-damaged",
+                        "DEAD": "combat-demon-slither-dead"
+                    }
+                },
+                "traits": {
+                    "booleanTraits": {
+                        "DEMON": true
+                    }
+                },
+                "affiliation": SquaddieAffiliation.ENEMY,
+            },
+            "attributes": {
+                "maxHitPoints": 3,
+                "armorClass": 5,
+                "movement": {
+                    "movementPerAction": 2,
+                    "passThroughWalls": false,
+                    "crossOverPits": false,
+                }
+            },
+            "actions": [
+                {
+                    "name": "Bite",
+                    "id": "demon_slither_bite",
+                    "minimumRange": 0,
+                    "maximumRange": 1,
+                    "traits": {
+                        "booleanTraits": {
+                            [Trait.ATTACK]: true
+                        }
+                    },
+                    "damageDescriptions": {
+                        [DamageType.BODY]: 1,
+                    },
+                    "healingDescriptions": {},
+                    "actionPointCost": 1,
+                    "targetingShape": TargetingShape.SNAKE,
+                }
+            ]
+        };
+        enemyDemonSlitherTemplate2 = {
+            ...enemyDemonSlitherTemplate,
+            "squaddieId": {
+                ...enemyDemonSlitherTemplate.squaddieId,
+                templateId: "enemyDemonSlitherTemplate2_id",
+            }
+        };
+
+        missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockImplementation(async (filename: string): Promise<MissionFileFormat | SquaddieTemplate> => {
+            if (filename === "assets/mission/0000.json") {
+                return missionData;
+            }
+
+            if (filename === "assets/npcData/templates/enemy template.json") {
+                return enemyDemonSlitherTemplate;
+            }
+
+            if (filename === "assets/npcData/templates/another enemy template.json") {
+                return enemyDemonSlitherTemplate2;
+            }
+        });
         missionLoaderStatus = MissionLoader.newEmptyMissionLoaderStatus();
         squaddieRepository = new BattleSquaddieRepository();
     });
@@ -103,6 +182,7 @@ describe('Mission Loader', () => {
                 missionLoaderStatus,
                 missionId: "0000",
                 resourceHandler,
+                squaddieRepository,
             });
         });
 
@@ -178,7 +258,24 @@ describe('Mission Loader', () => {
         describe('npc squaddie information', () => {
             it('knows the template ids for this map', () => {
                 expect(missionLoaderStatus.squaddieData.templates).toHaveProperty("enemy template")
+                expect(missionLoaderStatus.squaddieData.templates["enemy template"]).toEqual(enemyDemonSlitherTemplate);
+
                 expect(missionLoaderStatus.squaddieData.templates).toHaveProperty("another enemy template")
+                expect(missionLoaderStatus.squaddieData.templates["another enemy template"]).toEqual(enemyDemonSlitherTemplate2);
+            });
+            it('knows it has to load resources based on the template resources', () => {
+                expect(missionLoaderStatus.resourcesPendingLoading).toContain(enemyDemonSlitherTemplate.squaddieId.resources.mapIconResourceKey);
+                Object.values(enemyDemonSlitherTemplate.squaddieId.resources.actionSpritesByEmotion).forEach(resourceKey => {
+                    expect(missionLoaderStatus.resourcesPendingLoading).toContain(resourceKey);
+                });
+
+                expect(resourceHandler.loadResource).toBeCalledWith(enemyDemonSlitherTemplate.squaddieId.resources.mapIconResourceKey);
+                expect(resourceHandler.loadResources).toBeCalledWith(Object.values(enemyDemonSlitherTemplate.squaddieId.resources.actionSpritesByEmotion));
+            });
+            it('knows to add the template to the squaddie repository', () => {
+                expect(squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
+                expect(squaddieRepository.getSquaddieTemplateIterator().some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate.squaddieId.templateId));
+                expect(squaddieRepository.getSquaddieTemplateIterator().some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate2.squaddieId.templateId));
             });
         })
     });
@@ -192,6 +289,7 @@ describe('Mission Loader', () => {
                 missionLoaderStatus,
                 missionId: "0000",
                 resourceHandler,
+                squaddieRepository,
             });
 
             initialPendingResourceListLength = missionLoaderStatus.resourcesPendingLoading.length;
@@ -254,6 +352,7 @@ describe('Mission Loader', () => {
                 missionLoaderStatus,
                 missionId: "0000",
                 resourceHandler,
+                squaddieRepository,
             });
 
             MissionLoader.loadMissionFromHardcodedData({
@@ -278,6 +377,11 @@ describe('Mission Loader', () => {
 
         it('initializes cutscenes', () => {
             expect(missionLoaderStatus.cutsceneInfo.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+        });
+
+        it('has the squaddie templates that were loaded from files', () => {
+            expect(squaddieRepository.getSquaddieTemplateIterator().some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate.squaddieId.templateId));
+            expect(squaddieRepository.getSquaddieTemplateIterator().some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate2.squaddieId.templateId));
         });
     });
 });

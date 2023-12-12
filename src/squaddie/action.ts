@@ -1,5 +1,5 @@
 import {assertsInteger} from "../utils/mathAssert";
-import {Trait, TraitStatusStorage, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType, HealingType} from "./squaddieService";
 import {ActionRange} from "./actionRange";
@@ -9,7 +9,9 @@ export interface SquaddieAction {
     healingDescriptions: { [t in HealingType]?: number };
     name: string;
     id: string;
-    traits: TraitStatusStorage;
+    traits: {
+        booleanTraits: { [key in Trait]?: boolean };
+    };
     actionPointCost: number;
     minimumRange: number;
     maximumRange: number;
@@ -29,7 +31,9 @@ export const SquaddieActionHandler = {
           }: {
         name?: string;
         id?: string;
-        traits?: TraitStatusStorage;
+        traits?: {
+            booleanTraits: { [key in Trait]?: boolean };
+        };
         actionPointCost?: number;
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
@@ -50,7 +54,7 @@ export const SquaddieActionHandler = {
         return {
             name: name,
             id: id,
-            targetingShape: TargetingShape.Snake,
+            targetingShape: TargetingShape.SNAKE,
             minimumRange: minimumRange,
             maximumRange: maximumRange,
             actionPointCost: actionPointCost || actionPointCost == 0 ? actionPointCost : 1,

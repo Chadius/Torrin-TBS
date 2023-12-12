@@ -66,7 +66,7 @@ export const FindValidTargets = ({
                     ignoreTerrainPenalty: true,
                     minimumDistanceMoved: action.minimumRange,
                     maximumDistanceMoved: action.maximumRange,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                     movementPerAction: undefined,
                     crossOverPits: false,
                     passThroughWalls: false,

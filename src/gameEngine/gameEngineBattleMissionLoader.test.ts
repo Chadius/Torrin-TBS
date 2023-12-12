@@ -27,6 +27,10 @@ import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAn
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {GameEngineState, GameEngineStateHelper} from "./gameEngine";
+import {Trait} from "../trait/traitStatusStorage";
+import {DamageType} from "../squaddie/squaddieService";
+import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
+import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('GameEngineBattleMissionLoader', () => {
     let loader: GameEngineBattleMissionLoader;
@@ -107,8 +111,84 @@ describe('GameEngineBattleMissionLoader', () => {
                     "numberOfRequiredConditionsToComplete": "all"
                 }
             ],
+            "enemy": {
+                "template_ids": [
+                    "enemy template",
+                    "another enemy template",
+                ]
+            },
         }
-        missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockResolvedValue(missionData);
+        const enemyDemonSlitherTemplate = {
+            "squaddieId": {
+                "name": "Slither Demon",
+                "templateId": "enemy_demon_slither",
+                "resources": {
+                    "mapIconResourceKey": "map icon demon slither",
+                    "actionSpritesByEmotion": {
+                        "NEUTRAL": "combat-demon-slither-neutral",
+                        "ATTACK": "combat-demon-slither-attack",
+                        "TARGETED": "combat-demon-slither-targeted",
+                        "DAMAGED": "combat-demon-slither-damaged",
+                        "DEAD": "combat-demon-slither-dead"
+                    }
+                },
+                "traits": {
+                    "booleanTraits": {
+                        "DEMON": true
+                    }
+                },
+                "affiliation": SquaddieAffiliation.ENEMY,
+            },
+            "attributes": {
+                "maxHitPoints": 3,
+                "armorClass": 5,
+                "movement": {
+                    "movementPerAction": 2,
+                    "passThroughWalls": false,
+                    "crossOverPits": false,
+                }
+            },
+            "actions": [
+                {
+                    "name": "Bite",
+                    "id": "demon_slither_bite",
+                    "minimumRange": 0,
+                    "maximumRange": 1,
+                    "traits": {
+                        "booleanTraits": {
+                            [Trait.ATTACK]: true
+                        }
+                    },
+                    "damageDescriptions": {
+                        [DamageType.BODY]: 1,
+                    },
+                    "healingDescriptions": {},
+                    "actionPointCost": 1,
+                    "targetingShape": TargetingShape.SNAKE,
+                }
+            ]
+        };
+        const enemyDemonSlitherTemplate2 = {
+            ...enemyDemonSlitherTemplate,
+            "squaddieId": {
+                ...enemyDemonSlitherTemplate.squaddieId,
+                templateId: "enemyDemonSlitherTemplate2_id",
+            }
+        };
+
+        missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockImplementation(async (filename: string): Promise<MissionFileFormat | SquaddieTemplate> => {
+            if (filename === "assets/mission/0000.json") {
+                return missionData;
+            }
+
+            if (filename === "assets/npcData/templates/enemy template.json") {
+                return enemyDemonSlitherTemplate;
+            }
+
+            if (filename === "assets/npcData/templates/another enemy template.json") {
+                return enemyDemonSlitherTemplate2;
+            }
+        });
     });
 
     it('asks the mission loader to load the mission', async () => {
@@ -532,7 +612,13 @@ describe('GameEngineBattleMissionLoader', () => {
         state.battleOrchestratorState.copyOtherOrchestratorState(BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler}));
 
         await loader.update(state);
-        expect(missionLoadSpy).toBeCalledTimes(missionLoadSpyCalls + 1);
+        const missionMapCallsCount = 1;
+        const templateCallsCount = missionData.enemy.template_ids.length;
+        expect(missionLoadSpy).toBeCalledTimes(
+            missionLoadSpyCalls
+            + missionMapCallsCount
+            + templateCallsCount
+        );
         expect(loader.missionLoaderStatus.completionProgress.started).toBeTruthy();
         expect(loader.missionLoaderStatus.completionProgress.loadedFileData).toBeTruthy();
         expect(loader.appliedResources).toBeFalsy();

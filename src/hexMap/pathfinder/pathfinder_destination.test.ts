@@ -33,7 +33,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -92,7 +92,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -133,7 +133,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -174,7 +174,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -213,7 +213,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -273,7 +273,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 2,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -378,7 +378,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 10,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -446,7 +446,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 1,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -487,7 +487,7 @@ describe('pathfinder reaching a destination', () => {
                     },
                     movement: {
                         movementPerAction: 10,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: true,
@@ -550,7 +550,7 @@ describe('pathfinder reaching a destination', () => {
                         },
                         movement: {
                             movementPerAction: 1,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,

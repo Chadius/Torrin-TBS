@@ -106,7 +106,7 @@ describe('SquaddieInstruction', () => {
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
-            targetingShape: TargetingShape.Snake,
+            targetingShape: TargetingShape.SNAKE,
         });
 
         SquaddieActionsForThisRoundHandler.addAction(instruction, {

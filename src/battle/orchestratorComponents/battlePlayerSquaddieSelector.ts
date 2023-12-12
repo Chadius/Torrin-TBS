@@ -285,7 +285,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                             movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
                             passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
                             crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
-                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.Snake)),
+                            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,

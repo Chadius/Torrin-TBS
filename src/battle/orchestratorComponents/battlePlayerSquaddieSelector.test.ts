@@ -554,7 +554,7 @@ describe('BattleSquaddieSelector', () => {
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
-            targetingShape: TargetingShape.Snake,
+            targetingShape: TargetingShape.SNAKE,
         });
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
@@ -754,7 +754,7 @@ describe('BattleSquaddieSelector', () => {
                 actionPointCost: 1,
                 minimumRange: 0,
                 maximumRange: 1,
-                targetingShape: TargetingShape.Snake,
+                targetingShape: TargetingShape.SNAKE,
             });
 
             mockHud.wasAnyActionSelected = jest.fn().mockImplementationOnce(() => {
