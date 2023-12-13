@@ -141,7 +141,7 @@ export const MissionLoader = {
         missionLoaderStatus.completionProgress.loadedFileData = true;
 
         missionLoaderStatus.squaddieData.templates = {};
-        missionData.enemy.template_ids.forEach(id => missionLoaderStatus.squaddieData.templates[id] = undefined);
+        missionData.enemy.templateIds.forEach(id => missionLoaderStatus.squaddieData.templates[id] = undefined);
 
         await loadAndPrepareAllTemplateData({missionLoaderStatus, resourceHandler, squaddieRepository});
 

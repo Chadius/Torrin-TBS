@@ -89,7 +89,7 @@ describe('Mission Loader', () => {
                 }
             ],
             "enemy": {
-                "template_ids": [
+                "templateIds": [
                     "enemy template",
                     "another enemy template",
                 ]

@@ -112,7 +112,7 @@ describe('GameEngineBattleMissionLoader', () => {
                 }
             ],
             "enemy": {
-                "template_ids": [
+                "templateIds": [
                     "enemy template",
                     "another enemy template",
                 ]
@@ -613,7 +613,7 @@ describe('GameEngineBattleMissionLoader', () => {
 
         await loader.update(state);
         const missionMapCallsCount = 1;
-        const templateCallsCount = missionData.enemy.template_ids.length;
+        const templateCallsCount = missionData.enemy.templateIds.length;
         expect(missionLoadSpy).toBeCalledTimes(
             missionLoadSpyCalls
             + missionMapCallsCount

@@ -6,7 +6,7 @@ export interface MissionFileFormat {
     terrain: string[],
     objectives: MissionObjective[],
     enemy: {
-        template_ids: string[],
+        templateIds: string[],
     },
 }
 

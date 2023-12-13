@@ -51,7 +51,7 @@
     }
   ],
   "enemy": {
-    "template_ids": [
+    "templateIds": [
       "enemy_demon_slither"
     ]
   }
