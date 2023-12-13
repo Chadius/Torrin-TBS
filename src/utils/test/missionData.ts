@@ -62,10 +62,27 @@ export const TestMissionData = () => {
         ],
         "enemy": {
             "templateIds": [
-                "enemy template",
-                "another enemy template",
+                "enemy_demon_slither",
+                "enemyDemonSlitherTemplate2_id",
+            ],
+            "mapPlacements": [
+                {
+                    "squaddieTemplateId": "enemy_demon_slither",
+                    "battleSquaddieId": "enemy_demon_slither_0",
+                    "location": {"q": 1, "r": 5}
+                },
+                {
+                    "squaddieTemplateId": "enemy_demon_slither",
+                    "battleSquaddieId": "enemy_demon_slither_1",
+                    "location": {"q": 1, "r": 9}
+                },
+                {
+                    "squaddieTemplateId": "enemyDemonSlitherTemplate2_id",
+                    "battleSquaddieId": "enemy_demon_slither_2",
+                    "location": {"q": 1, "r": 12}
+                }
             ]
-        },
+        }
     }
 
     const enemyDemonSlitherTemplate: SquaddieTemplate = {

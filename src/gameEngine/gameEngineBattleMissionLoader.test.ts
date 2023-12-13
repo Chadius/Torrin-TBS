@@ -70,11 +70,11 @@ describe('GameEngineBattleMissionLoader', () => {
                 return missionData;
             }
 
-            if (filename === "assets/npcData/templates/enemy template.json") {
+            if (filename === "assets/npcData/templates/enemy_demon_slither.json") {
                 return enemyDemonSlitherTemplate;
             }
 
-            if (filename === "assets/npcData/templates/another enemy template.json") {
+            if (filename === "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json") {
                 return enemyDemonSlitherTemplate2;
             }
         });

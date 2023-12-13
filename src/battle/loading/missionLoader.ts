@@ -56,7 +56,7 @@ export interface NpcPhase {
     templateIds: string[];
 }
 
-export interface MissionLoaderStatus {
+export interface MissionLoaderContext {
     id: string;
     objectives: MissionObjective[];
     missionMap: MissionMap | undefined;
@@ -77,7 +77,7 @@ export interface MissionLoaderStatus {
 }
 
 export const MissionLoader = {
-    newEmptyMissionLoaderStatus: (): MissionLoaderStatus => {
+    newEmptyMissionLoaderStatus: (): MissionLoaderContext => {
         return {
             id: "",
             missionMap: undefined,
@@ -107,7 +107,7 @@ export const MissionLoader = {
                                     resourceHandler,
                                     squaddieRepository,
                                 }: {
-        missionLoaderStatus: MissionLoaderStatus;
+        missionLoaderStatus: MissionLoaderContext;
         missionId: string;
         resourceHandler: ResourceHandler;
         squaddieRepository: BattleSquaddieRepository;
@@ -144,6 +144,7 @@ export const MissionLoader = {
         missionData.enemy.templateIds.forEach(id => missionLoaderStatus.squaddieData.templates[id] = undefined);
 
         await loadAndPrepareAllTemplateData({missionLoaderStatus, resourceHandler, squaddieRepository});
+        spawnSquaddiesAndAddToMap({missionLoaderStatus, squaddieRepository, missionData});
 
         initializeCameraPosition({missionLoaderStatus});
     },
@@ -152,7 +153,7 @@ export const MissionLoader = {
                                        squaddieRepository,
                                        resourceHandler,
                                    }: {
-        missionLoaderStatus: MissionLoaderStatus,
+        missionLoaderStatus: MissionLoaderContext,
         squaddieRepository: BattleSquaddieRepository,
         resourceHandler: ResourceHandler,
     }) => {
@@ -163,7 +164,7 @@ export const MissionLoader = {
         });
     },
     checkResourcesPendingLoading: ({missionLoaderStatus, resourceHandler}: {
-        missionLoaderStatus: MissionLoaderStatus,
+        missionLoaderStatus: MissionLoaderContext,
         resourceHandler: ResourceHandler,
     }) => {
         missionLoaderStatus.resourcesPendingLoading = missionLoaderStatus.resourcesPendingLoading.filter(
@@ -178,7 +179,7 @@ export const MissionLoader = {
                                          resourceHandler,
                                      }: {
         squaddieRepository: BattleSquaddieRepository;
-        missionLoaderStatus: MissionLoaderStatus;
+        missionLoaderStatus: MissionLoaderContext;
         resourceHandler: ResourceHandler
     }) => {
         initializeCutscenes({missionLoaderStatus});
@@ -189,7 +190,7 @@ export const MissionLoader = {
 const initializeCameraPosition = ({
                                       missionLoaderStatus,
                                   }: {
-    missionLoaderStatus: MissionLoaderStatus;
+    missionLoaderStatus: MissionLoaderContext;
 }) => {
     const mapDimensions = missionLoaderStatus.missionMap.terrainTileMap.getDimensions();
     missionLoaderStatus.mapSettings.camera = new BattleCamera();
@@ -202,7 +203,7 @@ const initializeSquaddieResources = ({
                                          resourceHandler,
                                      }: {
     squaddieRepository: BattleSquaddieRepository;
-    missionLoaderStatus: MissionLoaderStatus;
+    missionLoaderStatus: MissionLoaderContext;
     resourceHandler: ResourceHandler
 }) => {
     squaddieRepository.getBattleSquaddieIterator().forEach((info) => {
@@ -236,7 +237,7 @@ const initializeSquaddieResources = ({
 const initializeCutscenes = ({
                                  missionLoaderStatus,
                              }: {
-    missionLoaderStatus: MissionLoaderStatus;
+    missionLoaderStatus: MissionLoaderContext;
 }) => {
     Object.entries(missionLoaderStatus.cutsceneInfo.cutsceneCollection.cutsceneById).forEach(([id, cutscene]) => {
         cutscene.setResources();
@@ -248,7 +249,7 @@ const loadMissionFromHardcodedData = ({
                                           squaddieRepository,
                                           resourceHandler,
                                       }: {
-    missionLoaderStatus: MissionLoaderStatus,
+    missionLoaderStatus: MissionLoaderContext,
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
@@ -259,11 +260,6 @@ const loadMissionFromHardcodedData = ({
     });
 
     loadSirCamil({
-        missionLoaderStatus,
-        squaddieRepository,
-        resourceHandler,
-    });
-    loadSlitherDemons({
         missionLoaderStatus,
         squaddieRepository,
         resourceHandler,
@@ -304,7 +300,7 @@ const loadCutscenes = ({
                            squaddieRepository,
                            resourceHandler,
                        }: {
-    missionLoaderStatus: MissionLoaderStatus,
+    missionLoaderStatus: MissionLoaderContext,
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
@@ -574,7 +570,7 @@ const loadTorrin = ({
                         squaddieRepository,
                         resourceHandler,
                     }: {
-    missionLoaderStatus: MissionLoaderStatus,
+    missionLoaderStatus: MissionLoaderContext,
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
@@ -657,7 +653,7 @@ const loadSirCamil = ({
                           squaddieRepository,
                           resourceHandler,
                       }: {
-    missionLoaderStatus: MissionLoaderStatus,
+    missionLoaderStatus: MissionLoaderContext,
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
@@ -720,67 +716,8 @@ const loadSirCamil = ({
     ];
 };
 
-const loadSlitherDemons = ({
-                               missionLoaderStatus,
-                               squaddieRepository,
-                               resourceHandler,
-                           }: {
-    missionLoaderStatus: MissionLoaderStatus,
-    squaddieRepository: BattleSquaddieRepository,
-    resourceHandler: ResourceHandler,
-}) => {
-    [
-        {
-            battleSquaddieId: "enemy_demon_slither_0",
-            location: {q: 1, r: 5},
-        },
-        {
-            battleSquaddieId: "enemy_demon_slither_1",
-            location: {q: 1, r: 9},
-        },
-        {
-            battleSquaddieId: "enemy_demon_slither_2",
-            location: {q: 1, r: 12},
-        },
-        {
-            battleSquaddieId: "enemy_demon_slither_3",
-            location: {q: 5, r: 15},
-        },
-        {
-            battleSquaddieId: "enemy_demon_slither_4",
-            location: {q: 7, r: 13},
-        },
-        {
-            battleSquaddieId: "enemy_demon_slither_5",
-            location: {q: 10, r: 14},
-        },
-        {
-            battleSquaddieId: "enemy_demon_slither_6",
-            location: {q: 13, r: 7},
-        },
-        {
-            battleSquaddieId: "enemy_demon_slither_7",
-            location: {q: 15, r: 10},
-        },
-    ].forEach(slitherDemonInfo => {
-        let {
-            location,
-            battleSquaddieId,
-        } = slitherDemonInfo;
-
-        squaddieRepository.addBattleSquaddie(
-            BattleSquaddieHelper.newBattleSquaddie({
-                battleSquaddieId,
-                squaddieTemplateId: "enemy_demon_slither",
-                squaddieTurn: SquaddieTurnHandler.new()
-            })
-        );
-        missionLoaderStatus.missionMap.addSquaddie("enemy_demon_slither", battleSquaddieId, location);
-    });
-};
-
 function loadTeamInfo({missionLoaderStatus}: {
-    missionLoaderStatus: MissionLoaderStatus
+    missionLoaderStatus: MissionLoaderContext
 }) {
     missionLoaderStatus.squaddieData.teamsByAffiliation[SquaddieAffiliation.PLAYER] = {
         affiliation: SquaddieAffiliation.PLAYER,
@@ -839,7 +776,7 @@ const loadAndPrepareAllTemplateData = async ({
                                                  resourceHandler,
                                                  squaddieRepository,
                                              }: {
-    missionLoaderStatus: MissionLoaderStatus;
+    missionLoaderStatus: MissionLoaderContext;
     resourceHandler: ResourceHandler
     squaddieRepository: BattleSquaddieRepository;
 }) => {
@@ -857,5 +794,31 @@ const loadAndPrepareAllTemplateData = async ({
         );
 
         squaddieRepository.addSquaddieTemplate(template);
+    });
+}
+
+const spawnSquaddiesAndAddToMap = ({
+                                       squaddieRepository,
+                                       missionLoaderStatus,
+                                       missionData
+}: {
+    squaddieRepository: BattleSquaddieRepository,
+    missionLoaderStatus: MissionLoaderContext,
+    missionData: MissionFileFormat,
+}) => {
+    missionData.enemy.mapPlacements.forEach(mapPlacement => {
+        let {
+            location,
+            battleSquaddieId,
+            squaddieTemplateId,
+        } = mapPlacement;
+        squaddieRepository.addBattleSquaddie(
+            BattleSquaddieHelper.newBattleSquaddie({
+                battleSquaddieId,
+                squaddieTemplateId,
+                squaddieTurn: SquaddieTurnHandler.new(),
+            })
+        );
+        missionLoaderStatus.missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
     });
 }

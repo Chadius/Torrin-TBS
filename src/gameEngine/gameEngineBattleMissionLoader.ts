@@ -1,7 +1,7 @@
 import {GameEngineState} from "./gameEngine";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
-import {MissionLoader, MissionLoaderStatus} from "../battle/loading/missionLoader";
+import {MissionLoader, MissionLoaderContext} from "../battle/loading/missionLoader";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../battle/orchestrator/uiControlSettings";
 import {GameModeEnum} from "../utils/startupConfig";
@@ -15,7 +15,7 @@ import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAn
 import {BattleCameraHelper} from "../battle/battleCamera";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
-    missionLoaderStatus: MissionLoaderStatus;
+    missionLoaderStatus: MissionLoaderContext;
     appliedResources: boolean;
     backupBattleOrchestratorState: BattleOrchestratorState;
     loadedBattleSaveState: BattleSaveState;

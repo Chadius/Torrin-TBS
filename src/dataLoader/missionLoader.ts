@@ -1,5 +1,12 @@
 import {MissionObjective} from "../battle/missionResult/missionObjective";
 import {LoadFileIntoFormat} from "./dataLoader";
+import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
+
+export interface MapPlacement {
+    battleSquaddieId: string,
+    location: HexCoordinate,
+    squaddieTemplateId: string,
+}
 
 export interface MissionFileFormat {
     id: string,
@@ -7,6 +14,7 @@ export interface MissionFileFormat {
     objectives: MissionObjective[],
     enemy: {
         templateIds: string[],
+        mapPlacements: MapPlacement[],
     },
 }
 
