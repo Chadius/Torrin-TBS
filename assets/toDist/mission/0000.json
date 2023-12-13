@@ -132,6 +132,20 @@
           "enemy_demon_slither_5",
           "enemy_demon_slither_6",
           "enemy_demon_slither_7"
+        ],
+        "strategies": [
+          {
+            "type": "TARGET_SQUADDIE_IN_RANGE",
+            "options": {
+              "desiredAffiliation": "PLAYER"
+            }
+          },
+          {
+            "type": "MOVE_CLOSER_TO_SQUADDIE",
+            "options": {
+              "desiredAffiliation": "PLAYER"
+            }
+          }
         ]
       }
     ]

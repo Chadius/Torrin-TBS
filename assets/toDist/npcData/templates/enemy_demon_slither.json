@@ -31,7 +31,9 @@
       "minimumRange": 0,
       "maximumRange": 1,
       "traits": {
-        "ATTACK": true
+        "booleanTraits": {
+          "ATTACK": true
+        }
       },
       "damageDescriptions": {
         "BODY": 1

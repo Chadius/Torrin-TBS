@@ -113,4 +113,26 @@ describe('SquaddieAction', () => {
         expect(SquaddieActionHandler.isHelpful(helpfulAttack)).toBeTruthy();
         expect(SquaddieActionHandler.isHindering(helpfulAttack)).toBeFalsy();
     });
+
+    it('can be sanitized to fill in missing fields', () => {
+        const actionWithMissingFields: SquaddieAction = {
+            name: "missing stuff",
+            id: "id",
+            minimumRange: 0,
+            maximumRange: 1,
+            traits: undefined,
+            targetingShape: undefined,
+            healingDescriptions: undefined,
+            actionPointCost: undefined,
+            damageDescriptions: undefined,
+        };
+
+        SquaddieActionHandler.sanitize(actionWithMissingFields);
+
+        expect(actionWithMissingFields.targetingShape).toEqual(TargetingShape.SNAKE);
+        expect(actionWithMissingFields.actionPointCost).toEqual(1);
+        expect(actionWithMissingFields.traits).toEqual(TraitStatusStorageHelper.newUsingTraitValues({}));
+        expect(actionWithMissingFields.damageDescriptions).toEqual({});
+        expect(actionWithMissingFields.healingDescriptions).toEqual({});
+    });
 });

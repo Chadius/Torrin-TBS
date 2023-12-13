@@ -1,7 +1,6 @@
 import * as p5 from "p5";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "./constants";
-
-const notFound = [NaN, false, undefined, null];
+import {isValidValue} from "../utils/validityCheck";
 
 export enum HorizontalAnchor {
     NONE,
@@ -491,10 +490,6 @@ const alignVertically = (rectArea: RectArea, params: Alignment): void => {
         default:
             break;
     }
-}
-
-const isValidValue = (value: number): boolean => {
-    return !notFound.includes(value);
 }
 
 const marginsAreValid = (marginsAll: Margins): boolean => {

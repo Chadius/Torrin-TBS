@@ -6,6 +6,7 @@ import {DamageType} from "../../squaddie/squaddieService";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {MissionFileFormat} from "../../dataLoader/missionLoader";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {TeamStrategyType} from "../../battle/teamStrategy/teamStrategy";
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -94,6 +95,20 @@ export const TestMissionData = () => {
                         "enemy_demon_slither_5",
                         "enemy_demon_slither_6",
                         "enemy_demon_slither_7"
+                    ],
+                    "strategies": [
+                        {
+                            "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            "options": {
+                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+                            }
+                        },
+                        {
+                            "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                            "options": {
+                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+                            }
+                        }
                     ]
                 }
             ]

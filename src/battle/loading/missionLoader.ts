@@ -11,8 +11,8 @@ import {
 } from "../orchestrator/missionCutsceneCollection";
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
@@ -21,7 +21,7 @@ import {SquaddieActionHandler} from "../../squaddie/action";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
@@ -64,7 +64,7 @@ export interface MissionLoaderContext {
     completionProgress: MissionLoaderCompletionProgress;
     squaddieData: {
         teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
-        teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+        teamStrategyByName: { [key: string]: TeamStrategy[] };
         templates: { [id: string]: SquaddieTemplate };
     };
     cutsceneInfo: {
@@ -89,7 +89,7 @@ export const MissionLoader = {
             },
             squaddieData: {
                 teamsByAffiliation: {},
-                teamStrategyByAffiliation: {},
+                teamStrategyByName: {},
                 templates: {},
             },
             cutsceneInfo: {
@@ -143,7 +143,11 @@ export const MissionLoader = {
         missionLoaderContext.squaddieData.templates = {};
         missionData.enemy.templateIds.forEach(id => missionLoaderContext.squaddieData.templates[id] = undefined);
 
-        await loadAndPrepareAllTemplateData({missionLoaderStatus: missionLoaderContext, resourceHandler, squaddieRepository});
+        await loadAndPrepareAllTemplateData({
+            missionLoaderStatus: missionLoaderContext,
+            resourceHandler,
+            squaddieRepository
+        });
         spawnSquaddiesAndAddToMap({missionLoaderStatus: missionLoaderContext, squaddieRepository, missionData});
         createSquaddieTeams({missionLoaderContext, missionData});
 
@@ -728,35 +732,6 @@ function loadTeamInfo({missionLoaderStatus}: {
             "player_sir_camil"
         ],
     };
-    // TODO get rif of this
-    // missionLoaderStatus.squaddieData.teamsByAffiliation[SquaddieAffiliation.ENEMY] = {
-    //     affiliation: SquaddieAffiliation.ENEMY,
-    //     name: "Infiltrators",
-    //     battleSquaddieIds: [
-    //         "enemy_demon_slither_0",
-    //         "enemy_demon_slither_1",
-    //         "enemy_demon_slither_2",
-    //         "enemy_demon_slither_3",
-    //         "enemy_demon_slither_4",
-    //         "enemy_demon_slither_5",
-    //         "enemy_demon_slither_6",
-    //         "enemy_demon_slither_7",
-    //     ],
-    // };
-    missionLoaderStatus.squaddieData.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY] = [
-        {
-            type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-            options: {
-                desiredAffiliation: SquaddieAffiliation.PLAYER,
-            }
-        },
-        {
-            type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-            options: {
-                desiredAffiliation: SquaddieAffiliation.PLAYER,
-            }
-        },
-    ]
 }
 
 const loadTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: string]: SquaddieTemplate }> => {
@@ -784,6 +759,10 @@ const loadAndPrepareAllTemplateData = async ({
 }) => {
     let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {};
     loadedTemplatesById = await loadTemplatesFromFile(Object.keys(missionLoaderStatus.squaddieData.templates));
+    Object.values(loadedTemplatesById).forEach(template => {
+        SquaddieTemplateHelper.sanitize(template);
+    });
+
     Object.assign(missionLoaderStatus.squaddieData.templates, loadedTemplatesById);
 
     Object.values(loadedTemplatesById).forEach(template => {
@@ -803,7 +782,7 @@ const spawnSquaddiesAndAddToMap = ({
                                        squaddieRepository,
                                        missionLoaderStatus,
                                        missionData
-}: {
+                                   }: {
     squaddieRepository: BattleSquaddieRepository,
     missionLoaderStatus: MissionLoaderContext,
     missionData: MissionFileFormat,
@@ -837,5 +816,6 @@ const createSquaddieTeams = ({missionData, missionLoaderContext}: {
             battleSquaddieIds: enemyTeam.battleSquaddieIds,
         }
         missionLoaderContext.squaddieData.teamsByAffiliation[SquaddieAffiliation.ENEMY] = team;
+        missionLoaderContext.squaddieData.teamStrategyByName[team.name] = [...enemyTeam.strategies];
     }
 }

@@ -186,6 +186,11 @@ describe('Mission Loader', () => {
                 expect(missionLoaderStatus.squaddieData.teamsByAffiliation.ENEMY.name).toEqual(missionData.enemy.teams[0].name);
                 expect(missionLoaderStatus.squaddieData.teamsByAffiliation.ENEMY.battleSquaddieIds).toEqual(missionData.enemy.teams[0].battleSquaddieIds);
             });
+            it('creates team strategies', () => {
+                expect(missionLoaderStatus.squaddieData.teamStrategyByName[missionData.enemy.teams[0].name]).toEqual(
+                    missionData.enemy.teams[0].strategies
+                );
+            });
         })
     });
 
@@ -213,7 +218,7 @@ describe('Mission Loader', () => {
         it('gets squaddies', () => {
             expect(squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
             expect(Object.keys(missionLoaderStatus.squaddieData.teamsByAffiliation).length).toBeGreaterThan(0);
-            expect(Object.keys(missionLoaderStatus.squaddieData.teamStrategyByAffiliation).length).toBeGreaterThan(0);
+            expect(Object.keys(missionLoaderStatus.squaddieData.teamStrategyByName).length).toBeGreaterThan(0);
             expect(missionLoaderStatus.resourcesPendingLoading.length).toBeGreaterThan(initialPendingResourceListLength);
         });
 

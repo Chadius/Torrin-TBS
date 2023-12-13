@@ -1,6 +1,7 @@
 import {MissionObjective} from "../battle/missionResult/missionObjective";
 import {LoadFileIntoFormat} from "./dataLoader";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
+import {TeamStrategy} from "../battle/teamStrategy/teamStrategy";
 
 export interface MapPlacement {
     battleSquaddieId: string,
@@ -11,6 +12,7 @@ export interface MapPlacement {
 export interface NpcTeam {
     name: string,
     battleSquaddieIds: string[]
+    strategies: TeamStrategy[],
 }
 
 export interface MissionFileFormat {
