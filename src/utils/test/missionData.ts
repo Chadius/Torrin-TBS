@@ -1,0 +1,134 @@
+import {MissionRewardType} from "../../battle/missionResult/missionReward";
+import {MissionConditionType} from "../../battle/missionResult/missionCondition";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {Trait} from "../../trait/traitStatusStorage";
+import {DamageType} from "../../squaddie/squaddieService";
+import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
+import {MissionFileFormat} from "../../dataLoader/missionLoader";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+
+export const TestMissionData = () => {
+    const missionData: MissionFileFormat = {
+        "id": "test mission",
+        "terrain": [
+            "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
+            " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
+            "  x x x x 2 2 1 1 1 1 1 2 2 1 1 1 1 ",
+            "   x x x x x x x x x x x x x x 1 1 1 ",
+            "    1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
+            "     1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
+            "      1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 ",
+            "       1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 1 ",
+            "        x x x x x x x x x x x 2 1 1 1 1 1 ",
+            "         1 1 1 1 1 1 x 2 2 2 1 1 1 1 2 2 2 ",
+            "          1 1 1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 ",
+            "           1 1 1 1 x 2 1 1 1 2 2 2 1 1 1 1 2 ",
+            "            1 1 1 x 2 1 1 1 1 O O 1 1 1 1 1 2 ",
+            "             1 1 1 x 2 1 1 1 O O O 1 1 1 1 1 2 ",
+            "              1 1 1 x 2 1 1 1 O O 1 1 1 1 1 1 2 ",
+            "               1 1 1 x 2 1 1 1 1 1 1 1 1 1 1 2 x ",
+            "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
+            "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 "
+        ],
+        "objectives": [
+            {
+                "id": "victory",
+                "reward": {
+                    "rewardType": MissionRewardType.VICTORY
+                },
+                "hasGivenReward": false,
+                "conditions": [
+                    {
+                        "id": "defeat_all_enemies",
+                        "type": MissionConditionType.DEFEAT_ALL_ENEMIES
+                    }
+                ],
+                "numberOfRequiredConditionsToComplete": "all"
+            },
+            {
+                "id": "defeat",
+                "reward": {
+                    "rewardType": MissionRewardType.DEFEAT
+                },
+                "hasGivenReward": false,
+                "conditions": [
+                    {
+                        "id": "defeat_all_players",
+                        "type": MissionConditionType.DEFEAT_ALL_PLAYERS
+                    }
+                ],
+                "numberOfRequiredConditionsToComplete": "all"
+            }
+        ],
+        "enemy": {
+            "templateIds": [
+                "enemy template",
+                "another enemy template",
+            ]
+        },
+    }
+
+    const enemyDemonSlitherTemplate: SquaddieTemplate = {
+        "squaddieId": {
+            "name": "Slither Demon",
+            "templateId": "enemy_demon_slither",
+            "resources": {
+                "mapIconResourceKey": "map icon demon slither",
+                "actionSpritesByEmotion": {
+                    "NEUTRAL": "combat-demon-slither-neutral",
+                    "ATTACK": "combat-demon-slither-attack",
+                    "TARGETED": "combat-demon-slither-targeted",
+                    "DAMAGED": "combat-demon-slither-damaged",
+                    "DEAD": "combat-demon-slither-dead"
+                }
+            },
+            "traits": {
+                "booleanTraits": {
+                    "DEMON": true
+                }
+            },
+            "affiliation": SquaddieAffiliation.ENEMY,
+        },
+        "attributes": {
+            "maxHitPoints": 3,
+            "armorClass": 5,
+            "movement": {
+                "movementPerAction": 2,
+                "passThroughWalls": false,
+                "crossOverPits": false,
+            }
+        },
+        "actions": [
+            {
+                "name": "Bite",
+                "id": "demon_slither_bite",
+                "minimumRange": 0,
+                "maximumRange": 1,
+                "traits": {
+                    "booleanTraits": {
+                        [Trait.ATTACK]: true
+                    }
+                },
+                "damageDescriptions": {
+                    [DamageType.BODY]: 1,
+                },
+                "healingDescriptions": {},
+                "actionPointCost": 1,
+                "targetingShape": TargetingShape.SNAKE,
+            }
+        ]
+    };
+    const enemyDemonSlitherTemplate2: SquaddieTemplate = {
+        ...enemyDemonSlitherTemplate,
+        "squaddieId": {
+            ...enemyDemonSlitherTemplate.squaddieId,
+            templateId: "enemyDemonSlitherTemplate2_id",
+        }
+    };
+
+    return {
+        missionData,
+        enemyDemonSlitherTemplate,
+        enemyDemonSlitherTemplate2,
+    }
+}

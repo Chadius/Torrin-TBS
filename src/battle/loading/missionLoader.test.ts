@@ -2,8 +2,6 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import * as mocks from "../../utils/test/mocks";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionFileFormat} from "../../dataLoader/missionLoader";
-import {MissionRewardType} from "../missionResult/missionReward";
-import {MissionConditionType} from "../missionResult/missionCondition";
 import * as DataLoader from "../../dataLoader/dataLoader";
 import {
     MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
@@ -16,10 +14,7 @@ import {makeResult} from "../../utils/ResultOrError";
 import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestrator/missionCutsceneCollection";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {Trait} from "../../trait/traitStatusStorage";
-import {DamageType} from "../../squaddie/squaddieService";
-import {TargetingShape} from "../targeting/targetingShapeGenerator";
+import {TestMissionData} from "../../utils/test/missionData";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -36,123 +31,11 @@ describe('Mission Loader', () => {
         resourceHandler.loadResource = jest.fn();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValue(true);
 
-        missionData = {
-            "id": "test mission",
-            "terrain": [
-                "x x x x x 2 2 1 1 1 1 1 2 2 x x x ",
-                " 1 1 1 1 2 2 2 1 1 1 1 2 2 1 1 1 1 ",
-                "  x x x x 2 2 1 1 1 1 1 2 2 1 1 1 1 ",
-                "   x x x x x x x x x x x x x x 1 1 1 ",
-                "    1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
-                "     1 1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 ",
-                "      1 1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 ",
-                "       1 1 1 1 1 1 1 1 1 1 1 x 1 1 1 1 1 ",
-                "        x x x x x x x x x x x 2 1 1 1 1 1 ",
-                "         1 1 1 1 1 1 x 2 2 2 1 1 1 1 2 2 2 ",
-                "          1 1 1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 ",
-                "           1 1 1 1 x 2 1 1 1 2 2 2 1 1 1 1 2 ",
-                "            1 1 1 x 2 1 1 1 1 O O 1 1 1 1 1 2 ",
-                "             1 1 1 x 2 1 1 1 O O O 1 1 1 1 1 2 ",
-                "              1 1 1 x 2 1 1 1 O O 1 1 1 1 1 1 2 ",
-                "               1 1 1 x 2 1 1 1 1 1 1 1 1 1 1 2 x ",
-                "                1 1 1 x 2 1 1 1 1 1 1 1 1 1 2 x 1 ",
-                "                 1 1 1 x 2 2 2 2 2 2 2 2 2 2 x 1 1 "
-            ],
-            "objectives": [
-                {
-                    "id": "victory",
-                    "reward": {
-                        "rewardType": MissionRewardType.VICTORY
-                    },
-                    "hasGivenReward": false,
-                    "conditions": [
-                        {
-                            "id": "defeat_all_enemies",
-                            "type": MissionConditionType.DEFEAT_ALL_ENEMIES
-                        }
-                    ],
-                    "numberOfRequiredConditionsToComplete": "all"
-                },
-                {
-                    "id": "defeat",
-                    "reward": {
-                        "rewardType": MissionRewardType.DEFEAT
-                    },
-                    "hasGivenReward": false,
-                    "conditions": [
-                        {
-                            "id": "defeat_all_players",
-                            "type": MissionConditionType.DEFEAT_ALL_PLAYERS
-                        }
-                    ],
-                    "numberOfRequiredConditionsToComplete": "all"
-                }
-            ],
-            "enemy": {
-                "templateIds": [
-                    "enemy template",
-                    "another enemy template",
-                ]
-            },
-        }
-
-        enemyDemonSlitherTemplate = {
-            "squaddieId": {
-                "name": "Slither Demon",
-                "templateId": "enemy_demon_slither",
-                "resources": {
-                    "mapIconResourceKey": "map icon demon slither",
-                    "actionSpritesByEmotion": {
-                        "NEUTRAL": "combat-demon-slither-neutral",
-                        "ATTACK": "combat-demon-slither-attack",
-                        "TARGETED": "combat-demon-slither-targeted",
-                        "DAMAGED": "combat-demon-slither-damaged",
-                        "DEAD": "combat-demon-slither-dead"
-                    }
-                },
-                "traits": {
-                    "booleanTraits": {
-                        "DEMON": true
-                    }
-                },
-                "affiliation": SquaddieAffiliation.ENEMY,
-            },
-            "attributes": {
-                "maxHitPoints": 3,
-                "armorClass": 5,
-                "movement": {
-                    "movementPerAction": 2,
-                    "passThroughWalls": false,
-                    "crossOverPits": false,
-                }
-            },
-            "actions": [
-                {
-                    "name": "Bite",
-                    "id": "demon_slither_bite",
-                    "minimumRange": 0,
-                    "maximumRange": 1,
-                    "traits": {
-                        "booleanTraits": {
-                            [Trait.ATTACK]: true
-                        }
-                    },
-                    "damageDescriptions": {
-                        [DamageType.BODY]: 1,
-                    },
-                    "healingDescriptions": {},
-                    "actionPointCost": 1,
-                    "targetingShape": TargetingShape.SNAKE,
-                }
-            ]
-        };
-        enemyDemonSlitherTemplate2 = {
-            ...enemyDemonSlitherTemplate,
-            "squaddieId": {
-                ...enemyDemonSlitherTemplate.squaddieId,
-                templateId: "enemyDemonSlitherTemplate2_id",
-            }
-        };
+        ({
+            missionData,
+            enemyDemonSlitherTemplate,
+            enemyDemonSlitherTemplate2,
+        } = TestMissionData())
 
         missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockImplementation(async (filename: string): Promise<MissionFileFormat | SquaddieTemplate> => {
             if (filename === "assets/mission/0000.json") {
