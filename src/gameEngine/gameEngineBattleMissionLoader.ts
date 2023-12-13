@@ -154,7 +154,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     private async loadMissionDataFromFile(battleOrchestratorState: BattleOrchestratorState) {
         await MissionLoader.loadMissionFromFile({
-            missionLoaderStatus: this.missionLoaderStatus,
+            missionLoaderContext: this.missionLoaderStatus,
             missionId: "0000",
             resourceHandler: battleOrchestratorState.resourceHandler,
             squaddieRepository: battleOrchestratorState.squaddieRepository,

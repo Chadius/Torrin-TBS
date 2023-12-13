@@ -8,6 +8,11 @@ export interface MapPlacement {
     squaddieTemplateId: string,
 }
 
+export interface NpcTeam {
+    name: string,
+    battleSquaddieIds: string[]
+}
+
 export interface MissionFileFormat {
     id: string,
     terrain: string[],
@@ -15,6 +20,7 @@ export interface MissionFileFormat {
     enemy: {
         templateIds: string[],
         mapPlacements: MapPlacement[],
+        teams: NpcTeam[],
     },
 }
 

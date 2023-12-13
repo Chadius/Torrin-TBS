@@ -62,7 +62,7 @@ describe('Mission Loader', () => {
     describe('can load mission data from a file', () => {
         beforeEach(async () => {
             await MissionLoader.loadMissionFromFile({
-                missionLoaderStatus,
+                missionLoaderContext: missionLoaderStatus,
                 missionId: "0000",
                 resourceHandler,
                 squaddieRepository,
@@ -170,7 +170,6 @@ describe('Mission Loader', () => {
                     expect(battleSquaddie.squaddieTemplateId).toEqual(placement.squaddieTemplateId);
                 });
             });
-
             it('adds squaddies to the map', () => {
                 missionData.enemy.mapPlacements.forEach(placement => {
                     const {
@@ -182,7 +181,10 @@ describe('Mission Loader', () => {
                     expect(squaddieTemplateId).toEqual(placement.squaddieTemplateId);
                     expect(mapLocation).toEqual(placement.location);
                 });
-
+            });
+            it('creates teams', () => {
+                expect(missionLoaderStatus.squaddieData.teamsByAffiliation.ENEMY.name).toEqual(missionData.enemy.teams[0].name);
+                expect(missionLoaderStatus.squaddieData.teamsByAffiliation.ENEMY.battleSquaddieIds).toEqual(missionData.enemy.teams[0].battleSquaddieIds);
             });
         })
     });
@@ -193,7 +195,7 @@ describe('Mission Loader', () => {
 
         beforeEach(async () => {
             await MissionLoader.loadMissionFromFile({
-                missionLoaderStatus,
+                missionLoaderContext: missionLoaderStatus,
                 missionId: "0000",
                 resourceHandler,
                 squaddieRepository,
@@ -256,7 +258,7 @@ describe('Mission Loader', () => {
             resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
             await MissionLoader.loadMissionFromFile({
-                missionLoaderStatus,
+                missionLoaderContext: missionLoaderStatus,
                 missionId: "0000",
                 resourceHandler,
                 squaddieRepository,
