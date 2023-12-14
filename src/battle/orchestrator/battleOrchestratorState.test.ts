@@ -23,18 +23,20 @@ describe('orchestratorState', () => {
         validBattleState = BattleStateHelper.newBattleState({
             missionId: "test mission",
             missionMap: NullMissionMap(),
-            teamsByAffiliation: {
-                [SquaddieAffiliation.PLAYER]: {
+            teams: [
+                {
+                    id: "playerTeamId",
                     name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
                 },
-                [SquaddieAffiliation.ENEMY]: {
+                {
+                    id: "enemyTeamId",
                     name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
                 },
-            },
+            ],
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "mission objective id",

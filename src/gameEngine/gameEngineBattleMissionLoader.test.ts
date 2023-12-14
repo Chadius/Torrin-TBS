@@ -160,9 +160,10 @@ describe('GameEngineBattleMissionLoader', () => {
 
         it('squaddies', () => {
             expect(state.battleOrchestratorState.squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
-            expect(Object.keys(state.battleOrchestratorState.battleState.teamsByAffiliation).length).toBeGreaterThan(0);
-            expect(Object.keys(state.battleOrchestratorState.battleState.teamStrategyByAffiliation).length).toBeGreaterThan(0);
-            expect(state.battleOrchestratorState.battleState.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY]).toEqual(
+            expect(state.battleOrchestratorState.battleState.teams.length).toBeGreaterThan(0);
+
+            expect(Object.keys(state.battleOrchestratorState.battleState.teamStrategiesById).length).toBeGreaterThan(0);
+            expect(state.battleOrchestratorState.battleState.teamStrategiesById[missionData.enemy.teams[0].id]).toEqual(
                 missionData.enemy.teams[0].strategies
             );
 
@@ -197,13 +198,14 @@ describe('GameEngineBattleMissionLoader', () => {
                     ...MissionStatisticsHandler.new(),
                     timeElapsedInMilliseconds: 1,
                 },
-                teams_by_affiliation: {
-                    [SquaddieAffiliation.PLAYER]: {
+                teams: [
+                    {
+                        id: "playerTeam",
                         name: "Players",
                         affiliation: SquaddieAffiliation.PLAYER,
                         battleSquaddieIds: [],
-                    }
-                },
+                    },
+                ],
                 cutscene_trigger_completion: [
                     {
                         triggeringEvent: TriggeringEvent.MISSION_VICTORY,
@@ -371,13 +373,14 @@ describe('GameEngineBattleMissionLoader', () => {
                     ...MissionStatisticsHandler.new(),
                     timeElapsedInMilliseconds: 1,
                 },
-                teams_by_affiliation: {
-                    [SquaddieAffiliation.PLAYER]: {
+                teams: [
+                    {
+                        id: "playerTeam",
                         name: "Players",
                         affiliation: SquaddieAffiliation.PLAYER,
                         battleSquaddieIds: [],
-                    }
-                },
+                    },
+                ],
                 cutscene_trigger_completion: [
                     {
                         triggeringEvent: TriggeringEvent.MISSION_VICTORY,

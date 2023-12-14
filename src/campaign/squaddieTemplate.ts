@@ -1,5 +1,5 @@
 import {SquaddieId, SquaddieIdHelper} from "../squaddie/id";
-import {ArmyAttributes, DefaultArmyAttributes} from "../squaddie/armyAttributes";
+import {ArmyAttributes, ArmyAttributesHelper, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {SquaddieAction, SquaddieActionHandler} from "../squaddie/action";
 import {isValidValue} from "../utils/validityCheck";
 
@@ -10,7 +10,18 @@ export interface SquaddieTemplate {
 }
 
 export const SquaddieTemplateHelper = {
-    sanitize(data: SquaddieTemplate) {
+    new: ({squaddieId}: {
+        squaddieId: SquaddieId
+    }) => {
+        const data: SquaddieTemplate = {
+            squaddieId,
+            actions: [],
+            attributes: ArmyAttributesHelper.default(),
+        };
+        SquaddieTemplateHelper.sanitize(data);
+        return data;
+    },
+    sanitize: (data: SquaddieTemplate) => {
         sanitize(data);
     }
 }

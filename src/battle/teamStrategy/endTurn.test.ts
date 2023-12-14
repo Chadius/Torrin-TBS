@@ -52,6 +52,7 @@ describe('end turn team strategy', () => {
         );
 
         squaddieTeam = {
+            id: "playerTeamId",
             name: "team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
@@ -88,6 +89,7 @@ describe('end turn team strategy', () => {
 
     it('is undefined when there are no squaddies', () => {
         const noSquaddieTeam: BattleSquaddieTeam = {
+            id: "playerTeamId",
             name: "no squaddies team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],

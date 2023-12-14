@@ -48,7 +48,7 @@ describe('BattleSquaddieSelector', () => {
     let enemyDemonDynamic: BattleSquaddie;
     let demonBiteAction: SquaddieAction;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
-    let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
+    let teams: BattleSquaddieTeam[];
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -59,12 +59,13 @@ describe('BattleSquaddieSelector', () => {
                 movementCost: ["1 1 "]
             })
         });
-        teamsByAffiliation = {};
+        teams = [];
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
         const enemyTeam: BattleSquaddieTeam =
             {
+                id: "teamId",
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleSquaddieIds: [],
@@ -105,7 +106,7 @@ describe('BattleSquaddieSelector', () => {
 
         BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0", "enemy_demon_1"]);
 
-        teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
+        teams.push(enemyTeam);
 
         missionMap.addSquaddie(
             enemyDemonStatic.squaddieId.templateId,
@@ -126,12 +127,13 @@ describe('BattleSquaddieSelector', () => {
     const makeBattlePhaseTrackerWithPlayerTeam = (missionMap: MissionMap) => {
         const playerTeam: BattleSquaddieTeam =
             {
+                id: "playerTeamId",
                 name: "player controlled team",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleSquaddieIds: [],
             }
         ;
-        teamsByAffiliation[SquaddieAffiliation.PLAYER] = playerTeam;
+        teams.push(playerTeam);
 
         CreateNewSquaddieAndAddToRepository({
             name: "Player Soldier",
@@ -165,6 +167,7 @@ describe('BattleSquaddieSelector', () => {
 
         const enemyTeam: BattleSquaddieTeam =
             {
+                id: "enemyTeamId",
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleSquaddieIds: [],
@@ -195,7 +198,7 @@ describe('BattleSquaddieSelector', () => {
             actions: [demonBiteAction],
         }));
         BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0"]);
-        teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
+        teams.push(enemyTeam);
         missionMap.addSquaddie(
             enemyDemonStatic.squaddieId.templateId,
             enemyDemonDynamic.battleSquaddieId,
@@ -215,7 +218,7 @@ describe('BattleSquaddieSelector', () => {
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
                     battlePhaseState,
-                    teamsByAffiliation,
+                    teams,
                     missionMap,
                     camera,
                 }),
@@ -259,7 +262,7 @@ describe('BattleSquaddieSelector', () => {
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
                     battlePhaseState,
-                    teamsByAffiliation,
+                    teams,
                     camera,
                     missionMap,
                 }),
@@ -294,7 +297,7 @@ describe('BattleSquaddieSelector', () => {
                     missionMap,
                     camera,
                     battlePhaseState,
-                    teamsByAffiliation,
+                    teams,
                     recording: {history: []},
                 }),
             })
@@ -396,7 +399,7 @@ describe('BattleSquaddieSelector', () => {
                         missionMap,
                         camera,
                         battlePhaseState,
-                        teamsByAffiliation,
+                        teams,
                         squaddieCurrentlyActing,
                         recording: {history: []},
                     }),
@@ -466,7 +469,7 @@ describe('BattleSquaddieSelector', () => {
                     missionMap,
                     camera,
                     battlePhaseState,
-                    teamsByAffiliation,
+                    teams,
                     squaddieCurrentlyActing,
                     recording: {history: []},
                 }),
@@ -503,7 +506,7 @@ describe('BattleSquaddieSelector', () => {
                     missionMap,
                     camera,
                     battlePhaseState,
-                    teamsByAffiliation,
+                    teams,
                     recording: {history: []},
                 }),
             })
@@ -572,7 +575,7 @@ describe('BattleSquaddieSelector', () => {
                     missionMap,
                     camera,
                     battlePhaseState,
-                    teamsByAffiliation,
+                    teams,
                     recording: {history: []},
                 }),
             })
@@ -681,7 +684,7 @@ describe('BattleSquaddieSelector', () => {
                         missionMap,
                         camera,
                         battlePhaseState,
-                        teamsByAffiliation,
+                        teams,
                         recording: {history: []},
                         squaddieCurrentlyActing: soldierCurrentlyActing,
                     }),
@@ -798,7 +801,7 @@ describe('BattleSquaddieSelector', () => {
                     missionMap,
                     camera,
                     battlePhaseState,
-                    teamsByAffiliation,
+                    teams,
                 }),
             })
         });

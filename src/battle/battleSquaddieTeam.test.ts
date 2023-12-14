@@ -21,6 +21,7 @@ describe('Battle Squaddie Team', () => {
     beforeEach(() => {
         squaddieRepository = new BattleSquaddieRepository();
         twoPlayerTeam = {
+            id: "teamId",
             name: "awesome test team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
@@ -66,6 +67,7 @@ describe('Battle Squaddie Team', () => {
         BattleSquaddieTeamHelper.addBattleSquaddieIds(twoPlayerTeam, ["player_young_torrin_0", "player_young_torrin_1"]);
 
         twoEnemyTeam = {
+            id: "teamId",
             name: "awesome test team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
@@ -152,6 +154,74 @@ describe('Battle Squaddie Team', () => {
             expect(BattleSquaddieTeamHelper.hasAnActingSquaddie(twoPlayerTeam, squaddieRepository)).toBeTruthy();
             expect(BattleSquaddieHelper.canStillActThisRound(playerBattleSquaddie0)).toBeTruthy();
             expect(BattleSquaddieHelper.canStillActThisRound(playerBattleSquaddie1)).toBeTruthy();
+        });
+    });
+    describe('sanitization', () => {
+        let invalidTeamBase: BattleSquaddieTeam;
+
+        beforeEach(() => {
+            invalidTeamBase = {
+                id: "teamId",
+                name: "team name",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: [],
+            };
+        });
+
+        it('sanitizes to fill in missing values', () => {
+            const teamWithMissingFields: BattleSquaddieTeam = {
+                id: "teamId",
+                name: "team name",
+                affiliation: null,
+                battleSquaddieIds: undefined,
+            };
+
+            BattleSquaddieTeamHelper.sanitize(teamWithMissingFields);
+            expect(teamWithMissingFields.name).toEqual("team name");
+            expect(teamWithMissingFields.affiliation).toEqual(SquaddieAffiliation.UNKNOWN);
+            expect(teamWithMissingFields.battleSquaddieIds).toHaveLength(0);
+        });
+
+        const tests: { field: string, value: any }[] = [
+            {
+                field: "name",
+                value: "",
+            },
+            {
+                field: "name",
+                value: undefined,
+            },
+            {
+                field: "name",
+                value: null,
+            },
+            {
+                field: "id",
+                value: "",
+            },
+            {
+                field: "id",
+                value: undefined,
+            },
+            {
+                field: "id",
+                value: null,
+            }
+        ];
+
+        it.each(tests)(`$field: $value will throw an error for being invalid`, ({
+                                                                                    field,
+                                                                                    value
+                                                                                }) => {
+            const invalidTeam = {
+                ...invalidTeamBase,
+                [field]: value,
+            }
+            const throwErrorBecauseInvalid = () => {
+                BattleSquaddieTeamHelper.sanitize(invalidTeam);
+            };
+
+            expect(throwErrorBecauseInvalid).toThrowError('cannot sanitize');
         });
     });
 });

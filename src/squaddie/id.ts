@@ -12,7 +12,30 @@ export interface SquaddieId {
 }
 
 export const SquaddieIdHelper = {
-    sanitize(data: SquaddieId) {
+    new: ({
+              templateId,
+              name,
+              affiliation,
+              resources,
+              traits,
+          }: {
+        templateId: string,
+        name: string,
+        affiliation: SquaddieAffiliation,
+        resources?: SquaddieResource,
+        traits?: TraitStatusStorage,
+    }) => {
+        const data: SquaddieId = {
+            templateId,
+            name,
+            affiliation,
+            resources,
+            traits,
+        };
+        sanitize(data);
+        return data;
+    },
+    sanitize: (data: SquaddieId) => {
         sanitize(data);
     }
 }

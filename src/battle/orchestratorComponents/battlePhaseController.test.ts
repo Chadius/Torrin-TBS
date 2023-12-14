@@ -1,6 +1,6 @@
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -30,7 +30,7 @@ describe('BattlePhaseController', () => {
     let diffTime: number;
     let state: GameEngineState;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
-    let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
+    let teams: BattleSquaddieTeam[];
     let playerSquaddieTemplate: SquaddieTemplate;
     let playerBattleSquaddie: BattleSquaddie;
 
@@ -90,20 +90,19 @@ describe('BattlePhaseController', () => {
         );
 
         playerSquaddieTeam = {
+            id: "playerTeamId",
             name: "Player Team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: ["player_squaddie_0"]
         };
         enemySquaddieTeam = {
+            id: "enemyTeamId",
             name: "Enemy Team",
             affiliation: SquaddieAffiliation.ENEMY,
             battleSquaddieIds: ["enemy_squaddie_0"]
         };
 
-        teamsByAffiliation = {
-            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
-            [SquaddieAffiliation.ENEMY]: enemySquaddieTeam,
-        };
+        teams = [playerSquaddieTeam, enemySquaddieTeam];
 
         diffTime = 100;
 
@@ -121,7 +120,7 @@ describe('BattlePhaseController', () => {
                         currentAffiliation: BattlePhase.UNKNOWN,
                         turnCount: 0,
                     },
-                    teamsByAffiliation,
+                    teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 "]
@@ -140,7 +139,7 @@ describe('BattlePhaseController', () => {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         };
-        AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teams);
         expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
         battlePhaseController.update(state, mockedP5GraphicsContext);
@@ -157,7 +156,7 @@ describe('BattlePhaseController', () => {
                 squaddieRepository: squaddieRepo,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
-                    teamsByAffiliation,
+                    teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 1 "],
@@ -195,7 +194,7 @@ describe('BattlePhaseController', () => {
                 resourceHandler,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
-                    teamsByAffiliation,
+                    teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 1 "],
@@ -245,7 +244,7 @@ describe('BattlePhaseController', () => {
                 resourceHandler,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
-                    teamsByAffiliation,
+                    teams,
                     missionMap,
                     camera,
                 }),
@@ -310,7 +309,7 @@ describe('BattlePhaseController', () => {
             turnCount: 0,
         };
 
-        AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teams);
         expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
         const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_squaddie_0"));
@@ -336,7 +335,7 @@ describe('BattlePhaseController', () => {
                 squaddieRepository: squaddieRepo,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
-                    teamsByAffiliation,
+                    teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 1 1 "],
@@ -406,7 +405,7 @@ describe('BattlePhaseController', () => {
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
                     battlePhaseState: phase,
-                    teamsByAffiliation,
+                    teams,
                     missionMap: new MissionMap({
                         terrainTileMap: new TerrainTileMap({
                             movementCost: ["1 "]
@@ -424,5 +423,108 @@ describe('BattlePhaseController', () => {
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(phase.currentAffiliation).toBe(BattlePhase.PLAYER);
         expect(BattleSquaddieHelper.canStillActThisRound(battleSquaddie0)).toBeTruthy();
+    });
+
+    describe('multiple teams of the same affiliation', () => {
+        let playerTeam2: BattleSquaddieTeam;
+        let playerBattleSquaddie2: BattleSquaddie;
+
+        beforeEach(() => {
+            playerBattleSquaddie2 = BattleSquaddieHelper.newBattleSquaddie({
+                battleSquaddieId: "player_squaddie_1",
+                squaddieTemplateId: "player_squaddie",
+                squaddieTurn: SquaddieTurnHandler.new(),
+            });
+
+            squaddieRepo.addBattleSquaddie(
+                playerBattleSquaddie2,
+            );
+
+            playerTeam2 = {
+                id: "playerTeamId",
+                name: "Player Team",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: ["player_squaddie_1"]
+            };
+
+            teams.push(playerTeam2);
+        });
+
+        it('will stay with the current affiliation if the current team is done', () => {
+            playerSquaddieTeam.battleSquaddieIds.forEach(battleSquaddieId => {
+                const {battleSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
+                SquaddieTurnHandler.endTurn(battleSquaddie.squaddieTurn);
+            });
+
+            const state: GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                    resourceHandler,
+                    battleSquaddieSelectedHUD: undefined,
+                    squaddieRepository: squaddieRepo,
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                        teams,
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 1 "],
+                            })
+                        }),
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        }
+                    }),
+                })
+            });
+            battlePhaseController = new BattlePhaseController();
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(battlePhaseController.hasCompleted(state)).toBeTruthy();
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.turnCount).toBe(0);
+        });
+        it('will move on to the next phase when all teams of the current affiliation are done', () => {
+            [
+                playerSquaddieTeam,
+                playerTeam2,
+            ].forEach(team =>
+                team.battleSquaddieIds.forEach(battleSquaddieId => {
+                    const {battleSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
+                    SquaddieTurnHandler.endTurn(battleSquaddie.squaddieTurn);
+                })
+            );
+
+            const state: GameEngineState = GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                    resourceHandler,
+                    battleSquaddieSelectedHUD: undefined,
+                    squaddieRepository: squaddieRepo,
+                    battleState: BattleStateHelper.newBattleState({
+                        missionId: "test mission",
+                        teams,
+                        missionMap: new MissionMap({
+                            terrainTileMap: new TerrainTileMap({
+                                movementCost: ["1 1 1 "],
+                            })
+                        }),
+                        battlePhaseState: {
+                            currentAffiliation: BattlePhase.PLAYER,
+                            turnCount: 0,
+                        }
+                    }),
+                })
+            });
+            battlePhaseController = new BattlePhaseController();
+            battlePhaseController.update(state, mockedP5GraphicsContext);
+            expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
+            expect(state.battleOrchestratorState.battleState.battlePhaseState.turnCount).toBe(0);
+
+            expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(playerSquaddieTeam, squaddieRepo)).toEqual(
+                expect.arrayContaining(playerSquaddieTeam.battleSquaddieIds)
+            );
+            expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(playerTeam2, squaddieRepo)).toEqual(
+                expect.arrayContaining(playerTeam2.battleSquaddieIds)
+            );
+        });
     });
 });

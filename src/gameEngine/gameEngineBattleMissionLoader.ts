@@ -13,7 +13,6 @@ import {TintSquaddieIfTurnIsComplete} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattleCameraHelper} from "../battle/battleCamera";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
     missionLoaderStatus: MissionLoaderContext;
@@ -131,11 +130,19 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         battleOrchestratorState.battleState.missionMap = this.missionLoaderStatus.missionMap;
         battleOrchestratorState.battleState.cutsceneCollection = this.missionLoaderStatus.cutsceneInfo.cutsceneCollection;
         battleOrchestratorState.battleState.cutsceneTriggers = [...this.missionLoaderStatus.cutsceneInfo.cutsceneTriggers];
-        battleOrchestratorState.battleState.teamsByAffiliation = {...this.missionLoaderStatus.squaddieData.teamsByAffiliation};
+        battleOrchestratorState.battleState.teams = [...this.missionLoaderStatus.squaddieData.teams];
 
-        const team = this.missionLoaderStatus.squaddieData.teamsByAffiliation[SquaddieAffiliation.ENEMY];
-        const teamStrategies = this.missionLoaderStatus.squaddieData.teamStrategyByName[team.name];
-        battleOrchestratorState.battleState.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY] = [...teamStrategies];
+        battleOrchestratorState.battleState.teamStrategiesById = Object.fromEntries(
+            this.missionLoaderStatus.squaddieData.teams.map(team =>
+                [
+                    team.id,
+                    this.missionLoaderStatus.squaddieData.teamStrategyById[team.id] ? [
+                            ...this.missionLoaderStatus.squaddieData.teamStrategyById[team.id]
+                        ]
+                        : []
+                ]
+            )
+        );
 
         battleOrchestratorState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
         battleOrchestratorState.battleState.camera = BattleCameraHelper.clone({original: this.missionLoaderStatus.mapSettings.camera});

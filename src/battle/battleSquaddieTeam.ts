@@ -1,11 +1,13 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {BattleSquaddieRepository} from "./battleSquaddieRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
-import {unTintSquaddieMapIcon} from "./animation/drawSquaddie";
+import {TintSquaddieIfTurnIsComplete, unTintSquaddieMapIcon} from "./animation/drawSquaddie";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../squaddie/squaddieService";
 import {BattleSquaddieHelper} from "./battleSquaddie";
+import {isValidValue} from "../utils/validityCheck";
 
 export interface BattleSquaddieTeam {
+    id: string;
     name: string;
     affiliation: SquaddieAffiliation;
     battleSquaddieIds: string[];
@@ -16,7 +18,7 @@ export const BattleSquaddieTeamHelper = {
         return team.battleSquaddieIds.length > 0;
     },
     hasAnActingSquaddie: (team: BattleSquaddieTeam, squaddieRepository: BattleSquaddieRepository): boolean => {
-        return team.battleSquaddieIds.some(battleSquaddieId => {
+        return isValidValue(team.battleSquaddieIds) && team.battleSquaddieIds.some(battleSquaddieId => {
             const {
                 squaddieTemplate,
                 battleSquaddie
@@ -78,5 +80,35 @@ export const BattleSquaddieTeamHelper = {
             BattleSquaddieHelper.beginNewRound(battleSquaddie);
             unTintSquaddieMapIcon(squaddieRepository, battleSquaddie);
         }));
-    }
+    },
+    sanitize: (data: BattleSquaddieTeam) => {
+        sanitize(data);
+    },
+    endTurn: (team: BattleSquaddieTeam, squaddieRepository: BattleSquaddieRepository) => {
+        team.battleSquaddieIds.forEach((battleSquaddieId => {
+            const {
+                squaddieTemplate,
+                battleSquaddie
+            } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+            BattleSquaddieHelper.endTurn(battleSquaddie);
+            TintSquaddieIfTurnIsComplete(squaddieRepository, battleSquaddie, squaddieTemplate);
+        }));
+    },
 };
+
+const sanitize = (data: BattleSquaddieTeam) => {
+    if (!data.name || !isValidValue(data.name)) {
+        throw new Error('BattleSquaddieTeam cannot sanitize, missing name');
+    }
+
+    if (!data.id || !isValidValue(data.id)) {
+        throw new Error('BattleSquaddieTeam cannot sanitize, missing id');
+    }
+
+    if (!isValidValue(data.battleSquaddieIds)) {
+        data.battleSquaddieIds = [];
+    }
+    if (!isValidValue(data.affiliation)) {
+        data.affiliation = SquaddieAffiliation.UNKNOWN;
+    }
+}

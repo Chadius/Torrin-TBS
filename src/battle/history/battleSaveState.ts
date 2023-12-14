@@ -6,7 +6,6 @@ import {InBattleAttributes} from "../stats/inBattleAttributes";
 import {SquaddieTurn} from "../../squaddie/turn";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SAVE_CONTENT_TYPE, SAVE_FILENAME, SAVE_VERSION, SaveFile} from "../../utils/fileHandling/saveFile";
-import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
@@ -21,10 +20,12 @@ export type InBattleAttributesAndTurn = {
 };
 
 export interface BattleSaveState {
-    current_phase: BattlePhase;
     save_version: number;
     mission_id: string;
-    turn_count: number;
+    battlePhaseState: {
+        currentPhase: BattlePhase;
+        turnCount: number;
+    },
     camera: {
         xCoordinate: number,
         yCoordinate: number,
@@ -36,8 +37,8 @@ export interface BattleSaveState {
             InBattleAttributesAndTurn
     };
     squaddie_map_placements: MissionMapSquaddieLocation[];
-    teams_by_affiliation: { [key in SquaddieAffiliation]?: BattleSquaddieTeam };
-    team_strategy_by_affiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+    teams: BattleSquaddieTeam[];
+    teamStrategiesById: { [key: string]: TeamStrategy[] };
     mission_completion_status: MissionCompletionStatus;
     cutscene_trigger_completion: CutsceneTrigger[];
 }
@@ -59,8 +60,8 @@ export const BattleSaveStateHandler = {
         );
 
         battleOrchestratorState.battleState.battlePhaseState = {
-            currentAffiliation: battleSaveState.current_phase,
-            turnCount: battleSaveState.turn_count,
+            currentAffiliation: battleSaveState.battlePhaseState.currentPhase,
+            turnCount: battleSaveState.battlePhaseState.turnCount,
         };
         battleOrchestratorState.battleState.recording = {...battleSaveState.battle_event_recording};
         battleOrchestratorState.battleState.missionStatistics = {...battleSaveState.mission_statistics};
@@ -79,8 +80,9 @@ export const BattleSaveStateHandler = {
             battleSquaddie.squaddieTurn = battleSaveState.in_battle_attributes_by_squaddie_battle_id[squaddieBattleId].turn;
         }
 
-        battleOrchestratorState.battleState.teamsByAffiliation = {...battleSaveState.teams_by_affiliation};
-        battleOrchestratorState.battleState.teamStrategyByAffiliation = {...battleSaveState.team_strategy_by_affiliation};
+        battleOrchestratorState.battleState.teams = [...battleSaveState.teams];
+        battleOrchestratorState.battleState.teamStrategiesById = {...battleSaveState.teamStrategiesById};
+
         battleOrchestratorState.battleState.cutsceneTriggers = [...battleSaveState.cutscene_trigger_completion];
         battleOrchestratorState.battleState.missionCompletionStatus = {...battleSaveState.mission_completion_status};
     },
@@ -111,8 +113,10 @@ export const BattleSaveStateHandler = {
         return {
             save_version: saveVersion,
             mission_id: missionId,
-            current_phase: battleOrchestratorState.battleState.battlePhaseState.currentAffiliation,
-            turn_count: battleOrchestratorState.battleState.battlePhaseState.turnCount,
+            battlePhaseState: {
+                currentPhase: battleOrchestratorState.battleState.battlePhaseState.currentAffiliation,
+                turnCount: battleOrchestratorState.battleState.battlePhaseState.turnCount,
+            },
             camera: {
                 xCoordinate: cameraCoordinates[0],
                 yCoordinate: cameraCoordinates[1],
@@ -121,8 +125,8 @@ export const BattleSaveStateHandler = {
             mission_statistics: battleOrchestratorState.battleState.missionStatistics,
             in_battle_attributes_by_squaddie_battle_id,
             squaddie_map_placements: battleOrchestratorState.battleState.missionMap.getAllSquaddieData(),
-            teams_by_affiliation: battleOrchestratorState.battleState.teamsByAffiliation,
-            team_strategy_by_affiliation: battleOrchestratorState.battleState.teamStrategyByAffiliation,
+            teams: battleOrchestratorState.battleState.teams,
+            teamStrategiesById: battleOrchestratorState.battleState.teamStrategiesById,
             mission_completion_status: battleOrchestratorState.battleState.missionCompletionStatus,
             cutscene_trigger_completion: battleOrchestratorState.battleState.cutsceneTriggers,
         }
@@ -149,8 +153,10 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
     return {
         save_version: SAVE_VERSION,
         mission_id: "",
-        current_phase: BattlePhase.UNKNOWN,
-        turn_count: 0,
+        battlePhaseState: {
+            currentPhase: BattlePhase.UNKNOWN,
+            turnCount: 0,
+        },
         camera: {
             xCoordinate: 0,
             yCoordinate: 0,
@@ -164,8 +170,8 @@ export const DefaultBattleSaveState = (): BattleSaveState => {
         },
         in_battle_attributes_by_squaddie_battle_id: {},
         squaddie_map_placements: [],
-        teams_by_affiliation: {},
-        team_strategy_by_affiliation: {},
+        teams: [],
+        teamStrategiesById: {},
         mission_completion_status: {},
         cutscene_trigger_completion: [],
     }

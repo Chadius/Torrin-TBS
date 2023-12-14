@@ -10,6 +10,7 @@ export interface MapPlacement {
 }
 
 export interface NpcTeam {
+    id: string,
     name: string,
     battleSquaddieIds: string[]
     strategies: TeamStrategy[],

@@ -5,7 +5,12 @@ import {
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
+import {
+    AdvanceToNextPhase,
+    BattlePhase,
+    ConvertBattlePhaseToSquaddieAffiliation,
+    FindTeamsOfAffiliation
+} from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -19,9 +24,10 @@ import {
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
-import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -44,7 +50,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
     hasCompleted(state: GameEngineState): boolean {
         if (!this.newBannerShown
-            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository)
+            && BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository) !== undefined
         ) {
             return true;
         }
@@ -76,7 +82,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (!this.newBannerShown
             && state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
-            && BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository)
+            && BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository)
         ) {
             return;
         }
@@ -86,16 +92,23 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
 
+        const phaseIsComplete: boolean = findFirstTeamOfAffiliationThatCanAct(
+            state.battleOrchestratorState.battleState.teams,
+            ConvertBattlePhaseToSquaddieAffiliation(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation),
+            state.battleOrchestratorState.squaddieRepository,
+        ) === undefined;
+
         if (state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation === BattlePhase.UNKNOWN
-            || !BattleSquaddieTeamHelper.hasAnActingSquaddie(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository)
+            || phaseIsComplete
         ) {
-            const oldTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState);
-            if (oldTeam) {
-                BattleSquaddieTeamHelper.beginNewRound(oldTeam, state.battleOrchestratorState.squaddieRepository);
-            }
+            const teamsOfCurrentAffiliation: BattleSquaddieTeam[] = state.battleOrchestratorState.battleState.teams.filter(team =>
+                team.affiliation === ConvertBattlePhaseToSquaddieAffiliation(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation)
+            );
+
+            teamsOfCurrentAffiliation.forEach(team => BattleSquaddieTeamHelper.beginNewRound(team, state.battleOrchestratorState.squaddieRepository));
 
             this.newBannerShown = true;
-            AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, state.battleOrchestratorState.battleState.teamsByAffiliation);
+            AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, state.battleOrchestratorState.battleState.teams);
             this.bannerDisplayAnimationStartTime = Date.now();
             this.setBannerImage(state.battleOrchestratorState);
 
@@ -104,7 +117,12 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
             this.panToControllablePlayerSquaddieIfPlayerPhase(state.battleOrchestratorState);
 
-            BattleSquaddieTeamHelper.beginNewRound(BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState), state.battleOrchestratorState.squaddieRepository);
+            FindTeamsOfAffiliation(
+                state.battleOrchestratorState.battleState.teams,
+                ConvertBattlePhaseToSquaddieAffiliation(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation),
+            ).forEach(team => {
+                BattleSquaddieTeamHelper.beginNewRound(team, state.battleOrchestratorState.squaddieRepository);
+            })
 
             state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         }
@@ -190,7 +208,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
 
-        const playerTeam = state.battleState.teamsByAffiliation[SquaddieAffiliation.PLAYER];
+        const playerTeam: BattleSquaddieTeam = FindTeamsOfAffiliation(state.battleState.teams, SquaddieAffiliation.PLAYER)[0];
         let squaddieToPanToBattleId = playerTeam.battleSquaddieIds.find((id) => {
             const {
                 squaddieTemplate,
@@ -228,4 +246,15 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             return;
         }
     }
+}
+
+const findFirstTeamOfAffiliationThatCanAct = (teams: BattleSquaddieTeam[], affiliation: SquaddieAffiliation, squaddieRepository: BattleSquaddieRepository): BattleSquaddieTeam => {
+    const teamsOfAffiliation: BattleSquaddieTeam[] = teams.filter(team => team.affiliation === affiliation);
+    if (teamsOfAffiliation.length === 0) {
+        return undefined;
+    }
+
+    return teamsOfAffiliation.find(team =>
+        BattleSquaddieTeamHelper.hasAnActingSquaddie(team, squaddieRepository)
+    );
 }

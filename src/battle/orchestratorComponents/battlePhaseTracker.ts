@@ -25,7 +25,7 @@ const squaddieAffiliationToBattlePhase: (squaddieAffiliation: SquaddieAffiliatio
     }
 }
 
-const battlePhaseToSquaddieAffiliation: (phase: BattlePhase) => SquaddieAffiliation = (phase: BattlePhase): SquaddieAffiliation => {
+export const ConvertBattlePhaseToSquaddieAffiliation: (phase: BattlePhase) => SquaddieAffiliation = (phase: BattlePhase): SquaddieAffiliation => {
     switch (phase) {
         case BattlePhase.PLAYER:
             return SquaddieAffiliation.PLAYER;
@@ -40,7 +40,7 @@ const battlePhaseToSquaddieAffiliation: (phase: BattlePhase) => SquaddieAffiliat
     }
 }
 
-export const AdvanceToNextPhase = (startingPhaseState: BattlePhaseState, teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }) => {
+export const AdvanceToNextPhase = (startingPhaseState: BattlePhaseState, teams: BattleSquaddieTeam[]) => {
     const getNextPhase = (phase: BattlePhase) => {
         switch (phase) {
             case BattlePhase.PLAYER:
@@ -63,8 +63,8 @@ export const AdvanceToNextPhase = (startingPhaseState: BattlePhaseState, teamsBy
 
     let numberOfAttemptedSwitches = 0;
     while (numberOfAttemptedSwitches < 5) {
-        const currentTeam = teamsByAffiliation[battlePhaseToSquaddieAffiliation(phase)];
-        if (currentTeam && BattleSquaddieTeamHelper.hasSquaddies(currentTeam)) {
+        const teamsOfAffiliation = FindTeamsOfAffiliation(teams, ConvertBattlePhaseToSquaddieAffiliation(phase))
+        if (teamsOfAffiliation.length > 0 && teamsOfAffiliation.some(team => BattleSquaddieTeamHelper.hasSquaddies(team))) {
             startingPhaseState.currentAffiliation = phase;
             if (incrementTurn) {
                 startingPhaseState.turnCount += 1;
@@ -84,4 +84,8 @@ export const AdvanceToNextPhase = (startingPhaseState: BattlePhaseState, teamsBy
         numberOfAttemptedSwitches += 1;
     }
     throw new Error("No teams are available");
+}
+
+export const FindTeamsOfAffiliation = (teams: BattleSquaddieTeam[], affiliation: SquaddieAffiliation): BattleSquaddieTeam[] => {
+    return teams.filter(team => team.affiliation === affiliation);
 }

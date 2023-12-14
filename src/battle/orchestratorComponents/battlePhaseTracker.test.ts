@@ -41,6 +41,13 @@ describe('battlePhaseTracker', () => {
                 squaddieTurn: SquaddieTurnHandler.new()
             })
         );
+        squaddieRepo.addBattleSquaddie(
+            BattleSquaddieHelper.newBattleSquaddie({
+                battleSquaddieId: "player_squaddie_1",
+                squaddieTemplateId: "player_squaddie",
+                squaddieTurn: SquaddieTurnHandler.new()
+            })
+        );
 
         squaddieRepo.addSquaddieTemplate(
             {
@@ -115,98 +122,92 @@ describe('battlePhaseTracker', () => {
         );
 
         playerSquaddieTeam = {
+            id: "playerTeamId",
             name: "Player Team",
             affiliation: SquaddieAffiliation.PLAYER,
-            battleSquaddieIds: ["player_squaddie"]
+            battleSquaddieIds: ["player_squaddie_0"]
         };
         enemySquaddieTeam = {
+            id: "enemyTeamId",
             name: "Enemy Team",
             affiliation: SquaddieAffiliation.ENEMY,
-            battleSquaddieIds: ["enemy_squaddie"]
+            battleSquaddieIds: ["enemy_squaddie_0"]
         };
         allySquaddieTeam = {
+            id: "allyTeamId",
             name: "Ally Team",
             affiliation: SquaddieAffiliation.ALLY,
-            battleSquaddieIds: ["ally_squaddie"]
+            battleSquaddieIds: ["ally_squaddie_0"]
         };
         noneSquaddieTeam = {
+            id: "noAffiliationTeamId",
             name: "None Team",
             affiliation: SquaddieAffiliation.NONE,
-            battleSquaddieIds: ["none_squaddie"]
+            battleSquaddieIds: ["none_squaddie_0"]
         };
     });
 
 
     it('defaults to the first added team', () => {
-        const teamsByAffiliation = {
-            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
-        }
+        const teams = [playerSquaddieTeam];
 
         const battlePhaseState: BattlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
 
-        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(battlePhaseState, teams);
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
     })
 
-    it('defaults to the player team when multiple teams are added', () => {
-        const teamsByAffiliation = {
-            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
-            [SquaddieAffiliation.ENEMY]: enemySquaddieTeam,
-        }
+    it('defaults to the first player team when multiple teams are added', () => {
+        const teams = [playerSquaddieTeam, enemySquaddieTeam];
 
-        const battlePhaseState = {
+        const battlePhaseState: BattlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         };
-        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(battlePhaseState, teams);
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
     })
 
-    it('will rotate between teams', () => {
-        const teamsByAffiliation = {
-            [SquaddieAffiliation.PLAYER]: playerSquaddieTeam,
-            [SquaddieAffiliation.ENEMY]: enemySquaddieTeam,
-            [SquaddieAffiliation.ALLY]: allySquaddieTeam,
-            [SquaddieAffiliation.NONE]: noneSquaddieTeam,
-        }
+    it('will rotate between phases when advance is called', () => {
+        const teams: BattleSquaddieTeam[] = [playerSquaddieTeam, enemySquaddieTeam, allySquaddieTeam, noneSquaddieTeam];
 
         const battlePhaseState: BattlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
-        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+
+        AdvanceToNextPhase(battlePhaseState, teams);
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
         expect(battlePhaseState.turnCount).toBe(1);
 
-        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(battlePhaseState, teams);
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
         expect(battlePhaseState.turnCount).toBe(1);
 
-        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(battlePhaseState, teams);
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.ALLY);
         expect(battlePhaseState.turnCount).toBe(1);
 
-        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(battlePhaseState, teams);
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.NONE);
         expect(battlePhaseState.turnCount).toBe(1);
 
-        AdvanceToNextPhase(battlePhaseState, teamsByAffiliation);
+        AdvanceToNextPhase(battlePhaseState, teams);
         expect(battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
         expect(battlePhaseState.turnCount).toBe(2);
     });
 
-
-    it('throws an error if there are no available teams', () => {
+    it('throws an error if no teams are added', () => {
         const battlePhaseState: BattlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
             turnCount: 0,
         }
 
         const shouldThrowError = () => {
-            AdvanceToNextPhase(battlePhaseState, {});
+            AdvanceToNextPhase(battlePhaseState, []);
         }
 
         expect(() => {

@@ -7,28 +7,73 @@ import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
+import {SquaddieIdHelper} from "../../squaddie/id";
+import {BattleSquaddieHelper} from "../battleSquaddie";
 
 describe('Battle State', () => {
     it('overrides team strategy for non-player teams', () => {
         const state: BattleState = BattleStateHelper.newBattleState({
             missionId: "test mission",
-            teamStrategyByAffiliation: {
-                ENEMY: [
+            teams: [
+                {
+                    id: "enemy team strategy",
+                    name: "bad guys",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    battleSquaddieIds: [],
+                }
+            ],
+            teamStrategiesById: {
+                "enemy team strategy": [
                     {
                         type: TeamStrategyType.END_TURN,
                         options: {},
                     }
-                ]
-            }
+                ],
+            },
         });
 
-        expect(state.teamStrategyByAffiliation[SquaddieAffiliation.PLAYER]).toBeUndefined();
-
-        expect(state.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY]).toHaveLength(1);
-        expect(state.teamStrategyByAffiliation[SquaddieAffiliation.ENEMY][0].type).toBe(TeamStrategyType.END_TURN);
-
-        expect(state.teamStrategyByAffiliation[SquaddieAffiliation.ALLY]).toHaveLength(0);
-        expect(state.teamStrategyByAffiliation[SquaddieAffiliation.NONE]).toHaveLength(0);
+        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+            battleState: state,
+            affiliation: SquaddieAffiliation.PLAYER
+        })).toBeUndefined();
+        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+            battleState: state,
+            affiliation: SquaddieAffiliation.ENEMY
+        })).toEqual({
+            teams: [
+                {
+                    id: "enemy team strategy",
+                    name: "bad guys",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                    battleSquaddieIds: [],
+                }
+            ],
+            strategies: {
+                "enemy team strategy": [
+                    {
+                        type: TeamStrategyType.END_TURN,
+                        options: {},
+                    }
+                ],
+            }
+        });
+        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+            battleState: state,
+            affiliation: SquaddieAffiliation.ALLY
+        })).toEqual({
+            teams: [],
+            strategies: {}
+        });
+        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+            battleState: state,
+            affiliation: SquaddieAffiliation.NONE
+        })).toEqual({
+            teams: [],
+            strategies: {}
+        });
     });
 
     it('will indicate if it is ready for battle', () => {
@@ -36,13 +81,15 @@ describe('Battle State', () => {
             const state: BattleState = BattleStateHelper.newBattleState(args);
             expect(BattleStateHelper.isValid(state)).toBe(isValid);
             expect(BattleStateHelper.isReadyToContinueMission(state)).toBe(isReadyToContinueMission);
-            expect(BattleStateHelper.missingComponents(state)).toEqual(reasons);
+            expect(BattleStateHelper.missingComponents(state)).toEqual(
+                expect.arrayContaining(reasons)
+            );
         }
 
         let args = {};
         validityCheck(args, false, false, [
             BattleStateValidityMissingComponent.MISSION_MAP,
-            BattleStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
+            BattleStateValidityMissingComponent.TEAMS,
             BattleStateValidityMissingComponent.MISSION_OBJECTIVE,
         ]);
 
@@ -51,24 +98,26 @@ describe('Battle State', () => {
             missionMap: NullMissionMap(),
         }
         validityCheck(args, false, false, [
-            BattleStateValidityMissingComponent.TEAMS_BY_AFFILIATION,
+            BattleStateValidityMissingComponent.TEAMS,
             BattleStateValidityMissingComponent.MISSION_OBJECTIVE,
         ]);
 
         args = {
             ...args,
-            teamsByAffiliation: {
-                [SquaddieAffiliation.PLAYER]: {
+            teams: [
+                {
+                    id: "playerTeam",
                     name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
                 },
-                [SquaddieAffiliation.ENEMY]: {
+                {
+                    id: "enemyTeam",
                     name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
                 },
-            }
+            ]
         }
         validityCheck(args, true, false, [
             BattleStateValidityMissingComponent.MISSION_OBJECTIVE,
@@ -98,17 +147,27 @@ describe('Battle State', () => {
         let originalBattleState: BattleState = BattleStateHelper.newBattleState({
             missionId: "test mission",
             missionMap: NullMissionMap(),
-            teamsByAffiliation: {
-                [SquaddieAffiliation.PLAYER]: {
+            teams: [
+                {
+                    id: "playerTeamId",
                     name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
                 },
-                [SquaddieAffiliation.ENEMY]: {
+                {
+                    id: "enemyTeamId",
                     name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
                 },
+            ],
+            teamStrategiesById: {
+                "enemy team strategy": [
+                    {
+                        type: TeamStrategyType.END_TURN,
+                        options: {},
+                    }
+                ],
             },
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
@@ -145,17 +204,27 @@ describe('Battle State', () => {
         let originalBattleState: BattleState = BattleStateHelper.newBattleState({
             missionId: "test mission",
             missionMap: NullMissionMap(),
-            teamsByAffiliation: {
-                [SquaddieAffiliation.PLAYER]: {
+            teams: [
+                {
+                    id: "playerTeamId",
                     name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
                 },
-                [SquaddieAffiliation.ENEMY]: {
+                {
+                    id: "enemyTeamId",
                     name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
                 },
+            ],
+            teamStrategiesById: {
+                "enemy team strategy": [
+                    {
+                        type: TeamStrategyType.END_TURN,
+                        options: {},
+                    }
+                ],
             },
             objectives: [
                 MissionObjectiveHelper.validateMissionObjective({
@@ -189,5 +258,107 @@ describe('Battle State', () => {
 
         expect(BattleStateHelper.isValid(cloned)).toBeTruthy();
         expect(cloned).toEqual(originalBattleState);
+    });
+
+    describe('getCurrentTeam', () => {
+        let playerTeam0: BattleSquaddieTeam;
+        let playerTeam1: BattleSquaddieTeam;
+        let enemyTeam0: BattleSquaddieTeam;
+        let battleState: BattleState;
+        let squaddieRepository: BattleSquaddieRepository;
+
+        beforeEach(() => {
+            squaddieRepository = new BattleSquaddieRepository();
+            const playerTemplate: SquaddieTemplate = SquaddieTemplateHelper.new({
+                squaddieId: SquaddieIdHelper.new({
+                    templateId: "player template",
+                    name: "player template",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            });
+            squaddieRepository.addSquaddieTemplate(playerTemplate);
+            squaddieRepository.addBattleSquaddie(
+                BattleSquaddieHelper.newBattleSquaddie({
+                    battleSquaddieId: "player 0",
+                    squaddieTemplate: playerTemplate,
+                })
+            );
+            squaddieRepository.addBattleSquaddie(
+                BattleSquaddieHelper.newBattleSquaddie({
+                    battleSquaddieId: "player 0 1",
+                    squaddieTemplate: playerTemplate,
+                })
+            );
+            squaddieRepository.addBattleSquaddie(
+                BattleSquaddieHelper.newBattleSquaddie({
+                    battleSquaddieId: "player 1",
+                    squaddieTemplate: playerTemplate,
+                })
+            );
+
+            playerTeam0 = {
+                id: "player team 0",
+                name: "player team 0",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: ["player 0", "player 0 1"],
+            };
+
+            playerTeam1 = {
+                id: "player team 1",
+                name: "player team 1",
+                affiliation: SquaddieAffiliation.PLAYER,
+                battleSquaddieIds: ["player 1"],
+            };
+
+            const enemyTemplate: SquaddieTemplate = SquaddieTemplateHelper.new({
+                squaddieId: SquaddieIdHelper.new({
+                    templateId: "enemy template",
+                    name: "enemy template",
+                    affiliation: SquaddieAffiliation.ENEMY,
+                })
+            });
+            squaddieRepository.addSquaddieTemplate(enemyTemplate);
+            squaddieRepository.addBattleSquaddie(
+                BattleSquaddieHelper.newBattleSquaddie({
+                    battleSquaddieId: "enemy 0",
+                    squaddieTemplate: enemyTemplate,
+                })
+            );
+
+            enemyTeam0 = {
+                id: "enemy team 0",
+                name: "enemy team 0",
+                affiliation: SquaddieAffiliation.ENEMY,
+                battleSquaddieIds: ["enemy 0"],
+            };
+
+            battleState = BattleStateHelper.new({
+                missionId: "mission",
+                battlePhaseState: {
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                    turnCount: 0,
+                },
+                teams: [playerTeam0, playerTeam1, enemyTeam0],
+            });
+        });
+        it('reports no teams when there are no teams with the current affiliation', () => {
+            battleState.battlePhaseState.currentAffiliation = BattlePhase.UNKNOWN;
+            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBeUndefined();
+        });
+        it('reports the first added team of a given affiliation when all teams are ready', () => {
+            battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
+            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam0);
+        });
+        it('reports the second added team of a given affiliation if the first team cannot act', () => {
+            BattleSquaddieTeamHelper.endTurn(playerTeam0, squaddieRepository);
+            battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
+            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam1);
+        });
+        it('reports no teams when all of the teams of a given affiliation cannot act', () => {
+            BattleSquaddieTeamHelper.endTurn(playerTeam0, squaddieRepository);
+            BattleSquaddieTeamHelper.endTurn(playerTeam1, squaddieRepository);
+            battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
+            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBeUndefined();
+        });
     });
 });

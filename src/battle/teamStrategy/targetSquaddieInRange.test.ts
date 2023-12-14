@@ -88,6 +88,7 @@ describe('target a squaddie within reach of actions', () => {
         });
 
         enemyTeam = {
+            id: "teamId",
             name: "team",
             affiliation: SquaddieAffiliation.ENEMY,
             battleSquaddieIds: [],
@@ -387,6 +388,7 @@ describe('target a squaddie within reach of actions', () => {
 
     it('should pass if there are no squaddies to act', () => {
         const allyTeam: BattleSquaddieTeam = {
+            id: "allyTeamId",
             affiliation: SquaddieAffiliation.ALLY,
             battleSquaddieIds: [],
             name: "Da team",

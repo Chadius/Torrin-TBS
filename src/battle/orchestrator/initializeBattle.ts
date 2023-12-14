@@ -10,6 +10,8 @@ import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {FindTeamsOfAffiliation} from "../orchestratorComponents/battlePhaseTracker";
 
 export class InitializeBattle implements BattleOrchestratorComponent {
     hasCompleted(state: GameEngineState): boolean {
@@ -27,8 +29,8 @@ export class InitializeBattle implements BattleOrchestratorComponent {
     }
 
     reset(state: GameEngineState): void {
-        const playerTeam = state.battleOrchestratorState.battleState.teamsByAffiliation[SquaddieAffiliation.PLAYER];
-        if (playerTeam) {
+        const playerTeams: BattleSquaddieTeam[] = FindTeamsOfAffiliation(state.battleOrchestratorState.battleState.teams, SquaddieAffiliation.PLAYER);
+        playerTeams.forEach(playerTeam => {
             playerTeam.battleSquaddieIds.forEach((battleId) => {
                 const {
                     battleSquaddie,
@@ -36,7 +38,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
                 } = getResultOrThrowError(state.battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(battleId))
                 TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             });
-        }
+        });
     }
 
     uiControlSettings(state: GameEngineState): UIControlSettings {

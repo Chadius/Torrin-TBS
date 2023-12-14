@@ -85,15 +85,36 @@ export const TestMissionData = () => {
             ],
             "teams": [
                 {
+                    "id": "enemy0",
                     "name": "Infiltrators",
                     "battleSquaddieIds": [
                         "enemy_demon_slither_0",
                         "enemy_demon_slither_1",
-                        "enemy_demon_slither_2",
                         "enemy_demon_slither_3",
                         "enemy_demon_slither_4",
                         "enemy_demon_slither_5",
-                        "enemy_demon_slither_6",
+                        "enemy_demon_slither_6"
+                    ],
+                    "strategies": [
+                        {
+                            "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                            "options": {
+                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+                            }
+                        },
+                        {
+                            "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                            "options": {
+                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "enemy follow",
+                    "name": "Infiltrators",
+                    "battleSquaddieIds": [
+                        "enemy_demon_slither_2",
                         "enemy_demon_slither_7"
                     ],
                     "strategies": [
@@ -105,6 +126,12 @@ export const TestMissionData = () => {
                         },
                         {
                             "type": TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                            "options": {
+                                "desiredAffiliation": SquaddieAffiliation.PLAYER
+                            }
+                        },
+                        {
+                            "type": TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
                             "options": {
                                 "desiredAffiliation": SquaddieAffiliation.PLAYER
                             }

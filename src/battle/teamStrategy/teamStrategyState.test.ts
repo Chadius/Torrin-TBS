@@ -15,6 +15,7 @@ describe('Team Strategy State', () => {
                 })
             }),
             team: {
+                id: "playerTeamId",
                 name: "awesome test team",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleSquaddieIds: [],

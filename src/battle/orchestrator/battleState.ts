@@ -5,7 +5,7 @@ import {
 } from "./missionObjectivesAndCutscenes";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieTeam} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
@@ -18,19 +18,25 @@ import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective} from "../missionResult/missionObjective";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
-import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
+import {
+    BattlePhase,
+    ConvertBattlePhaseToSquaddieAffiliation,
+    FindTeamsOfAffiliation
+} from "../orchestratorComponents/battlePhaseTracker";
+import {isValidValue} from "../../utils/validityCheck";
+import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
-    TEAMS_BY_AFFILIATION = "TEAMS_BY_AFFILIATION",
+    TEAMS = "TEAMS",
     MISSION_OBJECTIVE = "MISSION_OBJECTIVE",
 }
 
 export interface BattleState extends MissionObjectivesAndCutscenes {
     missionId: string;
     missionMap: MissionMap;
-    teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
-    teamStrategyByAffiliation: { [key in SquaddieAffiliation]?: TeamStrategy[] };
+    teams: BattleSquaddieTeam[];
+    teamStrategiesById: { [key: string]: TeamStrategy[] };
     battlePhaseState: BattlePhaseState;
     squaddieMovePath?: SearchPath;
     camera: BattleCamera;
@@ -41,6 +47,9 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
 }
 
 export const BattleStateHelper = {
+    new: (params: BattleStateConstructorParameters): BattleState => {
+        return newBattleState(params);
+    },
     newBattleState: (params: BattleStateConstructorParameters): BattleState => {
         return newBattleState(params);
     },
@@ -64,8 +73,13 @@ export const BattleStateHelper = {
         const missingComponents = getMissingComponents(battleState);
         return missingComponents.length === 0;
     },
-    getCurrentTeam: (battleState: BattleState): BattleSquaddieTeam => {
-        return battleState.teamsByAffiliation[battleState.battlePhaseState.currentAffiliation];
+    getCurrentTeam: (battleState: BattleState, squaddieRepository: BattleSquaddieRepository): BattleSquaddieTeam => {
+        const teamsOfAffiliation: BattleSquaddieTeam[] = FindTeamsOfAffiliation(
+            battleState.teams,
+            ConvertBattlePhaseToSquaddieAffiliation(battleState.battlePhaseState.currentAffiliation),
+        );
+
+        return teamsOfAffiliation.find(team => BattleSquaddieTeamHelper.hasAnActingSquaddie(team, squaddieRepository));
     },
     clone: (battleState: BattleState): BattleState => {
         return {...battleState};
@@ -87,6 +101,30 @@ export const BattleStateHelper = {
         };
 
         return newBattleState(defaultParameters);
+    },
+    getTeamsAndStrategiesByAffiliation: ({battleState, affiliation}: {
+        battleState: BattleState,
+        affiliation: SquaddieAffiliation
+    }): {
+        teams: BattleSquaddieTeam[],
+        strategies: { [teamName: string]: TeamStrategy[] }
+    } | undefined => {
+        const foundTeams: BattleSquaddieTeam[] = battleState.teams.filter(team => team.affiliation === affiliation);
+        const foundStrategies = Object.fromEntries(
+            Object.entries(battleState.teamStrategiesById).filter(([teamId, _]) => {
+                return foundTeams.some(team => team.id === teamId)
+            })
+        );
+
+        const noTeamsFound: boolean = foundTeams.length === 0;
+        if (noTeamsFound && affiliation === SquaddieAffiliation.PLAYER) {
+            return undefined;
+        }
+
+        return {
+            teams: foundTeams,
+            strategies: foundStrategies,
+        };
     }
 }
 
@@ -100,8 +138,8 @@ interface BattleStateConstructorParameters {
     battlePhaseState?: BattlePhaseState;
     squaddieCurrentlyActing?: SquaddieInstructionInProgress;
     recording?: Recording;
-    teamStrategyByAffiliation?: { [key in SquaddieAffiliation]?: TeamStrategy[] };
-    teamsByAffiliation?: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
+    teams?: BattleSquaddieTeam[];
+    teamStrategiesById?: { [key: string]: TeamStrategy[] };
     missionCompletionStatus?: MissionCompletionStatus;
     missionStatistics?: MissionStatistics;
     searchPath?: SearchPath;
@@ -125,13 +163,13 @@ const newBattleState = ({
                             battlePhaseState,
                             squaddieCurrentlyActing,
                             recording,
-                            teamStrategyByAffiliation,
-                            teamsByAffiliation,
                             missionStatistics,
                             missionCompletionStatus,
                             searchPath,
                             gameSaveFlags,
                             battleCompletionStatus,
+                            teams,
+                            teamStrategiesById,
                         }: BattleStateConstructorParameters): BattleState => {
     const missionObjectivesAndCutscenes = MissionObjectivesAndCutscenesHelper.new({
         objectives,
@@ -145,8 +183,8 @@ const newBattleState = ({
         ...missionObjectivesAndCutscenes,
         missionId: missionId,
         missionMap: missionMap,
-        teamsByAffiliation: {...teamsByAffiliation},
-        teamStrategyByAffiliation: copyTeamStrategyByAffiliation(teamStrategyByAffiliation),
+        teams: isValidValue(teams) ? [...teams] : [],
+        teamStrategiesById: isValidValue(teamStrategiesById) ? {...teamStrategiesById} : {},
         battlePhaseState: battlePhaseState,
         squaddieMovePath: searchPath || undefined,
         camera: camera || new BattleCamera(),
@@ -161,40 +199,16 @@ const newBattleState = ({
     };
 };
 
-const copyTeamStrategyByAffiliation = (
-    teamStrategyByAffiliation: {
-        [key in SquaddieAffiliation]?: TeamStrategy[]
-    }) => {
-    const newTeamStrategyByAffiliation = {...teamStrategyByAffiliation};
-
-    [
-        SquaddieAffiliation.PLAYER,
-        SquaddieAffiliation.ENEMY,
-        SquaddieAffiliation.ALLY,
-        SquaddieAffiliation.NONE,
-    ].forEach((affiliation) => {
-        if (newTeamStrategyByAffiliation[affiliation]) {
-            return;
-        }
-        if (affiliation === SquaddieAffiliation.PLAYER) {
-            return;
-        }
-        newTeamStrategyByAffiliation[affiliation] = [];
-    });
-
-    return newTeamStrategyByAffiliation;
-};
-
 const getMissingComponents = (battleState: BattleState): BattleStateValidityMissingComponent[] => {
     const expectedComponents = {
-        [BattleStateValidityMissingComponent.MISSION_MAP]: battleState.missionMap !== undefined,
-        [BattleStateValidityMissingComponent.TEAMS_BY_AFFILIATION]: (
-            battleState.teamsByAffiliation !== undefined
-            && Object.keys(battleState.teamsByAffiliation).length >= 1
-            && battleState.teamStrategyByAffiliation !== undefined
+        [BattleStateValidityMissingComponent.MISSION_MAP]: isValidValue(battleState.missionMap),
+        [BattleStateValidityMissingComponent.TEAMS]: (
+            isValidValue(battleState.teams)
+            && battleState.teams.length > 0
+            && isValidValue(battleState.teamStrategiesById)
         ),
         [BattleStateValidityMissingComponent.MISSION_OBJECTIVE]: (
-            battleState.objectives !== undefined
+            isValidValue(battleState.objectives)
             && battleState.objectives.length > 0
             && battleState.objectives[0].conditions.length > 0
         ),

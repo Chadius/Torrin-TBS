@@ -86,7 +86,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
-        const currentTeam: BattleSquaddieTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState);
+        const currentTeam: BattleSquaddieTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository);
         if (
             this.mostRecentAction === undefined
             && currentTeam
@@ -128,7 +128,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private atLeastOneSquaddieOnCurrentTeamCanAct(state: GameEngineState): boolean {
-        const currentTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState);
+        const currentTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository);
         return currentTeam
             && BattleSquaddieTeamHelper.hasAnActingSquaddie(currentTeam, state.battleOrchestratorState.squaddieRepository);
     }
@@ -235,8 +235,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     private askComputerControlSquaddie(state: GameEngineState) {
         if (this.mostRecentAction === undefined) {
-            const currentTeam: BattleSquaddieTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState);
-            const currentTeamStrategies: TeamStrategy[] = state.battleOrchestratorState.battleState.teamStrategyByAffiliation[currentTeam.affiliation];
+            const currentTeam: BattleSquaddieTeam = BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository);
+            const currentTeamStrategies: TeamStrategy[] = state.battleOrchestratorState.battleState.teamStrategiesById[currentTeam.id] || [];
 
             let strategyIndex = 0;
             let squaddieInstruction: SquaddieActionsForThisRound = undefined;

@@ -59,8 +59,8 @@ export interface MissionLoaderContext {
     resourcesPendingLoading: string[];
     completionProgress: MissionLoaderCompletionProgress;
     squaddieData: {
-        teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam }
-        teamStrategyByName: { [key: string]: TeamStrategy[] };
+        teams: BattleSquaddieTeam[];
+        teamStrategyById: { [key: string]: TeamStrategy[] };
         templates: { [id: string]: SquaddieTemplate };
     };
     cutsceneInfo: {
@@ -84,8 +84,8 @@ export const MissionLoader = {
                 loadedFileData: false,
             },
             squaddieData: {
-                teamsByAffiliation: {},
-                teamStrategyByName: {},
+                teams: [],
+                teamStrategyById: {},
                 templates: {},
             },
             cutsceneInfo: {
@@ -720,14 +720,18 @@ const loadSirCamil = ({
 function loadTeamInfo({missionLoaderStatus}: {
     missionLoaderStatus: MissionLoaderContext
 }) {
-    missionLoaderStatus.squaddieData.teamsByAffiliation[SquaddieAffiliation.PLAYER] = {
-        affiliation: SquaddieAffiliation.PLAYER,
-        name: "Crusaders",
-        battleSquaddieIds: [
-            "player_young_torrin",
-            "player_sir_camil"
-        ],
-    };
+    missionLoaderStatus.squaddieData.teams ||= [];
+    missionLoaderStatus.squaddieData.teams.push(
+        {
+            id: "playerTeam",
+            affiliation: SquaddieAffiliation.PLAYER,
+            name: "Crusaders",
+            battleSquaddieIds: [
+                "player_young_torrin",
+                "player_sir_camil"
+            ],
+        }
+    );
 }
 
 const loadTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: string]: SquaddieTemplate }> => {
@@ -804,14 +808,16 @@ const createSquaddieTeams = ({missionData, missionLoaderContext}: {
     missionData: MissionFileFormat;
     missionLoaderContext: MissionLoaderContext
 }) => {
-    const enemyTeam = missionData.enemy.teams[0];
-    if (enemyTeam) {
+    missionData.enemy.teams.forEach(enemyTeam => {
         const team: BattleSquaddieTeam = {
+            id: enemyTeam.id,
             name: enemyTeam.name,
             affiliation: SquaddieAffiliation.ENEMY,
             battleSquaddieIds: enemyTeam.battleSquaddieIds,
         }
-        missionLoaderContext.squaddieData.teamsByAffiliation[SquaddieAffiliation.ENEMY] = team;
-        missionLoaderContext.squaddieData.teamStrategyByName[team.name] = [...enemyTeam.strategies];
-    }
+        missionLoaderContext.squaddieData.teams ||= [];
+        missionLoaderContext.squaddieData.teams.push(team);
+        missionLoaderContext.squaddieData.teamStrategyById[team.id] ||= [];
+        missionLoaderContext.squaddieData.teamStrategyById[team.id].push(...enemyTeam.strategies);
+    });
 }

@@ -1,7 +1,7 @@
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import * as mocks from "../../utils/test/mocks";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {MissionFileFormat} from "../../dataLoader/missionLoader";
+import {MissionFileFormat, NpcTeam} from "../../dataLoader/missionLoader";
 import * as DataLoader from "../../dataLoader/dataLoader";
 import {
     MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
@@ -15,6 +15,7 @@ import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestrator/missionCutsceneCollec
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {TestMissionData} from "../../utils/test/missionData";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -183,11 +184,18 @@ describe('Mission Loader', () => {
                 });
             });
             it('creates teams', () => {
-                expect(missionLoaderStatus.squaddieData.teamsByAffiliation.ENEMY.name).toEqual(missionData.enemy.teams[0].name);
-                expect(missionLoaderStatus.squaddieData.teamsByAffiliation.ENEMY.battleSquaddieIds).toEqual(missionData.enemy.teams[0].battleSquaddieIds);
+                const enemyNpcTeam0: NpcTeam = missionData.enemy.teams[0];
+                expect(missionLoaderStatus.squaddieData.teams).toContainEqual({
+                        affiliation: SquaddieAffiliation.ENEMY,
+                        id: enemyNpcTeam0.id,
+                        name: enemyNpcTeam0.name,
+                        battleSquaddieIds: enemyNpcTeam0.battleSquaddieIds,
+                    }
+                );
+                expect(missionLoaderStatus.squaddieData.teams.some(team => team.id === missionData.enemy.teams[1].id)).toBeTruthy();
             });
             it('creates team strategies', () => {
-                expect(missionLoaderStatus.squaddieData.teamStrategyByName[missionData.enemy.teams[0].name]).toEqual(
+                expect(missionLoaderStatus.squaddieData.teamStrategyById[missionData.enemy.teams[0].id]).toEqual(
                     missionData.enemy.teams[0].strategies
                 );
             });
@@ -215,10 +223,11 @@ describe('Mission Loader', () => {
             });
         });
 
-        it('gets squaddies', () => {
+        it('gets squaddies and queues resources to load based on the squaddie resources', () => {
             expect(squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
-            expect(Object.keys(missionLoaderStatus.squaddieData.teamsByAffiliation).length).toBeGreaterThan(0);
-            expect(Object.keys(missionLoaderStatus.squaddieData.teamStrategyByName).length).toBeGreaterThan(0);
+            expect(missionLoaderStatus.squaddieData.teams.length).toBeGreaterThan(0);
+            expect(Object.keys(missionLoaderStatus.squaddieData.teamStrategyById).length).toBeGreaterThan(0);
+
             expect(missionLoaderStatus.resourcesPendingLoading.length).toBeGreaterThan(initialPendingResourceListLength);
         });
 

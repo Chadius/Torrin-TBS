@@ -55,7 +55,7 @@ describe('BattleComputerSquaddieSelector', () => {
     let entireTurnDemonBiteAction: SquaddieAction;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let battlePhaseState: BattlePhaseState;
-    let teamsByAffiliation: { [affiliation in SquaddieAffiliation]?: BattleSquaddieTeam };
+    let teams: BattleSquaddieTeam[];
 
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector();
@@ -66,12 +66,13 @@ describe('BattleComputerSquaddieSelector', () => {
             })
         });
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        teamsByAffiliation = {};
+        teams = [];
     });
 
     const makeBattlePhaseTrackerWithEnemyTeam = (missionMap: MissionMap) => {
         const enemyTeam: BattleSquaddieTeam =
             {
+                id: "teamId",
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleSquaddieIds: [],
@@ -155,7 +156,7 @@ describe('BattleComputerSquaddieSelector', () => {
             turnCount: 1,
         }
 
-        teamsByAffiliation[SquaddieAffiliation.ENEMY] = enemyTeam;
+        teams.push(enemyTeam);
 
         missionMap.addSquaddie(
             enemyDemonStatic.squaddieId.templateId,
@@ -211,7 +212,7 @@ describe('BattleComputerSquaddieSelector', () => {
                         battlePhaseState,
                         camera,
                         missionMap,
-                        teamsByAffiliation,
+                        teams,
                         recording: {history: []},
                     })
                 })
@@ -262,13 +263,14 @@ describe('BattleComputerSquaddieSelector', () => {
                         battlePhaseState,
                         missionMap,
                         recording: {history: []},
-                        teamStrategyByAffiliation: {
-                            ENEMY: [{
-                                type: TeamStrategyType.END_TURN,
-                                options: {},
-                            }],
+                        teams,
+                        teamStrategiesById: {
+                            "teamId":
+                                [{
+                                    type: TeamStrategyType.END_TURN,
+                                    options: {},
+                                }],
                         },
-                        teamsByAffiliation,
                     })
                 })
             });
@@ -316,13 +318,14 @@ describe('BattleComputerSquaddieSelector', () => {
                         battlePhaseState,
                         missionMap,
                         recording: {history: []},
-                        teamStrategyByAffiliation: {
-                            ENEMY: [{
-                                type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                                options: {},
-                            }],
+                        teams,
+                        teamStrategiesById: {
+                            "teamId":
+                                [{
+                                    type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                    options: {},
+                                }],
                         },
-                        teamsByAffiliation,
                     })
                 })
             });
@@ -368,13 +371,14 @@ describe('BattleComputerSquaddieSelector', () => {
                     recording: {history: []},
                     battlePhaseState,
                     missionMap,
-                    teamStrategyByAffiliation: {
-                        ENEMY: [{
-                            type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                            options: {},
-                        }],
+                    teams,
+                    teamStrategiesById: {
+                        "teamId":
+                            [{
+                                type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                options: {},
+                            }],
                     },
-                    teamsByAffiliation,
                 })
             })
         });
@@ -450,13 +454,14 @@ describe('BattleComputerSquaddieSelector', () => {
                         battlePhaseState,
                         camera,
                         missionMap,
-                        teamStrategyByAffiliation: {
-                            ENEMY: [{
-                                type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                                options: {}
-                            }]
+                        teams,
+                        teamStrategiesById: {
+                            "teamId":
+                                [{
+                                    type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                    options: {},
+                                }],
                         },
-                        teamsByAffiliation,
                     })
                 })
             });
@@ -504,13 +509,14 @@ describe('BattleComputerSquaddieSelector', () => {
                                 battlePhaseState,
                                 camera,
                                 missionMap,
-                                teamStrategyByAffiliation: {
-                                    ENEMY: [{
-                                        type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
-                                        options: {}
-                                    }]
+                                teams,
+                                teamStrategiesById: {
+                                    "teamId":
+                                        [{
+                                            type: TeamStrategyType.TARGET_SQUADDIE_IN_RANGE,
+                                            options: {},
+                                        }],
                                 },
-                                teamsByAffiliation,
                                 recording: {history: []},
                             })
                         })
