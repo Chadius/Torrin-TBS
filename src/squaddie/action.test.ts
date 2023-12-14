@@ -135,4 +135,110 @@ describe('SquaddieAction', () => {
         expect(actionWithMissingFields.damageDescriptions).toEqual({});
         expect(actionWithMissingFields.healingDescriptions).toEqual({});
     });
+
+    describe('sanitization', () => {
+        let invalidActionBase: SquaddieAction;
+
+        beforeEach(() => {
+            invalidActionBase = {
+                name: "missing stuff",
+                id: "id",
+                minimumRange: 0,
+                maximumRange: 1,
+                traits: undefined,
+                targetingShape: undefined,
+                healingDescriptions: undefined,
+                actionPointCost: undefined,
+                damageDescriptions: undefined,
+            };
+        });
+
+        const tests: { field: string, value: any }[] = [
+            {
+                field: "id",
+                value: "",
+            },
+            {
+                field: "id",
+                value: undefined,
+            },
+            {
+                field: "id",
+                value: null,
+            },
+            {
+                field: "name",
+                value: "",
+            },
+            {
+                field: "name",
+                value: undefined,
+            },
+            {
+                field: "name",
+                value: null,
+            },
+            {
+                field: "minimumRange",
+                value: NaN,
+            },
+            {
+                field: "minimumRange",
+                value: -1,
+            },
+            {
+                field: "minimumRange",
+                value: undefined,
+            },
+            {
+                field: "minimumRange",
+                value: null,
+            },
+            {
+                field: "maximumRange",
+                value: NaN,
+            },
+            {
+                field: "maximumRange",
+                value: -1,
+            },
+            {
+                field: "maximumRange",
+                value: undefined,
+            },
+            {
+                field: "maximumRange",
+                value: null,
+            },
+        ];
+
+        it.each(tests)(`$field: $value will throw an error for being invalid`, ({
+                                                                                    field,
+                                                                                    value
+                                                                                }) => {
+            const invalidAction = {
+                ...invalidActionBase,
+                [field]: value,
+            }
+            const throwErrorBecauseOfNoIdNameOrRange = () => {
+                SquaddieActionHandler.sanitize(invalidAction);
+            };
+
+            expect(throwErrorBecauseOfNoIdNameOrRange).toThrowError('cannot sanitize');
+        });
+
+        it('will throw an error during sanitization if minimum range is more than maximum range', () => {
+            const invalidAction: SquaddieAction = {
+                ...invalidActionBase,
+                minimumRange: 2,
+                maximumRange: 1,
+            };
+
+            const throwErrorBecauseOfNoIdNameOrRange = () => {
+                SquaddieActionHandler.sanitize(invalidAction);
+            };
+
+            expect(throwErrorBecauseOfNoIdNameOrRange).toThrowError('cannot sanitize');
+        });
+    });
 });

@@ -18,6 +18,14 @@ export const SquaddieIdHelper = {
 }
 
 const sanitize = (data: SquaddieId) => {
+    if (!data.templateId || !isValidValue(data.templateId)) {
+        throw new Error('SquaddieId cannot sanitize, missing templateId');
+    }
+
+    if (!data.name || !isValidValue(data.name)) {
+        throw new Error('SquaddieId cannot sanitize, missing name');
+    }
+
     data.affiliation = isValidValue(data.affiliation) ? data.affiliation : SquaddieAffiliation.UNKNOWN;
     data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageHelper.newUsingTraitValues({});
     data.resources = isValidValue(data.resources) ? data.resources : SquaddieResourceHelper.new();

@@ -57,8 +57,8 @@ export const SquaddieActionHandler = {
         const data = {
             name: name,
             id: id,
-            minimumRange: minimumRange,
-            maximumRange: maximumRange,
+            minimumRange: minimumRange ? minimumRange : 0,
+            maximumRange: maximumRange ? maximumRange : 0,
             actionPointCost: actionPointCost,
             traits: traits,
             damageDescriptions: damageDescriptions,
@@ -81,6 +81,22 @@ export const SquaddieActionHandler = {
 };
 
 const sanitize = (data: SquaddieAction) => {
+    if (!data.id || !isValidValue(data.id)) {
+        throw new Error('SquaddieAction cannot sanitize, missing id');
+    }
+    if (!data.name || !isValidValue(data.name)) {
+        throw new Error('SquaddieAction cannot sanitize, missing name');
+    }
+    if (!isValidValue(data.minimumRange) || data.minimumRange < 0) {
+        throw new Error('SquaddieAction cannot sanitize, missing or invalid minimumRange');
+    }
+    if (!isValidValue(data.maximumRange) || data.maximumRange < 0) {
+        throw new Error('SquaddieAction cannot sanitize, missing or invalid maximumRange');
+    }
+    if (data.minimumRange > data.maximumRange) {
+        throw new Error(`SquaddieAction cannot sanitize, minimumRange is more than maximumRange: ${data.minimumRange} ${data.maximumRange}`)
+    }
+
     data.targetingShape = (isValidValue(data.targetingShape) && data.targetingShape !== TargetingShape.UNKNOWN) ? data.targetingShape : TargetingShape.SNAKE;
     data.actionPointCost = isValidValue(data.actionPointCost) ? data.actionPointCost : 1;
     data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageHelper.newUsingTraitValues({});

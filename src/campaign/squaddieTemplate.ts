@@ -16,11 +16,13 @@ export const SquaddieTemplateHelper = {
 }
 
 const sanitize = (data: SquaddieTemplate) => {
-    data.actions = isValidValue(data.actions) ? data.actions : [];
-    data.actions.forEach(SquaddieActionHandler.sanitize);
-    data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
-    if (!isValidValue(data.squaddieId)) {
-        throw new Error("squaddieId missing, cannot sanitize");
+    if (!data.squaddieId || !isValidValue(data.squaddieId)) {
+        throw new Error("Squaddie Action cannot sanitize, missing squaddieId ");
     }
     SquaddieIdHelper.sanitize(data.squaddieId);
+
+    data.actions = isValidValue(data.actions) ? data.actions : [];
+    data.actions.forEach(SquaddieActionHandler.sanitize);
+
+    data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
 }

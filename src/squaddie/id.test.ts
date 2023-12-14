@@ -20,4 +20,75 @@ describe('Squaddie Id', () => {
         expect(squaddieIdWithMissingFields.resources).toEqual(SquaddieResourceHelper.new());
         expect(squaddieIdWithMissingFields.traits).toEqual(TraitStatusStorageHelper.newUsingTraitValues({}));
     });
+    it('throws an error during sanitization if there is no name or id', () => {
+        const invalidSquaddie: SquaddieId = {
+            templateId: null,
+            name: undefined,
+            resources: undefined,
+            traits: null,
+            affiliation: undefined,
+        };
+
+        const throwErrorBecauseOfNoTemplateIdOrName = () => {
+            SquaddieIdHelper.sanitize(invalidSquaddie);
+        };
+
+        expect(throwErrorBecauseOfNoTemplateIdOrName).toThrowError('cannot sanitize');
+    });
+
+    describe('sanitization', () => {
+        let invalidSquaddieBase: SquaddieId;
+
+        beforeEach(() => {
+            invalidSquaddieBase = {
+                templateId: "templateId",
+                name: "name",
+                resources: undefined,
+                traits: null,
+                affiliation: undefined,
+            };
+        });
+
+        const tests: { field: string, value: any }[] = [
+            {
+                field: "templateId",
+                value: "",
+            },
+            {
+                field: "templateId",
+                value: undefined,
+            },
+            {
+                field: "templateId",
+                value: null,
+            },
+            {
+                field: "name",
+                value: "",
+            },
+            {
+                field: "name",
+                value: undefined,
+            },
+            {
+                field: "name",
+                value: null,
+            }
+        ];
+
+        it.each(tests)(`$field: $value will throw an error for being invalid`, ({
+                                                                                    field,
+                                                                                    value
+                                                                                }) => {
+            const invalidSquaddie = {
+                ...invalidSquaddieBase,
+                [field]: value,
+            }
+            const throwErrorBecauseInvalid = () => {
+                SquaddieIdHelper.sanitize(invalidSquaddie);
+            };
+
+            expect(throwErrorBecauseInvalid).toThrowError('cannot sanitize');
+        });
+    });
 });

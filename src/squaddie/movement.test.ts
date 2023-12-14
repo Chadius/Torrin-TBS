@@ -1,4 +1,4 @@
-import {CreateNewSquaddieMovementWithTraits, SquaddieMovement} from "./movement";
+import {CreateNewSquaddieMovementWithTraits, SquaddieMovement, SquaddieMovementHelper} from "./movement";
 import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 
 describe('movement for squaddies', () => {
@@ -25,5 +25,19 @@ describe('movement for squaddies', () => {
         expect(movement.movementPerAction).toBe(3);
         expect(movement.passThroughWalls).toBeTruthy();
         expect(movement.crossOverPits).toBeFalsy();
+    });
+
+    describe('sanitize', () => {
+        it('can be sanitized to fill in missing fields', () => {
+            const movementWithMissingFields: SquaddieMovement = {
+                movementPerAction: NaN,
+                passThroughWalls: undefined,
+                crossOverPits: null,
+            };
+            SquaddieMovementHelper.sanitize(movementWithMissingFields);
+            expect(movementWithMissingFields.movementPerAction).toEqual(0);
+            expect(movementWithMissingFields.crossOverPits).toEqual(false);
+            expect(movementWithMissingFields.passThroughWalls).toEqual(false);
+        });
     });
 });

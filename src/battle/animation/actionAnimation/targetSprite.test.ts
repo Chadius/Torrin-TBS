@@ -72,7 +72,12 @@ describe('Target Sprite', () => {
             startingPosition: 0,
         });
 
-        sprite.draw(timer, mockedP5GraphicsContext, SquaddieActionHandler.new({}), resultTookDamage);
+        sprite.draw(timer, mockedP5GraphicsContext, SquaddieActionHandler.new({
+            id: "attack",
+            name: "attack",
+            minimumRange: 0,
+            maximumRange: 1,
+        }), resultTookDamage);
 
         expect(getSquaddieEmotionSpy).toBeCalled();
         expect(getterSpy).toBeCalled();

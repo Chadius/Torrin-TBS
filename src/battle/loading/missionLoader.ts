@@ -52,10 +52,6 @@ export interface MissionLoaderCompletionProgress {
     loadedFileData: boolean;
 }
 
-export interface NpcPhase {
-    templateIds: string[];
-}
-
 export interface MissionLoaderContext {
     id: string;
     objectives: MissionObjective[];

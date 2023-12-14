@@ -47,9 +47,9 @@ describe('BattleSquaddieTarget', () => {
     let thiefDynamic: BattleSquaddie;
     let battleMap: MissionMap;
     let longswordAction: SquaddieAction;
-    let longswordActionId: "longsword";
+    let longswordActionId: string = "longsword";
     let bandageWoundsAction: SquaddieAction;
-    let bandageWoundsActionId: "bandage wounds";
+    let bandageWoundsActionId: string = "bandage wounds";
     let state: GameEngineState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
