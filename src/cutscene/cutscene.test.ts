@@ -118,9 +118,9 @@ describe('Cutscene', () => {
                 ],
                 decisionTriggers: [
                     new DecisionTrigger({
-                        source_dialog_id: "buy my stuff",
-                        source_dialog_answer: 0,
-                        destination_dialog_id: "test passes",
+                        sourceDialogId: "buy my stuff",
+                        sourceDialogAnswer: 0,
+                        destinationDialogId: "test passes",
                     })
                 ]
             });
@@ -155,9 +155,9 @@ describe('Cutscene', () => {
                 ],
                 decisionTriggers: [
                     new DecisionTrigger({
-                        source_dialog_id: "buy my stuff",
-                        source_dialog_answer: 1,
-                        destination_dialog_id: "test failed",
+                        sourceDialogId: "buy my stuff",
+                        sourceDialogAnswer: 1,
+                        destinationDialogId: "test failed",
                     })
                 ]
             });
@@ -191,8 +191,8 @@ describe('Cutscene', () => {
                 ],
                 decisionTriggers: [
                     new DecisionTrigger({
-                        source_dialog_id: "act serious",
-                        destination_dialog_id: "test passes",
+                        sourceDialogId: "act serious",
+                        destinationDialogId: "test passes",
                     })
                 ]
             });
@@ -233,18 +233,18 @@ describe('Cutscene', () => {
                 ],
                 decisionTriggers: [
                     new DecisionTrigger({
-                        source_dialog_id: "buy my stuff",
-                        source_dialog_answer: 0,
-                        destination_dialog_id: "test passes",
+                        sourceDialogId: "buy my stuff",
+                        sourceDialogAnswer: 0,
+                        destinationDialogId: "test passes",
                     }),
                     new DecisionTrigger({
-                        source_dialog_id: "buy my stuff",
-                        source_dialog_answer: 1,
-                        destination_dialog_id: "reconsider",
+                        sourceDialogId: "buy my stuff",
+                        sourceDialogAnswer: 1,
+                        destinationDialogId: "reconsider",
                     }),
                     new DecisionTrigger({
-                        source_dialog_id: "reconsider",
-                        destination_dialog_id: "buy my stuff"
+                        sourceDialogId: "reconsider",
+                        destinationDialogId: "buy my stuff"
                     })
                 ],
                 screenDimensions: [1000, 800],
@@ -362,9 +362,9 @@ describe('Cutscene', () => {
                 screenDimensions: [1000, 800],
                 decisionTriggers: [
                     new DecisionTrigger({
-                        source_dialog_answer: 0,
-                        source_dialog_id: "waiterAsks",
-                        destination_dialog_id: "does not matter"
+                        sourceDialogAnswer: 0,
+                        sourceDialogId: "waiterAsks",
+                        destinationDialogId: "does not matter"
                     })
                 ]
             });

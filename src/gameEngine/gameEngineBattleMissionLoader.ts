@@ -151,7 +151,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         battleOrchestratorState.battleState.objectives = this.missionLoaderStatus.objectives;
         battleOrchestratorState.battleState.objectives.forEach((objective: MissionObjective) => {
             const conditions: {
-                [mission_condition_id: string]: boolean;
+                [missionConditionId: string]: boolean;
             } = {}
             objective.conditions.forEach((condition: MissionCondition) => {
                 conditions[condition.id] = undefined;

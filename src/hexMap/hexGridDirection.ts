@@ -42,22 +42,22 @@ export const CreateNewNeighboringCoordinates = (q: number, r: number): HexCoordi
 }
 
 
-export const moveCoordinatesInOneDirection = (origin_q: number, origin_r: number, direction: HexDirection): HexCoordinate => {
+export const moveCoordinatesInOneDirection = (originQ: number, originR: number, direction: HexDirection): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
-            return {q: origin_q, r: origin_r + 1};
+            return {q: originQ, r: originR + 1};
         case HexDirection.LEFT:
-            return {q: origin_q, r: origin_r - 1};
+            return {q: originQ, r: originR - 1};
         case HexDirection.UP_RIGHT:
-            return {q: origin_q - 1, r: origin_r + 1};
+            return {q: originQ - 1, r: originR + 1};
         case HexDirection.UP_LEFT:
-            return {q: origin_q - 1, r: origin_r};
+            return {q: originQ - 1, r: originR};
         case HexDirection.DOWN_RIGHT:
-            return {q: origin_q + 1, r: origin_r};
+            return {q: originQ + 1, r: originR};
         case HexDirection.DOWN_LEFT:
-            return {q: origin_q + 1, r: origin_r - 1};
+            return {q: originQ + 1, r: originR - 1};
         case HexDirection.ORIGIN:
         default:
-            return {q: origin_q, r: origin_r};
+            return {q: originQ, r: originR};
     }
 }

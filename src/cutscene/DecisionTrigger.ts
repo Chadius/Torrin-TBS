@@ -1,25 +1,25 @@
 type Options = {
-    source_dialog_answer: number;
+    sourceDialogAnswer: number;
 }
 
 type RequiredOptions = {
-    source_dialog_id: string;
-    destination_dialog_id: string;
+    sourceDialogId: string;
+    destinationDialogId: string;
 }
 
 export class DecisionTrigger {
-    source_dialog_id: string;
-    source_dialog_answer: number | undefined;
-    destination_dialog_id: string;
+    sourceDialogId: string;
+    sourceDialogAnswer: number | undefined;
+    destinationDialogId: string;
 
     constructor(options: RequiredOptions & Partial<Options>) {
-        this.destination_dialog_id = options.destination_dialog_id;
-        this.source_dialog_id = options.source_dialog_id;
-        this.source_dialog_answer = options.source_dialog_answer;
+        this.destinationDialogId = options.destinationDialogId;
+        this.sourceDialogId = options.sourceDialogId;
+        this.sourceDialogAnswer = options.sourceDialogAnswer;
     }
 
     doesThisRequireAMatchingAnswer(): boolean {
-        return this.source_dialog_answer !== undefined;
+        return this.sourceDialogAnswer !== undefined;
     }
 }
 

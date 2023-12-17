@@ -8,7 +8,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
-import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
+import {BattleSquaddie} from "../battleSquaddie";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";

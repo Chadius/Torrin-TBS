@@ -166,10 +166,10 @@ export class Cutscene {
         let currentActionIndex: number = this.dialogueActionIndex;
 
         if (trigger !== undefined) {
-            nextAction = this.findDialogueByID(trigger.destination_dialog_id);
+            nextAction = this.findDialogueByID(trigger.destinationDialogId);
             return {
                 nextAction: nextAction,
-                actionIndex: this.findDialogueIndexByID(trigger.destination_dialog_id)
+                actionIndex: this.findDialogueIndexByID(trigger.destinationDialogId)
             };
         }
 
@@ -331,23 +331,23 @@ export class Cutscene {
         const selectedAnswer = this.currentAction instanceof DialogueBox ? this.currentAction.answerSelected : undefined;
 
         return this.decisionTriggers.find((action) =>
-                action.source_dialog_id === this.currentAction.getId()
+                action.sourceDialogId === this.currentAction.getId()
                 && (
                     !action.doesThisRequireAMatchingAnswer()
-                    || action.source_dialog_answer === selectedAnswer
+                    || action.sourceDialogAnswer === selectedAnswer
                 )
         );
     }
 
-    private findDialogueByID(target_id: string): CutsceneAction | undefined {
+    private findDialogueByID(targetId: string): CutsceneAction | undefined {
         return this.dialogueActions.find((dialog) =>
-            dialog.getId() === target_id
+            dialog.getId() === targetId
         );
     }
 
-    private findDialogueIndexByID(target_id: string): number {
+    private findDialogueIndexByID(targetId: string): number {
         return this.dialogueActions.findIndex((dialog) =>
-            dialog.getId() === target_id
+            dialog.getId() === targetId
         );
     }
 

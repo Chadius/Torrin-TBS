@@ -194,7 +194,7 @@ describe('GameEngineBattleMissionLoader', () => {
             loader = new GameEngineBattleMissionLoader();
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
-                mission_statistics: {
+                missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     timeElapsedInMilliseconds: 1,
                 },
@@ -206,7 +206,7 @@ describe('GameEngineBattleMissionLoader', () => {
                         battleSquaddieIds: [],
                     },
                 ],
-                cutscene_trigger_completion: [
+                cutsceneTriggerCompletion: [
                     {
                         triggeringEvent: TriggeringEvent.MISSION_VICTORY,
                         cutsceneId: "default_victory",
@@ -369,7 +369,7 @@ describe('GameEngineBattleMissionLoader', () => {
             loader = new GameEngineBattleMissionLoader();
             loadedBattleSaveState = {
                 ...DefaultBattleSaveState(),
-                mission_statistics: {
+                missionStatistics: {
                     ...MissionStatisticsHandler.new(),
                     timeElapsedInMilliseconds: 1,
                 },
@@ -381,7 +381,7 @@ describe('GameEngineBattleMissionLoader', () => {
                         battleSquaddieIds: [],
                     },
                 ],
-                cutscene_trigger_completion: [
+                cutsceneTriggerCompletion: [
                     {
                         triggeringEvent: TriggeringEvent.MISSION_VICTORY,
                         cutsceneId: "default_victory",

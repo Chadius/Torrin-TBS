@@ -10,11 +10,11 @@ import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
 
 function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
     const newTiles: HexGridTile[] = [];
-    movementCost.forEach((costString, q_index) => {
-        let r_index = 0 - Math.floor(q_index / 2);
-        if (q_index % 2 !== costString.length % 2) {
-            throw new Error(`movementCost validation failed: row ${q_index} `
-                + `must have ${q_index % 2 === 0 ? 'even' : 'odd'} length,`
+    movementCost.forEach((costString, qIndex) => {
+        let rIndex = 0 - Math.floor(qIndex / 2);
+        if (qIndex % 2 !== costString.length % 2) {
+            throw new Error(`movementCost validation failed: row ${qIndex} `
+                + `must have ${qIndex % 2 === 0 ? 'even' : 'odd'} length,`
                 + `but is ${costString.length}`
             );
         }
@@ -24,12 +24,12 @@ function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
             let stringToConvert = costString.slice(costStringIndex, costStringIndex + 2);
             let movementCostType = convertStringToMovementCost(stringToConvert);
             newTiles.push({
-                q: q_index,
-                r: r_index,
+                q: qIndex,
+                r: rIndex,
                 terrainType: movementCostType,
             });
 
-            r_index += 1;
+            rIndex += 1;
             costStringIndex += 2;
         }
     });

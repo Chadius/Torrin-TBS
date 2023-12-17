@@ -132,7 +132,7 @@ describe('Game Engine', () => {
             expect(saveSpy).toBeCalled();
             expect(newGameEngine.gameEngineState.gameSaveFlags.savingInProgress).toBeFalsy();
             const battleSaveStateSaved: BattleSaveState = saveSpy.mock.calls[0][0];
-            expect(battleSaveStateSaved.mission_id).toBe(newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId);
+            expect(battleSaveStateSaved.missionId).toBe(newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId);
         });
         it('will set the error flag if there is an error while saving', async () => {
             const consoleLoggerSpy: jest.SpyInstance = jest.spyOn(console, "log").mockImplementation(() => {
