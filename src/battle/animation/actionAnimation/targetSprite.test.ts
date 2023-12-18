@@ -1,5 +1,5 @@
 import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResultPerSquaddie";
-import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {TargetSprite} from "./targetSprite";
@@ -16,7 +16,7 @@ describe('Target Sprite', () => {
     let resultTookLethalDamage: ActionResultPerSquaddie;
     let resultMissed: ActionResultPerSquaddie;
     let resultDealsNoDamage: ActionResultPerSquaddie;
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
     const battleSquaddieId = "target0";
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -24,7 +24,7 @@ describe('Target Sprite', () => {
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {
@@ -38,7 +38,7 @@ describe('Target Sprite', () => {
             templateId: "target"
         });
 
-        const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
 
         resultTookDamage = {damageTaken: 1, healingReceived: 0, actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS};
         resultTookLethalDamage = {
@@ -127,7 +127,7 @@ describe('Target Sprite', () => {
         expect(getterSpy).toBeCalled();
     });
     it('transitions to DEAD if it kills the target', () => {
-        const {battleSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+        const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
         battleSquaddie.inBattleAttributes.currentHitPoints = 0;
 
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);

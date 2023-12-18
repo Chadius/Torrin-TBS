@@ -1,7 +1,7 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieId} from "../../squaddie/id";
-import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../battle/objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../../battle/battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
@@ -28,7 +28,7 @@ export const CreateNewSquaddieAndAddToRepository: (
         templateId: string,
         battleId: string,
         affiliation: SquaddieAffiliation,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         actions?: SquaddieAction[],
         attributes?: ArmyAttributes,
     }
@@ -48,7 +48,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          templateId: string,
          battleId: string,
          affiliation: SquaddieAffiliation,
-         squaddieRepository: BattleSquaddieRepository,
+         squaddieRepository: ObjectRepository,
          actions?: SquaddieAction[],
          attributes?: ArmyAttributes,
      }
@@ -72,7 +72,7 @@ export const CreateNewSquaddieAndAddToRepository: (
         battleSquaddieId: battleId,
         squaddieTurn: SquaddieTurnHandler.new(),
     });
-    squaddieRepository.addSquaddie(squaddieTemplate, battleSquaddie);
+    ObjectRepositoryHelper.addSquaddie(squaddieRepository, squaddieTemplate, battleSquaddie);
 
     return {
         squaddieTemplate,
@@ -82,7 +82,7 @@ export const CreateNewSquaddieAndAddToRepository: (
 
 export const CreateNewThiefSquaddie: (
     params: {
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         name?: string,
         templateId?: string,
         battleId?: string,
@@ -102,7 +102,7 @@ export const CreateNewThiefSquaddie: (
          actions,
          attributes,
      }: {
-         squaddieRepository: BattleSquaddieRepository,
+         squaddieRepository: ObjectRepository,
          name?: string,
          templateId?: string,
          battleId?: string,
@@ -149,7 +149,7 @@ export const CreateNewThiefSquaddie: (
 
 export const CreateNewKnightSquaddie: (
     params: {
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         name?: string,
         templateId?: string,
         battleId?: string,
@@ -169,7 +169,7 @@ export const CreateNewKnightSquaddie: (
          actions,
          attributes,
      }: {
-         squaddieRepository: BattleSquaddieRepository,
+         squaddieRepository: ObjectRepository,
          name?: string,
          templateId?: string,
          battleId?: string,

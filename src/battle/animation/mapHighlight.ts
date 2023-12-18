@@ -5,7 +5,7 @@ import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTile
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
@@ -13,7 +13,7 @@ import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../s
 import {FindValidTargets} from "../targeting/targetingService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
-export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: BattleSquaddieRepository) => {
+export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: ObjectRepository) => {
     const squaddieDatum = missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
 
     let {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})

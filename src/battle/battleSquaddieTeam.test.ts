@@ -1,5 +1,5 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "./objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "./battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "./BattleSquaddieTeam";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
@@ -7,7 +7,7 @@ import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../squaddie/armyAttributes";
 
 describe('Battle Squaddie Team', () => {
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let twoPlayerTeam: BattleSquaddieTeam;
     let playerSquaddieTemplateBase: SquaddieTemplate;
     let playerBattleSquaddie0: BattleSquaddie;
@@ -19,7 +19,7 @@ describe('Battle Squaddie Team', () => {
     let enemyBattleSquaddie1: BattleSquaddie;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         twoPlayerTeam = {
             id: "teamId",
             name: "awesome test team",
@@ -41,7 +41,7 @@ describe('Battle Squaddie Team', () => {
             actions: [],
         };
 
-        squaddieRepository.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository,
             playerSquaddieTemplateBase
         );
 
@@ -52,7 +52,7 @@ describe('Battle Squaddie Team', () => {
                 squaddieTurn: {remainingActionPoints: 3},
             });
 
-        squaddieRepository.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
             playerBattleSquaddie0
         );
 
@@ -61,7 +61,7 @@ describe('Battle Squaddie Team', () => {
             squaddieTemplateId: "player_young_torrin",
             squaddieTurn: {remainingActionPoints: 3},
         });
-        squaddieRepository.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
             playerBattleSquaddie1
         );
         BattleSquaddieTeamHelper.addBattleSquaddieIds(twoPlayerTeam, ["player_young_torrin_0", "player_young_torrin_1"]);
@@ -87,7 +87,7 @@ describe('Battle Squaddie Team', () => {
             attributes: DefaultArmyAttributes(),
         };
 
-        squaddieRepository.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository,
             enemySquaddieTemplateBase
         );
 
@@ -98,7 +98,7 @@ describe('Battle Squaddie Team', () => {
                 squaddieTurn: {remainingActionPoints: 3},
             });
 
-        squaddieRepository.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
             enemyBattleSquaddie0
         );
 
@@ -107,7 +107,7 @@ describe('Battle Squaddie Team', () => {
             squaddieTemplateId: "enemy_slither_demon",
             squaddieTurn: {remainingActionPoints: 3},
         });
-        squaddieRepository.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
             enemyBattleSquaddie1
         );
         BattleSquaddieTeamHelper.addBattleSquaddieIds(twoEnemyTeam, ["enemy_slither_demon_0", "enemy_slither_demon_1"])

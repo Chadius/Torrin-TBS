@@ -1,4 +1,4 @@
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
@@ -26,7 +26,7 @@ import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleSquaddieMover', () => {
-    let squaddieRepo: BattleSquaddieRepository;
+    let squaddieRepo: ObjectRepository;
     let player1Static: SquaddieTemplate;
     let player1Dynamic: BattleSquaddie;
     let enemy1Static: SquaddieTemplate;
@@ -36,7 +36,7 @@ describe('BattleSquaddieMover', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
         map = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [

@@ -1,7 +1,7 @@
 import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
@@ -46,7 +46,7 @@ import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngin
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
-    let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
+    let squaddieRepo: ObjectRepository = ObjectRepositoryHelper.new();
     let missionMap: MissionMap;
     let enemyDemonTemplate: SquaddieTemplate;
     let enemyDemonBattleSquaddie: BattleSquaddie;
@@ -59,7 +59,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector();
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
@@ -134,7 +134,7 @@ describe('BattleComputerSquaddieSelector', () => {
             squaddieTurn: SquaddieTurnHandler.new(),
         });
 
-        squaddieRepo.addBattleSquaddie(enemyDemonDynamic2);
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo, enemyDemonDynamic2);
 
         BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyDemonBattleSquaddie.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
 

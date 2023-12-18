@@ -1,12 +1,12 @@
 import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository} from "../objectRepository";
 
 export type TeamStrategyStateRequiredOptions = {
     missionMap: MissionMap;
     team: BattleSquaddieTeam;
-    squaddieRepository: BattleSquaddieRepository;
+    squaddieRepository: ObjectRepository;
 }
 
 export type TeamStrategyStateOptionalOptions = {
@@ -16,7 +16,7 @@ export type TeamStrategyStateOptionalOptions = {
 export class TeamStrategyState {
     private readonly _missionMap: MissionMap;
     private readonly _team: BattleSquaddieTeam;
-    private readonly _squaddieRepository: BattleSquaddieRepository;
+    private readonly _squaddieRepository: ObjectRepository;
 
     constructor(options: TeamStrategyStateRequiredOptions & Partial<TeamStrategyStateOptionalOptions>) {
         this._instruction = options.instruction;
@@ -25,7 +25,7 @@ export class TeamStrategyState {
         this._squaddieRepository = options.squaddieRepository;
     }
 
-    get squaddieRepository(): BattleSquaddieRepository {
+    get squaddieRepository(): ObjectRepository {
         return this._squaddieRepository;
     }
 

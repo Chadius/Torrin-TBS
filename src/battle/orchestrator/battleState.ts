@@ -24,7 +24,7 @@ import {
     FindTeamsOfAffiliation
 } from "../orchestratorComponents/battlePhaseTracker";
 import {isValidValue} from "../../utils/validityCheck";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository} from "../objectRepository";
 
 export enum BattleStateValidityMissingComponent {
     MISSION_MAP = "MISSION_MAP",
@@ -73,7 +73,7 @@ export const BattleStateHelper = {
         const missingComponents = getMissingComponents(battleState);
         return missingComponents.length === 0;
     },
-    getCurrentTeam: (battleState: BattleState, squaddieRepository: BattleSquaddieRepository): BattleSquaddieTeam => {
+    getCurrentTeam: (battleState: BattleState, squaddieRepository: ObjectRepository): BattleSquaddieTeam => {
         const teamsOfAffiliation: BattleSquaddieTeam[] = FindTeamsOfAffiliation(
             battleState.teams,
             ConvertBattlePhaseToSquaddieAffiliation(battleState.battlePhaseState.currentAffiliation),

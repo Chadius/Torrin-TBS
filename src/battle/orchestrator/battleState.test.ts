@@ -8,7 +8,7 @@ import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
 import {SquaddieIdHelper} from "../../squaddie/id";
 import {BattleSquaddieHelper} from "../battleSquaddie";
@@ -265,10 +265,10 @@ describe('Battle State', () => {
         let playerTeam1: BattleSquaddieTeam;
         let enemyTeam0: BattleSquaddieTeam;
         let battleState: BattleState;
-        let squaddieRepository: BattleSquaddieRepository;
+        let squaddieRepository: ObjectRepository;
 
         beforeEach(() => {
-            squaddieRepository = new BattleSquaddieRepository();
+            squaddieRepository = ObjectRepositoryHelper.new();
             const playerTemplate: SquaddieTemplate = SquaddieTemplateHelper.new({
                 squaddieId: SquaddieIdHelper.new({
                     templateId: "player template",
@@ -276,20 +276,20 @@ describe('Battle State', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                 })
             });
-            squaddieRepository.addSquaddieTemplate(playerTemplate);
-            squaddieRepository.addBattleSquaddie(
+            ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository, playerTemplate);
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
                 BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "player 0",
                     squaddieTemplate: playerTemplate,
                 })
             );
-            squaddieRepository.addBattleSquaddie(
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
                 BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "player 0 1",
                     squaddieTemplate: playerTemplate,
                 })
             );
-            squaddieRepository.addBattleSquaddie(
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
                 BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "player 1",
                     squaddieTemplate: playerTemplate,
@@ -317,8 +317,8 @@ describe('Battle State', () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                 })
             });
-            squaddieRepository.addSquaddieTemplate(enemyTemplate);
-            squaddieRepository.addBattleSquaddie(
+            ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository, enemyTemplate);
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
                 BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "enemy 0",
                     squaddieTemplate: enemyTemplate,

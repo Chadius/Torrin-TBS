@@ -13,6 +13,7 @@ import {TintSquaddieIfTurnIsComplete} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattleCameraHelper} from "../battle/battleCamera";
+import {ObjectRepositoryHelper} from "../battle/objectRepository";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
     missionLoaderContext: MissionLoaderContext;
@@ -202,10 +203,10 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
     }
 
     private addMidTurnEffects(battleOrchestratorState: BattleOrchestratorState) {
-        battleOrchestratorState.squaddieRepository.getBattleSquaddieIterator().forEach((info) => {
+        ObjectRepositoryHelper.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((info) => {
             const {battleSquaddie, battleSquaddieId} = info;
             const {squaddieTemplate} = getResultOrThrowError(
-                battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+                ObjectRepositoryHelper.getSquaddieByBattleId(battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
             TintSquaddieIfTurnIsComplete(
                 battleOrchestratorState.squaddieRepository,

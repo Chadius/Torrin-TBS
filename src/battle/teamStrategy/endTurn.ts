@@ -3,14 +3,14 @@ import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {TeamStrategyOptions} from "./teamStrategy";
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     constructor(options: TeamStrategyOptions) {
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieActionsForThisRound | undefined {
         const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
@@ -20,7 +20,7 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieToAct));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
 
         const datum = state.missionMap.getSquaddieByBattleId(squaddieToAct);
         const endTurnAction: SquaddieActionsForThisRound = {

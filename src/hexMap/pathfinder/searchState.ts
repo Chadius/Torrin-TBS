@@ -8,7 +8,7 @@ import {getResultOrThrowError, isError, unwrapResultOrError} from "../../utils/R
 import {MissionMap} from "../../missionMap/missionMap";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {CreateNewNeighboringCoordinates} from "../hexGridDirection";
-import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../battle/objectRepository";
 import {SearchParameters} from "./searchParams";
 
 export interface SearchState {
@@ -127,12 +127,12 @@ export const SearchStateHelper = {
     setLowestCostRoute: (searchState: SearchState, searchPath: SearchPath) => {
         searchState.results.setLowestCostRoute(searchPath);
     },
-    recordReachableSquaddies: (searchState: SearchState, squaddieRepository: BattleSquaddieRepository, missionMap: MissionMap) => {
+    recordReachableSquaddies: (searchState: SearchState, squaddieRepository: ObjectRepository, missionMap: MissionMap) => {
         missionMap.getAllSquaddieData().forEach((datum) => {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(datum.battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, datum.battleSquaddieId));
             if (!IsSquaddieAlive({squaddieTemplate, battleSquaddie})) {
                 return;
             }

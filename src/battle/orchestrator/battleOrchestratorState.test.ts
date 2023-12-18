@@ -6,7 +6,7 @@ import {
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
@@ -85,7 +85,7 @@ describe('orchestratorState', () => {
             BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
-        const squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
+        const squaddieRepository: ObjectRepository = ObjectRepositoryHelper.new();
         args = {
             ...args,
             squaddieRepository,
@@ -122,7 +122,7 @@ describe('orchestratorState', () => {
 
     it('can clone existing objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
                 allResources: []
@@ -145,7 +145,7 @@ describe('orchestratorState', () => {
 
     it('can change itself to match other objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
                 allResources: []
@@ -176,7 +176,7 @@ describe('orchestratorState', () => {
     it('can make a new object using creator function', () => {
         const numberGenerator = new RandomNumberGenerator();
         const battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
-        const squaddieRepository = new BattleSquaddieRepository();
+        const squaddieRepository = ObjectRepositoryHelper.new();
 
         const newBattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             battleState: validBattleState,

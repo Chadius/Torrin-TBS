@@ -5,7 +5,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {Pathfinder} from "./pathfinder";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ObjectRepositoryHelper} from "../../battle/objectRepository";
 
 describe('pathfinder move with multiple movement actions', () => {
     let mapOneRowFourColumns: string[];
@@ -46,7 +46,7 @@ describe('pathfinder move with multiple movement actions', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         ));
 
         validateTilesAreFound(
@@ -99,7 +99,7 @@ describe('pathfinder move with multiple movement actions', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         ));
 
         validateTilesAreFound(

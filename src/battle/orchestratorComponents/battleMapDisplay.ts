@@ -15,6 +15,7 @@ import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructi
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: GameEngineState, graphicsContext: GraphicsContext): void {
@@ -130,7 +131,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
     private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const noSquaddieIsCurrentlyActing: boolean = state.battleState.squaddieCurrentlyActing === undefined;
-        state.squaddieRepository.getBattleSquaddieIterator()
+        ObjectRepositoryHelper.getBattleSquaddieIterator(state.squaddieRepository)
             .filter((info) =>
                 info.battleSquaddieId in state.squaddieRepository.imageUIByBattleSquaddieId
             )

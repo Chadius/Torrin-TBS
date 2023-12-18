@@ -1,4 +1,4 @@
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "./objectRepository";
 import {MissionMap} from "../missionMap/missionMap";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {BattleSquaddieSelectedHUD, FILE_MESSAGE_DISPLAY_DURATION} from "./battleSquaddieSelectedHUD";
@@ -30,7 +30,7 @@ import {GameEngineState, GameEngineStateHelper} from "../gameEngine/gameEngine";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let missionMap: MissionMap;
     let resourceHandler: ResourceHandler;
     let playerSquaddieDynamicID: string = "player_squaddie_0";
@@ -53,7 +53,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             })
         })
 
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
 
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
@@ -322,7 +322,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             }
         );
 
-        const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(playerSquaddieDynamicID));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, playerSquaddieDynamicID));
         squaddieTemplate.actions.push(notEnoughActionPointsAction);
 
         const state: GameEngineState = GameEngineStateHelper.new({
@@ -875,9 +875,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         it('should show the button if there is 1 player controllable squaddie and the HUD is focused on an uncontrollable squaddie', () => {
-            const onePlayerOneEnemy = new BattleSquaddieRepository();
-            onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
-            onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
+            const onePlayerOneEnemy = ObjectRepositoryHelper.new();
+            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
 
             const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
@@ -903,9 +903,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         it('should show the button if there is 1 player controllable squaddie and the HUD is not focused', () => {
-            const onePlayerOneEnemy = new BattleSquaddieRepository();
-            onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
-            onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
+            const onePlayerOneEnemy = ObjectRepositoryHelper.new();
+            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
 
             const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 squaddieRepository: onePlayerOneEnemy,
@@ -924,9 +924,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         it('should not show the button if there is fewer than 2 player controllable squaddies', () => {
-            const onePlayerOneEnemy = new BattleSquaddieRepository();
-            onePlayerOneEnemy.addSquaddie(playerSquaddieStatic, playerSquaddieDynamic);
-            onePlayerOneEnemy.addSquaddie(enemySquaddieStatic, enemySquaddieDynamic);
+            const onePlayerOneEnemy = ObjectRepositoryHelper.new();
+            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
             const state = BattleOrchestratorStateHelper.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({

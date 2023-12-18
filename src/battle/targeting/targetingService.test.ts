@@ -1,7 +1,7 @@
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {BattleSquaddie} from "../battleSquaddie";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
@@ -16,7 +16,7 @@ describe('Targeting Service', () => {
     let longswordAction: SquaddieAction;
     let sirCamilSquaddieTemplate: SquaddieTemplate;
     let sirCamilBattleSquaddie: BattleSquaddie;
-    let squaddieRepo: BattleSquaddieRepository;
+    let squaddieRepo: ObjectRepository;
 
     beforeEach(() => {
         longswordAction = SquaddieActionHandler.new({
@@ -30,7 +30,7 @@ describe('Targeting Service', () => {
             maximumRange: 1,
         });
 
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
         ({
             squaddieTemplate: sirCamilSquaddieTemplate,
             battleSquaddie: sirCamilBattleSquaddie,
@@ -123,7 +123,7 @@ describe('Targeting Service', () => {
             maximumRange: 3,
         });
 
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
         let {
             squaddieTemplate: archerSquaddieTemplate,
             battleSquaddie: archerBattleSquaddie,

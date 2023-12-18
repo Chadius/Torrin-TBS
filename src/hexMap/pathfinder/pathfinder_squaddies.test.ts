@@ -8,16 +8,16 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {getResultOrThrowError, ResultOrError} from "../../utils/ResultOrError";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {createMap, validateTilesAreFound} from "./pathfinder_test_utils";
-import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../battle/objectRepository";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {DamageType, DealDamageToTheSquaddie} from "../../squaddie/squaddieService";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 
 describe('pathfinder and squaddies', () => {
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
     });
 
     describe('squaddie affiliations can allow pass through', () => {
@@ -74,7 +74,7 @@ describe('pathfinder and squaddies', () => {
                 affiliation: blockingAffiliation,
             };
             missionMap.addSquaddie(blockingSquaddie.templateId, "dynamic_0", {q: 0, r: 1});
-            let squaddieRepository = new BattleSquaddieRepository();
+            let squaddieRepository = ObjectRepositoryHelper.new();
             CreateNewSquaddieAndAddToRepository({
                 templateId: "blocker",
                 battleId: "dynamic_0",
@@ -343,7 +343,7 @@ describe('pathfinder and squaddies', () => {
 
         missionMap.addSquaddie("enemy", "dynamic_0", {q: 0, r: 1});
 
-        let squaddieRepository = new BattleSquaddieRepository();
+        let squaddieRepository = ObjectRepositoryHelper.new();
 
         CreateNewSquaddieAndAddToRepository({
             templateId: "enemy",
@@ -422,7 +422,7 @@ describe('pathfinder and squaddies', () => {
 
         missionMap.addSquaddie("enemy", "dynamic_0", {q: 0, r: 1});
 
-        let squaddieRepository = new BattleSquaddieRepository();
+        let squaddieRepository = ObjectRepositoryHelper.new();
 
         const {battleSquaddie: enemyDynamic, squaddieTemplate: enemyStatic}
             = CreateNewSquaddieAndAddToRepository({
@@ -505,7 +505,7 @@ describe('pathfinder and squaddies', () => {
         missionMap.addSquaddie("ally_at_the_edge", "ally_at_the_edge_dynamic_0", {q: 0, r: 4});
         missionMap.addSquaddie("ally_far_away", "ally_far_away_dynamic_0", {q: 0, r: 8});
 
-        let squaddieRepository = new BattleSquaddieRepository();
+        let squaddieRepository = ObjectRepositoryHelper.new();
         CreateNewSquaddieAndAddToRepository({
             templateId: "enemy_nearby",
             battleId: "enemy_nearby_dynamic_0",

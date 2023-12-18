@@ -1,7 +1,7 @@
 import {SquaddieAction} from "../../squaddie/action";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -50,7 +50,7 @@ export const FindValidTargets = ({
     action: SquaddieAction,
     actingSquaddieTemplate: SquaddieTemplate,
     actingBattleSquaddie: BattleSquaddie,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
     sourceTiles?: HexCoordinate[],
 }): TargetingResults => {
     const squaddieInfo = map.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId)
@@ -98,7 +98,7 @@ function addValidTargetsToResult(
     actingSquaddieTemplate: SquaddieTemplate,
     tilesInRange: HexCoordinate[],
     map: MissionMap,
-    squaddieRepository: BattleSquaddieRepository
+    squaddieRepository: ObjectRepository
 ) {
     const actingAffiliation: SquaddieAffiliation = actingSquaddieTemplate.squaddieId.affiliation;
     const validBattleSquaddieIds: string[] = tilesInRange.map((tile) => {
@@ -109,7 +109,7 @@ function addValidTargetsToResult(
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(mapData.battleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, mapData.battleSquaddieId));
 
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[actingAffiliation];
         if (friendlyAffiliations[squaddieTemplate.squaddieId.affiliation]) {

@@ -13,14 +13,14 @@ import {GetSquaddieAtMapLocation} from "../../battle/orchestratorComponents/orch
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {SearchState, SearchStateHelper} from "./searchState";
-import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../battle/objectRepository";
 
 
 export const Pathfinder = {
     findPathToStopLocation(
         searchParams: SearchParameters,
         missionMap: MissionMap,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
     ): ResultOrError<SearchResults, Error> {
         if (searchParams.stopLocation === undefined) {
             return makeError(new Error("no stop location was given"));
@@ -32,13 +32,13 @@ export const Pathfinder = {
         ));
     },
     getAllReachableTiles(searchParams: SearchParameters, missionMap: MissionMap,
-                         squaddieRepository: BattleSquaddieRepository): ResultOrError<SearchResults, Error> {
+                         squaddieRepository: ObjectRepository): ResultOrError<SearchResults, Error> {
         return getAllReachableTiles(searchParams, missionMap,
             squaddieRepository,);
     },
     getTilesInRange(searchParams: SearchParameters, maximumDistance: number, sourceTiles: HexCoordinate[],
                     missionMap: MissionMap,
-                    squaddieRepository: BattleSquaddieRepository,): HexCoordinate[] {
+                    squaddieRepository: ObjectRepository,): HexCoordinate[] {
         const inRangeTilesByLocation: {
             [locationKey: string]: HexCoordinate
         } = {};
@@ -85,13 +85,13 @@ export const Pathfinder = {
         return Object.values(inRangeTilesByLocation);
     },
     findReachableSquaddies(searchParams: SearchParameters, missionMap: MissionMap,
-                           squaddieRepository: BattleSquaddieRepository): SearchResults {
+                           squaddieRepository: ObjectRepository): SearchResults {
         return getResultOrThrowError(getAllReachableTiles(searchParams, missionMap, squaddieRepository));
     },
 }
 
 const getAllReachableTiles = (searchParams: SearchParameters, missionMap: MissionMap,
-                              squaddieRepository: BattleSquaddieRepository): ResultOrError<SearchResults, Error> => {
+                              squaddieRepository: ObjectRepository): ResultOrError<SearchResults, Error> => {
     if (!searchParams.startLocation) {
         return makeError(new Error("no starting location provided"));
     }
@@ -106,7 +106,7 @@ const getAllReachableTiles = (searchParams: SearchParameters, missionMap: Missio
 const searchMapForPaths = (
     searchParams: SearchParameters,
     missionMap: MissionMap,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
 ): SearchResults => {
     const workingSearchState: SearchState = SearchStateHelper.newFromSearchParameters(searchParams);
 
@@ -158,7 +158,7 @@ const addLegalSearchPaths = (
     searchParams: SearchParameters,
     workingSearchState: SearchState,
     missionMap: MissionMap,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
 ): {
     newAddedSearchPaths: SearchPath[],
     movementEndsOnTheseTiles: TileFoundDescription[]
@@ -182,7 +182,7 @@ const addLegalSearchPaths = (
             const {
                 squaddieTemplate: occupyingSquaddieTemplate,
                 battleSquaddie: occupyingBattleSquaddie,
-            } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(squaddieAtTileDatum.battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, squaddieAtTileDatum.battleSquaddieId));
             if (IsSquaddieAlive({
                 squaddieTemplate: occupyingSquaddieTemplate,
                 battleSquaddie: occupyingBattleSquaddie,
@@ -273,7 +273,7 @@ const selectValidPathCandidates = (
     head: SearchPath,
     missionMap: MissionMap,
     workingSearchState: SearchState,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
 ): [number, number][] => {
     neighboringLocations = filterNeighborsNotEnqueued(neighboringLocations, workingSearchState);
     neighboringLocations = filterNeighborsNotVisited(neighboringLocations, workingSearchState);
@@ -386,7 +386,7 @@ const filterNeighborsCheckingAffiliation = (
     neighboringLocations: [number, number][],
     searchParams: SearchParameters,
     missionMap: MissionMap,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
 ): [number, number][] => {
     if (searchParams.squaddieAffiliation === SquaddieAffiliation.UNKNOWN
     ) {

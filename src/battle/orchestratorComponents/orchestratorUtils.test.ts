@@ -1,6 +1,6 @@
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
@@ -12,12 +12,12 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 describe("GetSquaddieAtScreenLocation and GetSquaddieAtMapLocation", () => {
     let knightSquaddieStatic: SquaddieTemplate;
     let knightSquaddieDynamic: BattleSquaddie;
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let map: MissionMap;
     let camera: BattleCamera;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
 
         ({
             squaddieTemplate: knightSquaddieStatic,

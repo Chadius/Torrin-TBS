@@ -1,4 +1,4 @@
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
@@ -15,7 +15,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 
 describe('move towards closest squaddie in range', () => {
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let missionMap: MissionMap;
     let targetSquaddieStatic: SquaddieTemplate;
     let targetSquaddieDynamic: BattleSquaddie;
@@ -26,7 +26,7 @@ describe('move towards closest squaddie in range', () => {
     let allyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
 
         ({
             squaddieTemplate: targetSquaddieStatic,

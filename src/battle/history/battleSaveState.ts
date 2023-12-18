@@ -10,7 +10,7 @@ import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
@@ -51,7 +51,7 @@ export const BattleSaveStateHandler = {
                                         }: {
         battleSaveState: BattleSaveState,
         battleOrchestratorState: BattleOrchestratorState,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
     }): void => {
         battleOrchestratorState.battleState.camera = new BattleCamera(battleSaveState.camera.xCoordinate, battleSaveState.camera.yCoordinate);
         battleOrchestratorState.battleState.camera.setMapDimensionBoundaries(
@@ -74,7 +74,7 @@ export const BattleSaveStateHandler = {
         });
 
         for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {
-            const {battleSquaddie} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(squaddieBattleId));
+            const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, squaddieBattleId));
 
             battleSquaddie.inBattleAttributes = battleSaveState.inBattleAttributesBySquaddieBattleId[squaddieBattleId].inBattleAttributes;
             battleSquaddie.squaddieTurn = battleSaveState.inBattleAttributesBySquaddieBattleId[squaddieBattleId].turn;
@@ -103,7 +103,7 @@ export const BattleSaveStateHandler = {
             [squaddieBattleId: string]:
                 InBattleAttributesAndTurn
         } = {};
-        battleOrchestratorState.squaddieRepository.getBattleSquaddieIterator().forEach((battleSquaddieInfo) => {
+        ObjectRepositoryHelper.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((battleSquaddieInfo) => {
             inBattleAttributesBySquaddieBattleId[battleSquaddieInfo.battleSquaddieId] = {
                 inBattleAttributes: battleSquaddieInfo.battleSquaddie.inBattleAttributes,
                 turn: battleSquaddieInfo.battleSquaddie.squaddieTurn,

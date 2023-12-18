@@ -3,12 +3,12 @@ import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRoun
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 describe('Team Strategy State', () => {
     const createDummyState = (instruction?: SquaddieActionsForThisRound): TeamStrategyState => {
         return new TeamStrategyState({
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             missionMap: new MissionMap({
                 terrainTileMap: new TerrainTileMap({
                     movementCost: ["1 1 "]

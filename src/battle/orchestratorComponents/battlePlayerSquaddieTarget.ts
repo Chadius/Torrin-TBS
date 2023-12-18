@@ -30,6 +30,7 @@ import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructi
 import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -146,7 +147,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const {
             squaddieTemplate: actingSquaddieTemplate,
             battleSquaddie: actingBattleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
             SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
         const targetingResults = FindValidTargets({
@@ -216,7 +217,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
-            state.squaddieRepository.getSquaddieByBattleId(
+            ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
                 SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
             )
         );
@@ -298,7 +299,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     private confirmTargetSelection(state: BattleOrchestratorState) {
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
-            state.squaddieRepository.getSquaddieByBattleId(
+            ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
                 SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
             )
         );

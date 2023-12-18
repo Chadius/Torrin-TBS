@@ -10,7 +10,7 @@ import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targeting
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {SquaddieActionType} from "../history/anySquaddieAction";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
@@ -24,7 +24,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieActionsForThisRound | undefined {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
@@ -39,7 +39,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(squaddieToAct));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
         const searchResults: SearchResults =

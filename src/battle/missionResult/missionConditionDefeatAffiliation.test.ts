@@ -3,7 +3,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService";
 import {MissionCondition, MissionConditionType, MissionShouldBeComplete} from "./missionCondition";
@@ -33,7 +33,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     let enemy2Dynamic: BattleSquaddie;
     let conditionDefeatAllEnemies: MissionCondition;
     let state: BattleOrchestratorState;
-    let squaddieRepository = new BattleSquaddieRepository();
+    let squaddieRepository = ObjectRepositoryHelper.new();
 
     beforeEach(() => {
         missionMap = new MissionMap({
@@ -42,7 +42,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             })
         });
 
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
 
         ({
             squaddieTemplate: enemy1Static,

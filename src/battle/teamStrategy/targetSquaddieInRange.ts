@@ -11,7 +11,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 
@@ -24,7 +24,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: BattleSquaddieRepository): SquaddieActionsForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieActionsForThisRound | undefined {
         if (!this.desiredBattleSquaddieId && (!this.desiredAffiliation || this.desiredAffiliation === SquaddieAffiliation.UNKNOWN)) {
             throw new Error("Target Squaddie In Range strategy has no target");
         }
@@ -56,7 +56,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(actingBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, actingBattleSquaddieId));
 
         const validActions = squaddieTemplate.actions.filter((action) => {
             return SquaddieTurnHandler.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
@@ -89,7 +89,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
         if (this.desiredAffiliation !== SquaddieAffiliation.UNKNOWN) {
             const squaddiesOfDesiredAffiliation = targetingResults.battleSquaddieIdsInRange.filter((battleId) => {
-                const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId))
+                const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleId))
                 return targetSquaddieTemplate.squaddieId.affiliation === this.desiredAffiliation;
             });
 

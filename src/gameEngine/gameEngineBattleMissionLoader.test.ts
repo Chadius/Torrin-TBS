@@ -2,7 +2,7 @@ import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
 import {ResourceHandler} from "../resource/resourceHandler";
 import * as mocks from "./../utils/test/mocks";
 import * as DataLoader from "../dataLoader/dataLoader";
-import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../battle/objectRepository";
 import {BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
 import {MissionFileFormat} from "../dataLoader/missionLoader";
 import {MissionRewardType} from "../battle/missionResult/missionReward";
@@ -38,7 +38,7 @@ describe('GameEngineBattleMissionLoader', () => {
     let loadFileIntoFormatSpy: jest.SpyInstance;
     let state: GameEngineState;
     let resourceHandler: ResourceHandler;
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let playerArmy: PlayerArmy;
 
     beforeEach(() => {
@@ -47,7 +47,7 @@ describe('GameEngineBattleMissionLoader', () => {
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
         resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
 
         state = GameEngineStateHelper.new({
             battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -117,7 +117,7 @@ describe('GameEngineBattleMissionLoader', () => {
 
         beforeEach(async () => {
             await loader.update(state);
-            squaddieRepositorySize = state.battleOrchestratorState.squaddieRepository.getBattleSquaddieIterator().length;
+            squaddieRepositorySize = ObjectRepositoryHelper.getBattleSquaddieIterator(state.battleOrchestratorState.squaddieRepository).length;
             await loader.update(state);
         });
 
@@ -170,7 +170,7 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('squaddies', () => {
-            expect(state.battleOrchestratorState.squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
+            expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(state.battleOrchestratorState.squaddieRepository).length).toBeGreaterThan(0);
             expect(state.battleOrchestratorState.battleState.teams.length).toBeGreaterThan(0);
 
             expect(state.battleOrchestratorState.battleState.teams.some(
@@ -419,7 +419,7 @@ describe('GameEngineBattleMissionLoader', () => {
             originalState = GameEngineStateHelper.new({
                 battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
                     resourceHandler,
-                    squaddieRepository: new BattleSquaddieRepository(),
+                    squaddieRepository: ObjectRepositoryHelper.new(),
                 }),
                 titleScreenState: TitleScreenStateHelper.new()
             });
@@ -428,7 +428,7 @@ describe('GameEngineBattleMissionLoader', () => {
                 previousMode: GameModeEnum.TITLE_SCREEN,
                 battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
                     resourceHandler,
-                    squaddieRepository: new BattleSquaddieRepository(),
+                    squaddieRepository: ObjectRepositoryHelper.new(),
                 }),
                 titleScreenState: TitleScreenStateHelper.new()
             });

@@ -8,7 +8,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {HexCoordinate, NewHexCoordinateFromNumberPair} from "../hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ObjectRepositoryHelper} from "../../battle/objectRepository";
 
 describe('pathfinding with a single move', () => {
     beforeEach(() => {
@@ -48,7 +48,7 @@ describe('pathfinding with a single move', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         ));
 
         validateTilesAreFound(
@@ -100,7 +100,7 @@ describe('pathfinding with a single move', () => {
                     }
                 ),
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             ));
         }
 
@@ -143,7 +143,7 @@ describe('pathfinding with a single move', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         ));
 
         validateTilesAreFound(
@@ -190,7 +190,7 @@ describe('pathfinding with a single move', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         ));
 
         validateTilesAreFound(
@@ -237,7 +237,7 @@ describe('pathfinding with a single move', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         ));
 
         validateTilesAreFound(
@@ -297,7 +297,7 @@ describe('pathfinding with a single move', () => {
                     }
                 ),
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             ));
 
             validateTilesAreFound(
@@ -342,7 +342,7 @@ describe('pathfinding with a single move', () => {
                     }
                 ),
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             ));
 
             validateTilesAreFound(
@@ -394,7 +394,7 @@ describe('pathfinding with a single move', () => {
                     }
                 ),
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             ));
 
             validateTilesAreFound(
@@ -439,7 +439,7 @@ describe('pathfinding with a single move', () => {
                     }
                 ),
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             ));
 
             validateTilesAreFound(
@@ -484,7 +484,7 @@ describe('pathfinding with a single move', () => {
                     }
                 ),
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             ));
 
             validateTilesAreFound(
@@ -568,7 +568,7 @@ describe('pathfinding with a single move', () => {
                 0,
                 justTheCenter,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
 
             expect(noTiles).toHaveLength(0);
@@ -601,7 +601,7 @@ describe('pathfinding with a single move', () => {
                 0,
                 justTheCenter,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
             validateTilesAreFound(
                 centerTileOnly,
@@ -642,7 +642,7 @@ describe('pathfinding with a single move', () => {
                 1,
                 justTheCenter,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
             validateTilesAreFound(
                 centerAndAdjacentTiles,
@@ -687,7 +687,7 @@ describe('pathfinding with a single move', () => {
                 2,
                 justTheCenter,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
             validateTilesAreFound(
                 centerAndAdjacentTiles,
@@ -724,7 +724,7 @@ describe('pathfinding with a single move', () => {
                 1,
                 movementRangeTiles,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
             validateTilesAreFound(
                 meleeAttackTiles,
@@ -796,7 +796,7 @@ describe('pathfinding with a single move', () => {
                 3,
                 movementRangeTiles,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
 
             validateTilesAreFound(
@@ -856,7 +856,7 @@ describe('pathfinding with a single move', () => {
                 3,
                 movementRangeTiles,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
             validateTilesAreFound(
                 indirectAttackTiles,
@@ -928,7 +928,7 @@ describe('pathfinding with a single move', () => {
                 2,
                 justTheCenter,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
             validateTilesAreFound(
                 blockedByWall,
@@ -969,7 +969,7 @@ describe('pathfinding with a single move', () => {
                 2,
                 justTheCenter,
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             );
             validateTilesAreFound(
                 skipPastWalls,

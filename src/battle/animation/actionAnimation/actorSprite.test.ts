@@ -1,5 +1,5 @@
 import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
-import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {ActorSprite} from "./actorSprite";
@@ -11,7 +11,7 @@ import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 
 describe('Actor Sprite', () => {
     let resultTookDamage: ActionResultPerSquaddie;
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     const battleSquaddieId = "actor0";
@@ -19,7 +19,7 @@ describe('Actor Sprite', () => {
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {

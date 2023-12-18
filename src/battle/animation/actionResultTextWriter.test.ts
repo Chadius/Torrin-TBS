@@ -1,4 +1,4 @@
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
@@ -12,7 +12,7 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 
 describe('Action Result Text Writer', () => {
-    let squaddieRepository: BattleSquaddieRepository = new BattleSquaddieRepository();
+    let squaddieRepository: ObjectRepository = ObjectRepositoryHelper.new();
     let knightStatic: SquaddieTemplate;
     let knightDynamic: BattleSquaddie;
     let citizenStatic: SquaddieTemplate;
@@ -26,7 +26,7 @@ describe('Action Result Text Writer', () => {
     let bandageWoundsAction: SquaddieAction;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         battleMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [

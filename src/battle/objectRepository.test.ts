@@ -3,17 +3,17 @@ import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 import {SquaddieTurn, SquaddieTurnHandler} from "../squaddie/turn";
-import {BattleSquaddieRepository} from "./battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "./objectRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddieRepository', () => {
-    let squaddieRepo: BattleSquaddieRepository;
+    let squaddieRepo: ObjectRepository;
     let squaddieTemplateBase: SquaddieTemplate;
     let battleSquaddieBase: BattleSquaddie;
 
     beforeEach(() => {
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
         squaddieTemplateBase = {
             attributes: {
                 maxHitPoints: 1,
@@ -45,20 +45,21 @@ describe('BattleSquaddieRepository', () => {
             squaddieTurn: {remainingActionPoints: 3}
         });
 
-        squaddieRepo.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(
+            squaddieRepo,
             squaddieTemplateBase
         );
     });
 
     it('retrieves squaddie info by battle id', () => {
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             battleSquaddieBase
         )
 
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_young_torrin_0"))
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, "player_young_torrin_0"))
 
         expect(squaddieTemplate).toStrictEqual(squaddieTemplate);
         expect(battleSquaddie).toStrictEqual(battleSquaddie);
@@ -66,7 +67,7 @@ describe('BattleSquaddieRepository', () => {
 
     it('should throw error if you add already existing static squaddie', () => {
         const shouldThrowError = () => {
-            squaddieRepo.addSquaddieTemplate(
+            ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
                 squaddieTemplateBase
             );
         }
@@ -81,7 +82,7 @@ describe('BattleSquaddieRepository', () => {
 
     it("should throw error if you add battle squaddie for static squaddie that doesn't exist", () => {
         const shouldThrowError = () => {
-            squaddieRepo.addBattleSquaddie(
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
                 BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "battle_id",
                     squaddieTemplateId: "unknown_static_squaddie",
@@ -99,12 +100,12 @@ describe('BattleSquaddieRepository', () => {
     });
 
     it("should throw error if you add battle squaddie for battle squaddie that already exists", () => {
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             battleSquaddieBase
         )
 
         const shouldThrowError = () => {
-            squaddieRepo.addBattleSquaddie(
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
                 battleSquaddieBase
             );
         }
@@ -119,7 +120,7 @@ describe('BattleSquaddieRepository', () => {
 
     it('should throw an error if battle squaddie is invalid', () => {
         const shouldThrowError = () => {
-            squaddieRepo.addBattleSquaddie(
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
                 battleSquaddieBase = BattleSquaddieHelper.newBattleSquaddie({
                     battleSquaddieId: "",
                     squaddieTemplateId: "static",
@@ -137,7 +138,7 @@ describe('BattleSquaddieRepository', () => {
     })
 
     it("getBattleSquaddieByID should return error if battle squaddie doesn't exist", () => {
-        const resultOrError = squaddieRepo.getSquaddieByBattleId("player_young_torrin_0")
+        const resultOrError = ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, "player_young_torrin_0")
 
         expect(isError(resultOrError)).toBeTruthy();
 
@@ -146,14 +147,14 @@ describe('BattleSquaddieRepository', () => {
     });
 
     it('should get an iterator across all static ids', () => {
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             battleSquaddieBase
         )
 
         const entities: {
             squaddieTemplateId: string,
             squaddieTemplate: SquaddieTemplate
-        }[] = squaddieRepo.getSquaddieTemplateIterator();
+        }[] = ObjectRepositoryHelper.getSquaddieTemplateIterator(squaddieRepo,);
 
         expect(entities).toStrictEqual([{
             squaddieTemplateId: squaddieTemplateBase.squaddieId.templateId,
@@ -162,14 +163,14 @@ describe('BattleSquaddieRepository', () => {
     });
 
     it('should get an iterator across all battle ids', () => {
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             battleSquaddieBase
         )
 
         const entities: {
             battleSquaddieId: string,
             battleSquaddie: BattleSquaddie
-        }[] = squaddieRepo.getBattleSquaddieIterator();
+        }[] = ObjectRepositoryHelper.getBattleSquaddieIterator(squaddieRepo,);
         expect(entities).toStrictEqual([{
             battleSquaddieId: "player_young_torrin_0",
             battleSquaddie: battleSquaddieBase
@@ -177,14 +178,14 @@ describe('BattleSquaddieRepository', () => {
     });
 
     it("should update existing battle squaddie", () => {
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             battleSquaddieBase
         )
         expect(SquaddieTurnHandler.hasActionPointsRemaining(battleSquaddieBase.squaddieTurn)).toBeTruthy();
 
         const turnEnded: SquaddieTurn = {remainingActionPoints: 3};
         SquaddieTurnHandler.endTurn(turnEnded);
-        squaddieRepo.updateBattleSquaddie(
+        ObjectRepositoryHelper.updateBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: battleSquaddieBase.battleSquaddieId,
                 squaddieTemplateId: battleSquaddieBase.squaddieTemplateId,
@@ -196,14 +197,14 @@ describe('BattleSquaddieRepository', () => {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_young_torrin_0"))
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, "player_young_torrin_0"))
 
         expect(squaddieTemplate).toStrictEqual(squaddieTemplate);
         expect(SquaddieTurnHandler.hasActionPointsRemaining(battleSquaddie.squaddieTurn)).toBeFalsy();
     });
 
     it("should throw error if you update a battle squaddie to a non existent template", () => {
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             battleSquaddieBase
         )
 
@@ -214,7 +215,7 @@ describe('BattleSquaddieRepository', () => {
                 squaddieTurn: {remainingActionPoints: 3},
             });
 
-            squaddieRepo.updateBattleSquaddie(
+            ObjectRepositoryHelper.updateBattleSquaddie(squaddieRepo,
                 badBattleSquaddie
             );
         }

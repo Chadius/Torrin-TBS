@@ -16,6 +16,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {RecordingHandler} from "../history/recording";
 import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -129,7 +130,7 @@ export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
     const {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
-    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+    } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
         SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);

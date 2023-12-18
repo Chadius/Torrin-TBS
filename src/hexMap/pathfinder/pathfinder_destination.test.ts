@@ -8,7 +8,7 @@ import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {Pathfinder} from "./pathfinder";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieRepository} from "../../battle/battleSquaddieRepository";
+import {ObjectRepositoryHelper} from "../../battle/objectRepository";
 
 describe('pathfinder reaching a destination', () => {
     let smallMap: string[];
@@ -48,7 +48,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let routeFound: SearchPath;
@@ -107,7 +107,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let errorFound: Error;
@@ -148,7 +148,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         ));
 
         let somePathOrError = allTiles.getRouteToStopLocation();
@@ -189,7 +189,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let routeFound: SearchPath;
@@ -228,7 +228,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let routeFound: SearchPath;
@@ -288,7 +288,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let routeFound: SearchPath;
@@ -393,7 +393,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let routeFound: SearchPath;
@@ -461,7 +461,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let routeFound: SearchPath;
@@ -502,7 +502,7 @@ describe('pathfinder reaching a destination', () => {
                 }
             ),
             missionMap,
-            new BattleSquaddieRepository(),
+            ObjectRepositoryHelper.new(),
         );
 
         let closestTilesToDestination: {
@@ -565,7 +565,7 @@ describe('pathfinder reaching a destination', () => {
                     }
                 ),
                 missionMap,
-                new BattleSquaddieRepository(),
+                ObjectRepositoryHelper.new(),
             )
         );
 

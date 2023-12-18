@@ -22,6 +22,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaHelper} from "../../ui/rectArea";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;
@@ -154,7 +155,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         const {
             battleSquaddie: actorBattle,
             squaddieTemplate: actorTemplate,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
             mostRecentResults.results.actingBattleSquaddieId
         ));
 
@@ -205,7 +206,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleId));
 
             const targetTextWindow = new TargetTextWindow();
             targetTextWindow.start({
@@ -224,7 +225,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleId));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleId));
 
             let {
                 currentHitPoints,

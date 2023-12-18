@@ -1,7 +1,7 @@
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
@@ -22,7 +22,7 @@ import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattlePhaseController', () => {
-    let squaddieRepo: BattleSquaddieRepository;
+    let squaddieRepo: ObjectRepository;
     let battlePhaseController: BattlePhaseController;
     let playerSquaddieTeam: BattleSquaddieTeam;
     let enemySquaddieTeam: BattleSquaddieTeam;
@@ -36,7 +36,7 @@ describe('BattlePhaseController', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
 
         playerSquaddieTemplate = {
             squaddieId: {
@@ -58,14 +58,14 @@ describe('BattlePhaseController', () => {
             squaddieTurn: SquaddieTurnHandler.new(),
         });
 
-        squaddieRepo.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
             playerSquaddieTemplate,
         );
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             playerBattleSquaddie,
         );
 
-        squaddieRepo.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
             {
                 squaddieId: {
                     templateId: "enemy_squaddie",
@@ -81,7 +81,7 @@ describe('BattlePhaseController', () => {
                 attributes: DefaultArmyAttributes(),
             }
         );
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
@@ -312,7 +312,7 @@ describe('BattlePhaseController', () => {
         AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teams);
         expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
-        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_squaddie_0"));
+        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
         BattleSquaddieHelper.endTurn(battleSquaddie0);
 
         const startTime = 100;
@@ -388,7 +388,7 @@ describe('BattlePhaseController', () => {
     });
 
     it('restores team squaddie turns once the banner appears starts', () => {
-        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId("player_squaddie_0"));
+        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
         BattleSquaddieHelper.endTurn(battleSquaddie0);
         expect(BattleSquaddieHelper.canStillActThisRound(battleSquaddie0)).toBeFalsy();
 
@@ -436,7 +436,7 @@ describe('BattlePhaseController', () => {
                 squaddieTurn: SquaddieTurnHandler.new(),
             });
 
-            squaddieRepo.addBattleSquaddie(
+            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
                 playerBattleSquaddie2,
             );
 
@@ -452,7 +452,7 @@ describe('BattlePhaseController', () => {
 
         it('will stay with the current affiliation if the current team is done', () => {
             playerSquaddieTeam.battleSquaddieIds.forEach(battleSquaddieId => {
-                const {battleSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
+                const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, battleSquaddieId));
                 SquaddieTurnHandler.endTurn(battleSquaddie.squaddieTurn);
             });
 
@@ -488,7 +488,7 @@ describe('BattlePhaseController', () => {
                 playerTeam2,
             ].forEach(team =>
                 team.battleSquaddieIds.forEach(battleSquaddieId => {
-                    const {battleSquaddie} = getResultOrThrowError(squaddieRepo.getSquaddieByBattleId(battleSquaddieId));
+                    const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, battleSquaddieId));
                     SquaddieTurnHandler.endTurn(battleSquaddie.squaddieTurn);
                 })
             );

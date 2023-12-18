@@ -1,5 +1,5 @@
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {BattleState, BattleStateHelper} from "./battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
@@ -9,7 +9,7 @@ import {RandomNumberGenerator} from "../numberGenerator/random";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
-    squaddieRepository: BattleSquaddieRepository;
+    squaddieRepository: ObjectRepository;
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     numberGenerator: NumberGeneratorStrategy;
     battleState: BattleState;
@@ -21,7 +21,7 @@ export class BattleOrchestratorState {
                     numberGenerator,
                     battleState,
                 }: {
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         resourceHandler: ResourceHandler,
         battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD,
         numberGenerator: NumberGeneratorStrategy,
@@ -92,14 +92,14 @@ export const BattleOrchestratorStateHelper = {
                                battleState,
                            }: {
         resourceHandler: ResourceHandler,
-        squaddieRepository?: BattleSquaddieRepository,
+        squaddieRepository?: ObjectRepository,
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
     }): BattleOrchestratorState => {
         return new BattleOrchestratorState({
             resourceHandler,
-            squaddieRepository: squaddieRepository ?? new BattleSquaddieRepository(),
+            squaddieRepository: squaddieRepository ?? ObjectRepositoryHelper.new(),
             battleSquaddieSelectedHUD: battleSquaddieSelectedHUD ?? new BattleSquaddieSelectedHUD(),
             battleState: battleState ?? BattleStateHelper.newBattleState({
                 missionId: "test mission",

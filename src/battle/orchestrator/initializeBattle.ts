@@ -12,6 +12,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {FindTeamsOfAffiliation} from "../orchestratorComponents/battlePhaseTracker";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export class InitializeBattle implements BattleOrchestratorComponent {
     hasCompleted(state: GameEngineState): boolean {
@@ -35,7 +36,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
                 const {
                     battleSquaddie,
                     squaddieTemplate,
-                } = getResultOrThrowError(state.battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(battleId))
+                } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleId))
                 TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             });
         });

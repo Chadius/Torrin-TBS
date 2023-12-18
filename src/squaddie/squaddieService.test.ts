@@ -1,6 +1,6 @@
 import {CreateNewSquaddieAndAddToRepository} from "../utils/test/squaddie";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {BattleSquaddieRepository} from "../battle/battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../battle/objectRepository";
 import {BattleSquaddie} from "../battle/battleSquaddie";
 import {
     CanPlayerControlSquaddieRightNow,
@@ -23,10 +23,10 @@ describe('Squaddie Service', () => {
     let playerDynamic: BattleSquaddie;
     let enemyStatic: SquaddieTemplate;
     let enemyDynamic: BattleSquaddie;
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         ({
                 squaddieTemplate: playerStatic,
                 battleSquaddie: playerDynamic,

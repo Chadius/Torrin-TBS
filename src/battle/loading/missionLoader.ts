@@ -13,7 +13,7 @@ import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
@@ -104,7 +104,7 @@ export const MissionLoader = {
         missionLoaderContext: MissionLoaderContext;
         missionId: string;
         resourceHandler: ResourceHandler;
-        squaddieRepository: BattleSquaddieRepository;
+        squaddieRepository: ObjectRepository;
     }) => {
         missionLoaderContext.completionProgress.started = true;
         const missionData: MissionFileFormat = await LoadMissionFromFile(missionId);
@@ -157,7 +157,7 @@ export const MissionLoader = {
                                        resourceHandler,
                                    }: {
         missionLoaderContext: MissionLoaderContext,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         resourceHandler: ResourceHandler,
     }) => {
         loadMissionFromHardcodedData({
@@ -181,7 +181,7 @@ export const MissionLoader = {
                                          missionLoaderContext,
                                          resourceHandler,
                                      }: {
-        squaddieRepository: BattleSquaddieRepository;
+        squaddieRepository: ObjectRepository;
         missionLoaderContext: MissionLoaderContext;
         resourceHandler: ResourceHandler
     }) => {
@@ -189,7 +189,7 @@ export const MissionLoader = {
         initializeSquaddieResources({squaddieRepository, missionLoaderContext, resourceHandler});
     },
     loadPlayerArmyFromFile: async ({squaddieRepository, resourceHandler, missionLoaderContext}: {
-        squaddieRepository: BattleSquaddieRepository;
+        squaddieRepository: ObjectRepository;
         resourceHandler: ResourceHandler;
         missionLoaderContext: MissionLoaderContext
     }) => {
@@ -211,7 +211,7 @@ export const MissionLoader = {
                 squaddieTemplate: template,
             })
 
-            squaddieRepository.addSquaddie(template, battleSquaddie);
+            ObjectRepositoryHelper.addSquaddie(squaddieRepository, template, battleSquaddie);
         });
     }
 }
@@ -247,13 +247,13 @@ const initializeSquaddieResources = ({
                                          missionLoaderContext,
                                          resourceHandler,
                                      }: {
-    squaddieRepository: BattleSquaddieRepository;
+    squaddieRepository: ObjectRepository;
     missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
 }) => {
-    squaddieRepository.getBattleSquaddieIterator().forEach((info) => {
+    ObjectRepositoryHelper.getBattleSquaddieIterator(squaddieRepository).forEach((info) => {
         const {battleSquaddie, battleSquaddieId} = info;
-        const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
 
         let image: GraphicImage = getResultOrThrowError(
             resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey)
@@ -295,7 +295,7 @@ const loadMissionFromHardcodedData = ({
                                           resourceHandler,
                                       }: {
     missionLoaderContext: MissionLoaderContext,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
     resourceHandler: ResourceHandler,
 }) => {
     const affiliateIconResourceKeys = [
@@ -333,7 +333,7 @@ const loadCutscenes = ({
                            resourceHandler,
                        }: {
     missionLoaderContext: MissionLoaderContext,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
     resourceHandler: ResourceHandler,
 }) => {
     const cutsceneCollection = MissionCutsceneCollectionHelper.new({
@@ -618,7 +618,7 @@ const loadAndPrepareNPCTemplateData = async ({
                                              }: {
     missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
-    squaddieRepository: BattleSquaddieRepository;
+    squaddieRepository: ObjectRepository;
 }) => {
     let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {};
     const loadedNPCTemplatesById = await loadNPCTemplatesFromFile(Object.keys(missionLoaderContext.squaddieData.templates));
@@ -639,7 +639,7 @@ const loadAndPrepareNPCTemplateData = async ({
             ...Object.values(template.squaddieId.resources.actionSpritesByEmotion)
         );
 
-        squaddieRepository.addSquaddieTemplate(template);
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository, template);
     });
 }
 
@@ -648,7 +648,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
                                           missionLoaderContext,
                                           missionData
                                       }: {
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
     missionLoaderContext: MissionLoaderContext,
     missionData: MissionFileFormat,
 }) => {
@@ -658,7 +658,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
             battleSquaddieId,
             squaddieTemplateId,
         } = mapPlacement;
-        squaddieRepository.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId,
                 squaddieTemplateId,

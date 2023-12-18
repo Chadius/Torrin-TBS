@@ -23,6 +23,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -111,7 +112,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             const {
                 battleSquaddie,
                 squaddieTemplate
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieId));
             if (!IsSquaddieAlive({battleSquaddie, squaddieTemplate})) {
                 state.battleState.missionMap.hideSquaddieFromDrawing(battleSquaddieId);
                 state.battleState.missionMap.updateSquaddieLocation(battleSquaddieId, undefined);

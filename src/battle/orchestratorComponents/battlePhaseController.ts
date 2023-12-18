@@ -27,7 +27,7 @@ import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocati
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -213,7 +213,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(id));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, id));
             const {
                 playerCanControlThisSquaddieRightNow,
             } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
@@ -248,7 +248,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     }
 }
 
-const findFirstTeamOfAffiliationThatCanAct = (teams: BattleSquaddieTeam[], affiliation: SquaddieAffiliation, squaddieRepository: BattleSquaddieRepository): BattleSquaddieTeam => {
+const findFirstTeamOfAffiliationThatCanAct = (teams: BattleSquaddieTeam[], affiliation: SquaddieAffiliation, squaddieRepository: ObjectRepository): BattleSquaddieTeam => {
     const teamsOfAffiliation: BattleSquaddieTeam[] = teams.filter(team => team.affiliation === affiliation);
     if (teamsOfAffiliation.length === 0) {
         return undefined;

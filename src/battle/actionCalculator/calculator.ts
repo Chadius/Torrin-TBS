@@ -16,6 +16,7 @@ import {SquaddieAction} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {ActionResultPerSquaddie, DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {DIE_SIZE, RollResult, RollResultHelper} from "./rollResult";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -54,7 +55,7 @@ export function CalculateResults({
         const {
             squaddieTemplate: targetedSquaddieTemplate,
             battleSquaddie: targetedBattleSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(targetedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, targetedBattleSquaddieId));
 
         let healingReceived = calculateTotalHealingReceived(state, targetedSquaddieTemplate, targetedBattleSquaddie);
         let {damageDealt, degreeOfSuccess} = calculateTotalDamageDealt({
@@ -181,7 +182,7 @@ function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate
         MissionStatisticsHandler.addDamageTakenByPlayerTeam(state.battleState.missionStatistics, damageDealt);
     }
 
-    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId));
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, actingBattleSquaddie.battleSquaddieId));
     if (actingSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
         MissionStatisticsHandler.addDamageDealtByPlayerTeam(state.battleState.missionStatistics, damageDealt);
     }

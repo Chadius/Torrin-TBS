@@ -1,6 +1,6 @@
 import {BattleMapDisplay} from "./battleMapDisplay";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -17,14 +17,13 @@ import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngin
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
     let battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
-    let squaddieRepo: BattleSquaddieRepository;
+    let squaddieRepo: ObjectRepository;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
         battleSquaddieSelectedHUD = mocks.battleSquaddieSelectedHUD();
 
-        squaddieRepo = new (<new (options: any) => BattleSquaddieRepository>BattleSquaddieRepository)({}) as jest.Mocked<BattleSquaddieRepository>;
-        squaddieRepo.getBattleSquaddieIterator = jest.fn().mockReturnValue([]);
+        jest.spyOn(ObjectRepositoryHelper, "getBattleSquaddieIterator").mockReturnValue([]);
 
         battleMapDisplay = new BattleMapDisplay();
 

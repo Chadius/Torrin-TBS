@@ -2,7 +2,7 @@ import {BattlePlayerSquaddieSelector} from "./battlePlayerSquaddieSelector";
 import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
@@ -42,7 +42,7 @@ import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
     let selector: BattlePlayerSquaddieSelector = new BattlePlayerSquaddieSelector();
-    let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
+    let squaddieRepo: ObjectRepository = ObjectRepositoryHelper.new();
     let missionMap: MissionMap;
     let enemyDemonStatic: SquaddieTemplate;
     let enemyDemonDynamic: BattleSquaddie;
@@ -53,7 +53,7 @@ describe('BattleSquaddieSelector', () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         selector = new BattlePlayerSquaddieSelector();
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 "]
@@ -96,7 +96,7 @@ describe('BattleSquaddieSelector', () => {
             actions: [demonBiteAction],
         }));
 
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "enemy_demon_1",
                 squaddieTemplateId: "enemy_demon",

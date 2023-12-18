@@ -1,5 +1,5 @@
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
@@ -13,12 +13,12 @@ describe('battlePhaseTracker', () => {
     let enemySquaddieTeam: BattleSquaddieTeam;
     let allySquaddieTeam: BattleSquaddieTeam;
     let noneSquaddieTeam: BattleSquaddieTeam;
-    let squaddieRepo: BattleSquaddieRepository;
+    let squaddieRepo: ObjectRepository;
 
     beforeEach(() => {
-        squaddieRepo = new BattleSquaddieRepository();
+        squaddieRepo = ObjectRepositoryHelper.new();
 
-        squaddieRepo.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
             {
                 squaddieId: {
                     templateId: "player_squaddie",
@@ -34,14 +34,14 @@ describe('battlePhaseTracker', () => {
                 attributes: DefaultArmyAttributes(),
             }
         );
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "player_squaddie_0",
                 squaddieTemplateId: "player_squaddie",
                 squaddieTurn: SquaddieTurnHandler.new()
             })
         );
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "player_squaddie_1",
                 squaddieTemplateId: "player_squaddie",
@@ -49,7 +49,7 @@ describe('battlePhaseTracker', () => {
             })
         );
 
-        squaddieRepo.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
             {
                 squaddieId: {
                     templateId: "enemy_squaddie",
@@ -65,7 +65,7 @@ describe('battlePhaseTracker', () => {
                 attributes: DefaultArmyAttributes(),
             }
         );
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
@@ -73,7 +73,7 @@ describe('battlePhaseTracker', () => {
             })
         );
 
-        squaddieRepo.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
             {
                 squaddieId: {
                     templateId: "ally_squaddie",
@@ -89,7 +89,7 @@ describe('battlePhaseTracker', () => {
                 attributes: DefaultArmyAttributes(),
             }
         );
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "ally_squaddie_0",
                 squaddieTemplateId: "ally_squaddie",
@@ -97,7 +97,7 @@ describe('battlePhaseTracker', () => {
             })
         );
 
-        squaddieRepo.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
             {
                 squaddieId: {
                     templateId: "none_squaddie",
@@ -113,7 +113,7 @@ describe('battlePhaseTracker', () => {
                 attributes: DefaultArmyAttributes(),
             }
         );
-        squaddieRepo.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId: "none_squaddie_0",
                 squaddieTemplateId: "none_squaddie",

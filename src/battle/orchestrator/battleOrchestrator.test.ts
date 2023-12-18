@@ -7,7 +7,7 @@ import {BattleMapDisplay} from "../orchestratorComponents/battleMapDisplay";
 import {BattlePhaseController} from "../orchestratorComponents/battlePhaseController";
 import {BattleSquaddieUsesActionOnMap} from "../orchestratorComponents/battleSquaddieUsesActionOnMap";
 import {BattlePlayerSquaddieTarget} from "../orchestratorComponents/battlePlayerSquaddieTarget";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleOrchestratorComponent} from "./battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -294,7 +294,7 @@ describe('Battle Orchestrator', () => {
         const stateWithCutscene: GameEngineState = GameEngineStateHelper.new({
             battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
                 resourceHandler: nullState.battleOrchestratorState.resourceHandler,
-                squaddieRepository: new BattleSquaddieRepository(),
+                squaddieRepository: ObjectRepositoryHelper.new(),
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
@@ -335,7 +335,7 @@ describe('Battle Orchestrator', () => {
             battleOrchestratorState:
                 BattleOrchestratorStateHelper.newOrchestratorState({
                     resourceHandler: nullState.battleOrchestratorState.resourceHandler,
-                    squaddieRepository: new BattleSquaddieRepository(),
+                    squaddieRepository: ObjectRepositoryHelper.new(),
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateHelper.newBattleState({
                         missionId: "test mission",
@@ -420,7 +420,7 @@ describe('Battle Orchestrator', () => {
         orchestrator = createOrchestrator({
             initialMode: BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR,
         });
-        nullState.battleOrchestratorState.squaddieRepository = new BattleSquaddieRepository();
+        nullState.battleOrchestratorState.squaddieRepository = ObjectRepositoryHelper.new();
         CreateNewSquaddieAndAddToRepository({
             name: "new static squaddie",
             templateId: "new static squaddie",

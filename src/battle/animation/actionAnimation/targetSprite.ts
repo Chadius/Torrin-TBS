@@ -12,7 +12,7 @@ import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {ActionResultPerSquaddie, DegreeOfSuccess, DegreeOfSuccessHelper} from "../../history/actionResultPerSquaddie";
 import {SquaddieSprite} from "./squaddieSprite";
-import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
@@ -41,9 +41,9 @@ export class TargetSprite {
         return this._battleSquaddieId;
     }
 
-    private _squaddieRepository: BattleSquaddieRepository;
+    private _squaddieRepository: ObjectRepository;
 
-    get squaddieRepository(): BattleSquaddieRepository {
+    get squaddieRepository(): ObjectRepository {
         return this._squaddieRepository;
     }
 
@@ -62,7 +62,7 @@ export class TargetSprite {
 
     start({targetBattleSquaddieId, squaddieRepository, action, result, startingPosition, resourceHandler}: {
         targetBattleSquaddieId: string,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         action: SquaddieAction,
         result: ActionResultPerSquaddie,
         startingPosition: number,
@@ -75,7 +75,7 @@ export class TargetSprite {
         this._battleSquaddieId = targetBattleSquaddieId;
         this._actionResult = result;
 
-        const {squaddieTemplate} = getResultOrThrowError(this.squaddieRepository.getSquaddieByBattleId(this.battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
@@ -105,7 +105,7 @@ export class TargetSprite {
                               }: {
         timer: ActionTimer,
         battleSquaddieId: string,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         result: ActionResultPerSquaddie
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
@@ -117,7 +117,7 @@ export class TargetSprite {
                 const {
                     squaddieTemplate,
                     battleSquaddie
-                } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+                } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
                 const stillAlive = IsSquaddieAlive({squaddieTemplate, battleSquaddie});
                 if (!stillAlive) {
                     return SquaddieEmotion.DEAD;

@@ -1,6 +1,6 @@
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -39,7 +39,7 @@ import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let squaddieTemplateBase: SquaddieTemplate;
     let battleSquaddieBase: BattleSquaddie;
     let targetStatic: SquaddieTemplate;
@@ -55,7 +55,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         ({
             squaddieTemplate: squaddieTemplateBase,
             battleSquaddie: battleSquaddieBase,

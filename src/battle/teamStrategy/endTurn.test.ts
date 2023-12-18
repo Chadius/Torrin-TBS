@@ -1,6 +1,6 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {TeamStrategyState} from "./teamStrategyState";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
@@ -15,12 +15,12 @@ import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 describe('end turn team strategy', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
     let playerBattleSquaddie: BattleSquaddie;
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let squaddieTeam: BattleSquaddieTeam;
     let missionMap: MissionMap;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         playerSquaddieTemplate = {
             squaddieId: {
                 templateId: "new_static_squaddie",
@@ -36,7 +36,7 @@ describe('end turn team strategy', () => {
             attributes: DefaultArmyAttributes(),
         };
 
-        squaddieRepository.addSquaddieTemplate(
+        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository,
             playerSquaddieTemplate
         );
 
@@ -47,7 +47,7 @@ describe('end turn team strategy', () => {
                 squaddieTurn: SquaddieTurnHandler.new(),
             });
 
-        squaddieRepository.addBattleSquaddie(
+        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
             playerBattleSquaddie
         );
 

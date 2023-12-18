@@ -1,6 +1,6 @@
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {
@@ -28,7 +28,7 @@ import {BattleStateHelper} from "../orchestrator/battleState";
 import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let knightBattleSquaddie: BattleSquaddie;
     let knightDynamicId = "knight_0";
     let knightTemplateId = "knight_0";
@@ -50,7 +50,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
 
         ({
             thiefBattleSquaddie,

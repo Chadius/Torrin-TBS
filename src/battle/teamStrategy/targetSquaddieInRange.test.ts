@@ -1,4 +1,4 @@
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
@@ -16,7 +16,7 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 
 describe('target a squaddie within reach of actions', () => {
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let missionMap: MissionMap;
     let enemyBanditStatic: SquaddieTemplate;
     let enemyBanditDynamic: BattleSquaddie;
@@ -28,7 +28,7 @@ describe('target a squaddie within reach of actions', () => {
     let enemyTeam: BattleSquaddieTeam;
     let expectedInstruction: SquaddieActionsForThisRound;
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
 
         shortBowAction = SquaddieActionHandler.new({
             name: "short bow",

@@ -35,6 +35,7 @@ import {RecordingHandler} from "../history/recording";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -250,7 +251,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(battleSquaddieToHighlightId));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieToHighlightId));
 
         state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.battleState.missionMap, state.battleState.missionMap.terrainTileMap, state.squaddieRepository);
@@ -264,7 +265,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(this.selectedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
 
         const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
         if (!canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow) {
@@ -330,7 +331,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId()));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId()));
         const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
         if (SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)) {

@@ -25,6 +25,7 @@ import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -109,7 +110,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     private updateWhileAnimationIsInProgress(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
             battleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
             SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
 
@@ -124,7 +125,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
             SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
 

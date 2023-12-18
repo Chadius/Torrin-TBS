@@ -1,6 +1,6 @@
 import {TeamStrategy, TeamStrategyType} from "./teamStrategy";
 import {TeamStrategyState} from "./teamStrategyState";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository} from "../objectRepository";
 import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
 import {EndTurnTeamStrategy} from "./endTurn";
@@ -10,7 +10,7 @@ export const DetermineNextInstruction = ({strategy, state, squaddieRepository}:
                                              {
                                                  strategy: TeamStrategy,
                                                  state: TeamStrategyState,
-                                                 squaddieRepository: BattleSquaddieRepository
+                                                 squaddieRepository: ObjectRepository
                                              }) => {
     let calculator: TeamStrategyCalculator;
     switch (strategy.type) {

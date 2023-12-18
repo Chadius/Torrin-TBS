@@ -16,7 +16,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {MissionStatistics} from "../missionStatistics/missionStatistics";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
@@ -38,8 +38,8 @@ describe("BattleSaveState", () => {
     let eventRecording0: Recording;
     let firstBattleEvent: BattleEvent;
     let missionStatistics: MissionStatistics;
-    let originalSquaddieRepository: BattleSquaddieRepository;
-    let newSquaddieRepository: BattleSquaddieRepository;
+    let originalSquaddieRepository: ObjectRepository;
+    let newSquaddieRepository: ObjectRepository;
     let player0BattleSquaddie: BattleSquaddie;
     let enemy0BattleSquaddieWithWoundsAndTurnEnded: BattleSquaddie;
     let playerTeam: BattleSquaddieTeam;
@@ -177,17 +177,17 @@ describe("BattleSaveState", () => {
             battleSquaddieIds: ["enemy battle 0"],
         }
 
-        originalSquaddieRepository = new BattleSquaddieRepository();
-        originalSquaddieRepository.addSquaddieTemplate(player0SquaddieTemplate);
-        originalSquaddieRepository.addBattleSquaddie(player0BattleSquaddie);
-        originalSquaddieRepository.addSquaddieTemplate(enemy0SquaddieTemplate);
-        originalSquaddieRepository.addBattleSquaddie(enemy0BattleSquaddieWithWoundsAndTurnEnded);
+        originalSquaddieRepository = ObjectRepositoryHelper.new();
+        ObjectRepositoryHelper.addSquaddieTemplate(originalSquaddieRepository, player0SquaddieTemplate);
+        ObjectRepositoryHelper.addBattleSquaddie(originalSquaddieRepository, player0BattleSquaddie);
+        ObjectRepositoryHelper.addSquaddieTemplate(originalSquaddieRepository, enemy0SquaddieTemplate);
+        ObjectRepositoryHelper.addBattleSquaddie(originalSquaddieRepository, enemy0BattleSquaddieWithWoundsAndTurnEnded);
         InBattleAttributesHandler.takeDamage(enemy0BattleSquaddieWithWoundsAndTurnEnded.inBattleAttributes, 1, DamageType.UNKNOWN);
 
-        newSquaddieRepository = new BattleSquaddieRepository();
-        newSquaddieRepository.addSquaddieTemplate(player0SquaddieTemplate);
-        newSquaddieRepository.addBattleSquaddie(player0BattleSquaddie);
-        newSquaddieRepository.addSquaddieTemplate(enemy0SquaddieTemplate);
+        newSquaddieRepository = ObjectRepositoryHelper.new();
+        ObjectRepositoryHelper.addSquaddieTemplate(newSquaddieRepository, player0SquaddieTemplate);
+        ObjectRepositoryHelper.addBattleSquaddie(newSquaddieRepository, player0BattleSquaddie);
+        ObjectRepositoryHelper.addSquaddieTemplate(newSquaddieRepository, enemy0SquaddieTemplate);
 
         const enemy0BattleSquaddieWithNewTurn = BattleSquaddieHelper.newBattleSquaddie({
             battleSquaddieId: "enemy battle 0",
@@ -198,9 +198,7 @@ describe("BattleSaveState", () => {
                 maxHitPoints: 5
             })
         });
-        newSquaddieRepository.addBattleSquaddie(enemy0BattleSquaddieWithNewTurn);
-
-
+        ObjectRepositoryHelper.addBattleSquaddie(newSquaddieRepository, enemy0BattleSquaddieWithNewTurn);
     })
 
     it('Records the mission Id', () => {
@@ -215,7 +213,7 @@ describe("BattleSaveState", () => {
         const battleState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
                 camera: new BattleCamera(100, 200),
@@ -239,7 +237,7 @@ describe("BattleSaveState", () => {
         const newBattleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -272,7 +270,7 @@ describe("BattleSaveState", () => {
                     turnCount: 3,
                 },
             }),
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
         });
 
         const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
@@ -352,7 +350,7 @@ describe("BattleSaveState", () => {
                     currentAffiliation: BattlePhase.UNKNOWN,
                 },
             }),
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
         });
 
         const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
@@ -399,7 +397,7 @@ describe("BattleSaveState", () => {
         const battleState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
                 missionMap: missionMap,
@@ -476,7 +474,7 @@ describe("BattleSaveState", () => {
                     currentAffiliation: BattlePhase.UNKNOWN,
                 },
             }),
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
         });
 
         const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
@@ -549,11 +547,11 @@ describe("BattleSaveState", () => {
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
         });
-        expect(newBattleState.squaddieRepository.getBattleSquaddieIterator()).toHaveLength(2);
+        expect(ObjectRepositoryHelper.getBattleSquaddieIterator(newBattleState.squaddieRepository)).toHaveLength(2);
         const {
             squaddieTemplate: enemyTemplate,
             battleSquaddie: enemyBattle
-        } = getResultOrThrowError(newBattleState.squaddieRepository.getSquaddieByBattleId("enemy battle 0"));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(newBattleState.squaddieRepository, "enemy battle 0"));
         expect(enemyTemplate.squaddieId.templateId).toBe("enemy template 0");
         expect(SquaddieTurnHandler.hasActionPointsRemaining(enemyBattle.squaddieTurn)).toBeFalsy();
         expect(enemyBattle.inBattleAttributes.currentHitPoints).toBe(4);
@@ -573,7 +571,7 @@ describe("BattleSaveState", () => {
                     currentAffiliation: BattlePhase.UNKNOWN,
                 },
             }),
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
         });
 
         const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
@@ -636,7 +634,7 @@ describe("BattleSaveState", () => {
         const battleState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),
@@ -747,7 +745,7 @@ describe("BattleSaveState", () => {
         const battleState = BattleOrchestratorStateHelper.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: new BattleSquaddieRepository(),
+            squaddieRepository: ObjectRepositoryHelper.new(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
                 missionMap: NullMissionMap(),

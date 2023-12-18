@@ -1,6 +1,6 @@
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleCamera} from "../battleCamera";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -17,7 +17,7 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: Battle
         && !SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
     ) {
         const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
-            state.squaddieRepository.getSquaddieByBattleId(
+            ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
                 SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
             )
         );
@@ -36,7 +36,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
             SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
@@ -62,7 +62,7 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
             SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
@@ -79,7 +79,7 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
 export function GetSquaddieAtScreenLocation(param: {
     mouseX: number;
     mouseY: number;
-    squaddieRepository: BattleSquaddieRepository;
+    squaddieRepository: ObjectRepository;
     camera: BattleCamera;
     map: MissionMap
 }): {
@@ -112,7 +112,7 @@ export function GetSquaddieAtScreenLocation(param: {
 
 export function GetSquaddieAtMapLocation(param: {
     mapLocation: HexCoordinate;
-    squaddieRepository: BattleSquaddieRepository;
+    squaddieRepository: ObjectRepository;
     map: MissionMap
 }): {
     squaddieTemplate: SquaddieTemplate,
@@ -138,7 +138,7 @@ export function GetSquaddieAtMapLocation(param: {
     const {
         squaddieTemplate,
         battleSquaddie,
-    } = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(squaddieAndLocationIdentifier.battleSquaddieId))
+    } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, squaddieAndLocationIdentifier.battleSquaddieId))
 
     return {
         squaddieTemplate,

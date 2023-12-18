@@ -1,6 +1,6 @@
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {DegreeOfSuccess, DegreeOfSuccessHelper} from "../history/actionResultPerSquaddie";
@@ -8,9 +8,9 @@ import {DegreeOfSuccess, DegreeOfSuccessHelper} from "../history/actionResultPer
 export const FormatResult = ({currentAction, result, squaddieRepository}: {
     currentAction: SquaddieAction,
     result: SquaddieSquaddieResults,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
 }): string[] => {
-    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(result.actingBattleSquaddieId))
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, result.actingBattleSquaddieId))
 
     let output: string[] = [];
     let actorUsesActionDescriptionText = ActionResultTextWriter.getSquaddieUsesActionString({
@@ -28,7 +28,7 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
     }
 
     result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
-        const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(targetSquaddieId));
+        const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, targetSquaddieId));
         const resultPerTarget = result.resultPerTarget[targetSquaddieId];
 
         if (SquaddieActionHandler.isHindering(currentAction)) {
@@ -64,9 +64,9 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
 export const FormatIntent = ({currentAction, actingBattleSquaddieId, squaddieRepository}: {
     currentAction: SquaddieAction,
     actingBattleSquaddieId: string,
-    squaddieRepository: BattleSquaddieRepository,
+    squaddieRepository: ObjectRepository,
 }): string[] => {
-    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(actingBattleSquaddieId))
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, actingBattleSquaddieId))
 
     let output: string[] = [];
     output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentAction.name}`);

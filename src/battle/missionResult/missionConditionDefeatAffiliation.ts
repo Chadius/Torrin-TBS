@@ -4,6 +4,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export class MissionConditionDefeatAffiliation implements MissionConditionCalculator {
     shouldBeComplete(missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean {
@@ -24,7 +25,7 @@ export class MissionConditionDefeatAffiliation implements MissionConditionCalcul
             const {
                 squaddieTemplate,
                 battleSquaddie,
-            } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(livingSquaddieDatum.battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, livingSquaddieDatum.battleSquaddieId));
 
             if (squaddieTemplate.squaddieId.affiliation !== affiliationToCheck) {
                 return false;

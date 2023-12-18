@@ -9,7 +9,7 @@ import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {SquaddieSprite} from "./squaddieSprite";
-import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
@@ -23,9 +23,9 @@ export class ActorSprite {
 
     }
 
-    private _squaddieRepository: BattleSquaddieRepository;
+    private _squaddieRepository: ObjectRepository;
 
-    get squaddieRepository(): BattleSquaddieRepository {
+    get squaddieRepository(): ObjectRepository {
         return this._squaddieRepository;
     }
 
@@ -57,7 +57,7 @@ export class ActorSprite {
 
     start({actorBattleSquaddieId, squaddieRepository, startingPosition, resourceHandler, squaddieResult}: {
         actorBattleSquaddieId: string,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
         startingPosition: number,
         resourceHandler: ResourceHandler,
         squaddieResult: SquaddieSquaddieResults,
@@ -69,7 +69,7 @@ export class ActorSprite {
         this._battleSquaddieId = actorBattleSquaddieId;
         this.squaddieResult = squaddieResult;
 
-        const {squaddieTemplate} = getResultOrThrowError(this.squaddieRepository.getSquaddieByBattleId(this.battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
@@ -105,7 +105,7 @@ export class ActorSprite {
                               }: {
         timer: ActionTimer,
         battleSquaddieId: string,
-        squaddieRepository: BattleSquaddieRepository,
+        squaddieRepository: ObjectRepository,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:

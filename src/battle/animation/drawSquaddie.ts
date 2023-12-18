@@ -5,7 +5,7 @@ import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../ui/rectangle";
 import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
@@ -19,7 +19,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
 
-export const tintSquaddieMapIconTurnComplete = (squaddieRepository: BattleSquaddieRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
+export const tintSquaddieMapIconTurnComplete = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     if (mapIcon) {
@@ -27,19 +27,19 @@ export const tintSquaddieMapIconTurnComplete = (squaddieRepository: BattleSquadd
     }
 }
 
-export const unTintSquaddieMapIcon = (squaddieRepository: BattleSquaddieRepository, battleSquaddie: BattleSquaddie) => {
+export const unTintSquaddieMapIcon = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie) => {
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     if (mapIcon) {
         mapIcon.removeTint();
     }
 }
 
-export const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContext, squaddieRepository: BattleSquaddieRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
+export const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     setImageToLocation(mapIcon, xyCoords);
-    const {squaddieTemplate} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
     const {
         squaddieHasThePlayerControlledAffiliation,
         squaddieCanCurrentlyAct
@@ -97,7 +97,7 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTe
     RectangleHelper.draw(numberOfActionPointsRect, graphicsContext);
 }
 
-export const TintSquaddieIfTurnIsComplete = (squaddieRepository: BattleSquaddieRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {
+export const TintSquaddieIfTurnIsComplete = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {
     let {
         canAct,
     } = CanSquaddieActRightNow({
@@ -110,7 +110,7 @@ export const TintSquaddieIfTurnIsComplete = (squaddieRepository: BattleSquaddieR
     }
 }
 
-export const updateSquaddieIconLocation = (squaddieRepository: BattleSquaddieRepository, battleSquaddie: BattleSquaddie, destination: HexCoordinate, camera: BattleCamera) => {
+export const updateSquaddieIconLocation = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, destination: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         destination.q,
         destination.r,
@@ -133,7 +133,7 @@ export const hasMovementAnimationFinished = (timeMovementStarted: number, squadd
     return timePassed >= TIME_TO_MOVE;
 }
 
-export const moveSquaddieAlongPath = (squaddieRepository: BattleSquaddieRepository, battleSquaddie: BattleSquaddie, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
+export const moveSquaddieAlongPath = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
     const timePassed = Date.now() - timeMovementStarted;
     const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
         SearchPathHelper.getTilesTraveled(squaddieMovePath).map(tile => tile.hexCoordinate),

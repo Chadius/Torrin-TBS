@@ -13,6 +13,7 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieHelper} from "../battleSquaddie";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -59,7 +60,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
             const {
                 battleSquaddie,
                 squaddieTemplate
-            } = getResultOrThrowError(state.battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
             const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
 

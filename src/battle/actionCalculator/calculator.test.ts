@@ -1,5 +1,5 @@
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {BattleSquaddieRepository} from "../battleSquaddieRepository";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -21,7 +21,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ActionCalculator} from "./calculator";
 
 describe('calculator', () => {
-    let squaddieRepository: BattleSquaddieRepository;
+    let squaddieRepository: ObjectRepository;
     let missionMap: MissionMap;
     let player1DynamicId = "player 1";
     let player1StaticId = "player 1";
@@ -36,7 +36,7 @@ describe('calculator', () => {
     let actionNeedsAnAttackRollToDealBodyDamage: SquaddieAction;
 
     beforeEach(() => {
-        squaddieRepository = new BattleSquaddieRepository();
+        squaddieRepository = ObjectRepositoryHelper.new();
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 1 1 1 1 1 "]
@@ -301,7 +301,7 @@ describe('calculator', () => {
         });
 
         it('will hit if the roll hits the defender armor', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
             const expectedRolls: number[] = [1, 6];
@@ -316,7 +316,7 @@ describe('calculator', () => {
         });
 
         it('will miss if the roll is less than the defender armor class', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
             const expectedRolls: number[] = [1, 2];
@@ -331,7 +331,7 @@ describe('calculator', () => {
         });
 
         it('will always hit if the action always hits', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
             const expectedRolls: number[] = [1, 2];
@@ -354,7 +354,7 @@ describe('calculator', () => {
         });
 
         it('will critically hit if the roll hits the defender armor by 6 points or more', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2;
 
             const expectedRolls: number[] = [2, 6];
@@ -369,7 +369,7 @@ describe('calculator', () => {
         });
 
         it('will critically hit if the roll is 6 and 6', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001;
 
             const expectedRolls: number[] = [6, 6];
@@ -385,7 +385,7 @@ describe('calculator', () => {
 
 
         it('cannot critically hit if the action is forbidden from critically succeeding', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2;
 
             const expectedRolls: number[] = [6, 6];

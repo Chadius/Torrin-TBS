@@ -40,6 +40,7 @@ import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -264,7 +265,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(battleSquaddieId))
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId))
         const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         if (state.battleOrchestratorState.battleState.squaddieCurrentlyActing === undefined
             || SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
@@ -341,7 +342,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(state.battleOrchestratorState.squaddieRepository.getSquaddieByBattleId(squaddieInstruction.battleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, squaddieInstruction.battleSquaddieId));
         let newAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(squaddieInstruction);
         if (newAction.type === SquaddieActionType.MOVEMENT) {
             createSearchPath(state.battleOrchestratorState, squaddieTemplate, battleSquaddie, (newAction.data as SquaddieMovementActionData).destination);
