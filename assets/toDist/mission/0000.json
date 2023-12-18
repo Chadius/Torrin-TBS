@@ -50,6 +50,26 @@
       "numberOfRequiredConditionsToComplete": "all"
     }
   ],
+  "player": {
+    "teamId": "playerCrusaders",
+    "teamName": "Crusaders",
+    "deployment": {
+      "affiliation": "PLAYER",
+      "optional": [],
+      "required": [
+        {
+          "squaddieTemplateId": "player_sir_camil",
+          "battleSquaddieId": "player_sir_camil",
+          "location": {"q": 1, "r": 1}
+        },
+        {
+          "squaddieTemplateId": "player_young_torrin",
+          "battleSquaddieId": "player_young_torrin",
+          "location": {"q": 1, "r": 0}
+        }
+      ]
+    }
+  },
   "enemy": {
     "templateIds": [
       "enemy_demon_slither"

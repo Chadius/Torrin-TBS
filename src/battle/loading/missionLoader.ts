@@ -1,6 +1,6 @@
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionMap} from "../../missionMap/missionMap";
-import {LoadMissionFromFile, MissionFileFormat} from "../../dataLoader/missionLoader";
+import {LoadMissionFromFile, LoadPlayerArmyFromFile, MissionFileFormat} from "../../dataLoader/missionLoader";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {
@@ -14,12 +14,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
-import {SquaddieEmotion} from "../animation/actionAnimation/actionAnimationConstants";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {SquaddieActionHandler} from "../../squaddie/action";
-import {DamageType, HealingType} from "../../squaddie/squaddieService";
-import {BattleSquaddieHelper} from "../battleSquaddie";
+import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -34,6 +29,9 @@ import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {SplashScreen} from "../../cutscene/splashScreen";
 import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
+import {PlayerArmy} from "../../campaign/playerArmy";
+import {SquaddieResource} from "../../squaddie/resource";
+import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 
 export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
     "map icon move 1 action",
@@ -73,7 +71,7 @@ export interface MissionLoaderContext {
 }
 
 export const MissionLoader = {
-    newEmptyMissionLoaderStatus: (): MissionLoaderContext => {
+    newEmptyMissionLoaderContext: (): MissionLoaderContext => {
         return {
             id: "",
             missionMap: undefined,
@@ -139,36 +137,40 @@ export const MissionLoader = {
         missionLoaderContext.squaddieData.templates = {};
         missionData.enemy.templateIds.forEach(id => missionLoaderContext.squaddieData.templates[id] = undefined);
 
-        await loadAndPrepareAllTemplateData({
-            missionLoaderStatus: missionLoaderContext,
+        await loadAndPrepareNPCTemplateData({
+            missionLoaderContext: missionLoaderContext,
             resourceHandler,
             squaddieRepository
         });
-        spawnSquaddiesAndAddToMap({missionLoaderStatus: missionLoaderContext, squaddieRepository, missionData});
+
+        createPlayerSquaddieTeam(missionLoaderContext, missionData);
+        deployRequiredPlayerSquaddies(missionLoaderContext, missionData);
+
+        spawnNPCSquaddiesAndAddToMap({missionLoaderContext: missionLoaderContext, squaddieRepository, missionData});
         createSquaddieTeams({missionLoaderContext, missionData});
 
-        initializeCameraPosition({missionLoaderStatus: missionLoaderContext});
+        initializeCameraPosition({missionLoaderContext: missionLoaderContext});
     },
     loadMissionFromHardcodedData: ({
-                                       missionLoaderStatus,
+                                       missionLoaderContext,
                                        squaddieRepository,
                                        resourceHandler,
                                    }: {
-        missionLoaderStatus: MissionLoaderContext,
+        missionLoaderContext: MissionLoaderContext,
         squaddieRepository: BattleSquaddieRepository,
         resourceHandler: ResourceHandler,
     }) => {
         loadMissionFromHardcodedData({
-            missionLoaderStatus,
+            missionLoaderContext,
             squaddieRepository,
             resourceHandler,
         });
     },
-    checkResourcesPendingLoading: ({missionLoaderStatus, resourceHandler}: {
-        missionLoaderStatus: MissionLoaderContext,
+    checkResourcesPendingLoading: ({missionLoaderContext, resourceHandler}: {
+        missionLoaderContext: MissionLoaderContext,
         resourceHandler: ResourceHandler,
     }) => {
-        missionLoaderStatus.resourcesPendingLoading = missionLoaderStatus.resourcesPendingLoading.filter(
+        missionLoaderContext.resourcesPendingLoading = missionLoaderContext.resourcesPendingLoading.filter(
             resourceKey => {
                 return resourceHandler.isResourceLoaded(resourceKey) !== true;
             }
@@ -176,35 +178,77 @@ export const MissionLoader = {
     },
     assignResourceHandlerResources: ({
                                          squaddieRepository,
-                                         missionLoaderStatus,
+                                         missionLoaderContext,
                                          resourceHandler,
                                      }: {
         squaddieRepository: BattleSquaddieRepository;
-        missionLoaderStatus: MissionLoaderContext;
+        missionLoaderContext: MissionLoaderContext;
         resourceHandler: ResourceHandler
     }) => {
-        initializeCutscenes({missionLoaderStatus});
-        initializeSquaddieResources({squaddieRepository, missionLoaderStatus, resourceHandler});
+        initializeCutscenes({missionLoaderContext});
+        initializeSquaddieResources({squaddieRepository, missionLoaderContext, resourceHandler});
+    },
+    loadPlayerArmyFromFile: async ({squaddieRepository, resourceHandler, missionLoaderContext}: {
+        squaddieRepository: BattleSquaddieRepository;
+        resourceHandler: ResourceHandler;
+        missionLoaderContext: MissionLoaderContext
+    }) => {
+        const playerArmyData: PlayerArmy = await LoadPlayerArmyFromFile();
+        playerArmyData.squaddieTemplates.forEach(template => {
+            SquaddieTemplateHelper.sanitize(template);
+            missionLoaderContext.squaddieData.templates[template.squaddieId.templateId] = template;
+        });
+
+        playerArmyData.squaddieTemplates.forEach(template => {
+            const resources = template.squaddieId.resources;
+            loadSquaddieTemplateResources({missionLoaderContext, resources, resourceHandler});
+        });
+
+        playerArmyData.squaddieTemplates.forEach(template => {
+            const battleSquaddie: BattleSquaddie = BattleSquaddieHelper.new({
+                battleSquaddieId: template.squaddieId.templateId,
+                inBattleAttributes: InBattleAttributesHandler.new(template.attributes),
+                squaddieTemplate: template,
+            })
+
+            squaddieRepository.addSquaddie(template, battleSquaddie);
+        });
     }
 }
 
-const initializeCameraPosition = ({
-                                      missionLoaderStatus,
-                                  }: {
-    missionLoaderStatus: MissionLoaderContext;
+const loadSquaddieTemplateResources = ({
+                                           missionLoaderContext,
+                                           resources,
+                                           resourceHandler,
+                                       }: {
+    missionLoaderContext: MissionLoaderContext,
+    resources: SquaddieResource,
+    resourceHandler: ResourceHandler,
 }) => {
-    const mapDimensions = missionLoaderStatus.missionMap.terrainTileMap.getDimensions();
-    missionLoaderStatus.mapSettings.camera = new BattleCamera();
-    missionLoaderStatus.mapSettings.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
+    resourceHandler.loadResources([resources.mapIconResourceKey]);
+    missionLoaderContext.resourcesPendingLoading.push(resources.mapIconResourceKey);
+
+    resourceHandler.loadResources(Object.values(resources.actionSpritesByEmotion));
+    missionLoaderContext.resourcesPendingLoading.push(...Object.values(resources.actionSpritesByEmotion));
+};
+
+const initializeCameraPosition = ({
+                                      missionLoaderContext,
+                                  }: {
+    missionLoaderContext: MissionLoaderContext;
+}) => {
+    const mapDimensions = missionLoaderContext.missionMap.terrainTileMap.getDimensions();
+    missionLoaderContext.mapSettings.camera = new BattleCamera();
+    missionLoaderContext.mapSettings.camera.setMapDimensionBoundaries(mapDimensions.widthOfWidestRow, mapDimensions.numberOfRows);
 }
 
 const initializeSquaddieResources = ({
                                          squaddieRepository,
-                                         missionLoaderStatus,
+                                         missionLoaderContext,
                                          resourceHandler,
                                      }: {
     squaddieRepository: BattleSquaddieRepository;
-    missionLoaderStatus: MissionLoaderContext;
+    missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
 }) => {
     squaddieRepository.getBattleSquaddieIterator().forEach((info) => {
@@ -214,11 +258,11 @@ const initializeSquaddieResources = ({
         let image: GraphicImage = getResultOrThrowError(
             resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey)
         );
-        const datum = missionLoaderStatus.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
+        const datum = missionLoaderContext.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
 
         if (datum.mapLocation !== undefined) {
             const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
-                datum.mapLocation.q, datum.mapLocation.r, ...missionLoaderStatus.mapSettings.camera.getCoordinates())
+                datum.mapLocation.q, datum.mapLocation.r, ...missionLoaderContext.mapSettings.camera.getCoordinates())
 
             squaddieRepository.imageUIByBattleSquaddieId[battleSquaddieId] = new ImageUI({
                 graphic: image,
@@ -236,37 +280,24 @@ const initializeSquaddieResources = ({
 }
 
 const initializeCutscenes = ({
-                                 missionLoaderStatus,
+                                 missionLoaderContext,
                              }: {
-    missionLoaderStatus: MissionLoaderContext;
+    missionLoaderContext: MissionLoaderContext;
 }) => {
-    Object.entries(missionLoaderStatus.cutsceneInfo.cutsceneCollection.cutsceneById).forEach(([id, cutscene]) => {
+    Object.entries(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById).forEach(([id, cutscene]) => {
         cutscene.setResources();
     });
 }
 
 const loadMissionFromHardcodedData = ({
-                                          missionLoaderStatus,
+                                          missionLoaderContext,
                                           squaddieRepository,
                                           resourceHandler,
                                       }: {
-    missionLoaderStatus: MissionLoaderContext,
+    missionLoaderContext: MissionLoaderContext,
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
-    loadTorrin({
-        missionLoaderStatus,
-        squaddieRepository,
-        resourceHandler,
-    });
-
-    loadSirCamil({
-        missionLoaderStatus,
-        squaddieRepository,
-        resourceHandler,
-    });
-    loadTeamInfo({missionLoaderStatus});
-
     const affiliateIconResourceKeys = [
         "affiliate_icon_crusaders",
         "affiliate_icon_infiltrators",
@@ -274,8 +305,8 @@ const loadMissionFromHardcodedData = ({
         "affiliate_icon_none",
     ];
     resourceHandler.loadResources(affiliateIconResourceKeys);
-    missionLoaderStatus.resourcesPendingLoading = [
-        ...missionLoaderStatus.resourcesPendingLoading,
+    missionLoaderContext.resourcesPendingLoading = [
+        ...missionLoaderContext.resourcesPendingLoading,
         ...affiliateIconResourceKeys,
     ];
 
@@ -284,24 +315,24 @@ const loadMissionFromHardcodedData = ({
         "phase banner enemy",
     ];
     resourceHandler.loadResources(bannerImageResourceKeys);
-    missionLoaderStatus.resourcesPendingLoading = [
-        ...missionLoaderStatus.resourcesPendingLoading,
+    missionLoaderContext.resourcesPendingLoading = [
+        ...missionLoaderContext.resourcesPendingLoading,
         ...bannerImageResourceKeys,
     ];
 
     loadCutscenes({
-        missionLoaderStatus,
+        missionLoaderContext,
         squaddieRepository,
         resourceHandler,
     });
 };
 
 const loadCutscenes = ({
-                           missionLoaderStatus,
+                           missionLoaderContext,
                            squaddieRepository,
                            resourceHandler,
                        }: {
-    missionLoaderStatus: MissionLoaderContext,
+    missionLoaderContext: MissionLoaderContext,
     squaddieRepository: BattleSquaddieRepository,
     resourceHandler: ResourceHandler,
 }) => {
@@ -514,8 +545,8 @@ const loadCutscenes = ({
         return cutscene.allResourceKeys;
     }).flat();
     resourceHandler.loadResources(cutsceneResourceKeys);
-    missionLoaderStatus.resourcesPendingLoading = [
-        ...missionLoaderStatus.resourcesPendingLoading,
+    missionLoaderContext.resourcesPendingLoading = [
+        ...missionLoaderContext.resourcesPendingLoading,
         ...cutsceneResourceKeys
     ];
 
@@ -562,179 +593,11 @@ const loadCutscenes = ({
         },
     ];
 
-    missionLoaderStatus.cutsceneInfo.cutsceneCollection = cutsceneCollection;
-    missionLoaderStatus.cutsceneInfo.cutsceneTriggers = cutsceneTriggers;
+    missionLoaderContext.cutsceneInfo.cutsceneCollection = cutsceneCollection;
+    missionLoaderContext.cutsceneInfo.cutsceneTriggers = cutsceneTriggers;
 }
 
-const loadTorrin = ({
-                        missionLoaderStatus,
-                        squaddieRepository,
-                        resourceHandler,
-                    }: {
-    missionLoaderStatus: MissionLoaderContext,
-    squaddieRepository: BattleSquaddieRepository,
-    resourceHandler: ResourceHandler,
-}) => {
-    const mapIconResourceKey = "map icon young torrin";
-    squaddieRepository.addSquaddie(
-        {
-            squaddieId: {
-                templateId: "player_young_torrin",
-                name: "Torrin",
-                resources: {
-                    mapIconResourceKey,
-                    actionSpritesByEmotion: {
-                        [SquaddieEmotion.NEUTRAL]: "combat-young-torrin-neutral",
-                        [SquaddieEmotion.ATTACK]: "combat-young-torrin-attack",
-                        [SquaddieEmotion.TARGETED]: "combat-young-torrin-targeted",
-                        [SquaddieEmotion.DAMAGED]: "combat-young-torrin-damaged",
-                        [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
-                    },
-                },
-                traits: TraitStatusStorageHelper.newUsingTraitValues({
-                    [Trait.HUMANOID]: true,
-                    [Trait.MONSU]: true
-                }),
-                affiliation: SquaddieAffiliation.PLAYER,
-            },
-            attributes: {
-                maxHitPoints: 3,
-                armorClass: 6,
-                movement: CreateNewSquaddieMovementWithTraits({
-                    movementPerAction: 2,
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
-                }),
-            },
-            actions: [
-                SquaddieActionHandler.new({
-                    name: "water cannon",
-                    id: "torrin_water_cannon",
-                    minimumRange: 0,
-                    maximumRange: 2,
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({
-                        [Trait.ATTACK]: true,
-                    }),
-                    damageDescriptions: {
-                        [DamageType.BODY]: 2
-                    }
-                }),
-                SquaddieActionHandler.new({
-                    name: "healing touch",
-                    id: "young_torrin_healing_touch",
-                    minimumRange: 0,
-                    maximumRange: 1,
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({
-                        [Trait.SKIP_ANIMATION]: true,
-                        [Trait.ALWAYS_SUCCEEDS]: true,
-                        [Trait.TARGETS_ALLIES]: true,
-                        [Trait.HEALING]: true,
-                    }),
-                    actionPointCost: 2,
-                    healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2}
-                })
-            ],
-        },
-        BattleSquaddieHelper.newBattleSquaddie({
-            battleSquaddieId: "player_young_torrin",
-            squaddieTemplateId: "player_young_torrin",
-            squaddieTurn: SquaddieTurnHandler.new(),
-        })
-    );
-    missionLoaderStatus.missionMap.addSquaddie("player_young_torrin", "player_young_torrin", {q: 1, r: 0});
-
-    resourceHandler.loadResources([mapIconResourceKey]);
-    missionLoaderStatus.resourcesPendingLoading = [
-        ...missionLoaderStatus.resourcesPendingLoading,
-        mapIconResourceKey
-    ];
-};
-
-const loadSirCamil = ({
-                          missionLoaderStatus,
-                          squaddieRepository,
-                          resourceHandler,
-                      }: {
-    missionLoaderStatus: MissionLoaderContext,
-    squaddieRepository: BattleSquaddieRepository,
-    resourceHandler: ResourceHandler,
-}) => {
-    const mapIconResourceKey = "map icon sir camil";
-    squaddieRepository.addSquaddie(
-        {
-            attributes: {
-                maxHitPoints: 5,
-                armorClass: 8,
-                movement: CreateNewSquaddieMovementWithTraits({
-                    movementPerAction: 2,
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
-                }),
-            },
-            squaddieId: {
-                templateId: "player_sir_camil",
-                name: "Sir Camil",
-                resources: {
-                    mapIconResourceKey,
-                    actionSpritesByEmotion: {
-                        [SquaddieEmotion.NEUTRAL]: "combat-sir-camil-neutral",
-                        [SquaddieEmotion.ATTACK]: "combat-sir-camil-attack",
-                        [SquaddieEmotion.TARGETED]: "combat-sir-camil-targeted",
-                        [SquaddieEmotion.DAMAGED]: "combat-sir-camil-damaged",
-                        [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
-                    },
-                },
-                traits: TraitStatusStorageHelper.newUsingTraitValues({
-                    [Trait.HUMANOID]: true,
-                }),
-                affiliation: SquaddieAffiliation.PLAYER,
-            },
-            actions: [
-                SquaddieActionHandler.new({
-                    name: "longsword",
-                    id: "sir_camil_longsword",
-                    minimumRange: 0,
-                    maximumRange: 1,
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({
-                        [Trait.ATTACK]: true,
-                    }),
-                    damageDescriptions: {
-                        [DamageType.BODY]: 2
-                    }
-                })
-            ],
-        },
-        BattleSquaddieHelper.newBattleSquaddie({
-            battleSquaddieId: "player_sir_camil",
-            squaddieTemplateId: "player_sir_camil",
-            squaddieTurn: SquaddieTurnHandler.new(),
-        })
-    );
-    missionLoaderStatus.missionMap.addSquaddie("player_sir_camil", "player_sir_camil", {q: 1, r: 1});
-
-    resourceHandler.loadResources([mapIconResourceKey]);
-    missionLoaderStatus.resourcesPendingLoading = [
-        ...missionLoaderStatus.resourcesPendingLoading,
-        mapIconResourceKey
-    ];
-};
-
-function loadTeamInfo({missionLoaderStatus}: {
-    missionLoaderStatus: MissionLoaderContext
-}) {
-    missionLoaderStatus.squaddieData.teams ||= [];
-    missionLoaderStatus.squaddieData.teams.push(
-        {
-            id: "playerTeam",
-            affiliation: SquaddieAffiliation.PLAYER,
-            name: "Crusaders",
-            battleSquaddieIds: [
-                "player_young_torrin",
-                "player_sir_camil"
-            ],
-        }
-    );
-}
-
-const loadTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: string]: SquaddieTemplate }> => {
+const loadNPCTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: string]: SquaddieTemplate }> => {
     let squaddiesById: { [p: string]: SquaddieTemplate } = {};
     for (const templateId of templateIds) {
         try {
@@ -748,29 +611,31 @@ const loadTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: strin
     return squaddiesById;
 }
 
-const loadAndPrepareAllTemplateData = async ({
-                                                 missionLoaderStatus,
+const loadAndPrepareNPCTemplateData = async ({
+                                                 missionLoaderContext,
                                                  resourceHandler,
                                                  squaddieRepository,
                                              }: {
-    missionLoaderStatus: MissionLoaderContext;
+    missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
     squaddieRepository: BattleSquaddieRepository;
 }) => {
     let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {};
-    loadedTemplatesById = await loadTemplatesFromFile(Object.keys(missionLoaderStatus.squaddieData.templates));
+    const loadedNPCTemplatesById = await loadNPCTemplatesFromFile(Object.keys(missionLoaderContext.squaddieData.templates));
+    loadedTemplatesById = {...loadedNPCTemplatesById};
+
     Object.values(loadedTemplatesById).forEach(template => {
         SquaddieTemplateHelper.sanitize(template);
     });
 
-    Object.assign(missionLoaderStatus.squaddieData.templates, loadedTemplatesById);
+    Object.assign(missionLoaderContext.squaddieData.templates, loadedTemplatesById);
 
     Object.values(loadedTemplatesById).forEach(template => {
         resourceHandler.loadResource(template.squaddieId.resources.mapIconResourceKey);
-        missionLoaderStatus.resourcesPendingLoading.push(template.squaddieId.resources.mapIconResourceKey);
+        missionLoaderContext.resourcesPendingLoading.push(template.squaddieId.resources.mapIconResourceKey);
 
         resourceHandler.loadResources(Object.values(template.squaddieId.resources.actionSpritesByEmotion));
-        missionLoaderStatus.resourcesPendingLoading.push(
+        missionLoaderContext.resourcesPendingLoading.push(
             ...Object.values(template.squaddieId.resources.actionSpritesByEmotion)
         );
 
@@ -778,13 +643,13 @@ const loadAndPrepareAllTemplateData = async ({
     });
 }
 
-const spawnSquaddiesAndAddToMap = ({
-                                       squaddieRepository,
-                                       missionLoaderStatus,
-                                       missionData
-                                   }: {
+const spawnNPCSquaddiesAndAddToMap = ({
+                                          squaddieRepository,
+                                          missionLoaderContext,
+                                          missionData
+                                      }: {
     squaddieRepository: BattleSquaddieRepository,
-    missionLoaderStatus: MissionLoaderContext,
+    missionLoaderContext: MissionLoaderContext,
     missionData: MissionFileFormat,
 }) => {
     missionData.enemy.mapPlacements.forEach(mapPlacement => {
@@ -800,7 +665,7 @@ const spawnSquaddiesAndAddToMap = ({
                 squaddieTurn: SquaddieTurnHandler.new(),
             })
         );
-        missionLoaderStatus.missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
+        missionLoaderContext.missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
     });
 }
 
@@ -820,4 +685,23 @@ const createSquaddieTeams = ({missionData, missionLoaderContext}: {
         missionLoaderContext.squaddieData.teamStrategyById[team.id] ||= [];
         missionLoaderContext.squaddieData.teamStrategyById[team.id].push(...enemyTeam.strategies);
     });
+}
+
+const deployRequiredPlayerSquaddies = (missionLoaderContext: MissionLoaderContext, missionData: MissionFileFormat) => {
+    missionLoaderContext.missionMap.playerDeployment = {...missionData.player.deployment};
+    missionLoaderContext.missionMap.playerDeployment.required.forEach(requiredDeployment => {
+        missionLoaderContext.missionMap.addSquaddie(requiredDeployment.squaddieTemplateId, requiredDeployment.battleSquaddieId, requiredDeployment.location);
+    });
+}
+
+const createPlayerSquaddieTeam = (missionLoaderContext: MissionLoaderContext, missionData: MissionFileFormat) => {
+    missionLoaderContext.squaddieData.teams ||= [];
+    missionLoaderContext.squaddieData.teams.push(
+        {
+            id: missionData.player.teamId,
+            name: missionData.player.teamName,
+            affiliation: SquaddieAffiliation.PLAYER,
+            battleSquaddieIds: missionData.player.deployment.required.map(info => info.battleSquaddieId),
+        }
+    );
 }

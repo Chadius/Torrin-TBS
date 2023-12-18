@@ -29,14 +29,17 @@ import {TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {GameEngineState, GameEngineStateHelper} from "./gameEngine";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {TestMissionData} from "../utils/test/missionData";
+import {TestArmyPlayerData} from "../utils/test/army";
+import {PlayerArmy} from "../campaign/playerArmy";
 
 describe('GameEngineBattleMissionLoader', () => {
     let loader: GameEngineBattleMissionLoader;
     let missionData: MissionFileFormat;
-    let missionLoadSpy: jest.SpyInstance;
+    let loadFileIntoFormatSpy: jest.SpyInstance;
     let state: GameEngineState;
     let resourceHandler: ResourceHandler;
     let squaddieRepository: BattleSquaddieRepository;
+    let playerArmy: PlayerArmy;
 
     beforeEach(() => {
         loader = new GameEngineBattleMissionLoader();
@@ -65,7 +68,11 @@ describe('GameEngineBattleMissionLoader', () => {
             enemyDemonSlitherTemplate2,
         } = TestMissionData());
 
-        missionLoadSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockImplementation(async (filename: string): Promise<MissionFileFormat | SquaddieTemplate> => {
+        ({
+            playerArmy
+        } = TestArmyPlayerData());
+
+        loadFileIntoFormatSpy = jest.spyOn(DataLoader, "LoadFileIntoFormat").mockImplementation(async (filename: string): Promise<MissionFileFormat | SquaddieTemplate | PlayerArmy> => {
             if (filename === "assets/mission/0000.json") {
                 return missionData;
             }
@@ -77,18 +84,22 @@ describe('GameEngineBattleMissionLoader', () => {
             if (filename === "assets/npcData/templates/enemyDemonSlitherTemplate2_id.json") {
                 return enemyDemonSlitherTemplate2;
             }
+
+            if (filename === "assets/playerArmy/playerArmy.json") {
+                return playerArmy;
+            }
         });
     });
 
     it('asks the mission loader to load the mission', async () => {
         await loader.update(state);
-        expect(missionLoadSpy).toBeCalled();
+        expect(loadFileIntoFormatSpy).toBeCalled();
     });
 
     it('knows file has been loaded', async () => {
         await loader.update(state);
-        expect(loader.missionLoaderStatus.completionProgress.started).toBeTruthy();
-        expect(loader.missionLoaderStatus.completionProgress.loadedFileData).toBeTruthy();
+        expect(loader.missionLoaderContext.completionProgress.started).toBeTruthy();
+        expect(loader.missionLoaderContext.completionProgress.loadedFileData).toBeTruthy();
     });
 
     it('knows it has not gotten resources yet', () => {
@@ -117,7 +128,7 @@ describe('GameEngineBattleMissionLoader', () => {
                 ...MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
             ])).toBeTruthy();
 
-            expect(loader.missionLoaderStatus.resourcesPendingLoading).toHaveLength(0);
+            expect(loader.missionLoaderContext.resourcesPendingLoading).toHaveLength(0);
         });
 
         it('should be complete', () => {
@@ -134,11 +145,11 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('mission map', () => {
-            expect(state.battleOrchestratorState.battleState.missionMap.terrainTileMap).toEqual(loader.missionLoaderStatus.missionMap.terrainTileMap);
+            expect(state.battleOrchestratorState.battleState.missionMap.terrainTileMap).toEqual(loader.missionLoaderContext.missionMap.terrainTileMap);
         });
 
         it('mission objectives', () => {
-            expect(state.battleOrchestratorState.battleState.objectives).toEqual(loader.missionLoaderStatus.objectives);
+            expect(state.battleOrchestratorState.battleState.objectives).toEqual(loader.missionLoaderContext.objectives);
             expect(state.battleOrchestratorState.battleState.missionCompletionStatus).toEqual({
                     "victory": {
                         isComplete: undefined,
@@ -162,6 +173,12 @@ describe('GameEngineBattleMissionLoader', () => {
             expect(state.battleOrchestratorState.squaddieRepository.getSquaddieTemplateIterator().length).toBeGreaterThan(0);
             expect(state.battleOrchestratorState.battleState.teams.length).toBeGreaterThan(0);
 
+            expect(state.battleOrchestratorState.battleState.teams.some(
+                team =>
+                    team.affiliation === SquaddieAffiliation.PLAYER
+                    && team.id === missionData.player.teamId)
+            ).toBeTruthy();
+
             expect(Object.keys(state.battleOrchestratorState.battleState.teamStrategiesById).length).toBeGreaterThan(0);
             expect(state.battleOrchestratorState.battleState.teamStrategiesById[missionData.enemy.teams[0].id]).toEqual(
                 missionData.enemy.teams[0].strategies
@@ -176,8 +193,8 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('initializes the camera', () => {
-            expect(loader.missionLoaderStatus.mapSettings.camera.mapDimensionBoundaries.widthOfWidestRow).toBe(17);
-            expect(loader.missionLoaderStatus.mapSettings.camera.mapDimensionBoundaries.numberOfRows).toBe(18);
+            expect(loader.missionLoaderContext.mapSettings.camera.mapDimensionBoundaries.widthOfWidestRow).toBe(17);
+            expect(loader.missionLoaderContext.mapSettings.camera.mapDimensionBoundaries.numberOfRows).toBe(18);
 
             expect(state.battleOrchestratorState.battleState.camera.mapDimensionBoundaries.widthOfWidestRow).toBe(17);
             expect(state.battleOrchestratorState.battleState.camera.mapDimensionBoundaries.numberOfRows).toBe(18);
@@ -299,7 +316,7 @@ describe('GameEngineBattleMissionLoader', () => {
             };
             await loader.update(currentState);
             await loader.update(currentState);
-            expect(loader.missionLoaderStatus.resourcesPendingLoading).toHaveLength(0);
+            expect(loader.missionLoaderContext.resourcesPendingLoading).toHaveLength(0);
             expect(currentState.battleOrchestratorState.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
             expect(currentState.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
             expect(currentState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(1);
@@ -437,7 +454,7 @@ describe('GameEngineBattleMissionLoader', () => {
         it('will try to apply the saved data', async () => {
             await loader.update(currentState);
             await loader.update(currentState);
-            expect(loader.missionLoaderStatus.resourcesPendingLoading).toHaveLength(0);
+            expect(loader.missionLoaderContext.resourcesPendingLoading).toHaveLength(0);
             expect(currentState.battleOrchestratorState.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
             expect(currentState.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
             expect(currentState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(1);
@@ -502,21 +519,23 @@ describe('GameEngineBattleMissionLoader', () => {
 
         expect(loader.appliedResources).toBeTruthy();
         expect(loader.hasCompleted(state)).toBeTruthy();
-        const missionLoadSpyCalls = missionLoadSpy.mock.calls.length;
+        const missionLoadSpyCalls = loadFileIntoFormatSpy.mock.calls.length;
 
         loader.reset(state);
         state.battleOrchestratorState.copyOtherOrchestratorState(BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler}));
 
         await loader.update(state);
         const missionMapCallsCount = 1;
+        const playerArmyCallsCount = 1;
         const templateCallsCount = missionData.enemy.templateIds.length;
-        expect(missionLoadSpy).toBeCalledTimes(
+        expect(loadFileIntoFormatSpy).toBeCalledTimes(
             missionLoadSpyCalls
             + missionMapCallsCount
             + templateCallsCount
+            + playerArmyCallsCount
         );
-        expect(loader.missionLoaderStatus.completionProgress.started).toBeTruthy();
-        expect(loader.missionLoaderStatus.completionProgress.loadedFileData).toBeTruthy();
+        expect(loader.missionLoaderContext.completionProgress.started).toBeTruthy();
+        expect(loader.missionLoaderContext.completionProgress.loadedFileData).toBeTruthy();
         expect(loader.appliedResources).toBeFalsy();
         expect(loader.hasCompleted(state)).toBeFalsy();
 

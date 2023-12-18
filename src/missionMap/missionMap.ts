@@ -2,8 +2,11 @@ import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "./squaddieLocation";
+import {SquaddieDeployment, SquaddieDeploymentHelper} from "./squaddieDeployment";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 export class MissionMap {
+    playerDeployment: SquaddieDeployment;
     private readonly _terrainTileMap: TerrainTileMap;
     private readonly _squaddieInfo: MissionMapSquaddieLocation[];
     private _squaddiesHidden: string[];
@@ -14,14 +17,11 @@ export class MissionMap {
         this._terrainTileMap = terrainTileMap;
         this._squaddieInfo = [];
         this._squaddiesHidden = [];
+        this.playerDeployment = SquaddieDeploymentHelper.new({affiliation: SquaddieAffiliation.PLAYER});
     }
 
     get terrainTileMap(): TerrainTileMap {
         return this._terrainTileMap;
-    }
-
-    get squaddieInfo(): MissionMapSquaddieLocation[] {
-        return this._squaddieInfo;
     }
 
     areCoordinatesOnMap(hexCoordinate: HexCoordinate): boolean {

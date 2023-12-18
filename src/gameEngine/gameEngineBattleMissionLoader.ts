@@ -15,7 +15,7 @@ import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAn
 import {BattleCameraHelper} from "../battle/battleCamera";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
-    missionLoaderStatus: MissionLoaderContext;
+    missionLoaderContext: MissionLoaderContext;
     appliedResources: boolean;
     backupBattleOrchestratorState: BattleOrchestratorState;
     loadedBattleSaveState: BattleSaveState;
@@ -26,7 +26,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
     }
 
     async update(state: GameEngineState) {
-        if (this.missionLoaderStatus.completionProgress.started !== true) {
+        if (this.missionLoaderContext.completionProgress.started !== true) {
             this.backupBattleOrchestratorState = state.battleOrchestratorState.clone();
 
             try {
@@ -41,21 +41,21 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         }
 
         MissionLoader.checkResourcesPendingLoading({
-            missionLoaderStatus: this.missionLoaderStatus,
+            missionLoaderContext: this.missionLoaderContext,
             resourceHandler: state.battleOrchestratorState.resourceHandler,
         });
         if (
-            this.missionLoaderStatus.resourcesPendingLoading.length > 0
-            || this.missionLoaderStatus.cutsceneInfo.cutsceneCollection === undefined
+            this.missionLoaderContext.resourcesPendingLoading.length > 0
+            || this.missionLoaderContext.cutsceneInfo.cutsceneCollection === undefined
         ) {
             return;
         } else {
             MissionLoader.assignResourceHandlerResources({
-                missionLoaderStatus: this.missionLoaderStatus,
+                missionLoaderContext: this.missionLoaderContext,
                 resourceHandler: state.battleOrchestratorState.resourceHandler,
                 squaddieRepository: state.battleOrchestratorState.squaddieRepository,
             });
-            this.applyMissionLoaderStatusToBattleOrchestratorState(state.battleOrchestratorState);
+            this.applyMissionLoaderContextToBattleOrchestratorState(state.battleOrchestratorState);
             this.applySaveStateToBattleOrchestratorState(state);
             this.appliedResources = true;
         }
@@ -74,8 +74,8 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             return true;
         }
 
-        return this.missionLoaderStatus.completionProgress.started
-            && this.missionLoaderStatus.completionProgress.loadedFileData
+        return this.missionLoaderContext.completionProgress.started
+            && this.missionLoaderContext.completionProgress.loadedFileData
             && this.appliedResources;
     }
 
@@ -125,19 +125,19 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         }
     }
 
-    private applyMissionLoaderStatusToBattleOrchestratorState(battleOrchestratorState: BattleOrchestratorState) {
-        battleOrchestratorState.battleState.missionId = this.missionLoaderStatus.id;
-        battleOrchestratorState.battleState.missionMap = this.missionLoaderStatus.missionMap;
-        battleOrchestratorState.battleState.cutsceneCollection = this.missionLoaderStatus.cutsceneInfo.cutsceneCollection;
-        battleOrchestratorState.battleState.cutsceneTriggers = [...this.missionLoaderStatus.cutsceneInfo.cutsceneTriggers];
-        battleOrchestratorState.battleState.teams = [...this.missionLoaderStatus.squaddieData.teams];
+    private applyMissionLoaderContextToBattleOrchestratorState(battleOrchestratorState: BattleOrchestratorState) {
+        battleOrchestratorState.battleState.missionId = this.missionLoaderContext.id;
+        battleOrchestratorState.battleState.missionMap = this.missionLoaderContext.missionMap;
+        battleOrchestratorState.battleState.cutsceneCollection = this.missionLoaderContext.cutsceneInfo.cutsceneCollection;
+        battleOrchestratorState.battleState.cutsceneTriggers = [...this.missionLoaderContext.cutsceneInfo.cutsceneTriggers];
+        battleOrchestratorState.battleState.teams = [...this.missionLoaderContext.squaddieData.teams];
 
         battleOrchestratorState.battleState.teamStrategiesById = Object.fromEntries(
-            this.missionLoaderStatus.squaddieData.teams.map(team =>
+            this.missionLoaderContext.squaddieData.teams.map(team =>
                 [
                     team.id,
-                    this.missionLoaderStatus.squaddieData.teamStrategyById[team.id] ? [
-                            ...this.missionLoaderStatus.squaddieData.teamStrategyById[team.id]
+                    this.missionLoaderContext.squaddieData.teamStrategyById[team.id] ? [
+                            ...this.missionLoaderContext.squaddieData.teamStrategyById[team.id]
                         ]
                         : []
                 ]
@@ -145,10 +145,10 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         );
 
         battleOrchestratorState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
-        battleOrchestratorState.battleState.camera = BattleCameraHelper.clone({original: this.missionLoaderStatus.mapSettings.camera});
+        battleOrchestratorState.battleState.camera = BattleCameraHelper.clone({original: this.missionLoaderContext.mapSettings.camera});
 
         battleOrchestratorState.battleState.missionCompletionStatus = {};
-        battleOrchestratorState.battleState.objectives = this.missionLoaderStatus.objectives;
+        battleOrchestratorState.battleState.objectives = this.missionLoaderContext.objectives;
         battleOrchestratorState.battleState.objectives.forEach((objective: MissionObjective) => {
             const conditions: {
                 [missionConditionId: string]: boolean;
@@ -166,13 +166,19 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     private async loadMissionDataFromFile(battleOrchestratorState: BattleOrchestratorState) {
         await MissionLoader.loadMissionFromFile({
-            missionLoaderContext: this.missionLoaderStatus,
+            missionLoaderContext: this.missionLoaderContext,
             missionId: "0000",
             resourceHandler: battleOrchestratorState.resourceHandler,
             squaddieRepository: battleOrchestratorState.squaddieRepository,
+        }).then(async () => {
+            await MissionLoader.loadPlayerArmyFromFile({
+                missionLoaderContext: this.missionLoaderContext,
+                resourceHandler: battleOrchestratorState.resourceHandler,
+                squaddieRepository: battleOrchestratorState.squaddieRepository,
+            });
         }).then(() => {
             MissionLoader.loadMissionFromHardcodedData({
-                missionLoaderStatus: this.missionLoaderStatus,
+                missionLoaderContext: this.missionLoaderContext,
                 resourceHandler: battleOrchestratorState.resourceHandler,
                 squaddieRepository: battleOrchestratorState.squaddieRepository,
             });
@@ -188,7 +194,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
     }
 
     private resetInternalFields() {
-        this.missionLoaderStatus = MissionLoader.newEmptyMissionLoaderStatus();
+        this.missionLoaderContext = MissionLoader.newEmptyMissionLoaderContext();
         this.appliedResources = false;
         this.backupBattleOrchestratorState = undefined;
         this.loadedBattleSaveState = undefined;
