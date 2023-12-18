@@ -22,7 +22,7 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieAction} from "../../squaddie/action";
 import {Trait} from "../../trait/traitStatusStorage";
-import {CalculateResults} from "../actionCalculator/calculator";
+import {ActionCalculator} from "../actionCalculator/calculator";
 import {FindValidTargets} from "../targeting/targetingService";
 import {FormatIntent} from "../animation/actionResultTextWriter";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
@@ -329,7 +329,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             ));
 
         SquaddieTurnHandler.spendActionPointsOnAction(actingBattleSquaddie.squaddieTurn, state.battleState.squaddieCurrentlyActing.currentlySelectedAction);
-        const instructionResults = CalculateResults({
+        const instructionResults = ActionCalculator.calculateResults({
             state,
             actingBattleSquaddie,
             validTargetLocation: this.validTargetLocation,

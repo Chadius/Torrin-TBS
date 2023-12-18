@@ -1,7 +1,25 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
-import {longswordAction} from "../../utils/test/squaddieAction";
 import {SquaddieActionType} from "./anySquaddieAction";
+import {SquaddieActionHandler} from "../../squaddie/action";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {DamageType} from "../../squaddie/squaddieService";
+
+const longswordAction = SquaddieActionHandler.new({
+    name: "longsword",
+    id: "longsword",
+    traits: TraitStatusStorageHelper.newUsingTraitValues({
+        [Trait.ATTACK]: true,
+        [Trait.TARGET_ARMOR]: true,
+        [Trait.TARGETS_FOE]: true,
+    }),
+    minimumRange: 1,
+    maximumRange: 1,
+    actionPointCost: 1,
+    damageDescriptions: {
+        [DamageType.BODY]: 2,
+    },
+});
 
 describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {

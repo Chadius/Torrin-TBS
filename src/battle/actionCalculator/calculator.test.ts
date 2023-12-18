@@ -8,7 +8,6 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
-import {CalculateResults} from "./calculator";
 import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
@@ -19,6 +18,7 @@ import {StreamNumberGenerator} from "../numberGenerator/stream";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {ActionCalculator} from "./calculator";
 
 describe('calculator', () => {
     let squaddieRepository: BattleSquaddieRepository;
@@ -130,7 +130,7 @@ describe('calculator', () => {
             squaddieActionsForThisRound: undefined,
         };
 
-        return CalculateResults({
+        return ActionCalculator.calculateResults({
                 state: BattleOrchestratorStateHelper.newOrchestratorState({
                     squaddieRepository: squaddieRepository,
                     resourceHandler: undefined,
@@ -235,7 +235,7 @@ describe('calculator', () => {
                 squaddieActionsForThisRound: undefined,
             };
 
-            const results = CalculateResults({
+            const results = ActionCalculator.calculateResults({
                     state: BattleOrchestratorStateHelper.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
@@ -272,7 +272,7 @@ describe('calculator', () => {
                 squaddieActionsForThisRound: undefined,
             };
 
-            CalculateResults({
+            ActionCalculator.calculateResults({
                     state: BattleOrchestratorStateHelper.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
@@ -315,7 +315,7 @@ describe('calculator', () => {
             expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
         });
 
-        it('will miss if the roll is under the defender armor', () => {
+        it('will miss if the roll is less than the defender armor class', () => {
             const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
@@ -337,6 +337,61 @@ describe('calculator', () => {
             const expectedRolls: number[] = [1, 2];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
+            const results = dealBodyDamage({
+                currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
+                numberGenerator,
+            });
+
+            expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
+        });
+    });
+
+    describe('critical hit chance', () => {
+        beforeEach(() => {
+            missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
+            missionMap.addSquaddie(enemy1StaticId, enemy1DynamicId, {q: 0, r: 1});
+        });
+
+        it('will critically hit if the roll hits the defender armor by 6 points or more', () => {
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2;
+
+            const expectedRolls: number[] = [2, 6];
+            const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
+
+            const results = dealBodyDamage({
+                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
+            });
+            expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL_SUCCESS);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY * 2);
+        });
+
+        it('will critically hit if the roll is 6 and 6', () => {
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001;
+
+            const expectedRolls: number[] = [6, 6];
+            const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
+
+            const results = dealBodyDamage({
+                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
+            });
+            expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL_SUCCESS);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY * 2);
+        });
+
+
+        it('cannot critically hit if the action is forbidden from critically succeeding', () => {
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(squaddieRepository.getSquaddieByBattleId(enemy1DynamicId));
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2;
+
+            const expectedRolls: number[] = [6, 6];
+            const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
+
+            TraitStatusStorageHelper.setStatus(actionAlwaysHitsAndDealsBodyDamage.traits, Trait.CANNOT_CRITICALLY_SUCCEED, true);
             const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
                 numberGenerator,

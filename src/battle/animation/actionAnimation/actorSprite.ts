@@ -13,8 +13,12 @@ import {BattleSquaddieRepository} from "../../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
+import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
+import {RollResultHelper} from "../../actionCalculator/rollResult";
 
 export class ActorSprite {
+    squaddieResult: SquaddieSquaddieResults;
+
     constructor() {
 
     }
@@ -48,19 +52,22 @@ export class ActorSprite {
         this._sprite = undefined;
         this._battleSquaddieId = undefined;
         this._squaddieRepository = undefined;
+        this.squaddieResult = undefined;
     }
 
-    start({actorBattleSquaddieId, squaddieRepository, startingPosition, resourceHandler}: {
+    start({actorBattleSquaddieId, squaddieRepository, startingPosition, resourceHandler, squaddieResult}: {
         actorBattleSquaddieId: string,
         squaddieRepository: BattleSquaddieRepository,
         startingPosition: number,
         resourceHandler: ResourceHandler,
+        squaddieResult: SquaddieSquaddieResults,
     }) {
         this.reset();
 
         this._startingPosition = startingPosition;
         this._squaddieRepository = squaddieRepository;
         this._battleSquaddieId = actorBattleSquaddieId;
+        this.squaddieResult = squaddieResult;
 
         const {squaddieTemplate} = getResultOrThrowError(this.squaddieRepository.getSquaddieByBattleId(this.battleSquaddieId));
 
@@ -113,10 +120,10 @@ export class ActorSprite {
 
     private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext);
-        let horizontalDistance = this.getDistanceBasedOnTimer(timer);
+        let {horizontalDistance, verticalDistance} = this.getDistanceBasedOnTimer(timer);
         RectAreaHelper.move(spriteToDraw.area, {
             left: this.startingPosition + horizontalDistance,
-            top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - spriteToDraw.area.height,
+            top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - spriteToDraw.area.height + verticalDistance,
         });
         spriteToDraw.draw(graphicsContext);
     }
@@ -125,21 +132,38 @@ export class ActorSprite {
         const timeElapsed = TimeElapsedSinceAnimationStarted(timer.startTime);
 
         let horizontalDistance: number = 0;
+        let verticalDistance: number = 0;
         let maximumHorizontalDistance: number = (5 * ScreenDimensions.SCREEN_WIDTH / 12) - this._startingPosition;
+        let maximumVerticalDistance: number = this.sprite.actionSpritesByEmotion.NEUTRAL ? this.sprite.actionSpritesByEmotion.NEUTRAL.area.height / 16 : ScreenDimensions.SCREEN_HEIGHT / 24;
         switch (timer.currentPhase) {
             case ActionAnimationPhase.BEFORE_ACTION:
                 horizontalDistance = 0;
                 break;
             case ActionAnimationPhase.DURING_ACTION:
                 const attackTime = timeElapsed - ACTION_ANIMATION_BEFORE_ACTION_TIME;
-                horizontalDistance =
-                    maximumHorizontalDistance * (attackTime / ACTION_ANIMATION_ACTION_TIME);
+                if (RollResultHelper.isACriticalSuccess(this.squaddieResult.actingSquaddieRoll)) {
+                    const revUpTime = ACTION_ANIMATION_ACTION_TIME / 2;
+                    if (attackTime < revUpTime) {
+                        horizontalDistance = 0;
+                        const angle = (attackTime / revUpTime) * 8 * Math.PI;
+                        verticalDistance = Math.sin(angle) * maximumVerticalDistance;
+                    } else {
+                        const movementSpeed = maximumHorizontalDistance / (ACTION_ANIMATION_ACTION_TIME - revUpTime);
+                        horizontalDistance = movementSpeed * (attackTime - revUpTime);
+                    }
+                } else {
+                    horizontalDistance =
+                        maximumHorizontalDistance * (attackTime / ACTION_ANIMATION_ACTION_TIME);
+                }
                 break;
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
                 horizontalDistance = maximumHorizontalDistance;
         }
-        return horizontalDistance;
+        return {
+            horizontalDistance,
+            verticalDistance,
+        };
     }
 }

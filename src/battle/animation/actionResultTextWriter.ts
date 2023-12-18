@@ -3,7 +3,7 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {BattleSquaddieRepository} from "../battleSquaddieRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {DegreeOfSuccessHelper} from "../history/actionResultPerSquaddie";
+import {DegreeOfSuccess, DegreeOfSuccessHelper} from "../history/actionResultPerSquaddie";
 
 export const FormatResult = ({currentAction, result, squaddieRepository}: {
     currentAction: SquaddieAction,
@@ -37,10 +37,17 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
             } else if (resultPerTarget.damageTaken === 0) {
                 output.push(ActionResultTextWriter.getHinderingActionDealtNoDamageString({squaddieTemplate: targetSquaddieTemplate}));
             } else {
-                output.push(ActionResultTextWriter.getHinderingActionDealtDamageString({
-                    squaddieTemplate: targetSquaddieTemplate,
-                    damageTaken: resultPerTarget.damageTaken,
-                }));
+                if (resultPerTarget.actorDegreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
+                    output.push(ActionResultTextWriter.getHinderingActionDealtCriticalDamageString({
+                        squaddieTemplate: targetSquaddieTemplate,
+                        damageTaken: resultPerTarget.damageTaken,
+                    }));
+                } else {
+                    output.push(ActionResultTextWriter.getHinderingActionDealtDamageString({
+                        squaddieTemplate: targetSquaddieTemplate,
+                        damageTaken: resultPerTarget.damageTaken,
+                    }));
+                }
             }
         }
         if (SquaddieActionHandler.isHelpful(currentAction)) {
@@ -89,6 +96,12 @@ export const ActionResultTextWriter = {
         damageTaken: number
     }): string => {
         return `${squaddieTemplate.squaddieId.name} takes ${damageTaken} damage`;
+    },
+    getHinderingActionDealtCriticalDamageString: ({squaddieTemplate, damageTaken}: {
+        squaddieTemplate: SquaddieTemplate,
+        damageTaken: number
+    }): string => {
+        return `${squaddieTemplate.squaddieId.name}: CRITICAL HIT! ${damageTaken} damage`;
     },
     getHelpfulActionHealingReceivedString({squaddieTemplate, healingReceived}: {
         squaddieTemplate: SquaddieTemplate;

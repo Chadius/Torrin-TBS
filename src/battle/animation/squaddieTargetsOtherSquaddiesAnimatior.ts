@@ -171,6 +171,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             squaddieRepository: state.squaddieRepository,
             resourceHandler: state.resourceHandler,
             startingPosition: (2 * ScreenDimensions.SCREEN_WIDTH / 12) + WINDOW_SPACING1,
+            squaddieResult: mostRecentResults.results,
         });
         this.weaponIcon.start();
 

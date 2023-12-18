@@ -59,7 +59,6 @@ export class TargetTextWindow {
         action: SquaddieAction,
     }) {
         this.reset();
-        const defenderName: string = targetTemplate.squaddieId.name;
 
         this.createBeforeActionText({targetTemplate, targetBattle, result, action});
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[targetTemplate.squaddieId.affiliation];
@@ -123,6 +122,15 @@ export class TargetTextWindow {
         switch (this.result.actorDegreeOfSuccess) {
             case DegreeOfSuccess.FAILURE:
                 this._targetAfterActionText = `MISS`;
+                break;
+            case DegreeOfSuccess.CRITICAL_SUCCESS:
+                let damageText = 'CRITICAL HIT!\n';
+                if (this.result.damageTaken === 0 && this.result.healingReceived === 0) {
+                    damageText += `NO DAMAGE`;
+                } else if (this.result.damageTaken > 0) {
+                    damageText += `${this.result.damageTaken} damage`;
+                }
+                this._targetAfterActionText = damageText;
                 break;
             case DegreeOfSuccess.SUCCESS:
                 if (this.result.damageTaken === 0 && this.result.healingReceived === 0) {

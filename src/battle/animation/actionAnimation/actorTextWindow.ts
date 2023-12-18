@@ -11,6 +11,7 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextWriter} from "../actionResultTextWriter";
+import {RollResultHelper} from "../../actionCalculator/rollResult";
 
 export class ActorTextWindow {
     results: SquaddieSquaddieResults;
@@ -130,6 +131,10 @@ export class ActorTextWindow {
         ) {
             actorUsesActionDescriptionText += `\n\n`;
             actorUsesActionDescriptionText += `   rolls(${this.results.actingSquaddieRoll.rolls[0]}, ${this.results.actingSquaddieRoll.rolls[1]})`;
+
+            if (RollResultHelper.isACriticalSuccess(this.results.actingSquaddieRoll)) {
+                actorUsesActionDescriptionText += `\n\nCRITICAL HIT!`;
+            }
         }
         return actorUsesActionDescriptionText;
     }

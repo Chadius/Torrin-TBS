@@ -27,7 +27,7 @@ import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
 import {AnySquaddieAction, SquaddieActionType} from "../history/anySquaddieAction";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {CalculateResults} from "../actionCalculator/calculator";
+import {ActionCalculator} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -211,7 +211,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, action);
         SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddie.squaddieTurn, state.battleState.squaddieCurrentlyActing.currentlySelectedAction);
-        const instructionResults = CalculateResults({
+        const instructionResults = ActionCalculator.calculateResults({
             state,
             actingBattleSquaddie: battleSquaddie,
             validTargetLocation: action.targetLocation,

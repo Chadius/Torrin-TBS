@@ -1,12 +1,10 @@
 import {ActionResultPerSquaddie} from "./actionResultPerSquaddie";
+import {RollResult} from "../actionCalculator/rollResult";
 
 export interface SquaddieSquaddieResults {
     actingBattleSquaddieId: string;
     targetedBattleSquaddieIds: string[];
-    actingSquaddieRoll: {
-        occurred: boolean;
-        rolls: number[];
-    };
+    actingSquaddieRoll: RollResult;
     resultPerTarget: {
         [battleId: string]: ActionResultPerSquaddie
     };

@@ -264,4 +264,33 @@ describe('Action Result Text Writer', () => {
         expect(outputStrings[2]).toBe("Thief: MISS!");
         expect(outputStrings[3]).toBe("Rogue: NO DAMAGE");
     });
+
+    it('will mention if the attack was a critical hit and dealt double damage', () => {
+        const damagingResult: SquaddieSquaddieResults = {
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+            targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId],
+            resultPerTarget: {
+                [thiefDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 4,
+                    actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
+                }
+            },
+            actingSquaddieRoll: {
+                occurred: true,
+                rolls: [6, 6],
+            },
+        };
+
+        const outputStrings: string[] = FormatResult({
+            currentAction: longswordSweepAction,
+            result: damagingResult,
+            squaddieRepository,
+        });
+
+        expect(outputStrings).toHaveLength(3);
+        expect(outputStrings[0]).toBe("Knight uses Longsword Sweep");
+        expect(outputStrings[1]).toBe("   rolls (6, 6)");
+        expect(outputStrings[2]).toBe("Thief: CRITICAL HIT! 4 damage");
+    });
 });

@@ -51,6 +51,15 @@ describe('Actor Sprite', () => {
             squaddieRepository,
             actorBattleSquaddieId: battleSquaddieId,
             startingPosition: 0,
+            squaddieResult: {
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
+                resultPerTarget: {},
+                targetedBattleSquaddieIds: [],
+                actingBattleSquaddieId: battleSquaddieId,
+            },
         });
 
         sprite.draw(timer, mockedP5GraphicsContext);

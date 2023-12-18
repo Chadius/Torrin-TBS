@@ -15,6 +15,22 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {SquaddieAction} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {ActionResultPerSquaddie, DegreeOfSuccess} from "../history/actionResultPerSquaddie";
+import {DIE_SIZE, RollResult, RollResultHelper} from "./rollResult";
+
+export const ActionCalculator = {
+    calculateResults: ({
+                           state,
+                           actingBattleSquaddie,
+                           validTargetLocation,
+                       }: {
+                           state: BattleOrchestratorState,
+                           actingBattleSquaddie: BattleSquaddie,
+                           validTargetLocation: HexCoordinate
+                       }
+    ): SquaddieSquaddieResults => {
+        return CalculateResults({state, actingBattleSquaddie, validTargetLocation});
+    }
+}
 
 export function CalculateResults({
                                      state,
@@ -27,38 +43,36 @@ export function CalculateResults({
                                  }
 ): SquaddieSquaddieResults {
     const {
-        battleSquaddieId: targetedBattleSquaddieId,
-        squaddieTemplateId: targetedSquaddieTemplateId
-    } = state.battleState.missionMap.getSquaddieAtLocation(validTargetLocation);
+        targetedBattleSquaddieIds
+    } = getTargetedBattleSquaddieIds(state, validTargetLocation);
 
-    const squaddieAction = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+    let actingSquaddieRoll: RollResult = maybeMakeAttackRoll(state.battleState.squaddieCurrentlyActing.currentlySelectedAction, state);
 
-    const {
-        squaddieTemplate: targetedSquaddieTemplate,
-        battleSquaddie: targetedBattleSquaddie
-    } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(targetedBattleSquaddieId));
-    const targetedBattleSquaddieIds: string[] = [targetedBattleSquaddieId];
+    const resultPerTarget: { [id: string]: ActionResultPerSquaddie } = {};
 
-    let actingSquaddieRoll: { occurred: boolean; rolls: number[] } = maybeMakeAttackRoll(squaddieAction, state);
+    targetedBattleSquaddieIds.forEach(targetedBattleSquaddieId => {
+        const {
+            squaddieTemplate: targetedSquaddieTemplate,
+            battleSquaddie: targetedBattleSquaddie
+        } = getResultOrThrowError(state.squaddieRepository.getSquaddieByBattleId(targetedBattleSquaddieId));
 
-    let healingReceived = calculateTotalHealingReceived(state, targetedSquaddieTemplate, targetedBattleSquaddie);
-    let {damageDealt, degreeOfSuccess} = calculateTotalDamageDealt({
-        state,
-        actingBattleSquaddie,
-        targetedSquaddieTemplate,
-        targetedBattleSquaddie,
-        actingSquaddieRoll,
-    });
+        let healingReceived = calculateTotalHealingReceived(state, targetedSquaddieTemplate, targetedBattleSquaddie);
+        let {damageDealt, degreeOfSuccess} = calculateTotalDamageDealt({
+            state,
+            actingBattleSquaddie,
+            targetedSquaddieTemplate,
+            targetedBattleSquaddie,
+            actingSquaddieRoll,
+        });
 
-    const resultPerTarget: { [id: string]: ActionResultPerSquaddie } = {
-        [targetedBattleSquaddieId]: {
+        resultPerTarget[targetedBattleSquaddieId] = {
             healingReceived,
             damageTaken: damageDealt,
             actorDegreeOfSuccess: degreeOfSuccess,
-        }
-    };
+        };
 
-    maybeUpdateMissionStatistics(targetedSquaddieTemplate, state, healingReceived, damageDealt, actingBattleSquaddie);
+        maybeUpdateMissionStatistics(targetedSquaddieTemplate, state, healingReceived, damageDealt, actingBattleSquaddie);
+    });
 
     return {
         actingBattleSquaddieId: actingBattleSquaddie.battleSquaddieId,
@@ -75,16 +89,23 @@ const compareAttackRollToGetDegreeOfSuccess = ({
                                                    target,
                                                }: {
     actor: BattleSquaddie;
-    actingSquaddieRoll: { occurred: boolean; rolls: number[] };
+    actingSquaddieRoll: RollResult;
     action: SquaddieAction;
     target: BattleSquaddie
 }): DegreeOfSuccess => {
+    let totalAttackRoll = RollResultHelper.totalAttackRoll(actingSquaddieRoll);
+    const canCriticallySucceed: boolean = !TraitStatusStorageHelper.getStatus(action.traits, Trait.CANNOT_CRITICALLY_SUCCEED);
+    if (RollResultHelper.isACriticalSuccess(actingSquaddieRoll) && canCriticallySucceed) {
+        return DegreeOfSuccess.CRITICAL_SUCCESS;
+    }
+
     if (TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS)) {
         return DegreeOfSuccess.SUCCESS;
     }
 
-    let totalAttackRoll = actingSquaddieRoll.rolls.reduce((currentSum, currentValue) => currentSum + currentValue, 0);
-    if (totalAttackRoll >= target.inBattleAttributes.armyAttributes.armorClass) {
+    if (canCriticallySucceed && totalAttackRoll >= target.inBattleAttributes.armyAttributes.armorClass + DIE_SIZE) {
+        return DegreeOfSuccess.CRITICAL_SUCCESS;
+    } else if (totalAttackRoll >= target.inBattleAttributes.armyAttributes.armorClass) {
         return DegreeOfSuccess.SUCCESS;
     } else {
         return DegreeOfSuccess.FAILURE;
@@ -104,7 +125,7 @@ const calculateTotalDamageDealt = (
         targetedSquaddieTemplate: SquaddieTemplate,
         targetedBattleSquaddie: BattleSquaddie,
         actingBattleSquaddie: BattleSquaddie,
-        actingSquaddieRoll: { occurred: boolean; rolls: number[] }
+        actingSquaddieRoll: RollResult,
     }
 ): { damageDealt: number, degreeOfSuccess: DegreeOfSuccess } => {
     let damageDealt = 0;
@@ -120,6 +141,9 @@ const calculateTotalDamageDealt = (
 
     Object.keys(action.damageDescriptions).forEach((damageType: DamageType) => {
         let rawDamageFromAction = action.damageDescriptions[damageType]
+        if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
+            rawDamageFromAction *= 2;
+        }
         if (degreeOfSuccess === DegreeOfSuccess.FAILURE) {
             rawDamageFromAction = 0;
         }
@@ -168,14 +192,11 @@ function doesActionNeedAnAttackRoll(action: SquaddieAction): boolean {
 }
 
 function conformToSixSidedDieRoll(numberGeneratorResult: number): number {
-    const inRangeNumber = numberGeneratorResult % 6;
-    return inRangeNumber === 0 ? 6 : inRangeNumber;
+    const inRangeNumber = numberGeneratorResult % DIE_SIZE;
+    return inRangeNumber === 0 ? DIE_SIZE : inRangeNumber;
 }
 
-function maybeMakeAttackRoll(squaddieAction: SquaddieAction, state: BattleOrchestratorState): {
-    occurred: boolean;
-    rolls: number[]
-} {
+const maybeMakeAttackRoll = (squaddieAction: SquaddieAction, state: BattleOrchestratorState): RollResult => {
     if (doesActionNeedAnAttackRoll(squaddieAction)) {
         const attackRoll = [
             conformToSixSidedDieRoll(state.numberGenerator.next()),
@@ -190,4 +211,13 @@ function maybeMakeAttackRoll(squaddieAction: SquaddieAction, state: BattleOrches
         occurred: false,
         rolls: [],
     };
+}
+
+function getTargetedBattleSquaddieIds(state: BattleOrchestratorState, validTargetLocation: HexCoordinate) {
+    const {
+        battleSquaddieId: targetedBattleSquaddieId,
+        squaddieTemplateId: targetedSquaddieTemplateId
+    } = state.battleState.missionMap.getSquaddieAtLocation(validTargetLocation);
+    const targetedBattleSquaddieIds: string[] = [targetedBattleSquaddieId];
+    return {targetedBattleSquaddieIds};
 }

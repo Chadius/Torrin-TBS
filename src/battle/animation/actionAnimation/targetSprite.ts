@@ -167,12 +167,12 @@ export class TargetSprite {
                 verticalDistance
             } = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
         } else if (SquaddieActionHandler.isHindering(action)) {
-            if (result.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS && result.damageTaken > 0) {
+            if (DegreeOfSuccessHelper.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken > 0) {
                 ({
                     horizontalDistance,
                     verticalDistance
                 } = this.getSpritePositionTargetReactsAndTakesDamage(timer, emotion));
-            } else if (result.actorDegreeOfSuccess === DegreeOfSuccess.SUCCESS && result.damageTaken === 0) {
+            } else if (DegreeOfSuccessHelper.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken === 0) {
                 ({
                     horizontalDistance,
                     verticalDistance

@@ -117,4 +117,32 @@ describe('ActorTextWindow', () => {
             "Actor uses\nAction"
         );
     });
+
+    it('will indicate a critical hit if the actor rolled critical', () => {
+        const window = new ActorTextWindow();
+
+        window.start({
+            actorTemplate: actorTemplate,
+            actorBattle: undefined,
+            action: attackThatUsesAttackRoll,
+            results: {
+                resultPerTarget: {},
+                actingBattleSquaddieId: "",
+                targetedBattleSquaddieIds: [],
+                actingSquaddieRoll: {
+                    occurred: true,
+                    rolls: [6, 6],
+                }
+            }
+        });
+
+        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.DURING_ACTION);
+
+        window.draw(mockedP5GraphicsContext, mockedActionTimer);
+        expect(timerSpy).toBeCalled();
+
+        expect(window.actorUsesActionDescriptionText).toBe(
+            "Actor uses\nAction\n\n   rolls(6, 6)\n\nCRITICAL HIT!"
+        );
+    });
 });

@@ -48,8 +48,8 @@ describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
     let squaddieRepo: BattleSquaddieRepository = new BattleSquaddieRepository();
     let missionMap: MissionMap;
-    let enemyDemonStatic: SquaddieTemplate;
-    let enemyDemonDynamic: BattleSquaddie;
+    let enemyDemonTemplate: SquaddieTemplate;
+    let enemyDemonBattleSquaddie: BattleSquaddie;
     let enemyDemonDynamic2: BattleSquaddie;
     let demonBiteAction: SquaddieAction;
     let entireTurnDemonBiteAction: SquaddieAction;
@@ -84,25 +84,11 @@ describe('BattleComputerSquaddieSelector', () => {
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
+                [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
             }),
             minimumRange: 1,
             maximumRange: 1,
             actionPointCost: 2,
-            damageDescriptions: {
-                [DamageType.BODY]: 2,
-            },
-        });
-
-        demonBiteAction = SquaddieActionHandler.new({
-            name: "demon bite",
-            id: "demon_bite",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-            }),
-            minimumRange: 1,
-            maximumRange: 1,
-            actionPointCost: 3,
             damageDescriptions: {
                 [DamageType.BODY]: 2,
             },
@@ -115,6 +101,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 {
                     [Trait.ATTACK]: true,
                     [Trait.TARGET_ARMOR]: true,
+                    [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
                 }),
             minimumRange: 1,
             maximumRange: 1,
@@ -125,8 +112,8 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         ({
-            battleSquaddie: enemyDemonDynamic,
-            squaddieTemplate: enemyDemonStatic,
+            battleSquaddie: enemyDemonBattleSquaddie,
+            squaddieTemplate: enemyDemonTemplate,
         } = CreateNewSquaddieAndAddToRepository({
             templateId: "enemy_demon",
             name: "Slither Demon",
@@ -142,14 +129,14 @@ describe('BattleComputerSquaddieSelector', () => {
         }));
 
         enemyDemonDynamic2 = BattleSquaddieHelper.newBattleSquaddie({
-            squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
+            squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
             battleSquaddieId: "enemy_demon_2",
             squaddieTurn: SquaddieTurnHandler.new(),
         });
 
         squaddieRepo.addBattleSquaddie(enemyDemonDynamic2);
 
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyDemonDynamic.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
+        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyDemonBattleSquaddie.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
 
         battlePhaseState = {
             currentAffiliation: BattlePhase.ENEMY,
@@ -159,12 +146,12 @@ describe('BattleComputerSquaddieSelector', () => {
         teams.push(enemyTeam);
 
         missionMap.addSquaddie(
-            enemyDemonStatic.squaddieId.templateId,
-            enemyDemonDynamic.battleSquaddieId,
+            enemyDemonTemplate.squaddieId.templateId,
+            enemyDemonBattleSquaddie.battleSquaddieId,
             {q: 0, r: 0}
         );
         missionMap.addSquaddie(
-            enemyDemonDynamic.squaddieTemplateId,
+            enemyDemonBattleSquaddie.squaddieTemplateId,
             enemyDemonDynamic2.battleSquaddieId,
             {q: 0, r: 1}
         );
@@ -282,8 +269,8 @@ describe('BattleComputerSquaddieSelector', () => {
                 {
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: {
-                        squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
-                        battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
+                        squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
+                        battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
                         startingLocation: {q: 0, r: 0},
                         actions: [],
                     },
@@ -345,10 +332,10 @@ describe('BattleComputerSquaddieSelector', () => {
     it('will change phase if no squaddies are able to act', () => {
         makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
-        BattleSquaddieHelper.endTurn(enemyDemonDynamic);
+        BattleSquaddieHelper.endTurn(enemyDemonBattleSquaddie);
 
         const squaddieSquaddieAction: SquaddieActionsForThisRound = {
-            squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
+            squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
             battleSquaddieId: enemyDemonDynamic2.battleSquaddieId,
             startingLocation: {q: 0, r: 1},
             actions: [],
@@ -424,12 +411,12 @@ describe('BattleComputerSquaddieSelector', () => {
             makeBattlePhaseTrackerWithEnemyTeam(missionMap);
 
             missionMap.addSquaddie(
-                enemyDemonStatic.squaddieId.templateId,
-                enemyDemonDynamic.battleSquaddieId,
+                enemyDemonTemplate.squaddieId.templateId,
+                enemyDemonBattleSquaddie.battleSquaddieId,
                 {q: 0, r: 0},
             );
             missionMap.addSquaddie(
-                enemyDemonStatic.squaddieId.templateId,
+                enemyDemonTemplate.squaddieId.templateId,
                 enemyDemonDynamic2.battleSquaddieId,
                 {q: 0, r: 1},
             );
@@ -439,8 +426,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
         it('will prepare to move if computer controlled squaddie wants to move', () => {
             const moveAction = makeSquaddieMoveAction(
-                enemyDemonStatic.squaddieId.templateId,
-                enemyDemonDynamic.battleSquaddieId,
+                enemyDemonTemplate.squaddieId.templateId,
+                enemyDemonBattleSquaddie.battleSquaddieId,
             );
 
             const state: GameEngineState = GameEngineStateHelper.new({
@@ -485,8 +472,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             beforeEach(() => {
                 const squaddieSquaddieAction: SquaddieActionsForThisRound = {
-                    squaddieTemplateId: enemyDemonStatic.squaddieId.templateId,
-                    battleSquaddieId: enemyDemonDynamic.battleSquaddieId,
+                    squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
+                    battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
                     actions: [],
                 };
@@ -528,7 +515,7 @@ describe('BattleComputerSquaddieSelector', () => {
             });
 
             it('will indicate the next action', () => {
-                expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(enemyDemonDynamic.battleSquaddieId);
+                expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(enemyDemonBattleSquaddie.battleSquaddieId);
                 expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
                 expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.SQUADDIE);
             });
@@ -574,8 +561,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             it('should consume the squaddie action points', () => {
                 const {actionPointsRemaining} = GetNumberOfActionPoints({
-                    squaddieTemplate: enemyDemonStatic,
-                    battleSquaddie: enemyDemonDynamic,
+                    squaddieTemplate: enemyDemonTemplate,
+                    battleSquaddie: enemyDemonBattleSquaddie,
                 });
                 expect(actionPointsRemaining).toBe(3 - demonBiteAction.actionPointCost);
             });
@@ -588,7 +575,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0].data as SquaddieSquaddieActionData
                 ).squaddieAction.id).toBe(demonBiteAction.id);
                 const results = mostRecentEvent.results;
-                expect(results.actingBattleSquaddieId).toBe(enemyDemonDynamic.battleSquaddieId);
+                expect(results.actingBattleSquaddieId).toBe(enemyDemonBattleSquaddie.battleSquaddieId);
                 expect(results.targetedBattleSquaddieIds).toHaveLength(1);
                 expect(results.targetedBattleSquaddieIds[0]).toBe(enemyDemonDynamic2.battleSquaddieId);
                 expect(results.resultPerTarget[enemyDemonDynamic2.battleSquaddieId]).toBeTruthy();
@@ -596,11 +583,11 @@ describe('BattleComputerSquaddieSelector', () => {
 
             it('should store the calculated results', () => {
                 const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
-                const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[enemyDemonDynamic2.battleSquaddieId];
-                expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(demonBiteAction.damageDescriptions[DamageType.BODY]);
+                const demonOneBitesDemonTwoResults = mostRecentEvent.results.resultPerTarget[enemyDemonDynamic2.battleSquaddieId];
+                expect(demonOneBitesDemonTwoResults.damageTaken).toBe(demonBiteAction.damageDescriptions[DamageType.BODY]);
 
                 const {maxHitPoints, currentHitPoints} = GetHitPoints({
-                    squaddieTemplate: enemyDemonStatic,
+                    squaddieTemplate: enemyDemonTemplate,
                     battleSquaddie: enemyDemonDynamic2
                 });
                 expect(currentHitPoints).toBe(maxHitPoints - demonBiteAction.damageDescriptions[DamageType.BODY]);

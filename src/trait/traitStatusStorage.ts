@@ -14,6 +14,7 @@ export enum Trait {
     TARGETS_FOE = "TARGETS_FOE",
     TARGETS_ALLIES = "TARGETS_ALLIES",
     ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
+    CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
 }
 
 export enum TraitCategory {
@@ -88,6 +89,10 @@ const traitInformation: {
     },
     [Trait.ALWAYS_SUCCEEDS]: {
         description: "This ability always hits the target.",
+        categories: [TraitCategory.ACTION],
+    },
+    [Trait.CANNOT_CRITICALLY_SUCCEED]: {
+        description: "This ability cannot critically succeed.",
         categories: [TraitCategory.ACTION],
     }
 }

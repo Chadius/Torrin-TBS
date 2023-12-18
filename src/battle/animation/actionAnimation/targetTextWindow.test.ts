@@ -134,6 +134,25 @@ describe('TargetTextWindow', () => {
         expect(targetWindow.targetLabel.textBox.text).toContain(`${targetResultTakenDamage.damageTaken} damage`);
     });
 
+    it('shows if critical damage was taken', () => {
+        targetWindow.start({
+            targetTemplate: targetSquaddie,
+            targetBattle: targetBattle,
+            result: {
+                ...targetResultTakenDamage,
+                actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
+            },
+            action: attackAction,
+        });
+
+        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
+        expect(timerSpy).toBeCalled();
+
+        expect(targetWindow.targetLabel.textBox.text).toContain(`CRITICAL HIT!`);
+        expect(targetWindow.targetLabel.textBox.text).toContain(`${targetResultTakenDamage.damageTaken} damage`);
+    });
+
     it('shows if the actor missed', () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,

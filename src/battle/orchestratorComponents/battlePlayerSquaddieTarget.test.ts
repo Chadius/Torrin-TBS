@@ -74,6 +74,7 @@ describe('BattleSquaddieTarget', () => {
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
+                [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
             }),
             minimumRange: 1,
             maximumRange: 1,
