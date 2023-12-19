@@ -1,8 +1,9 @@
-import {TerrainTileMap} from "./terrainTileMap";
+import {TerrainTileMap, TerrainTileMapHelper} from "./terrainTileMap";
 import {HexGridTile} from "./hexGrid";
 import {HEX_TILE_WIDTH} from "../graphicsConstants";
 import {HexGridMovementCost} from "./hexGridMovementCost";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
+import {MapLayer} from "../missionMap/mapLayer";
 
 describe('hexMap', () => {
     describe('mouseClicks on the map', () => {
@@ -146,5 +147,89 @@ describe('hexMap', () => {
         });
 
         expect(bigMap.getDimensions()).toStrictEqual({widthOfWidestRow: 5, numberOfRows: 4});
+    });
+
+    describe('can generate map layers based on the terrain', () => {
+        it('can generate map layers based on whether you can visit them later on or it is not applicable', () => {
+            const terrain = new TerrainTileMap({
+                movementCost: [
+                    "1 1 2 1 2 ",
+                    " 1 x - 2 1 ",
+                ]
+            });
+
+            const mapWithLocationsThatCanBeVisitedByWalker: MapLayer = TerrainTileMapHelper.createMapLayerForVisitableTiles({
+                terrainTileMap: terrain,
+                canCrossOverPits: false,
+                canPassThroughWalls: false
+            });
+            [0, 1, 2, 3, 4].forEach(r => {
+                [0, 1].forEach(q => {
+                    const expectedValue: boolean | undefined = [HexGridMovementCost.wall, HexGridMovementCost.pit].includes(terrain.getTileTerrainTypeAtLocation({
+                        q,
+                        r
+                    }))
+                        ? undefined
+                        : false;
+
+                    expect(mapWithLocationsThatCanBeVisitedByWalker.valueByLocation[q][r]).toBe(expectedValue);
+                });
+            });
+
+            const mapWithLocationsThatCanBeVisitedByFlyer: MapLayer = TerrainTileMapHelper.createMapLayerForVisitableTiles({
+                terrainTileMap: terrain,
+                canCrossOverPits: true,
+                canPassThroughWalls: false
+            });
+            [0, 1, 2, 3, 4].forEach(r => {
+                [0, 1].forEach(q => {
+                    const expectedValue: boolean | undefined = [HexGridMovementCost.wall].includes(terrain.getTileTerrainTypeAtLocation({
+                        q,
+                        r
+                    }))
+                        ? undefined
+                        : false;
+
+                    expect(mapWithLocationsThatCanBeVisitedByFlyer.valueByLocation[q][r]).toBe(expectedValue);
+                });
+            });
+
+            const mapWithLocationsThatCanBeVisitedByTeleport: MapLayer = TerrainTileMapHelper.createMapLayerForVisitableTiles({
+                terrainTileMap: terrain,
+                canCrossOverPits: true,
+                canPassThroughWalls: true
+            });
+            [0, 1, 2, 3, 4].forEach(r => {
+                [0, 1].forEach(q => {
+                    const expectedValue = false;
+
+                    expect(mapWithLocationsThatCanBeVisitedByTeleport.valueByLocation[q][r]).toBe(expectedValue);
+                });
+            });
+        });
+        it('can generate map layers based on whether you can stop on them later on or it is not applicable', () => {
+            const terrain = new TerrainTileMap({
+                movementCost: [
+                    "1 1 2 1 2 ",
+                    " 1 x - 2 1 ",
+                ]
+            });
+
+            const mapWithLocationsThatCanBeStoppedOn: MapLayer = TerrainTileMapHelper.createMapLayerForStoppableTiles({
+                terrainTileMap: terrain,
+            });
+            [0, 1, 2, 3, 4].forEach(r => {
+                [0, 1].forEach(q => {
+                    const expectedValue: boolean | undefined = [HexGridMovementCost.wall, HexGridMovementCost.pit].includes(terrain.getTileTerrainTypeAtLocation({
+                        q,
+                        r
+                    }))
+                        ? undefined
+                        : false;
+
+                    expect(mapWithLocationsThatCanBeStoppedOn.valueByLocation[q][r]).toBe(expectedValue);
+                });
+            });
+        });
     });
 });

@@ -1,4 +1,5 @@
 import {MissionMap} from "./missionMap";
+import {TerrainTileMap} from "../hexMap/terrainTileMap";
 
 export interface MapLayer {
     numberOfRows: number;
@@ -13,13 +14,18 @@ export interface MapLayer {
 export type MapCoordinateValueGenerator = (q: number, r: number) => boolean | number;
 
 export const MapLayerHelper = {
-    new: ({map, initialValue}: {
-        map: MissionMap;
+    new: ({map, terrainTileMap, initialValue}: {
+        map?: MissionMap;
+        terrainTileMap?: TerrainTileMap,
         initialValue: boolean | number | undefined | MapCoordinateValueGenerator
     }): MapLayer => {
+        if (map) {
+            terrainTileMap = map.terrainTileMap;
+        }
+
         const newMapLayer: MapLayer = {
-            numberOfRows: map.terrainTileMap.getDimensions().numberOfRows,
-            widthOfWidestRow: map.terrainTileMap.getDimensions().widthOfWidestRow,
+            numberOfRows: terrainTileMap.getDimensions().numberOfRows,
+            widthOfWidestRow: terrainTileMap.getDimensions().widthOfWidestRow,
             valueByLocation: {},
         }
 

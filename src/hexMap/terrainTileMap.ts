@@ -7,6 +7,7 @@ import {
 import {ResourceHandler} from "../resource/resourceHandler";
 import {PulseBlendColor} from "./colorUtils";
 import {HexCoordinate} from "./hexCoordinate/hexCoordinate";
+import {MapLayer, MapLayerHelper} from "../missionMap/mapLayer";
 
 function convertMovementCostToTiles(movementCost: string[]): HexGridTile[] {
     const newTiles: HexGridTile[] = [];
@@ -176,5 +177,60 @@ export class TerrainTileMap {
         return this.tiles.find((tile) =>
             tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
         );
+    }
+}
+
+export const TerrainTileMapHelper = {
+    createMapLayerForVisitableTiles: ({
+                                          canPassThroughWalls,
+                                          canCrossOverPits,
+                                          terrainTileMap,
+                                      }: {
+        canPassThroughWalls: boolean;
+        canCrossOverPits: boolean;
+        terrainTileMap: TerrainTileMap
+    }): MapLayer => {
+        const initialValueFill = (q: number, r: number): boolean | number => {
+            const terrainType = terrainTileMap.getTileTerrainTypeAtLocation({q, r});
+            switch (terrainType) {
+                case HexGridMovementCost.singleMovement:
+                case HexGridMovementCost.doubleMovement:
+                    return false;
+                case HexGridMovementCost.pit:
+                    return canCrossOverPits ? false : undefined;
+                case HexGridMovementCost.wall:
+                    return canPassThroughWalls ? false : undefined;
+                default:
+                    return undefined;
+            }
+        }
+
+        return MapLayerHelper.new({
+            terrainTileMap,
+            initialValue: initialValueFill,
+        });
+    },
+    createMapLayerForStoppableTiles: ({
+                                          terrainTileMap,
+                                      }: {
+        terrainTileMap: TerrainTileMap
+    }): MapLayer => {
+        const initialValueFill = (q: number, r: number): boolean | number => {
+            const terrainType = terrainTileMap.getTileTerrainTypeAtLocation({q, r});
+            switch (terrainType) {
+                case HexGridMovementCost.singleMovement:
+                case HexGridMovementCost.doubleMovement:
+                    return false;
+                case HexGridMovementCost.pit:
+                case HexGridMovementCost.wall:
+                default:
+                    return undefined;
+            }
+        }
+
+        return MapLayerHelper.new({
+            terrainTileMap,
+            initialValue: initialValueFill,
+        });
     }
 }
