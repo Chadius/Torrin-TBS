@@ -3,7 +3,7 @@ import {SearchResults} from "./searchResults";
 import {createMap, validateTileHasExpectedNumberOfActions, validateTilesAreFound} from "./pathfinder_test_utils";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GetTargetingShapeGenerator, TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
-import {Pathfinder} from "./pathfinder";
+import {PathfinderOLD} from "./pathfinderOLD";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ObjectRepositoryHelper} from "../../battle/objectRepository";
 
@@ -22,7 +22,7 @@ describe('pathfinder move with multiple movement actions', () => {
 
         } = createMap(mapOneRowFourColumns);
 
-        const searchResults: SearchResults = getResultOrThrowError(Pathfinder.getAllReachableTiles(
+        const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -75,7 +75,7 @@ describe('pathfinder move with multiple movement actions', () => {
             "1 1 1 2 "
         ]);
 
-        const searchResults: SearchResults = getResultOrThrowError(Pathfinder.getAllReachableTiles(
+        const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {

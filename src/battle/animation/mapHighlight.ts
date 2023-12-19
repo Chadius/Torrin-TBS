@@ -1,5 +1,5 @@
 import {BattleSquaddie} from "../battleSquaddie";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
@@ -25,7 +25,7 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
     }
 
     const reachableTileSearchResults: SearchResults = getResultOrThrowError(
-        Pathfinder.getAllReachableTiles(
+        PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop({
                 setup: {
                     startLocation: squaddieDatum.mapLocation,

@@ -5,7 +5,7 @@ import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchest
 import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
@@ -74,7 +74,7 @@ describe('BattleSquaddieMover', () => {
         map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
         const movePath: SearchPath = getResultOrThrowError(
-            getResultOrThrowError(Pathfinder.findPathToStopLocation(
+            getResultOrThrowError(PathfinderOLD.findPathToStopLocation(
                     SearchParametersHelper.newUsingSearchSetupMovementStop(
                         {
                             setup: {
@@ -166,7 +166,7 @@ describe('BattleSquaddieMover', () => {
             newInstruction: SquaddieActionsForThisRound,
         }): BattleOrchestratorState => {
             const movePath: SearchPath = getResultOrThrowError(
-                getResultOrThrowError(Pathfinder.findPathToStopLocation(
+                getResultOrThrowError(PathfinderOLD.findPathToStopLocation(
                         SearchParametersHelper.newUsingSearchSetupMovementStop(
                             {
                                 setup: {

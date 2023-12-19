@@ -4,7 +4,7 @@ import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from ".
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchResults} from "../../hexMap/pathfinder/searchResults";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetSquaddieAtMapLocation} from "../orchestratorComponents/orchestratorUtils";
@@ -43,7 +43,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         const {mapLocation} = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
         const searchResults: SearchResults =
-            Pathfinder.findReachableSquaddies(
+            PathfinderOLD.findReachableSquaddies(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {
@@ -114,7 +114,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             }
 
             const routeToTargetSquaddie: SearchResults =
-                getResultOrThrowError(Pathfinder.findPathToStopLocation(
+                getResultOrThrowError(PathfinderOLD.findPathToStopLocation(
                         SearchParametersHelper.newUsingSearchSetupMovementStop(
                             {
                                 setup: {

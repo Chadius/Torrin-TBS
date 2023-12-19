@@ -16,7 +16,7 @@ import {SearchState, SearchStateHelper} from "./searchState";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../battle/objectRepository";
 
 
-export const Pathfinder = {
+export const PathfinderOLD = {
     findPathToStopLocation(
         searchParams: SearchParameters,
         missionMap: MissionMap,

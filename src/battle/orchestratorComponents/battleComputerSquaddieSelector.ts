@@ -36,7 +36,7 @@ import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {DetermineNextInstruction} from "../teamStrategy/determineNextInstruction";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -158,7 +158,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     ) {
         const ability = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
 
-        const tilesTargeted: HexCoordinate[] = getResultOrThrowError(Pathfinder.getAllReachableTiles(
+        const tilesTargeted: HexCoordinate[] = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {

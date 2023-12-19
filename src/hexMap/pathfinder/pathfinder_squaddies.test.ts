@@ -1,4 +1,4 @@
-import {Pathfinder} from "./pathfinder";
+import {PathfinderOLD} from "./pathfinderOLD";
 import {SearchParametersHelper} from "./searchParams";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SearchResults} from "./searchResults";
@@ -83,7 +83,7 @@ describe('pathfinder and squaddies', () => {
                 squaddieRepository
             });
 
-            const searchResults: SearchResults = getResultOrThrowError(Pathfinder.getAllReachableTiles(
+            const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {
@@ -291,7 +291,7 @@ describe('pathfinder and squaddies', () => {
         });
 
 
-        const allTilesOnMap: SearchResults = getResultOrThrowError(Pathfinder.getAllReachableTiles(
+        const allTilesOnMap: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -353,7 +353,7 @@ describe('pathfinder and squaddies', () => {
             squaddieRepository
         });
 
-        const searchResults: ResultOrError<SearchResults, Error> = Pathfinder.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -439,7 +439,7 @@ describe('pathfinder and squaddies', () => {
             damageType: DamageType.BODY,
         });
 
-        const searchResults: ResultOrError<SearchResults, Error> = Pathfinder.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -537,7 +537,7 @@ describe('pathfinder and squaddies', () => {
 
 
         const searchResults: SearchResults =
-            Pathfinder.findReachableSquaddies(
+            PathfinderOLD.findReachableSquaddies(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {

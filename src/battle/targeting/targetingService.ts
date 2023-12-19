@@ -3,7 +3,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
+import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -54,7 +54,7 @@ export const FindValidTargets = ({
     sourceTiles?: HexCoordinate[],
 }): TargetingResults => {
     const squaddieInfo = map.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId)
-    const tilesToHighlight: HexCoordinate[] = Pathfinder.getTilesInRange(
+    const tilesToHighlight: HexCoordinate[] = PathfinderOLD.getTilesInRange(
         SearchParametersHelper.newUsingSearchSetupMovementStop(
             {
                 setup: {
