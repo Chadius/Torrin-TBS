@@ -13,24 +13,25 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
 
 describe('move towards closest squaddie in range', () => {
     let squaddieRepository: ObjectRepository;
     let missionMap: MissionMap;
-    let targetSquaddieStatic: SquaddieTemplate;
-    let targetSquaddieDynamic: BattleSquaddie;
+    let targetSquaddieTemplate: SquaddieTemplate;
+    let targetBattleSquaddie: BattleSquaddie;
     let ignoredSquaddieStatic: SquaddieTemplate;
     let ignoredSquaddieDynamic: BattleSquaddie;
     let searchingSquaddieTemplate: SquaddieTemplate;
-    let searchingBattleSquaddie: BattleSquaddie;
+    let target: BattleSquaddie;
     let allyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryHelper.new();
 
         ({
-            squaddieTemplate: targetSquaddieStatic,
-            battleSquaddie: targetSquaddieDynamic
+            squaddieTemplate: targetSquaddieTemplate,
+            battleSquaddie: targetBattleSquaddie
         } = CreateNewSquaddieAndAddToRepository({
             templateId: "target_squaddie",
             battleId: "target_squaddie_0",
@@ -52,7 +53,7 @@ describe('move towards closest squaddie in range', () => {
 
         ({
                 squaddieTemplate: searchingSquaddieTemplate,
-                battleSquaddie: searchingBattleSquaddie
+                battleSquaddie: target
             } = CreateNewSquaddieAndAddToRepository({
                 templateId: "searching_squaddie",
                 battleId: "searching_squaddie_0",
@@ -84,7 +85,7 @@ describe('move towards closest squaddie in range', () => {
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 1 1 1 1 1 1 "]})
         });
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {
+        missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
             q: 0,
             r: 0
         });
@@ -152,7 +153,7 @@ describe('move towards closest squaddie in range', () => {
         });
         BattleSquaddieTeamHelper.addBattleSquaddieIds(allyTeam, [searchingSquaddieDynamic2.battleSquaddieId]);
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {
+        missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
             q: 0,
             r: 0
         });
@@ -239,7 +240,7 @@ describe('move towards closest squaddie in range', () => {
             })
         });
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {
+        missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
             q: 0,
             r: 0
         });
@@ -266,7 +267,7 @@ describe('move towards closest squaddie in range', () => {
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 1 1 1 1 1 1 "]})
         });
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {
+        missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
             q: 0,
             r: 0
         });
@@ -301,7 +302,7 @@ describe('move towards closest squaddie in range', () => {
             terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 1 1 1 1 1 1 "]})
         });
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {
+        missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
             q: 0,
             r: 0
         });
@@ -374,7 +375,7 @@ describe('move towards closest squaddie in range', () => {
             })
         });
 
-        missionMap.addSquaddie(targetSquaddieStatic.squaddieId.templateId, "target_squaddie_0", {
+        missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
             q: 0,
             r: 2
         });
@@ -414,5 +415,40 @@ describe('move towards closest squaddie in range', () => {
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
+    });
+
+    it('will not follow dead squaddies', () => {
+        missionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 1 1 1 1 1 1 "]})
+        });
+
+        missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
+            q: 0,
+            r: 0
+        });
+        missionMap.addSquaddie(searchingSquaddieTemplate.squaddieId.templateId, "searching_squaddie_0", {
+            q: 0,
+            r: 3
+        });
+        SquaddieService.dealDamageToTheSquaddie({
+            squaddieTemplate: targetSquaddieTemplate,
+            battleSquaddie: targetBattleSquaddie,
+            damage: 9001,
+            damageType: DamageType.UNKNOWN
+        })
+
+        const state = new TeamStrategyState({
+            missionMap: missionMap,
+            team: allyTeam,
+            squaddieRepository: squaddieRepository,
+        });
+
+        const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
+            desiredAffiliation: SquaddieAffiliation.PLAYER
+        });
+        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+
+        expect(actualInstruction).toBeUndefined();
+        expect(state.instruction).toBeUndefined();
     });
 });

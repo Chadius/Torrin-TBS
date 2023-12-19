@@ -1,136 +1,181 @@
-import {BattleSquaddie} from "../battleSquaddie";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
-import {MissionMap} from "../../missionMap/missionMap";
-import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {SearchResults} from "../../hexMap/pathfinder/searchResults";
-import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
-import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {ObjectRepository} from "../objectRepository";
+import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {HighlightTileDescription} from "../../hexMap/terrainTileMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {SquaddieService} from "../../squaddie/squaddieService";
+import {MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS} from "../loading/missionLoader";
+import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
+import {MissionMap} from "../../missionMap/missionMap";
+import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
+import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {FindValidTargets} from "../targeting/targetingService";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
+import {isValidValue} from "../../utils/validityCheck";
 
-export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: ObjectRepository) => {
-    const squaddieDatum = missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
+export const MapHighlightHelper = {
+    convertSearchPathToHighlightLocations: ({searchPath, repository, battleSquaddieId}: {
+        searchPath: SearchPath;
+        repository: ObjectRepository;
+        battleSquaddieId: string
+    }): HighlightTileDescription[] => {
+        const locationsByNumberOfMovementActions = SquaddieService.searchPathLocationsByNumberOfMovementActions({
+            repository,
+            battleSquaddieId,
+            searchPath
+        });
+        return Object.entries(locationsByNumberOfMovementActions).map(([numberOfMoveActionsStr, locations]) => {
+            const numberOfMoveActions: number = Number(numberOfMoveActionsStr);
+            let imageOverlayName = "";
+            switch (numberOfMoveActions) {
+                case 0:
+                    imageOverlayName = "";
+                    break;
+                case 1:
+                    imageOverlayName = MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0];
+                    break
+                case 2:
+                    imageOverlayName = MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1];
+                    break
+                default:
+                    imageOverlayName = MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2];
+                    break
+            }
+            return {
+                tiles: locations.map(loc => {
+                    return {q: loc.hexCoordinate.q, r: loc.hexCoordinate.r}
+                }),
+                pulseColor: HighlightPulseBlueColor,
+                overlayImageResourceName: imageOverlayName,
+            }
+        });
+    },
+    highlightAllLocationsWithinSquaddieRange: ({
+                                                   startLocation,
+                                                   missionMap,
+                                                   repository,
+                                                   battleSquaddieId,
+                                               }: {
+        startLocation: { q: number; r: number };
+        missionMap: MissionMap;
+        repository: ObjectRepository;
+        battleSquaddieId: string
+    }): HighlightTileDescription[] => {
+        const {
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId));
 
-    let {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-    const {
-        squaddieHasThePlayerControlledAffiliation,
-    } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});
-    if (!squaddieHasThePlayerControlledAffiliation) {
-        actionPointsRemaining = 3;
-    }
+        const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({battleSquaddie, squaddieTemplate});
 
-    const reachableTileSearchResults: SearchResults = getResultOrThrowError(
-        Pathfinder.getAllReachableTiles(
-            SearchParametersHelper.newUsingSearchSetupMovementStop({
-                setup: {
-                    startLocation: squaddieDatum.mapLocation,
-                    affiliation:
-                    squaddieTemplate.squaddieId.affiliation,
-                },
-                movement: {
-                    movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
-                    passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
-                    crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
-                    canStopOnSquaddies: false,
-                    ignoreTerrainPenalty: false,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
-                },
-                stopCondition: {
-                    stopLocation: undefined,
-                    numberOfActions:
-                    actionPointsRemaining,
-                },
+        const reachableLocationSearch: SearchResult = PathfinderHelper.search({
+            searchParameters: SearchParametersHelper.new({
+                startLocations: [startLocation],
+                numberOfActions: actionPointsRemaining,
+                movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+                canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
+                canPassThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+                squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
+                canStopOnSquaddies: false,
             }),
             missionMap,
-            squaddieRepository,
-        )
-    );
+            repository,
+        });
 
+        const movementRange = highlightAllLocationsWithinSquaddieMovementRange(repository, battleSquaddieId, startLocation, reachableLocationSearch, missionMap);
+        const attackRange = addAttackRangeOntoMovementRange(repository, battleSquaddieId, reachableLocationSearch, missionMap);
+        if (attackRange && attackRange.tiles.length > 0) {
+            return [...movementRange, attackRange];
+        }
+        return [...movementRange];
+    }
+}
+
+const highlightAllLocationsWithinSquaddieMovementRange = (repository: ObjectRepository, battleSquaddieId: string, startLocation: HexCoordinate, reachableLocationSearch: SearchResult, missionMap: MissionMap) => {
+    const highlightedLocations: HighlightTileDescription[] = [
+        {
+            tiles: [
+                {...startLocation},
+            ],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: "",
+        },
+        {
+            tiles: [],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+        },
+        {
+            tiles: [],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1],
+        },
+        {
+            tiles: [],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2],
+        },
+    ];
+    Object.entries(SearchResultsHelper.getLocationsByNumberOfMoveActions(reachableLocationSearch)).forEach(([moveActionsStr, locations]) => {
+        const moveActions = Number(moveActionsStr);
+        let highlightedLocationIndex: number = Math.min(moveActions, 3);
+        const locationsBesidesStart = locations.filter(l => l.q !== startLocation.q || l.r !== startLocation.r)
+        highlightedLocations[highlightedLocationIndex].tiles.push(...locationsBesidesStart);
+    });
+
+    return highlightedLocations.filter(description => description.tiles.length > 0);
+};
+
+const addAttackRangeOntoMovementRange = (repository: ObjectRepository, battleSquaddieId: string, reachableLocationSearch: SearchResult, missionMap: MissionMap): HighlightTileDescription => {
     const {
-        reachableTiles: movementTilesByNumberOfActions,
-        sortedMovementActionPoints
-    } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
+        squaddieTemplate,
+        battleSquaddie
+    } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId));
 
-    const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
-        Object.values(movementTilesByNumberOfActions).map(
-            (coordinateList: [({
-                q: number,
-                r: number
-            } | undefined)]) => {
-                return coordinateList.map(
-                    (coordinate) => {
-                        return {...coordinate}
-                    })
-            });
+    const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({battleSquaddie, squaddieTemplate});
 
-    tilesTraveledByNumberOfMovementActions.unshift([]);
-    const highlightTileDescriptions = getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
+    const allLocationsSquaddieCanMoveTo: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(reachableLocationSearch);
 
-    let actionTiles: HexCoordinate[] = [];
-    const actionPoints = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
-
-    squaddieTemplate.actions.forEach((action) => {
-        sortedMovementActionPoints.forEach((movementActionsSpent: number) => {
-            if (action.actionPointCost > actionPoints.actionPointsRemaining - movementActionsSpent) {
+    const attackLocations: HexCoordinate[] = [];
+    squaddieTemplate.actions.forEach(action => {
+        allLocationsSquaddieCanMoveTo.forEach(coordinate => {
+            const path: SearchPath = reachableLocationSearch.shortestPathByLocation[coordinate.q][coordinate.r];
+            const numberOfMoveActionsToReachEndOfPath: number = isValidValue(path) ? path.currentNumberOfMoveActions : 0;
+            if (numberOfMoveActionsToReachEndOfPath + action.actionPointCost > actionPointsRemaining) {
                 return;
             }
 
-            const targetingResults = FindValidTargets({
-                map: missionMap,
-                action: action,
-                actingSquaddieTemplate: squaddieTemplate,
-                actingBattleSquaddie: battleSquaddie,
-                squaddieRepository,
-                sourceTiles: tilesTraveledByNumberOfMovementActions[movementActionsSpent],
+            const actionRangeResults = PathfinderHelper.search({
+                searchParameters: SearchParametersHelper.new({
+                    startLocations: [coordinate],
+                    canStopOnSquaddies: true,
+                    canPassOverPits: true,
+                    canPassThroughWalls: TraitStatusStorageHelper.getStatus(action.traits, Trait.PASS_THROUGH_WALLS),
+                    minimumDistanceMoved: action.minimumRange,
+                    maximumDistanceMoved: action.maximumRange,
+                    squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
+                    ignoreTerrainCost: true,
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(action.targetingShape)),
+                }),
+                missionMap,
+                repository,
             })
-            actionTiles.push(...targetingResults.locationsInRange);
-        });
+
+
+            const uniqueLocations = SearchResultsHelper.getStoppableLocations(actionRangeResults).filter(location =>
+                !attackLocations.some(attackLoc => attackLoc.q === location.q && attackLoc.r === location.r)
+            ).filter(location =>
+                !allLocationsSquaddieCanMoveTo.some(moveLoc => moveLoc.q === location.q && moveLoc.r === location.r)
+            );
+            attackLocations.push(...uniqueLocations);
+        })
     });
 
-    if (actionTiles) {
-        highlightTileDescriptions.push({
-                tiles: actionTiles,
-                pulseColor: HighlightPulseRedColor,
-                overlayImageResourceName: "map icon attack 1 action",
-            },
-        )
-    }
-    hexMap.highlightTiles(highlightTileDescriptions);
-}
-export const getHighlightedTileDescriptionByNumberOfMovementActions = (routeSortedByNumberOfMovementActions: HexCoordinate[][]) => {
-    const routeTilesByDistance: HighlightTileDescription[] =
-        routeSortedByNumberOfMovementActions.map((tiles, numberOfMovementActions) => {
-            let overlayImageResourceName: string;
-            switch (numberOfMovementActions) {
-                case 0:
-                    break;
-                case 1:
-                    overlayImageResourceName = "map icon move 1 action";
-                    break;
-                case 2:
-                    overlayImageResourceName = "map icon move 2 actions";
-                    break;
-                default:
-                    overlayImageResourceName = "map icon move 3 actions";
-                    break;
-            }
-
-            if (overlayImageResourceName) {
-                return {
-                    tiles,
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName,
-                }
-            }
-            return {
-                tiles,
-                pulseColor: HighlightPulseBlueColor,
-            }
-        });
-    return routeTilesByDistance;
-}
+    return {
+        tiles: attackLocations,
+        pulseColor: HighlightPulseRedColor,
+        overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[3],
+    };
+};

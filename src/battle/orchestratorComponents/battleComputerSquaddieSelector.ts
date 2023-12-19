@@ -36,11 +36,12 @@ import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {DetermineNextInstruction} from "../teamStrategy/determineNextInstruction";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
+import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -158,32 +159,24 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     ) {
         const ability = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
 
-        const tilesTargeted: HexCoordinate[] = getResultOrThrowError(Pathfinder.getAllReachableTiles(
-            SearchParametersHelper.newUsingSearchSetupMovementStop(
-                {
-                    setup: {
-                        startLocation: action.targetLocation,
-                        affiliation: SquaddieAffiliation.UNKNOWN,
-                    },
-                    movement: {
-                        maximumDistanceMoved: 0,
-                        minimumDistanceMoved: 0,
-                        canStopOnSquaddies: true,
-                        ignoreTerrainPenalty: false,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(ability.targetingShape)),
-                        movementPerAction: action.squaddieAction.maximumRange,
-                        crossOverPits: false,
-                        passThroughWalls: false,
-                    },
-                    stopCondition: {
-                        stopLocation: undefined,
-                        numberOfActions: 1,
-                    }
-                }
-            ),
-            state.battleState.missionMap,
-            state.squaddieRepository,
-        )).getReachableTiles();
+        const searchResult: SearchResult = PathfinderHelper.search({
+            searchParameters: SearchParametersHelper.new({
+                startLocations: [action.targetLocation],
+                squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
+                maximumDistanceMoved: 0,
+                minimumDistanceMoved: 0,
+                canStopOnSquaddies: true,
+                ignoreTerrainCost: false,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(ability.targetingShape)),
+                movementPerAction: action.squaddieAction.maximumRange,
+                canPassOverPits: false,
+                canPassThroughWalls: false,
+                numberOfActions: 1,
+            }),
+            missionMap: state.battleState.missionMap,
+            repository: state.squaddieRepository,
+        });
+        const tilesTargeted: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(searchResult);
 
         state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         state.battleState.missionMap.terrainTileMap.highlightTiles([

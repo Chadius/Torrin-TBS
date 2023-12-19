@@ -3,13 +3,14 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetTargetingShapeGenerator, TargetingShape} from "./targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
+import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 
 export class TargetingResults {
     constructor() {
@@ -53,42 +54,37 @@ export const FindValidTargets = ({
     squaddieRepository: ObjectRepository,
     sourceTiles?: HexCoordinate[],
 }): TargetingResults => {
+
     const squaddieInfo = map.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId)
-    const tilesToHighlight: HexCoordinate[] = Pathfinder.getTilesInRange(
-        SearchParametersHelper.newUsingSearchSetupMovementStop(
-            {
-                setup: {
-                    startLocation: squaddieInfo.mapLocation,
-                    affiliation: SquaddieAffiliation.UNKNOWN,
-                },
-                movement: {
-                    canStopOnSquaddies: true,
-                    ignoreTerrainPenalty: true,
-                    minimumDistanceMoved: action.minimumRange,
-                    maximumDistanceMoved: action.maximumRange,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
-                    movementPerAction: undefined,
-                    crossOverPits: false,
-                    passThroughWalls: false,
-                },
-                stopCondition: {
-                    stopLocation: undefined,
-                    numberOfActions: undefined,
-                }
-            }
-        ),
-        action.maximumRange,
-        sourceTiles && sourceTiles.length > 0 ? sourceTiles : [squaddieInfo.mapLocation],
-        map,
-        squaddieRepository,
-    )
+    const invalidSourceTiles = (sourceTiles === undefined || sourceTiles.length === 0);
+    const invalidSquaddieLocation = (squaddieInfo === undefined || squaddieInfo.mapLocation === undefined)
+    if (invalidSourceTiles && invalidSquaddieLocation) {
+        return new TargetingResults();
+    }
+
+    const allLocationsInRange: SearchResult = PathfinderHelper.search({
+        searchParameters: SearchParametersHelper.new({
+            startLocations: sourceTiles && sourceTiles.length > 0 ? sourceTiles : [squaddieInfo.mapLocation],
+            squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
+            canStopOnSquaddies: true,
+            ignoreTerrainCost: true,
+            minimumDistanceMoved: action.minimumRange,
+            maximumDistanceMoved: action.maximumRange,
+            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
+            movementPerAction: undefined,
+            canPassOverPits: false,
+            canPassThroughWalls: false,
+        }),
+        missionMap: map,
+        repository: squaddieRepository,
+    });
 
     const results = new TargetingResults();
     results.addLocationsInRange(
-        tilesToHighlight
+        SearchResultsHelper.getStoppableLocations(allLocationsInRange)
     );
 
-    addValidTargetsToResult(results, actingSquaddieTemplate, tilesToHighlight, map, squaddieRepository);
+    addValidTargetsToResult(results, actingSquaddieTemplate, SearchResultsHelper.getStoppableLocations(allLocationsInRange), map, squaddieRepository);
 
     return results;
 };

@@ -173,7 +173,7 @@ export class TerrainTileMap {
         }
     }
 
-    private getTileAtLocation(hexCoordinate: HexCoordinate): HexGridTile | undefined {
+    getTileAtLocation(hexCoordinate: HexCoordinate): HexGridTile | undefined {
         return this.tiles.find((tile) =>
             tile.q === hexCoordinate.q && tile.r === hexCoordinate.r
         );
@@ -181,6 +181,9 @@ export class TerrainTileMap {
 }
 
 export const TerrainTileMapHelper = {
+    new: ({movementCost}: { movementCost: string[] }): TerrainTileMap => {
+        return new TerrainTileMap({movementCost});
+    },
     createMapLayerForVisitableTiles: ({
                                           canPassThroughWalls,
                                           canCrossOverPits,
@@ -232,5 +235,12 @@ export const TerrainTileMapHelper = {
             terrainTileMap,
             initialValue: initialValueFill,
         });
+    },
+    getTileTerrainTypeAtLocation: (terrainTileMap: TerrainTileMap, q: number, r: number): HexGridMovementCost => {
+        const tile = terrainTileMap.getTileAtLocation({q, r});
+        if (tile === undefined) {
+            return undefined;
+        }
+        return tile.terrainType;
     }
 }

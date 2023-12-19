@@ -2,6 +2,58 @@ import {BattleSquaddie} from "../battle/battleSquaddie";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {InBattleAttributesHandler} from "../battle/stats/inBattleAttributes";
+import {SearchPath} from "../hexMap/pathfinder/searchPath";
+import {LocationTraveled} from "../hexMap/pathfinder/locationTraveled";
+import {getResultOrThrowError} from "../utils/ResultOrError";
+import {ObjectRepository, ObjectRepositoryHelper} from "../battle/objectRepository";
+
+export const SquaddieService = {
+    dealDamageToTheSquaddie: ({
+                                  squaddieTemplate,
+                                  battleSquaddie,
+                                  damage,
+                                  damageType,
+                              }: {
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
+        damage: number,
+        damageType: DamageType,
+    }): {
+        damageTaken: number
+    } => {
+        return DealDamageToTheSquaddie({
+            squaddieTemplate,
+            battleSquaddie,
+            damage,
+            damageType,
+        });
+    },
+    getNumberOfActionPoints: ({
+                                  squaddieTemplate,
+                                  battleSquaddie,
+                              }: {
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
+    }): {
+        actionPointsRemaining: number
+    } => {
+        return GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
+    },
+    searchPathLocationsByNumberOfMovementActions: ({searchPath, battleSquaddieId, repository}: {
+        searchPath: SearchPath,
+        battleSquaddieId: string,
+        repository: ObjectRepository,
+    }): { [movementActions: number]: LocationTraveled[] } => {
+        const locationsByMoveAction: { [movementActions: number]: LocationTraveled[] } = {};
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId))
+        searchPath.locationsTraveled.forEach(locationDescription => {
+            let numberOfMovementActions: number = Math.ceil(locationDescription.cumulativeMovementCost / squaddieTemplate.attributes.movement.movementPerAction);
+            locationsByMoveAction[numberOfMovementActions] ||= [];
+            locationsByMoveAction[numberOfMovementActions].push(locationDescription);
+        })
+        return locationsByMoveAction;
+    }
+}
 
 export const GetNumberOfActionPoints = ({
                                             squaddieTemplate,

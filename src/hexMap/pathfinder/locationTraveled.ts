@@ -1,6 +1,6 @@
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
-export interface TileFoundDescription {
+export interface LocationTraveled {
     hexCoordinate: HexCoordinate;
-    movementCost: number;
+    cumulativeMovementCost: number;
 }

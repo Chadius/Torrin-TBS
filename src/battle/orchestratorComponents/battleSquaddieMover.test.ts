@@ -5,7 +5,6 @@ import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchest
 import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Pathfinder} from "../../hexMap/pathfinder/pathfinder";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
@@ -24,6 +23,8 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: ObjectRepository;
@@ -73,34 +74,26 @@ describe('BattleSquaddieMover', () => {
     it('is complete once enough time passes and the squaddie finishes moving', () => {
         map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-        const movePath: SearchPath = getResultOrThrowError(
-            getResultOrThrowError(Pathfinder.findPathToStopLocation(
-                    SearchParametersHelper.newUsingSearchSetupMovementStop(
-                        {
-                            setup: {
-                                startLocation: {q: 0, r: 0},
-                                affiliation: SquaddieAffiliation.PLAYER,
-                            },
-                            movement: {
-                                canStopOnSquaddies: true,
-                                movementPerAction: 99,
-                                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
-                                maximumDistanceMoved: undefined,
-                                minimumDistanceMoved: undefined,
-                                ignoreTerrainPenalty: false,
-                                crossOverPits: false,
-                                passThroughWalls: false,
-                            },
-                            stopCondition: {
-                                stopLocation: {q: 1, r: 1},
-                                numberOfActions: 1,
-                            }
-                        }
-                    ),
-                    map,
-                    squaddieRepo
-                )
-            ).getRouteToStopLocation());
+        const searchResults: SearchResult = PathfinderHelper.search({
+            searchParameters: SearchParametersHelper.new({
+                startLocations: [{q: 0, r: 0}],
+                squaddieAffiliation: SquaddieAffiliation.PLAYER,
+                canStopOnSquaddies: true,
+                movementPerAction: 99,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
+                maximumDistanceMoved: undefined,
+                minimumDistanceMoved: undefined,
+                ignoreTerrainCost: false,
+                canPassOverPits: false,
+                canPassThroughWalls: false,
+                stopLocations: [{q: 1, r: 1}],
+                numberOfActions: 1,
+            }),
+            missionMap: map,
+            repository: squaddieRepo,
+        });
+
+        const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
         const moveAction: SquaddieActionsForThisRound = {
             squaddieTemplateId: "player_1",
@@ -165,34 +158,26 @@ describe('BattleSquaddieMover', () => {
             squaddieAffiliation: SquaddieAffiliation,
             newInstruction: SquaddieActionsForThisRound,
         }): BattleOrchestratorState => {
-            const movePath: SearchPath = getResultOrThrowError(
-                getResultOrThrowError(Pathfinder.findPathToStopLocation(
-                        SearchParametersHelper.newUsingSearchSetupMovementStop(
-                            {
-                                setup: {
-                                    startLocation: {q: 0, r: 0},
-                                    affiliation: squaddieAffiliation,
-                                },
-                                movement: {
-                                    canStopOnSquaddies: true,
-                                    movementPerAction: 999,
-                                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
-                                    maximumDistanceMoved: undefined,
-                                    minimumDistanceMoved: 0,
-                                    ignoreTerrainPenalty: false,
-                                    crossOverPits: false,
-                                    passThroughWalls: false,
-                                },
-                                stopCondition: {
-                                    stopLocation: {q: 1, r: 1},
-                                    numberOfActions: undefined,
-                                }
-                            }
-                        ),
-                        map,
-                        squaddieRepo,
-                    )
-                ).getRouteToStopLocation());
+            const searchResults: SearchResult = PathfinderHelper.search({
+                searchParameters: SearchParametersHelper.new({
+                    startLocations: [{q: 0, r: 0}],
+                    squaddieAffiliation: squaddieAffiliation,
+                    canStopOnSquaddies: true,
+                    movementPerAction: 999,
+                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
+                    maximumDistanceMoved: undefined,
+                    minimumDistanceMoved: 0,
+                    ignoreTerrainCost: false,
+                    canPassOverPits: false,
+                    canPassThroughWalls: false,
+                    stopLocations: [{q: 1, r: 1}],
+                    numberOfActions: 1,
+                }),
+                missionMap: map,
+                repository: squaddieRepo,
+            });
+
+            const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));

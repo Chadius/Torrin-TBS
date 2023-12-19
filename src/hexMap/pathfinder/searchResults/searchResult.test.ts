@@ -1,0 +1,322 @@
+import {SearchResultsHelper} from "./searchResult";
+import {SearchPathHelper} from "../searchPath";
+import {HexCoordinate} from "../../hexCoordinate/hexCoordinate";
+
+describe('Search Results', () => {
+    it('Can organize locations by the number of move actions', () => {
+        const results = SearchResultsHelper.new({
+            shortestPathByLocation: {
+                0: {
+                    0: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            }
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    1: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 0,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    2: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    3: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 3},
+                                cumulativeMovementCost: 4,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 2,
+                    },
+                },
+            }
+        });
+
+        const locationsByNumberOfMoveActions = SearchResultsHelper.getLocationsByNumberOfMoveActions(results);
+
+        expect(locationsByNumberOfMoveActions).toEqual({
+            1: [
+                {q: 0, r: 0},
+                {q: 0, r: 1},
+                {q: 0, r: 2},
+            ],
+            2: [
+                {q: 0, r: 3},
+            ],
+        });
+    });
+
+    it('get closest routes to destination', () => {
+        const results = SearchResultsHelper.new({
+            shortestPathByLocation: {
+                0: {
+                    0: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            }
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    1: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 0,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    2: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    3: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 3},
+                                cumulativeMovementCost: 4,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 2,
+                    },
+                },
+                1: {
+                    0: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            }
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    2: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    3: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 3},
+                                cumulativeMovementCost: 4,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 2,
+                    },
+                },
+            }
+        });
+
+        const radius0: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 0,
+            r: 2
+        }, 0);
+        expect(radius0).toHaveLength(1);
+        expect(radius0).toEqual(
+            expect.arrayContaining([
+                {q: 0, r: 2}
+            ])
+        );
+
+        const locationWithNoRoute: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 1,
+            r: 1
+        }, 0);
+        expect(locationWithNoRoute).toHaveLength(0);
+
+        const radius1: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 0,
+            r: 2
+        }, 1);
+        expect(radius1).toHaveLength(3);
+        expect(radius1).toEqual(
+            expect.arrayContaining([
+                {q: 0, r: 1},
+                {q: 0, r: 3},
+                {q: 1, r: 2},
+            ])
+        );
+
+        const radius2: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 0,
+            r: 2
+        }, 2);
+        expect(radius2).toHaveLength(3);
+        expect(radius2).toEqual(
+            expect.arrayContaining([
+                {q: 0, r: 0},
+                {q: 1, r: 0},
+                {q: 1, r: 3},
+            ])
+        );
+    });
+
+    it('can report all stoppable locations', () => {
+        const results = SearchResultsHelper.new({
+            shortestPathByLocation: {
+                0: {
+                    0: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            }
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    1: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 0,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    2: undefined,
+                    3: {
+                        ...SearchPathHelper.newSearchPath(),
+                        locationsTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 3},
+                                cumulativeMovementCost: 4,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 2,
+                    },
+                },
+            }
+        });
+
+        const stoppableLocations = SearchResultsHelper.getStoppableLocations(results);
+
+        expect(stoppableLocations).toHaveLength(3);
+        expect(stoppableLocations).toContainEqual({q: 0, r: 0});
+        expect(stoppableLocations).toContainEqual({q: 0, r: 1});
+        expect(stoppableLocations).toContainEqual({q: 0, r: 3});
+    });
+});

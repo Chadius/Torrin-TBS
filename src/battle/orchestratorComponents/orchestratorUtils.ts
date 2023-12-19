@@ -6,11 +6,11 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
-import {HighlightSquaddieReach} from "../animation/mapHighlight";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
+import {MapHighlightHelper} from "../animation/mapHighlight";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
     if (state.battleState.squaddieCurrentlyActing
@@ -71,7 +71,16 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
         })
         if (playerCanControlThisSquaddieRightNow) {
             state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
-            HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.battleState.missionMap, state.battleState.missionMap.terrainTileMap, state.squaddieRepository);
+
+            const {mapLocation: startLocation} = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId)
+            const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                repository: state.squaddieRepository,
+                missionMap: state.battleState.missionMap,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+                startLocation: startLocation,
+            });
+
+            state.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
         }
     }
 }

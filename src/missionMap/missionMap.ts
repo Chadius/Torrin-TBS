@@ -4,6 +4,20 @@ import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "./squaddieLocation";
 import {SquaddieDeployment, SquaddieDeploymentHelper} from "./squaddieDeployment";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {NullMissionMap} from "../utils/test/battleOrchestratorState";
+
+export const MissionMapHelper = {
+    new: ({terrainTileMap}: { terrainTileMap: TerrainTileMap }): MissionMap => {
+        return new MissionMap({terrainTileMap});
+    },
+    default: (): MissionMap => {
+        return NullMissionMap();
+    },
+    addSquaddie: (missionMap: MissionMap, squaddieTemplateId: string, battleSquaddieId: string, location?: HexCoordinate): Error | undefined => {
+        return missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
+    }
+};
+
 
 export class MissionMap {
     playerDeployment: SquaddieDeployment;

@@ -10,13 +10,15 @@ export interface SquaddieTemplate {
 }
 
 export const SquaddieTemplateHelper = {
-    new: ({squaddieId}: {
-        squaddieId: SquaddieId
+    new: ({squaddieId, attributes, actions}: {
+        squaddieId: SquaddieId,
+        attributes?: ArmyAttributes,
+        actions?: SquaddieAction[],
     }) => {
         const data: SquaddieTemplate = {
             squaddieId,
-            actions: [],
-            attributes: ArmyAttributesHelper.default(),
+            actions: isValidValue(actions) ? actions : [],
+            attributes: isValidValue(attributes) ? attributes : ArmyAttributesHelper.default(),
         };
         SquaddieTemplateHelper.sanitize(data);
         return data;

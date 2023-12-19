@@ -1,6 +1,8 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
+import {isValidValue} from "../../utils/validityCheck";
+import {SnakeShapeGenerator} from "../../battle/targeting/snakeShapeGenerator";
 
 export interface SearchSetup {
     startLocation: HexCoordinate;
@@ -14,7 +16,7 @@ export interface SearchMovement {
     passThroughWalls: boolean;
     crossOverPits: boolean;
     canStopOnSquaddies: boolean;
-    ignoreTerrainPenalty: boolean;
+    ignoreTerrainCost: boolean;
     shapeGenerator: TargetingShapeGenerator;
 }
 
@@ -24,16 +26,16 @@ export interface SearchStopCondition {
 }
 
 export interface SearchParameters {
-    ignoreTerrainPenalty: boolean;
-    startLocation: HexCoordinate;
+    ignoreTerrainCost: boolean;
+    startLocations: HexCoordinate[];
     shapeGenerator: TargetingShapeGenerator;
     minimumDistanceMoved: number;
     maximumDistanceMoved: number;
     passThroughWalls: boolean | undefined;
-    crossOverPits: boolean | undefined;
+    passOverPits: boolean | undefined;
     movementPerAction: number | undefined;
     numberOfActions: number | undefined;
-    stopLocation: HexCoordinate | undefined;
+    stopLocations: HexCoordinate[];
     squaddieAffiliation: SquaddieAffiliation;
     canStopOnSquaddies: boolean;
 }
@@ -49,19 +51,60 @@ export const SearchParametersHelper = {
         stopCondition: SearchStopCondition,
     }): SearchParameters => {
         return {
-            startLocation: setup.startLocation,
+            startLocations: [setup.startLocation],
             squaddieAffiliation: setup.affiliation,
-            ignoreTerrainPenalty: movement.ignoreTerrainPenalty,
+            ignoreTerrainCost: movement.ignoreTerrainCost,
             shapeGenerator: movement.shapeGenerator,
             minimumDistanceMoved: movement.minimumDistanceMoved,
             maximumDistanceMoved: movement.maximumDistanceMoved,
             passThroughWalls: movement.passThroughWalls,
-            crossOverPits: movement.crossOverPits,
+            passOverPits: movement.crossOverPits,
             movementPerAction: movement.movementPerAction,
             canStopOnSquaddies: movement.canStopOnSquaddies,
             numberOfActions: stopCondition.numberOfActions,
-            stopLocation: stopCondition.stopLocation,
+            stopLocations: [stopCondition.stopLocation],
+        }
+    },
+    new: ({
+              startLocations,
+              squaddieAffiliation,
+              ignoreTerrainCost,
+              shapeGenerator,
+              minimumDistanceMoved,
+              maximumDistanceMoved,
+              canPassThroughWalls,
+              canPassOverPits,
+              movementPerAction,
+              canStopOnSquaddies,
+              numberOfActions,
+              stopLocations,
+          }: {
+        startLocations?: HexCoordinate[],
+        squaddieAffiliation?: SquaddieAffiliation,
+        ignoreTerrainCost?: boolean,
+        shapeGenerator?: TargetingShapeGenerator,
+        minimumDistanceMoved?: number,
+        maximumDistanceMoved?: number,
+        canPassThroughWalls?: boolean,
+        canPassOverPits?: boolean,
+        movementPerAction?: number,
+        canStopOnSquaddies?: boolean,
+        numberOfActions?: number,
+        stopLocations?: HexCoordinate[],
+    }): SearchParameters => {
+        return {
+            startLocations: isValidValue(startLocations) ? startLocations : [],
+            squaddieAffiliation: isValidValue(squaddieAffiliation) ? squaddieAffiliation : SquaddieAffiliation.UNKNOWN,
+            ignoreTerrainCost: isValidValue(ignoreTerrainCost) ? ignoreTerrainCost : false,
+            shapeGenerator: isValidValue(shapeGenerator) ? shapeGenerator : new SnakeShapeGenerator(),
+            minimumDistanceMoved: isValidValue(minimumDistanceMoved) ? minimumDistanceMoved : undefined,
+            maximumDistanceMoved: isValidValue(maximumDistanceMoved) ? maximumDistanceMoved : undefined,
+            passThroughWalls: isValidValue(canPassThroughWalls) ? canPassThroughWalls : false,
+            passOverPits: isValidValue(canPassOverPits) ? canPassOverPits : false,
+            movementPerAction: isValidValue(movementPerAction) ? movementPerAction : undefined,
+            canStopOnSquaddies: isValidValue(canStopOnSquaddies) ? canStopOnSquaddies : false,
+            numberOfActions: isValidValue(numberOfActions) ? numberOfActions : undefined,
+            stopLocations: isValidValue(stopLocations) ? stopLocations : [],
         }
     }
 }
-
