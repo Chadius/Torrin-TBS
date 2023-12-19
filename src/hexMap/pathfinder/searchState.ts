@@ -10,6 +10,7 @@ import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {CreateNewNeighboringCoordinates} from "../hexGridDirection";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../battle/objectRepository";
 import {SearchParameters} from "./searchParams";
+import {MapLayer} from "../../missionMap/mapLayer";
 
 export interface SearchState {
     tilesSearchCanStopAt: HexCoordinate[];
@@ -22,6 +23,7 @@ export interface SearchState {
     searchPathQueue: PriorityQueue<SearchPath>;
     results: SearchResults;
     shapeGenerator: TargetingShapeGenerator;
+    mapLayers: { [key: string]: MapLayer };
 }
 
 export const SearchStateHelper = {
@@ -35,6 +37,7 @@ export const SearchStateHelper = {
                 stopLocation: searchParams.stopLocation,
             }),
             shapeGenerator: searchParams.shapeGenerator,
+            mapLayers: {},
         }
     },
     hasAlreadyStoppedOnTile: (searchState: SearchState, tileLocation: HexCoordinate): boolean => {

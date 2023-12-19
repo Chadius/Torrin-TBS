@@ -5,8 +5,11 @@ import {isValidValue} from "../../../utils/validityCheck";
 import {StopCondition} from "./stopCondition";
 
 export class StopConditionStopLocationFound implements StopCondition {
-    shouldStopSearching({workingState, searchParameters}:{workingState: SearchState, searchParameters: SearchParameters}): boolean {
-        if(!isValidValue(searchParameters.stopLocation)) {
+    shouldStopSearching({workingState, searchParameters}: {
+        workingState: SearchState,
+        searchParameters: SearchParameters
+    }): boolean {
+        if (!isValidValue(searchParameters.stopLocation)) {
             return false;
         }
 

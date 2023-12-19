@@ -5,6 +5,16 @@ import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "./s
 import {SquaddieDeployment, SquaddieDeploymentHelper} from "./squaddieDeployment";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
+export const MissionMapHelper = {
+    new: ({terrainTileMap}: { terrainTileMap: TerrainTileMap }): MissionMap => {
+        return new MissionMap({terrainTileMap});
+    },
+    addSquaddie: (missionMap: MissionMap, squaddieTemplateId: string, battleSquaddieId: string, location?: HexCoordinate): Error | undefined => {
+        return missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
+    }
+};
+
+
 export class MissionMap {
     playerDeployment: SquaddieDeployment;
     private readonly _terrainTileMap: TerrainTileMap;

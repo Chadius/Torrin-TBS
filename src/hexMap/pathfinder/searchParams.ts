@@ -78,7 +78,7 @@ export const SearchParametersHelper = {
               canStopOnSquaddies,
               numberOfActions,
               stopLocation,
-    }: {
+          }: {
         startLocation?: HexCoordinate,
         squaddieAffiliation?: SquaddieAffiliation,
         ignoreTerrainPenalty?: boolean,
@@ -101,9 +101,9 @@ export const SearchParametersHelper = {
             maximumDistanceMoved: isValidValue(maximumDistanceMoved) ? maximumDistanceMoved : undefined,
             passThroughWalls: isValidValue(passThroughWalls) ? passThroughWalls : false,
             crossOverPits: isValidValue(crossOverPits) ? crossOverPits : false,
-            movementPerAction: isValidValue(movementPerAction) ? movementPerAction : 0,
+            movementPerAction: isValidValue(movementPerAction) ? movementPerAction : undefined,
             canStopOnSquaddies: isValidValue(canStopOnSquaddies) ? canStopOnSquaddies : false,
-            numberOfActions: isValidValue(numberOfActions) ? numberOfActions : 0,
+            numberOfActions: isValidValue(numberOfActions) ? numberOfActions : undefined,
             stopLocation: isValidValue(stopLocation) ? stopLocation : undefined,
         }
     }
