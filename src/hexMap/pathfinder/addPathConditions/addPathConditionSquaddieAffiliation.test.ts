@@ -22,10 +22,10 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, movementCost: 1}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, movementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 2}, 2);
 
         [
             SquaddieAffiliation.PLAYER,
@@ -83,10 +83,10 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, movementCost: 1}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, movementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 2}, 2);
 
         [
             SquaddieAffiliation.PLAYER,
@@ -145,10 +145,10 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, movementCost: 1}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, movementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 2}, 2);
 
         const repository: ObjectRepository = ObjectRepositoryHelper.new();
         const searchParameters = SearchParametersHelper.new({
@@ -169,10 +169,10 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, movementCost: 1}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, movementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 2}, 2);
 
         const searchingAffiliation: SquaddieAffiliation = SquaddieAffiliation.UNKNOWN;
 

@@ -1,7 +1,7 @@
 import {PathfinderOLD} from "./pathfinderOLD";
 import {SearchParametersHelper} from "./searchParams";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {SearchResults} from "./searchResults";
+import {SearchResultsOLD} from "./searchResultsOLD";
 import {SearchPath, SearchPathHelper} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -33,7 +33,7 @@ describe('pathfinder and squaddies', () => {
             missionMap = tempMissionMap;
         });
 
-        const validateCanPassThroughFriendly = (searchResults: SearchResults) => {
+        const validateCanPassThroughFriendly = (searchResults: SearchResultsOLD) => {
             validateTilesAreFound(
                 searchResults.getReachableTiles(),
                 [
@@ -47,7 +47,7 @@ describe('pathfinder and squaddies', () => {
             );
         }
 
-        const validateCannotPassThroughUnfriendly = (searchResults: SearchResults) => {
+        const validateCannotPassThroughUnfriendly = (searchResults: SearchResultsOLD) => {
             validateTilesAreFound(
                 searchResults.getReachableTiles(),
                 [
@@ -83,7 +83,7 @@ describe('pathfinder and squaddies', () => {
                 squaddieRepository
             });
 
-            const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+            const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {
@@ -291,7 +291,7 @@ describe('pathfinder and squaddies', () => {
         });
 
 
-        const allTilesOnMap: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+        const allTilesOnMap: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -353,7 +353,7 @@ describe('pathfinder and squaddies', () => {
             squaddieRepository
         });
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -439,7 +439,7 @@ describe('pathfinder and squaddies', () => {
             damageType: DamageType.BODY,
         });
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -536,7 +536,7 @@ describe('pathfinder and squaddies', () => {
         });
 
 
-        const searchResults: SearchResults =
+        const searchResults: SearchResultsOLD =
             PathfinderOLD.findReachableSquaddies(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {

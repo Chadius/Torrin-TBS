@@ -24,7 +24,7 @@ import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {SearchResults} from "../../hexMap/pathfinder/searchResults";
+import {SearchResultsOLD} from "../../hexMap/pathfinder/searchResultsOLD";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
@@ -274,7 +274,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
         const squaddieDatum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-        const searchResults: SearchResults = getResultOrThrowError(
+        const searchResults: SearchResultsOLD = getResultOrThrowError(
             PathfinderOLD.findPathToStopLocation(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {

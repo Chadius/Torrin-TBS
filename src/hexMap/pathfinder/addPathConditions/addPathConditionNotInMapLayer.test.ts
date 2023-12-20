@@ -19,7 +19,7 @@ describe('AddPathConditionNotInMapLayer', () => {
         const condition = new AddPathConditionNotInMapLayer({enqueuedMapLayer: mapLayer});
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 0);
 
         const searchParameters = SearchParametersHelper.new({});
 
@@ -40,7 +40,7 @@ describe('AddPathConditionNotInMapLayer', () => {
         const condition = new AddPathConditionNotInMapLayer({enqueuedMapLayer: mapLayer});
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 0);
 
         const searchParameters = SearchParametersHelper.new({});
 
@@ -60,7 +60,7 @@ describe('AddPathConditionNotInMapLayer', () => {
         const condition = new AddPathConditionNotInMapLayer({enqueuedMapLayer: mapLayer});
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: -1}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: -1}, cumulativeMovementCost: 0}, 0);
 
         const searchParameters = SearchParametersHelper.new({});
 

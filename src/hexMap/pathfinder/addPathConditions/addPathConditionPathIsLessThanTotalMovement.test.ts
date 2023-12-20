@@ -5,10 +5,10 @@ import {AddPathConditionPathIsLessThanTotalMovement} from "./addPathConditionPat
 describe('AddPathConditionPathIsLessThanTotalMovement', () => {
     it('knows if the current path is shorter than the total movement', () => {
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: 0}, movementCost: 1}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 0}, movementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: 0}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 0}, cumulativeMovementCost: 2}, 2);
 
         const searchParameters = SearchParametersHelper.new({
             numberOfActions: 3,
@@ -20,12 +20,12 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
     });
     it('knows if the current path is more than the total movement', () => {
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: 0}, movementCost: 1}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 0}, movementCost: 2}, 2);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 1}, movementCost: 2}, 2);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 2}, movementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: 0}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 0}, cumulativeMovementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 1}, cumulativeMovementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 2}, cumulativeMovementCost: 2}, 2);
 
         const searchParameters = SearchParametersHelper.new({
             numberOfActions: 3,
@@ -37,12 +37,12 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
     });
     it('returns true if search has unlimited movement', () => {
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: 0}, movementCost: 1}, 1);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 0}, movementCost: 2}, 2);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 1}, movementCost: 2}, 2);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 2}, movementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 2, r: 0}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 0}, cumulativeMovementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 1}, cumulativeMovementCost: 2}, 2);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 3, r: 2}, cumulativeMovementCost: 2}, 2);
 
         const searchParameters = SearchParametersHelper.new({
             numberOfActions: undefined,

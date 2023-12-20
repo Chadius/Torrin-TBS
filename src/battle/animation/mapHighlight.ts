@@ -2,7 +2,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {SearchResults} from "../../hexMap/pathfinder/searchResults";
+import {SearchResultsOLD} from "../../hexMap/pathfinder/searchResultsOLD";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {ObjectRepository} from "../objectRepository";
@@ -24,7 +24,7 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
         actionPointsRemaining = 3;
     }
 
-    const reachableTileSearchResults: SearchResults = getResultOrThrowError(
+    const reachableTileSearchResults: SearchResultsOLD = getResultOrThrowError(
         PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop({
                 setup: {

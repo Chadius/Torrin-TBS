@@ -8,7 +8,7 @@ export type SearchResultOptions = {
     stopLocation?: HexCoordinate;
 };
 
-export class SearchResults {
+export class SearchResultsOLD {
     allReachableTiles: HexCoordinate[];
     lowestCostRoutes: {
         [key: string]: SearchPath

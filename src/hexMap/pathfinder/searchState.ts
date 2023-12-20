@@ -1,6 +1,6 @@
 import {HexCoordinate, HexCoordinateToKey} from "../hexCoordinate/hexCoordinate";
 import {PriorityQueue} from "../../utils/priorityQueue";
-import {SearchResults} from "./searchResults";
+import {SearchResultsOLD} from "./searchResultsOLD";
 import {TargetingShapeGenerator} from "../../battle/targeting/targetingShapeGenerator";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {SearchPath, SearchPathHelper} from "./searchPath";
@@ -21,7 +21,7 @@ export interface SearchState {
         [loc: string]: boolean
     };
     searchPathQueue: PriorityQueue<SearchPath>;
-    results: SearchResults;
+    results: SearchResultsOLD;
     shapeGenerator: TargetingShapeGenerator;
     mapLayers: { [key: string]: MapLayer };
 }
@@ -33,7 +33,7 @@ export const SearchStateHelper = {
             tileLocationsAlreadyVisited: {},
             tileLocationsAlreadyConsideredForQueue: {},
             searchPathQueue: new PriorityQueue<SearchPath>(SearchPathHelper.compare),
-            results: new SearchResults({
+            results: new SearchResultsOLD({
                 stopLocation: searchParams.stopLocation,
             }),
             shapeGenerator: searchParams.shapeGenerator,
@@ -74,7 +74,7 @@ export const SearchStateHelper = {
                     q: startLocation.q,
                     r: startLocation.r,
                 },
-                movementCost: 0,
+                cumulativeMovementCost: 0,
             }, 0);
         SearchPathHelper.startNewMovementAction(startingPath);
         searchState.searchPathQueue.enqueue(startingPath);
@@ -101,7 +101,7 @@ export const SearchStateHelper = {
         const neighborPath = SearchPathHelper.clone(head);
         const tileInfoMovementCost = searchParams.ignoreTerrainPenalty
             ? 1
-            : tileInfo.movementCost;
+            : tileInfo.cumulativeMovementCost;
         SearchPathHelper.add(
             neighborPath,
             {
@@ -109,7 +109,7 @@ export const SearchStateHelper = {
                     q: tileInfo.hexCoordinate.q,
                     r: tileInfo.hexCoordinate.r,
                 },
-                movementCost: head.totalMovementCost + tileInfoMovementCost,
+                cumulativeMovementCost: head.totalMovementCost + tileInfoMovementCost,
             },
             tileInfoMovementCost
         );

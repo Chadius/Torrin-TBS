@@ -11,8 +11,8 @@ describe('Stop Condition when pathfinding', () => {
         });
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 0);
 
         const workingState = SearchStateHelper.newFromSearchParameters(searchParameters);
         workingState.searchPathQueue.enqueue(pathAtHead);
@@ -26,7 +26,7 @@ describe('Stop Condition when pathfinding', () => {
         });
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
 
         const workingState = SearchStateHelper.newFromSearchParameters(searchParameters);
         workingState.searchPathQueue.enqueue(pathAtHead);
@@ -53,8 +53,8 @@ describe('Stop Condition when pathfinding', () => {
         const searchParameters: SearchParameters = SearchParametersHelper.new({});
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, movementCost: 0}, 0);
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 0);
 
         const workingState = SearchStateHelper.newFromSearchParameters(searchParameters);
         workingState.searchPathQueue.enqueue(pathAtHead);

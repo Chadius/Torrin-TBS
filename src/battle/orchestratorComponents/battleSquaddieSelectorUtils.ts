@@ -2,7 +2,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {SearchResults} from "../../hexMap/pathfinder/searchResults";
+import {SearchResultsOLD} from "../../hexMap/pathfinder/searchResultsOLD";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
@@ -21,7 +21,7 @@ import {ObjectRepositoryHelper} from "../objectRepository";
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-    const searchResults: SearchResults = getResultOrThrowError(
+    const searchResults: SearchResultsOLD = getResultOrThrowError(
         PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {

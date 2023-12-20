@@ -1,7 +1,7 @@
 import {TerrainTileMap} from "../terrainTileMap";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TileFoundDescription} from "./tileFoundDescription";
-import {SearchResults} from "./searchResults";
+import {SearchResultsOLD} from "./searchResultsOLD";
 import {SearchPath} from "./searchPath";
 import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
@@ -67,7 +67,7 @@ export const validateTilesAreFound = (tilesToTest: HexCoordinate[], tilesFound: 
     });
 };
 
-export const validateTileHasExpectedNumberOfActions = (q: number, r: number, expectedActions: number, searchResults: SearchResults) => {
+export const validateTileHasExpectedNumberOfActions = (q: number, r: number, expectedActions: number, searchResults: SearchResultsOLD) => {
     const searchPath: SearchPath = searchResults.getLowestCostRoute(q, r);
     expect(searchPath).not.toBeUndefined();
     const tilesFoundByNumberOfActions: TileFoundDescription[][] = searchPath.tilesTraveledByNumberOfMovementActions;

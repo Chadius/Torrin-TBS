@@ -1,5 +1,5 @@
 import {SearchParametersHelper} from "./searchParams";
-import {SearchResults} from "./searchResults";
+import {SearchResultsOLD} from "./searchResultsOLD";
 import {SearchPath, SearchPathHelper} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {getResultOrThrowError, isError, ResultOrError, unwrapResultOrError} from "../../utils/ResultOrError";
@@ -24,7 +24,7 @@ describe('pathfinder reaching a destination', () => {
             missionMap,
         } = createMap(smallMap);
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -165,7 +165,7 @@ describe('pathfinder reaching a destination', () => {
 
         } = createMap(smallMap);
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -204,7 +204,7 @@ describe('pathfinder reaching a destination', () => {
 
         } = createMap(smallMap);
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -264,7 +264,7 @@ describe('pathfinder reaching a destination', () => {
             "  1 1 1 ",
         ]);
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -369,7 +369,7 @@ describe('pathfinder reaching a destination', () => {
             " 1 1 1 1 1 ",
         ]);
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -437,7 +437,7 @@ describe('pathfinder reaching a destination', () => {
             "1 1 1 1 1 ",
         ]);
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -478,7 +478,7 @@ describe('pathfinder reaching a destination', () => {
             "1 1 1 - 1 ",
         ]);
 
-        const searchResults: ResultOrError<SearchResults, Error> = PathfinderOLD.findPathToStopLocation(
+        const searchResults: ResultOrError<SearchResultsOLD, Error> = PathfinderOLD.findPathToStopLocation(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -541,7 +541,7 @@ describe('pathfinder reaching a destination', () => {
             "  1 1 1 ",
         ]);
 
-        const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.findPathToStopLocation(
+        const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.findPathToStopLocation(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {

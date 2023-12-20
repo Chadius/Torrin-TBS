@@ -19,7 +19,7 @@ describe('AddPathConditionIsInsideMap', () => {
         const condition = new AddPathConditionIsInsideMap({terrainMapLayer: mapLayer});
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 0);
 
         const searchParameters = SearchParametersHelper.new({});
 
@@ -40,7 +40,7 @@ describe('AddPathConditionIsInsideMap', () => {
         const condition = new AddPathConditionIsInsideMap({terrainMapLayer: mapLayer});
 
         const pathAtHead = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 9001, r: -5}, movementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 9001, r: -5}, cumulativeMovementCost: 0}, 0);
 
         const searchParameters = SearchParametersHelper.new({});
 

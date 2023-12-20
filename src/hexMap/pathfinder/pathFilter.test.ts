@@ -25,7 +25,7 @@ describe('PathFilter', () => {
         [0, 1, 2, 3, 4].forEach(r => {
             [0, 1].forEach(q => {
                 const newPath = SearchPathHelper.newSearchPath();
-                SearchPathHelper.add(newPath, {hexCoordinate: {q, r}, movementCost: 0}, 0);
+                SearchPathHelper.add(newPath, {hexCoordinate: {q, r}, cumulativeMovementCost: 0}, 0);
                 expect(inBoundsFilter.pathSatisfiesFilter(newPath)).toBe(true);
             });
         });
@@ -43,7 +43,7 @@ describe('PathFilter', () => {
             }
         ].forEach(coordinates => {
             const newPath = SearchPathHelper.newSearchPath();
-            SearchPathHelper.add(newPath, {hexCoordinate: coordinates, movementCost: 0}, 0);
+            SearchPathHelper.add(newPath, {hexCoordinate: coordinates, cumulativeMovementCost: 0}, 0);
             expect(inBoundsFilter.pathSatisfiesFilter(newPath)).toBe(false);
         });
 
@@ -71,7 +71,7 @@ describe('PathFilter', () => {
         [0, 1, 2, 3, 4].forEach(r => {
             [0, 1].forEach(q => {
                 const newPath = SearchPathHelper.newSearchPath();
-                SearchPathHelper.add(newPath, {hexCoordinate: {q, r}, movementCost: 0}, 0);
+                SearchPathHelper.add(newPath, {hexCoordinate: {q, r}, cumulativeMovementCost: 0}, 0);
                 const expectedValue = mapLayer.valueByLocation[q][r];
                 expect(mapLayerValueFilter.pathSatisfiesFilter(newPath)).toBe(expectedValue);
             });
@@ -101,7 +101,7 @@ describe('PathFilter', () => {
         [0, 1, 2, 3, 4].forEach(r => {
             [0, 1].forEach(q => {
                 const newPath = SearchPathHelper.newSearchPath();
-                SearchPathHelper.add(newPath, {hexCoordinate: {q, r}, movementCost: 0}, 0);
+                SearchPathHelper.add(newPath, {hexCoordinate: {q, r}, cumulativeMovementCost: 0}, 0);
                 const expectedValue = r % 2 === 0;
                 expect(pathRShouldBeEvenFilter.pathSatisfiesFilter(newPath)).toBe(expectedValue);
             });

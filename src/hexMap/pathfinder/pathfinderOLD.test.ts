@@ -1,7 +1,7 @@
 import {PathfinderOLD} from "./pathfinderOLD";
 import {HexDirection, moveOneTileInDirection} from "../hexGridDirection";
 import {SearchParametersHelper} from "./searchParams";
-import {SearchResults} from "./searchResults";
+import {SearchResultsOLD} from "./searchResultsOLD";
 import {MissionMap} from "../../missionMap/missionMap";
 import {createMap, validateTilesAreFound} from "./pathfinder_test_utils";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -24,7 +24,7 @@ describe('pathfinding with a single move', () => {
         ])
 
         const origin: HexCoordinate = {q: 1, r: 1};
-        const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+        const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -119,7 +119,7 @@ describe('pathfinding with a single move', () => {
             "1 2 1 1 "
         ])
 
-        const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+        const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -166,7 +166,7 @@ describe('pathfinding with a single move', () => {
             "1 2 2 1 "
         ])
 
-        const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+        const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -213,7 +213,7 @@ describe('pathfinding with a single move', () => {
             "1 1 1 2 1 "
         ])
 
-        const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+        const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
             SearchParametersHelper.newUsingSearchSetupMovementStop(
                 {
                     setup: {
@@ -273,7 +273,7 @@ describe('pathfinding with a single move', () => {
                 missionMap,
             } = createMap(mapOneRowWithAWallBlockingTheEnd);
 
-            const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+            const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {
@@ -318,7 +318,7 @@ describe('pathfinding with a single move', () => {
                 missionMap,
             } = createMap(mapOneRowWithAWallBlockingTheEnd);
 
-            const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+            const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {
@@ -370,7 +370,7 @@ describe('pathfinding with a single move', () => {
                 missionMap,
             } = createMap(mapOneRowWithAPitBlockingTheEnd);
 
-            const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+            const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {
@@ -415,7 +415,7 @@ describe('pathfinding with a single move', () => {
                 missionMap,
             } = createMap(mapOneRowWithAPitBlockingTheEnd);
 
-            const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+            const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {
@@ -460,7 +460,7 @@ describe('pathfinding with a single move', () => {
                 missionMap,
             } = createMap(mapOneRowWithAPitBlockingTheEnd);
 
-            const searchResults: SearchResults = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
+            const searchResults: SearchResultsOLD = getResultOrThrowError(PathfinderOLD.getAllReachableTiles(
                 SearchParametersHelper.newUsingSearchSetupMovementStop(
                     {
                         setup: {

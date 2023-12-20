@@ -1,6 +1,6 @@
 import {HexGridMovementCost, MovingCostByTerrainType} from "../hexGridMovementCost";
 import {SearchParameters, SearchParametersHelper} from "./searchParams";
-import {SearchResults} from "./searchResults";
+import {SearchResultsOLD} from "./searchResultsOLD";
 import {SearchPath, SearchPathHelper} from "./searchPath";
 import {TileFoundDescription} from "./tileFoundDescription";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -21,7 +21,7 @@ export const PathfinderOLD = {
         searchParams: SearchParameters,
         missionMap: MissionMap,
         squaddieRepository: ObjectRepository,
-    ): ResultOrError<SearchResults, Error> {
+    ): ResultOrError<SearchResultsOLD, Error> {
         if (searchParams.stopLocation === undefined) {
             return makeError(new Error("no stop location was given"));
         }
@@ -32,7 +32,7 @@ export const PathfinderOLD = {
         ));
     },
     getAllReachableTiles(searchParams: SearchParameters, missionMap: MissionMap,
-                         squaddieRepository: ObjectRepository): ResultOrError<SearchResults, Error> {
+                         squaddieRepository: ObjectRepository): ResultOrError<SearchResultsOLD, Error> {
         return getAllReachableTiles(searchParams, missionMap,
             squaddieRepository,);
     },
@@ -75,7 +75,7 @@ export const PathfinderOLD = {
                 }
             });
 
-            const reachableTiles: SearchResults = getResultOrThrowError(getAllReachableTiles(searchParamsWithNewStartLocation, missionMap,
+            const reachableTiles: SearchResultsOLD = getResultOrThrowError(getAllReachableTiles(searchParamsWithNewStartLocation, missionMap,
                 squaddieRepository,));
             reachableTiles.getReachableTiles().forEach((reachableTile) => {
                 inRangeTilesByLocation[HexCoordinateToKey(reachableTile)] = reachableTile;
@@ -85,13 +85,13 @@ export const PathfinderOLD = {
         return Object.values(inRangeTilesByLocation);
     },
     findReachableSquaddies(searchParams: SearchParameters, missionMap: MissionMap,
-                           squaddieRepository: ObjectRepository): SearchResults {
+                           squaddieRepository: ObjectRepository): SearchResultsOLD {
         return getResultOrThrowError(getAllReachableTiles(searchParams, missionMap, squaddieRepository));
     },
 }
 
 const getAllReachableTiles = (searchParams: SearchParameters, missionMap: MissionMap,
-                              squaddieRepository: ObjectRepository): ResultOrError<SearchResults, Error> => {
+                              squaddieRepository: ObjectRepository): ResultOrError<SearchResultsOLD, Error> => {
     if (!searchParams.startLocation) {
         return makeError(new Error("no starting location provided"));
     }
@@ -107,7 +107,7 @@ const searchMapForPaths = (
     searchParams: SearchParameters,
     missionMap: MissionMap,
     squaddieRepository: ObjectRepository,
-): SearchResults => {
+): SearchResultsOLD => {
     const workingSearchState: SearchState = SearchStateHelper.newFromSearchParameters(searchParams);
 
     SearchStateHelper.initializeStartPath(
@@ -210,7 +210,7 @@ const addLegalSearchPaths = (
                     q: mostRecentTileLocation.hexCoordinate.q,
                     r: mostRecentTileLocation.hexCoordinate.r,
                 },
-                movementCost: mostRecentTileLocation.movementCost,
+                cumulativeMovementCost: mostRecentTileLocation.cumulativeMovementCost,
             });
             continue;
         }
@@ -230,7 +230,7 @@ const addLegalSearchPaths = (
                     q: mostRecentTileLocation.hexCoordinate.q,
                     r: mostRecentTileLocation.hexCoordinate.r,
                 },
-                movementCost: mostRecentTileLocation.movementCost,
+                cumulativeMovementCost: mostRecentTileLocation.cumulativeMovementCost,
             })
         }
         newAddedSearchPaths.push(...createNewPathsUsingNeighbors(
@@ -437,7 +437,7 @@ const addNeighborNewPath = (
                 q: neighbor[0],
                 r: neighbor[1],
             },
-            movementCost: movementCost
+            cumulativeMovementCost: movementCost
         },
         head,
         searchParams,
