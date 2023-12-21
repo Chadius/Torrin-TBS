@@ -76,7 +76,7 @@ describe("Pathfinder", () => {
         }).toThrow('no start location');
     });
 
-    describe("distance limits", () => {
+    describe("distance limits and terrain movement costs", () => {
         it("can use movementPerAction and numberOfActions to determine distance", () => {
             const missionMap = MissionMapHelper.new({
                 terrainTileMap: TerrainTileMapHelper.new({
@@ -575,3 +575,44 @@ describe("Pathfinder", () => {
         });
     });
 });
+
+// TODO SquaddieAffiliations tests? Where did they go?
+// TODO Can pass through dead squaddies
+// TODO Can Stop On Squaddies
+
+// TODO Search Results: Figure out closest routes to your stop locations if the locations are blocked
+//// Make a ring of coordinates for each given distance from min to max
+//// Figure out if it can line up there
+
+// TODO Search Results: Get Closest Reachable Squaddies
+
+// TODO boilerplate tester
+// it('gub', () => {
+//     const missionMap = MissionMapHelper.new({
+//         terrainTileMap: TerrainTileMapHelper.new({
+//             movementCost: [
+//                 "1 1 - 1 ",
+//             ]
+//         }),
+//     });
+//
+//     const searchParameters = SearchParametersHelper.new({
+//         startLocations: [
+//             {q: 0, r: 0}
+//         ],
+//         movementPerAction: 2,
+//         numberOfActions: 1,
+//         canPassOverPits: true,
+//     });
+//
+//     const searchResults = PathfinderHelper.search({
+//         searchParameters,
+//         missionMap,
+//         repository: ObjectRepositoryHelper.new(),
+//     });
+//
+//     expect(searchResults.shortestPathByLocation[0][0]).toBeTruthy();
+//     expect(searchResults.shortestPathByLocation[0][1]).toBeTruthy();
+//     expect(searchResults.shortestPathByLocation[0][2]).toBeFalsy();
+//     expect(searchResults.shortestPathByLocation[0][3]).toBeFalsy();
+// });
