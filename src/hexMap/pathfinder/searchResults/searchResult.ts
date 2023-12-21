@@ -1,6 +1,7 @@
 import {SearchPath} from "../searchPath";
 import {HexCoordinate} from "../../hexCoordinate/hexCoordinate";
 import {isValidValue} from "../../../utils/validityCheck";
+import {HexGridHelper} from "../../hexGridDirection";
 
 export type SearchPathByLocation = {
     [q: number]: {
@@ -28,8 +29,8 @@ export const SearchResultsHelper = {
     getShortestPathToLocation: (searchResults: SearchResult, q: number, r: number): SearchPath => {
         return searchResults.shortestPathByLocation[q][r];
     },
-    isLocationReachable: (searchResults: SearchResult, q: number, r: number): boolean => {
-        return searchResults.shortestPathByLocation[q][r] !== undefined;
+    isLocationReachable: (searchResult: SearchResult, q: number, r: number): boolean => {
+        return isLocationReachable(searchResult, q, r);
     },
     numberOfActionsToReachLocation: (searchResults: SearchResult, q: number, r: number): number =>  {
         const shortestPath = searchResults.shortestPathByLocation[q][r];
@@ -50,5 +51,18 @@ export const SearchResultsHelper = {
             }
         }
         return locationsByNumberOfMoveActions;
+    },
+    getClosestRoutesToLocationByDistance: (searchResult: SearchResult, location: HexCoordinate, distanceFromLocation: number): HexCoordinate[] => {
+        const possibleLocationsThatAreADistanceFromTheLocation: HexCoordinate[] = HexGridHelper.GetCoordinatesForRingAroundCoordinate(location, distanceFromLocation);
+
+        return possibleLocationsThatAreADistanceFromTheLocation.filter(candidate =>
+            searchResult.shortestPathByLocation[candidate.q] != undefined
+            && searchResult.shortestPathByLocation[candidate.q][candidate.r] !== undefined
+        );
     }
+};
+
+const isLocationReachable = (searchResult: SearchResult, q: number, r: number): boolean => {
+    return searchResult.shortestPathByLocation[q] != undefined
+        && searchResult.shortestPathByLocation[q][r] !== undefined
 };

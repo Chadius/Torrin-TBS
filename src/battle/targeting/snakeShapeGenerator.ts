@@ -1,5 +1,5 @@
 import {TargetingShape, TargetingShapeGenerator} from "./targetingShapeGenerator";
-import {HexDirection, moveCoordinatesInOneDirection} from "../../hexMap/hexGridDirection";
+import {HexDirection, MoveCoordinatesInOneDirection} from "../../hexMap/hexGridDirection";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 
 // Snake paths can move in any direction except backwards.
@@ -11,12 +11,12 @@ export class SnakeShapeGenerator implements TargetingShapeGenerator {
 
     createNeighboringHexCoordinates(hexCoordinate: HexCoordinate): HexCoordinate[] {
         return [
-            moveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.RIGHT),
-            moveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.LEFT),
-            moveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.UP_LEFT),
-            moveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.UP_RIGHT),
-            moveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.DOWN_LEFT),
-            moveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.DOWN_RIGHT),
+            MoveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.RIGHT),
+            MoveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.LEFT),
+            MoveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.UP_LEFT),
+            MoveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.UP_RIGHT),
+            MoveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.DOWN_LEFT),
+            MoveCoordinatesInOneDirection(hexCoordinate.q, hexCoordinate.r, HexDirection.DOWN_RIGHT),
         ];
     }
 }

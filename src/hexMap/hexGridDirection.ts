@@ -32,17 +32,17 @@ export const moveOneTileInDirection = (origin: HexCoordinate, direction: HexDire
 
 export const CreateNewNeighboringCoordinates = (q: number, r: number): HexCoordinate[] => {
     return [
-        moveCoordinatesInOneDirection(q, r, HexDirection.RIGHT),
-        moveCoordinatesInOneDirection(q, r, HexDirection.LEFT),
-        moveCoordinatesInOneDirection(q, r, HexDirection.UP_LEFT),
-        moveCoordinatesInOneDirection(q, r, HexDirection.UP_RIGHT),
-        moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_LEFT),
-        moveCoordinatesInOneDirection(q, r, HexDirection.DOWN_RIGHT),
+        MoveCoordinatesInOneDirection(q, r, HexDirection.RIGHT),
+        MoveCoordinatesInOneDirection(q, r, HexDirection.LEFT),
+        MoveCoordinatesInOneDirection(q, r, HexDirection.UP_LEFT),
+        MoveCoordinatesInOneDirection(q, r, HexDirection.UP_RIGHT),
+        MoveCoordinatesInOneDirection(q, r, HexDirection.DOWN_LEFT),
+        MoveCoordinatesInOneDirection(q, r, HexDirection.DOWN_RIGHT),
     ];
 }
 
 
-export const moveCoordinatesInOneDirection = (originQ: number, originR: number, direction: HexDirection): HexCoordinate => {
+export const MoveCoordinatesInOneDirection = (originQ: number, originR: number, direction: HexDirection): HexCoordinate => {
     switch (direction) {
         case HexDirection.RIGHT:
             return {q: originQ, r: originR + 1};
@@ -61,3 +61,41 @@ export const moveCoordinatesInOneDirection = (originQ: number, originR: number, 
             return {q: originQ, r: originR};
     }
 }
+
+export const HexGridHelper = {
+    GetCoordinatesForRingAroundOrigin: (radius: number): HexCoordinate[] => {
+        return GetCoordinatesForRingAroundOrigin(radius);
+    },
+    GetCoordinatesForRingAroundCoordinate: (coordinate: HexCoordinate, radius: number): HexCoordinate[] => {
+        return GetCoordinatesForRingAroundOrigin(radius).map(ringCoordinate => {
+            return {
+                q: ringCoordinate.q + coordinate.q,
+                r: ringCoordinate.r + coordinate.r,
+            }
+        });
+    }
+}
+
+const GetCoordinatesForRingAroundOrigin = (radius: number): HexCoordinate[] => {
+    if (radius === 0) {
+        return [{q: 0, r: 0}]
+    }
+
+    let currentCoordinate: HexCoordinate = {q: 0, r: radius};
+    const coordinates: HexCoordinate[] = [];
+    [
+        HexDirection.UP_LEFT,
+        HexDirection.LEFT,
+        HexDirection.DOWN_LEFT,
+        HexDirection.DOWN_RIGHT,
+        HexDirection.RIGHT,
+        HexDirection.UP_RIGHT,
+    ].forEach(currentDirection => {
+        for (let steps = 0; steps < radius; steps++) {
+            currentCoordinate = MoveCoordinatesInOneDirection(currentCoordinate.q, currentCoordinate.r, currentDirection);
+            coordinates.push(currentCoordinate);
+        }
+    })
+
+    return coordinates;
+};

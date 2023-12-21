@@ -1,5 +1,6 @@
 import {SearchResultsHelper} from "./searchResult";
 import {SearchPathHelper} from "../searchPath";
+import {HexCoordinate} from "../../hexCoordinate/hexCoordinate";
 
 describe('Search Results', () => {
     it('Can organize locations by the number of move actions', () => {
@@ -87,4 +88,163 @@ describe('Search Results', () => {
             ],
         });
     });
+
+    it('get closest routes to destination', () => {
+        const results = SearchResultsHelper.new({
+            shortestPathByLocation: {
+                0: {
+                    0: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            }
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    1: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 0,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    2: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    3: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 3},
+                                cumulativeMovementCost: 4,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 2,
+                    },
+                },
+                1: {
+                    0: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            }
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    2: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    3: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 3},
+                                cumulativeMovementCost: 4,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 2,
+                    },
+                },
+            }
+        });
+
+        const radius0: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 0, r: 2}, 0);
+        expect(radius0).toHaveLength(1);
+        expect(radius0).toEqual(
+            expect.arrayContaining([
+                {q: 0, r: 2}
+            ])
+        );
+
+        const locationWithNoRoute: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 1, r: 1}, 0);
+        expect(locationWithNoRoute).toHaveLength(0);
+
+        const radius1: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 0, r: 2}, 1);
+        expect(radius1).toHaveLength(3);
+        expect(radius1).toEqual(
+            expect.arrayContaining([
+                {q: 0, r: 1},
+                {q: 0, r: 3},
+                {q: 1, r: 2},
+            ])
+        );
+
+        const radius2: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 0, r: 2}, 2);
+        expect(radius2).toHaveLength(3);
+        expect(radius2).toEqual(
+            expect.arrayContaining([
+                {q: 0, r: 0},
+                {q: 1, r: 0},
+                {q: 1, r: 3},
+            ])
+        );
+    });
 });
+
+// TODO Search Results: Get Closest Reachable Squaddies
+// TODO Given a list of locations, find the closest one

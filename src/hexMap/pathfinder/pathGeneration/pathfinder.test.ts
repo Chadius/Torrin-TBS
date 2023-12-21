@@ -576,8 +576,4 @@ describe("Pathfinder", () => {
     });
 });
 
-// TODO Search Results: Figure out closest routes to your stop locations if the locations are blocked
-//// Make a ring of coordinates for each given distance from min to max
-//// Figure out if it can line up there
-
-// TODO Search Results: Get Closest Reachable Squaddies
+// TODO: Review SearchParameters, how many do you need? Rename fields?
