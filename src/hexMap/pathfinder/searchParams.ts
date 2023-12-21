@@ -35,7 +35,7 @@ export interface SearchParameters {
     crossOverPits: boolean | undefined;
     movementPerAction: number | undefined;
     numberOfActions: number | undefined;
-    stopLocation: HexCoordinate | undefined;
+    stopLocations: HexCoordinate[];
     squaddieAffiliation: SquaddieAffiliation;
     canStopOnSquaddies: boolean;
 }
@@ -62,7 +62,7 @@ export const SearchParametersHelper = {
             movementPerAction: movement.movementPerAction,
             canStopOnSquaddies: movement.canStopOnSquaddies,
             numberOfActions: stopCondition.numberOfActions,
-            stopLocation: stopCondition.stopLocation,
+            stopLocations: [stopCondition.stopLocation],
         }
     },
     new: ({
@@ -77,7 +77,7 @@ export const SearchParametersHelper = {
               movementPerAction,
               canStopOnSquaddies,
               numberOfActions,
-              stopLocation,
+              stopLocations,
           }: {
         startLocations?: HexCoordinate[],
         squaddieAffiliation?: SquaddieAffiliation,
@@ -90,7 +90,7 @@ export const SearchParametersHelper = {
         movementPerAction?: number,
         canStopOnSquaddies?: boolean,
         numberOfActions?: number,
-        stopLocation?: HexCoordinate,
+        stopLocations?: HexCoordinate[],
     }): SearchParameters => {
         return {
             startLocations: isValidValue(startLocations) ? startLocations : [],
@@ -104,7 +104,7 @@ export const SearchParametersHelper = {
             movementPerAction: isValidValue(movementPerAction) ? movementPerAction : undefined,
             canStopOnSquaddies: isValidValue(canStopOnSquaddies) ? canStopOnSquaddies : false,
             numberOfActions: isValidValue(numberOfActions) ? numberOfActions : undefined,
-            stopLocation: isValidValue(stopLocation) ? stopLocation : undefined,
+            stopLocations: isValidValue(stopLocations) ? stopLocations : [],
         }
     }
 }

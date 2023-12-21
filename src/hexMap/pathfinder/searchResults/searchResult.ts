@@ -1,5 +1,6 @@
 import {SearchPath} from "../searchPath";
 import {HexCoordinate} from "../../hexCoordinate/hexCoordinate";
+import {isValidValue} from "../../../utils/validityCheck";
 
 export type SearchPathByLocation = {
     [q: number]: {
@@ -9,17 +10,19 @@ export type SearchPathByLocation = {
 
 export interface SearchResult {
     shortestPathByLocation: SearchPathByLocation;
+    stopLocationsReached: HexCoordinate[];
 }
 
 export const SearchResultsHelper = {
-    new: ({shortestPathByLocation}: {shortestPathByLocation: SearchPathByLocation}): SearchResult => {
+    new: ({shortestPathByLocation, stopLocationsReached}: {shortestPathByLocation: SearchPathByLocation, stopLocationsReached?: HexCoordinate[]}): SearchResult => {
         const deepCopySearchPathByLocation: SearchPathByLocation = {};
         for (const keyString in shortestPathByLocation) {
             const q: number = Number(keyString);
             deepCopySearchPathByLocation[q] = {...shortestPathByLocation[q]}
         }
         return {
-            shortestPathByLocation: deepCopySearchPathByLocation
+            shortestPathByLocation: deepCopySearchPathByLocation,
+            stopLocationsReached: isValidValue(stopLocationsReached) ? stopLocationsReached : [],
         };
     },
     getShortestPathToLocation: (searchResults: SearchResult, q: number, r: number): SearchPath => {

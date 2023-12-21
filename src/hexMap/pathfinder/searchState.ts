@@ -34,7 +34,7 @@ export const SearchStateHelper = {
             tileLocationsAlreadyConsideredForQueue: {},
             searchPathQueue: new PriorityQueue<SearchPath>(SearchPathHelper.compare),
             results: new SearchResultsOLD({
-                stopLocation: searchParams.stopLocation,
+                stopLocation: searchParams.stopLocations,
             }),
             shapeGenerator: searchParams.shapeGenerator,
             mapLayers: {},

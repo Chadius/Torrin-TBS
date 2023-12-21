@@ -85,6 +85,6 @@ describe('Search Results', () => {
             2: [
                 {q: 0, r: 3},
             ],
-        })
+        });
     });
 });

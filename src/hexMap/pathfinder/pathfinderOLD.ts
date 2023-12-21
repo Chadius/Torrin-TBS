@@ -22,7 +22,7 @@ export const PathfinderOLD = {
         missionMap: MissionMap,
         squaddieRepository: ObjectRepository,
     ): ResultOrError<SearchResultsOLD, Error> {
-        if (searchParams.stopLocation === undefined) {
+        if (searchParams.stopLocations === undefined) {
             return makeError(new Error("no stop location was given"));
         }
         return makeResult(searchMapForPaths(
@@ -71,7 +71,7 @@ export const PathfinderOLD = {
                 },
                 stopCondition: {
                     numberOfActions: 1,
-                    stopLocation: searchParams.stopLocation,
+                    stopLocation: searchParams.stopLocations,
                 }
             });
 
@@ -196,9 +196,9 @@ const addLegalSearchPaths = (
         SearchStateHelper.markLocationAsVisited(workingSearchState, mostRecentTileLocation);
 
         if (
-            searchParams.stopLocation !== undefined
-            && SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate.q === searchParams.stopLocation.q
-            && SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate.r === searchParams.stopLocation.r
+            searchParams.stopLocations !== undefined
+            && SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate.q === searchParams.stopLocations.q
+            && SearchPathHelper.getMostRecentTileLocation(head).hexCoordinate.r === searchParams.stopLocations.r
         ) {
             arrivedAtTheStopLocation = true;
             continue;
@@ -460,7 +460,7 @@ const isPathMoreThanMaximumDistance = (head: SearchPath, searchParams: SearchPar
 }
 
 const hasFoundStopLocation = (searchParams: SearchParameters, workingSearchState: SearchState): boolean => {
-    if (searchParams.stopLocation === undefined) {
+    if (searchParams.stopLocations === undefined) {
         return false;
     }
     return SearchStateHelper.hasFoundStopLocation(workingSearchState);

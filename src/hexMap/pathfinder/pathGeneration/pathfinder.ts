@@ -35,6 +35,7 @@ export interface PathfinderWorkingState {
     shortestPathByLocation: SearchPathByLocation;
     addPathConditions: AddPathCondition[];
     pathCanStopConditions: PathCanStopCondition[];
+    stopLocationsReached: HexCoordinate[];
 }
 
 export const PathfinderWorkingStateHelper = {
@@ -72,6 +73,7 @@ export const PathfinderWorkingStateHelper = {
                 new PathCanStopConditionNotAWallOrPit({missionMap}),
                 new PathCanStopConditionMinimumDistance({}),
             ],
+            stopLocationsReached: [],
         };
 
         workingState.addPathConditions.push(new AddPathConditionNotInMapLayer({enqueuedMapLayer: workingState.mapLayers.queued}));
@@ -155,7 +157,13 @@ const generateValidPaths = ({
     workingState: PathfinderWorkingState;
 }) => {
     const anyStopConditionWasReached = () => {
-        return workingState.searchPathQueue.isEmpty();
+        const allStopLocationsFoundStopSearching: boolean =
+            searchParameters.stopLocations
+            && searchParameters.stopLocations.length > 0
+            && workingState.stopLocationsReached.length >= searchParameters.stopLocations.length;
+
+        return workingState.searchPathQueue.isEmpty()
+            || allStopLocationsFoundStopSearching;
     }
 
     const addValidPathsToWorkingState = ({
@@ -277,6 +285,13 @@ const generateValidPaths = ({
                 [currentLocation.q]
                 [currentLocation.r]
                 = currentSearchPath;
+            if (searchParameters.stopLocations.some(coordinate => coordinate.q === currentLocation.q && coordinate.r === currentLocation.r)) {
+                workingState.stopLocationsReached ||= [];
+                workingState.stopLocationsReached.push({
+                    q: currentLocation.q,
+                    r: currentLocation.r,
+                });
+            }
         }
 
         addValidPathsToWorkingState({currentSearchPath, workingState, terrainTileMap, searchParameters});
@@ -286,5 +301,6 @@ const generateValidPaths = ({
 const exportToSearchResult = ({workingState}: { workingState: PathfinderWorkingState }): SearchResult => {
     return SearchResultsHelper.new({
         shortestPathByLocation: workingState.shortestPathByLocation,
+        stopLocationsReached: workingState.stopLocationsReached,
     });
 }

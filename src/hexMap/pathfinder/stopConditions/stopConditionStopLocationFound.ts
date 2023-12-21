@@ -9,7 +9,7 @@ export class StopConditionStopLocationFound implements StopCondition {
         workingState: SearchState,
         searchParameters: SearchParameters
     }): boolean {
-        if (!isValidValue(searchParameters.stopLocation)) {
+        if (!isValidValue(searchParameters.stopLocations)) {
             return false;
         }
 
@@ -19,6 +19,6 @@ export class StopConditionStopLocationFound implements StopCondition {
         }
 
         const headTile = SearchPathHelper.getMostRecentTileLocation(lowestCostPath);
-        return headTile.hexCoordinate.q === searchParameters.stopLocation.q && headTile.hexCoordinate.r === searchParameters.stopLocation.r;
+        return headTile.hexCoordinate.q === searchParameters.stopLocations.q && headTile.hexCoordinate.r === searchParameters.stopLocations.r;
     }
 }

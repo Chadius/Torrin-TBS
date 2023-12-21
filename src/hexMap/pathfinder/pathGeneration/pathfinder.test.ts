@@ -316,7 +316,6 @@ describe("Pathfinder", () => {
         });
     });
 
-
     describe('minimum and maximum distances', () => {
         it('will not include anything past the maximum distance', () => {
             const missionMap = MissionMapHelper.new({
@@ -472,8 +471,53 @@ describe("Pathfinder", () => {
             expect(searchResults.shortestPathByLocation[1][4]).toBeFalsy();
         });
     });
+
+    describe("stop locations", () => {
+        let missionMap: MissionMap;
+
+        beforeEach(() => {
+            missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 1 2 1 2 ",
+                        " 1 x - 2 1 ",
+                    ]
+                }),
+            });
+        });
+
+        it('will acknowledge that the search ended when it reached all stop locations', () => {
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0},
+                ],
+                stopLocations: [
+                    {q: 0, r: 0},
+                    {q: 1, r: 3},
+                    {q: -1, r: 9001},
+                ],
+            });
+
+            const searchResults: SearchResult = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(searchResults.stopLocationsReached).toHaveLength(2);
+            expect(searchResults.stopLocationsReached).toContainEqual({
+                    q: 0,
+                    r: 0,
+                }
+            );
+            expect(searchResults.stopLocationsReached).toContainEqual({
+                    q: 1,
+                    r: 3,
+                }
+            );
+        });
+    });
 });
 
-// TODO StopCondition of reaching the destination
 // TODO IgnoreTerrainPenalty
 // TODO PassThroughWalls
