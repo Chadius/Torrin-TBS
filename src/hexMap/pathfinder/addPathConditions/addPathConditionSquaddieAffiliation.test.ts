@@ -62,7 +62,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
                     squaddieAffiliation: searchingAffiliation,
                 });
 
-                const squaddiesAreFriends = FriendlyAffiliationsByAffiliation[searchingAffiliation][blockingAffiliation];
+                const squaddiesAreFriends = FriendlyAffiliationsByAffiliation[searchingAffiliation][blockingAffiliation] === true;
 
                 const condition = new AddPathConditionSquaddieAffiliation({missionMap, repository});
                 expect(condition.shouldAddNewPath({
@@ -127,6 +127,63 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
 
                 const searchParameters = SearchParametersHelper.new({
                     squaddieAffiliation: searchingAffiliation,
+                });
+
+                const condition = new AddPathConditionSquaddieAffiliation({missionMap, repository});
+                expect(condition.shouldAddNewPath({newPath: pathAtHead, searchParameters})).toBe(true);
+            })
+        });
+    });
+    it('returns true if squaddies are not friendly but search parameters can stop on squaddies anyway', () => {
+        const missionMap: MissionMap = MissionMapHelper.new({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: [
+                    "1 1 2 1 2 ",
+                    " 1 x - 2 1 ",
+                ]
+            }),
+        });
+
+        const pathAtHead = SearchPathHelper.newSearchPath();
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 0}, cumulativeMovementCost: 0}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, cumulativeMovementCost: 1}, 1);
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 2}, 2);
+
+        [
+            SquaddieAffiliation.PLAYER,
+            SquaddieAffiliation.ENEMY,
+            SquaddieAffiliation.ALLY,
+            SquaddieAffiliation.NONE,
+        ].forEach(searchingAffiliation => {
+            [
+                SquaddieAffiliation.PLAYER,
+                SquaddieAffiliation.ENEMY,
+                SquaddieAffiliation.ALLY,
+                SquaddieAffiliation.NONE,
+            ].forEach(blockingAffiliation => {
+                const repository: ObjectRepository = ObjectRepositoryHelper.new();
+                const blockingSquaddieTemplate = SquaddieTemplateHelper.new({
+                    squaddieId: SquaddieIdHelper.new({
+                        templateId: "blocker",
+                        name: "blocker",
+                        affiliation: blockingAffiliation,
+                    })
+                });
+                ObjectRepositoryHelper.addSquaddieTemplate(repository, blockingSquaddieTemplate);
+                const blockingSquaddieBattle = BattleSquaddieHelper.new({
+                    squaddieTemplate: blockingSquaddieTemplate,
+                    battleSquaddieId: "blocker 0"
+                });
+                ObjectRepositoryHelper.addBattleSquaddie(repository, blockingSquaddieBattle);
+                MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+                    q: 1,
+                    r: 2
+                });
+
+                const searchParameters = SearchParametersHelper.new({
+                    squaddieAffiliation: searchingAffiliation,
+                    canStopOnSquaddies: true,
                 });
 
                 const condition = new AddPathConditionSquaddieAffiliation({missionMap, repository});
@@ -212,7 +269,6 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
             })).toBe(true);
         });
     });
-
     it('returns undefined if there is no path', () => {
         const missionMap: MissionMap = MissionMapHelper.new({
             terrainTileMap: new TerrainTileMap({

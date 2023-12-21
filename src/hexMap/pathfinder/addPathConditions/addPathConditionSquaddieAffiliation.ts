@@ -31,6 +31,10 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
             return true;
         }
 
+        if (searchParameters.canStopOnSquaddies === true) {
+            return true;
+        }
+
         const head = SearchPathHelper.getMostRecentTileLocation(newPath);
 
         const {battleSquaddieId} = this.missionMap.getSquaddieAtLocation({
@@ -54,6 +58,6 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
             return true;
         }
         const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searchParameters.squaddieAffiliation];
-        return friendlyAffiliations[squaddieTemplate.squaddieId.affiliation];
+        return friendlyAffiliations[squaddieTemplate.squaddieId.affiliation] === true;
     }
 }
