@@ -7,7 +7,7 @@ import {SearchResult, SearchResultsHelper} from "../searchResults/searchResult";
 import {PathfinderHelper} from "./pathfinder";
 import {ObjectRepositoryHelper} from "../../../battle/objectRepository";
 
-describe("PathGenerator", () => {
+describe("Pathfinder", () => {
     describe("generate shortest paths for every location in a given map", () => {
         let missionMap: MissionMap;
         let searchParameters: SearchParameters;
@@ -345,6 +345,36 @@ describe("PathGenerator", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBe(true);
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBe(true);
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBe(false);
+        });
+        it('will not include any paths less than the minimum distance', () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "2 2 2 2 2 2 2 2 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                minimumDistanceMoved: 3,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(false);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBe(false);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBe(false);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBe(true);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBe(true);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 6)).toBe(true);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 7)).toBe(true);
         });
     });
 });

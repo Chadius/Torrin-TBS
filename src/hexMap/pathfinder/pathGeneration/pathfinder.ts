@@ -6,7 +6,7 @@ import {PriorityQueue} from "../../../utils/priorityQueue";
 import {SearchPath, SearchPathHelper} from "../searchPath";
 import {TargetingShapeGenerator} from "../../../battle/targeting/targetingShapeGenerator";
 import {MapLayer, MapLayerHelper} from "../../../missionMap/mapLayer";
-import {HexGridMovementCost, MovingCostByTerrainType} from "../../hexGridMovementCost";
+import {MovingCostByTerrainType} from "../../hexGridMovementCost";
 import {AddPathCondition} from "../addPathConditions/addPathCondition";
 import {AddPathConditionNotInMapLayer} from "../addPathConditions/addPathConditionNotInMapLayer";
 import {AddPathConditionIsInsideMap} from "../addPathConditions/addPathConditionIsInsideMap";
@@ -20,6 +20,9 @@ import {AddPathConditionPathLeadsToWall} from "../addPathConditions/addPathCondi
 import {isValidValue} from "../../../utils/validityCheck";
 import {AddPathConditionPathLeadsToPit} from "../addPathConditions/addPathConditionPathLeadsToPit";
 import {AddPathConditionMaximumDistance} from "../addPathConditions/addPathConditionMaximumDistance";
+import {PathCanStopCondition} from "../pathCanStopConditions/pathCanStopCondition";
+import {PathCanStopConditionNotAWallOrPit} from "../pathCanStopConditions/pathCanStopConditionNotAWallOrPit";
+import {PathCanStopConditionMinimumDistance} from "../pathCanStopConditions/pathCanStopConditionMinimumDistance";
 
 export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>;
@@ -31,6 +34,7 @@ export interface PathfinderWorkingState {
     };
     shortestPathByLocation: SearchPathByLocation;
     addPathConditions: AddPathCondition[];
+    pathCanStopConditions: PathCanStopCondition[];
 }
 
 export const PathfinderWorkingStateHelper = {
@@ -54,22 +58,25 @@ export const PathfinderWorkingStateHelper = {
                 stopped: MapLayerHelper.new({terrainTileMap, initialValue: false}),
             },
             shortestPathByLocation: {},
-            addPathConditions: [],
+            addPathConditions: [
+                new AddPathConditionIsInsideMap({
+                    terrainMapLayer: MapLayerHelper.new({terrainTileMap, initialValue: false})
+                }),
+                new AddPathConditionPathLeadsToWall({missionMap}),
+                new AddPathConditionPathLeadsToPit({missionMap}),
+                new AddPathConditionPathIsLessThanTotalMovement({}),
+                new AddPathConditionMaximumDistance({}),
+                new AddPathConditionSquaddieAffiliation({missionMap, repository}),
+            ],
+            pathCanStopConditions: [
+                new PathCanStopConditionNotAWallOrPit({missionMap}),
+                new PathCanStopConditionMinimumDistance({}),
+            ],
         };
 
         workingState.addPathConditions.push(new AddPathConditionNotInMapLayer({enqueuedMapLayer: workingState.mapLayers.queued}));
         workingState.addPathConditions.push(new AddPathConditionNotInMapLayer({enqueuedMapLayer: workingState.mapLayers.visited}));
         workingState.addPathConditions.push(new AddPathConditionNotInMapLayer({enqueuedMapLayer: workingState.mapLayers.stopped}));
-        workingState.addPathConditions.push(
-            new AddPathConditionIsInsideMap({
-                terrainMapLayer: MapLayerHelper.new({terrainTileMap, initialValue: false})
-            })
-        );
-        workingState.addPathConditions.push(new AddPathConditionPathLeadsToWall({missionMap}));
-        workingState.addPathConditions.push(new AddPathConditionPathLeadsToPit({missionMap}));
-        workingState.addPathConditions.push(new AddPathConditionPathIsLessThanTotalMovement({}));
-        workingState.addPathConditions.push(new AddPathConditionMaximumDistance({}));
-        workingState.addPathConditions.push(new AddPathConditionSquaddieAffiliation({missionMap, repository}));
 
         for (let q = 0; q < terrainTileMap.getDimensions().numberOfRows; q++) {
             workingState.shortestPathByLocation[q] = {};
@@ -177,11 +184,11 @@ const generateValidPaths = ({
             const candidatePath: SearchPath = SearchPathHelper.clone(currentSearchPath);
 
             const updateNumberOfMovementActions = ({
-                                                    searchPathMovementCost,
-                                                    searchPath,
-                                                    movementCostForThisTile,
+                                                       searchPathMovementCost,
+                                                       searchPath,
+                                                       movementCostForThisTile,
                                                        searchParameters,
-                                                }: {
+                                                   }: {
                 searchPathMovementCost: number;
                 searchPath: SearchPath;
                 movementCostForThisTile: number;
@@ -196,7 +203,12 @@ const generateValidPaths = ({
                 searchPath.currentNumberOfMoveActions = Math.ceil(cumulativeMovementCost / searchParameters.movementPerAction);
             }
 
-            updateNumberOfMovementActions({searchPath: candidatePath, searchPathMovementCost: currentSearchPath.totalMovementCost, movementCostForThisTile, searchParameters});
+            updateNumberOfMovementActions({
+                searchPath: candidatePath,
+                searchPathMovementCost: currentSearchPath.totalMovementCost,
+                movementCostForThisTile,
+                searchParameters
+            });
 
             SearchPathHelper.add(
                 candidatePath,
@@ -232,21 +244,14 @@ const generateValidPaths = ({
 
     const canStopAtLocation = ({
                                    currentSearchPath,
-                                   terrainTileMap,
                                }: {
         currentSearchPath: SearchPath;
-        terrainTileMap: TerrainTileMap;
     }): boolean => {
-        const currentLocation: HexCoordinate = {
-            q: SearchPathHelper.getMostRecentTileLocation(currentSearchPath).hexCoordinate.q,
-            r: SearchPathHelper.getMostRecentTileLocation(currentSearchPath).hexCoordinate.r,
-        };
-
-        const terrainType = terrainTileMap.getTileTerrainTypeAtLocation(currentLocation);
-        return ![
-            HexGridMovementCost.wall,
-            HexGridMovementCost.pit,
-        ].includes(terrainType);
+        return workingState.pathCanStopConditions.every(condition => condition.shouldMarkPathLocationAsStoppable({
+                newPath: currentSearchPath,
+                searchParameters
+            })
+        );
     }
 
     while (
@@ -261,7 +266,7 @@ const generateValidPaths = ({
             value: true,
         });
 
-        if (canStopAtLocation({currentSearchPath, terrainTileMap})) {
+        if (canStopAtLocation({currentSearchPath})) {
             MapLayerHelper.setValueOfLocation({
                 mapLayer: workingState.mapLayers.stopped,
                 q: currentLocation.q,
