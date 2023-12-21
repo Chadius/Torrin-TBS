@@ -17,6 +17,8 @@ import {AddPathConditionSquaddieAffiliation} from "../addPathConditions/addPathC
 import {MissionMap} from "../../../missionMap/missionMap";
 import {ObjectRepository} from "../../../battle/objectRepository";
 import {AddPathConditionPathLeadsToWall} from "../addPathConditions/addPathConditionPathLeadsToWall";
+import {isValidValue} from "../../../utils/validityCheck";
+import {AddPathConditionPathLeadsToPit} from "../addPathConditions/addPathConditionPathLeadsToPit";
 
 export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>;
@@ -63,6 +65,7 @@ export const PathfinderWorkingStateHelper = {
             })
         );
         workingState.addPathConditions.push(new AddPathConditionPathLeadsToWall({missionMap}));
+        workingState.addPathConditions.push(new AddPathConditionPathLeadsToPit({missionMap}));
         workingState.addPathConditions.push(new AddPathConditionPathIsLessThanTotalMovement({}));
         workingState.addPathConditions.push(new AddPathConditionSquaddieAffiliation({missionMap, repository}));
 
@@ -83,6 +86,10 @@ export const PathfinderHelper = {
         missionMap: MissionMap;
         repository: ObjectRepository;
     }): SearchResult => {
+        if (!isValidValue(searchParameters.startLocations) || searchParameters.startLocations.length < 1) {
+            throw new Error('no start location specified');
+        }
+
         const workingState = PathfinderWorkingStateHelper.new({
             terrainTileMap: missionMap.terrainTileMap,
             searchParameters,
@@ -90,7 +97,7 @@ export const PathfinderHelper = {
             repository
         });
         populateStartingLocations({searchParameters, workingState, terrainTileMap: missionMap.terrainTileMap});
-        generateValidPaths ({
+        generateValidPaths({
             searchParameters,
             workingState,
             terrainTileMap: missionMap.terrainTileMap,
@@ -108,28 +115,27 @@ const populateStartingLocations = ({
     workingState: PathfinderWorkingState;
     terrainTileMap: TerrainTileMap;
 }) => {
-    [
-        searchParameters.startLocation
-    ].forEach(startLocation => {
-        MapLayerHelper.setValueOfLocation({
-            mapLayer: workingState.mapLayers.queued,
-            q: startLocation.q,
-            r: startLocation.r,
-            value: true
+    searchParameters.startLocations
+        .forEach(startLocation => {
+            MapLayerHelper.setValueOfLocation({
+                mapLayer: workingState.mapLayers.queued,
+                q: startLocation.q,
+                r: startLocation.r,
+                value: true
+            });
+            const startingPath = SearchPathHelper.newSearchPath();
+            SearchPathHelper.startNewMovementAction(startingPath);
+            SearchPathHelper.add(
+                startingPath,
+                {
+                    hexCoordinate: {
+                        q: startLocation.q,
+                        r: startLocation.r,
+                    },
+                    cumulativeMovementCost: 0,
+                }, 0);
+            workingState.searchPathQueue.enqueue(startingPath);
         });
-        const startingPath = SearchPathHelper.newSearchPath();
-        SearchPathHelper.add(
-            startingPath,
-            {
-                hexCoordinate: {
-                    q: startLocation.q,
-                    r: startLocation.r,
-                },
-                cumulativeMovementCost: 0,
-            }, 0);
-        SearchPathHelper.startNewMovementAction(startingPath);
-        workingState.searchPathQueue.enqueue(startingPath);
-    });
 }
 
 const generateValidPaths = ({
@@ -149,10 +155,12 @@ const generateValidPaths = ({
                                              workingState,
                                              currentSearchPath,
                                              terrainTileMap,
+                                             searchParameters,
                                          }: {
         workingState: PathfinderWorkingState;
         currentSearchPath: SearchPath;
         terrainTileMap: TerrainTileMap;
+        searchParameters: SearchParameters;
     }) => {
         const current: HexCoordinate = {
             q: SearchPathHelper.getMostRecentTileLocation(currentSearchPath).hexCoordinate.q,
@@ -168,6 +176,28 @@ const generateValidPaths = ({
 
             const candidatePath: SearchPath = SearchPathHelper.clone(currentSearchPath);
 
+            const updateNumberOfMovementActions = ({
+                                                    searchPathMovementCost,
+                                                    searchPath,
+                                                    movementCostForThisTile,
+                                                       searchParameters,
+                                                }: {
+                searchPathMovementCost: number;
+                searchPath: SearchPath;
+                movementCostForThisTile: number;
+                searchParameters: SearchParameters;
+            }) => {
+                if (searchParameters.movementPerAction === undefined) {
+                    searchPath.currentNumberOfMoveActions = 1;
+                    return;
+                }
+
+                const cumulativeMovementCost = searchPathMovementCost + movementCostForThisTile;
+                searchPath.currentNumberOfMoveActions = Math.ceil(cumulativeMovementCost / searchParameters.movementPerAction);
+            }
+
+            updateNumberOfMovementActions({searchPath: candidatePath, searchPathMovementCost: currentSearchPath.totalMovementCost, movementCostForThisTile, searchParameters});
+
             SearchPathHelper.add(
                 candidatePath,
                 {
@@ -176,6 +206,7 @@ const generateValidPaths = ({
                 },
                 movementCostForThisTile,
             );
+
             return candidatePath;
         }
 
@@ -243,7 +274,7 @@ const generateValidPaths = ({
                 = currentSearchPath;
         }
 
-        addValidPathsToWorkingState({currentSearchPath, workingState, terrainTileMap});
+        addValidPathsToWorkingState({currentSearchPath, workingState, terrainTileMap, searchParameters});
     }
 }
 

@@ -44,7 +44,7 @@ export const PathfinderOLD = {
         } = {};
         if (
             sourceTiles.length < 1
-            || searchParams.startLocation === undefined
+            || searchParams.startLocations === undefined
         ) {
             return [];
         }
@@ -92,7 +92,7 @@ export const PathfinderOLD = {
 
 const getAllReachableTiles = (searchParams: SearchParameters, missionMap: MissionMap,
                               squaddieRepository: ObjectRepository): ResultOrError<SearchResultsOLD, Error> => {
-    if (!searchParams.startLocation) {
+    if (!searchParams.startLocations) {
         return makeError(new Error("no starting location provided"));
     }
 
@@ -113,8 +113,8 @@ const searchMapForPaths = (
     SearchStateHelper.initializeStartPath(
         workingSearchState,
         {
-            q: searchParams.startLocation.q,
-            r: searchParams.startLocation.r,
+            q: searchParams.startLocations[0].q,
+            r: searchParams.startLocations[0].r,
         }
     );
 

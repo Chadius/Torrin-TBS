@@ -27,7 +27,7 @@ export interface SearchStopCondition {
 
 export interface SearchParameters {
     ignoreTerrainPenalty: boolean;
-    startLocation: HexCoordinate;
+    startLocations: HexCoordinate[];
     shapeGenerator: TargetingShapeGenerator;
     minimumDistanceMoved: number;
     maximumDistanceMoved: number;
@@ -51,7 +51,7 @@ export const SearchParametersHelper = {
         stopCondition: SearchStopCondition,
     }): SearchParameters => {
         return {
-            startLocation: setup.startLocation,
+            startLocations: [setup.startLocation],
             squaddieAffiliation: setup.affiliation,
             ignoreTerrainPenalty: movement.ignoreTerrainPenalty,
             shapeGenerator: movement.shapeGenerator,
@@ -66,7 +66,7 @@ export const SearchParametersHelper = {
         }
     },
     new: ({
-              startLocation,
+              startLocations,
               squaddieAffiliation,
               ignoreTerrainPenalty,
               shapeGenerator,
@@ -79,7 +79,7 @@ export const SearchParametersHelper = {
               numberOfActions,
               stopLocation,
           }: {
-        startLocation?: HexCoordinate,
+        startLocations?: HexCoordinate[],
         squaddieAffiliation?: SquaddieAffiliation,
         ignoreTerrainPenalty?: boolean,
         shapeGenerator?: TargetingShapeGenerator,
@@ -93,7 +93,7 @@ export const SearchParametersHelper = {
         stopLocation?: HexCoordinate,
     }): SearchParameters => {
         return {
-            startLocation: isValidValue(startLocation) ? startLocation : undefined,
+            startLocations: isValidValue(startLocations) ? startLocations : [],
             squaddieAffiliation: isValidValue(squaddieAffiliation) ? squaddieAffiliation : SquaddieAffiliation.UNKNOWN,
             ignoreTerrainPenalty: isValidValue(ignoreTerrainPenalty) ? ignoreTerrainPenalty : false,
             shapeGenerator: isValidValue(shapeGenerator) ? shapeGenerator : new SnakeShapeGenerator(),

@@ -8,7 +8,7 @@ import {PathfinderHelper} from "./pathfinder";
 import {ObjectRepositoryHelper} from "../../../battle/objectRepository";
 
 describe("PathGenerator", () => {
-    describe("map with terrain generates", () => {
+    describe("generate shortest paths for every location in a given map", () => {
         let missionMap: MissionMap;
         let searchParameters: SearchParameters;
         let searchResults: SearchResult;
@@ -24,7 +24,9 @@ describe("PathGenerator", () => {
             });
 
             searchParameters = SearchParametersHelper.new({
-                startLocation: {q: 0, r: 2},
+                startLocations: [
+                    {q: 0, r: 2}
+                ],
             });
 
             searchResults = PathfinderHelper.search({
@@ -58,8 +60,259 @@ describe("PathGenerator", () => {
             expect(SearchPathHelper.getTilesTraveled(path1_4)).toHaveLength(4);
             expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(3);
         });
-    })
-});
+    });
 
-// TODO no start location?
-// TODO multiple start locations.
+    it('throws an error when no start location is given', () => {
+        const shouldThrowError = () => {
+            PathfinderHelper.search({
+                searchParameters: SearchParametersHelper.new({}),
+                missionMap: MissionMapHelper.default(),
+                repository: ObjectRepositoryHelper.new(),
+            });
+        }
+
+        expect(() => {
+            shouldThrowError()
+        }).toThrow('no start location');
+    });
+
+    describe("distance limits", () => {
+        it("can use movementPerAction and numberOfActions to determine distance", () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 1 1 1 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                movementPerAction: 3,
+                numberOfActions: 2,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 5)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 6)).toBeTruthy();
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 7)).toBeFalsy();
+        });
+        it("can factor movement costs", () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 2 2 2 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                movementPerAction: 3,
+                numberOfActions: 2,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeFalsy();
+        });
+    });
+
+    describe("wall and sky tiles", () => {
+        it("cannot pass wall tiles", () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 1 x 1 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
+        });
+        it("cannot pass over pit tiles", () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 1 - 1 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                crossOverPits: false,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
+        });
+        it("can pass over pit tiles if search parameters is set but still cannot stop on them", () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 1 - 1 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                crossOverPits: true,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+        });
+    });
+
+    describe('Split movement by number of actions', () => {
+        it('will count number of actions based on the movement per action', () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                movementPerAction: 2,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(1);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 4)).toBe(3);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 5)).toBe(4);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 6)).toBe(4);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 7)).toBe(5);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 8)).toBe(5);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 9)).toBe(6);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 10)).toBe(6);
+        });
+        it('will count number of actions based on the movement needed up to the number of actions', () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                numberOfActions: 3,
+                movementPerAction: 2,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(1);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 4)).toBe(3);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 5)).toBe(undefined);
+        });
+        it('will always assume 1 action needed if movement per action is not specified', () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            for (let r = 0; r < missionMap.terrainTileMap.getDimensions().widthOfWidestRow; r++) {
+                expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, r)).toBe(1);
+            }
+        });
+    });
+});

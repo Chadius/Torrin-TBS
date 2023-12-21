@@ -27,4 +27,11 @@ export const SearchResultsHelper = {
     isLocationReachable: (searchResults: SearchResult, q: number, r: number): boolean => {
         return searchResults.shortestPathByLocation[q][r] !== undefined;
     },
+    numberOfActionsToReachLocation: (searchResults: SearchResult, q: number, r: number): number =>  {
+        const shortestPath = searchResults.shortestPathByLocation[q][r];
+        if (shortestPath === undefined) {
+            return undefined;
+        }
+        return shortestPath.currentNumberOfMoveActions;
+    }
 };

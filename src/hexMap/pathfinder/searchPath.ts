@@ -41,6 +41,8 @@ export const SearchPathHelper = {
         if (path.tilesTraveledByNumberOfMovementActions.length === 0) {
             path.tilesTraveledByNumberOfMovementActions.push([]);
         }
+
+        path.tilesTraveledByNumberOfMovementActions[path.currentNumberOfMoveActions] ||= [];
         path.tilesTraveledByNumberOfMovementActions[path.currentNumberOfMoveActions].push(tile);
         path.tilesTraveled.push(tile);
 
