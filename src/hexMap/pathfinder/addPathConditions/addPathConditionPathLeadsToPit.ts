@@ -21,7 +21,7 @@ export class AddPathConditionPathLeadsToPit implements AddPathCondition {
             return undefined;
         }
 
-        if (searchParameters.crossOverPits) {
+        if (searchParameters.passOverPits) {
             return true;
         }
 

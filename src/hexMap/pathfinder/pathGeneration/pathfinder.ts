@@ -187,7 +187,7 @@ const generateValidPaths = ({
                 q: nextLocation.q,
                 r: nextLocation.r,
             });
-            let movementCostForThisTile = MovingCostByTerrainType[terrainType];
+            let movementCostForThisTile = searchParameters.ignoreTerrainCost ? 1 : MovingCostByTerrainType[terrainType];
 
             const candidatePath: SearchPath = SearchPathHelper.clone(currentSearchPath);
 

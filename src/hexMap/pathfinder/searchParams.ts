@@ -26,13 +26,13 @@ export interface SearchStopCondition {
 }
 
 export interface SearchParameters {
-    ignoreTerrainPenalty: boolean;
+    ignoreTerrainCost: boolean;
     startLocations: HexCoordinate[];
     shapeGenerator: TargetingShapeGenerator;
     minimumDistanceMoved: number;
     maximumDistanceMoved: number;
     passThroughWalls: boolean | undefined;
-    crossOverPits: boolean | undefined;
+    passOverPits: boolean | undefined;
     movementPerAction: number | undefined;
     numberOfActions: number | undefined;
     stopLocations: HexCoordinate[];
@@ -53,12 +53,12 @@ export const SearchParametersHelper = {
         return {
             startLocations: [setup.startLocation],
             squaddieAffiliation: setup.affiliation,
-            ignoreTerrainPenalty: movement.ignoreTerrainPenalty,
+            ignoreTerrainCost: movement.ignoreTerrainPenalty,
             shapeGenerator: movement.shapeGenerator,
             minimumDistanceMoved: movement.minimumDistanceMoved,
             maximumDistanceMoved: movement.maximumDistanceMoved,
             passThroughWalls: movement.passThroughWalls,
-            crossOverPits: movement.crossOverPits,
+            passOverPits: movement.crossOverPits,
             movementPerAction: movement.movementPerAction,
             canStopOnSquaddies: movement.canStopOnSquaddies,
             numberOfActions: stopCondition.numberOfActions,
@@ -68,12 +68,12 @@ export const SearchParametersHelper = {
     new: ({
               startLocations,
               squaddieAffiliation,
-              ignoreTerrainPenalty,
+              ignoreTerrainCost,
               shapeGenerator,
               minimumDistanceMoved,
               maximumDistanceMoved,
               canPassThroughWalls,
-              canPassThroughPits,
+              canPassOverPits,
               movementPerAction,
               canStopOnSquaddies,
               numberOfActions,
@@ -81,12 +81,12 @@ export const SearchParametersHelper = {
           }: {
         startLocations?: HexCoordinate[],
         squaddieAffiliation?: SquaddieAffiliation,
-        ignoreTerrainPenalty?: boolean,
+        ignoreTerrainCost?: boolean,
         shapeGenerator?: TargetingShapeGenerator,
         minimumDistanceMoved?: number,
         maximumDistanceMoved?: number,
         canPassThroughWalls?: boolean,
-        canPassThroughPits?: boolean,
+        canPassOverPits?: boolean,
         movementPerAction?: number,
         canStopOnSquaddies?: boolean,
         numberOfActions?: number,
@@ -95,12 +95,12 @@ export const SearchParametersHelper = {
         return {
             startLocations: isValidValue(startLocations) ? startLocations : [],
             squaddieAffiliation: isValidValue(squaddieAffiliation) ? squaddieAffiliation : SquaddieAffiliation.UNKNOWN,
-            ignoreTerrainPenalty: isValidValue(ignoreTerrainPenalty) ? ignoreTerrainPenalty : false,
+            ignoreTerrainCost: isValidValue(ignoreTerrainCost) ? ignoreTerrainCost : false,
             shapeGenerator: isValidValue(shapeGenerator) ? shapeGenerator : new SnakeShapeGenerator(),
             minimumDistanceMoved: isValidValue(minimumDistanceMoved) ? minimumDistanceMoved : undefined,
             maximumDistanceMoved: isValidValue(maximumDistanceMoved) ? maximumDistanceMoved : undefined,
             passThroughWalls: isValidValue(canPassThroughWalls) ? canPassThroughWalls : false,
-            crossOverPits: isValidValue(canPassThroughPits) ? canPassThroughPits : false,
+            passOverPits: isValidValue(canPassOverPits) ? canPassOverPits : false,
             movementPerAction: isValidValue(movementPerAction) ? movementPerAction : undefined,
             canStopOnSquaddies: isValidValue(canStopOnSquaddies) ? canStopOnSquaddies : false,
             numberOfActions: isValidValue(numberOfActions) ? numberOfActions : undefined,

@@ -21,6 +21,10 @@ export class AddPathConditionPathLeadsToWall implements AddPathCondition {
             return undefined;
         }
 
+        if (searchParameters.passThroughWalls) {
+            return true;
+        }
+
         const coordinate: HexCoordinate = SearchPathHelper.getMostRecentTileLocation(newPath).hexCoordinate;
         const terrainType = TerrainTileMapHelper.getTileTerrainTypeAtLocation(this.missionMap.terrainTileMap, coordinate.q, coordinate.r);
         return terrainType !== HexGridMovementCost.wall;

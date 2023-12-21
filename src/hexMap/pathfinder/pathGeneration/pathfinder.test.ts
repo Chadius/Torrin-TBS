@@ -110,7 +110,7 @@ describe("Pathfinder", () => {
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 7)).toBeFalsy();
         });
-        it("can factor movement costs", () => {
+        it("can factor terrain movement costs", () => {
             const missionMap = MissionMapHelper.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
@@ -138,6 +138,36 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeFalsy();
+        });
+        it("can ignores terrain movement costs if ignoreTerrainCosts is true", () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 2 2 2 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                movementPerAction: 3,
+                numberOfActions: 2,
+                ignoreTerrainCost: true,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeTruthy();
         });
     });
 
@@ -181,7 +211,7 @@ describe("Pathfinder", () => {
                 startLocations: [
                     {q: 0, r: 0}
                 ],
-                canPassThroughPits: false,
+                canPassOverPits: false,
             });
 
             const searchResults = PathfinderHelper.search({
@@ -208,7 +238,34 @@ describe("Pathfinder", () => {
                 startLocations: [
                     {q: 0, r: 0}
                 ],
-                canPassThroughPits: true,
+                canPassOverPits: true,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBeTruthy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBeFalsy();
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
+        });
+        it("can pass over wall tiles if search parameters is set but still cannot stop on them", () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 1 x 1 1 1 1 1 1 1 1 1 1 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                canPassThroughWalls: true,
             });
 
             const searchResults = PathfinderHelper.search({
@@ -449,7 +506,7 @@ describe("Pathfinder", () => {
                 ],
                 minimumDistanceMoved: 1,
                 maximumDistanceMoved: 2,
-                canPassThroughPits: true,
+                canPassOverPits: true,
             });
 
             searchResults = PathfinderHelper.search({
@@ -518,6 +575,3 @@ describe("Pathfinder", () => {
         });
     });
 });
-
-// TODO IgnoreTerrainPenalty
-// TODO PassThroughWalls

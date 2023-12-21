@@ -64,7 +64,7 @@ export const PathfinderOLD = {
                     crossOverPits: true,
                     minimumDistanceMoved: searchParams.minimumDistanceMoved,
                     canStopOnSquaddies: searchParams.canStopOnSquaddies,
-                    ignoreTerrainPenalty: searchParams.ignoreTerrainPenalty,
+                    ignoreTerrainPenalty: searchParams.ignoreTerrainCost,
                     maximumDistanceMoved: searchParams.maximumDistanceMoved,
                     passThroughWalls: searchParams.passThroughWalls,
                     shapeGenerator: searchParams.shapeGenerator,
@@ -368,7 +368,7 @@ const filterNeighborsWithinMovementPerAction = (
             return false;
         }
 
-        if (!searchParams.crossOverPits && hexCostTerrainType === HexGridMovementCost.pit) {
+        if (!searchParams.passOverPits && hexCostTerrainType === HexGridMovementCost.pit) {
             return false;
         }
 
@@ -376,7 +376,7 @@ const filterNeighborsWithinMovementPerAction = (
             return true;
         }
 
-        let movementCost = searchParams.ignoreTerrainPenalty
+        let movementCost = searchParams.ignoreTerrainCost
             ? 1
             : MovingCostByTerrainType[hexCostTerrainType];
         return head.movementCostSinceStartOfAction + movementCost <= searchParams.movementPerAction;

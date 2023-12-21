@@ -99,7 +99,7 @@ export const SearchStateHelper = {
     },
     addNeighborSearchPathToQueue: (searchState: SearchState, tileInfo: TileFoundDescription, head: SearchPath, searchParams: SearchParameters): SearchPath => {
         const neighborPath = SearchPathHelper.clone(head);
-        const tileInfoMovementCost = searchParams.ignoreTerrainPenalty
+        const tileInfoMovementCost = searchParams.ignoreTerrainCost
             ? 1
             : tileInfo.cumulativeMovementCost;
         SearchPathHelper.add(
