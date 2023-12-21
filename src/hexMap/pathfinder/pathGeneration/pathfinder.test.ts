@@ -315,4 +315,36 @@ describe("PathGenerator", () => {
             }
         });
     });
+
+
+    describe('minimum and maximum distances', () => {
+        it('will not include anything past the maximum distance', () => {
+            const missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "2 2 2 2 2 2 2 2 ",
+                    ]
+                }),
+            });
+
+            const searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0}
+                ],
+                maximumDistanceMoved: 3,
+            });
+
+            const searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(true);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 1)).toBe(true);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 2)).toBe(true);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBe(true);
+            expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBe(false);
+        });
+    });
 });

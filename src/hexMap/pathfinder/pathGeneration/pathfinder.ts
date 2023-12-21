@@ -19,6 +19,7 @@ import {ObjectRepository} from "../../../battle/objectRepository";
 import {AddPathConditionPathLeadsToWall} from "../addPathConditions/addPathConditionPathLeadsToWall";
 import {isValidValue} from "../../../utils/validityCheck";
 import {AddPathConditionPathLeadsToPit} from "../addPathConditions/addPathConditionPathLeadsToPit";
+import {AddPathConditionMaximumDistance} from "../addPathConditions/addPathConditionMaximumDistance";
 
 export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>;
@@ -67,6 +68,7 @@ export const PathfinderWorkingStateHelper = {
         workingState.addPathConditions.push(new AddPathConditionPathLeadsToWall({missionMap}));
         workingState.addPathConditions.push(new AddPathConditionPathLeadsToPit({missionMap}));
         workingState.addPathConditions.push(new AddPathConditionPathIsLessThanTotalMovement({}));
+        workingState.addPathConditions.push(new AddPathConditionMaximumDistance({}));
         workingState.addPathConditions.push(new AddPathConditionSquaddieAffiliation({missionMap, repository}));
 
         for (let q = 0; q < terrainTileMap.getDimensions().numberOfRows; q++) {
@@ -96,7 +98,7 @@ export const PathfinderHelper = {
             missionMap,
             repository
         });
-        populateStartingLocations({searchParameters, workingState, terrainTileMap: missionMap.terrainTileMap});
+        populateStartingLocations({searchParameters, workingState});
         generateValidPaths({
             searchParameters,
             workingState,
@@ -109,11 +111,9 @@ export const PathfinderHelper = {
 const populateStartingLocations = ({
                                        searchParameters,
                                        workingState,
-                                       terrainTileMap,
                                    }: {
     searchParameters: SearchParameters;
     workingState: PathfinderWorkingState;
-    terrainTileMap: TerrainTileMap;
 }) => {
     searchParameters.startLocations
         .forEach(startLocation => {

@@ -1,4 +1,5 @@
 import {SearchPath} from "../searchPath";
+import {HexCoordinate} from "../../hexCoordinate/hexCoordinate";
 
 export type SearchPathByLocation = {
     [q: number]: {
@@ -33,5 +34,18 @@ export const SearchResultsHelper = {
             return undefined;
         }
         return shortestPath.currentNumberOfMoveActions;
+    },
+    getLocationsByNumberOfMoveActions: (searchResults: SearchResult): {[moveActions: number]: HexCoordinate[]} => {
+        const locationsByNumberOfMoveActions: {[moveActions: number]: HexCoordinate[]} = {};
+        for (const qStr in searchResults.shortestPathByLocation) {
+            const q = Number(qStr);
+            for (const rStr in searchResults.shortestPathByLocation[q]) {
+                const r = Number(rStr);
+                const moveActions = searchResults.shortestPathByLocation[q][r].currentNumberOfMoveActions;
+                locationsByNumberOfMoveActions[moveActions] ||= [];
+                locationsByNumberOfMoveActions[moveActions].push({q, r});
+            }
+        }
+        return locationsByNumberOfMoveActions;
     }
 };
