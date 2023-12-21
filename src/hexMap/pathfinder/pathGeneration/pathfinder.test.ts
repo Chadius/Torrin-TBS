@@ -181,7 +181,7 @@ describe("Pathfinder", () => {
                 startLocations: [
                     {q: 0, r: 0}
                 ],
-                crossOverPits: false,
+                canPassThroughPits: false,
             });
 
             const searchResults = PathfinderHelper.search({
@@ -208,7 +208,7 @@ describe("Pathfinder", () => {
                 startLocations: [
                     {q: 0, r: 0}
                 ],
-                crossOverPits: true,
+                canPassThroughPits: true,
             });
 
             const searchResults = PathfinderHelper.search({
@@ -377,4 +377,103 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 7)).toBe(true);
         });
     });
+
+    describe("multiple start locations", () => {
+        let missionMap: MissionMap;
+        let searchParameters: SearchParameters;
+        let searchResults: SearchResult;
+
+        beforeEach(() => {
+            missionMap = MissionMapHelper.new({
+                terrainTileMap: TerrainTileMapHelper.new({
+                    movementCost: [
+                        "1 1 2 1 2 ",
+                        " 1 x - 2 1 ",
+                    ]
+                }),
+            });
+
+            searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 0},
+                    {q: 1, r: 4},
+                ],
+            });
+
+            searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+        });
+
+        it("path to the starting location costs no movement", () => {
+            const path0_0: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 0);
+            expect(SearchPathHelper.getTotalMovementCost(path0_0)).toEqual(0);
+            expect(SearchPathHelper.getTilesTraveled(path0_0)).toHaveLength(1);
+            expect(SearchPathHelper.getTotalDistance(path0_0)).toEqual(0);
+
+            const path1_4: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 4);
+            expect(SearchPathHelper.getTotalMovementCost(path1_4)).toEqual(0);
+            expect(SearchPathHelper.getTilesTraveled(path1_4)).toHaveLength(1);
+            expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(0);
+        });
+
+        it("path to further locations refers to starting location with least movement cost", () => {
+            const path0_2: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 2);
+
+            const route0_2 = SearchPathHelper.getTilesTraveled(path0_2);
+            expect(route0_2).toHaveLength(3);
+            expect(route0_2[0].hexCoordinate).toEqual({q: 0, r: 0});
+            expect(route0_2[1].hexCoordinate).toEqual({q: 0, r: 1});
+            expect(route0_2[2].hexCoordinate).toEqual({q: 0, r: 2});
+
+            expect(SearchPathHelper.getTotalMovementCost(path0_2)).toEqual(3);
+            expect(SearchPathHelper.getTotalDistance(path0_2)).toEqual(2);
+
+            const path1_3: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 3);
+
+            const route1_3 = SearchPathHelper.getTilesTraveled(path1_3);
+            expect(route1_3).toHaveLength(2);
+            expect(route1_3[0].hexCoordinate).toEqual({q: 1, r: 4});
+            expect(route1_3[1].hexCoordinate).toEqual({q: 1, r: 3});
+
+            expect(SearchPathHelper.getTotalMovementCost(path1_3)).toEqual(2);
+            expect(SearchPathHelper.getTotalDistance(path1_3)).toEqual(1);
+        });
+
+        it('can use minimum and maximum distance to generate a spreading effect', () => {
+            searchParameters = SearchParametersHelper.new({
+                startLocations: [
+                    {q: 0, r: 1},
+                    {q: 0, r: 2},
+                ],
+                minimumDistanceMoved: 1,
+                maximumDistanceMoved: 2,
+                canPassThroughPits: true,
+            });
+
+            searchResults = PathfinderHelper.search({
+                searchParameters,
+                missionMap,
+                repository: ObjectRepositoryHelper.new(),
+            });
+
+            expect(searchResults.shortestPathByLocation[0][0]).toBeTruthy();
+            expect(searchResults.shortestPathByLocation[0][1]).toBeFalsy();
+            expect(searchResults.shortestPathByLocation[0][2]).toBeFalsy();
+            expect(searchResults.shortestPathByLocation[0][3]).toBeTruthy();
+            expect(searchResults.shortestPathByLocation[0][4]).toBeTruthy();
+
+            expect(searchResults.shortestPathByLocation[1][0]).toBeTruthy();
+            expect(searchResults.shortestPathByLocation[1][1]).toBeFalsy();
+            expect(searchResults.shortestPathByLocation[1][2]).toBeFalsy();
+            expect(searchResults.shortestPathByLocation[1][3]).toBeTruthy();
+            expect(searchResults.shortestPathByLocation[1][4]).toBeFalsy();
+        });
+    });
 });
+
+// TODO StopCondition of reaching the destination
+// TODO IgnoreTerrainPenalty
+// TODO PassThroughWalls

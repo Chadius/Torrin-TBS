@@ -70,7 +70,7 @@ describe('addPathConditionPathLeadsToPit', () => {
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 0}, 1);
 
         const searchParameters = SearchParametersHelper.new({
-            crossOverPits: true,
+            canPassThroughPits: true,
         });
 
         const condition = new AddPathConditionPathLeadsToPit({missionMap});
