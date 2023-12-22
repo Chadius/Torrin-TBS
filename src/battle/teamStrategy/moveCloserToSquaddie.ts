@@ -16,6 +16,8 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {MissionMap} from "../../missionMap/missionMap";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {BattleSquaddie} from "../battleSquaddie";
+import * as path from "path";
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -46,7 +48,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
         const movementPerActionThisRound = squaddieTemplate.attributes.movement.movementPerAction;
 
-        const searchResults: SearchResult = PathfinderHelper.search({
+        const routesToAllSquaddies: SearchResult = PathfinderHelper.search({
             searchParameters: SearchParametersHelper.new({
                 startLocations: [mapLocation],
                 squaddieAffiliation: squaddieTemplate.squaddieId.affiliation,
@@ -54,7 +56,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
                 canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
                 canPassThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
                 shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
-                canStopOnSquaddies: false,
+                canStopOnSquaddies: true,
                 ignoreTerrainCost: false,
                 numberOfActions: actionPointsRemaining,
             }),
@@ -64,7 +66,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
 
         const closestSquaddieInfo = getClosestSquaddieAndLocationToFollow({
             missionMap: state.missionMap,
-            searchResult: searchResults,
+            routesToAllSquaddies: routesToAllSquaddies,
             desiredBattleSquaddieId: this.desiredBattleSquaddieId,
             desiredAffiliation: this.desiredAffiliation,
             repository: state.squaddieRepository,
@@ -77,7 +79,10 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined;
         }
 
-        const {shortestRoute} = closestSquaddieInfo;
+        const {shortestRoute, distance} = closestSquaddieInfo;
+        if (distance < 2) {
+            return undefined;
+        }
 
         const moveTowardsLocation: SquaddieActionsForThisRound = {
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
@@ -106,17 +111,17 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
 }
 
 const getClosestSquaddieAndLocationToFollow = ({
-                                 missionMap,
-                                 searchResult,
-                                 desiredBattleSquaddieId,
-                                 desiredAffiliation,
-                                 repository,
-                                 actingSquaddieBattleId,
-                                 numberOfActions,
-                                 movementPerAction,
-                             }: {
+                                                   missionMap,
+                                                   routesToAllSquaddies,
+                                                   desiredBattleSquaddieId,
+                                                   desiredAffiliation,
+                                                   repository,
+                                                   actingSquaddieBattleId,
+                                                   numberOfActions,
+                                                   movementPerAction,
+                                               }: {
     missionMap: MissionMap,
-    searchResult: SearchResult,
+    routesToAllSquaddies: SearchResult,
     repository: ObjectRepository
     actingSquaddieBattleId: string,
     numberOfActions: number,
@@ -129,8 +134,77 @@ const getClosestSquaddieAndLocationToFollow = ({
     location: HexCoordinate,
     shortestRoute: SearchPath,
 } => {
-    // TODO refactor!
-    const desiredBattleSquaddies = ObjectRepositoryHelper.getBattleSquaddieIterator(repository).filter(battleSquaddieIter => {
+    const desiredBattleSquaddies = selectDesiredBattleSquaddies(repository, actingSquaddieBattleId, desiredBattleSquaddieId, desiredAffiliation);
+
+    const {mapLocation: actorLocation} = missionMap.getSquaddieByBattleId(actingSquaddieBattleId);
+    const {squaddieTemplate: actorSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, actingSquaddieBattleId));
+    const maximumDistanceToConsider: number = (movementPerAction > 0 && numberOfActions > 0)
+        ? movementPerAction * numberOfActions
+        : missionMap.terrainTileMap.getDimensions().numberOfRows + missionMap.terrainTileMap.getDimensions().widthOfWidestRow;
+
+    function getShortestRoutesThatLeadToSquaddie(closestReachableLocationsFromTheCandidate: HexCoordinate[], candidateToChase: {
+        battleSquaddieId: string;
+        battleSquaddie: BattleSquaddie
+    }, distanceFromActor: number, candidateLocation: HexCoordinate): {
+        battleSquaddieId: string,
+        distance: number,
+        location: HexCoordinate,
+        shortestRoute: SearchPath,
+    }[] {
+        const routesThatEndCloseToCandidate: SearchResult = PathfinderHelper.search({
+            searchParameters: SearchParametersHelper.new({
+                startLocations: [actorLocation],
+                squaddieAffiliation: actorSquaddieTemplate.squaddieId.affiliation,
+                movementPerAction: movementPerAction,
+                canPassOverPits: actorSquaddieTemplate.attributes.movement.crossOverPits,
+                canPassThroughWalls: actorSquaddieTemplate.attributes.movement.passThroughWalls,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
+                canStopOnSquaddies: false,
+                numberOfActions: numberOfActions,
+                stopLocations: closestReachableLocationsFromTheCandidate,
+            }),
+            missionMap,
+            repository,
+        });
+
+        return routesThatEndCloseToCandidate.stopLocationsReached.map(locationFromCandidate => {
+            const path = SearchResultsHelper.getShortestPathToLocation(routesThatEndCloseToCandidate, locationFromCandidate.q, locationFromCandidate.r);
+            if (numberOfActions === undefined || path.currentNumberOfMoveActions < numberOfActions) {
+                return {
+                    battleSquaddieId: candidateToChase.battleSquaddieId,
+                    distance: distanceFromActor,
+                    location: candidateLocation,
+                    shortestRoute: path,
+                }
+            }
+            return undefined;
+        }).filter(x => x != undefined);
+    }
+
+    for (let distanceFromActor = 0; distanceFromActor < maximumDistanceToConsider; distanceFromActor++) {
+        const closestReachableLocationsFromTheActor: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(routesToAllSquaddies, actorLocation, distanceFromActor);
+        const closestSquaddies = getClosestSquaddiesToActor(desiredBattleSquaddies, missionMap, closestReachableLocationsFromTheActor);
+        if (closestSquaddies.length < 1) {
+            return undefined;
+        }
+
+        const candidateToChase = closestSquaddies[Math.floor(Math.random() * closestSquaddies.length)];
+        const {mapLocation: candidateLocation}: MissionMapSquaddieLocation = missionMap.getSquaddieByBattleId(candidateToChase.battleSquaddieId);
+
+        for (let distanceFromCandidate = 0; distanceFromCandidate < maximumDistanceToConsider; distanceFromCandidate++) {
+            const closestReachableLocationsFromTheCandidate: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(routesToAllSquaddies, candidateLocation, distanceFromCandidate);
+            const shortestRoutesThatLeadToSquaddieAndInfo = getShortestRoutesThatLeadToSquaddie(closestReachableLocationsFromTheCandidate, candidateToChase, distanceFromActor, candidateLocation);
+            if (shortestRoutesThatLeadToSquaddieAndInfo.length > 0) {
+                return shortestRoutesThatLeadToSquaddieAndInfo[0];
+            }
+        }
+    }
+
+    return undefined;
+}
+
+function selectDesiredBattleSquaddies(repository: ObjectRepository, actingSquaddieBattleId: string, desiredBattleSquaddieId: string, desiredAffiliation: SquaddieAffiliation) {
+    return ObjectRepositoryHelper.getBattleSquaddieIterator(repository).filter(battleSquaddieIter => {
         if (battleSquaddieIter.battleSquaddieId === actingSquaddieBattleId) {
             return false;
         }
@@ -145,54 +219,14 @@ const getClosestSquaddieAndLocationToFollow = ({
 
         return desiredAffiliation && squaddieTemplate.squaddieId.affiliation === desiredAffiliation;
     });
-
-    const actorLocation = missionMap.getSquaddieByBattleId(actingSquaddieBattleId);
-
-    let maximumDistanceToConsider: number = missionMap.terrainTileMap.getDimensions().numberOfRows + missionMap.terrainTileMap.getDimensions().widthOfWidestRow;
-    if (movementPerAction > 0 && numberOfActions > 0) {
-        maximumDistanceToConsider = movementPerAction * numberOfActions;
-    }
-
-    for (let distanceFromActor = 0; distanceFromActor < maximumDistanceToConsider; distanceFromActor++) {
-        const closestReachableLocations: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(searchResult, actorLocation.mapLocation, distanceFromActor);
-
-        const closestSquaddies = desiredBattleSquaddies.filter(battleSquaddieIter => {
-            const location: MissionMapSquaddieLocation = missionMap.getSquaddieByBattleId(battleSquaddieIter.battleSquaddieId);
-            return closestReachableLocations.some(closestReachableLocation => closestReachableLocation.q === location.mapLocation.q && closestReachableLocation.r === location.mapLocation.r);
-        })
-
-        if (closestSquaddies.length > 0) {
-            const candidateToChase = closestSquaddies[Math.floor(Math.random() * closestSquaddies.length)];
-            const targetLocationInfo: MissionMapSquaddieLocation = missionMap.getSquaddieByBattleId(candidateToChase.battleSquaddieId);
-
-            // TODO cool found the closest one, now get the closest route
-            let maximumDistanceToConsider2: number = missionMap.terrainTileMap.getDimensions().numberOfRows + missionMap.terrainTileMap.getDimensions().widthOfWidestRow;
-            if (movementPerAction > 0 && numberOfActions > 0) {
-                maximumDistanceToConsider2 = movementPerAction * numberOfActions;
-            }
-
-            for (let distanceFromActor2 = 0; distanceFromActor < maximumDistanceToConsider; distanceFromActor++) {
-                const closestReachableLocations2: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(searchResult, targetLocationInfo.mapLocation, distanceFromActor2);
-                const shortestRouteLocations = closestReachableLocations2.map(locationFromCandidate => {
-                    const path = SearchResultsHelper.getShortestPathToLocation(searchResult, locationFromCandidate.q, locationFromCandidate.r);
-                    if (numberOfActions === undefined || path.currentNumberOfMoveActions < numberOfActions) {
-                        return {
-                            battleSquaddieId: candidateToChase.battleSquaddieId,
-                            distance: distanceFromActor,
-                            location: targetLocationInfo.mapLocation,
-                            shortestRoute: path,
-                        }
-                    }
-                    return undefined
-                }).filter(x => x != undefined);
-                if (shortestRouteLocations.length > 0) {
-                    return shortestRouteLocations[0];
-                }
-            }
-
-        }
-    }
-
-    return undefined;
 }
 
+function getClosestSquaddiesToActor(desiredBattleSquaddies: {
+    battleSquaddieId: string;
+    battleSquaddie: BattleSquaddie
+}[], missionMap: MissionMap, closestReachableLocations: HexCoordinate[]) {
+    return desiredBattleSquaddies.filter(battleSquaddieIter => {
+        const location: MissionMapSquaddieLocation = missionMap.getSquaddieByBattleId(battleSquaddieIter.battleSquaddieId);
+        return closestReachableLocations.some(closestReachableLocation => closestReachableLocation.q === location.mapLocation.q && closestReachableLocation.r === location.mapLocation.r);
+    });
+}
