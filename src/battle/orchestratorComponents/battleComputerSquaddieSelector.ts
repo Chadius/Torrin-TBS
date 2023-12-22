@@ -169,7 +169,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                         maximumDistanceMoved: 0,
                         minimumDistanceMoved: 0,
                         canStopOnSquaddies: true,
-                        ignoreTerrainPenalty: false,
+                        ignoreTerrainCost: false,
                         shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(ability.targetingShape)),
                         movementPerAction: action.squaddieAction.maximumRange,
                         crossOverPits: false,

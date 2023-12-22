@@ -135,7 +135,7 @@ export class ReachableSquaddiesResults {
     }
 
     getClosestSquaddieAndClosestDistance(squaddieIds: string[]): {
-        squaddieId: string,
+        battleSquaddieId: string,
         distance: number,
     } {
         let foundSquaddieId = "";
@@ -151,12 +151,12 @@ export class ReachableSquaddiesResults {
         });
         if (foundSquaddieId) {
             return {
-                squaddieId: foundSquaddieId,
+                battleSquaddieId: foundSquaddieId,
                 distance: minimumDistanceToSquaddie,
             };
         }
         return {
-            squaddieId: undefined,
+            battleSquaddieId: undefined,
             distance: undefined,
         };
     }

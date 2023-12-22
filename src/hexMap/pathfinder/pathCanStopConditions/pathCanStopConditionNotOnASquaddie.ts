@@ -1,13 +1,15 @@
-import {AddPathCondition, AreValidParametersForAddPathCondition} from "./addPathCondition";
 import {SearchPath, SearchPathHelper} from "../searchPath";
 import {SearchParameters} from "../searchParams";
+import {isValidValue} from "../../../utils/validityCheck";
+import {AreValidParametersForAddPathCondition} from "../addPathConditions/addPathCondition";
+import {PathCanStopCondition} from "./pathCanStopCondition";
 import {MissionMap} from "../../../missionMap/missionMap";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../../battle/objectRepository";
-import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
-import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
+import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 
-export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
+export class PathCanStopConditionNotOnASquaddie implements PathCanStopCondition {
+
     missionMap: MissionMap;
     repository: ObjectRepository;
 
@@ -16,19 +18,15 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
         this.repository = repository;
     }
 
-    shouldAddNewPath({
-                         newPath,
-                         searchParameters,
-                     }: {
+    shouldMarkPathLocationAsStoppable({
+                                          newPath,
+                                          searchParameters,
+                                      }: {
         newPath: SearchPath;
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForAddPathCondition({newPath})) {
             return undefined;
-        }
-
-        if (searchParameters.squaddieAffiliation === SquaddieAffiliation.UNKNOWN) {
-            return true;
         }
 
         if (searchParameters.canStopOnSquaddies === true) {
@@ -44,7 +42,6 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
         if (battleSquaddieId === undefined) {
             return true;
         }
-
         const {
             squaddieTemplate,
             battleSquaddie,
@@ -54,12 +51,6 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
             return true;
         }
 
-        if (!IsSquaddieAlive({squaddieTemplate, battleSquaddie})) {
-            return true;
-        }
-        const friendlyAffiliations: { [friendlyAffiliation in SquaddieAffiliation]?: boolean } = FriendlyAffiliationsByAffiliation[searchParameters.squaddieAffiliation];
-        return friendlyAffiliations[squaddieTemplate.squaddieId.affiliation] === true;
+        return !IsSquaddieAlive({squaddieTemplate, battleSquaddie});
     }
 }
-
-// TODO replace canStopOnSquaddies with canPassThroughSquaddies

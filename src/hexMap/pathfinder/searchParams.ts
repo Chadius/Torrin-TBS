@@ -16,7 +16,7 @@ export interface SearchMovement {
     passThroughWalls: boolean;
     crossOverPits: boolean;
     canStopOnSquaddies: boolean;
-    ignoreTerrainPenalty: boolean;
+    ignoreTerrainCost: boolean;
     shapeGenerator: TargetingShapeGenerator;
 }
 
@@ -53,7 +53,7 @@ export const SearchParametersHelper = {
         return {
             startLocations: [setup.startLocation],
             squaddieAffiliation: setup.affiliation,
-            ignoreTerrainCost: movement.ignoreTerrainPenalty,
+            ignoreTerrainCost: movement.ignoreTerrainCost,
             shapeGenerator: movement.shapeGenerator,
             minimumDistanceMoved: movement.minimumDistanceMoved,
             maximumDistanceMoved: movement.maximumDistanceMoved,

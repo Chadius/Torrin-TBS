@@ -245,6 +245,3 @@ describe('Search Results', () => {
         );
     });
 });
-
-// TODO Search Results: Get Closest Reachable Squaddies
-// TODO Given a list of locations, find the closest one

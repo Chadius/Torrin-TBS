@@ -37,7 +37,7 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
                     passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
                     crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
                     canStopOnSquaddies: false,
-                    ignoreTerrainPenalty: false,
+                    ignoreTerrainCost: false,
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
                 },
                 stopCondition: {

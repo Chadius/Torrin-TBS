@@ -40,7 +40,7 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
                         maximumDistanceMoved: undefined,
                         minimumDistanceMoved: undefined,
                         canStopOnSquaddies: undefined,
-                        ignoreTerrainPenalty: undefined,
+                        ignoreTerrainCost: undefined,
                     },
                     stopCondition: {
                         numberOfActions: actionPointsRemaining,

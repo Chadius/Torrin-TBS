@@ -290,7 +290,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                             maximumDistanceMoved: undefined,
                             minimumDistanceMoved: undefined,
                             canStopOnSquaddies: true,
-                            ignoreTerrainPenalty: false,
+                            ignoreTerrainCost: false,
                         },
                         stopCondition: {
                             stopLocation: clickedHexCoordinate,

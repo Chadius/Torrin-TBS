@@ -63,7 +63,7 @@ export const FindValidTargets = ({
                 },
                 movement: {
                     canStopOnSquaddies: true,
-                    ignoreTerrainPenalty: true,
+                    ignoreTerrainCost: true,
                     minimumDistanceMoved: action.minimumRange,
                     maximumDistanceMoved: action.maximumRange,
                     shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),

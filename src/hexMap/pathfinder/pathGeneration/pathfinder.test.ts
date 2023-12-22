@@ -576,4 +576,6 @@ describe("Pathfinder", () => {
     });
 });
 
+// TODO: Ripping off the band-aid!
+
 // TODO: Review SearchParameters, how many do you need? Rename fields?
