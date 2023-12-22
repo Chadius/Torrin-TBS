@@ -213,7 +213,10 @@ describe('Search Results', () => {
             }
         });
 
-        const radius0: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 0, r: 2}, 0);
+        const radius0: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 0,
+            r: 2
+        }, 0);
         expect(radius0).toHaveLength(1);
         expect(radius0).toEqual(
             expect.arrayContaining([
@@ -221,10 +224,16 @@ describe('Search Results', () => {
             ])
         );
 
-        const locationWithNoRoute: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 1, r: 1}, 0);
+        const locationWithNoRoute: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 1,
+            r: 1
+        }, 0);
         expect(locationWithNoRoute).toHaveLength(0);
 
-        const radius1: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 0, r: 2}, 1);
+        const radius1: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 0,
+            r: 2
+        }, 1);
         expect(radius1).toHaveLength(3);
         expect(radius1).toEqual(
             expect.arrayContaining([
@@ -234,7 +243,10 @@ describe('Search Results', () => {
             ])
         );
 
-        const radius2: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {q: 0, r: 2}, 2);
+        const radius2: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(results, {
+            q: 0,
+            r: 2
+        }, 2);
         expect(radius2).toHaveLength(3);
         expect(radius2).toEqual(
             expect.arrayContaining([
@@ -243,5 +255,68 @@ describe('Search Results', () => {
                 {q: 1, r: 3},
             ])
         );
+    });
+
+    it('can report all stoppable locations', () => {
+        const results = SearchResultsHelper.new({
+            shortestPathByLocation: {
+                0: {
+                    0: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            }
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    1: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 0,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 1,
+                    },
+                    2: undefined,
+                    3: {
+                        ...SearchPathHelper.newSearchPath(),
+                        tilesTraveled: [
+                            {
+                                hexCoordinate: {q: 0, r: 0},
+                                cumulativeMovementCost: 0,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 1},
+                                cumulativeMovementCost: 1,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 2},
+                                cumulativeMovementCost: 2,
+                            },
+                            {
+                                hexCoordinate: {q: 0, r: 3},
+                                cumulativeMovementCost: 4,
+                            },
+                        ],
+                        currentNumberOfMoveActions: 2,
+                    },
+                },
+            }
+        });
+
+        const stoppableLocations = SearchResultsHelper.getStoppableLocations(results);
+
+        expect(stoppableLocations).toHaveLength(3);
+        expect(stoppableLocations).toContainEqual({q: 0, r: 0});
+        expect(stoppableLocations).toContainEqual({q: 0, r: 1});
+        expect(stoppableLocations).toContainEqual({q: 0, r: 3});
     });
 });

@@ -9,7 +9,7 @@ import {HexGridMovementCost} from "../../hexGridMovementCost";
 export class AddPathConditionPathLeadsToWall implements AddPathCondition {
     missionMap: MissionMap;
 
-    constructor({missionMap}: {missionMap: MissionMap}) {
+    constructor({missionMap}: { missionMap: MissionMap }) {
         this.missionMap = missionMap;
     }
 

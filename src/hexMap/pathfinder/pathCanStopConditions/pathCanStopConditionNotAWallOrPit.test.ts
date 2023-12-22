@@ -4,7 +4,6 @@ import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
 import {TerrainTileMap} from "../../terrainTileMap";
 import {PathCanStopConditionNotAWallOrPit} from "./pathCanStopConditionNotAWallOrPit";
 
-// TODO Add Pit detection, too
 describe('pathCanStopConditionNotAWallOrPit', () => {
     it('returns true if the path is not on a wall or pit', () => {
         const missionMap: MissionMap = MissionMapHelper.new({

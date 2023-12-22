@@ -1,8 +1,6 @@
 import {BattleSquaddie} from "../battleSquaddie";
-import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HighlightTileDescription, TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {SearchResultsOLD} from "../../hexMap/pathfinder/searchResultsOLD";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {ObjectRepository} from "../objectRepository";
@@ -12,6 +10,8 @@ import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targeting
 import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {FindValidTargets} from "../targeting/targetingService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 
 export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, hexMap: TerrainTileMap, squaddieRepository: ObjectRepository) => {
     const squaddieDatum = missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -24,44 +24,34 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
         actionPointsRemaining = 3;
     }
 
-    const reachableTileSearchResults: SearchResultsOLD = getResultOrThrowError(
-        PathfinderOLD.getAllReachableTiles(
-            SearchParametersHelper.newUsingSearchSetupMovementStop({
-                setup: {
-                    startLocation: squaddieDatum.mapLocation,
-                    affiliation:
-                    squaddieTemplate.squaddieId.affiliation,
-                },
-                movement: {
-                    movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
-                    passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
-                    crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
-                    canStopOnSquaddies: false,
-                    ignoreTerrainCost: false,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
-                },
-                stopCondition: {
-                    stopLocation: undefined,
-                    numberOfActions:
-                    actionPointsRemaining,
-                },
-            }),
-            missionMap,
-            squaddieRepository,
-        )
-    );
+    const reachableTileSearchResults: SearchResult = PathfinderHelper.search({
+        searchParameters: SearchParametersHelper.new({
+            startLocations: [squaddieDatum.mapLocation],
+            squaddieAffiliation:
+            squaddieTemplate.squaddieId.affiliation,
+            movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+            canPassThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+            canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
+            canStopOnSquaddies: false,
+            ignoreTerrainCost: false,
+            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
+            numberOfActions: actionPointsRemaining,
+        }),
+        missionMap,
+        repository: squaddieRepository,
+    })
 
-    const {
-        reachableTiles: movementTilesByNumberOfActions,
-        sortedMovementActionPoints
-    } = reachableTileSearchResults.getReachableTilesByNumberOfMovementActions();
+    const movementTilesByNumberOfActions: {
+        [moveActions: number]: HexCoordinate[]
+    } = SearchResultsHelper.getLocationsByNumberOfMoveActions(reachableTileSearchResults)
+    const sortedMovementActionPoints: number[] = Object.keys(movementTilesByNumberOfActions).map(str => Number(str));
 
     const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
         Object.values(movementTilesByNumberOfActions).map(
             (coordinateList: [({
                 q: number,
                 r: number
-            } | undefined)]) => {
+            })]) => {
                 return coordinateList.map(
                     (coordinate) => {
                         return {...coordinate}

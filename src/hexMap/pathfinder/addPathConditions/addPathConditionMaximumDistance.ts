@@ -1,8 +1,6 @@
 import {AddPathCondition, AreValidParametersForAddPathCondition} from "./addPathCondition";
-import {SearchPath, SearchPathHelper} from "../searchPath";
+import {SearchPath} from "../searchPath";
 import {SearchParameters} from "../searchParams";
-import {MapLayer, MapLayerHelper} from "../../../missionMap/mapLayer";
-import {TileFoundDescription} from "../tileFoundDescription";
 import {isValidValue} from "../../../utils/validityCheck";
 
 export class AddPathConditionMaximumDistance implements AddPathCondition {
@@ -18,7 +16,7 @@ export class AddPathConditionMaximumDistance implements AddPathCondition {
         searchParameters: SearchParameters
     }): boolean {
         if (!AreValidParametersForAddPathCondition({newPath})) {
-           return undefined;
+            return undefined;
         }
 
         if (!isValidValue(searchParameters.maximumDistanceMoved)) {

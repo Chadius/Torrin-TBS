@@ -2,12 +2,10 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {SearchResultsOLD} from "../../hexMap/pathfinder/searchResultsOLD";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
-import {TileFoundDescription} from "../../hexMap/pathfinder/tileFoundDescription";
 import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
@@ -15,48 +13,35 @@ import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {RecordingHandler} from "../history/recording";
-import {PathfinderOLD} from "../../hexMap/pathfinder/pathfinderOLD";
 import {ObjectRepositoryHelper} from "../objectRepository";
+import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
+import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-    const searchResults: SearchResultsOLD = getResultOrThrowError(
-        PathfinderOLD.findPathToStopLocation(
-            SearchParametersHelper.newUsingSearchSetupMovementStop(
-                {
-                    setup: {
-                        startLocation: {
-                            q: datum.mapLocation.q,
-                            r: datum.mapLocation.r,
-                        },
-                        affiliation: squaddieTemplate.squaddieId.affiliation,
-                    },
-                    movement: {
-                        movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
-                        passThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
-                        crossOverPits: squaddieTemplate.attributes.movement.crossOverPits,
-                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
-                        maximumDistanceMoved: undefined,
-                        minimumDistanceMoved: undefined,
-                        canStopOnSquaddies: undefined,
-                        ignoreTerrainCost: undefined,
-                    },
-                    stopCondition: {
-                        numberOfActions: actionPointsRemaining,
-                        stopLocation: {
-                            q: clickedHexCoordinate.q,
-                            r: clickedHexCoordinate.r
-                        },
-                    }
-                }
-            ),
-            state.battleState.missionMap,
-            state.squaddieRepository,
-        )
-    );
+    const searchResults: SearchResult = PathfinderHelper.search({
+        searchParameters: SearchParametersHelper.new({
+            startLocations: [{
+                q: datum.mapLocation.q,
+                r: datum.mapLocation.r,
+            }],
+            movementPerAction: squaddieTemplate.attributes.movement.movementPerAction,
+            canPassThroughWalls: squaddieTemplate.attributes.movement.passThroughWalls,
+            canPassOverPits: squaddieTemplate.attributes.movement.crossOverPits,
+            shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
+            maximumDistanceMoved: undefined,
+            minimumDistanceMoved: undefined,
+            canStopOnSquaddies: undefined,
+            ignoreTerrainCost: undefined,
+            stopLocations: [clickedHexCoordinate],
+            numberOfActions: actionPointsRemaining,
+        }),
+        missionMap: state.battleState.missionMap,
+        repository: state.squaddieRepository,
+    });
 
-    const closestRoute: SearchPath = getResultOrThrowError(searchResults.getRouteToStopLocation());
+    const closestRoute: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, clickedHexCoordinate.q, clickedHexCoordinate.r);
 
     const noDirectRouteToDestination = closestRoute === null;
     if (noDirectRouteToDestination) {
@@ -64,15 +49,17 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
     }
 
     state.battleState.squaddieMovePath = closestRoute;
-    let routeSortedByNumberOfMovementActions: TileFoundDescription[][] = getResultOrThrowError(searchResults.getRouteToStopLocationSortedByNumberOfMovementActions());
 
-    const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(
-        routeSortedByNumberOfMovementActions.map(
-            tiles => tiles.map(
-                tile => tile.hexCoordinate
-            )
-        )
-    );
+    const hexCoordinatesByMoveActions: HexCoordinate[][] = closestRoute.tilesTraveledByNumberOfMovementActions.filter(x => x).map(tileFoundDescriptions => {
+        return tileFoundDescriptions.map(tileFound => {
+            return {
+                q: tileFound.hexCoordinate.q,
+                r: tileFound.hexCoordinate.r,
+            }
+        })
+    });
+
+    const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(hexCoordinatesByMoveActions);
     state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
     state.battleState.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);
 

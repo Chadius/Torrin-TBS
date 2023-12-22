@@ -1,8 +1,5 @@
 import {SearchParametersHelper} from "../searchParams";
 import {SearchPathHelper} from "../searchPath";
-import {MapLayer, MapLayerHelper} from "../../../missionMap/mapLayer";
-import {TerrainTileMap} from "../../terrainTileMap";
-import {AddPathConditionIsInsideMap} from "./addPathConditionIsInsideMap";
 import {AddPathConditionMaximumDistance} from "./addPathConditionMaximumDistance";
 
 describe('addPathConditionMaximumDistance', () => {
@@ -49,8 +46,7 @@ describe('addPathConditionMaximumDistance', () => {
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 0}, 0);
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 3}, cumulativeMovementCost: 0}, 0);
 
-        const searchParameters = SearchParametersHelper.new({
-        });
+        const searchParameters = SearchParametersHelper.new({});
 
         expect(condition.shouldAddNewPath({newPath: pathAtHead, searchParameters})).toBe(true);
     });

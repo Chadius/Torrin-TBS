@@ -181,7 +181,7 @@ export class TerrainTileMap {
 }
 
 export const TerrainTileMapHelper = {
-    new: ({movementCost}: {movementCost: string[]}): TerrainTileMap => {
+    new: ({movementCost}: { movementCost: string[] }): TerrainTileMap => {
         return new TerrainTileMap({movementCost});
     },
     createMapLayerForVisitableTiles: ({

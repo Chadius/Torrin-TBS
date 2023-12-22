@@ -17,7 +17,6 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattleSquaddie} from "../battleSquaddie";
-import * as path from "path";
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -185,7 +184,7 @@ const getClosestSquaddieAndLocationToFollow = ({
         const closestReachableLocationsFromTheActor: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(routesToAllSquaddies, actorLocation, distanceFromActor);
         const closestSquaddies = getClosestSquaddiesToActor(desiredBattleSquaddies, missionMap, closestReachableLocationsFromTheActor);
         if (closestSquaddies.length < 1) {
-            return undefined;
+            continue;
         }
 
         const candidateToChase = closestSquaddies[Math.floor(Math.random() * closestSquaddies.length)];

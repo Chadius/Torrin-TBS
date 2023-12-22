@@ -1,6 +1,5 @@
 import {SearchPath, SearchPathHelper} from "../searchPath";
 import {SearchParameters} from "../searchParams";
-import {isValidValue} from "../../../utils/validityCheck";
 import {AreValidParametersForAddPathCondition} from "../addPathConditions/addPathCondition";
 import {PathCanStopCondition} from "./pathCanStopCondition";
 import {MissionMap} from "../../../missionMap/missionMap";

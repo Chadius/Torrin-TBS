@@ -9,14 +9,14 @@ import {AreValidParametersForPathCanStopCondition, PathCanStopCondition} from ".
 export class PathCanStopConditionNotAWallOrPit implements PathCanStopCondition {
     missionMap: MissionMap;
 
-    constructor({missionMap}: {missionMap: MissionMap}) {
+    constructor({missionMap}: { missionMap: MissionMap }) {
         this.missionMap = missionMap;
     }
 
     shouldMarkPathLocationAsStoppable({
-                         newPath,
-                         searchParameters,
-                     }: { newPath: SearchPath; searchParameters: SearchParameters }): boolean {
+                                          newPath,
+                                          searchParameters,
+                                      }: { newPath: SearchPath; searchParameters: SearchParameters }): boolean {
         if (!AreValidParametersForPathCanStopCondition({newPath})) {
             return undefined;
         }

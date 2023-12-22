@@ -69,8 +69,10 @@ describe('Targeting Service', () => {
         });
 
         expect(results.locationsInRange).toHaveLength(6);
-        expect(results.locationsInRange).toStrictEqual(
-            CreateNewNeighboringCoordinates(1, 1)
+        expect(results.locationsInRange).toEqual(
+            expect.arrayContaining(
+                CreateNewNeighboringCoordinates(1, 1)
+            )
         );
     });
 
