@@ -225,7 +225,10 @@ function getClosestSquaddiesToActor(desiredBattleSquaddies: {
     battleSquaddie: BattleSquaddie
 }[], missionMap: MissionMap, closestReachableLocations: HexCoordinate[]) {
     return desiredBattleSquaddies.filter(battleSquaddieIter => {
-        const location: MissionMapSquaddieLocation = missionMap.getSquaddieByBattleId(battleSquaddieIter.battleSquaddieId);
-        return closestReachableLocations.some(closestReachableLocation => closestReachableLocation.q === location.mapLocation.q && closestReachableLocation.r === location.mapLocation.r);
+        const {mapLocation: location} = missionMap.getSquaddieByBattleId(battleSquaddieIter.battleSquaddieId);
+        if (location === undefined) {
+            return false;
+        }
+        return closestReachableLocations.some(closestReachableLocation => closestReachableLocation.q === location.q && closestReachableLocation.r === location.r);
     });
 }

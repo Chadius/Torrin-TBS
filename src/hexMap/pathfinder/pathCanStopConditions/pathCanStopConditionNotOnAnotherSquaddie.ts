@@ -7,7 +7,7 @@ import {ObjectRepository, ObjectRepositoryHelper} from "../../../battle/objectRe
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 
-export class PathCanStopConditionNotOnASquaddie implements PathCanStopCondition {
+export class PathCanStopConditionNotOnAnotherSquaddie implements PathCanStopCondition {
 
     missionMap: MissionMap;
     repository: ObjectRepository;
@@ -28,6 +28,10 @@ export class PathCanStopConditionNotOnASquaddie implements PathCanStopCondition 
             return undefined;
         }
 
+        if (newPath.tilesTraveled.length <= 1) {
+            return true;
+        }
+
         if (searchParameters.canStopOnSquaddies === true) {
             return true;
         }
@@ -41,6 +45,7 @@ export class PathCanStopConditionNotOnASquaddie implements PathCanStopCondition 
         if (battleSquaddieId === undefined) {
             return true;
         }
+
         const {
             squaddieTemplate,
             battleSquaddie,

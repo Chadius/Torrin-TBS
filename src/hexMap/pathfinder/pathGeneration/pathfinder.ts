@@ -23,7 +23,7 @@ import {AddPathConditionMaximumDistance} from "../addPathConditions/addPathCondi
 import {PathCanStopCondition} from "../pathCanStopConditions/pathCanStopCondition";
 import {PathCanStopConditionNotAWallOrPit} from "../pathCanStopConditions/pathCanStopConditionNotAWallOrPit";
 import {PathCanStopConditionMinimumDistance} from "../pathCanStopConditions/pathCanStopConditionMinimumDistance";
-import {PathCanStopConditionNotOnASquaddie} from "../pathCanStopConditions/pathCanStopConditionNotOnASquaddie";
+import {PathCanStopConditionNotOnAnotherSquaddie} from "../pathCanStopConditions/pathCanStopConditionNotOnAnotherSquaddie";
 
 export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>;
@@ -73,7 +73,7 @@ export const PathfinderWorkingStateHelper = {
             pathCanStopConditions: [
                 new PathCanStopConditionNotAWallOrPit({missionMap}),
                 new PathCanStopConditionMinimumDistance({}),
-                new PathCanStopConditionNotOnASquaddie({missionMap, repository}),
+                new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository}),
             ],
             stopLocationsReached: [],
         };
@@ -135,7 +135,7 @@ const populateStartingLocations = ({
                 value: true
             });
             const startingPath = SearchPathHelper.newSearchPath();
-            SearchPathHelper.startNewMovementAction(startingPath);
+            SearchPathHelper.startNewMovementAction(startingPath, false);
             SearchPathHelper.add(
                 startingPath,
                 {

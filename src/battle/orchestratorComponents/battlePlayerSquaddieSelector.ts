@@ -12,7 +12,6 @@ import {
     convertScreenCoordinatesToMapCoordinates
 } from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {HighlightSquaddieReach} from "../animation/mapHighlightOLD";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
@@ -37,6 +36,8 @@ import {ObjectRepositoryHelper} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
+import {MapHighlightHelper} from "../animation/mapHighlight";
+import {MissionMapHelper} from "../../missionMap/missionMap";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -204,7 +205,13 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.battleState.missionMap, state.battleState.missionMap.terrainTileMap, state.squaddieRepository);
+        const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+            repository: state.squaddieRepository,
+            missionMap: state.battleState.missionMap,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            startLocation: clickedHexCoordinate,
+        })
+        state.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddie.battleSquaddieId,
             repositionWindow: {
@@ -246,6 +253,8 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             ? squaddieClickedOnInfoAndMapLocation.battleSquaddieId
             : SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing);
 
+        const {mapLocation: startLocation} = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddieToHighlightId)
+
         if (startOfANewSquaddieTurn) {
             this.selectedBattleSquaddieId = squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
         }
@@ -255,7 +264,13 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieToHighlightId));
 
         state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
-        HighlightSquaddieReach(battleSquaddie, squaddieTemplate, state.battleState.missionMap, state.battleState.missionMap.terrainTileMap, state.squaddieRepository);
+        const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+            repository: state.squaddieRepository,
+            missionMap: state.battleState.missionMap,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            startLocation: startLocation,
+        })
+        state.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
     }
 
     private updateBattleSquaddieUISelectedSquaddieClickedOnMap(state: BattleOrchestratorState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {

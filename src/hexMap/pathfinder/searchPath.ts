@@ -63,9 +63,11 @@ export const SearchPathHelper = {
     getTotalDistance: (path: SearchPath): number => {
         return path.tilesTraveled ? path.tilesTraveled.length - 1 : 0;
     },
-    startNewMovementAction: (path: SearchPath): void => {
+    startNewMovementAction: (path: SearchPath, incrementMoveActionCount: boolean = true): void => {
         path.movementCostSinceStartOfAction = 0;
-        path.currentNumberOfMoveActions++;
+        if (incrementMoveActionCount) {
+            path.currentNumberOfMoveActions++;
+        }
         path.tilesTraveledByNumberOfMovementActions[path.currentNumberOfMoveActions] = [];
     },
     getNumberOfMovementActions: (path: SearchPath): number => {

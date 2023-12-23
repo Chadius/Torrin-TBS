@@ -9,23 +9,19 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ArmyAttributesHelper} from "../../squaddie/armyAttributes";
 import {SquaddieMovementHelper} from "../../squaddie/movement";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {PulseBlendColor} from "../../hexMap/colorUtils";
 import {HighlightPulseBlueColor} from "../../hexMap/hexDrawingUtils";
 import {MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS} from "../loading/missionLoader";
 import {MapHighlightHelper} from "./mapHighlight";
+import {MissionMapHelper} from "../../missionMap/missionMap";
+import {SquaddieTurnHandler} from "../../squaddie/turn";
 
 describe('map highlight generator', () => {
     let terrainAllSingleMovement: TerrainTileMap;
     let terrainAllDoubleMovement: TerrainTileMap;
     let terrainAlternatingPits: TerrainTileMap;
-    let terrain2rows: TerrainTileMap;
-    let terrainWalledIn: TerrainTileMap;
     let repository: ObjectRepository;
 
-    let actionRange0_1: SquaddieAction;
-    let actionRange0_2: SquaddieAction;
-    let actionRange2_3: SquaddieAction;
+    let rangedAction: SquaddieAction;
 
     beforeEach(() => {
         repository = ObjectRepositoryHelper.new();
@@ -41,42 +37,11 @@ describe('map highlight generator', () => {
             movementCost: ["1 1 - 1 1 1 - 1 1 1 "],
         });
 
-        terrainWalledIn = TerrainTileMapHelper.new({
-            movementCost: ["x x x 1 1 1 x x x x "],
-        });
-
-        terrain2rows = TerrainTileMapHelper.new({
-            movementCost: [
-                "1 1 1 ",
-                " 1 1 1 "
-            ],
-        });
-
-        actionRange0_1 = SquaddieActionHandler.new({
-            id: "melee",
-            name: "melee",
-            minimumRange: 0,
-            maximumRange: 1,
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-            })
-        });
-
-        actionRange0_2 = SquaddieActionHandler.new({
+        rangedAction = SquaddieActionHandler.new({
             id: "meleeAndRanged",
             name: "melee and ranged",
             minimumRange: 0,
             maximumRange: 2,
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-            })
-        });
-
-        actionRange2_3 = SquaddieActionHandler.new({
-            id: "rangedOnly",
-            name: "rangedOnly",
-            minimumRange: 2,
-            maximumRange: 3,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             })
@@ -212,20 +177,193 @@ describe('map highlight generator', () => {
         ]);
     });
 
-    // TODO Squaddie with 1 movement
-    // TODO Squaddie with melee attack
-    // TODO Squaddie with 1 movement and melee attack
-    // TODO Squaddie with 1 movement and ranged attack
+    describe('shows movement for squaddie with no actions', () => {
+        let squaddieWithNoMovement: SquaddieTemplate;
+        let battleSquaddie: BattleSquaddie;
 
-    // TODO melee attack
-    // TODO ranged attack
-    // TODO indirect attack
+        beforeEach(() => {
+            squaddieWithNoMovement = SquaddieTemplateHelper.new({
+                squaddieId: SquaddieIdHelper.new({
+                    templateId: "templateId",
+                    name: "template",
+                    affiliation: SquaddieAffiliation.UNKNOWN,
+                }),
+                attributes: ArmyAttributesHelper.new({
+                    movement: SquaddieMovementHelper.new({
+                        movementPerAction: 1,
+                    })
+                })
+            });
+            ObjectRepositoryHelper.addSquaddieTemplate(repository, squaddieWithNoMovement);
 
-    // TODO it('shows movement for squaddie with no actions', () => {})
-    // TODO it('shows movement for squaddie with melee attack', () => {})
-    // TODO it('shows movement for squaddie with melee attack after spending some movement actions', () => {})
-    // TODO it('shows movement for squaddie with ranged attack', () => {})
-    // TODO it('shows movement for squaddie with ranged attack after spending some movement actions', () => {})
-    // TODO it('shows movement for squaddie with indirect attack', () => {})
-    // TODO it('shows movement for squaddie with indirect attack after spending some movement actions', () => {})
+            battleSquaddie = BattleSquaddieHelper.new({
+                battleSquaddieId: "battleId",
+                squaddieTemplate: squaddieWithNoMovement,
+            })
+            ObjectRepositoryHelper.addBattleSquaddie(repository, battleSquaddie);
+        });
+        it('highlights correct locations when squaddie has 1 action', () => {
+            SquaddieTurnHandler.spendActionPoints(battleSquaddie.squaddieTurn, 2);
+            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(1);
+
+            const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                missionMap: MissionMapHelper.new({terrainTileMap: terrainAllSingleMovement}),
+                startLocation: {q: 0, r: 2},
+                repository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            });
+
+            expect(highlightedDescription).toEqual([
+                {
+                    tiles: [
+                        {q: 0, r: 2}
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: "",
+                },
+                {
+                    tiles: [
+                        {q: 0, r: 1},
+                        {q: 0, r: 3},
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+                }
+            ])
+        });
+        it('highlights correct locations when squaddie has multiple actions', () => {
+            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3);
+
+            const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                missionMap: MissionMapHelper.new({terrainTileMap: terrainAllSingleMovement}),
+                startLocation: {q: 0, r: 2},
+                repository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            });
+
+            expect(highlightedDescription).toEqual([
+                {
+                    tiles: [
+                        {q: 0, r: 2}
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: "",
+                },
+                {
+                    tiles: [
+                        {q: 0, r: 1},
+                        {q: 0, r: 3},
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+                },
+                {
+                    tiles: [
+                        {q: 0, r: 0},
+                        {q: 0, r: 4},
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1],
+                },
+                {
+                    tiles: [
+                        {q: 0, r: 5},
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2],
+                },
+            ])
+        });
+        it('highlights correct locations when squaddie has to deal with double movement terrain', () => {
+            expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3);
+
+            const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                missionMap: MissionMapHelper.new({terrainTileMap: terrainAllDoubleMovement}),
+                startLocation: {q: 0, r: 2},
+                repository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            });
+
+            expect(highlightedDescription).toEqual([
+                {
+                    tiles: [
+                        {q: 0, r: 2}
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: "",
+                },
+                {
+                    tiles: [
+                        {q: 0, r: 1},
+                        {q: 0, r: 3},
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1],
+                }
+            ])
+        });
+    });
+
+    describe('shows attack tiles when squaddie cannot move to location but can attack', () => {
+        let squaddieWithNoMovement: SquaddieTemplate;
+        let battleSquaddie: BattleSquaddie;
+
+        beforeEach(() => {
+            squaddieWithNoMovement = SquaddieTemplateHelper.new({
+                squaddieId: SquaddieIdHelper.new({
+                    templateId: "templateId",
+                    name: "template",
+                    affiliation: SquaddieAffiliation.UNKNOWN,
+                }),
+                attributes: ArmyAttributesHelper.new({
+                    movement: SquaddieMovementHelper.new({
+                        movementPerAction: 1,
+                    })
+                }),
+                actions: [rangedAction],
+            });
+            ObjectRepositoryHelper.addSquaddieTemplate(repository, squaddieWithNoMovement);
+
+            battleSquaddie = BattleSquaddieHelper.new({
+                battleSquaddieId: "battleId",
+                squaddieTemplate: squaddieWithNoMovement,
+            })
+            ObjectRepositoryHelper.addBattleSquaddie(repository, battleSquaddie);
+        });
+
+        it('highlights correct locations when squaddie has 1 action', () => {
+            const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+                missionMap: MissionMapHelper.new({terrainTileMap: terrainAlternatingPits}),
+                startLocation: {q: 0, r: 4},
+                repository,
+                battleSquaddieId: battleSquaddie.battleSquaddieId,
+            });
+
+            expect(highlightedDescription).toEqual([
+                {
+                    tiles: [
+                        {q: 0, r: 4}
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: "",
+                },
+                {
+                    tiles: [
+                        {q: 0, r: 3},
+                        {q: 0, r: 5},
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+                },
+                {
+                    tiles: [
+                        {q: 0, r: 1},
+                        {q: 0, r: 7},
+                    ],
+                    pulseColor: HighlightPulseBlueColor,
+                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[3],
+                }
+            ])
+        });
+    });
 });

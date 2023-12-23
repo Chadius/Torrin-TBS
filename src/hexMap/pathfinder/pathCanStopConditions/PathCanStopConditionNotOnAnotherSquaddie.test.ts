@@ -8,7 +8,7 @@ import {SquaddieIdHelper} from "../../../squaddie/id";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {BattleSquaddieHelper} from "../../../battle/battleSquaddie";
 import {DamageType, DealDamageToTheSquaddie} from "../../../squaddie/squaddieService";
-import {PathCanStopConditionNotOnASquaddie} from "./pathCanStopConditionNotOnASquaddie";
+import {PathCanStopConditionNotOnAnotherSquaddie} from "./pathCanStopConditionNotOnAnotherSquaddie";
 
 describe('PathCanStopConditionNotOnASquaddie', () => {
     it('returns false if there is a squaddie at the location', () => {
@@ -48,8 +48,45 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
 
         const searchParameters = SearchParametersHelper.new({});
 
-        const condition = new PathCanStopConditionNotOnASquaddie({missionMap, repository});
+        const condition = new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository});
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(false);
+    });
+    it('returns true because the squaddie can stop at its own location', () => {
+        const missionMap: MissionMap = MissionMapHelper.new({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: [
+                    "1 1 2 1 2 ",
+                    " 1 x - 2 1 ",
+                ]
+            }),
+        });
+
+        const pathAtHead = SearchPathHelper.newSearchPath();
+        SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
+
+        const repository: ObjectRepository = ObjectRepositoryHelper.new();
+        const blockingSquaddieTemplate = SquaddieTemplateHelper.new({
+            squaddieId: SquaddieIdHelper.new({
+                templateId: "blocker",
+                name: "blocker",
+                affiliation: SquaddieAffiliation.UNKNOWN,
+            })
+        });
+        ObjectRepositoryHelper.addSquaddieTemplate(repository, blockingSquaddieTemplate);
+        const blockingSquaddieBattle = BattleSquaddieHelper.new({
+            squaddieTemplate: blockingSquaddieTemplate,
+            battleSquaddieId: "blocker 0"
+        });
+        ObjectRepositoryHelper.addBattleSquaddie(repository, blockingSquaddieBattle);
+        MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+            q: 0,
+            r: 0
+        });
+
+        const searchParameters = SearchParametersHelper.new({});
+
+        const condition = new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository});
+        expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns true if the squaddie is not alive', () => {
         const missionMap: MissionMap = MissionMapHelper.new({
@@ -94,7 +131,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
 
         const searchParameters = SearchParametersHelper.new({});
 
-        const condition = new PathCanStopConditionNotOnASquaddie({missionMap, repository});
+        const condition = new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository});
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns true if squaddies are not friendly but search parameters can stop on squaddies anyway', () => {
@@ -136,7 +173,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             canStopOnSquaddies: true,
         });
 
-        const condition = new PathCanStopConditionNotOnASquaddie({missionMap, repository});
+        const condition = new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository});
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns true if there is no squaddie at the location', () => {
@@ -160,7 +197,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
         });
 
-        const condition = new PathCanStopConditionNotOnASquaddie({missionMap, repository});
+        const condition = new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository});
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns undefined if there is no path', () => {
@@ -176,7 +213,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         const repository: ObjectRepository = ObjectRepositoryHelper.new();
         const searchParameters = SearchParametersHelper.new({});
 
-        const condition = new PathCanStopConditionNotOnASquaddie({missionMap, repository});
+        const condition = new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository});
         expect(condition.shouldMarkPathLocationAsStoppable({
             newPath: SearchPathHelper.newSearchPath(),
             searchParameters

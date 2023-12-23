@@ -6,7 +6,6 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
-import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlightOLD";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
@@ -16,6 +15,7 @@ import {RecordingHandler} from "../history/recording";
 import {ObjectRepositoryHelper} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
+import {MapHighlightHelper} from "../animation/mapHighlight";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -50,19 +50,11 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
 
     state.battleState.squaddieMovePath = closestRoute;
 
-    const hexCoordinatesByMoveActions: {
-        [moveActions: number]: HexCoordinate[]
-    } = {};
-    closestRoute.tilesTraveled.forEach(tileFound => {
-        const numberOfMoveActions: number = Math.ceil(tileFound.cumulativeMovementCost / 2)
-        hexCoordinatesByMoveActions[numberOfMoveActions] ||= [];
-        hexCoordinatesByMoveActions[numberOfMoveActions].push({
-            q: tileFound.hexCoordinate.q,
-            r: tileFound.hexCoordinate.r,
-        })
-    });
-
-    const routeTilesByDistance = getHighlightedTileDescriptionByNumberOfMovementActions(hexCoordinatesByMoveActions);
+    const routeTilesByDistance = MapHighlightHelper.convertSearchPathToHighlightLocations({
+        searchPath: closestRoute,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        repository: state.squaddieRepository,
+    })
     state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
     state.battleState.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);
 

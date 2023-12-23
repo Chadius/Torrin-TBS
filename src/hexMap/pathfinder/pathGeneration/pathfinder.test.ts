@@ -304,7 +304,7 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryHelper.new(),
             });
 
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(1);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
@@ -339,7 +339,7 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryHelper.new(),
             });
 
-            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(1);
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 1)).toBe(1);
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 2)).toBe(2);
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 3)).toBe(3);
@@ -367,7 +367,8 @@ describe("Pathfinder", () => {
                 repository: ObjectRepositoryHelper.new(),
             });
 
-            for (let r = 0; r < missionMap.terrainTileMap.getDimensions().widthOfWidestRow; r++) {
+            expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
+            for (let r = 1; r < missionMap.terrainTileMap.getDimensions().widthOfWidestRow; r++) {
                 expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, r)).toBe(1);
             }
         });
@@ -575,7 +576,5 @@ describe("Pathfinder", () => {
         });
     });
 });
-
-// TODO: Ripping off the band-aid!
 
 // TODO: Review SearchParameters, how many do you need? Rename fields?

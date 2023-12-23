@@ -8,12 +8,43 @@ import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ObjectRepository, ObjectRepositoryHelper} from "../battle/objectRepository";
 
 export const SquaddieService = {
-    searchPathLocationsByNumberOfMovementActions: ({searchPath, battleSquaddieId, repository}:{
+    dealDamageToTheSquaddie: ({
+                                  squaddieTemplate,
+                                  battleSquaddie,
+                                  damage,
+                                  damageType,
+                              }: {
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
+        damage: number,
+        damageType: DamageType,
+    }): {
+        damageTaken: number
+    } => {
+        return DealDamageToTheSquaddie({
+            squaddieTemplate,
+            battleSquaddie,
+            damage,
+            damageType,
+        });
+    },
+    getNumberOfActionPoints: ({
+                                  squaddieTemplate,
+                                  battleSquaddie,
+                              }: {
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
+    }): {
+        actionPointsRemaining: number
+    } => {
+        return GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
+    },
+    searchPathLocationsByNumberOfMovementActions: ({searchPath, battleSquaddieId, repository}: {
         searchPath: SearchPath,
         battleSquaddieId: string,
         repository: ObjectRepository,
-    }): {[movementActions: number]: TileFoundDescription[]} => {
-        const locationsByMoveAction: {[movementActions: number]: TileFoundDescription[]} = {};
+    }): { [movementActions: number]: TileFoundDescription[] } => {
+        const locationsByMoveAction: { [movementActions: number]: TileFoundDescription[] } = {};
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId))
         searchPath.tilesTraveled.forEach(locationDescription => {
             let numberOfMovementActions: number = Math.ceil(locationDescription.cumulativeMovementCost / squaddieTemplate.attributes.movement.movementPerAction);
