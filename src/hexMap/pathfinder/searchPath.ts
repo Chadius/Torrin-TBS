@@ -4,9 +4,9 @@ import {HexCoordinate} from "../hexCoordinate/hexCoordinate";
 
 export interface SearchPath {
     tilesTraveled: TileFoundDescription[];
-    tilesTraveledByNumberOfMovementActions: TileFoundDescription[][];
+    tilesTraveledByNumberOfMovementActions: TileFoundDescription[][]; // TODO nothing uses this
     totalMovementCost: number;
-    movementCostSinceStartOfAction: number;
+    movementCostSinceStartOfAction: number; // TODO nothing uses this
     currentNumberOfMoveActions: number;
     destination?: HexCoordinate;
 }
