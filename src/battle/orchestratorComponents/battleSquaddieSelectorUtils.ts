@@ -50,12 +50,15 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
 
     state.battleState.squaddieMovePath = closestRoute;
 
-    const hexCoordinatesByMoveActions: HexCoordinate[][] = closestRoute.tilesTraveledByNumberOfMovementActions.filter(x => x).map(tileFoundDescriptions => {
-        return tileFoundDescriptions.map(tileFound => {
-            return {
-                q: tileFound.hexCoordinate.q,
-                r: tileFound.hexCoordinate.r,
-            }
+    const hexCoordinatesByMoveActions: {
+        [moveActions: number]: HexCoordinate[]
+    } = {};
+    closestRoute.tilesTraveled.forEach(tileFound => {
+        const numberOfMoveActions: number = Math.ceil(tileFound.cumulativeMovementCost / 2)
+        hexCoordinatesByMoveActions[numberOfMoveActions] ||= [];
+        hexCoordinatesByMoveActions[numberOfMoveActions].push({
+            q: tileFound.hexCoordinate.q,
+            r: tileFound.hexCoordinate.r,
         })
     });
 

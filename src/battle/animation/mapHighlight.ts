@@ -44,28 +44,41 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
     const movementTilesByNumberOfActions: {
         [moveActions: number]: HexCoordinate[]
     } = SearchResultsHelper.getLocationsByNumberOfMoveActions(reachableTileSearchResults)
-    const sortedMovementActionPoints: number[] = Object.keys(movementTilesByNumberOfActions).map(str => Number(str));
 
-    const tilesTraveledByNumberOfMovementActions: HexCoordinate[][] =
-        Object.values(movementTilesByNumberOfActions).map(
-            (coordinateList: [({
-                q: number,
-                r: number
-            })]) => {
-                return coordinateList.map(
-                    (coordinate) => {
-                        return {...coordinate}
-                    })
-            });
-
-    tilesTraveledByNumberOfMovementActions.unshift([]);
-    const highlightTileDescriptions = getHighlightedTileDescriptionByNumberOfMovementActions(tilesTraveledByNumberOfMovementActions);
+    const highlightTileDescriptions = getHighlightedTileDescriptionByNumberOfMovementActions(movementTilesByNumberOfActions);
+    let movementTiles: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(reachableTileSearchResults);
 
     let actionTiles: HexCoordinate[] = [];
     const actionPoints = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
-
     squaddieTemplate.actions.forEach((action) => {
-        sortedMovementActionPoints.forEach((movementActionsSpent: number) => {
+        highlightTileDescriptions.forEach((descriptions: HighlightTileDescription, index: number) => {
+            const locationsToConsider: HexCoordinate[] = descriptions.tiles;
+            if (index === 0) {
+                if (descriptions.tiles.some(location => location.q === squaddieDatum.mapLocation.q && location.r === squaddieDatum.mapLocation.r)) {
+                    if (action.actionPointCost > actionPoints.actionPointsRemaining) {
+                        return;
+                    }
+                    const targetingResults = FindValidTargets({
+                        map: missionMap,
+                        action: action,
+                        actingSquaddieTemplate: squaddieTemplate,
+                        actingBattleSquaddie: battleSquaddie,
+                        squaddieRepository,
+                        sourceTiles: [{...squaddieDatum.mapLocation}],
+                    })
+
+                    actionTiles.push(
+                        ...targetingResults.locationsInRange.filter(
+                            location =>
+                                movementTiles.find(loc => loc.q === location.q && loc.r === location.r) === undefined
+                        )
+                    );
+                }
+
+                locationsToConsider.filter(location => location.q !== squaddieDatum.mapLocation.q || location.r !== squaddieDatum.mapLocation.r);
+            }
+
+            const movementActionsSpent = index + 1;
             if (action.actionPointCost > actionPoints.actionPointsRemaining - movementActionsSpent) {
                 return;
             }
@@ -76,7 +89,7 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
                 actingSquaddieTemplate: squaddieTemplate,
                 actingBattleSquaddie: battleSquaddie,
                 squaddieRepository,
-                sourceTiles: tilesTraveledByNumberOfMovementActions[movementActionsSpent],
+                sourceTiles: locationsToConsider,
             })
             actionTiles.push(...targetingResults.locationsInRange);
         });
@@ -92,35 +105,34 @@ export const HighlightSquaddieReach = (battleSquaddie: BattleSquaddie, squaddieT
     }
     hexMap.highlightTiles(highlightTileDescriptions);
 }
-export const getHighlightedTileDescriptionByNumberOfMovementActions = (routeSortedByNumberOfMovementActions: HexCoordinate[][]) => {
-    const routeTilesByDistance: HighlightTileDescription[] =
-        routeSortedByNumberOfMovementActions.map((tiles, numberOfMovementActions) => {
-            let overlayImageResourceName: string;
-            switch (numberOfMovementActions) {
-                case 0:
-                    break;
-                case 1:
-                    overlayImageResourceName = "map icon move 1 action";
-                    break;
-                case 2:
-                    overlayImageResourceName = "map icon move 2 actions";
-                    break;
-                default:
-                    overlayImageResourceName = "map icon move 3 actions";
-                    break;
-            }
+export const getHighlightedTileDescriptionByNumberOfMovementActions = (locationsByNumberOfMoveActions: {
+    [moveActions: number]: HexCoordinate[]
+}): HighlightTileDescription[] => {
+    const highlightedTileDescriptions: HighlightTileDescription[] = [
+        {
+            tiles: [],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: "map icon move 1 action",
+        },
+        {
+            tiles: [],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: "map icon move 2 actions",
+        },
+        {
+            tiles: [],
+            pulseColor: HighlightPulseBlueColor,
+            overlayImageResourceName: "map icon move 3 actions",
+        },
+    ];
+    Object.entries(locationsByNumberOfMoveActions).forEach(([moveActionsStr, coordinates]) => {
+        let numberOfMoveActions: number = Number(moveActionsStr);
 
-            if (overlayImageResourceName) {
-                return {
-                    tiles,
-                    pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName,
-                }
-            }
-            return {
-                tiles,
-                pulseColor: HighlightPulseBlueColor,
-            }
-        });
-    return routeTilesByDistance;
+        let index = numberOfMoveActions - 1;
+        if (index < 0) { index = 0; }
+        if (index > 2) {index = 2;}
+        highlightedTileDescriptions[index].tiles = [...coordinates];
+    });
+
+    return highlightedTileDescriptions;
 }
