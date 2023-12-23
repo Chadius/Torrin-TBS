@@ -37,7 +37,7 @@ export const SearchPathHelper = {
             destination: undefined,
         }
     },
-    add: (path: SearchPath, tile: TileFoundDescription, cost: number): void => {
+    add: (path: SearchPath, tile: TileFoundDescription, costToMoveToNewTile: number): void => {
         if (path.tilesTraveledByNumberOfMovementActions.length === 0) {
             path.tilesTraveledByNumberOfMovementActions.push([]);
         }
@@ -46,8 +46,8 @@ export const SearchPathHelper = {
         path.tilesTraveledByNumberOfMovementActions[path.currentNumberOfMoveActions].push(tile);
         path.tilesTraveled.push(tile);
 
-        path.totalMovementCost += cost;
-        path.movementCostSinceStartOfAction += cost;
+        path.totalMovementCost += costToMoveToNewTile;
+        path.movementCostSinceStartOfAction += costToMoveToNewTile;
 
         path.destination = {q: tile.hexCoordinate.q, r: tile.hexCoordinate.r};
     },

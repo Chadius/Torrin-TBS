@@ -6,7 +6,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
-import {HighlightSquaddieReach} from "../animation/mapHighlight";
+import {HighlightSquaddieReach} from "../animation/mapHighlightOLD";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";

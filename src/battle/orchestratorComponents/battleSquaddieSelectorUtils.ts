@@ -6,7 +6,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
-import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlight";
+import {getHighlightedTileDescriptionByNumberOfMovementActions} from "../animation/mapHighlightOLD";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";

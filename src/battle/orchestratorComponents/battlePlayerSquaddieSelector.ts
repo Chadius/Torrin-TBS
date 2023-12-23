@@ -12,7 +12,7 @@ import {
     convertScreenCoordinatesToMapCoordinates
 } from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {HighlightSquaddieReach} from "../animation/mapHighlight";
+import {HighlightSquaddieReach} from "../animation/mapHighlightOLD";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
