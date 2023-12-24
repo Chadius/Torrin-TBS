@@ -35,7 +35,7 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
             return true;
         }
 
-        const head = SearchPathHelper.getMostRecentTileLocation(newPath);
+        const head = SearchPathHelper.getMostRecentLocation(newPath);
 
         const {battleSquaddieId} = this.missionMap.getSquaddieAtLocation({
             q: head.hexCoordinate.q,
@@ -61,5 +61,3 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
         return friendlyAffiliations[squaddieTemplate.squaddieId.affiliation] === true;
     }
 }
-
-// TODO replace canStopOnSquaddies with canPassThroughSquaddies

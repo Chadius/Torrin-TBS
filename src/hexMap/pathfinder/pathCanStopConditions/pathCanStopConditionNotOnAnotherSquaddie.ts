@@ -28,7 +28,7 @@ export class PathCanStopConditionNotOnAnotherSquaddie implements PathCanStopCond
             return undefined;
         }
 
-        if (newPath.tilesTraveled.length <= 1) {
+        if (newPath.locationsTraveled.length <= 1) {
             return true;
         }
 
@@ -36,7 +36,7 @@ export class PathCanStopConditionNotOnAnotherSquaddie implements PathCanStopCond
             return true;
         }
 
-        const head = SearchPathHelper.getMostRecentTileLocation(newPath);
+        const head = SearchPathHelper.getMostRecentLocation(newPath);
 
         const {battleSquaddieId} = this.missionMap.getSquaddieAtLocation({
             q: head.hexCoordinate.q,

@@ -8,7 +8,7 @@ export interface ArmyAttributes {
 }
 
 export const ArmyAttributesHelper = {
-    new: ({movement}:{movement?: SquaddieMovement}): ArmyAttributes => {
+    new: ({movement}: { movement?: SquaddieMovement }): ArmyAttributes => {
         const attributes = {
             ...DefaultArmyAttributes(),
             movement

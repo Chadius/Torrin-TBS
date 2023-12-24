@@ -121,7 +121,7 @@ export const updateSquaddieIconLocation = (squaddieRepository: ObjectRepository,
 }
 
 export const hasMovementAnimationFinished = (timeMovementStarted: number, squaddieMovePath: SearchPath) => {
-    if (SearchPathHelper.getTilesTraveled(squaddieMovePath).length <= 1) {
+    if (SearchPathHelper.getLocations(squaddieMovePath).length <= 1) {
         return true;
     }
 
@@ -136,7 +136,7 @@ export const hasMovementAnimationFinished = (timeMovementStarted: number, squadd
 export const moveSquaddieAlongPath = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, timeMovementStarted: number, squaddieMovePath: SearchPath, camera: BattleCamera) => {
     const timePassed = Date.now() - timeMovementStarted;
     const squaddieDrawCoordinates: [number, number] = getSquaddiePositionAlongPath(
-        SearchPathHelper.getTilesTraveled(squaddieMovePath).map(tile => tile.hexCoordinate),
+        SearchPathHelper.getLocations(squaddieMovePath).map(tile => tile.hexCoordinate),
         timePassed,
         TIME_TO_MOVE,
         camera,

@@ -3,7 +3,7 @@ import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {InBattleAttributesHandler} from "../battle/stats/inBattleAttributes";
 import {SearchPath} from "../hexMap/pathfinder/searchPath";
-import {TileFoundDescription} from "../hexMap/pathfinder/tileFoundDescription";
+import {LocationTraveled} from "../hexMap/pathfinder/locationTraveled";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ObjectRepository, ObjectRepositoryHelper} from "../battle/objectRepository";
 
@@ -43,10 +43,10 @@ export const SquaddieService = {
         searchPath: SearchPath,
         battleSquaddieId: string,
         repository: ObjectRepository,
-    }): { [movementActions: number]: TileFoundDescription[] } => {
-        const locationsByMoveAction: { [movementActions: number]: TileFoundDescription[] } = {};
+    }): { [movementActions: number]: LocationTraveled[] } => {
+        const locationsByMoveAction: { [movementActions: number]: LocationTraveled[] } = {};
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId))
-        searchPath.tilesTraveled.forEach(locationDescription => {
+        searchPath.locationsTraveled.forEach(locationDescription => {
             let numberOfMovementActions: number = Math.ceil(locationDescription.cumulativeMovementCost / squaddieTemplate.attributes.movement.movementPerAction);
             locationsByMoveAction[numberOfMovementActions] ||= [];
             locationsByMoveAction[numberOfMovementActions].push(locationDescription);

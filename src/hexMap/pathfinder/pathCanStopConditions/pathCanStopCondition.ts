@@ -21,9 +21,9 @@ export const AreValidParametersForPathCanStopCondition = ({
         return false;
     }
 
-    if (!isValidValue(SearchPathHelper.getMostRecentTileLocation(newPath))) {
+    if (!isValidValue(SearchPathHelper.getMostRecentLocation(newPath))) {
         return false;
     }
 
-    return isValidValue(SearchPathHelper.getMostRecentTileLocation(newPath).hexCoordinate);
+    return isValidValue(SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate);
 }

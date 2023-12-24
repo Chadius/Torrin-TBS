@@ -23,6 +23,6 @@ export class AddPathConditionMaximumDistance implements AddPathCondition {
             return true;
         }
 
-        return newPath.tilesTraveled.length <= searchParameters.maximumDistanceMoved + 1;
+        return newPath.locationsTraveled.length <= searchParameters.maximumDistanceMoved + 1;
     }
 }

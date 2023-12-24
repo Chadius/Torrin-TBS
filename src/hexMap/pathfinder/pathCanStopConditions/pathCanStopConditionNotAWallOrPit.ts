@@ -21,7 +21,7 @@ export class PathCanStopConditionNotAWallOrPit implements PathCanStopCondition {
             return undefined;
         }
 
-        const coordinate: HexCoordinate = SearchPathHelper.getMostRecentTileLocation(newPath).hexCoordinate;
+        const coordinate: HexCoordinate = SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate;
         const terrainType = TerrainTileMapHelper.getTileTerrainTypeAtLocation(this.missionMap.terrainTileMap, coordinate.q, coordinate.r);
         return ![HexGridMovementCost.pit, HexGridMovementCost.wall].includes(terrainType);
     }

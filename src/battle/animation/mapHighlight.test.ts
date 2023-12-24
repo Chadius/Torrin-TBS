@@ -9,7 +9,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ArmyAttributesHelper} from "../../squaddie/armyAttributes";
 import {SquaddieMovementHelper} from "../../squaddie/movement";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
-import {HighlightPulseBlueColor} from "../../hexMap/hexDrawingUtils";
+import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS} from "../loading/missionLoader";
 import {MapHighlightHelper} from "./mapHighlight";
 import {MissionMapHelper} from "../../missionMap/missionMap";
@@ -331,7 +331,7 @@ describe('map highlight generator', () => {
             ObjectRepositoryHelper.addBattleSquaddie(repository, battleSquaddie);
         });
 
-        it('highlights correct locations when squaddie has 1 action', () => {
+        it('highlights correct locations when squaddie has a ranged weapon', () => {
             const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
                 missionMap: MissionMapHelper.new({terrainTileMap: terrainAlternatingPits}),
                 startLocation: {q: 0, r: 4},
@@ -360,7 +360,7 @@ describe('map highlight generator', () => {
                         {q: 0, r: 1},
                         {q: 0, r: 7},
                     ],
-                    pulseColor: HighlightPulseBlueColor,
+                    pulseColor: HighlightPulseRedColor,
                     overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[3],
                 }
             ])

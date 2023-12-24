@@ -2,7 +2,7 @@ import {AddPathCondition, AreValidParametersForAddPathCondition} from "./addPath
 import {SearchPath, SearchPathHelper} from "../searchPath";
 import {SearchParameters} from "../searchParams";
 import {MapLayer, MapLayerHelper} from "../../../missionMap/mapLayer";
-import {TileFoundDescription} from "../tileFoundDescription";
+import {LocationTraveled} from "../locationTraveled";
 import {isValidValue} from "../../../utils/validityCheck";
 
 export class AddPathConditionIsInsideMap implements AddPathCondition {
@@ -27,7 +27,7 @@ export class AddPathConditionIsInsideMap implements AddPathCondition {
             return undefined;
         }
 
-        const headLocation: TileFoundDescription = SearchPathHelper.getMostRecentTileLocation(newPath);
+        const headLocation: LocationTraveled = SearchPathHelper.getMostRecentLocation(newPath);
         return !MapLayerHelper.outOfBounds({
             mapLayer: this.terrainMapLayer,
             q: headLocation.hexCoordinate.q,

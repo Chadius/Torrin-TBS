@@ -13,7 +13,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
-import {DamageType, DealDamageToTheSquaddie, SquaddieService} from "../../squaddie/squaddieService";
+import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
 
 describe('move towards closest squaddie in range', () => {
     let squaddieRepository: ObjectRepository;
@@ -430,7 +430,12 @@ describe('move towards closest squaddie in range', () => {
             q: 0,
             r: 3
         });
-        SquaddieService.dealDamageToTheSquaddie({squaddieTemplate: targetSquaddieTemplate, battleSquaddie: targetBattleSquaddie, damage: 9001, damageType: DamageType.UNKNOWN})
+        SquaddieService.dealDamageToTheSquaddie({
+            squaddieTemplate: targetSquaddieTemplate,
+            battleSquaddie: targetBattleSquaddie,
+            damage: 9001,
+            damageType: DamageType.UNKNOWN
+        })
 
         const state = new TeamStrategyState({
             missionMap: missionMap,

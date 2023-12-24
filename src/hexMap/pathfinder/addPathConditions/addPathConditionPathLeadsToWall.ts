@@ -25,7 +25,7 @@ export class AddPathConditionPathLeadsToWall implements AddPathCondition {
             return true;
         }
 
-        const coordinate: HexCoordinate = SearchPathHelper.getMostRecentTileLocation(newPath).hexCoordinate;
+        const coordinate: HexCoordinate = SearchPathHelper.getMostRecentLocation(newPath).hexCoordinate;
         const terrainType = TerrainTileMapHelper.getTileTerrainTypeAtLocation(this.missionMap.terrainTileMap, coordinate.q, coordinate.r);
         return terrainType !== HexGridMovementCost.wall;
     }

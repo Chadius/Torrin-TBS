@@ -23,7 +23,9 @@ import {AddPathConditionMaximumDistance} from "../addPathConditions/addPathCondi
 import {PathCanStopCondition} from "../pathCanStopConditions/pathCanStopCondition";
 import {PathCanStopConditionNotAWallOrPit} from "../pathCanStopConditions/pathCanStopConditionNotAWallOrPit";
 import {PathCanStopConditionMinimumDistance} from "../pathCanStopConditions/pathCanStopConditionMinimumDistance";
-import {PathCanStopConditionNotOnAnotherSquaddie} from "../pathCanStopConditions/pathCanStopConditionNotOnAnotherSquaddie";
+import {
+    PathCanStopConditionNotOnAnotherSquaddie
+} from "../pathCanStopConditions/pathCanStopConditionNotOnAnotherSquaddie";
 
 export interface PathfinderWorkingState {
     searchPathQueue: PriorityQueue<SearchPath>;
@@ -180,8 +182,8 @@ const generateValidPaths = ({
         searchParameters: SearchParameters;
     }) => {
         const current: HexCoordinate = {
-            q: SearchPathHelper.getMostRecentTileLocation(currentSearchPath).hexCoordinate.q,
-            r: SearchPathHelper.getMostRecentTileLocation(currentSearchPath).hexCoordinate.r,
+            q: SearchPathHelper.getMostRecentLocation(currentSearchPath).hexCoordinate.q,
+            r: SearchPathHelper.getMostRecentLocation(currentSearchPath).hexCoordinate.r,
         };
 
         function makeNewCandidatePath(nextLocation: HexCoordinate) {
@@ -268,7 +270,7 @@ const generateValidPaths = ({
         !anyStopConditionWasReached()
         ) {
         const currentSearchPath: SearchPath = workingState.searchPathQueue.dequeue();
-        const currentLocation: HexCoordinate = SearchPathHelper.getMostRecentTileLocation(currentSearchPath).hexCoordinate;
+        const currentLocation: HexCoordinate = SearchPathHelper.getMostRecentLocation(currentSearchPath).hexCoordinate;
         MapLayerHelper.setValueOfLocation({
             mapLayer: workingState.mapLayers.visited,
             q: currentLocation.q,

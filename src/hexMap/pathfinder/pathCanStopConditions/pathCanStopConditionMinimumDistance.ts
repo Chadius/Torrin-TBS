@@ -24,6 +24,6 @@ export class PathCanStopConditionMinimumDistance implements PathCanStopCondition
             return true;
         }
 
-        return newPath.tilesTraveled.length >= searchParameters.minimumDistanceMoved + 1;
+        return newPath.locationsTraveled.length >= searchParameters.minimumDistanceMoved + 1;
     }
 }

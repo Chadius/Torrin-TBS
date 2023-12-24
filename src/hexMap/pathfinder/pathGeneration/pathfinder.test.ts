@@ -50,14 +50,14 @@ describe("Pathfinder", () => {
         it("path to the starting location costs no movement", () => {
             const path2_0: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 2);
             expect(SearchPathHelper.getTotalMovementCost(path2_0)).toEqual(0);
-            expect(SearchPathHelper.getTilesTraveled(path2_0)).toHaveLength(1);
+            expect(SearchPathHelper.getLocations(path2_0)).toHaveLength(1);
             expect(SearchPathHelper.getTotalDistance(path2_0)).toEqual(0);
         });
 
         it("path to further locations costs movement", () => {
             const path1_4: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 4);
             expect(SearchPathHelper.getTotalMovementCost(path1_4)).toEqual(4);
-            expect(SearchPathHelper.getTilesTraveled(path1_4)).toHaveLength(4);
+            expect(SearchPathHelper.getLocations(path1_4)).toHaveLength(4);
             expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(3);
         });
     });
@@ -467,19 +467,19 @@ describe("Pathfinder", () => {
         it("path to the starting location costs no movement", () => {
             const path0_0: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 0);
             expect(SearchPathHelper.getTotalMovementCost(path0_0)).toEqual(0);
-            expect(SearchPathHelper.getTilesTraveled(path0_0)).toHaveLength(1);
+            expect(SearchPathHelper.getLocations(path0_0)).toHaveLength(1);
             expect(SearchPathHelper.getTotalDistance(path0_0)).toEqual(0);
 
             const path1_4: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 4);
             expect(SearchPathHelper.getTotalMovementCost(path1_4)).toEqual(0);
-            expect(SearchPathHelper.getTilesTraveled(path1_4)).toHaveLength(1);
+            expect(SearchPathHelper.getLocations(path1_4)).toHaveLength(1);
             expect(SearchPathHelper.getTotalDistance(path1_4)).toEqual(0);
         });
 
         it("path to further locations refers to starting location with least movement cost", () => {
             const path0_2: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 0, 2);
 
-            const route0_2 = SearchPathHelper.getTilesTraveled(path0_2);
+            const route0_2 = SearchPathHelper.getLocations(path0_2);
             expect(route0_2).toHaveLength(3);
             expect(route0_2[0].hexCoordinate).toEqual({q: 0, r: 0});
             expect(route0_2[1].hexCoordinate).toEqual({q: 0, r: 1});
@@ -490,7 +490,7 @@ describe("Pathfinder", () => {
 
             const path1_3: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 3);
 
-            const route1_3 = SearchPathHelper.getTilesTraveled(path1_3);
+            const route1_3 = SearchPathHelper.getLocations(path1_3);
             expect(route1_3).toHaveLength(2);
             expect(route1_3[0].hexCoordinate).toEqual({q: 1, r: 4});
             expect(route1_3[1].hexCoordinate).toEqual({q: 1, r: 3});
@@ -576,5 +576,3 @@ describe("Pathfinder", () => {
         });
     });
 });
-
-// TODO: Review SearchParameters, how many do you need? Rename fields?

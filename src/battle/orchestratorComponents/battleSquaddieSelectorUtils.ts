@@ -1,11 +1,11 @@
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
+import {GetNumberOfActionPoints, SquaddieService} from "../../squaddie/squaddieService";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
+import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SquaddieMovementAction} from "../history/squaddieMovementAction";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
@@ -16,6 +16,7 @@ import {ObjectRepositoryHelper} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {MapHighlightHelper} from "../animation/mapHighlight";
+import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -64,9 +65,18 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
 export function AddMovementInstruction(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinate) {
     MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
 
+    const locationsByMoveActions: {
+        [movementActions: number]: LocationTraveled[]
+    } = SquaddieService.searchPathLocationsByNumberOfMovementActions({
+        searchPath: state.battleState.squaddieMovePath,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        repository: state.squaddieRepository,
+    });
+    const numberOfActionPointsSpentMoving: number = Math.max(...Object.keys(locationsByMoveActions).map(str => Number(str))) || 1;
+
     const moveAction = new SquaddieMovementAction({
         destination: destinationHexCoordinate,
-        numberOfActionPointsSpent: SearchPathHelper.getNumberOfMovementActions(state.battleState.squaddieMovePath),
+        numberOfActionPointsSpent: numberOfActionPointsSpentMoving,
     });
 
     SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, moveAction);

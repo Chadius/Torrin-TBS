@@ -37,7 +37,6 @@ import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchR
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {MapHighlightHelper} from "../animation/mapHighlight";
-import {MissionMapHelper} from "../../missionMap/missionMap";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;

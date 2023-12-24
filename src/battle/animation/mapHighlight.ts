@@ -137,8 +137,6 @@ const addAttackRangeOntoMovementRange = (repository: ObjectRepository, battleSqu
     const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({battleSquaddie, squaddieTemplate});
 
     const allLocationsSquaddieCanMoveTo: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(reachableLocationSearch);
-    const {mapLocation} = missionMap.getSquaddieByBattleId(battleSquaddieId)
-    allLocationsSquaddieCanMoveTo.unshift(mapLocation);
 
     const attackLocations: HexCoordinate[] = [];
     squaddieTemplate.actions.forEach(action => {

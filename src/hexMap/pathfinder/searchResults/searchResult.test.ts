@@ -9,7 +9,7 @@ describe('Search Results', () => {
                 0: {
                     0: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -19,7 +19,7 @@ describe('Search Results', () => {
                     },
                     1: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 1,
@@ -33,7 +33,7 @@ describe('Search Results', () => {
                     },
                     2: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -51,7 +51,7 @@ describe('Search Results', () => {
                     },
                     3: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -95,7 +95,7 @@ describe('Search Results', () => {
                 0: {
                     0: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -105,7 +105,7 @@ describe('Search Results', () => {
                     },
                     1: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 1,
@@ -119,7 +119,7 @@ describe('Search Results', () => {
                     },
                     2: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -137,7 +137,7 @@ describe('Search Results', () => {
                     },
                     3: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -161,7 +161,7 @@ describe('Search Results', () => {
                 1: {
                     0: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -171,7 +171,7 @@ describe('Search Results', () => {
                     },
                     2: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -189,7 +189,7 @@ describe('Search Results', () => {
                     },
                     3: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -263,7 +263,7 @@ describe('Search Results', () => {
                 0: {
                     0: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
@@ -273,7 +273,7 @@ describe('Search Results', () => {
                     },
                     1: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 1,
@@ -288,7 +288,7 @@ describe('Search Results', () => {
                     2: undefined,
                     3: {
                         ...SearchPathHelper.newSearchPath(),
-                        tilesTraveled: [
+                        locationsTraveled: [
                             {
                                 hexCoordinate: {q: 0, r: 0},
                                 cumulativeMovementCost: 0,
