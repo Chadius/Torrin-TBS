@@ -22,7 +22,7 @@ import {SaveFile} from "../utils/fileHandling/saveFile";
 import {BattleCamera} from "../battle/battleCamera";
 import {TriggeringEvent} from "../cutscene/cutsceneTrigger";
 import {BattleStateHelper} from "../battle/orchestrator/battleState";
-import {BattleSquaddieSelectedHUD} from "../battle/battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../battle/hud/battleSquaddieSelectedHUD";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {TitleScreenStateHelper} from "../titleScreen/titleScreenState";
@@ -122,7 +122,7 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('should load resources into the handler', () => {
-            expect(MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS).toHaveLength(2);
+            expect(MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS).toHaveLength(1);
             expect(state.battleOrchestratorState.resourceHandler.areAllResourcesLoaded([
                 ...MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS,
                 ...MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,

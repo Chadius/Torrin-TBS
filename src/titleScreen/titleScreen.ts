@@ -22,7 +22,7 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
-import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/battleSquaddieSelectedHUD";
+import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 
 enum TitleScreenMenuSelection {
     NONE = "NONE",

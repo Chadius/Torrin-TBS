@@ -11,7 +11,7 @@ import {ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleOrchestratorComponent} from "./battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {BattleSquaddieUsesActionOnSquaddie} from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";

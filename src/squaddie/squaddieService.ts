@@ -52,6 +52,18 @@ export const SquaddieService = {
             locationsByMoveAction[numberOfMovementActions].push(locationDescription);
         })
         return locationsByMoveAction;
+    },
+    getHitPoints: ({
+                       squaddieTemplate,
+                       battleSquaddie,
+                   }: {
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
+    }): {
+        currentHitPoints: number,
+        maxHitPoints: number
+    } => {
+        return GetHitPoints({squaddieTemplate, battleSquaddie});
     }
 }
 

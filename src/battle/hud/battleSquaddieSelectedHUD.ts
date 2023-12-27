@@ -1,37 +1,38 @@
-import {HorizontalAnchor, RectArea, RectAreaHelper, VerticalAnchor} from "../ui/rectArea";
-import {Rectangle, RectangleHelper} from "../ui/rectangle";
-import {getResultOrThrowError, isResult} from "../utils/ResultOrError";
-import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
-import {ImageUI} from "../ui/imageUI";
-import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {UseActionButton} from "../squaddie/useActionButton";
-import {BattleSquaddie} from "./battleSquaddie";
-import {SquaddieAction} from "../squaddie/action";
-import {SquaddieEndTurnAction} from "./history/squaddieEndTurnAction";
+import {HorizontalAnchor, RectArea, RectAreaHelper, VerticalAnchor} from "../../ui/rectArea";
+import {Rectangle, RectangleHelper} from "../../ui/rectangle";
+import {getResultOrThrowError, isResult} from "../../utils/ResultOrError";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
+import {ImageUI} from "../../ui/imageUI";
+import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
+import {UseActionButton} from "../../squaddie/useActionButton";
+import {BattleSquaddie} from "../battleSquaddie";
+import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
-} from "./history/squaddieInstructionInProgress";
-import {TextBox, TextBoxHelper} from "../ui/textBox";
+} from "../history/squaddieInstructionInProgress";
+import {TextBoxHelper} from "../../ui/textBox";
+import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
+import {Label, LabelHelper} from "../../ui/label";
+import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../ui/constants";
+import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {KeyButtonName, KeyWasPressed} from "../../utils/keyboardConfig";
+import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {ButtonStatus} from "../../ui/button";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
+import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
+import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ObjectRepositoryHelper} from "../objectRepository";
+import {DrawBattleHUD} from "./drawBattleHUD";
 import {
-    CanPlayerControlSquaddieRightNow,
-    GetArmorClass,
-    GetHitPoints,
-    GetNumberOfActionPoints
-} from "../squaddie/squaddieService";
-import {Label, LabelHelper} from "../ui/label";
-import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../ui/constants";
-import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
-import {BattleOrchestratorState} from "./orchestrator/battleOrchestratorState";
-import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
-import {ButtonStatus} from "../ui/button";
-import {SquaddieTemplate} from "../campaign/squaddieTemplate";
-import {MissionMapSquaddieLocationHandler} from "../missionMap/squaddieLocation";
-import {BattlePhase} from "./orchestratorComponents/battlePhaseTracker";
-import {GameEngineState} from "../gameEngine/gameEngine";
-import {ObjectRepositoryHelper} from "./objectRepository";
+    BattleHUDGraphicsObject,
+    BattleHUDGraphicsObjectsHelper,
+    BattleHUDGraphicsObjectTextBoxTypes
+} from "./graphicsObject";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -39,9 +40,26 @@ enum ActionValidityCheck {
     IS_VALID = "IS_VALID",
     SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS = "SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS",
     PLAYER_CANNOT_CONTROL_SQUADDIE = "PLAYER_CANNOT_CONTROL_SQUADDIE",
-    SAVING_GAME = "SAVING_GAME",
-    LOADING_GAME = "LOADING_GAME",
 }
+
+const ActionPointsTopOffset = 45;
+const ActionPointsBarHeight = 20;
+const ActionPointsTextHeight = 20;
+const ActionPointsBarColors =
+    {
+        strokeColor: {color: "#1f1f1f"},
+        foregroundFillColor: {color: "#dedede"},
+        backgroundFillColor: {color: "#1f1f1f"},
+    };
+
+const HitPointsTopOffset = 70;
+const HitPointsBarHeight = 25;
+const HitPointsTextHeight = 20;
+const HitPointsBarColors = {
+    strokeColor: {color: "#1f1f1f"},
+    foregroundFillColor: {color: "#000000"},
+    backgroundFillColor: {color: "#1f1f1f"},
+};
 
 export class BattleSquaddieSelectedHUD {
     selectedBattleSquaddieId: string;
@@ -52,8 +70,7 @@ export class BattleSquaddieSelectedHUD {
     saveGameButton: Label;
     nextSquaddieButton: Label;
     nextBattleSquaddieIds: string[];
-    squaddieIdTextBox: TextBox;
-    invalidCommandWarningTextBox: TextBox;
+    graphicsObjects: BattleHUDGraphicsObject;
 
     constructor() {
         this.reset();
@@ -79,7 +96,9 @@ export class BattleSquaddieSelectedHUD {
                                 }
     ) {
         this.selectedBattleSquaddieId = battleId;
-        TextBoxHelper.stop(this.invalidCommandWarningTextBox);
+        if (this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined) {
+            TextBoxHelper.stop(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX);
+        }
 
         const {
             squaddieTemplate,
@@ -90,12 +109,13 @@ export class BattleSquaddieSelectedHUD {
             squaddieTemplate.squaddieId.affiliation,
             repositionWindow ? repositionWindow.mouseY : undefined
         );
+        this.generateSaveAndLoadGameButton(windowDimensions);
+        this.generateNextSquaddieButton(windowDimensions);
 
         this.generateAffiliateIcon(squaddieTemplate, state);
         this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
-        this.generateSaveAndLoadGameButton(windowDimensions);
-        this.generateNextSquaddieButton(windowDimensions);
-        this.generateSquaddieIdText(squaddieTemplate);
+
+        this.generateSquaddieSpecificUITextBoxes(squaddieTemplate, battleSquaddie);
     }
 
     createWindowPosition(mouseY: number) {
@@ -138,12 +158,15 @@ export class BattleSquaddieSelectedHUD {
         RectangleHelper.draw(this._background, graphicsContext);
         this.drawSquaddieID(state.battleOrchestratorState, graphicsContext);
         this.drawSquaddieAttributes(state.battleOrchestratorState, graphicsContext);
-        this.drawNumberOfActionPoints(state.battleOrchestratorState, graphicsContext);
+        this.drawActionPoints(state.battleOrchestratorState, graphicsContext);
+        this.drawHitPoints(state.battleOrchestratorState, graphicsContext);
         this.drawSquaddieActions(graphicsContext);
         this.drawUncontrollableSquaddieWarning(state.battleOrchestratorState);
         this.drawDifferentSquaddieWarning(squaddieCurrentlyActing, state.battleOrchestratorState);
         this.drawFileAccessWarning(state);
-        TextBoxHelper.draw(this.invalidCommandWarningTextBox, graphicsContext);
+        if (this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined) {
+            TextBoxHelper.draw(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX, graphicsContext);
+        }
         if (this.shouldDrawNextButton(state.battleOrchestratorState)) {
             LabelHelper.draw(this.nextSquaddieButton, graphicsContext);
         }
@@ -230,16 +253,9 @@ export class BattleSquaddieSelectedHUD {
         this.affiliateIcon = undefined;
         this.selectedAction = undefined;
         this.useActionButtons = undefined;
-        this.invalidCommandWarningTextBox = TextBoxHelper.new({
-            text: "",
-            textSize: 0,
-            fontColor: [0, 0, 0],
-            area: RectAreaHelper.new({
-                left: 0, top: 0, width: 0, height: 0,
-            }),
-            duration: 0,
-        });
         this.nextBattleSquaddieIds = [];
+
+        this.graphicsObjects = BattleHUDGraphicsObjectsHelper.new();
     }
 
     shouldDrawNextButton(state: BattleOrchestratorState): boolean {
@@ -298,7 +314,7 @@ export class BattleSquaddieSelectedHUD {
                         anchorLeft: HorizontalAnchor.LEFT,
                         anchorTop: VerticalAnchor.CENTER,
                         vertAlign: VERT_ALIGN_CENTER,
-                        left: windowDimensions.width * (6 + index) / 12,
+                        left: windowDimensions.width * (6.5 + index) / 12,
                         width: (windowDimensions.width / 12) - 16,
                         height: this._background.area.height * 0.5,
                     }),
@@ -360,67 +376,79 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private drawSquaddieID(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
-        const {
-            squaddieTemplate
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
-
         if (this.affiliateIcon) {
             this.affiliateIcon.draw(graphicsContext);
         }
 
-        TextBoxHelper.draw(this.squaddieIdTextBox, graphicsContext);
+        TextBoxHelper.draw(this.graphicsObjects.textBoxes.SQUADDIE_ID, graphicsContext);
     }
 
-    private drawNumberOfActionPoints(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawActionPoints(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
             squaddieTemplate,
             battleSquaddie
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
-        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
+        const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie});
 
         graphicsContext.push();
-
-        const mainActionIconWidth: number = 25;
-        const actionIconLeft: number = this._background.area.left + 20;
-
-        graphicsContext.fill({color: "#dedede"});
-        graphicsContext.stroke({color: "#1f1f1f"});
-        const actionBackground: RectArea = RectAreaHelper.new({
-            left: actionIconLeft,
-            height: mainActionIconWidth * 3,
-            width: 40,
-            top: this._background.area.top + 45,
-        })
-        graphicsContext.fill({color: "#1f1f1f"});
-        graphicsContext.stroke({color: "#1f1f1f"});
-        graphicsContext.strokeWeight(2);
-        graphicsContext.rect(actionBackground.left, actionBackground.top, actionBackground.width, actionBackground.height);
-
-        graphicsContext.fill({color: "#dedede"});
-        graphicsContext.rect(
-            actionBackground.left,
-            RectAreaHelper.bottom(actionBackground) - mainActionIconWidth * actionPointsRemaining,
-            actionBackground.width,
-            mainActionIconWidth * actionPointsRemaining);
-
-        const actionLineMarking: RectArea = RectAreaHelper.new({
-            left: actionBackground.left,
-            width: 0,
-            top: actionBackground.top,
-            height: actionBackground.height,
-        });
-
-        [1, 2].filter(i => actionPointsRemaining >= i).forEach(i => {
-            const verticalDistance: number = i * actionBackground.height / 3;
-            graphicsContext.line(
-                actionBackground.left,
-                RectAreaHelper.bottom(actionLineMarking) - verticalDistance,
-                RectAreaHelper.right(actionBackground),
-                RectAreaHelper.bottom(actionLineMarking) - verticalDistance,
-            )
-        });
-
+        TextBoxHelper.draw(this.graphicsObjects.textBoxes[BattleHUDGraphicsObjectTextBoxTypes.ACTION_POINTS], graphicsContext);
         graphicsContext.pop();
+
+        const barFillColor = {
+            hsb: [
+                HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation] || HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN],
+                2,
+                60,
+            ]
+        }
+
+        DrawBattleHUD.drawHorizontalDividedBar({
+            graphicsContext,
+            drawArea: RectAreaHelper.new({
+                left: this.background.area.left + ScreenDimensions.SCREEN_WIDTH / 12,
+                height: ActionPointsBarHeight,
+                width: ScreenDimensions.SCREEN_WIDTH / 12,
+                top: this.background.area.top + ActionPointsTopOffset,
+            }),
+            currentAmount: actionPointsRemaining,
+            maxAmount: 3,
+            strokeWeight: 2,
+            colors: {...ActionPointsBarColors, foregroundFillColor: barFillColor},
+        });
+    }
+
+    private drawHitPoints(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+        const {
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
+        const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
+
+        graphicsContext.push();
+        TextBoxHelper.draw(this.graphicsObjects.textBoxes[BattleHUDGraphicsObjectTextBoxTypes.HIT_POINTS], graphicsContext);
+        graphicsContext.pop();
+
+        const barFillColor = {
+            hsb: [
+                HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation] || HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN],
+                70,
+                70,
+            ]
+        }
+
+        DrawBattleHUD.drawHorizontalDividedBar({
+            graphicsContext,
+            drawArea: RectAreaHelper.new({
+                left: this.background.area.left + ScreenDimensions.SCREEN_WIDTH / 12,
+                height: HitPointsBarHeight,
+                width: ScreenDimensions.SCREEN_WIDTH / 12,
+                top: this.background.area.top + HitPointsTopOffset,
+            }),
+            currentAmount: currentHitPoints,
+            maxAmount: maxHitPoints,
+            strokeWeight: 2,
+            colors: {...HitPointsBarColors, foregroundFillColor: barFillColor},
+        });
     }
 
     private drawSquaddieActions(graphicsContext: GraphicsContext) {
@@ -446,7 +474,7 @@ export class BattleSquaddieSelectedHUD {
 
         this._background = RectangleHelper.new({
             area: windowDimensions,
-            fillColor: [squaddieAffiliationHue, 10, 30],
+            fillColor: [squaddieAffiliationHue, 10, 20],
             strokeColor: [squaddieAffiliationHue, 10, 6],
             strokeWeight: 4,
         });
@@ -489,28 +517,54 @@ export class BattleSquaddieSelectedHUD {
 
     private drawFileAccessWarning(state: GameEngineState) {
         const WARNING_LOAD_FILE_FAILED = "Loading failed. Check logs.";
-        if (state.gameSaveFlags.errorDuringLoading && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE_FAILED) {
+        if (
+            state.gameSaveFlags.errorDuringLoading
+            && (
+                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
+                || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_LOAD_FILE_FAILED
+            )
+        ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
             state.gameSaveFlags.errorDuringLoading = false;
             return;
         }
 
         const WARNING_SAVE_FILE_FAILED = "Saving failed. Check logs.";
-        if (state.gameSaveFlags.errorDuringSaving && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE_FAILED) {
+        if (
+            state.gameSaveFlags.errorDuringSaving
+            && (
+                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
+                || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE_FAILED
+            )
+        ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
             state.gameSaveFlags.errorDuringSaving = false;
             return;
         }
 
         const WARNING_SAVE_FILE = "Saving...";
-        if (state.gameSaveFlags.savingInProgress && this.invalidCommandWarningTextBox.text !== WARNING_SAVE_FILE) {
+        if (state.gameSaveFlags.savingInProgress
+            && (
+                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
+                || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_SAVE_FILE
+            )
+        ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_SAVE_FILE, FILE_MESSAGE_DISPLAY_DURATION);
             return;
 
         }
 
         const WARNING_LOAD_FILE = "Loading...";
-        if ((state.gameSaveFlags.loadingInProgress || state.gameSaveFlags.loadRequested) && this.invalidCommandWarningTextBox.text !== WARNING_LOAD_FILE) {
+        if (
+            (
+                state.gameSaveFlags.loadingInProgress
+                || state.gameSaveFlags.loadRequested
+            )
+            && (
+                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
+                || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_LOAD_FILE
+            )
+        ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE, FILE_MESSAGE_DISPLAY_DURATION);
             return;
         }
@@ -530,9 +584,10 @@ export class BattleSquaddieSelectedHUD {
             this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId
         ) {
             if (
-                this.invalidCommandWarningTextBox.text === differentSquaddieWarningText
+                this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined
+                && this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text === differentSquaddieWarningText
             ) {
-                TextBoxHelper.stop(this.invalidCommandWarningTextBox);
+                TextBoxHelper.stop(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX);
             }
             return;
         }
@@ -542,36 +597,39 @@ export class BattleSquaddieSelectedHUD {
 
     private maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText: string, duration: number | undefined) {
         if (
-            this.invalidCommandWarningTextBox === undefined
-            || TextBoxHelper.isDone(this.invalidCommandWarningTextBox)
-            || this.invalidCommandWarningTextBox.text !== differentSquaddieWarningText
+            this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
+            || TextBoxHelper.isDone(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX)
+            || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== differentSquaddieWarningText
         ) {
-            this.invalidCommandWarningTextBox = TextBoxHelper.new({
-                text: differentSquaddieWarningText,
-                textSize: 24,
-                fontColor: [0, 0, 192],
-                area: RectAreaHelper.new({
-                    baseRectangle: this.background.area,
-                    anchorLeft: HorizontalAnchor.MIDDLE,
-                    margin: [0, 0, 30, 40],
-                }),
-                duration
-            })
+            this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX =
+                TextBoxHelper.new({
+                        text: differentSquaddieWarningText,
+                        textSize: 24,
+                        fontColor: [0, 0, 192],
+                        area: RectAreaHelper.new({
+                            baseRectangle: this.background.area,
+                            anchorLeft: HorizontalAnchor.MIDDLE,
+                            margin: [0, 0, 30, 40],
+                        }),
+                        duration
+                    }
+                );
         }
     }
 
     private generateSquaddieIdText(squaddieTemplate: SquaddieTemplate) {
-        this.squaddieIdTextBox = TextBoxHelper.new({
-            text: squaddieTemplate.squaddieId.name,
-            textSize: 24,
-            fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 10, 192],
-            area: RectAreaHelper.new({
-                baseRectangle: this._background.area,
-                anchorLeft: HorizontalAnchor.LEFT,
-                anchorTop: VerticalAnchor.TOP,
-                margin: [20, 0, 0, 70],
-            })
-        });
+        this.graphicsObjects.textBoxes.SQUADDIE_ID =
+            TextBoxHelper.new({
+                text: squaddieTemplate.squaddieId.name,
+                textSize: 24,
+                fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 10, 192],
+                area: RectAreaHelper.new({
+                    baseRectangle: this._background.area,
+                    anchorLeft: HorizontalAnchor.LEFT,
+                    anchorTop: VerticalAnchor.TOP,
+                    margin: [20, 0, 0, 70],
+                })
+            });
     }
 
     private warnUserNotEnoughActionPointsToPerformAction(action: SquaddieAction | SquaddieEndTurnAction): void {
@@ -603,7 +661,7 @@ export class BattleSquaddieSelectedHUD {
             return ActionValidityCheck.IS_VALID;
         }
 
-        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
+        const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie})
         if (actionPointsRemaining < action.actionPointCost) {
             return ActionValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS;
         }
@@ -620,33 +678,16 @@ export class BattleSquaddieSelectedHUD {
         const textSize = 16;
         const fontColor = [100, 0, 80];
         const baseRectangle = RectAreaHelper.new({
-            left: this.background.area.left,
+            left: this.background.area.left + 5 * ScreenDimensions.SCREEN_WIDTH / 24,
             top: this.background.area.top,
             width: 100,
             height: 30,
         });
 
-        const attributeLeftOffset = 100;
+        const attributeLeftOffset = 0;
         const attributeTextTopMargin = 12;
         const attributeTextLeftMargin = 56;
         const attributeIconSize = 48;
-
-        const hitPointsInfo = GetHitPoints({squaddieTemplate, battleSquaddie});
-        const hitPointsDescription = `${hitPointsInfo.currentHitPoints} / ${hitPointsInfo.maxHitPoints}`;
-        this.drawIconAndText({
-            baseRectangle,
-            fontColor,
-            iconLeftOffset: attributeLeftOffset,
-            iconResourceKey: "hit points icon",
-            iconSize: attributeIconSize,
-            text: hitPointsDescription,
-            textLeftMargin: attributeTextLeftMargin,
-            textSize,
-            textTopMargin: attributeTextTopMargin,
-            topOffset: 40,
-            state,
-            graphicsContext,
-        });
 
         const armorClassInfo = GetArmorClass({squaddieTemplate, battleSquaddie});
         const armorClassDescription = `${armorClassInfo.normalArmorClass}`;
@@ -660,7 +701,7 @@ export class BattleSquaddieSelectedHUD {
             textLeftMargin: attributeTextLeftMargin,
             textSize,
             textTopMargin: attributeTextTopMargin,
-            topOffset: 80,
+            topOffset: 0,
             state,
             graphicsContext,
         });
@@ -728,8 +769,8 @@ export class BattleSquaddieSelectedHUD {
             top: windowDimensions.top + WINDOW_SPACING1,
             height: windowDimensions.height / 2 - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 3,
-            endColumn: 3,
+            startColumn: 4,
+            endColumn: 4,
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING1, 0],
         });
 
@@ -737,8 +778,8 @@ export class BattleSquaddieSelectedHUD {
             top: RectAreaHelper.centerY(windowDimensions) + WINDOW_SPACING1,
             height: windowDimensions.height / 2 - WINDOW_SPACING2,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 3,
-            endColumn: 3,
+            startColumn: 4,
+            endColumn: 4,
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING2, 0],
         });
 
@@ -770,8 +811,8 @@ export class BattleSquaddieSelectedHUD {
             top: windowDimensions.top + WINDOW_SPACING1,
             bottom: RectAreaHelper.bottom(windowDimensions) - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
-            startColumn: 4,
-            endColumn: 4,
+            startColumn: 5,
+            endColumn: 5,
         });
 
         this.nextSquaddieButton = LabelHelper.new({
@@ -834,5 +875,45 @@ export class BattleSquaddieSelectedHUD {
             battleId: nextBattleSquaddieId,
             state,
         })
+    }
+
+    private generateSquaddieSpecificUITextBoxes(squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) {
+        this.generateSquaddieIdText(squaddieTemplate);
+        this.generateActionPointsText(squaddieTemplate, battleSquaddie);
+        this.generateHitPointsText(squaddieTemplate, battleSquaddie);
+    }
+
+    private generateActionPointsText(squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) {
+        const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie});
+
+        this.graphicsObjects.textBoxes.ACTION_POINTS =
+            TextBoxHelper.new({
+                text: `Actions: ${actionPointsRemaining}`,
+                textSize: 16,
+                fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 96],
+                area: RectAreaHelper.new({
+                    left: this.background.area.left + WINDOW_SPACING1,
+                    height: ActionPointsBarHeight,
+                    width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING1,
+                    top: this.background.area.top + ActionPointsTopOffset + (ActionPointsBarHeight - ActionPointsTextHeight),
+                })
+            });
+    }
+
+    private generateHitPointsText(squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) {
+        const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
+
+        this.graphicsObjects.textBoxes.HIT_POINTS =
+            TextBoxHelper.new({
+                text: `HP: ${currentHitPoints} / ${maxHitPoints}`,
+                textSize: 16,
+                fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 128],
+                area: RectAreaHelper.new({
+                    left: this.background.area.left + WINDOW_SPACING1,
+                    height: HitPointsBarHeight,
+                    width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING1,
+                    top: this.background.area.top + HitPointsTopOffset + (HitPointsBarHeight - HitPointsTextHeight),
+                })
+            });
     }
 }

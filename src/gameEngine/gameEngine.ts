@@ -287,11 +287,6 @@ export class GameEngine {
                     },
                     {
                         type: ResourceType.IMAGE,
-                        path: "assets/icon-hit-points.png",
-                        key: "hit points icon",
-                    },
-                    {
-                        type: ResourceType.IMAGE,
                         path: "assets/logo-torrins-trial.png",
                         key: "torrins trial logo",
                     },

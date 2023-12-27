@@ -1,6 +1,6 @@
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {BattleState, BattleStateHelper} from "./battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";

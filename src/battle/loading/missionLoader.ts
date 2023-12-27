@@ -42,7 +42,6 @@ export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
 
 export const MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS: string[] = [
     "armor class icon",
-    "hit points icon",
 ];
 
 export interface MissionLoaderCompletionProgress {

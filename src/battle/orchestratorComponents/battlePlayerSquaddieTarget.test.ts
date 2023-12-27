@@ -33,7 +33,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleStateHelper} from "../orchestrator/battleState";
-import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleSquaddieTarget', () => {

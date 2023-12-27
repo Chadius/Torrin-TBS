@@ -2,7 +2,7 @@ import p5 from "p5";
 import {ImageUI} from "../../ui/imageUI";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
-import {BattleSquaddieSelectedHUD} from "../../battle/battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelectedHUD";
 import {SquaddieEndTurnAction} from "../../battle/history/squaddieEndTurnAction";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";

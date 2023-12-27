@@ -9,7 +9,7 @@ import {KeyButtonName} from "../utils/keyboardConfig";
 import {config} from "../configuration/config";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {makeResult} from "../utils/ResultOrError";
-import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/battleSquaddieSelectedHUD";
+import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 import {RectAreaHelper} from "../ui/rectArea";
 import {GameEngineState, GameEngineStateHelper} from "../gameEngine/gameEngine";
 

@@ -23,7 +23,7 @@ import {
 } from "../../hexMap/convertCoordinates";
 import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {makeResult} from "../../utils/ResultOrError";
-import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {

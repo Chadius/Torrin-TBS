@@ -11,7 +11,7 @@ import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionType} from "../missionResult/missionCondition";
-import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {BattleState, BattleStateHelper} from "./battleState";
 import {FixedNumberGenerator} from "../numberGenerator/fixed";
 import {RandomNumberGenerator} from "../numberGenerator/random";

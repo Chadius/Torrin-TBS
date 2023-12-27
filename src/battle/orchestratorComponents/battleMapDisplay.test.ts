@@ -2,7 +2,7 @@ import {BattleMapDisplay} from "./battleMapDisplay";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleCamera} from "../battleCamera";
-import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {OrchestratorComponentMouseEventType} from "../orchestrator/battleOrchestratorComponent";
 import {RectangleHelper} from "../../ui/rectangle";

@@ -1,3 +1,8 @@
+export type ColorDescription = {
+    hsb?: number[],
+    color?: string
+};
+
 export interface GraphicsContext {
     background(hue: number, saturation: number, brightness: number): void;
 
@@ -5,10 +10,7 @@ export interface GraphicsContext {
 
     createImage(height: number, width: number): GraphicImage;
 
-    fill({hsb, color}: {
-        hsb?: number[],
-        color?: string
-    }): void;
+    fill({hsb, color}: ColorDescription): void;
 
     image(data: GraphicImage, left: number, top: number, width?: number, height?: number): void;
 
@@ -26,10 +28,7 @@ export interface GraphicsContext {
 
     rect(left: number, top: number, width: number, height: number): void;
 
-    stroke({hsb, color}: {
-        hsb?: number[],
-        color?: string
-    }): void;
+    stroke({hsb, color}: ColorDescription): void;
 
     strokeWeight(weight: number): void;
 

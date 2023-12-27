@@ -34,7 +34,7 @@ import {SquaddieActionType} from "../history/anySquaddieAction";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleStateHelper} from "../orchestrator/battleState";
-import {BattleSquaddieSelectedHUD} from "../battleSquaddieSelectedHUD";
+import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
