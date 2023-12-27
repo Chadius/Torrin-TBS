@@ -13,14 +13,14 @@ export const ArmyAttributesHelper = {
             ...DefaultArmyAttributes(),
             movement
         }
-        sanitize(attributes);
-        return attributes;
+        return sanitize(attributes);
+
     },
     default: (): ArmyAttributes => {
         return DefaultArmyAttributes();
     },
-    sanitize: (data: ArmyAttributes) => {
-        sanitize(data);
+    sanitize: (data: ArmyAttributes): ArmyAttributes => {
+        return sanitize(data);
     }
 }
 
@@ -32,7 +32,7 @@ export const DefaultArmyAttributes = (): ArmyAttributes => {
     }
 }
 
-const sanitize = (data: ArmyAttributes) => {
+const sanitize = (data: ArmyAttributes): ArmyAttributes => {
     const defaultAttributes = DefaultArmyAttributes();
     if (!isValidValue(data.movement)) {
         data.movement = defaultAttributes.movement;
@@ -45,4 +45,5 @@ const sanitize = (data: ArmyAttributes) => {
     if (!isValidValue(data.armorClass)) {
         data.armorClass = defaultAttributes.armorClass;
     }
+    return data;
 }

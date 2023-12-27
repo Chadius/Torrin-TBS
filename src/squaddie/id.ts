@@ -32,15 +32,14 @@ export const SquaddieIdHelper = {
             resources,
             traits,
         };
-        sanitize(data);
-        return data;
+        return sanitize(data);
     },
-    sanitize: (data: SquaddieId) => {
-        sanitize(data);
+    sanitize: (data: SquaddieId): SquaddieId => {
+        return sanitize(data);
     }
 }
 
-const sanitize = (data: SquaddieId) => {
+const sanitize = (data: SquaddieId): SquaddieId => {
     if (!data.templateId || !isValidValue(data.templateId)) {
         throw new Error('SquaddieId cannot sanitize, missing templateId');
     }
@@ -53,4 +52,5 @@ const sanitize = (data: SquaddieId) => {
     data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageHelper.newUsingTraitValues({});
     data.resources = isValidValue(data.resources) ? data.resources : SquaddieResourceHelper.new();
     SquaddieResourceHelper.sanitize(data.resources);
+    return data;
 }

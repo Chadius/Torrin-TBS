@@ -13,11 +13,12 @@ export const SquaddieResourceHelper = {
             actionSpritesByEmotion: {},
         }
     },
-    sanitize: (data: SquaddieResource) => {
-        sanitize(data);
+    sanitize: (data: SquaddieResource): SquaddieResource => {
+        return sanitize(data);
     }
 }
 
 const sanitize = (data: SquaddieResource) => {
     data.actionSpritesByEmotion = isValidValue(data.actionSpritesByEmotion) ? data.actionSpritesByEmotion : {};
+    return data;
 }

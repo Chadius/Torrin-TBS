@@ -14,8 +14,8 @@ export const SquaddieMovementHelper = {
     }): SquaddieMovement => {
         return CreateNewSquaddieMovementWithTraits({movementPerAction, traits});
     },
-    sanitize: (data: SquaddieMovement) => {
-        sanitize(data);
+    sanitize: (data: SquaddieMovement): SquaddieMovement => {
+        return sanitize(data);
     }
 };
 
@@ -44,8 +44,9 @@ export const CreateNewSquaddieMovementWithTraits = ({movementPerAction, traits}:
     }
 }
 
-const sanitize = (data: SquaddieMovement) => {
+const sanitize = (data: SquaddieMovement): SquaddieMovement => {
     data.movementPerAction = isValidValue(data.movementPerAction) ? data.movementPerAction : 0;
     data.passThroughWalls = data.passThroughWalls === false || isValidValue(data.passThroughWalls) ? data.passThroughWalls : false;
     data.crossOverPits = data.crossOverPits === false || isValidValue(data.crossOverPits) ? data.crossOverPits : false;
+    return data;
 }

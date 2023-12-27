@@ -75,12 +75,12 @@ export const SquaddieActionHandler = {
     isHindering: (data: SquaddieAction): boolean => {
         return TraitStatusStorageHelper.getStatus(data.traits, Trait.ATTACK);
     },
-    sanitize: (data: SquaddieAction) => {
-        sanitize(data);
+    sanitize: (data: SquaddieAction): SquaddieAction => {
+        return sanitize(data);
     },
 };
 
-const sanitize = (data: SquaddieAction) => {
+const sanitize = (data: SquaddieAction): SquaddieAction => {
     if (!data.id || !isValidValue(data.id)) {
         throw new Error('SquaddieAction cannot sanitize, missing id');
     }
@@ -102,4 +102,5 @@ const sanitize = (data: SquaddieAction) => {
     data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageHelper.newUsingTraitValues({});
     data.damageDescriptions = isValidValue(data.damageDescriptions) ? {...(data.damageDescriptions)} : {};
     data.healingDescriptions = isValidValue(data.healingDescriptions) ? {...(data.healingDescriptions)} : {};
+    return data;
 };

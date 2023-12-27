@@ -601,7 +601,8 @@ const loadNPCTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: st
     let squaddiesById: { [p: string]: SquaddieTemplate } = {};
     for (const templateId of templateIds) {
         try {
-            squaddiesById[templateId] = await LoadFileIntoFormat<SquaddieTemplate>(`assets/npcData/templates/${templateId}.json`)
+            const squaddieTemplate = await LoadFileIntoFormat<SquaddieTemplate>(`assets/npcData/templates/${templateId}.json`)
+            squaddiesById[templateId] = SquaddieTemplateHelper.sanitize(squaddieTemplate);
         } catch (e) {
             console.error(`Failed to load template: ${templateId}`);
             console.error(e);

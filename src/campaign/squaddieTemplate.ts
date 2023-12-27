@@ -23,12 +23,12 @@ export const SquaddieTemplateHelper = {
         SquaddieTemplateHelper.sanitize(data);
         return data;
     },
-    sanitize: (data: SquaddieTemplate) => {
-        sanitize(data);
+    sanitize: (data: SquaddieTemplate): SquaddieTemplate => {
+        return sanitize(data);
     }
 }
 
-const sanitize = (data: SquaddieTemplate) => {
+const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
     if (!data.squaddieId || !isValidValue(data.squaddieId)) {
         throw new Error("Squaddie Action cannot sanitize, missing squaddieId ");
     }
@@ -38,4 +38,5 @@ const sanitize = (data: SquaddieTemplate) => {
     data.actions.forEach(SquaddieActionHandler.sanitize);
 
     data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
+    return data;
 }

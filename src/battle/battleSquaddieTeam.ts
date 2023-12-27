@@ -81,8 +81,8 @@ export const BattleSquaddieTeamHelper = {
             unTintSquaddieMapIcon(squaddieRepository, battleSquaddie);
         }));
     },
-    sanitize: (data: BattleSquaddieTeam) => {
-        sanitize(data);
+    sanitize: (data: BattleSquaddieTeam): BattleSquaddieTeam => {
+        return sanitize(data);
     },
     endTurn: (team: BattleSquaddieTeam, squaddieRepository: ObjectRepository) => {
         team.battleSquaddieIds.forEach((battleSquaddieId => {
@@ -96,7 +96,7 @@ export const BattleSquaddieTeamHelper = {
     },
 };
 
-const sanitize = (data: BattleSquaddieTeam) => {
+const sanitize = (data: BattleSquaddieTeam): BattleSquaddieTeam => {
     if (!data.name || !isValidValue(data.name)) {
         throw new Error('BattleSquaddieTeam cannot sanitize, missing name');
     }
@@ -111,4 +111,6 @@ const sanitize = (data: BattleSquaddieTeam) => {
     if (!isValidValue(data.affiliation)) {
         data.affiliation = SquaddieAffiliation.UNKNOWN;
     }
+
+    return data;
 }
