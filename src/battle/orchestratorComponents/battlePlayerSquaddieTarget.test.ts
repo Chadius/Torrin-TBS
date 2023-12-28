@@ -2,7 +2,7 @@ import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -46,9 +46,9 @@ describe('BattleSquaddieTarget', () => {
     let thiefStatic: SquaddieTemplate;
     let thiefDynamic: BattleSquaddie;
     let battleMap: MissionMap;
-    let longswordAction: SquaddieAction;
+    let longswordAction: SquaddieSquaddieAction;
     let longswordActionId: string = "longsword";
-    let bandageWoundsAction: SquaddieAction;
+    let bandageWoundsAction: SquaddieSquaddieAction;
     let bandageWoundsActionId: string = "bandage wounds";
     let state: GameEngineState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -68,7 +68,7 @@ describe('BattleSquaddieTarget', () => {
             })
         });
 
-        longswordAction = SquaddieActionHandler.new({
+        longswordAction = SquaddieSquaddieActionService.new({
             name: "longsword",
             id: longswordActionId,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -84,7 +84,7 @@ describe('BattleSquaddieTarget', () => {
             },
         });
 
-        bandageWoundsAction = SquaddieActionHandler.new({
+        bandageWoundsAction = SquaddieSquaddieActionService.new({
             name: "Bandage Wounds",
             id: bandageWoundsActionId,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -310,10 +310,8 @@ describe('BattleSquaddieTarget', () => {
 
         SquaddieActionsForThisRoundHandler.addAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 0, r: 1},
-                numberOfActionPointsSpent: 1,
-            }
+            destination: {q: 0, r: 1},
+            numberOfActionPointsSpent: 1,
         });
         SquaddieInstructionInProgressHandler.addSelectedAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, longswordAction);
 
@@ -425,11 +423,9 @@ describe('BattleSquaddieTarget', () => {
             };
             SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
                 type: SquaddieActionType.SQUADDIE,
-                data: {
-                    targetLocation: {q: 1, r: 2},
-                    squaddieAction: longswordAction,
-                    numberOfActionPointsSpent: 1,
-                }
+                targetLocation: {q: 1, r: 2},
+                squaddieAction: longswordAction,
+                numberOfActionPointsSpent: 1,
             });
 
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
@@ -482,11 +478,9 @@ describe('BattleSquaddieTarget', () => {
             };
             SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
                 type: SquaddieActionType.SQUADDIE,
-                data: {
-                    targetLocation: {q: 1, r: 2},
-                    squaddieAction: longswordAction,
-                    numberOfActionPointsSpent: 1,
-                }
+                targetLocation: {q: 1, r: 2},
+                squaddieAction: longswordAction,
+                numberOfActionPointsSpent: 1,
             });
 
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
@@ -505,7 +499,7 @@ describe('BattleSquaddieTarget', () => {
             const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
             expect(mostRecentEvent.instruction.squaddieActionsForThisRound.actions).toHaveLength(1);
             expect((
-                mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0].data as SquaddieSquaddieActionData
+                mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0] as SquaddieSquaddieActionData
             ).squaddieAction.id).toBe(longswordAction.id);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);
@@ -548,7 +542,7 @@ describe('BattleSquaddieTarget', () => {
             const traits: { [key in Trait]?: boolean } = Object.fromEntries(
                 actionTraits.map(e => [e, true])
             );
-            const action = SquaddieActionHandler.new({
+            const action = SquaddieSquaddieActionService.new({
                 id: name,
                 name,
                 traits: TraitStatusStorageHelper.newUsingTraitValues(traits),

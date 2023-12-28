@@ -1,5 +1,5 @@
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
@@ -31,7 +31,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let squaddieRepository: ObjectRepository;
     let monkStaticId = "monk static";
     let monkDynamicId = "monk dynamic";
-    let monkKoanAction: SquaddieAction;
+    let monkKoanAction: SquaddieSquaddieAction;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: SquaddieInstructionInProgress;
 
@@ -44,7 +44,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        monkKoanAction = SquaddieActionHandler.new({
+        monkKoanAction = SquaddieSquaddieActionService.new({
             id: "koan",
             name: "koan",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -76,10 +76,9 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
         SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                squaddieAction: monkKoanAction,
-                targetLocation: {q: 0, r: 0},
-            }
+            numberOfActionPointsSpent: 1,
+            squaddieAction: monkKoanAction,
+            targetLocation: {q: 0, r: 0},
         });
 
         monkMeditatesInstruction = {
@@ -99,6 +98,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                     occurred: false,
                     rolls: [],
                 },
+                actingSquaddieModifiers: {},
             }
         };
         RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);

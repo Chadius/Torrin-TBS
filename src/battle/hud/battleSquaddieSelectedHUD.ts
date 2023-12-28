@@ -7,8 +7,8 @@ import {ImageUI} from "../../ui/imageUI";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {UseActionButton} from "../../squaddie/useActionButton";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieAction} from "../../squaddie/action";
-import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
+import {SquaddieSquaddieAction} from "../../squaddie/action";
+import {SquaddieEndTurnActionData, SquaddieEndTurnActionDataService} from "../history/squaddieEndTurnAction";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
@@ -64,7 +64,10 @@ const HitPointsBarColors = {
 export class BattleSquaddieSelectedHUD {
     selectedBattleSquaddieId: string;
     affiliateIcon?: ImageUI;
-    selectedAction: SquaddieAction | SquaddieEndTurnAction;
+    selectedAction: {
+        squaddieAction?: SquaddieSquaddieAction,
+        endTurnAction?: SquaddieEndTurnActionData,
+    };
     useActionButtons: UseActionButton[];
     loadGameButton: Label;
     saveGameButton: Label;
@@ -181,11 +184,24 @@ export class BattleSquaddieSelectedHUD {
     }
 
     wasAnyActionSelected(): boolean {
-        return this.selectedAction !== undefined;
+        return this.selectedAction.endTurnAction !== undefined
+            || this.selectedAction.squaddieAction !== undefined;
     }
 
-    getSelectedAction(): SquaddieAction | SquaddieEndTurnAction {
-        return this.selectedAction;
+    didPlayerSelectEndTurnAction(): boolean {
+        return !!this.selectedAction.endTurnAction;
+    }
+
+    didPlayerSelectSquaddieAction(): boolean {
+        return !!this.selectedAction.squaddieAction;
+    }
+
+    getSquaddieSquaddieAction(): SquaddieSquaddieAction {
+        return this.selectedAction.squaddieAction;
+    }
+
+    getSelectedAction(): SquaddieSquaddieAction | SquaddieEndTurnActionData {
+        return this.selectedAction.squaddieAction ? this.selectedAction.squaddieAction : this.selectedAction.endTurnAction;
     }
 
     keyPressed(keyCode: number, state: BattleOrchestratorState) {
@@ -213,16 +229,23 @@ export class BattleSquaddieSelectedHUD {
         );
 
         if (selectedUseActionButton) {
-            const actionToCheck = selectedUseActionButton.endTurnAction || selectedUseActionButton.action;
-            const actionValidityCheck = this.checkIfActionIsValid(
-                actionToCheck,
-                state.battleOrchestratorState,
-            );
-            if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
-                this.selectedAction = actionToCheck;
+            if (selectedUseActionButton.endTurnAction) {
+                if (!this.canPlayerControlThisSquaddie(state.battleOrchestratorState)) {
+                    return;
+                }
+                this.selectedAction.endTurnAction = selectedUseActionButton.endTurnAction;
                 return;
+            } else {
+                const actionValidityCheck = this.checkIfActionIsValid(
+                    selectedUseActionButton.action,
+                    state.battleOrchestratorState,
+                );
+                if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
+                    this.selectedAction.squaddieAction = selectedUseActionButton.action;
+                    return;
+                }
+                this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.action);
             }
-            this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.action);
         }
 
         const clickedOnNextButton: boolean = this.shouldDrawNextButton(state.battleOrchestratorState) && RectAreaHelper.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY);
@@ -251,7 +274,10 @@ export class BattleSquaddieSelectedHUD {
     reset() {
         this.selectedBattleSquaddieId = "";
         this.affiliateIcon = undefined;
-        this.selectedAction = undefined;
+        this.selectedAction = {
+            squaddieAction: undefined,
+            endTurnAction: undefined,
+        };
         this.useActionButtons = undefined;
         this.nextBattleSquaddieIds = [];
 
@@ -306,7 +332,7 @@ export class BattleSquaddieSelectedHUD {
         windowDimensions: RectArea
     ) {
         this.useActionButtons = [];
-        squaddieTemplate.actions.forEach((action: SquaddieAction, index: number) => {
+        squaddieTemplate.actions.forEach((action: SquaddieSquaddieAction, index: number) => {
             this.useActionButtons.push(
                 new UseActionButton({
                     buttonArea: RectAreaHelper.new({
@@ -336,7 +362,7 @@ export class BattleSquaddieSelectedHUD {
                     width: (windowDimensions.width / 12) - 16,
                     height: this._background.area.height - 32,
                 }),
-                endTurnAction: new SquaddieEndTurnAction({}),
+                endTurnAction: SquaddieEndTurnActionDataService.new(),
             })
         );
     }
@@ -632,13 +658,9 @@ export class BattleSquaddieSelectedHUD {
             });
     }
 
-    private warnUserNotEnoughActionPointsToPerformAction(action: SquaddieAction | SquaddieEndTurnAction): void {
+    private warnUserNotEnoughActionPointsToPerformAction(action: SquaddieSquaddieAction): void {
         let warningText: string = '';
-        if (action instanceof SquaddieEndTurnAction) {
-            warningText = "Not enough actions to wait???";
-        } else {
-            warningText = `Need ${action.actionPointCost} action points`
-        }
+        warningText = `Need ${action.actionPointCost} action points`
 
         this.maybeCreateInvalidCommandWarningTextBox(
             warningText,
@@ -646,20 +668,25 @@ export class BattleSquaddieSelectedHUD {
         );
     }
 
-    private checkIfActionIsValid(action: SquaddieAction | SquaddieEndTurnAction, state: BattleOrchestratorState): ActionValidityCheck {
+    private canPlayerControlThisSquaddie(state: BattleOrchestratorState): boolean {
         const {
             squaddieTemplate,
             battleSquaddie
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
 
         const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
-        if (!canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow) {
+        return canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow;
+    }
+
+    private checkIfActionIsValid(action: SquaddieSquaddieAction, state: BattleOrchestratorState): ActionValidityCheck {
+        if (!this.canPlayerControlThisSquaddie(state)) {
             return ActionValidityCheck.PLAYER_CANNOT_CONTROL_SQUADDIE;
         }
 
-        if (action instanceof SquaddieEndTurnAction) {
-            return ActionValidityCheck.IS_VALID;
-        }
+        const {
+            squaddieTemplate,
+            battleSquaddie
+        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
 
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie})
         if (actionPointsRemaining < action.actionPointCost) {

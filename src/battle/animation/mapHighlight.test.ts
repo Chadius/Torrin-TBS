@@ -1,6 +1,6 @@
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {HighlightTileDescription, TerrainTileMap, TerrainTileMapHelper} from "../../hexMap/terrainTileMap";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
@@ -21,7 +21,7 @@ describe('map highlight generator', () => {
     let terrainAlternatingPits: TerrainTileMap;
     let repository: ObjectRepository;
 
-    let rangedAction: SquaddieAction;
+    let rangedAction: SquaddieSquaddieAction;
 
     beforeEach(() => {
         repository = ObjectRepositoryHelper.new();
@@ -37,7 +37,7 @@ describe('map highlight generator', () => {
             movementCost: ["1 1 - 1 1 1 - 1 1 1 "],
         });
 
-        rangedAction = SquaddieActionHandler.new({
+        rangedAction = SquaddieSquaddieActionService.new({
             id: "meleeAndRanged",
             name: "melee and ranged",
             minimumRange: 0,

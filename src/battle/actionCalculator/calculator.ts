@@ -12,11 +12,13 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieSquaddieAction} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {ActionResultPerSquaddie, DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {DIE_SIZE, RollResult, RollResultHelper} from "./rollResult";
 import {ObjectRepositoryHelper} from "../objectRepository";
+import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {ATTACK_MODIFIER} from "../modifierConstants";
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -29,25 +31,31 @@ export const ActionCalculator = {
                            validTargetLocation: HexCoordinate
                        }
     ): SquaddieSquaddieResults => {
-        return CalculateResults({state, actingBattleSquaddie, validTargetLocation});
+        return calculateResults({state, actingBattleSquaddie, validTargetLocation});
     }
 }
 
-export function CalculateResults({
-                                     state,
-                                     actingBattleSquaddie,
-                                     validTargetLocation,
-                                 }: {
-                                     state: BattleOrchestratorState,
-                                     actingBattleSquaddie: BattleSquaddie,
-                                     validTargetLocation: HexCoordinate
-                                 }
+function calculateResults({
+                              state,
+                              actingBattleSquaddie,
+                              validTargetLocation,
+                          }: {
+                              state: BattleOrchestratorState,
+                              actingBattleSquaddie: BattleSquaddie,
+                              validTargetLocation: HexCoordinate
+                          }
 ): SquaddieSquaddieResults {
     const {
         targetedBattleSquaddieIds
     } = getTargetedBattleSquaddieIds(state, validTargetLocation);
 
     let actingSquaddieRoll: RollResult = maybeMakeAttackRoll(state.battleState.squaddieCurrentlyActing.currentlySelectedAction, state);
+    let {multipleAttackPenalty} = SquaddieActionsForThisRoundHandler.currentMultipleAttackPenalty(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
+    let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
+
+    if (multipleAttackPenalty !== 0) {
+        actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] = multipleAttackPenalty;
+    }
 
     const resultPerTarget: { [id: string]: ActionResultPerSquaddie } = {};
 
@@ -64,6 +72,7 @@ export function CalculateResults({
             targetedSquaddieTemplate,
             targetedBattleSquaddie,
             actingSquaddieRoll,
+            actingSquaddieModifierTotal: multipleAttackPenalty,
         });
 
         resultPerTarget[targetedBattleSquaddieId] = {
@@ -80,6 +89,7 @@ export function CalculateResults({
         targetedBattleSquaddieIds: targetedBattleSquaddieIds,
         resultPerTarget,
         actingSquaddieRoll,
+        actingSquaddieModifiers,
     };
 }
 
@@ -88,13 +98,15 @@ const compareAttackRollToGetDegreeOfSuccess = ({
                                                    actingSquaddieRoll,
                                                    action,
                                                    target,
+                                                   actingSquaddieModifierTotal,
                                                }: {
     actor: BattleSquaddie;
     actingSquaddieRoll: RollResult;
-    action: SquaddieAction;
-    target: BattleSquaddie
+    action: SquaddieSquaddieAction;
+    target: BattleSquaddie;
+    actingSquaddieModifierTotal: number,
 }): DegreeOfSuccess => {
-    let totalAttackRoll = RollResultHelper.totalAttackRoll(actingSquaddieRoll);
+    let totalAttackRoll = RollResultHelper.totalAttackRoll(actingSquaddieRoll) + actingSquaddieModifierTotal;
     const canCriticallySucceed: boolean = !TraitStatusStorageHelper.getStatus(action.traits, Trait.CANNOT_CRITICALLY_SUCCEED);
     if (RollResultHelper.isACriticalSuccess(actingSquaddieRoll) && canCriticallySucceed) {
         return DegreeOfSuccess.CRITICAL_SUCCESS;
@@ -120,6 +132,7 @@ const calculateTotalDamageDealt = (
         targetedSquaddieTemplate,
         targetedBattleSquaddie,
         actingSquaddieRoll,
+        actingSquaddieModifierTotal,
     }
         : {
         state: BattleOrchestratorState,
@@ -127,6 +140,7 @@ const calculateTotalDamageDealt = (
         targetedBattleSquaddie: BattleSquaddie,
         actingBattleSquaddie: BattleSquaddie,
         actingSquaddieRoll: RollResult,
+        actingSquaddieModifierTotal: number,
     }
 ): { damageDealt: number, degreeOfSuccess: DegreeOfSuccess } => {
     let damageDealt = 0;
@@ -138,6 +152,7 @@ const calculateTotalDamageDealt = (
         actor: actingBattleSquaddie,
         target: targetedBattleSquaddie,
         actingSquaddieRoll,
+        actingSquaddieModifierTotal,
     });
 
     Object.keys(action.damageDescriptions).forEach((damageType: DamageType) => {
@@ -188,7 +203,7 @@ function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate
     }
 }
 
-function doesActionNeedAnAttackRoll(action: SquaddieAction): boolean {
+function doesActionNeedAnAttackRoll(action: SquaddieSquaddieAction): boolean {
     return TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS) !== true;
 }
 
@@ -197,7 +212,7 @@ function conformToSixSidedDieRoll(numberGeneratorResult: number): number {
     return inRangeNumber === 0 ? DIE_SIZE : inRangeNumber;
 }
 
-const maybeMakeAttackRoll = (squaddieAction: SquaddieAction, state: BattleOrchestratorState): RollResult => {
+const maybeMakeAttackRoll = (squaddieAction: SquaddieSquaddieAction, state: BattleOrchestratorState): RollResult => {
     if (doesActionNeedAnAttackRoll(squaddieAction)) {
         const attackRoll = [
             conformToSixSidedDieRoll(state.numberGenerator.next()),

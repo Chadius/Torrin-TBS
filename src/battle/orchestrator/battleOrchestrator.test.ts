@@ -402,10 +402,8 @@ describe('Battle Orchestrator', () => {
             };
         SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 1, r: 2},
-                numberOfActionPointsSpent: 2,
-            }
+            destination: {q: 1, r: 2},
+            numberOfActionPointsSpent: 2,
         });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
@@ -444,10 +442,8 @@ describe('Battle Orchestrator', () => {
         SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
             {
                 type: SquaddieActionType.MOVEMENT,
-                data: {
-                    destination: {q: 1, r: 2},
-                    numberOfActionPointsSpent: 2,
-                }
+                destination: {q: 1, r: 2},
+                numberOfActionPointsSpent: 2,
             });
 
         orchestrator.update(nullState, mockedP5GraphicsContext);

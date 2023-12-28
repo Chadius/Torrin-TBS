@@ -1,7 +1,7 @@
 import {RectAreaHelper} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {SquaddieAction} from "../../../squaddie/action";
+import {SquaddieSquaddieAction} from "../../../squaddie/action";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelHelper} from "../../../ui/label";
@@ -12,12 +12,13 @@ import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextWriter} from "../actionResultTextWriter";
 import {RollResultHelper} from "../../actionCalculator/rollResult";
+import {ActionResultText} from "./actionResultText";
 
 export class ActorTextWindow {
     results: SquaddieSquaddieResults;
     actorTemplate: SquaddieTemplate;
     actorBattle: BattleSquaddie;
-    action: SquaddieAction;
+    action: SquaddieSquaddieAction;
 
     constructor() {
 
@@ -53,7 +54,7 @@ export class ActorTextWindow {
     start({actorTemplate, actorBattle, action, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
-        action: SquaddieAction,
+        action: SquaddieSquaddieAction,
         results: SquaddieSquaddieResults,
     }) {
         this.reset();
@@ -131,6 +132,14 @@ export class ActorTextWindow {
         ) {
             actorUsesActionDescriptionText += `\n\n`;
             actorUsesActionDescriptionText += `   rolls(${this.results.actingSquaddieRoll.rolls[0]}, ${this.results.actingSquaddieRoll.rolls[1]})`;
+
+
+            const attackPenaltyDescriptions = ActionResultText.getAttackPenaltyDescriptions(this.results.actingSquaddieModifiers);
+            if (attackPenaltyDescriptions.length > 0) {
+                actorUsesActionDescriptionText += "\n" + attackPenaltyDescriptions.join("\n");
+            }
+
+            actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(this.results)}`;
 
             if (RollResultHelper.isACriticalSuccess(this.results.actingSquaddieRoll)) {
                 actorUsesActionDescriptionText += `\n\nCRITICAL HIT!`;

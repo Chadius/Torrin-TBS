@@ -64,7 +64,7 @@ export const SquaddieService = {
         maxHitPoints: number
     } => {
         return GetHitPoints({squaddieTemplate, battleSquaddie});
-    }
+    },
 }
 
 export const GetNumberOfActionPoints = ({

@@ -9,7 +9,7 @@ import {Recording, RecordingHandler} from "./recording";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent} from "./battleEvent";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {Trait} from "../../trait/traitStatusStorage";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -46,7 +46,7 @@ describe("BattleSaveState", () => {
     let enemyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
-        const action: SquaddieAction = SquaddieActionHandler.new({
+        const action: SquaddieSquaddieAction = SquaddieSquaddieActionService.new({
                 id: "att",
                 name: "attack",
                 traits: {
@@ -69,18 +69,15 @@ describe("BattleSaveState", () => {
 
         SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 2, r: -5},
-                numberOfActionPointsSpent: 1,
-            }
+            destination: {q: 2, r: -5},
+            numberOfActionPointsSpent: 1,
         });
 
         SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                squaddieAction: action,
-                targetLocation: {q: 3, r: 4},
-            }
+            numberOfActionPointsSpent: 1,
+            squaddieAction: action,
+            targetLocation: {q: 3, r: 4},
         });
 
         eventRecording0 = {history: []};
@@ -109,6 +106,7 @@ describe("BattleSaveState", () => {
                     occurred: true,
                     rolls: [3, 5],
                 },
+                actingSquaddieModifiers: {},
             }
         };
         eventRecording0.history.push(
@@ -312,10 +310,8 @@ describe("BattleSaveState", () => {
 
         SquaddieActionsForThisRoundHandler.addAction(secondSquaddieActions, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 1, r: 6},
-                numberOfActionPointsSpent: 3,
-            }
+            destination: {q: 1, r: 6},
+            numberOfActionPointsSpent: 3,
         });
 
         const secondBattleEvent: BattleEvent = {
@@ -332,6 +328,7 @@ describe("BattleSaveState", () => {
                     occurred: false,
                     rolls: [],
                 },
+                actingSquaddieModifiers: {},
             }
         };
         eventRecording0.history.push(

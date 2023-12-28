@@ -14,9 +14,8 @@ import {
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
+import {SquaddieEndTurnActionDataService} from "../history/squaddieEndTurnAction";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieAction} from "../../squaddie/action";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {AddMovementInstruction, createSearchPath, MaybeCreateSquaddieInstruction} from "./battleSquaddieSelectorUtils";
@@ -353,20 +352,19 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             };
         }
 
-        if (state.battleSquaddieSelectedHUD.getSelectedAction() instanceof SquaddieEndTurnAction) {
-            SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, new SquaddieEndTurnAction({}));
+        if (state.battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()) {
+            SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, SquaddieEndTurnActionDataService.new());
 
             state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
-            this.gaveCompleteInstruction = true;
 
             RecordingHandler.addEvent(state.battleState.recording, {
                 instruction: state.battleState.squaddieCurrentlyActing,
                 results: undefined,
             });
             this.gaveCompleteInstruction = true;
-        } else {
-            const newAction = state.battleSquaddieSelectedHUD.getSelectedAction();
-            SquaddieInstructionInProgressHandler.addSelectedAction(state.battleState.squaddieCurrentlyActing, newAction as SquaddieAction);
+        } else if (state.battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()) {
+            const newAction = state.battleSquaddieSelectedHUD.getSquaddieSquaddieAction();
+            SquaddieInstructionInProgressHandler.addSelectedAction(state.battleState.squaddieCurrentlyActing, newAction);
             this.gaveInstructionThatNeedsATarget = true;
         }
 

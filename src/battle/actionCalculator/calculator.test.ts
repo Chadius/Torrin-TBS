@@ -1,14 +1,17 @@
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    SquaddieInstructionInProgress,
+    SquaddieInstructionInProgressHandler
+} from "../history/squaddieInstructionInProgress";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
@@ -19,6 +22,10 @@ import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ActionCalculator} from "./calculator";
+import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionType} from "../history/anySquaddieAction";
+
+import {ATTACK_MODIFIER} from "../modifierConstants";
 
 describe('calculator', () => {
     let squaddieRepository: ObjectRepository;
@@ -32,8 +39,8 @@ describe('calculator', () => {
     let ally1DynamicId = "ally 1";
     let ally1StaticId = "ally 1";
     let ally1BattleSquaddie: BattleSquaddie;
-    let actionAlwaysHitsAndDealsBodyDamage: SquaddieAction;
-    let actionNeedsAnAttackRollToDealBodyDamage: SquaddieAction;
+    let actionAlwaysHitsAndDealsBodyDamage: SquaddieSquaddieAction;
+    let actionNeedsAnAttackRollToDealBodyDamage: SquaddieSquaddieAction;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryHelper.new();
@@ -86,7 +93,7 @@ describe('calculator', () => {
                 })
         );
 
-        actionAlwaysHitsAndDealsBodyDamage = SquaddieActionHandler.new({
+        actionAlwaysHitsAndDealsBodyDamage = SquaddieSquaddieActionService.new({
             id: "deal body damage auto hit",
             name: "deal body damage (Auto Hit)",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -98,7 +105,7 @@ describe('calculator', () => {
             maximumRange: 9001,
             damageDescriptions: {[DamageType.BODY]: 2}
         });
-        actionNeedsAnAttackRollToDealBodyDamage = SquaddieActionHandler.new({
+        actionNeedsAnAttackRollToDealBodyDamage = SquaddieSquaddieActionService.new({
             id: "deal body damage",
             name: "deal body damage",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -118,7 +125,7 @@ describe('calculator', () => {
                                 currentlySelectedAction,
                                 numberGenerator,
                             }: {
-        currentlySelectedAction?: SquaddieAction,
+        currentlySelectedAction?: SquaddieSquaddieAction,
         actingBattleSquaddie?: BattleSquaddie,
         validTargetLocation?: HexCoordinate,
         missionStatistics?: MissionStatistics,
@@ -127,7 +134,7 @@ describe('calculator', () => {
         const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
             currentlySelectedAction: currentlySelectedAction ?? actionAlwaysHitsAndDealsBodyDamage,
             movingBattleSquaddieIds: [],
-            squaddieActionsForThisRound: undefined,
+            squaddieActionsForThisRound: SquaddieActionsForThisRoundHandler.default(),
         };
 
         return ActionCalculator.calculateResults({
@@ -203,13 +210,13 @@ describe('calculator', () => {
     });
 
     describe('healing abilities', () => {
-        let healsLostHitPoints: SquaddieAction;
+        let healsLostHitPoints: SquaddieSquaddieAction;
 
         beforeEach(() => {
             missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
             missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {q: 0, r: 2});
 
-            healsLostHitPoints = SquaddieActionHandler.new({
+            healsLostHitPoints = SquaddieSquaddieActionService.new({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -229,11 +236,11 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes,
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN);
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressHandler.sanitize({
                 currentlySelectedAction: healsLostHitPoints,
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: undefined,
-            };
+            });
 
             const results = ActionCalculator.calculateResults({
                     state: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -266,11 +273,11 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN
             );
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressHandler.sanitize({
                 currentlySelectedAction: healsLostHitPoints,
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: undefined,
-            };
+            });
 
             ActionCalculator.calculateResults({
                     state: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -344,6 +351,59 @@ describe('calculator', () => {
 
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
             expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
+        });
+
+        it('knows when multiple attack penalties should apply', () => {
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
+
+            const expectedRolls: number[] = [1, 6];
+            const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
+
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
+                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
+                movingBattleSquaddieIds: [],
+                squaddieActionsForThisRound: SquaddieActionsForThisRoundHandler.default(),
+            };
+            SquaddieActionsForThisRoundHandler.addAction(
+                squaddieCurrentlyInProgress.squaddieActionsForThisRound,
+                {
+                    type: SquaddieActionType.SQUADDIE,
+                    squaddieAction: actionNeedsAnAttackRollToDealBodyDamage,
+                    numberOfActionPointsSpent: 1,
+                    targetLocation: {q: 0, r: 0},
+                }
+            );
+            SquaddieActionsForThisRoundHandler.addAction(
+                squaddieCurrentlyInProgress.squaddieActionsForThisRound,
+                {
+                    type: SquaddieActionType.SQUADDIE,
+                    squaddieAction: actionNeedsAnAttackRollToDealBodyDamage,
+                    numberOfActionPointsSpent: 1,
+                    targetLocation: {q: 0, r: 0},
+                }
+            );
+
+            const results = ActionCalculator.calculateResults({
+                    state: BattleOrchestratorStateHelper.newOrchestratorState({
+                        squaddieRepository: squaddieRepository,
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        numberGenerator,
+                        battleState: BattleStateHelper.newBattleState({
+                            missionId: "test mission",
+                            missionMap,
+                            squaddieCurrentlyActing: squaddieCurrentlyInProgress,
+                            missionStatistics: MissionStatisticsHandler.new(),
+                        }),
+                    }),
+                    actingBattleSquaddie: player1BattleSquaddie,
+                    validTargetLocation: {q: 0, r: 1},
+                }
+            );
+
+            expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.FAILURE);
+            expect(results.actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]).toEqual(-3);
         });
     });
 

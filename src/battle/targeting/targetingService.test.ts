@@ -1,5 +1,5 @@
 import {MissionMap} from "../../missionMap/missionMap";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
@@ -13,13 +13,13 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('Targeting Service', () => {
-    let longswordAction: SquaddieAction;
+    let longswordAction: SquaddieSquaddieAction;
     let sirCamilSquaddieTemplate: SquaddieTemplate;
     let sirCamilBattleSquaddie: BattleSquaddie;
     let squaddieRepo: ObjectRepository;
 
     beforeEach(() => {
-        longswordAction = SquaddieActionHandler.new({
+        longswordAction = SquaddieSquaddieActionService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -114,7 +114,7 @@ describe('Targeting Service', () => {
             })
         });
 
-        let longbowAction = SquaddieActionHandler.new({
+        let longbowAction = SquaddieSquaddieActionService.new({
             name: "longbow",
             id: "longbow",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -240,7 +240,7 @@ describe('Targeting Service', () => {
     });
 
     it('will ignore terrain costs when targeting', () => {
-        let longbowAction: SquaddieAction = SquaddieActionHandler.new({
+        let longbowAction: SquaddieSquaddieAction = SquaddieSquaddieActionService.new({
             name: "longbow",
             id: "longbow",
             traits: TraitStatusStorageHelper.newUsingTraitValues({

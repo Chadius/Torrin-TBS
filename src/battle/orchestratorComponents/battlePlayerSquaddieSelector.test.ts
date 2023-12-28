@@ -14,17 +14,17 @@ import {
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {SquaddieMovementAction} from "../history/squaddieMovementAction";
+import {SquaddieMovementActionDataService} from "../history/squaddieMovementAction";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
-import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
+import {SquaddieEndTurnActionDataService} from "../history/squaddieEndTurnAction";
 import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
     SquaddieInstructionInProgress,
@@ -46,7 +46,7 @@ describe('BattleSquaddieSelector', () => {
     let missionMap: MissionMap;
     let enemyDemonStatic: SquaddieTemplate;
     let enemyDemonDynamic: BattleSquaddie;
-    let demonBiteAction: SquaddieAction;
+    let demonBiteAction: SquaddieSquaddieAction;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let teams: BattleSquaddieTeam[];
 
@@ -72,7 +72,7 @@ describe('BattleSquaddieSelector', () => {
             }
         ;
 
-        demonBiteAction = SquaddieActionHandler.new({
+        demonBiteAction = SquaddieSquaddieActionService.new({
             name: "demon bite",
             id: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -174,7 +174,7 @@ describe('BattleSquaddieSelector', () => {
             }
         ;
 
-        demonBiteAction = SquaddieActionHandler.new({
+        demonBiteAction = SquaddieSquaddieActionService.new({
             name: "demon bite",
             id: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -341,7 +341,7 @@ describe('BattleSquaddieSelector', () => {
             };
 
         SquaddieInstructionInProgressHandler.addConfirmedAction(expectedSquaddieInstruction,
-            new SquaddieMovementAction({
+            SquaddieMovementActionDataService.new({
                 destination: {q: 0, r: 1},
                 numberOfActionPointsSpent: 1,
             }));
@@ -384,7 +384,7 @@ describe('BattleSquaddieSelector', () => {
                 currentlySelectedAction: undefined,
             };
 
-            SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieCurrentlyActing, new SquaddieMovementAction({
+            SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieCurrentlyActing, SquaddieMovementActionDataService.new({
                 destination: {q: 0, r: 1},
                 numberOfActionPointsSpent: 1
             }));
@@ -426,10 +426,8 @@ describe('BattleSquaddieSelector', () => {
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(2);
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions[1]).toStrictEqual({
                 type: SquaddieActionType.MOVEMENT,
-                data: {
-                    destination: {q: 0, r: 2},
-                    numberOfActionPointsSpent: 1,
-                }
+                destination: {q: 0, r: 2},
+                numberOfActionPointsSpent: 1,
             });
             expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound)).toBe(2);
         });
@@ -451,13 +449,14 @@ describe('BattleSquaddieSelector', () => {
                 currentlySelectedAction: undefined,
             };
 
-        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieCurrentlyActing, new SquaddieMovementAction({
+        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieCurrentlyActing, SquaddieMovementActionDataService.new({
             destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 1
         }));
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
+        mockHud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(true);
 
         const state: GameEngineState = GameEngineStateHelper.new({
             battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -495,6 +494,7 @@ describe('BattleSquaddieSelector', () => {
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
+        mockHud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(true);
 
         const state: GameEngineState = GameEngineStateHelper.new({
             battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -530,7 +530,7 @@ describe('BattleSquaddieSelector', () => {
             currentlySelectedAction: undefined,
         };
 
-        SquaddieInstructionInProgressHandler.addConfirmedAction(endTurnInstruction, new SquaddieEndTurnAction({}));
+        SquaddieInstructionInProgressHandler.addConfirmedAction(endTurnInstruction, SquaddieEndTurnActionDataService.new());
 
         expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.END_TURN);
 
@@ -550,7 +550,7 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const longswordAction: SquaddieAction = SquaddieActionHandler.new({
+        const longswordAction: SquaddieSquaddieAction = SquaddieSquaddieActionService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -564,6 +564,8 @@ describe('BattleSquaddieSelector', () => {
         mockHud.getSelectedAction = jest.fn().mockReturnValue(longswordAction);
         mockHud.mouseClicked = jest.fn();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
+        mockHud.didPlayerSelectSquaddieAction = jest.fn().mockReturnValue(true);
+        mockHud.getSquaddieSquaddieAction = jest.fn().mockReturnValue(longswordAction);
 
         const state: GameEngineState = GameEngineStateHelper.new({
             battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -654,10 +656,8 @@ describe('BattleSquaddieSelector', () => {
 
             SquaddieActionsForThisRoundHandler.addAction(movingInstruction, {
                 type: SquaddieActionType.MOVEMENT,
-                data: {
-                    destination: {q: 0, r: 2},
-                    numberOfActionPointsSpent: 1,
-                }
+                destination: {q: 0, r: 2},
+                numberOfActionPointsSpent: 1,
             });
 
             soldierCurrentlyActing = {
@@ -750,7 +750,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores action commands issued to other squaddies', () => {
-            const longswordAction: SquaddieAction = SquaddieActionHandler.new({
+            const longswordAction: SquaddieSquaddieAction = SquaddieSquaddieActionService.new({
                 name: "longsword",
                 id: "longsword",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),

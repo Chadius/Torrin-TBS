@@ -10,7 +10,7 @@ import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResu
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
-import {SquaddieAction, SquaddieActionHandler} from "../../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 
 describe('TargetTextWindow', () => {
@@ -23,11 +23,11 @@ describe('TargetTextWindow', () => {
     let targetResultTakenDamage: ActionResultPerSquaddie;
     let targetResultHealingReceived: ActionResultPerSquaddie;
 
-    let attackAction: SquaddieAction;
-    let healingAction: SquaddieAction;
+    let attackAction: SquaddieSquaddieAction;
+    let healingAction: SquaddieSquaddieAction;
 
     beforeEach(() => {
-        attackAction = SquaddieActionHandler.new({
+        attackAction = SquaddieSquaddieActionService.new({
             id: "attack",
             name: "attack action",
             damageDescriptions: {
@@ -39,7 +39,7 @@ describe('TargetTextWindow', () => {
             })
         });
 
-        healingAction = SquaddieActionHandler.new({
+        healingAction = SquaddieSquaddieActionService.new({
             id: "heal",
             name: "healing action",
             healingDescriptions: {

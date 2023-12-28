@@ -15,6 +15,7 @@ export enum Trait {
     TARGETS_ALLIES = "TARGETS_ALLIES",
     ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
     CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
+    NO_MULTIPLE_ATTACK_PENALTY = "NO_MULTIPLE_ATTACK_PENALTY",
 }
 
 export enum TraitCategory {
@@ -37,6 +38,10 @@ const traitInformation: {
     },
     [Trait.ATTACK]: {
         description: "Damage and negatively affect the target. Subject to a multiple attack penalty over repeated use.",
+        categories: [TraitCategory.ACTION],
+    },
+    [Trait.NO_MULTIPLE_ATTACK_PENALTY]: {
+        description: "Attack Actions ",
         categories: [TraitCategory.ACTION],
     },
     [Trait.HEALING]: {

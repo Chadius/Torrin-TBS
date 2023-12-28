@@ -13,14 +13,14 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieSquaddieAction} from "../history/squaddieSquaddieAction";
+import {SquaddieSquaddieActionDataService} from "../history/squaddieSquaddieAction";
 import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
 import {LabelHelper} from "../../ui/label";
 import {BattleEvent} from "../history/battleEvent";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieSquaddieAction} from "../../squaddie/action";
 import {Trait} from "../../trait/traitStatusStorage";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {FindValidTargets} from "../targeting/targetingService";
@@ -31,6 +31,9 @@ import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
+import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {ATTACK_MODIFIER} from "../modifierConstants";
+import {SquaddieActionType} from "../history/anySquaddieAction";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -223,7 +226,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
-        const actionConsidered: SquaddieAction = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+        const actionConsidered: SquaddieSquaddieAction = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
         if (actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
             return;
         }
@@ -249,10 +252,25 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             graphicsContext,
         );
 
+        let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
+        let {multipleAttackPenalty} = SquaddieActionsForThisRoundHandler.previewMultipleAttackPenalty(
+            state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
+            {
+                type: SquaddieActionType.SQUADDIE,
+                numberOfActionPointsSpent: undefined,
+                targetLocation: undefined,
+                squaddieAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
+            }
+        );
+        if (multipleAttackPenalty !== 0) {
+            actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] = multipleAttackPenalty;
+        }
+
         const intentMessages = FormatIntent({
             currentAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
             actingBattleSquaddieId: SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing),
             squaddieRepository: state.squaddieRepository,
+            actingSquaddieModifiers,
         });
 
         intentMessages.push(...[
@@ -323,9 +341,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing,
-            new SquaddieSquaddieAction({
+            SquaddieSquaddieActionDataService.new({
                     targetLocation: this.validTargetLocation,
                     squaddieAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
+                    numberOfActionPointsSpent: state.battleState.squaddieCurrentlyActing.currentlySelectedAction.actionPointCost,
                 }
             ));
 

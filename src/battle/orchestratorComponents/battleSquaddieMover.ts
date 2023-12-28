@@ -21,7 +21,6 @@ import {
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieActionType} from "../history/anySquaddieAction";
-import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -132,7 +131,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         updateSquaddieLocation(battleSquaddie, squaddieTemplate, state.battleState.squaddieMovePath.destination, state.battleState.missionMap, battleSquaddie.battleSquaddieId);
         const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
         if (mostRecentAction.type === SquaddieActionType.MOVEMENT) {
-            spendSquaddieActionPoints(battleSquaddie, (mostRecentAction.data as SquaddieSquaddieActionData).numberOfActionPointsSpent);
+            spendSquaddieActionPoints(battleSquaddie, mostRecentAction.numberOfActionPointsSpent);
         }
 
         const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];

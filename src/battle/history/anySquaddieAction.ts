@@ -1,8 +1,8 @@
-import {SquaddieMovementAction, SquaddieMovementActionData} from "./squaddieMovementAction";
-import {SquaddieEndTurnAction, SquaddieEndTurnActionData} from "./squaddieEndTurnAction";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionData} from "./squaddieSquaddieAction";
+import {SquaddieMovementActionData} from "./squaddieMovementAction";
+import {SquaddieEndTurnActionData} from "./squaddieEndTurnAction";
+import {SquaddieSquaddieActionData} from "./squaddieSquaddieAction";
 
-export type AnySquaddieAction = SquaddieSquaddieAction | SquaddieMovementAction | SquaddieEndTurnAction;
+export type AnySquaddieAction = SquaddieSquaddieActionData | SquaddieMovementActionData | SquaddieEndTurnActionData;
 
 export enum SquaddieActionType {
     END_TURN = "END_TURN",
@@ -10,7 +10,3 @@ export enum SquaddieActionType {
     SQUADDIE = "SQUADDIE"
 }
 
-export interface AnySquaddieActionData {
-    type: SquaddieActionType,
-    data: SquaddieEndTurnActionData | SquaddieMovementActionData | SquaddieSquaddieActionData,
-}

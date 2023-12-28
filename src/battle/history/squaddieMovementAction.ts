@@ -1,19 +1,24 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {SquaddieActionType} from "./anySquaddieAction";
 
 export interface SquaddieMovementActionData {
+    type: SquaddieActionType.MOVEMENT;
     destination: HexCoordinate;
     numberOfActionPointsSpent: number;
 }
 
-export class SquaddieMovementAction implements SquaddieMovementActionData {
-    destination: HexCoordinate;
-    numberOfActionPointsSpent: number;
-
-    constructor(options: {
+export const SquaddieMovementActionDataService = {
+    new: ({
+              destination,
+              numberOfActionPointsSpent,
+          }: {
         destination: HexCoordinate;
         numberOfActionPointsSpent: number;
-    }) {
-        this.destination = options.destination;
-        this.numberOfActionPointsSpent = options.numberOfActionPointsSpent;
+    }): SquaddieMovementActionData => {
+        return {
+            type: SquaddieActionType.MOVEMENT,
+            destination,
+            numberOfActionPointsSpent,
+        }
     }
-}
+};

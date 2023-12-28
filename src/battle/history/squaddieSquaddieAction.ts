@@ -1,42 +1,29 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieSquaddieAction} from "../../squaddie/action";
+import {SquaddieActionType} from "./anySquaddieAction";
 
 export interface SquaddieSquaddieActionData {
-    squaddieAction: SquaddieAction;
+    type: SquaddieActionType.SQUADDIE;
+    squaddieAction: SquaddieSquaddieAction;
     numberOfActionPointsSpent: number;
     targetLocation: HexCoordinate;
 }
 
-export class SquaddieSquaddieAction implements SquaddieSquaddieActionData {
-    private readonly _targetLocation: HexCoordinate;
-    private readonly _numberOfActionPointsSpent: number;
-    private readonly _squaddieAction: SquaddieAction;
-
-    constructor({targetLocation, squaddieAction, data}: {
-        targetLocation?: HexCoordinate;
-        squaddieAction?: SquaddieAction;
-        data?: SquaddieSquaddieActionData;
-    }) {
-        if (data) {
-            this._targetLocation = data.targetLocation;
-            this._squaddieAction = data.squaddieAction;
-        } else {
-            this._targetLocation = targetLocation;
-            this._squaddieAction = squaddieAction;
+export const SquaddieSquaddieActionDataService = {
+    new: ({
+              targetLocation,
+              numberOfActionPointsSpent,
+              squaddieAction,
+          }: {
+        targetLocation: HexCoordinate;
+        numberOfActionPointsSpent: number;
+        squaddieAction: SquaddieSquaddieAction;
+    }): SquaddieSquaddieActionData => {
+        return {
+            type: SquaddieActionType.SQUADDIE,
+            targetLocation,
+            numberOfActionPointsSpent,
+            squaddieAction,
         }
-
-        this._numberOfActionPointsSpent = this._squaddieAction.actionPointCost;
     }
-
-    get squaddieAction(): SquaddieAction {
-        return this._squaddieAction;
-    }
-
-    get numberOfActionPointsSpent(): number {
-        return this._numberOfActionPointsSpent;
-    }
-
-    get targetLocation(): HexCoordinate {
-        return this._targetLocation;
-    }
-}
+};

@@ -112,10 +112,8 @@ describe('move towards closest squaddie in range', () => {
         };
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 0, r: 1},
-                numberOfActionPointsSpent: 1,
-            }
+            destination: {q: 0, r: 1},
+            numberOfActionPointsSpent: 1,
         });
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -174,10 +172,8 @@ describe('move towards closest squaddie in range', () => {
         };
         SquaddieActionsForThisRoundHandler.addAction(startingInstruction, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 0, r: 3},
-                numberOfActionPointsSpent: 1,
-            }
+            destination: {q: 0, r: 3},
+            numberOfActionPointsSpent: 1,
         });
 
         const state = new TeamStrategyState({
@@ -195,10 +191,8 @@ describe('move towards closest squaddie in range', () => {
         };
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 0, r: 1},
-                numberOfActionPointsSpent: 1,
-            }
+            destination: {q: 0, r: 1},
+            numberOfActionPointsSpent: 1,
         });
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -330,10 +324,8 @@ describe('move towards closest squaddie in range', () => {
 
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 0, r: 1},
-                numberOfActionPointsSpent: 1,
-            }
+            destination: {q: 0, r: 1},
+            numberOfActionPointsSpent: 1,
         });
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({
@@ -402,10 +394,8 @@ describe('move towards closest squaddie in range', () => {
         };
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 1, r: 1},
-                numberOfActionPointsSpent: 2,
-            }
+            destination: {q: 1, r: 1},
+            numberOfActionPointsSpent: 2,
         });
 
         const strategy: MoveCloserToSquaddie = new MoveCloserToSquaddie({

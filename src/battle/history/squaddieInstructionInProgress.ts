@@ -1,14 +1,11 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
-import {SquaddieAction} from "../../squaddie/action";
+import {SquaddieSquaddieAction} from "../../squaddie/action";
 import {AnySquaddieAction, SquaddieActionType} from "./anySquaddieAction";
-import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
-import {SquaddieMovementAction} from "./squaddieMovementAction";
-import {SquaddieEndTurnAction} from "./squaddieEndTurnAction";
 
 
 export interface SquaddieInstructionInProgress {
-    readonly squaddieActionsForThisRound: SquaddieActionsForThisRound;
-    currentlySelectedAction: SquaddieAction;
+    squaddieActionsForThisRound: SquaddieActionsForThisRound;
+    currentlySelectedAction: SquaddieSquaddieAction;
     movingBattleSquaddieIds: string[];
 }
 
@@ -21,7 +18,7 @@ const squaddieHasActedThisTurn = (data: SquaddieInstructionInProgress) => {
         && data.squaddieActionsForThisRound.actions.length > 0;
 };
 
-const addSelectedAction = (data: SquaddieInstructionInProgress, action: SquaddieAction) => {
+const addSelectedAction = (data: SquaddieInstructionInProgress, action: SquaddieSquaddieAction) => {
     if (!data.squaddieActionsForThisRound) {
         throw new Error("no squaddie found, cannot add action");
     }
@@ -34,6 +31,19 @@ const isBattleSquaddieIdMoving = (data: SquaddieInstructionInProgress, battleSqu
 }
 
 export const SquaddieInstructionInProgressHandler = {
+    sanitize: (data: SquaddieInstructionInProgress): SquaddieInstructionInProgress => {
+        if (data.squaddieActionsForThisRound === undefined) {
+            data.squaddieActionsForThisRound = {
+                ...SquaddieActionsForThisRoundHandler.default(),
+            };
+        }
+
+        SquaddieActionsForThisRoundHandler.sanitize(data.squaddieActionsForThisRound);
+        if (data.movingBattleSquaddieIds === undefined) {
+            data.movingBattleSquaddieIds = [];
+        }
+        return data;
+    },
     squaddieHasActedThisTurn: (data: SquaddieInstructionInProgress): boolean => {
         return squaddieHasActedThisTurn(data);
     },
@@ -56,43 +66,33 @@ export const SquaddieInstructionInProgressHandler = {
             throw new Error("no squaddie found, cannot add action");
         }
 
-        if (!(
-            action instanceof SquaddieSquaddieAction
-            || action instanceof SquaddieMovementAction
-            || action instanceof SquaddieEndTurnAction
-        )) {
-            throw new Error("wrong action type")
-        }
-
-        if (action instanceof SquaddieSquaddieAction) {
-            addSelectedAction(data, action.squaddieAction);
-            SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound,
-                {
-                    type: SquaddieActionType.SQUADDIE,
-                    data: {
+        switch (action.type) {
+            case SquaddieActionType.SQUADDIE:
+                addSelectedAction(data, action.squaddieAction);
+                SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound,
+                    {
+                        type: SquaddieActionType.SQUADDIE,
                         squaddieAction: action.squaddieAction,
                         targetLocation: action.targetLocation,
                         numberOfActionPointsSpent: action.numberOfActionPointsSpent,
                     }
-                }
-            );
-        } else if (action instanceof SquaddieMovementAction) {
-            SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
-                type: SquaddieActionType.MOVEMENT,
-                data: {
+                );
+                break;
+            case SquaddieActionType.MOVEMENT:
+                SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
+                    type: SquaddieActionType.MOVEMENT,
                     destination: action.destination,
                     numberOfActionPointsSpent: action.numberOfActionPointsSpent,
-                }
-            });
-        } else {
-            SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
-                type: SquaddieActionType.END_TURN,
-                data: {},
-            });
+                });
+                break;
+            default:
+                SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
+                    type: SquaddieActionType.END_TURN,
+                });
+                break;
         }
     },
-
-    addSelectedAction: (data: SquaddieInstructionInProgress, action: SquaddieAction) => {
+    addSelectedAction: (data: SquaddieInstructionInProgress, action: SquaddieSquaddieAction) => {
         addSelectedAction(data, action);
     },
     markBattleSquaddieIdAsMoving: (data: SquaddieInstructionInProgress, battleSquaddieId: string) => {

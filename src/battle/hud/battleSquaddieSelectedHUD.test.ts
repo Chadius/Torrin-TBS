@@ -6,9 +6,8 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {UseActionButton} from "../../squaddie/useActionButton";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
-import {SquaddieEndTurnAction} from "../history/squaddieEndTurnAction";
 import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -42,7 +41,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieDynamicId: string = "player_squaddie_2";
     let player2SquaddieStatic: SquaddieTemplate;
     let player2SquaddieDynamic: BattleSquaddie;
-    let longswordAction: SquaddieAction;
+    let longswordAction: SquaddieSquaddieAction;
     let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -65,7 +64,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             "affiliate_icon_none",
         ]);
 
-        longswordAction = SquaddieActionHandler.new({
+        longswordAction = SquaddieSquaddieActionService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -273,7 +272,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         hud.mouseClicked(waitTurnButton.buttonArea.left, waitTurnButton.buttonArea.top, state);
 
         expect(hud.wasAnyActionSelected()).toBeTruthy();
-        expect(hud.getSelectedAction()).toBeInstanceOf(SquaddieEndTurnAction);
+        expect(hud.getSelectedAction()).toEqual({
+            type: SquaddieActionType.END_TURN,
+        });
 
         hud.reset();
         expect(hud.wasAnyActionSelected()).toBeFalsy();
@@ -310,8 +311,8 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
-        let notEnoughActionPointsAction: SquaddieAction;
-        notEnoughActionPointsAction = SquaddieActionHandler.new({
+        let notEnoughActionPointsAction: SquaddieSquaddieAction;
+        notEnoughActionPointsAction = SquaddieSquaddieActionService.new({
                 name: "not enough actions",
                 id: "not enough actions",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -373,7 +374,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: new BattleCamera(0, 0),
                         squaddieCurrentlyActing: {
                             movingBattleSquaddieIds: [],
-                            currentlySelectedAction: SquaddieActionHandler.new({
+                            currentlySelectedAction: SquaddieSquaddieActionService.new({
                                 name: "purifying stream",
                                 id: "purifying_stream",
                                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -560,10 +561,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                             actions: [
                                 {
                                     type: SquaddieActionType.MOVEMENT,
-                                    data: {
-                                        destination: {q: 1, r: 0},
-                                        numberOfActionPointsSpent: 1,
-                                    }
+                                    destination: {q: 1, r: 0},
+                                    numberOfActionPointsSpent: 1,
                                 }
                             ]
                         },

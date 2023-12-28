@@ -91,10 +91,8 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         };
         SquaddieActionsForThisRoundHandler.addAction(moveTowardsLocation, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: shortestRoute.destination,
-                numberOfActionPointsSpent: shortestRoute.currentNumberOfMoveActions,
-            }
+            destination: shortestRoute.destination,
+            numberOfActionPointsSpent: shortestRoute.currentNumberOfMoveActions,
         });
         state.setInstruction(moveTowardsLocation);
         return moveTowardsLocation;

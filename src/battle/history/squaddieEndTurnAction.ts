@@ -1,10 +1,14 @@
+import {SquaddieActionType} from "./anySquaddieAction";
+
 export interface SquaddieEndTurnActionData {
+    type: SquaddieActionType.END_TURN;
 }
 
-export class SquaddieEndTurnAction {
-    constructor({data}: {
-        data?: SquaddieEndTurnActionData
-    }) {
-
+export const SquaddieEndTurnActionDataService = {
+    new: (): SquaddieEndTurnActionData => {
+        return {
+            type: SquaddieActionType.END_TURN,
+        }
     }
 }
+

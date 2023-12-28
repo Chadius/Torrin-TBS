@@ -1,31 +1,38 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
-import {SquaddieActionHandler} from "../../squaddie/action";
-import {SquaddieMovementAction} from "./squaddieMovementAction";
-import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {SquaddieMovementActionDataService} from "./squaddieMovementAction";
+import {SquaddieSquaddieActionData, SquaddieSquaddieActionDataService} from "./squaddieSquaddieAction";
 import {SquaddieActionType} from "./anySquaddieAction";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 
-const torrinInstruction: SquaddieActionsForThisRound = {
-    battleSquaddieId: "Torrin 0",
-    squaddieTemplateId: "Torrin",
-    startingLocation: {q: 0, r: 0},
-    actions: [],
-};
-
-const purifyingBlast = SquaddieActionHandler.new({
-    name: "purifying stream",
-    id: "purifying_stream",
-    traits: TraitStatusStorageHelper.newUsingTraitValues(),
-});
-
-const purifyingBlastAction: SquaddieSquaddieAction = new SquaddieSquaddieAction({
-    squaddieAction: purifyingBlast,
-    targetLocation: {q: 3, r: 4},
-});
-
 describe('Current Squaddie Instruction', () => {
+    let torrinInstruction: SquaddieActionsForThisRound;
+    let purifyingBlast: SquaddieSquaddieAction;
+    let purifyingBlastAction: SquaddieSquaddieActionData;
+
+    beforeEach(() => {
+        torrinInstruction = {
+            battleSquaddieId: "Torrin 0",
+            squaddieTemplateId: "Torrin",
+            startingLocation: {q: 0, r: 0},
+            actions: [],
+        };
+
+        purifyingBlast = SquaddieSquaddieActionService.new({
+            name: "purifying stream",
+            id: "purifying_stream",
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+        });
+
+        purifyingBlastAction = SquaddieSquaddieActionDataService.new({
+            squaddieAction: purifyingBlast,
+            targetLocation: {q: 3, r: 4},
+            numberOfActionPointsSpent: 1,
+        });
+    })
+
     it('can be reset', () => {
         const newInstruction: SquaddieInstructionInProgress = {
             squaddieActionsForThisRound: {
@@ -71,11 +78,9 @@ describe('Current Squaddie Instruction', () => {
 
         SquaddieActionsForThisRoundHandler.addAction(torrinInstruction, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                squaddieAction: purifyingBlast,
-                targetLocation: {q: 3, r: 4},
-                numberOfActionPointsSpent: 1,
-            }
+            squaddieAction: purifyingBlast,
+            targetLocation: {q: 3, r: 4},
+            numberOfActionPointsSpent: 1,
         });
 
         expect(initialInstruction.battleSquaddieId).toBe(torrinInstruction.battleSquaddieId);
@@ -84,7 +89,7 @@ describe('Current Squaddie Instruction', () => {
         expect(initialInstruction.startingLocation.r).toStrictEqual(torrinInstruction.startingLocation.r);
 
         expect(newInstruction.currentlySelectedAction).toStrictEqual(purifyingBlast);
-        SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, new SquaddieMovementAction({
+        SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, SquaddieMovementActionDataService.new({
             destination: {q: 2, r: 3},
             numberOfActionPointsSpent: 2,
         }));

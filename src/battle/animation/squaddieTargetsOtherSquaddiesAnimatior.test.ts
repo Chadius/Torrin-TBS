@@ -7,7 +7,7 @@ import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
 } from "../history/squaddieInstructionInProgress";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -36,8 +36,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
-    let longswordAction: SquaddieAction;
-    let powerAttackLongswordAction: SquaddieAction;
+    let longswordAction: SquaddieSquaddieAction;
+    let powerAttackLongswordAction: SquaddieSquaddieAction;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
     let oneActionInstruction: SquaddieActionsForThisRound;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -60,7 +60,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleId: thiefDynamicId,
         }));
 
-        longswordAction = SquaddieActionHandler.new({
+        longswordAction = SquaddieSquaddieActionService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -96,10 +96,9 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                squaddieAction: longswordAction,
-                targetLocation: {q: 0, r: 0},
-            }
+            numberOfActionPointsSpent: 1,
+            squaddieAction: longswordAction,
+            targetLocation: {q: 0, r: 0},
         });
 
         mockResourceHandler = mocks.mockResourceHandler();
@@ -128,6 +127,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                     occurred: false,
                     rolls: [],
                 },
+                actingSquaddieModifiers: {},
             }
         };
         battleEventRecording = {history: []};

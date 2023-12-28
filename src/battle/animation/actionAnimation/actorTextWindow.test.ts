@@ -4,17 +4,18 @@ import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {TargetingShape} from "../../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {SquaddieAction} from "../../../squaddie/action";
+import {SquaddieSquaddieAction} from "../../../squaddie/action";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
+import {ATTACK_MODIFIER} from "../../modifierConstants";
 
 describe('ActorTextWindow', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let mockedActionTimer: ActionTimer;
 
     let actorTemplate: SquaddieTemplate;
-    let attackThatUsesAttackRoll: SquaddieAction;
+    let attackThatUsesAttackRoll: SquaddieSquaddieAction;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -76,7 +77,8 @@ describe('ActorTextWindow', () => {
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [1, 5],
-                }
+                },
+                actingSquaddieModifiers: {},
             }
         });
 
@@ -86,7 +88,7 @@ describe('ActorTextWindow', () => {
         expect(timerSpy).toBeCalled();
 
         expect(window.actorUsesActionDescriptionText).toBe(
-            "Actor uses\nAction\n\n   rolls(1, 5)"
+            "Actor uses\nAction\n\n   rolls(1, 5)\n Total 6"
         );
     });
 
@@ -104,7 +106,8 @@ describe('ActorTextWindow', () => {
                 actingSquaddieRoll: {
                     occurred: false,
                     rolls: [],
-                }
+                },
+                actingSquaddieModifiers: {},
             }
         });
 
@@ -132,7 +135,8 @@ describe('ActorTextWindow', () => {
                 actingSquaddieRoll: {
                     occurred: true,
                     rolls: [6, 6],
-                }
+                },
+                actingSquaddieModifiers: {},
             }
         });
 
@@ -142,7 +146,71 @@ describe('ActorTextWindow', () => {
         expect(timerSpy).toBeCalled();
 
         expect(window.actorUsesActionDescriptionText).toBe(
-            "Actor uses\nAction\n\n   rolls(6, 6)\n\nCRITICAL HIT!"
+            "Actor uses\nAction\n\n   rolls(6, 6)\n Total 12\n\nCRITICAL HIT!"
         );
+    });
+
+    describe('attack modifiers', () => {
+        it('will not show any modifiers if the action did not require a roll', () => {
+            const window = new ActorTextWindow();
+
+            window.start({
+                actorTemplate: actorTemplate,
+                actorBattle: undefined,
+                action: attackThatUsesAttackRoll,
+                results: {
+                    resultPerTarget: {},
+                    actingBattleSquaddieId: "",
+                    targetedBattleSquaddieIds: [],
+                    actingSquaddieRoll: {
+                        occurred: false,
+                        rolls: [],
+                    },
+                    actingSquaddieModifiers: {
+                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2
+                    },
+                }
+            });
+
+            const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.DURING_ACTION);
+
+            window.draw(mockedP5GraphicsContext, mockedActionTimer);
+            expect(timerSpy).toBeCalled();
+
+            expect(window.actorUsesActionDescriptionText).toBe(
+                "Actor uses\nAction"
+            );
+        });
+
+        it('will show the multiple attack penalty', () => {
+            const window = new ActorTextWindow();
+
+            window.start({
+                actorTemplate: actorTemplate,
+                actorBattle: undefined,
+                action: attackThatUsesAttackRoll,
+                results: {
+                    resultPerTarget: {},
+                    actingBattleSquaddieId: "",
+                    targetedBattleSquaddieIds: [],
+                    actingSquaddieRoll: {
+                        occurred: true,
+                        rolls: [1, 5],
+                    },
+                    actingSquaddieModifiers: {
+                        [ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY]: -2
+                    },
+                }
+            });
+
+            const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.DURING_ACTION);
+
+            window.draw(mockedP5GraphicsContext, mockedActionTimer);
+            expect(timerSpy).toBeCalled();
+
+            expect(window.actorUsesActionDescriptionText).toBe(
+                "Actor uses\nAction\n\n   rolls(1, 5)\n   -2: Multiple Attack\n Total 4"
+            );
+        });
     });
 });

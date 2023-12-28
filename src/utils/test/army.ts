@@ -3,7 +3,7 @@ import {SquaddieEmotion} from "../../battle/animation/actionAnimation/actionAnim
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieActionService} from "../../squaddie/action";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 
 export const TestArmyPlayerData = () => {
@@ -38,7 +38,7 @@ export const TestArmyPlayerData = () => {
                     }),
                 },
                 "actions": [
-                    SquaddieActionHandler.new({
+                    SquaddieSquaddieActionService.new({
                         name: "water cannon",
                         id: "torrin_water_cannon",
                         minimumRange: 0,
@@ -50,7 +50,7 @@ export const TestArmyPlayerData = () => {
                             [DamageType.BODY]: 2
                         }
                     }),
-                    SquaddieActionHandler.new({
+                    SquaddieSquaddieActionService.new({
                         name: "healing touch",
                         id: "young_torrin_healing_touch",
                         minimumRange: 0,
@@ -94,7 +94,7 @@ export const TestArmyPlayerData = () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
                 actions: [
-                    SquaddieActionHandler.new({
+                    SquaddieSquaddieActionService.new({
                         name: "longsword",
                         id: "sir_camil_longsword",
                         minimumRange: 0,

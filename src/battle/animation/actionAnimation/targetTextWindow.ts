@@ -9,7 +9,7 @@ import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResu
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {SquaddieAction, SquaddieActionHandler} from "../../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 
 export class TargetTextWindow {
     constructor() {
@@ -56,7 +56,7 @@ export class TargetTextWindow {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
-        action: SquaddieAction,
+        action: SquaddieSquaddieAction,
     }) {
         this.reset();
 
@@ -83,11 +83,11 @@ export class TargetTextWindow {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
-        action: SquaddieAction,
+        action: SquaddieSquaddieAction,
     }) {
         this._targetBeforeActionText = `${targetTemplate.squaddieId.name}`;
 
-        if (SquaddieActionHandler.isHindering(action)) {
+        if (SquaddieSquaddieActionService.isHindering(action)) {
             this._targetBeforeActionText += `\nAC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`;
         }
     }

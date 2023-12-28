@@ -5,7 +5,7 @@ import {DamageType, HealingType} from "./squaddieService";
 import {ActionRange} from "./actionRange";
 import {isValidValue} from "../utils/validityCheck";
 
-export interface SquaddieAction {
+export interface SquaddieSquaddieAction {
     damageDescriptions: { [t in DamageType]?: number };
     healingDescriptions: { [t in HealingType]?: number };
     name: string;
@@ -19,7 +19,7 @@ export interface SquaddieAction {
     targetingShape: TargetingShape;
 }
 
-export const SquaddieActionHandler = {
+export const SquaddieSquaddieActionService = {
     new: ({
               actionPointCost,
               damageDescriptions,
@@ -40,7 +40,7 @@ export const SquaddieActionHandler = {
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
         targetingShape?: TargetingShape,
-    } & Partial<ActionRange>): SquaddieAction => {
+    } & Partial<ActionRange>): SquaddieSquaddieAction => {
         if (minimumRange !== undefined) {
             assertsInteger(minimumRange);
         }
@@ -69,18 +69,18 @@ export const SquaddieActionHandler = {
         sanitize(data);
         return data;
     },
-    isHelpful: (data: SquaddieAction): boolean => {
+    isHelpful: (data: SquaddieSquaddieAction): boolean => {
         return TraitStatusStorageHelper.getStatus(data.traits, Trait.HEALING);
     },
-    isHindering: (data: SquaddieAction): boolean => {
+    isHindering: (data: SquaddieSquaddieAction): boolean => {
         return TraitStatusStorageHelper.getStatus(data.traits, Trait.ATTACK);
     },
-    sanitize: (data: SquaddieAction): SquaddieAction => {
+    sanitize: (data: SquaddieSquaddieAction): SquaddieSquaddieAction => {
         return sanitize(data);
     },
 };
 
-const sanitize = (data: SquaddieAction): SquaddieAction => {
+const sanitize = (data: SquaddieSquaddieAction): SquaddieSquaddieAction => {
     if (!data.id || !isValidValue(data.id)) {
         throw new Error('SquaddieAction cannot sanitize, missing id');
     }

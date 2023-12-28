@@ -1,23 +1,23 @@
 import {RectArea, RectAreaHelper} from "../ui/rectArea";
-import {SquaddieAction} from "./action";
+import {SquaddieSquaddieAction} from "./action";
 import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {SquaddieEndTurnAction} from "../battle/history/squaddieEndTurnAction";
+import {SquaddieEndTurnActionData} from "../battle/history/squaddieEndTurnAction";
 import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 
 export class UseActionButton {
     buttonArea: RectArea;
-    action: SquaddieAction;
-    endTurnAction: SquaddieEndTurnAction;
+    action: SquaddieSquaddieAction;
+    endTurnAction: SquaddieEndTurnActionData;
     hue: number;
 
     constructor(options: {
         buttonArea?: RectArea;
-        action?: SquaddieAction;
-        endTurnAction?: SquaddieEndTurnAction;
+        action?: SquaddieSquaddieAction;
+        endTurnAction?: SquaddieEndTurnActionData;
         hue?: number;
     }) {
         this.buttonArea = options.buttonArea;
@@ -59,10 +59,10 @@ export class UseActionButton {
         }
 
         let actionDescription: string;
-        if (this.endTurnAction) {
-            actionDescription = "End Turn";
-        } else {
+        if (this.action != null) {
             actionDescription = this.action.name;
+        } else {
+            actionDescription = "End Turn";
         }
 
         const buttonTextBox: TextBox = TextBoxHelper.new({

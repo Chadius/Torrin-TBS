@@ -1,11 +1,11 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {SquaddieActionType} from "./anySquaddieAction";
-import {SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieActionService} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType} from "../../squaddie/squaddieService";
 
-const longswordAction = SquaddieActionHandler.new({
+const longswordAction = SquaddieSquaddieActionService.new({
     name: "longsword",
     id: "longsword",
     traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -49,10 +49,9 @@ describe('SquaddieInstructionInProgress', () => {
 
         SquaddieActionsForThisRoundHandler.addAction(longswordUsedThisRoundAction, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                squaddieAction: longswordAction,
-                targetLocation: {q: 0, r: 0},
-            }
+            squaddieAction: longswordAction,
+            targetLocation: {q: 0, r: 0},
+            numberOfActionPointsSpent: 1,
         });
 
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = {

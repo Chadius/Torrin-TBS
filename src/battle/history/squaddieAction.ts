@@ -1,11 +1,11 @@
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
-import {SquaddieSquaddieAction} from "./squaddieSquaddieAction";
+import {SquaddieSquaddieActionDataService} from "./squaddieSquaddieAction";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 
 describe('SquaddieAction', () => {
     it('returns the number of action points spent', () => {
-        const longswordAction: SquaddieAction = SquaddieActionHandler.new({
+        const longswordAction: SquaddieSquaddieAction = SquaddieSquaddieActionService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -14,9 +14,10 @@ describe('SquaddieAction', () => {
             maximumRange: 1,
             targetingShape: TargetingShape.SNAKE,
         })
-        const action = new SquaddieSquaddieAction({
+        const action = SquaddieSquaddieActionDataService.new({
             squaddieAction: longswordAction,
             targetLocation: {q: 1, r: 0},
+            numberOfActionPointsSpent: 1,
         });
 
         expect(action.numberOfActionPointsSpent).toBe(1);

@@ -1,11 +1,13 @@
-import {SquaddieSquaddieAction, SquaddieSquaddieActionData} from "./squaddieSquaddieAction";
+import {SquaddieSquaddieActionData, SquaddieSquaddieActionDataService} from "./squaddieSquaddieAction";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {DamageType} from "../../squaddie/squaddieService";
 import {Trait} from "../../trait/traitStatusStorage";
+import {SquaddieActionType} from "./anySquaddieAction";
 
 describe('squaddieSquaddieAction', () => {
     it('can make a new squaddie action based on data', () => {
         const data: SquaddieSquaddieActionData = {
+            type: SquaddieActionType.SQUADDIE,
             targetLocation: {q: 0, r: 0},
             numberOfActionPointsSpent: 1,
             squaddieAction: {
@@ -21,7 +23,9 @@ describe('squaddieSquaddieAction', () => {
             }
         };
 
-        const coolAttackAgainstOrigin: SquaddieSquaddieAction = new SquaddieSquaddieAction({data});
+        const coolAttackAgainstOrigin: SquaddieSquaddieActionData = SquaddieSquaddieActionDataService.new({
+            ...data
+        });
         expect(coolAttackAgainstOrigin.targetLocation).toStrictEqual(data.targetLocation);
         expect(coolAttackAgainstOrigin.numberOfActionPointsSpent).toStrictEqual(data.numberOfActionPointsSpent);
         expect(data.squaddieAction)

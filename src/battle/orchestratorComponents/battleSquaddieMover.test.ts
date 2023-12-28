@@ -103,10 +103,8 @@ describe('BattleSquaddieMover', () => {
         };
         SquaddieActionsForThisRoundHandler.addAction(moveAction, {
             type: SquaddieActionType.MOVEMENT,
-            data: {
-                destination: {q: 1, r: 1},
-                numberOfActionPointsSpent: 3,
-            }
+            destination: {q: 1, r: 1},
+            numberOfActionPointsSpent: 3,
         });
 
         const squaddieCurrentlyActing: SquaddieInstructionInProgress = {
@@ -210,10 +208,8 @@ describe('BattleSquaddieMover', () => {
             };
             SquaddieActionsForThisRoundHandler.addAction(moveAction, {
                 type: SquaddieActionType.MOVEMENT,
-                data: {
-                    destination: {q: 1, r: 1},
-                    numberOfActionPointsSpent: 3,
-                }
+                destination: {q: 1, r: 1},
+                numberOfActionPointsSpent: 3,
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({
@@ -246,10 +242,8 @@ describe('BattleSquaddieMover', () => {
             };
             SquaddieActionsForThisRoundHandler.addAction(moveAction, {
                 type: SquaddieActionType.MOVEMENT,
-                data: {
-                    destination: {q: 1, r: 1},
-                    numberOfActionPointsSpent: 1,
-                }
+                destination: {q: 1, r: 1},
+                numberOfActionPointsSpent: 1,
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({
@@ -288,10 +282,8 @@ describe('BattleSquaddieMover', () => {
             };
             SquaddieActionsForThisRoundHandler.addAction(moveAction, {
                 type: SquaddieActionType.MOVEMENT,
-                data: {
-                    destination: {q: 1, r: 1},
-                    numberOfActionPointsSpent: 1,
-                }
+                destination: {q: 1, r: 1},
+                numberOfActionPointsSpent: 1,
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({

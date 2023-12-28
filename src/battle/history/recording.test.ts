@@ -2,8 +2,8 @@ import {Recording, RecordingHandler} from "./recording";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {BattleEvent} from "./battleEvent";
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
-import {SquaddieEndTurnAction} from "./squaddieEndTurnAction";
-import {SquaddieMovementAction} from "./squaddieMovementAction";
+import {SquaddieEndTurnActionDataService} from "./squaddieEndTurnAction";
+import {SquaddieMovementActionDataService} from "./squaddieMovementAction";
 
 describe('Recording', () => {
     it('can add an event and retrieve it', () => {
@@ -29,12 +29,12 @@ describe('Recording', () => {
             },
             currentlySelectedAction: undefined,
         }
-        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, new SquaddieMovementAction({
+        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, SquaddieMovementActionDataService.new({
                 destination: {q: 3, r: 6},
                 numberOfActionPointsSpent: 1,
             })
         );
-        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, new SquaddieEndTurnAction({}));
+        SquaddieInstructionInProgressHandler.addConfirmedAction(squaddieMovesAndEndsTurn, SquaddieEndTurnActionDataService.new());
 
         RecordingHandler.addEvent(
             recording,

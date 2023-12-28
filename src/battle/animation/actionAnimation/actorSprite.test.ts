@@ -59,6 +59,7 @@ describe('Actor Sprite', () => {
                 resultPerTarget: {},
                 targetedBattleSquaddieIds: [],
                 actingBattleSquaddieId: battleSquaddieId,
+                actingSquaddieModifiers: {},
             },
         });
 

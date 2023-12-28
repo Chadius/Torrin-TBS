@@ -9,7 +9,7 @@ import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
-import {SquaddieActionHandler} from "../../../squaddie/action";
+import {SquaddieSquaddieActionService} from "../../../squaddie/action";
 
 describe('Target Sprite', () => {
     let resultTookDamage: ActionResultPerSquaddie;
@@ -72,7 +72,7 @@ describe('Target Sprite', () => {
             startingPosition: 0,
         });
 
-        sprite.draw(timer, mockedP5GraphicsContext, SquaddieActionHandler.new({
+        sprite.draw(timer, mockedP5GraphicsContext, SquaddieSquaddieActionService.new({
             id: "attack",
             name: "attack",
             minimumRange: 0,

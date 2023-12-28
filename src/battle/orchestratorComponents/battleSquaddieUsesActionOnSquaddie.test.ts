@@ -10,7 +10,7 @@ import {
     SquaddieInstructionInProgressHandler
 } from "../history/squaddieInstructionInProgress";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -44,8 +44,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let battleSquaddieBase: BattleSquaddie;
     let targetStatic: SquaddieTemplate;
     let targetDynamic: BattleSquaddie;
-    let powerAttackLongswordAction: SquaddieAction;
-    let monkKoanAction: SquaddieAction;
+    let powerAttackLongswordAction: SquaddieSquaddieAction;
+    let monkKoanAction: SquaddieSquaddieAction;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: SquaddieInstructionInProgress;
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
@@ -98,7 +98,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             },
         }));
 
-        powerAttackLongswordAction = SquaddieActionHandler.new({
+        powerAttackLongswordAction = SquaddieSquaddieActionService.new({
             name: "power attack longsword",
             id: "powerAttackLongsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -113,7 +113,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             },
         });
 
-        monkKoanAction = SquaddieActionHandler.new({
+        monkKoanAction = SquaddieSquaddieActionService.new({
             id: "koan",
             name: "koan",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -146,10 +146,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         };
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                targetLocation: {q: 0, r: 0},
-                squaddieAction: monkKoanAction,
-            }
+            targetLocation: {q: 0, r: 0},
+            squaddieAction: monkKoanAction,
+            numberOfActionPointsSpent: 1,
         });
 
         monkMeditatesInstruction = {
@@ -169,6 +168,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                     occurred: false,
                     rolls: [],
                 },
+                actingSquaddieModifiers: {},
             }
         };
 
@@ -208,10 +208,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         };
         SquaddieActionsForThisRoundHandler.addAction(wholeTurnInstruction, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                targetLocation: {q: 0, r: 0},
-                squaddieAction: powerAttackLongswordAction,
-            }
+            targetLocation: {q: 0, r: 0},
+            squaddieAction: powerAttackLongswordAction,
+            numberOfActionPointsSpent: 1,
         });
 
         const squaddieInstructionInProgress: SquaddieInstructionInProgress = {
@@ -236,6 +235,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                     occurred: false,
                     rolls: [],
                 },
+                actingSquaddieModifiers: {},
             }
         };
         RecordingHandler.addEvent(battleEventRecording, newEvent);

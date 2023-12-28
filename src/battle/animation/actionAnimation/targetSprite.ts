@@ -6,7 +6,7 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {SquaddieAction, SquaddieActionHandler} from "../../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
@@ -63,7 +63,7 @@ export class TargetSprite {
     start({targetBattleSquaddieId, squaddieRepository, action, result, startingPosition, resourceHandler}: {
         targetBattleSquaddieId: string,
         squaddieRepository: ObjectRepository,
-        action: SquaddieAction,
+        action: SquaddieSquaddieAction,
         result: ActionResultPerSquaddie,
         startingPosition: number,
         resourceHandler: ResourceHandler,
@@ -84,7 +84,7 @@ export class TargetSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw(timer: ActionTimer, graphicsContext: GraphicsContext, action: SquaddieAction, result: ActionResultPerSquaddie) {
+    draw(timer: ActionTimer, graphicsContext: GraphicsContext, action: SquaddieSquaddieAction, result: ActionResultPerSquaddie) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }
@@ -147,7 +147,7 @@ export class TargetSprite {
         return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
     }
 
-    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext, action: SquaddieAction, result: ActionResultPerSquaddie) {
+    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext, action: SquaddieSquaddieAction, result: ActionResultPerSquaddie) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext);
         let horizontalDistance: number = 0;
         let verticalDistance: number = 0;
@@ -166,7 +166,7 @@ export class TargetSprite {
                 horizontalDistance,
                 verticalDistance
             } = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
-        } else if (SquaddieActionHandler.isHindering(action)) {
+        } else if (SquaddieSquaddieActionService.isHindering(action)) {
             if (DegreeOfSuccessHelper.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken > 0) {
                 ({
                     horizontalDistance,

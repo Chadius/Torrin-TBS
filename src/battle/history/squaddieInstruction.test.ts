@@ -1,6 +1,6 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {SquaddieMovementActionData} from "./squaddieMovementAction";
-import {SquaddieAction, SquaddieActionHandler} from "../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SquaddieSquaddieActionData} from "./squaddieSquaddieAction";
 import {SquaddieActionType} from "./anySquaddieAction";
@@ -57,13 +57,11 @@ describe('SquaddieInstruction', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
-            data: {
-                destination: {
-                    q: 1,
-                    r: 2,
-                },
-                numberOfActionPointsSpent: 2,
+            destination: {
+                q: 1,
+                r: 2,
             },
+            numberOfActionPointsSpent: 2,
             type: SquaddieActionType.MOVEMENT,
         });
 
@@ -72,18 +70,16 @@ describe('SquaddieInstruction', () => {
         expect(actionsAfterOneMovement).toHaveLength(1);
 
         expect(actionsAfterOneMovement[0].type).toBe(SquaddieActionType.MOVEMENT);
-        const moveAction: SquaddieMovementActionData = actionsAfterOneMovement[0].data as SquaddieMovementActionData;
+        const moveAction: SquaddieMovementActionData = actionsAfterOneMovement[0] as SquaddieMovementActionData;
         expect(moveAction.destination).toStrictEqual({q: 1, r: 2});
         expect(moveAction.numberOfActionPointsSpent).toBe(2);
 
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
-            data: {
-                destination: {
-                    q: 2,
-                    r: 2,
-                },
-                numberOfActionPointsSpent: 1,
+            destination: {
+                q: 2,
+                r: 2,
             },
+            numberOfActionPointsSpent: 1,
             type: SquaddieActionType.MOVEMENT,
         });
 
@@ -99,7 +95,7 @@ describe('SquaddieInstruction', () => {
             startingLocation: {q: 0, r: 0},
             actions: [],
         };
-        const longswordAction: SquaddieAction = SquaddieActionHandler.new({
+        const longswordAction: SquaddieSquaddieAction = SquaddieSquaddieActionService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -110,14 +106,12 @@ describe('SquaddieInstruction', () => {
         });
 
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
-            data: {
-                squaddieAction: longswordAction,
-                targetLocation: {
-                    q: 1,
-                    r: 0,
-                },
-                numberOfActionPointsSpent: 1,
+            squaddieAction: longswordAction,
+            targetLocation: {
+                q: 1,
+                r: 0,
             },
+            numberOfActionPointsSpent: 1,
             type: SquaddieActionType.SQUADDIE,
         });
 
@@ -125,17 +119,15 @@ describe('SquaddieInstruction', () => {
         expect(actionsUsedAfterUsingOneAction).toHaveLength(1);
 
         expect(actionsUsedAfterUsingOneAction[0].type).toBe(SquaddieActionType.SQUADDIE);
-        const actionUsed: SquaddieSquaddieActionData = actionsUsedAfterUsingOneAction[0].data as SquaddieSquaddieActionData;
+        const actionUsed: SquaddieSquaddieActionData = actionsUsedAfterUsingOneAction[0] as SquaddieSquaddieActionData;
         expect(actionUsed.targetLocation).toStrictEqual({q: 1, r: 0});
         expect(actionUsed.numberOfActionPointsSpent).toBe(longswordAction.actionPointCost);
 
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
             type: SquaddieActionType.SQUADDIE,
-            data: {
-                squaddieAction: longswordAction,
-                numberOfActionPointsSpent: 1,
-                targetLocation: {q: 1, r: 0},
-            }
+            squaddieAction: longswordAction,
+            numberOfActionPointsSpent: 1,
+            targetLocation: {q: 1, r: 0},
         });
 
         const actionsUsedThisRound = SquaddieActionsForThisRoundHandler.getActionsUsedThisRound(instruction);
