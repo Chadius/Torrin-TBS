@@ -25,6 +25,7 @@ describe('Battle Squaddie Team', () => {
             name: "awesome test team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
+            iconResourceKey: "",
         };
         playerSquaddieTemplateBase = {
             squaddieId: {
@@ -71,6 +72,7 @@ describe('Battle Squaddie Team', () => {
             name: "awesome test team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
+            iconResourceKey: "",
         };
         enemySquaddieTemplateBase = {
             squaddieId: {
@@ -165,6 +167,7 @@ describe('Battle Squaddie Team', () => {
                 name: "team name",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleSquaddieIds: [],
+                iconResourceKey: undefined,
             };
         });
 
@@ -174,12 +177,14 @@ describe('Battle Squaddie Team', () => {
                 name: "team name",
                 affiliation: null,
                 battleSquaddieIds: undefined,
+                iconResourceKey: undefined,
             };
 
             BattleSquaddieTeamHelper.sanitize(teamWithMissingFields);
             expect(teamWithMissingFields.name).toEqual("team name");
             expect(teamWithMissingFields.affiliation).toEqual(SquaddieAffiliation.UNKNOWN);
             expect(teamWithMissingFields.battleSquaddieIds).toHaveLength(0);
+            expect(teamWithMissingFields.iconResourceKey).toEqual("");
         });
 
         const tests: { field: string, value: any }[] = [

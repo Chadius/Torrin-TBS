@@ -56,6 +56,7 @@ describe('end turn team strategy', () => {
             name: "team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
+            iconResourceKey: "icon_player_team",
         };
         BattleSquaddieTeamHelper.addBattleSquaddieIds(squaddieTeam, ["new_dynamic_squaddie"]);
 
@@ -93,6 +94,8 @@ describe('end turn team strategy', () => {
             name: "no squaddies team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
+            iconResourceKey: "icon_player_team",
+
         };
         const state = new TeamStrategyState({
             missionMap: missionMap,

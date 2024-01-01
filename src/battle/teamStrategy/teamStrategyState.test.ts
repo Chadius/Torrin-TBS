@@ -19,6 +19,7 @@ describe('Team Strategy State', () => {
                 name: "awesome test team",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleSquaddieIds: [],
+                iconResourceKey: ","
             },
             instruction,
         });

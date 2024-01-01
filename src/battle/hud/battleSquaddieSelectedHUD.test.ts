@@ -57,12 +57,6 @@ describe('BattleSquaddieSelectedHUD', () => {
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
-        resourceHandler.loadResources([
-            "affiliate_icon_crusaders",
-            "affiliate_icon_infiltrators",
-            "affiliate_icon_western",
-            "affiliate_icon_none",
-        ]);
 
         longswordAction = SquaddieSquaddieActionService.new({
             name: "longsword",

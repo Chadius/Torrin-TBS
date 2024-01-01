@@ -77,6 +77,7 @@ describe('move towards closest squaddie in range', () => {
             name: "team",
             affiliation: SquaddieAffiliation.ALLY,
             battleSquaddieIds: [],
+            iconResourceKey: "icon_ally_team",
         };
         BattleSquaddieTeamHelper.addBattleSquaddieIds(allyTeam, ["searching_squaddie_0"]);
     });

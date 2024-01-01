@@ -221,6 +221,7 @@ describe('GameEngineBattleMissionLoader', () => {
                         name: "Players",
                         affiliation: SquaddieAffiliation.PLAYER,
                         battleSquaddieIds: [],
+                        iconResourceKey: ""
                     },
                 ],
                 cutsceneTriggerCompletion: [
@@ -396,6 +397,7 @@ describe('GameEngineBattleMissionLoader', () => {
                         name: "Players",
                         affiliation: SquaddieAffiliation.PLAYER,
                         battleSquaddieIds: [],
+                        iconResourceKey: "",
                     },
                 ],
                 cutsceneTriggerCompletion: [

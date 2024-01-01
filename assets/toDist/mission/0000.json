@@ -53,6 +53,7 @@
   "player": {
     "teamId": "playerCrusaders",
     "teamName": "Crusaders",
+    "iconResourceKey": "affiliate_icon_crusaders",
     "deployment": {
       "affiliation": "PLAYER",
       "optional": [],
@@ -144,6 +145,7 @@
       {
         "id": "enemy0",
         "name": "Infiltrators",
+        "iconResourceKey": "affiliate_icon_infiltrators",
         "battleSquaddieIds": [
           "enemy_demon_slither_0",
           "enemy_demon_slither_1",
@@ -179,6 +181,7 @@
       {
         "id": "enemy1",
         "name": "Infiltrators",
+        "iconResourceKey": "affiliate_icon_infiltrators",
         "battleSquaddieIds": [
           "enemy_demon_slither_3",
           "enemy_demon_slither_4",
@@ -208,6 +211,7 @@
       {
         "id": "enemy2",
         "name": "Infiltrators",
+        "iconResourceKey": "affiliate_icon_infiltrators",
         "battleSquaddieIds": [
           "enemy_demon_slither_6",
           "enemy_demon_slither_7"
@@ -234,5 +238,9 @@
         ]
       }
     ]
+  },
+  "phaseBannersByAffiliation": {
+    "PLAYER": "phase banner player",
+    "ENEMY": "phase banner enemy"
   }
 }

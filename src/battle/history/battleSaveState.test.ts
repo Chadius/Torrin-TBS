@@ -143,6 +143,7 @@ describe("BattleSaveState", () => {
             affiliation: SquaddieAffiliation.PLAYER,
             name: "Player Team",
             battleSquaddieIds: ["player battle 0"],
+            iconResourceKey: "icon_player_team",
         }
 
         const enemy0SquaddieTemplate: SquaddieTemplate = {
@@ -173,6 +174,7 @@ describe("BattleSaveState", () => {
             affiliation: SquaddieAffiliation.ENEMY,
             name: "Enemy Team",
             battleSquaddieIds: ["enemy battle 0"],
+            iconResourceKey: "icon_enemy_team",
         }
 
         originalSquaddieRepository = ObjectRepositoryHelper.new();

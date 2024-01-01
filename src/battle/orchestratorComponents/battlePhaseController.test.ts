@@ -93,13 +93,15 @@ describe('BattlePhaseController', () => {
             id: "playerTeamId",
             name: "Player Team",
             affiliation: SquaddieAffiliation.PLAYER,
-            battleSquaddieIds: ["player_squaddie_0"]
+            battleSquaddieIds: ["player_squaddie_0"],
+            iconResourceKey: "icon_player_team",
         };
         enemySquaddieTeam = {
             id: "enemyTeamId",
             name: "Enemy Team",
             affiliation: SquaddieAffiliation.ENEMY,
-            battleSquaddieIds: ["enemy_squaddie_0"]
+            battleSquaddieIds: ["enemy_squaddie_0"],
+            iconResourceKey: "icon_enemy_team",
         };
 
         teams = [playerSquaddieTeam, enemySquaddieTeam];
@@ -444,7 +446,8 @@ describe('BattlePhaseController', () => {
                 id: "playerTeamId",
                 name: "Player Team",
                 affiliation: SquaddieAffiliation.PLAYER,
-                battleSquaddieIds: ["player_squaddie_1"]
+                battleSquaddieIds: ["player_squaddie_1"],
+                iconResourceKey: "icon_player_team",
             };
 
             teams.push(playerTeam2);

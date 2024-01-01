@@ -33,6 +33,7 @@ import {
     BattleHUDGraphicsObjectsHelper,
     BattleHUDGraphicsObjectTextBoxTypes
 } from "./graphicsObject";
+import {isValidValue} from "../../utils/validityCheck";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -59,6 +60,21 @@ const HitPointsBarColors = {
     strokeColor: {color: "#1f1f1f"},
     foregroundFillColor: {color: "#000000"},
     backgroundFillColor: {color: "#1f1f1f"},
+};
+
+export const GetSquaddieTeamIconImage = (state: BattleOrchestratorState, battleSquaddie: BattleSquaddie): GraphicImage => {
+    let affiliateIconImage: GraphicImage = null;
+
+    const team = state.battleState.teams
+        .find(team => team.battleSquaddieIds.includes(battleSquaddie.battleSquaddieId));
+    if (
+        isValidValue(team)
+        && isValidValue(team.iconResourceKey)
+        && team.iconResourceKey !== ""
+    ) {
+        affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource(team.iconResourceKey));
+    }
+    return affiliateIconImage;
 };
 
 export class BattleSquaddieSelectedHUD {
@@ -115,7 +131,7 @@ export class BattleSquaddieSelectedHUD {
         this.generateSaveAndLoadGameButton(windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
 
-        this.generateAffiliateIcon(squaddieTemplate, state);
+        this.generateAffiliateIcon(battleSquaddie, state);
         this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
 
         this.generateSquaddieSpecificUITextBoxes(squaddieTemplate, battleSquaddie);
@@ -367,25 +383,9 @@ export class BattleSquaddieSelectedHUD {
         );
     }
 
-    private generateAffiliateIcon(squaddieTemplate: SquaddieTemplate, state: BattleOrchestratorState) {
-        let affiliateIconImage: GraphicImage;
-        switch (squaddieTemplate.squaddieId.affiliation) {
-            case SquaddieAffiliation.PLAYER:
-                affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_crusaders"))
-                break;
-            case SquaddieAffiliation.ENEMY:
-                affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_infiltrators"))
-                break;
-            case SquaddieAffiliation.ALLY:
-                affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_western"))
-                break;
-            case SquaddieAffiliation.NONE:
-                affiliateIconImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_none"))
-                break;
-            default:
-                affiliateIconImage = null;
-                break;
-        }
+    private generateAffiliateIcon(battleSquaddie: BattleSquaddie, state: BattleOrchestratorState) {
+        let affiliateIconImage = GetSquaddieTeamIconImage(state, battleSquaddie);
+
         if (affiliateIconImage) {
             this.affiliateIcon = new ImageUI({
                 graphic: affiliateIconImage,

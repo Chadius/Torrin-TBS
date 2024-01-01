@@ -29,12 +29,14 @@ describe('orchestratorState', () => {
                     name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_player_team",
                 },
                 {
                     id: "enemyTeamId",
                     name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_enemy_team",
                 },
             ],
             objectives: [

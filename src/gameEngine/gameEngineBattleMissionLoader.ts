@@ -54,7 +54,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             MissionLoader.assignResourceHandlerResources({
                 missionLoaderContext: this.missionLoaderContext,
                 resourceHandler: state.battleOrchestratorState.resourceHandler,
-                squaddieRepository: state.battleOrchestratorState.squaddieRepository,
+                repository: state.battleOrchestratorState.squaddieRepository,
             });
             this.applyMissionLoaderContextToBattleOrchestratorState(state.battleOrchestratorState);
             this.applySaveStateToBattleOrchestratorState(state);
@@ -170,7 +170,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             missionLoaderContext: this.missionLoaderContext,
             missionId: "0000",
             resourceHandler: battleOrchestratorState.resourceHandler,
-            squaddieRepository: battleOrchestratorState.squaddieRepository,
+            repository: battleOrchestratorState.squaddieRepository,
         }).then(async () => {
             await MissionLoader.loadPlayerArmyFromFile({
                 missionLoaderContext: this.missionLoaderContext,

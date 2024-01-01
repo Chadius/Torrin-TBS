@@ -64,6 +64,7 @@ export const TestMissionData = () => {
         "player": {
             "teamId": "playerCrusaders",
             "teamName": "Crusaders",
+            "iconResourceKey": "affiliate_icon_crusaders",
             "deployment": {
                 "affiliation": SquaddieAffiliation.PLAYER,
                 "optional": [],
@@ -107,6 +108,7 @@ export const TestMissionData = () => {
                 {
                     "id": "enemy0",
                     "name": "Infiltrators",
+                    "iconResourceKey": "affiliate_icon_infiltrators",
                     "battleSquaddieIds": [
                         "enemy_demon_slither_0",
                         "enemy_demon_slither_1",
@@ -133,6 +135,7 @@ export const TestMissionData = () => {
                 {
                     "id": "enemy follow",
                     "name": "Infiltrators",
+                    "iconResourceKey": "affiliate_icon_infiltrators",
                     "battleSquaddieIds": [
                         "enemy_demon_slither_2",
                         "enemy_demon_slither_7"
@@ -159,6 +162,10 @@ export const TestMissionData = () => {
                     ]
                 }
             ]
+        },
+        "phaseBannersByAffiliation": {
+            "PLAYER": "phase banner player",
+            "ENEMY": "phase banner enemy"
         }
     }
 

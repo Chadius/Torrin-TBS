@@ -92,6 +92,7 @@ describe('target a squaddie within reach of actions', () => {
             name: "team",
             affiliation: SquaddieAffiliation.ENEMY,
             battleSquaddieIds: [],
+            iconResourceKey: "icon_enemy_team",
         };
         BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyBanditDynamic.battleSquaddieId]);
 
@@ -380,6 +381,7 @@ describe('target a squaddie within reach of actions', () => {
             affiliation: SquaddieAffiliation.ALLY,
             battleSquaddieIds: [],
             name: "Da team",
+            iconResourceKey: "icon_ally_team",
         }
 
         const state = new TeamStrategyState({

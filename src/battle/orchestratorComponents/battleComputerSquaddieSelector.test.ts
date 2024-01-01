@@ -76,6 +76,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleSquaddieIds: [],
+                iconResourceKey: "icon_enemy_team",
             };
 
         demonBiteAction = SquaddieSquaddieActionService.new({

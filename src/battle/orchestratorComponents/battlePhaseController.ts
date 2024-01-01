@@ -28,6 +28,7 @@ import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTea
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {isValidValue} from "../../utils/validityCheck";
 
 export const BANNER_ANIMATION_TIME = 2000;
 
@@ -131,27 +132,26 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     setBannerImage(state: BattleOrchestratorState) {
         state.battleState.missionMap.terrainTileMap.stopOutlineTiles();
 
-        switch (state.battleState.battlePhaseState.currentAffiliation) {
-            case BattlePhase.PLAYER:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_crusaders"));
-                this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource("phase banner player"));
-                break;
-            case BattlePhase.ENEMY:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_infiltrators"));
-                this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource("phase banner enemy"));
-                break;
-            case BattlePhase.ALLY:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_western"));
-                this.bannerImage = undefined;
-                break;
-            case BattlePhase.NONE:
-                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource("affiliate_icon_none"));
-                this.bannerImage = undefined;
-                break;
-            default:
-                this.affiliationImage = undefined;
-                this.bannerImage = undefined;
-                break;
+        const currentSquaddieAffiliation = state.battleState.battlePhaseState.currentAffiliation;
+        const teams = FindTeamsOfAffiliation(
+            state.battleState.teams,
+            ConvertBattlePhaseToSquaddieAffiliation(currentSquaddieAffiliation),
+        );
+
+        if (teams.length > 0) {
+            const teamIconResourceKey = teams[0].iconResourceKey;
+            if (isValidValue(teamIconResourceKey) && teamIconResourceKey !== "") {
+                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource(teamIconResourceKey));
+            }
+        }
+
+        if (
+            isValidValue(state.squaddieRepository.uiElements.phaseBannersByAffiliation[currentSquaddieAffiliation])
+            && state.squaddieRepository.uiElements.phaseBannersByAffiliation[currentSquaddieAffiliation] !== ""
+        ) {
+            this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource(
+                state.squaddieRepository.uiElements.phaseBannersByAffiliation[currentSquaddieAffiliation]
+            ));
         }
 
         if (!this.bannerImage) {

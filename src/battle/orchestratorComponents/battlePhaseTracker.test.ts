@@ -125,25 +125,29 @@ describe('battlePhaseTracker', () => {
             id: "playerTeamId",
             name: "Player Team",
             affiliation: SquaddieAffiliation.PLAYER,
-            battleSquaddieIds: ["player_squaddie_0"]
+            battleSquaddieIds: ["player_squaddie_0"],
+            iconResourceKey: "icon_player_team",
         };
         enemySquaddieTeam = {
             id: "enemyTeamId",
             name: "Enemy Team",
             affiliation: SquaddieAffiliation.ENEMY,
-            battleSquaddieIds: ["enemy_squaddie_0"]
+            battleSquaddieIds: ["enemy_squaddie_0"],
+            iconResourceKey: "icon_enemy_team",
         };
         allySquaddieTeam = {
             id: "allyTeamId",
             name: "Ally Team",
             affiliation: SquaddieAffiliation.ALLY,
-            battleSquaddieIds: ["ally_squaddie_0"]
+            battleSquaddieIds: ["ally_squaddie_0"],
+            iconResourceKey: "icon_ally_team",
         };
         noneSquaddieTeam = {
             id: "noAffiliationTeamId",
             name: "None Team",
             affiliation: SquaddieAffiliation.NONE,
-            battleSquaddieIds: ["none_squaddie_0"]
+            battleSquaddieIds: ["none_squaddie_0"],
+            iconResourceKey: "icon_none_team",
         };
     });
 

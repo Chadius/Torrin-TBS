@@ -23,6 +23,7 @@ describe('Battle State', () => {
                     name: "bad guys",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_enemy_team",
                 }
             ],
             teamStrategiesById: {
@@ -49,6 +50,7 @@ describe('Battle State', () => {
                     name: "bad guys",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_enemy_team",
                 }
             ],
             strategies: {
@@ -153,12 +155,14 @@ describe('Battle State', () => {
                     name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_player_team",
                 },
                 {
                     id: "enemyTeamId",
                     name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_enemy_team",
                 },
             ],
             teamStrategiesById: {
@@ -210,12 +214,14 @@ describe('Battle State', () => {
                     name: "Players",
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_player_team",
                 },
                 {
                     id: "enemyTeamId",
                     name: "Baddies",
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleSquaddieIds: [],
+                    iconResourceKey: "icon_enemy_team",
                 },
             ],
             teamStrategiesById: {
@@ -301,6 +307,7 @@ describe('Battle State', () => {
                 name: "player team 0",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleSquaddieIds: ["player 0", "player 0 1"],
+                iconResourceKey: "icon_player_team",
             };
 
             playerTeam1 = {
@@ -308,6 +315,7 @@ describe('Battle State', () => {
                 name: "player team 1",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleSquaddieIds: ["player 1"],
+                iconResourceKey: "icon_player_team",
             };
 
             const enemyTemplate: SquaddieTemplate = SquaddieTemplateHelper.new({
@@ -330,6 +338,7 @@ describe('Battle State', () => {
                 name: "enemy team 0",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleSquaddieIds: ["enemy 0"],
+                iconResourceKey: "icon_enemy_team",
             };
 
             battleState = BattleStateHelper.new({

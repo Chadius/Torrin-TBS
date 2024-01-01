@@ -69,6 +69,7 @@ describe('BattleSquaddieSelector', () => {
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleSquaddieIds: [],
+                iconResourceKey: "icon_enemy_team",
             }
         ;
 
@@ -131,6 +132,7 @@ describe('BattleSquaddieSelector', () => {
                 name: "player controlled team",
                 affiliation: SquaddieAffiliation.PLAYER,
                 battleSquaddieIds: [],
+                iconResourceKey: "icon_player_team",
             }
         ;
         teams.push(playerTeam);
@@ -171,6 +173,7 @@ describe('BattleSquaddieSelector', () => {
                 name: "enemies cannot be controlled by the player",
                 affiliation: SquaddieAffiliation.ENEMY,
                 battleSquaddieIds: [],
+                iconResourceKey: "icon_enemy_team",
             }
         ;
 

@@ -11,6 +11,7 @@ describe('missionLoader', () => {
                     teamId: "player team",
                     teamName: "playaz",
                     deployment: SquaddieDeploymentHelper.default(),
+                    iconResourceKey: "affiliate_icon_infiltrators",
                 }
             });
         });
@@ -67,6 +68,10 @@ describe('missionLoader', () => {
                 mapPlacements: [],
                 teams: [],
             });
+        });
+        it('makes empty phase banner by affiliation section if it is missing', () => {
+            MissionFileFormatHelper.sanitize(validMission);
+            expect(validMission.phaseBannersByAffiliation).toEqual({});
         });
     });
 });

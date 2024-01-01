@@ -5,6 +5,7 @@ import {TeamStrategy} from "../battle/teamStrategy/teamStrategy";
 import {PlayerArmy, PlayerArmyHelper} from "../campaign/playerArmy";
 import {SquaddieDeployment, SquaddieDeploymentHelper} from "../missionMap/squaddieDeployment";
 import {isValidValue} from "../utils/validityCheck";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 export interface MapPlacement {
     battleSquaddieId: string,
@@ -17,6 +18,7 @@ export interface NpcTeam {
     name: string,
     battleSquaddieIds: string[]
     strategies: TeamStrategy[],
+    iconResourceKey: string,
 }
 
 export interface MissionFileFormat {
@@ -27,12 +29,14 @@ export interface MissionFileFormat {
         deployment: SquaddieDeployment,
         teamId: string,
         teamName: string,
+        iconResourceKey: string,
     },
     enemy: {
         templateIds: string[],
         mapPlacements: MapPlacement[],
         teams: NpcTeam[],
     },
+    phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string },
 }
 
 export const MissionFileFormatHelper = {
@@ -42,6 +46,7 @@ export const MissionFileFormatHelper = {
               objectives,
               player,
               enemy,
+              phaseBannersByAffiliation,
           }: {
         id: string,
         terrain?: string[],
@@ -50,19 +55,22 @@ export const MissionFileFormatHelper = {
             deployment: SquaddieDeployment,
             teamId: string,
             teamName: string,
+            iconResourceKey: string,
         },
         enemy?: {
             templateIds: string[],
             mapPlacements: MapPlacement[],
             teams: NpcTeam[],
-        }
+        },
+        phaseBannersByAffiliation?: { [affiliation in SquaddieAffiliation]?: string },
     }): MissionFileFormat => {
         const data = {
             id,
             terrain,
             objectives,
             player,
-            enemy
+            enemy,
+            phaseBannersByAffiliation,
         };
         sanitize(data);
         return data;
@@ -102,6 +110,10 @@ const sanitize = (data: MissionFileFormat): MissionFileFormat => {
         mapPlacements: [],
         teams: [],
     };
+    data.phaseBannersByAffiliation = isValidValue(data.phaseBannersByAffiliation)
+        ? data.phaseBannersByAffiliation
+        : {};
+
     return data;
 }
 

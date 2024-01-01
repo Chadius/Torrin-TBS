@@ -11,6 +11,7 @@ export interface BattleSquaddieTeam {
     name: string;
     affiliation: SquaddieAffiliation;
     battleSquaddieIds: string[];
+    iconResourceKey: string,
 }
 
 export const BattleSquaddieTeamHelper = {
@@ -110,6 +111,10 @@ const sanitize = (data: BattleSquaddieTeam): BattleSquaddieTeam => {
     }
     if (!isValidValue(data.affiliation)) {
         data.affiliation = SquaddieAffiliation.UNKNOWN;
+    }
+
+    if (!isValidValue(data.iconResourceKey)) {
+        data.iconResourceKey = "";
     }
 
     return data;

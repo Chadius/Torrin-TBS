@@ -2,6 +2,7 @@ import {BattleSquaddie, BattleSquaddieHelper} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {ImageUI} from "../ui/imageUI";
+import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 export interface ObjectRepository {
     imageUIByBattleSquaddieId: {
@@ -13,6 +14,10 @@ export interface ObjectRepository {
     battleSquaddies: {
         [id: string]: BattleSquaddie;
     };
+    uiElements: {
+        phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string },
+        teamAffiliationIcons: { [teamId: string]: string },
+    };
 }
 
 export const ObjectRepositoryHelper = {
@@ -21,6 +26,10 @@ export const ObjectRepositoryHelper = {
             imageUIByBattleSquaddieId: {},
             squaddieTemplates: {},
             battleSquaddies: {},
+            uiElements: {
+                phaseBannersByAffiliation: {},
+                teamAffiliationIcons: {},
+            }
         }
     },
     reset: (repo: ObjectRepository) => {

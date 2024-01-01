@@ -32,6 +32,7 @@ import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
+import {isValidValue} from "../../utils/validityCheck";
 
 export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
     "map icon move 1 action",
@@ -67,6 +68,7 @@ export interface MissionLoaderContext {
     mapSettings: {
         camera: BattleCamera,
     };
+    phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string };
 }
 
 export const MissionLoader = {
@@ -92,18 +94,24 @@ export const MissionLoader = {
             mapSettings: {
                 camera: undefined,
             },
+            phaseBannersByAffiliation: {
+                [SquaddieAffiliation.PLAYER]: "",
+                [SquaddieAffiliation.ENEMY]: "",
+                [SquaddieAffiliation.ALLY]: "",
+                [SquaddieAffiliation.NONE]: "",
+            },
         }
     },
     loadMissionFromFile: async ({
                                     missionLoaderContext,
                                     missionId,
                                     resourceHandler,
-                                    squaddieRepository,
+                                    repository,
                                 }: {
         missionLoaderContext: MissionLoaderContext;
         missionId: string;
         resourceHandler: ResourceHandler;
-        squaddieRepository: ObjectRepository;
+        repository: ObjectRepository;
     }) => {
         missionLoaderContext.completionProgress.started = true;
         const missionData: MissionFileFormat = await LoadMissionFromFile(missionId);
@@ -139,16 +147,19 @@ export const MissionLoader = {
         await loadAndPrepareNPCTemplateData({
             missionLoaderContext: missionLoaderContext,
             resourceHandler,
-            squaddieRepository
+            repository: repository
         });
 
         createPlayerSquaddieTeam(missionLoaderContext, missionData);
         deployRequiredPlayerSquaddies(missionLoaderContext, missionData);
 
-        spawnNPCSquaddiesAndAddToMap({missionLoaderContext: missionLoaderContext, squaddieRepository, missionData});
+        spawnNPCSquaddiesAndAddToMap({missionLoaderContext: missionLoaderContext, repository: repository, missionData});
         createSquaddieTeams({missionLoaderContext, missionData});
 
         initializeCameraPosition({missionLoaderContext: missionLoaderContext});
+
+        loadPhaseAffiliationBanners(missionLoaderContext, missionData, repository, resourceHandler);
+        loadTeamIcons(missionLoaderContext, missionData, repository, resourceHandler);
     },
     loadMissionFromHardcodedData: ({
                                        missionLoaderContext,
@@ -176,16 +187,16 @@ export const MissionLoader = {
         );
     },
     assignResourceHandlerResources: ({
-                                         squaddieRepository,
+                                         repository,
                                          missionLoaderContext,
                                          resourceHandler,
                                      }: {
-        squaddieRepository: ObjectRepository;
+        repository: ObjectRepository;
         missionLoaderContext: MissionLoaderContext;
         resourceHandler: ResourceHandler
     }) => {
         initializeCutscenes({missionLoaderContext});
-        initializeSquaddieResources({squaddieRepository, missionLoaderContext, resourceHandler});
+        initializeSquaddieResources({repository: repository, missionLoaderContext, resourceHandler});
     },
     loadPlayerArmyFromFile: async ({squaddieRepository, resourceHandler, missionLoaderContext}: {
         squaddieRepository: ObjectRepository;
@@ -242,17 +253,17 @@ const initializeCameraPosition = ({
 }
 
 const initializeSquaddieResources = ({
-                                         squaddieRepository,
+                                         repository,
                                          missionLoaderContext,
                                          resourceHandler,
                                      }: {
-    squaddieRepository: ObjectRepository;
+    repository: ObjectRepository;
     missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
 }) => {
-    ObjectRepositoryHelper.getBattleSquaddieIterator(squaddieRepository).forEach((info) => {
+    ObjectRepositoryHelper.getBattleSquaddieIterator(repository).forEach((info) => {
         const {battleSquaddie, battleSquaddieId} = info;
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId));
 
         let image: GraphicImage = getResultOrThrowError(
             resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey)
@@ -263,7 +274,7 @@ const initializeSquaddieResources = ({
             const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
                 datum.mapLocation.q, datum.mapLocation.r, ...missionLoaderContext.mapSettings.camera.getCoordinates())
 
-            squaddieRepository.imageUIByBattleSquaddieId[battleSquaddieId] = new ImageUI({
+            repository.imageUIByBattleSquaddieId[battleSquaddieId] = new ImageUI({
                 graphic: image,
                 area: RectAreaHelper.new({
                     left: xyCoords[0],
@@ -297,42 +308,20 @@ const loadMissionFromHardcodedData = ({
     squaddieRepository: ObjectRepository,
     resourceHandler: ResourceHandler,
 }) => {
-    const affiliateIconResourceKeys = [
-        "affiliate_icon_crusaders",
-        "affiliate_icon_infiltrators",
-        "affiliate_icon_western",
-        "affiliate_icon_none",
-    ];
-    resourceHandler.loadResources(affiliateIconResourceKeys);
-    missionLoaderContext.resourcesPendingLoading = [
-        ...missionLoaderContext.resourcesPendingLoading,
-        ...affiliateIconResourceKeys,
-    ];
-
-    const bannerImageResourceKeys = [
-        "phase banner player",
-        "phase banner enemy",
-    ];
-    resourceHandler.loadResources(bannerImageResourceKeys);
-    missionLoaderContext.resourcesPendingLoading = [
-        ...missionLoaderContext.resourcesPendingLoading,
-        ...bannerImageResourceKeys,
-    ];
-
     loadCutscenes({
         missionLoaderContext,
-        squaddieRepository,
+        repository: squaddieRepository,
         resourceHandler,
     });
 };
 
 const loadCutscenes = ({
                            missionLoaderContext,
-                           squaddieRepository,
+                           repository,
                            resourceHandler,
                        }: {
     missionLoaderContext: MissionLoaderContext,
-    squaddieRepository: ObjectRepository,
+    repository: ObjectRepository,
     resourceHandler: ResourceHandler,
 }) => {
     const cutsceneCollection = MissionCutsceneCollectionHelper.new({
@@ -614,11 +603,11 @@ const loadNPCTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: st
 const loadAndPrepareNPCTemplateData = async ({
                                                  missionLoaderContext,
                                                  resourceHandler,
-                                                 squaddieRepository,
+                                                 repository,
                                              }: {
     missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
-    squaddieRepository: ObjectRepository;
+    repository: ObjectRepository;
 }) => {
     let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {};
     const loadedNPCTemplatesById = await loadNPCTemplatesFromFile(Object.keys(missionLoaderContext.squaddieData.templates));
@@ -639,16 +628,16 @@ const loadAndPrepareNPCTemplateData = async ({
             ...Object.values(template.squaddieId.resources.actionSpritesByEmotion)
         );
 
-        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository, template);
+        ObjectRepositoryHelper.addSquaddieTemplate(repository, template);
     });
 }
 
 const spawnNPCSquaddiesAndAddToMap = ({
-                                          squaddieRepository,
+                                          repository,
                                           missionLoaderContext,
                                           missionData
                                       }: {
-    squaddieRepository: ObjectRepository,
+    repository: ObjectRepository,
     missionLoaderContext: MissionLoaderContext,
     missionData: MissionFileFormat,
 }) => {
@@ -658,7 +647,7 @@ const spawnNPCSquaddiesAndAddToMap = ({
             battleSquaddieId,
             squaddieTemplateId,
         } = mapPlacement;
-        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
+        ObjectRepositoryHelper.addBattleSquaddie(repository,
             BattleSquaddieHelper.newBattleSquaddie({
                 battleSquaddieId,
                 squaddieTemplateId,
@@ -679,6 +668,7 @@ const createSquaddieTeams = ({missionData, missionLoaderContext}: {
             name: enemyTeam.name,
             affiliation: SquaddieAffiliation.ENEMY,
             battleSquaddieIds: enemyTeam.battleSquaddieIds,
+            iconResourceKey: enemyTeam.iconResourceKey,
         }
         missionLoaderContext.squaddieData.teams ||= [];
         missionLoaderContext.squaddieData.teams.push(team);
@@ -702,6 +692,42 @@ const createPlayerSquaddieTeam = (missionLoaderContext: MissionLoaderContext, mi
             name: missionData.player.teamName,
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: missionData.player.deployment.required.map(info => info.battleSquaddieId),
+            iconResourceKey: missionData.player.iconResourceKey,
         }
     );
+}
+
+const loadPhaseAffiliationBanners = (missionLoaderContext: MissionLoaderContext, missionData: MissionFileFormat, repository: ObjectRepository, resourceHandler: ResourceHandler) => {
+    missionLoaderContext.phaseBannersByAffiliation = {...missionData.phaseBannersByAffiliation};
+    Object.entries(missionLoaderContext.phaseBannersByAffiliation).forEach(([affiliationKey, resourceKeyName]) => {
+        if (!isValidValue(resourceKeyName) || resourceKeyName === "") {
+            return;
+        }
+
+        const affiliation: SquaddieAffiliation = affiliationKey as SquaddieAffiliation;
+        repository.uiElements.phaseBannersByAffiliation[affiliation] = resourceKeyName;
+
+        resourceHandler.loadResource(resourceKeyName);
+        missionLoaderContext.resourcesPendingLoading.push(resourceKeyName);
+    });
+};
+
+const loadTeamIcons = (missionLoaderContext: MissionLoaderContext, missionData: MissionFileFormat, repository: ObjectRepository, resourceHandler: ResourceHandler) => {
+    repository.uiElements.teamAffiliationIcons = {};
+
+    const playerTeamIconResourceKey = missionData.player.iconResourceKey;
+    if (isValidValue(playerTeamIconResourceKey) && playerTeamIconResourceKey !== "") {
+        repository.uiElements.teamAffiliationIcons[missionData.player.teamId] = playerTeamIconResourceKey;
+        resourceHandler.loadResource(playerTeamIconResourceKey);
+        missionLoaderContext.resourcesPendingLoading.push(playerTeamIconResourceKey);
+    }
+
+    missionData.enemy.teams
+        .filter(team => isValidValue(team.iconResourceKey) && team.iconResourceKey !== "")
+        .forEach(team => {
+            const teamIconResourceKey = team.iconResourceKey;
+            repository.uiElements.teamAffiliationIcons[team.id] = teamIconResourceKey;
+            resourceHandler.loadResource(teamIconResourceKey);
+            missionLoaderContext.resourcesPendingLoading.push(teamIconResourceKey);
+        });
 }
