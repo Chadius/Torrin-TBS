@@ -11,7 +11,9 @@
             "ATTACK": "combat-young-torrin-attack",
             "TARGETED": "combat-young-torrin-targeted",
             "DAMAGED": "combat-young-torrin-damaged",
-            "DEAD": "combat-young-torrin-dead"
+            "DEAD": "combat-young-torrin-dead",
+            "ASSISTING": "combat-young-torrin-assisting",
+            "THANKFUL": "combat-young-torrin-thankful"
           }
         },
         "traits": {
@@ -53,7 +55,6 @@
           "maximumRange": 1,
           "traits": {
             "booleanTraits": {
-              "SKIP_ANIMATION": true,
               "ALWAYS_SUCCEEDS": true,
               "TARGETS_ALLIES": true,
               "HEALING": true
@@ -77,7 +78,9 @@
             "ATTACK": "combat-sir-camil-attack",
             "TARGETED": "combat-sir-camil-targeted",
             "DAMAGED": "combat-sir-camil-damaged",
-            "DEAD": "combat-sir-camil-dead"
+            "DEAD": "combat-sir-camil-dead",
+            "ASSISTING": "combat-sir-camil-assisting",
+            "THANKFUL": "combat-sir-camil-thankful"
           }
         },
         "traits": {

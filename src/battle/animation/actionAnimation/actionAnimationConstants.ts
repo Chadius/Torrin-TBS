@@ -24,4 +24,6 @@ export enum SquaddieEmotion {
     "TARGETED" = "TARGETED",
     "DAMAGED" = "DAMAGED",
     "DEAD" = "DEAD",
+    "ASSISTING" = "ASSISTING",
+    "THANKFUL" = "THANKFUL",
 }

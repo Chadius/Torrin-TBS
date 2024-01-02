@@ -1,4 +1,3 @@
-import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -8,13 +7,18 @@ import {ActionAnimationPhase, SquaddieEmotion} from "./actionAnimationConstants"
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {DamageType, HealingType} from "../../../squaddie/squaddieService";
+import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 
 describe('Actor Sprite', () => {
-    let resultTookDamage: ActionResultPerSquaddie;
     let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     const battleSquaddieId = "actor0";
+
+    let hinderingAction: SquaddieSquaddieAction;
+    let helpfulAction: SquaddieSquaddieAction;
 
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -36,8 +40,29 @@ describe('Actor Sprite', () => {
         timer = new ActionTimer();
         timer.start();
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-    });
 
+        hinderingAction = SquaddieSquaddieActionService.new({
+            id: "hindering",
+            name: "hindering",
+            damageDescriptions: {
+                [DamageType.BODY]: 1,
+            },
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                ATTACK: true
+            }),
+        });
+
+        helpfulAction = SquaddieSquaddieActionService.new({
+            id: "helping",
+            name: "helping",
+            healingDescriptions: {
+                [HealingType.LOST_HIT_POINTS]: 1,
+            },
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                HEALING: true
+            }),
+        });
+    });
 
     it('uses helper function to determine the emotion', () => {
         const sprite = new ActorSprite();
@@ -63,7 +88,11 @@ describe('Actor Sprite', () => {
             },
         });
 
-        sprite.draw(timer, mockedP5GraphicsContext);
+        sprite.draw({
+            timer,
+            graphicsContext: mockedP5GraphicsContext,
+            action: hinderingAction,
+        });
 
         expect(getSquaddieEmotionSpy).toBeCalled();
         expect(getterSpy).toBeCalled();
@@ -80,6 +109,7 @@ describe('Actor Sprite', () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
@@ -92,34 +122,59 @@ describe('Actor Sprite', () => {
             timer,
             battleSquaddieId,
             squaddieRepository,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.ATTACK);
         expect(getterSpy).toBeCalled();
     });
 
+    it('starts with a ASSISTING emotion if the effect is helpful and the attack just started', () => {
+        const getterSpy = mockActionTimerPhase(ActionAnimationPhase.DURING_ACTION);
+        const sprite = new ActorSprite();
+        const emotion = sprite.getSquaddieEmotion({
+            timer,
+            battleSquaddieId,
+            squaddieRepository,
+            action: helpfulAction,
+        });
+
+        expect(emotion).toBe(SquaddieEmotion.ASSISTING);
+        expect(getterSpy).toBeCalled();
+    });
+
     describe('should keep the same emotion in DURING_ACTION, TARGET_REACTS, SHOWING_RESULTS and FINISHED_SHOWING_RESULTS', () => {
-        let mapping: { [name: string]: ActionResultPerSquaddie };
+        let mapping: {
+            [name: string]: {
+                action: SquaddieSquaddieAction
+            }
+        };
+
         const tests: { name: string }[] = [
             {
                 name: 'deals damage',
-            }
+            },
+            {
+                name: 'heals damage',
+            },
         ]
         beforeEach(() => {
             mapping = {
-                'deals damage': resultTookDamage,
+                'deals damage': {action: hinderingAction},
+                'heals damage': {action: helpfulAction},
             }
         })
         it.each(tests)(`$name will show the same emotion`, ({
                                                                 name,
                                                             }) => {
-            const result = mapping[name];
+            const action = mapping[name].action;
             const sprite = new ActorSprite();
             mockActionTimerPhase(ActionAnimationPhase.DURING_ACTION);
             const duringActionEmotion = sprite.getSquaddieEmotion({
                 timer,
                 battleSquaddieId,
                 squaddieRepository,
+                action,
             });
 
             const targetReactsSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
@@ -127,6 +182,7 @@ describe('Actor Sprite', () => {
                 timer,
                 battleSquaddieId,
                 squaddieRepository,
+                action,
             })).toBe(duringActionEmotion);
             expect(targetReactsSpy).toBeCalled();
 
@@ -135,6 +191,7 @@ describe('Actor Sprite', () => {
                 timer,
                 battleSquaddieId,
                 squaddieRepository,
+                action,
             })).toBe(duringActionEmotion);
             expect(showingResultsSpy).toBeCalled();
 
@@ -143,6 +200,7 @@ describe('Actor Sprite', () => {
                 timer,
                 battleSquaddieId,
                 squaddieRepository,
+                action,
             })).toBe(duringActionEmotion);
             expect(finishedShowingResultsSpy).toBeCalled();
         });

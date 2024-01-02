@@ -80,6 +80,8 @@ describe('Hit Point Meter', () => {
             expect(textDrawSpy.mock.calls[1][0]).toBe("/5");
 
             expect(rectDrawSpy).toBeCalledTimes(3);
+            expect(rectDrawSpy.mock.calls[0][2]).toBeCloseTo(5 * HIT_POINT_METER_HP_WIDTH);
+            expect(rectDrawSpy.mock.calls[1][2]).toBeCloseTo(1 * HIT_POINT_METER_HP_WIDTH);
             expect(rectDrawSpy.mock.calls[2][2]).toBeCloseTo(2 * HIT_POINT_METER_HP_WIDTH);
             jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 2);
 
@@ -94,7 +96,7 @@ describe('Hit Point Meter', () => {
 
             jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1);
             hitPointMeter.draw(mockedP5GraphicsContext);
-            expect(rectDrawSpy).toBeCalledTimes(11);
+            expect(rectDrawSpy).toBeCalledTimes(12);
         });
 
         it('will animate the length of the changed hit points when healed', () => {
@@ -106,6 +108,8 @@ describe('Hit Point Meter', () => {
             expect(textDrawSpy.mock.calls[0][0]).toBe("5");
             expect(textDrawSpy.mock.calls[1][0]).toBe("/5");
             expect(rectDrawSpy).toBeCalledTimes(3);
+            expect(rectDrawSpy.mock.calls[0][2]).toBeCloseTo(5 * HIT_POINT_METER_HP_WIDTH);
+            expect(rectDrawSpy.mock.calls[1][2]).toBeCloseTo(3 * HIT_POINT_METER_HP_WIDTH);
             expect(rectDrawSpy.mock.calls[2][2]).toBeCloseTo(0);
             jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME / 2);
 
@@ -120,7 +124,7 @@ describe('Hit Point Meter', () => {
 
             jest.spyOn(Date, 'now').mockImplementation(() => ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME + 1);
             hitPointMeter.draw(mockedP5GraphicsContext);
-            expect(rectDrawSpy).toBeCalledTimes(11);
+            expect(rectDrawSpy).toBeCalledTimes(12);
         });
     });
 });

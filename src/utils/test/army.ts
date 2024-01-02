@@ -21,6 +21,8 @@ export const TestArmyPlayerData = () => {
                             [SquaddieEmotion.TARGETED]: "combat-young-torrin-targeted",
                             [SquaddieEmotion.DAMAGED]: "combat-young-torrin-damaged",
                             [SquaddieEmotion.DEAD]: "combat-young-torrin-dead",
+                            [SquaddieEmotion.ASSISTING]: "combat-young-torrin-assisting",
+                            [SquaddieEmotion.THANKFUL]: "combat-young-torrin-thankful",
                         },
                     },
                     "traits": TraitStatusStorageHelper.newUsingTraitValues({
@@ -86,6 +88,8 @@ export const TestArmyPlayerData = () => {
                             [SquaddieEmotion.TARGETED]: "combat-sir-camil-targeted",
                             [SquaddieEmotion.DAMAGED]: "combat-sir-camil-damaged",
                             [SquaddieEmotion.DEAD]: "combat-sir-camil-dead",
+                            [SquaddieEmotion.ASSISTING]: "combat-sir-camil-assisting",
+                            [SquaddieEmotion.THANKFUL]: "combat-sir-camil-thankful",
                         },
                     },
                     traits: TraitStatusStorageHelper.newUsingTraitValues({

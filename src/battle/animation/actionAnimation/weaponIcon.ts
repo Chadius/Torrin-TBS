@@ -3,6 +3,7 @@ import {RectArea, RectAreaHelper} from "../../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {Label, LabelHelper} from "../../../ui/label";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 
 export class WeaponIcon {
     constructor() {
@@ -22,9 +23,19 @@ export class WeaponIcon {
     start() {
     }
 
-    draw(graphicsContext: GraphicsContext, actorImageArea: RectArea) {
+    draw({
+             action,
+             graphicsContext,
+             actorImageArea,
+         }:
+             {
+                 action: SquaddieSquaddieAction,
+                 graphicsContext: GraphicsContext,
+                 actorImageArea: RectArea,
+             }
+    ) {
         if (this.attackingLabel === undefined) {
-            this.lazyLoadAttackingTextBox(actorImageArea);
+            this.lazyLoadAttackingTextBox(action, actorImageArea);
         }
 
         RectAreaHelper.move(this.attackingLabel.rectangle.area, {
@@ -38,12 +49,19 @@ export class WeaponIcon {
         LabelHelper.draw(this.attackingLabel, graphicsContext);
     }
 
-    private lazyLoadAttackingTextBox(actorImageArea: RectArea) {
+    private lazyLoadAttackingTextBox(action: SquaddieSquaddieAction, actorImageArea: RectArea) {
         const labelBackgroundColor = [
             0,
             10,
             80
         ];
+
+        let labelText: string = "(Using)";
+        if (SquaddieSquaddieActionService.isHindering(action)) {
+            labelText = "Attacking!";
+        } else if (SquaddieSquaddieActionService.isHelpful(action)) {
+            labelText = "Helping...";
+        }
 
         this._attackingLabel = LabelHelper.new({
             padding: 0,
@@ -53,7 +71,7 @@ export class WeaponIcon {
                 height: WINDOW_SPACING2,
                 width: WINDOW_SPACING1 * 15,
             }),
-            text: "Attacking!",
+            text: labelText,
             textSize: WINDOW_SPACING2,
             vertAlign: VERT_ALIGN_CENTER,
             horizAlign: HORIZ_ALIGN_CENTER,

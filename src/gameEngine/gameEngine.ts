@@ -367,6 +367,16 @@ export class GameEngine {
                     },
                     {
                         type: ResourceType.IMAGE,
+                        path: "assets/combat-sir-camil-assisting.png",
+                        key: "combat-sir-camil-assisting",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-sir-camil-thankful.png",
+                        key: "combat-sir-camil-thankful",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
                         path: "assets/combat-young-torrin-attack.png",
                         key: "combat-young-torrin-attack",
                     },
@@ -389,6 +399,16 @@ export class GameEngine {
                         type: ResourceType.IMAGE,
                         path: "assets/combat-young-torrin-targeted.png",
                         key: "combat-young-torrin-targeted",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-young-torrin-assisting.png",
+                        key: "combat-young-torrin-assisting",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/combat-young-torrin-thankful.png",
+                        key: "combat-young-torrin-thankful",
                     },
                     {
                         type: ResourceType.IMAGE,

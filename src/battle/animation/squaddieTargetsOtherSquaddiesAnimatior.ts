@@ -228,17 +228,18 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleId));
 
             let {
-                currentHitPoints,
+                currentHitPoints: displayedHitPointsBeforeChange,
                 maxHitPoints,
             } = GetHitPoints({
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
             });
 
-            currentHitPoints += mostRecentResults.resultPerTarget[battleId].damageTaken;
+            displayedHitPointsBeforeChange -= mostRecentResults.resultPerTarget[battleId].healingReceived;
+            displayedHitPointsBeforeChange += mostRecentResults.resultPerTarget[battleId].damageTaken;
 
             this._targetHitPointMeters[battleId] = new HitPointMeter({
-                currentHitPoints,
+                currentHitPoints: displayedHitPointsBeforeChange,
                 maxHitPoints,
                 left: this._targetTextWindows[index].targetLabel.rectangle.area.left + WINDOW_SPACING1,
                 top: this._targetTextWindows[index].targetLabel.rectangle.area.top + 100,
@@ -249,8 +250,23 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
 
     private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
-        this.actorSprite.draw(this.actionAnimationTimer, graphicsContext);
-        this.weaponIcon.draw(graphicsContext, this.actorSprite.getSquaddieImageBasedOnTimer(this.actionAnimationTimer, graphicsContext).area);
+
+        const action: SquaddieSquaddieAction = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+        this.actorSprite.draw({
+            timer: this.actionAnimationTimer,
+            graphicsContext,
+            action,
+        });
+        this.weaponIcon.draw({
+                graphicsContext,
+                actorImageArea: this.actorSprite.getSquaddieImageBasedOnTimer(
+                    this.actionAnimationTimer,
+                    graphicsContext,
+                    action
+                ).area,
+                action: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
+            }
+        );
         this.targetTextWindows.forEach((t) => t.draw(graphicsContext, this.actionAnimationTimer));
         const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording).results;
         this.targetSprites.forEach((t) => {
@@ -263,7 +279,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording).results;
         RecordingHandler.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.forEach((battleId: string) => {
             const hitPointMeter = this.targetHitPointMeters[battleId];
-            hitPointMeter.changeHitPoints(-1 * mostRecentResults.resultPerTarget[battleId].damageTaken);
+            const hitPointChange: number = mostRecentResults.resultPerTarget[battleId].healingReceived - mostRecentResults.resultPerTarget[battleId].damageTaken;
+            hitPointMeter.changeHitPoints(hitPointChange);
         });
     }
 }

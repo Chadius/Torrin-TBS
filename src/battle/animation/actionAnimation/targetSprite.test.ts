@@ -1,4 +1,8 @@
-import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResultPerSquaddie";
+import {
+    ActionResultPerSquaddie,
+    ActionResultPerSquaddieService,
+    DegreeOfSuccess
+} from "../../history/actionResultPerSquaddie";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -9,13 +13,20 @@ import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
-import {SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {DamageType, HealingType} from "../../../squaddie/squaddieService";
+import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 
 describe('Target Sprite', () => {
     let resultTookDamage: ActionResultPerSquaddie;
     let resultTookLethalDamage: ActionResultPerSquaddie;
     let resultMissed: ActionResultPerSquaddie;
     let resultDealsNoDamage: ActionResultPerSquaddie;
+    let resultHealsSquaddie: ActionResultPerSquaddie;
+
+    let hinderingAction: SquaddieSquaddieAction;
+    let helpfulAction: SquaddieSquaddieAction;
+
     let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
     const battleSquaddieId = "target0";
@@ -40,14 +51,53 @@ describe('Target Sprite', () => {
 
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
 
-        resultTookDamage = {damageTaken: 1, healingReceived: 0, actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS};
-        resultTookLethalDamage = {
+        resultTookDamage = ActionResultPerSquaddieService.new({
+            damageTaken: 1,
+            healingReceived: 0,
+            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+        });
+        resultTookLethalDamage = ActionResultPerSquaddieService.new({
             damageTaken: squaddieTemplate.attributes.maxHitPoints,
             healingReceived: 0,
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
-        };
-        resultMissed = {damageTaken: 0, healingReceived: 0, actorDegreeOfSuccess: DegreeOfSuccess.FAILURE};
-        resultDealsNoDamage = {damageTaken: 0, healingReceived: 0, actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS};
+        });
+        resultMissed = ActionResultPerSquaddieService.new({
+            damageTaken: 0,
+            healingReceived: 0,
+            actorDegreeOfSuccess: DegreeOfSuccess.FAILURE
+        });
+        resultDealsNoDamage = ActionResultPerSquaddieService.new({
+            damageTaken: 0,
+            healingReceived: 0,
+            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+        });
+        resultHealsSquaddie = ActionResultPerSquaddieService.new({
+            damageTaken: 0,
+            healingReceived: 1,
+            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+        });
+
+        hinderingAction = SquaddieSquaddieActionService.new({
+            id: "hindering",
+            name: "hindering",
+            damageDescriptions: {
+                [DamageType.BODY]: 1,
+            },
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                ATTACK: true
+            }),
+        });
+
+        helpfulAction = SquaddieSquaddieActionService.new({
+            id: "helping",
+            name: "helping",
+            healingDescriptions: {
+                [HealingType.LOST_HIT_POINTS]: 1,
+            },
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                HEALING: true
+            }),
+        });
 
         timer = new ActionTimer();
         timer.start();
@@ -95,6 +145,7 @@ describe('Target Sprite', () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
@@ -108,12 +159,13 @@ describe('Target Sprite', () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.TARGETED);
         expect(getterSpy).toBeCalled();
     });
-    it('transitions to DAMAGED when it hits', () => {
+    it('transitions to DAMAGED when the attack hits and the squaddie survives', () => {
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
@@ -121,6 +173,7 @@ describe('Target Sprite', () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookDamage,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.DAMAGED);
@@ -137,13 +190,13 @@ describe('Target Sprite', () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultTookLethalDamage,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.DEAD);
         expect(getterSpy).toBeCalled();
     });
-    it('transition to neutral when the attack misses', () => {
-        // const stillAliveSpy = jest.spyOn(squaddieService, "IsSquaddieAlive").mockReturnValue(true);
+    it('transition to NEUTRAL when the attack misses', () => {
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
@@ -151,12 +204,13 @@ describe('Target Sprite', () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultMissed,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
         expect(getterSpy).toBeCalled();
     });
-    it('transition to neutral when the attack deals no damage', () => {
+    it('transition to NEUTRAL when the attack deals no damage', () => {
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
         const sprite = new TargetSprite();
         const emotion = sprite.getSquaddieEmotion({
@@ -164,14 +218,49 @@ describe('Target Sprite', () => {
             battleSquaddieId,
             squaddieRepository,
             result: resultDealsNoDamage,
+            action: hinderingAction,
         });
 
         expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
         expect(getterSpy).toBeCalled();
     });
 
+    it('starts with a NEUTRAL emotion if the action is Helpful', () => {
+        const getterSpy = mockActionTimerPhase(ActionAnimationPhase.DURING_ACTION);
+        const sprite = new TargetSprite();
+        const emotion = sprite.getSquaddieEmotion({
+            timer,
+            battleSquaddieId,
+            squaddieRepository,
+            result: resultHealsSquaddie,
+            action: helpfulAction,
+        });
+
+        expect(emotion).toBe(SquaddieEmotion.NEUTRAL);
+        expect(getterSpy).toBeCalled();
+    });
+    it('transitions to a THANKFUL emotion if the result helps the target', () => {
+        const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
+        const sprite = new TargetSprite();
+        const emotion = sprite.getSquaddieEmotion({
+            timer,
+            battleSquaddieId,
+            squaddieRepository,
+            result: resultHealsSquaddie,
+            action: helpfulAction,
+        });
+
+        expect(emotion).toBe(SquaddieEmotion.THANKFUL);
+        expect(getterSpy).toBeCalled();
+    });
+
     describe('should keep the same emotion in TARGET_REACTS, SHOWING_RESULTS and FINISHED_SHOWING_RESULTS', () => {
-        let mapping: { [name: string]: ActionResultPerSquaddie };
+        let mapping: {
+            [name: string]: {
+                result: ActionResultPerSquaddie,
+                action: SquaddieSquaddieAction
+            }
+        };
 
         const tests: {
             name: string
@@ -181,20 +270,34 @@ describe('Target Sprite', () => {
             },
             {
                 name: 'deals lethal damage',
-            }
+            },
+            {
+                name: 'heals damage',
+            },
         ]
 
         beforeEach(() => {
             mapping = {
-                'deals nonlethal damage': resultTookDamage,
-                'deals lethal damage': resultTookLethalDamage,
+                'deals nonlethal damage': {
+                    result: resultTookDamage,
+                    action: hinderingAction
+                },
+                'deals lethal damage': {
+                    result: resultTookLethalDamage,
+                    action: hinderingAction,
+                },
+                'heals damage': {
+                    result: resultHealsSquaddie,
+                    action: helpfulAction,
+                },
             }
         })
 
         it.each(tests)(`$name will show the same emotion`, ({
                                                                 name
                                                             }) => {
-            const result = mapping[name];
+            const result = mapping[name].result;
+            const action = mapping[name].action;
             const sprite = new TargetSprite();
             mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);
             const targetReactsEmotion = sprite.getSquaddieEmotion({
@@ -202,6 +305,7 @@ describe('Target Sprite', () => {
                 battleSquaddieId,
                 squaddieRepository,
                 result,
+                action,
             });
 
             const showingResultsSpy = mockActionTimerPhase(ActionAnimationPhase.SHOWING_RESULTS);
@@ -210,6 +314,7 @@ describe('Target Sprite', () => {
                 battleSquaddieId,
                 squaddieRepository,
                 result,
+                action,
             })).toBe(targetReactsEmotion);
             expect(showingResultsSpy).toBeCalled();
 
@@ -219,6 +324,7 @@ describe('Target Sprite', () => {
                 battleSquaddieId,
                 squaddieRepository,
                 result,
+                action,
             })).toBe(targetReactsEmotion);
             expect(finishedShowingResultsSpy).toBeCalled();
         });

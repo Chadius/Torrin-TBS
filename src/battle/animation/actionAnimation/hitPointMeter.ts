@@ -39,11 +39,11 @@ export class HitPointMeter {
         this._top = top;
         this._hue = hue;
 
-        this.createCurrentHitPointTextBox();
         this.createMaxHitPointTextBox();
+        this.createCurrentHitPointTextBox(this.currentHitPoints);
 
         this.createMaxHitPointRect();
-        this.createCurrentHitPointRect();
+        this.createCurrentHitPointRect(this.currentHitPoints);
     }
 
     private _maxHitPoints: number;
@@ -82,9 +82,10 @@ export class HitPointMeter {
     }
 
     changeHitPoints(hitPointChange: number) {
-        this._currentHitPoints += hitPointChange;
-        this.createCurrentHitPointTextBox();
-        this.createCurrentHitPointRect();
+        this.createCurrentHitPointTextBox(this.currentHitPoints + hitPointChange);
+        const displayedHitPointsAtStartOfChange: number = hitPointChange < 0 ? this.currentHitPoints + hitPointChange : this.currentHitPoints;
+        this.createCurrentHitPointRect(displayedHitPointsAtStartOfChange);
+
         this.createChangedHitPointRect(hitPointChange);
         this.changedHitPointsTimestamp = Date.now();
     }
@@ -103,9 +104,9 @@ export class HitPointMeter {
         TextBoxHelper.draw(this.maxHitPointsTextBox, graphicsContext);
     }
 
-    private createCurrentHitPointTextBox() {
+    private createCurrentHitPointTextBox(currentHitPoints: number) {
         this.currentHitPointsTextBox = TextBoxHelper.new({
-            text: this.currentHitPoints.toString(),
+            text: currentHitPoints.toString(),
             textSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
             area: RectAreaHelper.new({
@@ -145,13 +146,13 @@ export class HitPointMeter {
         });
     }
 
-    private createCurrentHitPointRect() {
+    private createCurrentHitPointRect(currentHitPoints: number) {
         this.currentHitPointsRectangle = RectangleHelper.new({
             area: RectAreaHelper.new({
                 left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING1,
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
-                width: HIT_POINT_METER_HP_WIDTH * this.currentHitPoints,
+                width: HIT_POINT_METER_HP_WIDTH * currentHitPoints,
             }),
             fillColor: this.getColorsBasedOnHue().current.fillColor,
             noStroke: true,
@@ -193,7 +194,16 @@ export class HitPointMeter {
 
         const timeElapsed = Date.now() - this.changedHitPointsTimestamp;
         if (timeElapsed > ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) {
-            this.changedHitPointsRectangle = undefined;
+            this.changedHitPointsRectangle = RectangleHelper.new({
+                area: RectAreaHelper.new({
+                    left: this.changedHitPointsRectangle.area.left,
+                    top: this.changedHitPointsRectangle.area.top,
+                    height: this.changedHitPointsRectangle.area.height,
+                    width: this.changedHitPointsRectangleEndWidth,
+                }),
+                fillColor: this.getColorsBasedOnHue().changed.fillColor,
+                noStroke: true,
+            });
             return;
         }
 

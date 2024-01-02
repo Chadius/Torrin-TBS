@@ -518,8 +518,46 @@ const loadCutscenes = ({
                     new DialogueBox({
                         id: "turn5_1",
                         name: "Torrin",
-                        text: "I can... tell where they can move. If you just... er, click on them, I can see it.",
+                        text: "I can... tell where they can move. If you just... er, click on them, I can see where they can move.",
                         portraitResourceKey: "young torrin cutscene portrait",
+                        animationDuration: 0,
+                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                    }),
+                    new DialogueBox({
+                        id: "turn5_2",
+                        name: "Torrin",
+                        text: "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
+                        portraitResourceKey: "young torrin cutscene portrait",
+                        animationDuration: 0,
+                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                    })
+                ],
+                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+            }),
+            "turn7": new Cutscene({
+                resourceHandler: resourceHandler,
+                actions: [
+                    new DialogueBox({
+                        id: "turn7_0",
+                        name: "Torrin",
+                        text: "Ah! I missed again!",
+                        portraitResourceKey: "young torrin cutscene portrait",
+                        animationDuration: 0,
+                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                    }),
+                    new DialogueBox({
+                        id: "turn7_1",
+                        name: "Sir Camil",
+                        text: "The multiple attack penalty adds up quickly.\nYour third attack is usually not worth it.",
+                        portraitResourceKey: "sir camil cutscene portrait",
+                        animationDuration: 0,
+                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
+                    }),
+                    new DialogueBox({
+                        id: "turn7_2",
+                        name: "Sir Camil",
+                        text: "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
+                        portraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
@@ -578,6 +616,12 @@ const loadCutscenes = ({
             systemReactedToTrigger: false,
             cutsceneId: "turn5",
             turn: 5,
+        },
+        {
+            triggeringEvent: TriggeringEvent.START_OF_TURN,
+            systemReactedToTrigger: false,
+            cutsceneId: "turn7",
+            turn: 7,
         },
     ];
 

@@ -15,6 +15,7 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {RollResultHelper} from "../../actionCalculator/rollResult";
+import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults;
@@ -78,21 +79,30 @@ export class ActorSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw(timer: ActionTimer, graphicsContext: GraphicsContext) {
+    draw({timer, graphicsContext, action,}: {
+        timer: ActionTimer,
+        graphicsContext: GraphicsContext,
+        action: SquaddieSquaddieAction,
+    }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }
 
         this.sprite.createActorImagesWithLoadedData();
 
-        this.drawActorSprite(timer, graphicsContext);
+        this.drawActorSprite(timer, graphicsContext, action);
     }
 
-    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext) {
+    getSquaddieImageBasedOnTimer(
+        timer: ActionTimer,
+        graphicsContext: GraphicsContext,
+        action: SquaddieSquaddieAction,
+    ) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
             battleSquaddieId: this.battleSquaddieId,
-            squaddieRepository: this.squaddieRepository
+            squaddieRepository: this.squaddieRepository,
+            action,
         });
 
         return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
@@ -102,24 +112,40 @@ export class ActorSprite {
                                   timer,
                                   battleSquaddieId,
                                   squaddieRepository,
+                                  action,
                               }: {
         timer: ActionTimer,
         battleSquaddieId: string,
         squaddieRepository: ObjectRepository,
+        action: SquaddieSquaddieAction,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                return SquaddieEmotion.ATTACK;
+                if (SquaddieSquaddieActionService.isHindering(action)) {
+                    return SquaddieEmotion.ATTACK;
+                } else if (SquaddieSquaddieActionService.isHelpful(action)) {
+                    return SquaddieEmotion.ASSISTING;
+                } else {
+                    return SquaddieEmotion.NEUTRAL;
+                }
             default:
                 return SquaddieEmotion.NEUTRAL;
         }
     }
 
-    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext) {
-        let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext);
+    private drawActorSprite(
+        timer: ActionTimer,
+        graphicsContext: GraphicsContext,
+        action: SquaddieSquaddieAction,
+    ) {
+        let spriteToDraw = this.getSquaddieImageBasedOnTimer(
+            timer,
+            graphicsContext,
+            action,
+        );
         let {horizontalDistance, verticalDistance} = this.getDistanceBasedOnTimer(timer);
         RectAreaHelper.move(spriteToDraw.area, {
             left: this.startingPosition + horizontalDistance,
