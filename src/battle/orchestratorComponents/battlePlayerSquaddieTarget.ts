@@ -1,30 +1,3 @@
-import {
-    BattleOrchestratorChanges,
-    BattleOrchestratorComponent,
-    OrchestratorComponentKeyEvent,
-    OrchestratorComponentMouseEvent,
-    OrchestratorComponentMouseEventType
-} from "../orchestrator/battleOrchestratorComponent";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
-import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieSquaddieActionDataService} from "../history/squaddieSquaddieAction";
-import {RectArea, RectAreaHelper} from "../../ui/rectArea";
-import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
-import {LabelHelper} from "../../ui/label";
-import {BattleEvent} from "../history/battleEvent";
-import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieSquaddieAction} from "../../squaddie/action";
-import {Trait} from "../../trait/traitStatusStorage";
-import {ActionCalculator} from "../actionCalculator/calculator";
-import {FindValidTargets} from "../targeting/targetingService";
-import {FormatIntent} from "../animation/actionResultTextWriter";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {RecordingHandler} from "../history/recording";
@@ -34,6 +7,33 @@ import {ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {
+    BattleOrchestratorChanges,
+    BattleOrchestratorComponent,
+    OrchestratorComponentKeyEvent,
+    OrchestratorComponentMouseEvent,
+    OrchestratorComponentMouseEventType
+} from "../orchestrator/battleOrchestratorComponent";
+import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
+import {UIControlSettings} from "../orchestrator/uiControlSettings";
+import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
+import {FindValidTargets} from "../targeting/targetingService";
+import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
+import {RectArea, RectAreaHelper} from "../../ui/rectArea";
+import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
+import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
+import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
+import {SquaddieSquaddieAction} from "../../squaddie/action";
+import {Trait} from "../../trait/traitStatusStorage";
+import {ActionResultTextService} from "../animation/actionResultTextService";
+import {LabelHelper} from "../../ui/label";
+import {SquaddieSquaddieActionDataService} from "../history/squaddieSquaddieAction";
+import {ActionCalculator} from "../actionCalculator/calculator";
+import {BattleEvent} from "../history/battleEvent";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -266,7 +266,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] = multipleAttackPenalty;
         }
 
-        const intentMessages = FormatIntent({
+        const intentMessages = ActionResultTextService.outputIntentForTextOnly({
             currentAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
             actingBattleSquaddieId: SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing),
             squaddieRepository: state.squaddieRepository,

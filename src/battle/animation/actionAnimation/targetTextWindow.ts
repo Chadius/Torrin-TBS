@@ -9,8 +9,8 @@ import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
-import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
+import {SquaddieSquaddieAction} from "../../../squaddie/action";
+import {ActionResultTextService} from "../actionResultTextService";
 
 export class TargetTextWindow {
     constructor() {
@@ -86,11 +86,11 @@ export class TargetTextWindow {
         result: ActionResultPerSquaddie,
         action: SquaddieSquaddieAction,
     }) {
-        this._targetBeforeActionText = `${targetTemplate.squaddieId.name}`;
-
-        if (SquaddieSquaddieActionService.isHindering(action)) {
-            this._targetBeforeActionText += `\nAC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`;
-        }
+        this._targetBeforeActionText = ActionResultTextService.getBeforeActionText({
+            targetTemplate,
+            targetBattle,
+            action
+        });
     }
 
     private createActorTextBox() {
@@ -118,38 +118,9 @@ export class TargetTextWindow {
     }
 
     private updateCreateActorTextBox() {
-        this._targetAfterActionText = "";
-
-        switch (this.result.actorDegreeOfSuccess) {
-            case DegreeOfSuccess.FAILURE:
-                this._targetAfterActionText = `MISS`;
-                break;
-            case DegreeOfSuccess.CRITICAL_SUCCESS:
-                let damageText = 'CRITICAL HIT!\n';
-                if (this.result.damageTaken === 0 && this.result.healingReceived === 0) {
-                    damageText += `NO DAMAGE`;
-                } else if (this.result.damageTaken > 0) {
-                    damageText += `${this.result.damageTaken} damage`;
-                }
-                this._targetAfterActionText = damageText;
-                break;
-            case DegreeOfSuccess.CRITICAL_FAILURE:
-                this._targetAfterActionText = `CRITICAL MISS!!`;
-                break;
-            case DegreeOfSuccess.SUCCESS:
-                if (this.result.damageTaken === 0 && this.result.healingReceived === 0) {
-                    this._targetAfterActionText = `NO DAMAGE`;
-                } else if (this.result.damageTaken > 0) {
-                    this._targetAfterActionText = `${this.result.damageTaken} damage`;
-                }
-                break;
-            default:
-                break;
-        }
-
-        if (this.result.healingReceived > 0) {
-            this._targetAfterActionText += `${this.result.healingReceived} healed`;
-        }
+        this._targetAfterActionText = ActionResultTextService.getAfterActionText({
+            result: this._result,
+        })
 
         this.targetLabel.textBox.text = `${this.targetBeforeActionText}\n${this.targetAfterActionText}`;
     }

@@ -430,7 +430,7 @@ const loadCutscenes = ({
                     new DialogueBox({
                         id: "how_to_play_4",
                         name: "Sir Camil",
-                        text: "Sir Camil has more health.\nHe has a longsword for melee attacks.",
+                        text: "Sir Camil has more health and armor than Torrin.\nHe has a longsword for melee attacks.",
                         portraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],

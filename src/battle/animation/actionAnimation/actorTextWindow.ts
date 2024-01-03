@@ -10,9 +10,7 @@ import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
-import {ActionResultTextWriter} from "../actionResultTextWriter";
-import {RollResultService} from "../../actionCalculator/rollResult";
-import {ActionResultText} from "./actionResultText";
+import {ActionResultTextService} from "../actionResultTextService";
 
 export class ActorTextWindow {
     results: SquaddieSquaddieResults;
@@ -84,7 +82,12 @@ export class ActorTextWindow {
     }
 
     private updateActorLabel({timer}: { timer?: ActionTimer }) {
-        const actorUsesActionDescriptionText = this.calculateActorUsesActionDescriptionText({timer});
+        const actorUsesActionDescriptionText = ActionResultTextService.calculateActorUsesActionDescriptionText({
+            timer,
+            action: this.action,
+            actorTemplate: this.actorTemplate,
+            results: this.results,
+        });
         if (this.actorLabel && this.actorUsesActionDescriptionText === actorUsesActionDescriptionText) {
             return;
         }
@@ -111,43 +114,5 @@ export class ActorTextWindow {
             fillColor: labelBackgroundColor,
             fontColor: ActionAnimationFontColor,
         });
-    }
-
-    private calculateActorUsesActionDescriptionText({timer}: { timer?: ActionTimer }): string {
-        let actorUsesActionDescriptionText = ActionResultTextWriter.getSquaddieUsesActionString({
-            squaddieTemplate: this.actorTemplate,
-            action: this.action,
-            newline: true,
-        });
-        if (!timer) {
-            return actorUsesActionDescriptionText;
-        }
-        if ([
-                ActionAnimationPhase.DURING_ACTION,
-                ActionAnimationPhase.TARGET_REACTS,
-                ActionAnimationPhase.SHOWING_RESULTS,
-                ActionAnimationPhase.FINISHED_SHOWING_RESULTS,
-            ].includes(timer.currentPhase)
-            && this.results.actingSquaddieRoll.occurred
-        ) {
-            actorUsesActionDescriptionText += `\n\n`;
-            actorUsesActionDescriptionText += `   rolls(${this.results.actingSquaddieRoll.rolls[0]}, ${this.results.actingSquaddieRoll.rolls[1]})`;
-
-
-            const attackPenaltyDescriptions = ActionResultText.getAttackPenaltyDescriptions(this.results.actingSquaddieModifiers);
-            if (attackPenaltyDescriptions.length > 0) {
-                actorUsesActionDescriptionText += "\n" + attackPenaltyDescriptions.join("\n");
-            }
-
-            actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(this.results)}`;
-
-            if (RollResultService.isACriticalSuccess(this.results.actingSquaddieRoll)) {
-                actorUsesActionDescriptionText += `\n\nCRITICAL HIT!`;
-            }
-            if (RollResultService.isACriticalFailure(this.results.actingSquaddieRoll)) {
-                actorUsesActionDescriptionText += `\n\nCRITICAL MISS!!`;
-            }
-        }
-        return actorUsesActionDescriptionText;
     }
 }

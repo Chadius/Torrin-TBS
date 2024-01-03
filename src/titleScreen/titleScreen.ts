@@ -473,7 +473,7 @@ export class TitleScreen implements GameEngineComponent {
             this.createSirCamilPlaceholderIconAreaUnderTorrin();
         }
 
-        const sirCamilDescriptionText: string = "Sir Camil has more health. \n - Longsword: Melee attack, very strong."
+        const sirCamilDescriptionText: string = "Sir Camil has more health and armor. \n - Longsword: Melee attack."
         if (this.sirCamilDescriptionText === undefined) {
             this.setSirCamilDescriptionText(sirCamilDescriptionText);
         }

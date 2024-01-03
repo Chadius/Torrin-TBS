@@ -4,7 +4,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {FormatResult} from "./actionResultTextWriter";
+import {ActionResultTextService} from "./actionResultTextService";
 import {Label, LabelHelper} from "../../ui/label";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -58,7 +58,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
     private drawActionDescription(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
-            this.outputTextStrings = FormatResult({
+            this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: state.squaddieRepository,
                 currentAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
                 result: RecordingHandler.mostRecentEvent(state.battleState.recording).results,

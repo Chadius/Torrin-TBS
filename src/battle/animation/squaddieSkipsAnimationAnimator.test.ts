@@ -21,7 +21,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {LabelHelper} from "../../ui/label";
-import * as actionResultTextWriter from "./actionResultTextWriter";
+import * as ActionResultTextService from "./actionResultTextService";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleStateHelper} from "../orchestrator/battleState";
 
@@ -119,15 +119,15 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             }),
         })
 
-        const formatResultSpy = jest.spyOn(actionResultTextWriter, "FormatResult");
+        const outputResultForTextOnlySpy = jest.spyOn(ActionResultTextService.ActionResultTextService, "outputResultForTextOnly");
         const drawLabelSpy = jest.spyOn(LabelHelper, "draw");
 
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
 
         expect(animator.outputTextDisplay).not.toBeUndefined();
-        expect(formatResultSpy).toBeCalled();
-        expect(formatResultSpy).toBeCalledWith({
+        expect(outputResultForTextOnlySpy).toBeCalled();
+        expect(outputResultForTextOnlySpy).toBeCalledWith({
             currentAction: monkKoanAction,
             result: monkMeditatesEvent.results,
             squaddieRepository,

@@ -6,11 +6,11 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {FormatIntent, FormatResult} from "./actionResultTextWriter";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults, SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {ActionResultTextService} from "./actionResultTextService";
 
 describe('Action Result Text Writer', () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryHelper.new();
@@ -141,7 +141,7 @@ describe('Action Result Text Writer', () => {
             actingSquaddieModifiers: {},
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
@@ -178,7 +178,7 @@ describe('Action Result Text Writer', () => {
             actingSquaddieModifiers: {},
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: bandageWoundsAction,
             result: healingResult,
             squaddieRepository,
@@ -191,7 +191,7 @@ describe('Action Result Text Writer', () => {
     });
 
     it('Explains intent to use a power', () => {
-        const outputStrings: string[] = FormatIntent({
+        const outputStrings: string[] = ActionResultTextService.outputIntentForTextOnly({
             currentAction: longswordSweepAction,
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieRepository,
@@ -203,7 +203,7 @@ describe('Action Result Text Writer', () => {
     });
 
     it('Explains attack modifiers with intent', () => {
-        const outputStrings: string[] = FormatIntent({
+        const outputStrings: string[] = ActionResultTextService.outputIntentForTextOnly({
             currentAction: longswordSweepAction,
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieRepository,
@@ -217,7 +217,7 @@ describe('Action Result Text Writer', () => {
     });
 
     it('Explains action but does not show attack modifiers if the action always succeeds', () => {
-        const outputStrings: string[] = FormatIntent({
+        const outputStrings: string[] = ActionResultTextService.outputIntentForTextOnly({
             currentAction: bandageWoundsAction,
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieRepository,
@@ -253,7 +253,7 @@ describe('Action Result Text Writer', () => {
             actingSquaddieModifiers: {},
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
@@ -290,7 +290,7 @@ describe('Action Result Text Writer', () => {
             actingSquaddieModifiers: {},
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
@@ -322,7 +322,7 @@ describe('Action Result Text Writer', () => {
             actingSquaddieModifiers: {},
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
@@ -353,7 +353,7 @@ describe('Action Result Text Writer', () => {
             actingSquaddieModifiers: {},
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
@@ -391,7 +391,7 @@ describe('Action Result Text Writer', () => {
             },
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
@@ -431,7 +431,7 @@ describe('Action Result Text Writer', () => {
             },
         });
 
-        const outputStrings: string[] = FormatResult({
+        const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
             currentAction: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
