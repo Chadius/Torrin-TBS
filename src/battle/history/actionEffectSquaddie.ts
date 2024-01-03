@@ -1,15 +1,15 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieSquaddieAction} from "../../squaddie/action";
-import {SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 
-export interface SquaddieSquaddieActionData {
-    type: SquaddieActionType.SQUADDIE;
+export interface ActionEffectSquaddie {
+    type: ActionEffectType.SQUADDIE;
     squaddieAction: SquaddieSquaddieAction;
     numberOfActionPointsSpent: number;
     targetLocation: HexCoordinate;
 }
 
-export const SquaddieSquaddieActionDataService = {
+export const ActionEffectSquaddieService = {
     new: ({
               targetLocation,
               numberOfActionPointsSpent,
@@ -18,9 +18,9 @@ export const SquaddieSquaddieActionDataService = {
         targetLocation: HexCoordinate;
         numberOfActionPointsSpent: number;
         squaddieAction: SquaddieSquaddieAction;
-    }): SquaddieSquaddieActionData => {
+    }): ActionEffectSquaddie => {
         return {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             targetLocation,
             numberOfActionPointsSpent,
             squaddieAction,

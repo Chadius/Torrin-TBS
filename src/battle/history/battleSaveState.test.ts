@@ -25,7 +25,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
-import {SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
@@ -69,13 +69,13 @@ describe("BattleSaveState", () => {
         };
 
         SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 2, r: -5},
             numberOfActionPointsSpent: 1,
         });
 
         SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             numberOfActionPointsSpent: 1,
             squaddieAction: action,
             targetLocation: {q: 3, r: 4},
@@ -312,7 +312,7 @@ describe("BattleSaveState", () => {
         };
 
         SquaddieActionsForThisRoundHandler.addAction(secondSquaddieActions, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 1, r: 6},
             numberOfActionPointsSpent: 3,
         });

@@ -1,6 +1,6 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {SquaddieSquaddieAction} from "../../squaddie/action";
-import {AnySquaddieAction, SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffect, ActionEffectType} from "../../squaddie/actionEffect";
 
 
 export interface SquaddieInstructionInProgress {
@@ -61,33 +61,33 @@ export const SquaddieInstructionInProgressHandler = {
                 && data.currentlySelectedAction === undefined
             );
     },
-    addConfirmedAction: (data: SquaddieInstructionInProgress, action: AnySquaddieAction) => {
+    addConfirmedAction: (data: SquaddieInstructionInProgress, action: ActionEffect) => {
         if (!data.squaddieActionsForThisRound) {
             throw new Error("no squaddie found, cannot add action");
         }
 
         switch (action.type) {
-            case SquaddieActionType.SQUADDIE:
+            case ActionEffectType.SQUADDIE:
                 addSelectedAction(data, action.squaddieAction);
                 SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound,
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         squaddieAction: action.squaddieAction,
                         targetLocation: action.targetLocation,
                         numberOfActionPointsSpent: action.numberOfActionPointsSpent,
                     }
                 );
                 break;
-            case SquaddieActionType.MOVEMENT:
+            case ActionEffectType.MOVEMENT:
                 SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
-                    type: SquaddieActionType.MOVEMENT,
+                    type: ActionEffectType.MOVEMENT,
                     destination: action.destination,
                     numberOfActionPointsSpent: action.numberOfActionPointsSpent,
                 });
                 break;
             default:
                 SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
-                    type: SquaddieActionType.END_TURN,
+                    type: ActionEffectType.END_TURN,
                 });
                 break;
         }

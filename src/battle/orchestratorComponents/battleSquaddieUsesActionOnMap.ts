@@ -9,7 +9,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieHelper} from "../battleSquaddie";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -64,7 +64,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
             const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
 
-            if (mostRecentAction.type === SquaddieActionType.END_TURN) {
+            if (mostRecentAction.type === ActionEffectType.END_TURN) {
                 BattleSquaddieHelper.endTurn(battleSquaddie);
                 TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             }

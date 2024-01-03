@@ -2,7 +2,7 @@ import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {DamageType} from "../../squaddie/squaddieService";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
-import {AnySquaddieAction, SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffect, ActionEffectType} from "../../squaddie/actionEffect";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 
 describe('squaddie actions for this round', () => {
@@ -48,20 +48,20 @@ describe('squaddie actions for this round', () => {
             actionPointCost: 1,
         };
 
-        const anySquaddieActions: AnySquaddieAction[] = [
+        const anySquaddieActions: ActionEffect[] = [
             {
-                type: SquaddieActionType.MOVEMENT,
+                type: ActionEffectType.MOVEMENT,
                 destination: {q: 0, r: 3},
                 numberOfActionPointsSpent: 1,
             },
             {
-                type: SquaddieActionType.SQUADDIE,
+                type: ActionEffectType.SQUADDIE,
                 squaddieAction: squaddieActionData,
                 numberOfActionPointsSpent: 1,
                 targetLocation: {q: 0, r: 2},
             },
             {
-                type: SquaddieActionType.END_TURN,
+                type: ActionEffectType.END_TURN,
             },
         ];
 
@@ -98,7 +98,7 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: notAnAttackAction
@@ -118,7 +118,7 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
@@ -138,7 +138,7 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackActionWithoutMAP,
@@ -158,13 +158,13 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
@@ -184,19 +184,19 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
@@ -216,25 +216,25 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
@@ -260,7 +260,7 @@ describe('squaddie actions for this round', () => {
             expect(SquaddieActionsForThisRoundHandler.previewMultipleAttackPenalty(
                 oneAttackActionThisRound,
                 {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 0},
                     squaddieAction: attackAction,
@@ -276,7 +276,7 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
@@ -288,7 +288,7 @@ describe('squaddie actions for this round', () => {
             expect(SquaddieActionsForThisRoundHandler.previewMultipleAttackPenalty(
                 twoAttackActionsThisRound,
                 {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 0},
                     squaddieAction: attackAction,
@@ -304,13 +304,13 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
@@ -322,7 +322,7 @@ describe('squaddie actions for this round', () => {
             expect(SquaddieActionsForThisRoundHandler.previewMultipleAttackPenalty(
                 threeAttackActionsThisRound,
                 {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 0},
                     squaddieAction: attackAction,
@@ -338,19 +338,19 @@ describe('squaddie actions for this round', () => {
                 squaddieTemplateId: "squaddie template",
                 actions: [
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
                     },
                     {
-                        type: SquaddieActionType.SQUADDIE,
+                        type: ActionEffectType.SQUADDIE,
                         numberOfActionPointsSpent: 1,
                         targetLocation: {q: 0, r: 0},
                         squaddieAction: attackAction,
@@ -362,7 +362,7 @@ describe('squaddie actions for this round', () => {
             expect(SquaddieActionsForThisRoundHandler.previewMultipleAttackPenalty(
                 threeAttackActionsThisRound,
                 {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 0},
                     squaddieAction: attackAction,

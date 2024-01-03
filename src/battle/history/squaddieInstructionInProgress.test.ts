@@ -1,6 +1,6 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
-import {SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {SquaddieSquaddieActionService} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType} from "../../squaddie/squaddieService";
@@ -48,7 +48,7 @@ describe('SquaddieInstructionInProgress', () => {
         };
 
         SquaddieActionsForThisRoundHandler.addAction(longswordUsedThisRoundAction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             squaddieAction: longswordAction,
             targetLocation: {q: 0, r: 0},
             numberOfActionPointsSpent: 1,

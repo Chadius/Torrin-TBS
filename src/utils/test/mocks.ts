@@ -3,7 +3,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelectedHUD";
-import {SquaddieEndTurnActionDataService} from "../../battle/history/squaddieEndTurnAction";
+import {ActionEffectEndTurnService} from "../../battle/history/actionEffectEndTurn";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
 import {makeResult} from "../ResultOrError";
@@ -69,7 +69,7 @@ export const battleSquaddieSelectedHUD = () => {
     const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
     hud.draw = jest.fn();
     hud.wasAnyActionSelected = jest.fn().mockReturnValue(true);
-    hud.getSelectedAction = jest.fn().mockReturnValue(SquaddieEndTurnActionDataService.new());
+    hud.getSelectedAction = jest.fn().mockReturnValue(ActionEffectEndTurnService.new());
     hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
     hud.didMouseClickOnHUD = jest.fn().mockReturnValue(true);
     hud.mouseClicked = jest.fn();

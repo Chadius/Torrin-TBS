@@ -6,7 +6,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {ATTACK_MODIFIER} from "../modifierConstants";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
     BattleOrchestratorChanges,
@@ -31,7 +31,7 @@ import {SquaddieSquaddieAction} from "../../squaddie/action";
 import {Trait} from "../../trait/traitStatusStorage";
 import {ActionResultTextService} from "../animation/actionResultTextService";
 import {LabelHelper} from "../../ui/label";
-import {SquaddieSquaddieActionDataService} from "../history/squaddieSquaddieAction";
+import {ActionEffectSquaddieService} from "../history/actionEffectSquaddie";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent} from "../history/battleEvent";
 
@@ -256,7 +256,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         let {multipleAttackPenalty} = SquaddieActionsForThisRoundHandler.previewMultipleAttackPenalty(
             state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
             {
-                type: SquaddieActionType.SQUADDIE,
+                type: ActionEffectType.SQUADDIE,
                 numberOfActionPointsSpent: undefined,
                 targetLocation: undefined,
                 squaddieAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
@@ -341,7 +341,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing,
-            SquaddieSquaddieActionDataService.new({
+            ActionEffectSquaddieService.new({
                     targetLocation: this.validTargetLocation,
                     squaddieAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
                     numberOfActionPointsSpent: state.battleState.squaddieCurrentlyActing.currentlySelectedAction.actionPointCost,

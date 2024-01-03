@@ -22,7 +22,7 @@ import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
@@ -267,7 +267,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         expect(hud.wasAnyActionSelected()).toBeTruthy();
         expect(hud.getSelectedAction()).toEqual({
-            type: SquaddieActionType.END_TURN,
+            type: ActionEffectType.END_TURN,
         });
 
         hud.reset();
@@ -554,7 +554,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                             startingLocation: {q: 0, r: 0},
                             actions: [
                                 {
-                                    type: SquaddieActionType.MOVEMENT,
+                                    type: ActionEffectType.MOVEMENT,
                                     destination: {q: 1, r: 0},
                                     numberOfActionPointsSpent: 1,
                                 }

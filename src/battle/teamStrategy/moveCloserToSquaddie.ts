@@ -6,7 +6,7 @@ import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
@@ -90,7 +90,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(moveTowardsLocation, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: shortestRoute.destination,
             numberOfActionPointsSpent: shortestRoute.currentNumberOfMoveActions,
         });

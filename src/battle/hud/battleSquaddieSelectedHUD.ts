@@ -8,7 +8,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {UseActionButton} from "../../squaddie/useActionButton";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieSquaddieAction} from "../../squaddie/action";
-import {SquaddieEndTurnActionData, SquaddieEndTurnActionDataService} from "../history/squaddieEndTurnAction";
+import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../history/actionEffectEndTurn";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
@@ -82,7 +82,7 @@ export class BattleSquaddieSelectedHUD {
     affiliateIcon?: ImageUI;
     selectedAction: {
         squaddieAction?: SquaddieSquaddieAction,
-        endTurnAction?: SquaddieEndTurnActionData,
+        endTurnAction?: ActionEffectEndTurn,
     };
     useActionButtons: UseActionButton[];
     loadGameButton: Label;
@@ -216,7 +216,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedAction.squaddieAction;
     }
 
-    getSelectedAction(): SquaddieSquaddieAction | SquaddieEndTurnActionData {
+    getSelectedAction(): SquaddieSquaddieAction | ActionEffectEndTurn {
         return this.selectedAction.squaddieAction ? this.selectedAction.squaddieAction : this.selectedAction.endTurnAction;
     }
 
@@ -378,7 +378,7 @@ export class BattleSquaddieSelectedHUD {
                     width: (windowDimensions.width / 12) - 16,
                     height: this._background.area.height - 32,
                 }),
-                endTurnAction: SquaddieEndTurnActionDataService.new(),
+                endTurnAction: ActionEffectEndTurnService.new(),
             })
         );
     }

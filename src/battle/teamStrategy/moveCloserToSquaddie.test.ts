@@ -12,7 +12,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
 
 describe('move towards closest squaddie in range', () => {
@@ -112,7 +112,7 @@ describe('move towards closest squaddie in range', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 1,
         });
@@ -172,7 +172,7 @@ describe('move towards closest squaddie in range', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(startingInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 0, r: 3},
             numberOfActionPointsSpent: 1,
         });
@@ -191,7 +191,7 @@ describe('move towards closest squaddie in range', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 1,
         });
@@ -324,7 +324,7 @@ describe('move towards closest squaddie in range', () => {
         };
 
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 1,
         });
@@ -394,7 +394,7 @@ describe('move towards closest squaddie in range', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 1, r: 1},
             numberOfActionPointsSpent: 2,
         });

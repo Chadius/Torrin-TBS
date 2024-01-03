@@ -22,7 +22,7 @@ import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ActionCalculator} from "./calculator";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess} from "./degreeOfSuccess";
@@ -368,7 +368,7 @@ describe('calculator', () => {
             SquaddieActionsForThisRoundHandler.addAction(
                 squaddieCurrentlyInProgress.squaddieActionsForThisRound,
                 {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     squaddieAction: actionNeedsAnAttackRollToDealBodyDamage,
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 0},
@@ -377,7 +377,7 @@ describe('calculator', () => {
             SquaddieActionsForThisRoundHandler.addAction(
                 squaddieCurrentlyInProgress.squaddieActionsForThisRound,
                 {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     squaddieAction: actionNeedsAnAttackRollToDealBodyDamage,
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 0},

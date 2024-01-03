@@ -22,7 +22,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {LabelHelper} from "../../ui/label";
 import * as ActionResultTextService from "./actionResultTextService";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {BattleStateHelper} from "../orchestrator/battleState";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
@@ -75,7 +75,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         };
 
         SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             numberOfActionPointsSpent: 1,
             squaddieAction: monkKoanAction,
             targetLocation: {q: 0, r: 0},

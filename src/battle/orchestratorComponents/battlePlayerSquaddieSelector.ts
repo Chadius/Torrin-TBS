@@ -14,7 +14,7 @@ import {
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieEndTurnActionDataService} from "../history/squaddieEndTurnAction";
+import {ActionEffectEndTurnService} from "../history/actionEffectEndTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -24,7 +24,7 @@ import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../s
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {RecordingHandler} from "../history/recording";
@@ -136,13 +136,13 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR;
         } else if (this.gaveCompleteInstruction) {
             let newAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
-            if (newAction.type === SquaddieActionType.MOVEMENT) {
+            if (newAction.type === ActionEffectType.MOVEMENT) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
             }
-            if (newAction.type === SquaddieActionType.SQUADDIE) {
+            if (newAction.type === ActionEffectType.SQUADDIE) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE;
             }
-            if (newAction.type === SquaddieActionType.END_TURN) {
+            if (newAction.type === ActionEffectType.END_TURN) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
             }
         } else if (this.gaveInstructionThatNeedsATarget) {
@@ -353,7 +353,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         }
 
         if (state.battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()) {
-            SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, SquaddieEndTurnActionDataService.new());
+            SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, ActionEffectEndTurnService.new());
 
             state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 

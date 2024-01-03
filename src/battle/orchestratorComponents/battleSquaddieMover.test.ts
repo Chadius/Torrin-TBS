@@ -19,7 +19,7 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
@@ -102,7 +102,7 @@ describe('BattleSquaddieMover', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 1, r: 1},
             numberOfActionPointsSpent: 3,
         });
@@ -207,7 +207,7 @@ describe('BattleSquaddieMover', () => {
                 actions: [],
             };
             SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-                type: SquaddieActionType.MOVEMENT,
+                type: ActionEffectType.MOVEMENT,
                 destination: {q: 1, r: 1},
                 numberOfActionPointsSpent: 3,
             });
@@ -241,7 +241,7 @@ describe('BattleSquaddieMover', () => {
                 actions: [],
             };
             SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-                type: SquaddieActionType.MOVEMENT,
+                type: ActionEffectType.MOVEMENT,
                 destination: {q: 1, r: 1},
                 numberOfActionPointsSpent: 1,
             });
@@ -281,7 +281,7 @@ describe('BattleSquaddieMover', () => {
                 actions: [],
             };
             SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-                type: SquaddieActionType.MOVEMENT,
+                type: ActionEffectType.MOVEMENT,
                 destination: {q: 1, r: 1},
                 numberOfActionPointsSpent: 1,
             });

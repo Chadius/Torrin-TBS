@@ -1,16 +1,16 @@
 import {SquaddieInstructionInProgress, SquaddieInstructionInProgressHandler} from "./squaddieInstructionInProgress";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
-import {SquaddieMovementActionDataService} from "./squaddieMovementAction";
-import {SquaddieSquaddieActionData, SquaddieSquaddieActionDataService} from "./squaddieSquaddieAction";
-import {SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffectMovementService} from "./actionEffectMovement";
+import {ActionEffectSquaddie, ActionEffectSquaddieService} from "./actionEffectSquaddie";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 
 describe('Current Squaddie Instruction', () => {
     let torrinInstruction: SquaddieActionsForThisRound;
     let purifyingBlast: SquaddieSquaddieAction;
-    let purifyingBlastAction: SquaddieSquaddieActionData;
+    let purifyingBlastAction: ActionEffectSquaddie;
 
     beforeEach(() => {
         torrinInstruction = {
@@ -26,7 +26,7 @@ describe('Current Squaddie Instruction', () => {
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
         });
 
-        purifyingBlastAction = SquaddieSquaddieActionDataService.new({
+        purifyingBlastAction = ActionEffectSquaddieService.new({
             squaddieAction: purifyingBlast,
             targetLocation: {q: 3, r: 4},
             numberOfActionPointsSpent: 1,
@@ -77,7 +77,7 @@ describe('Current Squaddie Instruction', () => {
         const initialInstruction: SquaddieActionsForThisRound = newInstruction.squaddieActionsForThisRound;
 
         SquaddieActionsForThisRoundHandler.addAction(torrinInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             squaddieAction: purifyingBlast,
             targetLocation: {q: 3, r: 4},
             numberOfActionPointsSpent: 1,
@@ -89,7 +89,7 @@ describe('Current Squaddie Instruction', () => {
         expect(initialInstruction.startingLocation.r).toStrictEqual(torrinInstruction.startingLocation.r);
 
         expect(newInstruction.currentlySelectedAction).toStrictEqual(purifyingBlast);
-        SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, SquaddieMovementActionDataService.new({
+        SquaddieInstructionInProgressHandler.addConfirmedAction(newInstruction, ActionEffectMovementService.new({
             destination: {q: 2, r: 3},
             numberOfActionPointsSpent: 2,
         }));

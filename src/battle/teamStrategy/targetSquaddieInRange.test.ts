@@ -10,9 +10,9 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
-import {SquaddieMovementActionDataService} from "../history/squaddieMovementAction";
+import {ActionEffectMovementService} from "../history/actionEffectMovement";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 
 describe('target a squaddie within reach of actions', () => {
@@ -165,7 +165,7 @@ describe('target a squaddie within reach of actions', () => {
         });
 
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 1},
             squaddieAction: shortBowAction,
             numberOfActionPointsSpent: 1,
@@ -195,7 +195,7 @@ describe('target a squaddie within reach of actions', () => {
         });
 
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 2},
             squaddieAction: shortBowAction,
             numberOfActionPointsSpent: 1,
@@ -260,12 +260,12 @@ describe('target a squaddie within reach of actions', () => {
             startingLocation: {q: 0, r: 0},
             actions: [],
         };
-        const enemyBanditMoves = SquaddieMovementActionDataService.new({
+        const enemyBanditMoves = ActionEffectMovementService.new({
             destination: {q: 0, r: 0},
             numberOfActionPointsSpent: 1,
         });
         SquaddieActionsForThisRoundHandler.addAction(startingInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: enemyBanditMoves.destination,
             numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
         });
@@ -281,13 +281,13 @@ describe('target a squaddie within reach of actions', () => {
         });
 
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: enemyBanditMoves.destination,
             numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
         });
 
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 1},
             squaddieAction: shortBowAction,
             numberOfActionPointsSpent: 1,
@@ -338,12 +338,12 @@ describe('target a squaddie within reach of actions', () => {
             startingLocation: {q: 0, r: 0},
             actions: [],
         };
-        const enemyBanditMoves = SquaddieMovementActionDataService.new({
+        const enemyBanditMoves = ActionEffectMovementService.new({
             destination: {q: 0, r: 0},
             numberOfActionPointsSpent: 1,
         });
         SquaddieActionsForThisRoundHandler.addAction(startingInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: enemyBanditMoves.destination,
             numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
         });
@@ -359,12 +359,12 @@ describe('target a squaddie within reach of actions', () => {
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         });
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: enemyBanditMoves.destination,
             numberOfActionPointsSpent: enemyBanditMoves.numberOfActionPointsSpent,
         });
         SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 2},
             squaddieAction: shortBowAction,
             numberOfActionPointsSpent: 1,

@@ -23,7 +23,7 @@ import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {BattleStateHelper} from "../orchestrator/battleState";
 
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
@@ -96,7 +96,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         };
 
         SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             numberOfActionPointsSpent: 1,
             squaddieAction: longswordAction,
             targetLocation: {q: 0, r: 0},

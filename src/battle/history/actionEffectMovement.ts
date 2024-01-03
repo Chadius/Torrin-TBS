@@ -1,22 +1,22 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 
-export interface SquaddieMovementActionData {
-    type: SquaddieActionType.MOVEMENT;
+export interface ActionEffectMovement {
+    type: ActionEffectType.MOVEMENT;
     destination: HexCoordinate;
     numberOfActionPointsSpent: number;
 }
 
-export const SquaddieMovementActionDataService = {
+export const ActionEffectMovementService = {
     new: ({
               destination,
               numberOfActionPointsSpent,
           }: {
         destination: HexCoordinate;
         numberOfActionPointsSpent: number;
-    }): SquaddieMovementActionData => {
+    }): ActionEffectMovement => {
         return {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination,
             numberOfActionPointsSpent,
         }

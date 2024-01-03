@@ -17,7 +17,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
+import {ActionEffectSquaddie} from "../history/actionEffectSquaddie";
 import {
     SquaddieInstructionInProgress,
     SquaddieInstructionInProgressHandler
@@ -30,7 +30,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {BattleEvent} from "../history/battleEvent";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
@@ -309,7 +309,7 @@ describe('BattleSquaddieTarget', () => {
         };
 
         SquaddieActionsForThisRoundHandler.addAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 1,
         });
@@ -422,7 +422,7 @@ describe('BattleSquaddieTarget', () => {
                 actions: [],
             };
             SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-                type: SquaddieActionType.SQUADDIE,
+                type: ActionEffectType.SQUADDIE,
                 targetLocation: {q: 1, r: 2},
                 squaddieAction: longswordAction,
                 numberOfActionPointsSpent: 1,
@@ -477,7 +477,7 @@ describe('BattleSquaddieTarget', () => {
                 actions: [],
             };
             SquaddieActionsForThisRoundHandler.addAction(expectedInstruction, {
-                type: SquaddieActionType.SQUADDIE,
+                type: ActionEffectType.SQUADDIE,
                 targetLocation: {q: 1, r: 2},
                 squaddieAction: longswordAction,
                 numberOfActionPointsSpent: 1,
@@ -499,7 +499,7 @@ describe('BattleSquaddieTarget', () => {
             const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
             expect(mostRecentEvent.instruction.squaddieActionsForThisRound.actions).toHaveLength(1);
             expect((
-                mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0] as SquaddieSquaddieActionData
+                mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0] as ActionEffectSquaddie
             ).squaddieAction.id).toBe(longswordAction.id);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);

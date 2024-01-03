@@ -1,9 +1,9 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
-import {SquaddieMovementActionData} from "./squaddieMovementAction";
+import {ActionEffectMovement} from "./actionEffectMovement";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
-import {SquaddieSquaddieActionData} from "./squaddieSquaddieAction";
-import {SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffectSquaddie} from "./actionEffectSquaddie";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 
 describe('SquaddieInstruction', () => {
@@ -62,15 +62,15 @@ describe('SquaddieInstruction', () => {
                 r: 2,
             },
             numberOfActionPointsSpent: 2,
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
         });
 
 
         const actionsAfterOneMovement = SquaddieActionsForThisRoundHandler.getActionsUsedThisRound(instruction);
         expect(actionsAfterOneMovement).toHaveLength(1);
 
-        expect(actionsAfterOneMovement[0].type).toBe(SquaddieActionType.MOVEMENT);
-        const moveAction: SquaddieMovementActionData = actionsAfterOneMovement[0] as SquaddieMovementActionData;
+        expect(actionsAfterOneMovement[0].type).toBe(ActionEffectType.MOVEMENT);
+        const moveAction: ActionEffectMovement = actionsAfterOneMovement[0] as ActionEffectMovement;
         expect(moveAction.destination).toStrictEqual({q: 1, r: 2});
         expect(moveAction.numberOfActionPointsSpent).toBe(2);
 
@@ -80,7 +80,7 @@ describe('SquaddieInstruction', () => {
                 r: 2,
             },
             numberOfActionPointsSpent: 1,
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
         });
 
         const allActionsUsedThisRound = SquaddieActionsForThisRoundHandler.getActionsUsedThisRound(instruction);
@@ -112,19 +112,19 @@ describe('SquaddieInstruction', () => {
                 r: 0,
             },
             numberOfActionPointsSpent: 1,
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
         });
 
         const actionsUsedAfterUsingOneAction = SquaddieActionsForThisRoundHandler.getActionsUsedThisRound(instruction);
         expect(actionsUsedAfterUsingOneAction).toHaveLength(1);
 
-        expect(actionsUsedAfterUsingOneAction[0].type).toBe(SquaddieActionType.SQUADDIE);
-        const actionUsed: SquaddieSquaddieActionData = actionsUsedAfterUsingOneAction[0] as SquaddieSquaddieActionData;
+        expect(actionsUsedAfterUsingOneAction[0].type).toBe(ActionEffectType.SQUADDIE);
+        const actionUsed: ActionEffectSquaddie = actionsUsedAfterUsingOneAction[0] as ActionEffectSquaddie;
         expect(actionUsed.targetLocation).toStrictEqual({q: 1, r: 0});
         expect(actionUsed.numberOfActionPointsSpent).toBe(longswordAction.actionPointCost);
 
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             squaddieAction: longswordAction,
             numberOfActionPointsSpent: 1,
             targetLocation: {q: 1, r: 0},
@@ -156,7 +156,7 @@ describe('SquaddieInstruction', () => {
         const actionsUsedThisRound = SquaddieActionsForThisRoundHandler.getActionsUsedThisRound(instruction);
         expect(actionsUsedThisRound).toHaveLength(1);
 
-        expect(actionsUsedThisRound[0].type).toBe(SquaddieActionType.END_TURN);
+        expect(actionsUsedThisRound[0].type).toBe(ActionEffectType.END_TURN);
         expect(SquaddieActionsForThisRoundHandler.totalActionPointsSpent(instruction)).toBe(3);
         expect(SquaddieActionsForThisRoundHandler.destinationLocation(instruction)).toStrictEqual({q: 0, r: 0});
     });

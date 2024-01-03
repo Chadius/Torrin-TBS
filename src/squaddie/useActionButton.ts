@@ -3,7 +3,7 @@ import {SquaddieSquaddieAction} from "./action";
 import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {SquaddieEndTurnActionData} from "../battle/history/squaddieEndTurnAction";
+import {ActionEffectEndTurn} from "../battle/history/actionEffectEndTurn";
 import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
@@ -11,13 +11,13 @@ import {ButtonStatus} from "../ui/button";
 export class UseActionButton {
     buttonArea: RectArea;
     action: SquaddieSquaddieAction;
-    endTurnAction: SquaddieEndTurnActionData;
+    endTurnAction: ActionEffectEndTurn;
     hue: number;
 
     constructor(options: {
         buttonArea?: RectArea;
         action?: SquaddieSquaddieAction;
-        endTurnAction?: SquaddieEndTurnActionData;
+        endTurnAction?: ActionEffectEndTurn;
         hue?: number;
     }) {
         this.buttonArea = options.buttonArea;

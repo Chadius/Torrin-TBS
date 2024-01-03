@@ -8,7 +8,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieSquaddieAction} from "../../squaddie/action";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
@@ -171,7 +171,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
     private addActionToInstruction(instruction: SquaddieActionsForThisRound, action: SquaddieSquaddieAction, targetLocation: HexCoordinate) {
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             squaddieAction: action,
             targetLocation: targetLocation,
             numberOfActionPointsSpent: 1,
@@ -210,7 +210,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 }
             } else {
                 SquaddieActionsForThisRoundHandler.addAction(state.instruction, {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     squaddieAction: action,
                     targetLocation: desiredSquaddieMapDatum.mapLocation,
                     numberOfActionPointsSpent: 1,

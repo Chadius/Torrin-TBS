@@ -30,7 +30,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleStateHelper} from "../orchestrator/battleState";
@@ -145,7 +145,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(instruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 0},
             squaddieAction: monkKoanAction,
             numberOfActionPointsSpent: 1,
@@ -207,7 +207,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(wholeTurnInstruction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 0},
             squaddieAction: powerAttackLongswordAction,
             numberOfActionPointsSpent: 1,

@@ -27,7 +27,7 @@ import {
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {SquaddieSquaddieActionData} from "../history/squaddieSquaddieAction";
+import {ActionEffectSquaddie} from "../history/actionEffectSquaddie";
 import {
     BattleComputerSquaddieSelector,
     SHOW_SELECTED_ACTION_TIME,
@@ -36,8 +36,8 @@ import {
 import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {BattlePhaseState} from "./battlePhaseController";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieActionType} from "../history/anySquaddieAction";
-import {SquaddieEndTurnActionDataService} from "../history/squaddieEndTurnAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
+import {ActionEffectEndTurnService} from "../history/actionEffectEndTurn";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {BattleStateHelper} from "../orchestrator/battleState";
@@ -166,7 +166,7 @@ describe('BattleComputerSquaddieSelector', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 1, r: 1},
             numberOfActionPointsSpent: 1,
         });
@@ -275,9 +275,9 @@ describe('BattleComputerSquaddieSelector', () => {
                     },
                     currentlySelectedAction: undefined,
                 };
-            SquaddieInstructionInProgressHandler.addConfirmedAction(endTurnInstruction, SquaddieEndTurnActionDataService.new());
+            SquaddieInstructionInProgressHandler.addConfirmedAction(endTurnInstruction, ActionEffectEndTurnService.new());
 
-            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.END_TURN);
+            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(ActionEffectType.END_TURN);
 
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
@@ -321,7 +321,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
             const endTurnActionInstruction: SquaddieActionsForThisRound = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound;
             const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(endTurnActionInstruction);
-            expect(mostRecentAction.type).toBe(SquaddieActionType.END_TURN);
+            expect(mostRecentAction.type).toBe(ActionEffectType.END_TURN);
 
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
@@ -340,7 +340,7 @@ describe('BattleComputerSquaddieSelector', () => {
             actions: [],
         };
         SquaddieActionsForThisRoundHandler.addAction(squaddieSquaddieAction, {
-            type: SquaddieActionType.SQUADDIE,
+            type: ActionEffectType.SQUADDIE,
             numberOfActionPointsSpent: 1,
             targetLocation: {q: 0, r: 0},
             squaddieAction: entireTurnDemonBiteAction,
@@ -461,7 +461,7 @@ describe('BattleComputerSquaddieSelector', () => {
             expect(state.battleOrchestratorState.battleState.squaddieMovePath.destination).toStrictEqual(SquaddieActionsForThisRoundHandler.destinationLocation(moveAction));
             expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe("enemy_demon_0");
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
-            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.MOVEMENT);
+            expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(ActionEffectType.MOVEMENT);
             expect(hexMapHighlightTilesSpy).toBeCalled();
         });
 
@@ -476,7 +476,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     actions: [],
                 };
                 SquaddieActionsForThisRoundHandler.addAction(squaddieSquaddieAction, {
-                    type: SquaddieActionType.SQUADDIE,
+                    type: ActionEffectType.SQUADDIE,
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 1},
                     squaddieAction: demonBiteAction,
@@ -514,7 +514,7 @@ describe('BattleComputerSquaddieSelector', () => {
             it('will indicate the next action', () => {
                 expect(SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(enemyDemonBattleSquaddie.battleSquaddieId);
                 expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions).toHaveLength(1);
-                expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(SquaddieActionType.SQUADDIE);
+                expect(SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type).toBe(ActionEffectType.SQUADDIE);
             });
 
             it('highlight the map target and its spread', () => {
@@ -569,7 +569,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
                 expect(mostRecentEvent.instruction.squaddieActionsForThisRound.actions).toHaveLength(1);
                 expect((
-                    mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0] as SquaddieSquaddieActionData
+                    mostRecentEvent.instruction.squaddieActionsForThisRound.actions[0] as ActionEffectSquaddie
                 ).squaddieAction.id).toBe(demonBiteAction.id);
                 const results = mostRecentEvent.results;
                 expect(results.actingBattleSquaddieId).toBe(enemyDemonBattleSquaddie.battleSquaddieId);

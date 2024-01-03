@@ -1,4 +1,4 @@
-import {AnySquaddieAction, SquaddieActionType} from "./anySquaddieAction";
+import {ActionEffect, ActionEffectType} from "../../squaddie/actionEffect";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {MULTIPLE_ATTACK_PENALTY, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../modifierConstants";
@@ -8,16 +8,16 @@ export interface SquaddieActionsForThisRound {
     squaddieTemplateId: string;
     battleSquaddieId: string;
     startingLocation: HexCoordinate;
-    actions: AnySquaddieAction[];
+    actions: ActionEffect[];
 }
 
-function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieActionsForThisRound, actionToPreview: AnySquaddieAction) {
-    function doesActionContributesToMAP(action: AnySquaddieAction) {
+function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieActionsForThisRound, actionToPreview: ActionEffect) {
+    function doesActionContributesToMAP(action: ActionEffect) {
         if (penaltyMultiplier >= MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX) {
             return false;
         }
 
-        if (action.type !== SquaddieActionType.SQUADDIE) {
+        if (action.type !== ActionEffectType.SQUADDIE) {
             return false;
         }
 
@@ -33,7 +33,7 @@ function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieActionsForT
     }
 
     const attacksThatCouldIncreaseMAP = actionsForThisRound.actions
-        .filter(action => action.type === SquaddieActionType.SQUADDIE)
+        .filter(action => action.type === ActionEffectType.SQUADDIE)
         .filter(action => {
             return doesActionContributesToMAP(action);
         });
@@ -72,19 +72,19 @@ export const SquaddieActionsForThisRoundHandler = {
         }
         return data;
     },
-    addAction: (data: SquaddieActionsForThisRound, action: AnySquaddieAction) => {
+    addAction: (data: SquaddieActionsForThisRound, action: ActionEffect) => {
         data.actions.push(action);
     },
     totalActionPointsSpent: (data: SquaddieActionsForThisRound): number => {
-        if (data.actions.some(action => action.type === SquaddieActionType.END_TURN)) {
+        if (data.actions.some(action => action.type === ActionEffectType.END_TURN)) {
             return 3;
         }
 
-        const addActionPointsSpent: (accumulator: number, currentValue: AnySquaddieAction) => number = (accumulator, currentValue) => {
+        const addActionPointsSpent: (accumulator: number, currentValue: ActionEffect) => number = (accumulator, currentValue) => {
             switch (currentValue.type) {
-                case SquaddieActionType.SQUADDIE:
+                case ActionEffectType.SQUADDIE:
                     return accumulator + currentValue.numberOfActionPointsSpent;
-                case SquaddieActionType.MOVEMENT:
+                case ActionEffectType.MOVEMENT:
                     return accumulator + currentValue.numberOfActionPointsSpent;
                 default:
                     return accumulator;
@@ -97,13 +97,13 @@ export const SquaddieActionsForThisRoundHandler = {
         );
     },
     destinationLocation: (data: SquaddieActionsForThisRound): HexCoordinate => {
-        const lastMovementAction = data.actions.reverse().find(action => action.type === SquaddieActionType.MOVEMENT)
-        if (lastMovementAction && lastMovementAction.type === SquaddieActionType.MOVEMENT) {
+        const lastMovementAction = data.actions.reverse().find(action => action.type === ActionEffectType.MOVEMENT)
+        if (lastMovementAction && lastMovementAction.type === ActionEffectType.MOVEMENT) {
             return lastMovementAction.destination;
         }
         return data.startingLocation;
     },
-    getMostRecentAction: (data: SquaddieActionsForThisRound): AnySquaddieAction => {
+    getMostRecentAction: (data: SquaddieActionsForThisRound): ActionEffect => {
         if (data.actions.length === 0) {
             return undefined;
         }
@@ -111,12 +111,12 @@ export const SquaddieActionsForThisRoundHandler = {
         data.actions.length - 1
             ];
     },
-    getActionsUsedThisRound: (data: SquaddieActionsForThisRound): AnySquaddieAction[] => {
+    getActionsUsedThisRound: (data: SquaddieActionsForThisRound): ActionEffect[] => {
         return [...data.actions];
     },
     endTurn: (data: SquaddieActionsForThisRound) => {
         data.actions.push({
-            type: SquaddieActionType.END_TURN,
+            type: ActionEffectType.END_TURN,
         });
     },
     addStartingLocation: (data: SquaddieActionsForThisRound, startingLocation: HexCoordinate) => {
@@ -131,7 +131,7 @@ export const SquaddieActionsForThisRoundHandler = {
     } => {
         return calculateMultipleAttackPenalty(actionsForThisRound, undefined);
     },
-    previewMultipleAttackPenalty: (actionsForThisRound: SquaddieActionsForThisRound, actionToPreview: AnySquaddieAction): {
+    previewMultipleAttackPenalty: (actionsForThisRound: SquaddieActionsForThisRound, actionToPreview: ActionEffect): {
         penaltyMultiplier: number,
         multipleAttackPenalty: number,
     } => {

@@ -1,6 +1,6 @@
 import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
 import {SquaddieSquaddieResults} from "./squaddieSquaddieResults";
-import {AnySquaddieAction} from "./anySquaddieAction";
+import {ActionEffect} from "../../squaddie/actionEffect";
 
 export interface BattleEvent {
     instruction: SquaddieInstructionInProgress;
@@ -8,7 +8,7 @@ export interface BattleEvent {
 }
 
 export const BattleEventHandler = {
-    actions: (data: BattleEvent): AnySquaddieAction[] => {
+    actions: (data: BattleEvent): ActionEffect[] => {
         return [...data.instruction.squaddieActionsForThisRound.actions];
     },
     clone: (original: BattleEvent): BattleEvent => {

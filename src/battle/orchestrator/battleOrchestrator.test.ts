@@ -32,7 +32,7 @@ import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
-import {SquaddieActionType} from "../history/anySquaddieAction";
+import {ActionEffectType} from "../../squaddie/actionEffect";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -401,7 +401,7 @@ describe('Battle Orchestrator', () => {
                 currentlySelectedAction: undefined,
             };
         SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
-            type: SquaddieActionType.MOVEMENT,
+            type: ActionEffectType.MOVEMENT,
             destination: {q: 1, r: 2},
             numberOfActionPointsSpent: 2,
         });
@@ -441,7 +441,7 @@ describe('Battle Orchestrator', () => {
 
         SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
             {
-                type: SquaddieActionType.MOVEMENT,
+                type: ActionEffectType.MOVEMENT,
                 destination: {q: 1, r: 2},
                 numberOfActionPointsSpent: 2,
             });

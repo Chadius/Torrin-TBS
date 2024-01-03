@@ -6,7 +6,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
-import {SquaddieMovementActionDataService} from "../history/squaddieMovementAction";
+import {ActionEffectMovementService} from "../history/actionEffectMovement";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -74,7 +74,7 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
     });
     const numberOfActionPointsSpentMoving: number = Math.max(...Object.keys(locationsByMoveActions).map(str => Number(str))) || 1;
 
-    const moveAction = SquaddieMovementActionDataService.new({
+    const moveAction = ActionEffectMovementService.new({
         destination: destinationHexCoordinate,
         numberOfActionPointsSpent: numberOfActionPointsSpentMoving,
     });
