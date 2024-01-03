@@ -19,13 +19,13 @@ import {BattleStateHelper} from "../orchestrator/battleState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {StreamNumberGenerator} from "../numberGenerator/stream";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
-import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ActionCalculator} from "./calculator";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 
 import {ATTACK_MODIFIER} from "../modifierConstants";
+import {DegreeOfSuccess} from "./degreeOfSuccess";
 
 describe('calculator', () => {
     let squaddieRepository: ObjectRepository;
@@ -443,7 +443,6 @@ describe('calculator', () => {
             expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY * 2);
         });
 
-
         it('cannot critically hit if the action is forbidden from critically succeeding', () => {
             const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2;
@@ -459,6 +458,52 @@ describe('calculator', () => {
 
             expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.SUCCESS);
             expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(actionAlwaysHitsAndDealsBodyDamage.damageDescriptions.BODY);
+        });
+
+        it('will critically miss if the roll is 6 points or more under the defender armor', () => {
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10;
+
+            const expectedRolls: number[] = [2, 2];
+            const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
+
+            const results = dealBodyDamage({
+                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
+            });
+            expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL_FAILURE);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(0);
+        });
+
+        it('will critically miss if the roll is 1 and 1', () => {
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001;
+
+            const expectedRolls: number[] = [1, 1];
+            const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
+
+            const results = dealBodyDamage({
+                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
+            });
+            expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL_FAILURE);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(0);
+        });
+
+        it('cannot critically fail if the action is forbidden from critically failing', () => {
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10;
+
+            const expectedRolls: number[] = [2, 2];
+            const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
+
+            TraitStatusStorageHelper.setStatus(actionNeedsAnAttackRollToDealBodyDamage.traits, Trait.CANNOT_CRITICALLY_FAIL, true);
+            const results = dealBodyDamage({
+                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
+                numberGenerator,
+            });
+            expect(results.resultPerTarget[enemy1DynamicId].actorDegreeOfSuccess).toBe(DegreeOfSuccess.CRITICAL_FAILURE);
+            expect(results.resultPerTarget[enemy1DynamicId].damageTaken).toBe(0);
         });
     });
 });

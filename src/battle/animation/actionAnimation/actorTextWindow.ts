@@ -11,7 +11,7 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextWriter} from "../actionResultTextWriter";
-import {RollResultHelper} from "../../actionCalculator/rollResult";
+import {RollResultService} from "../../actionCalculator/rollResult";
 import {ActionResultText} from "./actionResultText";
 
 export class ActorTextWindow {
@@ -141,8 +141,11 @@ export class ActorTextWindow {
 
             actorUsesActionDescriptionText += `\n${ActionResultText.getActingSquaddieRollTotalIfNeeded(this.results)}`;
 
-            if (RollResultHelper.isACriticalSuccess(this.results.actingSquaddieRoll)) {
+            if (RollResultService.isACriticalSuccess(this.results.actingSquaddieRoll)) {
                 actorUsesActionDescriptionText += `\n\nCRITICAL HIT!`;
+            }
+            if (RollResultService.isACriticalFailure(this.results.actingSquaddieRoll)) {
+                actorUsesActionDescriptionText += `\n\nCRITICAL MISS!!`;
             }
         }
         return actorUsesActionDescriptionText;

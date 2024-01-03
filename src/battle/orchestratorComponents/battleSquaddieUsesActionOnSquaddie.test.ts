@@ -35,8 +35,8 @@ import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
-import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;

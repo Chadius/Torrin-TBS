@@ -10,18 +10,14 @@ import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../sq
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
-import {
-    ActionResultPerSquaddie,
-    ActionResultPerSquaddieService,
-    DegreeOfSuccess,
-    DegreeOfSuccessHelper
-} from "../../history/actionResultPerSquaddie";
+import {ActionResultPerSquaddie, ActionResultPerSquaddieService} from "../../history/actionResultPerSquaddie";
 import {SquaddieSprite} from "./squaddieSprite";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
+import {DegreeOfSuccess, DegreeOfSuccessService} from "../../actionCalculator/degreeOfSuccess";
 
 export class TargetSprite {
     constructor() {
@@ -133,7 +129,7 @@ export class TargetSprite {
                     return SquaddieEmotion.DEAD;
                 }
 
-                if (!DegreeOfSuccessHelper.atLeastSuccessful(result.actorDegreeOfSuccess)) {
+                if (!DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess)) {
                     return SquaddieEmotion.NEUTRAL;
                 }
 
@@ -184,12 +180,12 @@ export class TargetSprite {
                 verticalDistance
             } = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
         } else if (SquaddieSquaddieActionService.isHindering(action)) {
-            if (DegreeOfSuccessHelper.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken > 0) {
+            if (DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken > 0) {
                 ({
                     horizontalDistance,
                     verticalDistance
                 } = this.getSpritePositionTargetReactsAndTakesDamage(timer, emotion));
-            } else if (DegreeOfSuccessHelper.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken === 0) {
+            } else if (DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken === 0) {
                 ({
                     horizontalDistance,
                     verticalDistance

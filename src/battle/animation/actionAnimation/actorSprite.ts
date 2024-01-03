@@ -14,7 +14,7 @@ import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
-import {RollResultHelper} from "../../actionCalculator/rollResult";
+import {RollResultService} from "../../actionCalculator/rollResult";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 
 export class ActorSprite {
@@ -167,7 +167,7 @@ export class ActorSprite {
                 break;
             case ActionAnimationPhase.DURING_ACTION:
                 const attackTime = timeElapsed - ACTION_ANIMATION_BEFORE_ACTION_TIME;
-                if (RollResultHelper.isACriticalSuccess(this.squaddieResult.actingSquaddieRoll)) {
+                if (RollResultService.isACriticalSuccess(this.squaddieResult.actingSquaddieRoll)) {
                     const revUpTime = ACTION_ANIMATION_ACTION_TIME / 2;
                     if (attackTime < revUpTime) {
                         horizontalDistance = 0;

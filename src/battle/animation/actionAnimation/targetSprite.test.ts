@@ -1,8 +1,4 @@
-import {
-    ActionResultPerSquaddie,
-    ActionResultPerSquaddieService,
-    DegreeOfSuccess
-} from "../../history/actionResultPerSquaddie";
+import {ActionResultPerSquaddie, ActionResultPerSquaddieService} from "../../history/actionResultPerSquaddie";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -16,6 +12,7 @@ import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
 
 describe('Target Sprite', () => {
     let resultTookDamage: ActionResultPerSquaddie;

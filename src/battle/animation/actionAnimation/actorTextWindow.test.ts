@@ -121,7 +121,7 @@ describe('ActorTextWindow', () => {
         );
     });
 
-    it('will indicate a critical hit if the actor rolled critical', () => {
+    it('will indicate a critical hit if the actor rolled critically high', () => {
         const window = new ActorTextWindow();
 
         window.start({
@@ -147,6 +147,35 @@ describe('ActorTextWindow', () => {
 
         expect(window.actorUsesActionDescriptionText).toBe(
             "Actor uses\nAction\n\n   rolls(6, 6)\n Total 12\n\nCRITICAL HIT!"
+        );
+    });
+
+    it('will indicate a critical miss if the actor rolled critically low', () => {
+        const window = new ActorTextWindow();
+
+        window.start({
+            actorTemplate: actorTemplate,
+            actorBattle: undefined,
+            action: attackThatUsesAttackRoll,
+            results: {
+                resultPerTarget: {},
+                actingBattleSquaddieId: "",
+                targetedBattleSquaddieIds: [],
+                actingSquaddieRoll: {
+                    occurred: true,
+                    rolls: [1, 1],
+                },
+                actingSquaddieModifiers: {},
+            }
+        });
+
+        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.DURING_ACTION);
+
+        window.draw(mockedP5GraphicsContext, mockedActionTimer);
+        expect(timerSpy).toBeCalled();
+
+        expect(window.actorUsesActionDescriptionText).toBe(
+            "Actor uses\nAction\n\n   rolls(1, 1)\n Total 2\n\nCRITICAL MISS!!"
         );
     });
 

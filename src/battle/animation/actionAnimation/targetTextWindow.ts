@@ -5,11 +5,12 @@ import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelHelper} from "../../../ui/label";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../../graphicsConstants";
-import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResultPerSquaddie";
+import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
 
 export class TargetTextWindow {
     constructor() {
@@ -131,6 +132,9 @@ export class TargetTextWindow {
                     damageText += `${this.result.damageTaken} damage`;
                 }
                 this._targetAfterActionText = damageText;
+                break;
+            case DegreeOfSuccess.CRITICAL_FAILURE:
+                this._targetAfterActionText = `CRITICAL MISS!!`;
                 break;
             case DegreeOfSuccess.SUCCESS:
                 if (this.result.damageTaken === 0 && this.result.healingReceived === 0) {

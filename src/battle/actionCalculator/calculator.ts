@@ -14,11 +14,12 @@ import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {SquaddieSquaddieAction} from "../../squaddie/action";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {ActionResultPerSquaddie, DegreeOfSuccess} from "../history/actionResultPerSquaddie";
-import {DIE_SIZE, RollResult, RollResultHelper} from "./rollResult";
+import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
+import {DIE_SIZE, RollResult, RollResultService} from "./rollResult";
 import {ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
 import {ATTACK_MODIFIER} from "../modifierConstants";
+import {DegreeOfSuccess, DegreeOfSuccessService} from "./degreeOfSuccess";
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -106,20 +107,26 @@ const compareAttackRollToGetDegreeOfSuccess = ({
     target: BattleSquaddie;
     actingSquaddieModifierTotal: number,
 }): DegreeOfSuccess => {
-    let totalAttackRoll = RollResultHelper.totalAttackRoll(actingSquaddieRoll) + actingSquaddieModifierTotal;
-    const canCriticallySucceed: boolean = !TraitStatusStorageHelper.getStatus(action.traits, Trait.CANNOT_CRITICALLY_SUCCEED);
-    if (RollResultHelper.isACriticalSuccess(actingSquaddieRoll) && canCriticallySucceed) {
-        return DegreeOfSuccess.CRITICAL_SUCCESS;
-    }
-
     if (TraitStatusStorageHelper.getStatus(action.traits, Trait.ALWAYS_SUCCEEDS)) {
         return DegreeOfSuccess.SUCCESS;
     }
 
+    const canCriticallySucceed: boolean = !TraitStatusStorageHelper.getStatus(action.traits, Trait.CANNOT_CRITICALLY_SUCCEED);
+    if (RollResultService.isACriticalSuccess(actingSquaddieRoll) && canCriticallySucceed) {
+        return DegreeOfSuccess.CRITICAL_SUCCESS;
+    }
+    const canCriticallyFail: boolean = !TraitStatusStorageHelper.getStatus(action.traits, Trait.CANNOT_CRITICALLY_FAIL);
+    if (RollResultService.isACriticalFailure(actingSquaddieRoll) && canCriticallyFail) {
+        return DegreeOfSuccess.CRITICAL_FAILURE;
+    }
+
+    let totalAttackRoll = RollResultService.totalAttackRoll(actingSquaddieRoll) + actingSquaddieModifierTotal;
     if (canCriticallySucceed && totalAttackRoll >= target.inBattleAttributes.armyAttributes.armorClass + DIE_SIZE) {
         return DegreeOfSuccess.CRITICAL_SUCCESS;
     } else if (totalAttackRoll >= target.inBattleAttributes.armyAttributes.armorClass) {
         return DegreeOfSuccess.SUCCESS;
+    } else if (totalAttackRoll <= target.inBattleAttributes.armyAttributes.armorClass - DIE_SIZE) {
+        return DegreeOfSuccess.CRITICAL_FAILURE;
     } else {
         return DegreeOfSuccess.FAILURE;
     }
@@ -160,7 +167,7 @@ const calculateTotalDamageDealt = (
         if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
             rawDamageFromAction *= 2;
         }
-        if (degreeOfSuccess === DegreeOfSuccess.FAILURE) {
+        if (DegreeOfSuccessService.atBestFailure(degreeOfSuccess)) {
             rawDamageFromAction = 0;
         }
 
@@ -218,15 +225,15 @@ const maybeMakeAttackRoll = (squaddieAction: SquaddieSquaddieAction, state: Batt
             conformToSixSidedDieRoll(state.numberGenerator.next()),
             conformToSixSidedDieRoll(state.numberGenerator.next()),
         ];
-        return {
+        return RollResultService.new({
             occurred: true,
             rolls: [...attackRoll],
-        };
+        });
     }
-    return {
+    return RollResultService.new({
         occurred: false,
         rolls: [],
-    };
+    });
 }
 
 function getTargetedBattleSquaddieIds(state: BattleOrchestratorState, validTargetLocation: HexCoordinate) {

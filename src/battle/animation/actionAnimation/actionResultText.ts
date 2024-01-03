@@ -1,6 +1,6 @@
 import {ATTACK_MODIFIER, AttackModifierStrings} from "../../modifierConstants";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
-import {RollResultHelper} from "../../actionCalculator/rollResult";
+import {RollResultService} from "../../actionCalculator/rollResult";
 
 export const ActionResultText = {
     getAttackPenaltyDescriptions: (actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number }): string[] => {
@@ -21,7 +21,7 @@ const getAttackPenaltyDescriptions = (actingSquaddieModifiers: { [modifier in AT
     });
 };
 const getActingSquaddieRollTotalIfNeeded = (result: SquaddieSquaddieResults): string[] => {
-    let totalAttackRoll = RollResultHelper.totalAttackRoll(result.actingSquaddieRoll);
+    let totalAttackRoll = RollResultService.totalAttackRoll(result.actingSquaddieRoll);
     let totalModifier = Object.values(result.actingSquaddieModifiers).reduce((currentSum, currentValue) => currentSum + currentValue, 0);
 
     return [

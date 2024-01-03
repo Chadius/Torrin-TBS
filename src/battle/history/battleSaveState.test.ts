@@ -32,7 +32,8 @@ import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus"
 import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {BattleStateHelper} from "../orchestrator/battleState";
-import {DegreeOfSuccess} from "./actionResultPerSquaddie";
+
+import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;

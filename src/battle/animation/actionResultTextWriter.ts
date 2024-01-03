@@ -3,10 +3,10 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {DegreeOfSuccess, DegreeOfSuccessHelper} from "../history/actionResultPerSquaddie";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {ActionResultText} from "./actionAnimation/actionResultText";
+import {DegreeOfSuccess, DegreeOfSuccessService} from "../actionCalculator/degreeOfSuccess";
 
 export const FormatResult = ({currentAction, result, squaddieRepository}: {
     currentAction: SquaddieSquaddieAction,
@@ -43,8 +43,12 @@ export const FormatResult = ({currentAction, result, squaddieRepository}: {
         const resultPerTarget = result.resultPerTarget[targetSquaddieId];
 
         if (SquaddieSquaddieActionService.isHindering(currentAction)) {
-            if (DegreeOfSuccessHelper.atLeastSuccessful(resultPerTarget.actorDegreeOfSuccess) !== true) {
-                output.push(ActionResultTextWriter.getHinderingActionMissedString({squaddieTemplate: targetSquaddieTemplate}));
+            if (DegreeOfSuccessService.atBestFailure(resultPerTarget.actorDegreeOfSuccess)) {
+                if (resultPerTarget.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE) {
+                    output.push(ActionResultTextWriter.getHinderingActionMissedString({squaddieTemplate: targetSquaddieTemplate}));
+                } else {
+                    output.push(ActionResultTextWriter.getHinderingActionCriticallyMissedString({squaddieTemplate: targetSquaddieTemplate}));
+                }
             } else if (resultPerTarget.damageTaken === 0) {
                 output.push(ActionResultTextWriter.getHinderingActionDealtNoDamageString({squaddieTemplate: targetSquaddieTemplate}));
             } else {
@@ -105,6 +109,9 @@ export const ActionResultTextWriter = {
     },
     getHinderingActionMissedString: ({squaddieTemplate}: { squaddieTemplate: SquaddieTemplate }): string => {
         return `${squaddieTemplate.squaddieId.name}: MISS!`;
+    },
+    getHinderingActionCriticallyMissedString: ({squaddieTemplate}: { squaddieTemplate: SquaddieTemplate }): string => {
+        return `${squaddieTemplate.squaddieId.name}: CRITICAL MISS!!`;
     },
     getHinderingActionDealtNoDamageString: ({squaddieTemplate}: { squaddieTemplate: SquaddieTemplate }): string => {
         return `${squaddieTemplate.squaddieId.name}: NO DAMAGE`;

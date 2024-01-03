@@ -9,8 +9,8 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {FormatIntent, FormatResult} from "./actionResultTextWriter";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults, SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
-import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
 import {ATTACK_MODIFIER} from "../modifierConstants";
+import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 
 describe('Action Result Text Writer', () => {
     let squaddieRepository: ObjectRepository = ObjectRepositoryHelper.new();
@@ -333,6 +333,37 @@ describe('Action Result Text Writer', () => {
         expect(outputStrings[1]).toBe("   rolls (6, 6)");
         expect(outputStrings[2]).toBe(" Total 12");
         expect(outputStrings[3]).toBe("Thief: CRITICAL HIT! 4 damage");
+    });
+
+    it('will mention if the attack was a critical miss', () => {
+        const damagingResult: SquaddieSquaddieResults = SquaddieSquaddieResultsService.sanitize({
+            actingBattleSquaddieId: knightDynamic.battleSquaddieId,
+            targetedBattleSquaddieIds: [thiefDynamic.battleSquaddieId],
+            resultPerTarget: {
+                [thiefDynamic.battleSquaddieId]: {
+                    healingReceived: 0,
+                    damageTaken: 0,
+                    actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
+                }
+            },
+            actingSquaddieRoll: {
+                occurred: true,
+                rolls: [1, 1],
+            },
+            actingSquaddieModifiers: {},
+        });
+
+        const outputStrings: string[] = FormatResult({
+            currentAction: longswordSweepAction,
+            result: damagingResult,
+            squaddieRepository,
+        });
+
+        expect(outputStrings).toHaveLength(4);
+        expect(outputStrings[0]).toBe("Knight uses Longsword Sweep");
+        expect(outputStrings[1]).toBe("   rolls (1, 1)");
+        expect(outputStrings[2]).toBe(" Total 2");
+        expect(outputStrings[3]).toBe("Thief: CRITICAL MISS!!");
     });
 
     it('will show the total attack roll and multiple attack penalty', () => {

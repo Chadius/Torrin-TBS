@@ -15,6 +15,7 @@ export enum Trait {
     TARGETS_ALLIES = "TARGETS_ALLIES",
     ALWAYS_SUCCEEDS = "ALWAYS_SUCCEEDS",
     CANNOT_CRITICALLY_SUCCEED = "CANNOT_CRITICALLY_SUCCEED",
+    CANNOT_CRITICALLY_FAIL = "CANNOT_CRITICALLY_FAIL",
     NO_MULTIPLE_ATTACK_PENALTY = "NO_MULTIPLE_ATTACK_PENALTY",
 }
 
@@ -99,7 +100,11 @@ const traitInformation: {
     [Trait.CANNOT_CRITICALLY_SUCCEED]: {
         description: "This ability cannot critically succeed.",
         categories: [TraitCategory.ACTION],
-    }
+    },
+    [Trait.CANNOT_CRITICALLY_FAIL]: {
+        description: "This ability cannot critically fail.",
+        categories: [TraitCategory.ACTION],
+    },
 }
 
 export interface TraitStatusStorage {

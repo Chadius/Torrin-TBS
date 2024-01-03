@@ -25,7 +25,8 @@ import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
 import {SquaddieActionType} from "../history/anySquaddieAction";
 import {BattleStateHelper} from "../orchestrator/battleState";
-import {DegreeOfSuccess} from "../history/actionResultPerSquaddie";
+
+import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;

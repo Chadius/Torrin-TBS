@@ -6,12 +6,13 @@ import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {BattleSquaddie} from "../../battleSquaddie";
 import {SquaddieTurnHandler} from "../../../squaddie/turn";
 import {InBattleAttributesHandler} from "../../stats/inBattleAttributes";
-import {ActionResultPerSquaddie, DegreeOfSuccess} from "../../history/actionResultPerSquaddie";
+import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
+import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
 
 describe('TargetTextWindow', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -151,6 +152,25 @@ describe('TargetTextWindow', () => {
 
         expect(targetWindow.targetLabel.textBox.text).toContain(`CRITICAL HIT!`);
         expect(targetWindow.targetLabel.textBox.text).toContain(`${targetResultTakenDamage.damageTaken} damage`);
+    });
+
+    it('shows a critical miss', () => {
+        targetWindow.start({
+            targetTemplate: targetSquaddie,
+            targetBattle: targetBattle,
+            result: {
+                ...targetResultTakenDamage,
+                damageTaken: 0,
+                actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
+            },
+            action: attackAction,
+        });
+
+        const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
+        targetWindow.draw(mockedP5GraphicsContext, mockedActionTimer);
+        expect(timerSpy).toBeCalled();
+
+        expect(targetWindow.targetLabel.textBox.text).toContain(`CRITICAL MISS!!`);
     });
 
     it('shows if the actor missed', () => {

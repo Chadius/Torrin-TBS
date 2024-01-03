@@ -1,4 +1,5 @@
-import {ActionResultPerSquaddie, ActionResultPerSquaddieService, DegreeOfSuccess} from "./actionResultPerSquaddie";
+import {ActionResultPerSquaddie, ActionResultPerSquaddieService} from "./actionResultPerSquaddie";
+import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 
 describe('ActionResultPerSquaddie', () => {
     describe('knows when the result hinders the squaddie', () => {
