@@ -7,11 +7,11 @@ import {ImageUI} from "../../ui/imageUI";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {UseActionButton} from "../../squaddie/useActionButton";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieSquaddieAction} from "../../squaddie/action";
-import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../history/actionEffectEndTurn";
+import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
+import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {
     SquaddieInstructionInProgress,
-    SquaddieInstructionInProgressHandler
+    SquaddieInstructionInProgressService
 } from "../history/squaddieInstructionInProgress";
 import {TextBoxHelper} from "../../ui/textBox";
 import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
@@ -81,7 +81,7 @@ export class BattleSquaddieSelectedHUD {
     selectedBattleSquaddieId: string;
     affiliateIcon?: ImageUI;
     selectedAction: {
-        squaddieAction?: SquaddieSquaddieAction,
+        squaddieAction?: ActionEffectSquaddieTemplate,
         endTurnAction?: ActionEffectEndTurn,
     };
     useActionButtons: UseActionButton[];
@@ -212,11 +212,11 @@ export class BattleSquaddieSelectedHUD {
         return !!this.selectedAction.squaddieAction;
     }
 
-    getSquaddieSquaddieAction(): SquaddieSquaddieAction {
+    getSquaddieSquaddieAction(): ActionEffectSquaddieTemplate {
         return this.selectedAction.squaddieAction;
     }
 
-    getSelectedAction(): SquaddieSquaddieAction | ActionEffectEndTurn {
+    getSelectedAction(): ActionEffectSquaddieTemplate | ActionEffectEndTurn {
         return this.selectedAction.squaddieAction ? this.selectedAction.squaddieAction : this.selectedAction.endTurnAction;
     }
 
@@ -325,7 +325,7 @@ export class BattleSquaddieSelectedHUD {
         if (
             state.battleState.squaddieCurrentlyActing
             && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
-            && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions.length > 0
+            && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.decisions.length > 0
         ) {
             return false;
         }
@@ -348,7 +348,7 @@ export class BattleSquaddieSelectedHUD {
         windowDimensions: RectArea
     ) {
         this.useActionButtons = [];
-        squaddieTemplate.actions.forEach((action: SquaddieSquaddieAction, index: number) => {
+        squaddieTemplate.actions.forEach((action: ActionEffectSquaddieTemplate, index: number) => {
             this.useActionButtons.push(
                 new UseActionButton({
                     buttonArea: RectAreaHelper.new({
@@ -598,7 +598,7 @@ export class BattleSquaddieSelectedHUD {
 
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState) {
         if (
-            SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(squaddieCurrentlyActing)
+            SquaddieInstructionInProgressService.isReadyForNewSquaddie(squaddieCurrentlyActing)
         ) {
             return;
         }
@@ -658,7 +658,7 @@ export class BattleSquaddieSelectedHUD {
             });
     }
 
-    private warnUserNotEnoughActionPointsToPerformAction(action: SquaddieSquaddieAction): void {
+    private warnUserNotEnoughActionPointsToPerformAction(action: ActionEffectSquaddieTemplate): void {
         let warningText: string = '';
         warningText = `Need ${action.actionPointCost} action points`
 
@@ -678,7 +678,7 @@ export class BattleSquaddieSelectedHUD {
         return canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow;
     }
 
-    private checkIfActionIsValid(action: SquaddieSquaddieAction, state: BattleOrchestratorState): ActionValidityCheck {
+    private checkIfActionIsValid(action: ActionEffectSquaddieTemplate, state: BattleOrchestratorState): ActionValidityCheck {
         if (!this.canPlayerControlThisSquaddie(state)) {
             return ActionValidityCheck.PLAYER_CANNOT_CONTROL_SQUADDIE;
         }

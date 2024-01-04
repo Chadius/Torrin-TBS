@@ -15,7 +15,10 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {RollResultService} from "../../actionCalculator/rollResult";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults;
@@ -82,7 +85,7 @@ export class ActorSprite {
     draw({timer, graphicsContext, action,}: {
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
@@ -96,7 +99,7 @@ export class ActorSprite {
     getSquaddieImageBasedOnTimer(
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     ) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
@@ -117,16 +120,16 @@ export class ActorSprite {
         timer: ActionTimer,
         battleSquaddieId: string,
         squaddieRepository: ObjectRepository,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                if (SquaddieSquaddieActionService.isHindering(action)) {
+                if (ActionEffectSquaddieTemplateService.isHindering(action)) {
                     return SquaddieEmotion.ATTACK;
-                } else if (SquaddieSquaddieActionService.isHelpful(action)) {
+                } else if (ActionEffectSquaddieTemplateService.isHelpful(action)) {
                     return SquaddieEmotion.ASSISTING;
                 } else {
                     return SquaddieEmotion.NEUTRAL;
@@ -139,7 +142,7 @@ export class ActorSprite {
     private drawActorSprite(
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(
             timer,

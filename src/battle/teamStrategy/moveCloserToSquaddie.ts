@@ -1,12 +1,11 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {ActionEffectType} from "../../squaddie/actionEffect";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
@@ -17,6 +16,8 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattleSquaddie} from "../battleSquaddie";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -83,16 +84,20 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined;
         }
 
-        const moveTowardsLocation: SquaddieActionsForThisRound = {
+        const moveTowardsLocation: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: mapLocation,
-            actions: [],
-        };
-        SquaddieActionsForThisRoundHandler.addAction(moveTowardsLocation, {
-            type: ActionEffectType.MOVEMENT,
-            destination: shortestRoute.destination,
-            numberOfActionPointsSpent: shortestRoute.currentNumberOfMoveActions,
+            decisions: [
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectMovementService.new({
+                            destination: shortestRoute.destination,
+                            numberOfActionPointsSpent: shortestRoute.currentNumberOfMoveActions,
+                        })
+                    ]
+                })
+            ]
         });
         state.setInstruction(moveTowardsLocation);
         return moveTowardsLocation;

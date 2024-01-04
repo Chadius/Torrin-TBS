@@ -9,9 +9,12 @@ import {Recording, RecordingHandler} from "./recording";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent} from "./battleEvent";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {Trait} from "../../trait/traitStatusStorage";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
@@ -25,7 +28,6 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
-import {ActionEffectType} from "../../squaddie/actionEffect";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy, TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
@@ -34,6 +36,8 @@ import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {BattleStateHelper} from "../orchestrator/battleState";
 
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -47,7 +51,7 @@ describe("BattleSaveState", () => {
     let enemyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
-        const action: SquaddieSquaddieAction = SquaddieSquaddieActionService.new({
+        const action: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
                 id: "att",
                 name: "attack",
                 traits: {
@@ -61,30 +65,36 @@ describe("BattleSaveState", () => {
             })
         ;
 
-        const firstSquaddieActions: SquaddieActionsForThisRound = {
-            squaddieTemplateId: "actor 1 template",
-            battleSquaddieId: "actor 1",
-            startingLocation: {q: 1, r: -2},
-            actions: [],
-        };
-
-        SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
-            type: ActionEffectType.MOVEMENT,
-            destination: {q: 2, r: -5},
-            numberOfActionPointsSpent: 1,
-        });
-
-        SquaddieActionsForThisRoundHandler.addAction(firstSquaddieActions, {
-            type: ActionEffectType.SQUADDIE,
-            numberOfActionPointsSpent: 1,
-            squaddieAction: action,
-            targetLocation: {q: 3, r: 4},
-        });
+        const firstSquaddieDecisions: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new(
+            {
+                squaddieTemplateId: "actor 1 template",
+                battleSquaddieId: "actor 1",
+                startingLocation: {q: 1, r: -2},
+                decisions: [
+                    {
+                        actionEffects: [
+                            ActionEffectMovementService.new({
+                                destination: {q: 2, r: -5},
+                                numberOfActionPointsSpent: 1,
+                            })
+                        ]
+                    },
+                    {
+                        actionEffects: [
+                            ActionEffectSquaddieService.new({
+                                numberOfActionPointsSpent: 1,
+                                effect: action,
+                                targetLocation: {q: 3, r: 4},
+                            })
+                        ]
+                    }
+                ],
+            });
 
         eventRecording0 = {history: []};
         firstBattleEvent = {
             instruction: {
-                squaddieActionsForThisRound: firstSquaddieActions,
+                squaddieActionsForThisRound: firstSquaddieDecisions,
                 currentlySelectedAction: undefined,
                 movingBattleSquaddieIds: [],
             },
@@ -304,22 +314,26 @@ describe("BattleSaveState", () => {
     });
 
     it("Can read the event recording and create a similar one", () => {
-        const secondSquaddieActions: SquaddieActionsForThisRound = {
-            squaddieTemplateId: "actor 2 template",
-            battleSquaddieId: "actor 2",
-            startingLocation: {q: 0, r: 4},
-            actions: [],
-        };
-
-        SquaddieActionsForThisRoundHandler.addAction(secondSquaddieActions, {
-            type: ActionEffectType.MOVEMENT,
-            destination: {q: 1, r: 6},
-            numberOfActionPointsSpent: 3,
-        });
+        const secondSquaddieDecisions: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new(
+            {
+                squaddieTemplateId: "actor 2 template",
+                battleSquaddieId: "actor 2",
+                startingLocation: {q: 0, r: 4},
+                decisions: [
+                    {
+                        actionEffects: [
+                            ActionEffectMovementService.new({
+                                destination: {q: 1, r: 6},
+                                numberOfActionPointsSpent: 3,
+                            })
+                        ]
+                    },
+                ],
+            });
 
         const secondBattleEvent: BattleEvent = {
             instruction: {
-                squaddieActionsForThisRound: secondSquaddieActions,
+                squaddieActionsForThisRound: secondSquaddieDecisions,
                 currentlySelectedAction: undefined,
                 movingBattleSquaddieIds: [],
             },

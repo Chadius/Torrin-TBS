@@ -14,7 +14,7 @@ import {
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {ActionEffectEndTurnService} from "../history/actionEffectEndTurn";
+import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetSquaddieAtMapLocation} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -24,9 +24,9 @@ import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../s
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {ActionEffectType} from "../../squaddie/actionEffect";
-import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
-import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
+import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {RecordingHandler} from "../history/recording";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattleStateHelper} from "../orchestrator/battleState";
@@ -36,6 +36,7 @@ import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchR
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {MapHighlightHelper} from "../animation/mapHighlight";
+import {DecisionService} from "../../decision/decision";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -124,8 +125,8 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         ) {
             return;
         }
-        if (this.selectedBattleSquaddieId === "" && SquaddieInstructionInProgressHandler.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
-            this.selectedBattleSquaddieId = SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+        if (this.selectedBattleSquaddieId === "" && SquaddieInstructionInProgressService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
+            this.selectedBattleSquaddieId = SquaddieInstructionInProgressService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
         }
     }
 
@@ -135,7 +136,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!this.playerCanControlAtLeastOneSquaddie(state.battleOrchestratorState)) {
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR;
         } else if (this.gaveCompleteInstruction) {
-            let newAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
+            let newDecision = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
+            // TODO Scroll through each action effect one at a time
+            let newAction: ActionEffect = newDecision.actionEffects[0];
             if (newAction.type === ActionEffectType.MOVEMENT) {
                 nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
             }
@@ -246,10 +249,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing);
+        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing);
         const battleSquaddieToHighlightId: string = startOfANewSquaddieTurn
             ? squaddieClickedOnInfoAndMapLocation.battleSquaddieId
-            : SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing);
+            : SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing);
 
         const {mapLocation: startLocation} = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddieToHighlightId)
 
@@ -316,12 +319,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private isHudInstructingTheCurrentlyActingSquaddie(state: BattleOrchestratorState): boolean {
-        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing);
+        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing);
         const squaddieShownInHUD = state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId();
 
         if (
             !startOfANewSquaddieTurn
-            && squaddieShownInHUD !== SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+            && squaddieShownInHUD !== SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ) {
             return false;
         }
@@ -339,21 +342,25 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId()));
         const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
-        if (SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)) {
+        if (SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)) {
             state.battleState.squaddieCurrentlyActing = {
                 movingBattleSquaddieIds: [],
-                squaddieActionsForThisRound: {
+                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                     startingLocation: datum.mapLocation,
-                    actions: [],
-                },
+                }),
                 currentlySelectedAction: undefined,
             };
         }
 
         if (state.battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()) {
-            SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, ActionEffectEndTurnService.new());
+            SquaddieInstructionInProgressService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing,
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectEndTurnService.new()
+                    ]
+                }))
 
             state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 
@@ -364,7 +371,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             this.gaveCompleteInstruction = true;
         } else if (state.battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()) {
             const newAction = state.battleSquaddieSelectedHUD.getSquaddieSquaddieAction();
-            SquaddieInstructionInProgressHandler.addSelectedAction(state.battleState.squaddieCurrentlyActing, newAction);
+            SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(state.battleState.squaddieCurrentlyActing, newAction);
             this.gaveInstructionThatNeedsATarget = true;
         }
 

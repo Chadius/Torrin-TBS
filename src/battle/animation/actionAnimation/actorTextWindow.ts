@@ -1,7 +1,7 @@
 import {RectAreaHelper} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {SquaddieSquaddieAction} from "../../../squaddie/action";
+import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelHelper} from "../../../ui/label";
@@ -16,7 +16,7 @@ export class ActorTextWindow {
     results: SquaddieSquaddieResults;
     actorTemplate: SquaddieTemplate;
     actorBattle: BattleSquaddie;
-    action: SquaddieSquaddieAction;
+    action: ActionEffectSquaddieTemplate;
 
     constructor() {
 
@@ -52,7 +52,7 @@ export class ActorTextWindow {
     start({actorTemplate, actorBattle, action, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
         results: SquaddieSquaddieResults,
     }) {
         this.reset();

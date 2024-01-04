@@ -1,4 +1,4 @@
-import {SquaddieSquaddieAction} from "./action";
+import {ActionEffectSquaddieTemplate} from "../decision/actionEffectSquaddieTemplate";
 
 export enum ACTION_PERFORM_FAILURE_REASON {
     UNKNOWN,
@@ -13,13 +13,13 @@ export const SquaddieTurnHandler = {
     new: (): SquaddieTurn => {
         return {remainingActionPoints: 3};
     },
-    spendActionPointsOnAction: (data: SquaddieTurn, action: SquaddieSquaddieAction) => {
+    spendActionPointsOnAction: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate) => {
         data.remainingActionPoints = (data.remainingActionPoints - action.actionPointCost);
     },
     spendActionPoints: (data: SquaddieTurn, number: number) => {
         data.remainingActionPoints = (data.remainingActionPoints - number);
     },
-    canPerformAction: (data: SquaddieTurn, action: SquaddieSquaddieAction): {
+    canPerformAction: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate): {
         canPerform: boolean,
         reason: ACTION_PERFORM_FAILURE_REASON
     } => {

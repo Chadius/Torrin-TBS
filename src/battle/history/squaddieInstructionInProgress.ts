@@ -1,11 +1,13 @@
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "./squaddieActionsForThisRound";
-import {SquaddieSquaddieAction} from "../../squaddie/action";
-import {ActionEffect, ActionEffectType} from "../../squaddie/actionEffect";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
+import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
+import {ActionEffectType} from "../../decision/actionEffect";
+import {Decision} from "../../decision/decision";
 
 
 export interface SquaddieInstructionInProgress {
     squaddieActionsForThisRound: SquaddieActionsForThisRound;
-    currentlySelectedAction: SquaddieSquaddieAction;
+    // TODO You want to use the decision here
+    currentlySelectedAction: ActionEffectSquaddieTemplate;
     movingBattleSquaddieIds: string[];
 }
 
@@ -15,10 +17,10 @@ const squaddieHasActedThisTurn = (data: SquaddieInstructionInProgress) => {
     }
 
     return data.squaddieActionsForThisRound !== undefined
-        && data.squaddieActionsForThisRound.actions.length > 0;
+        && data.squaddieActionsForThisRound.decisions.length > 0;
 };
 
-const addSelectedAction = (data: SquaddieInstructionInProgress, action: SquaddieSquaddieAction) => {
+const addSelectedActionEffectSquaddieTemplate = (data: SquaddieInstructionInProgress, action: ActionEffectSquaddieTemplate) => {
     if (!data.squaddieActionsForThisRound) {
         throw new Error("no squaddie found, cannot add action");
     }
@@ -30,15 +32,15 @@ const isBattleSquaddieIdMoving = (data: SquaddieInstructionInProgress, battleSqu
     return data.movingBattleSquaddieIds.some((id) => id === battleSquaddieId);
 }
 
-export const SquaddieInstructionInProgressHandler = {
+export const SquaddieInstructionInProgressService = {
     sanitize: (data: SquaddieInstructionInProgress): SquaddieInstructionInProgress => {
         if (data.squaddieActionsForThisRound === undefined) {
             data.squaddieActionsForThisRound = {
-                ...SquaddieActionsForThisRoundHandler.default(),
+                ...SquaddieActionsForThisRoundService.default(),
             };
         }
 
-        SquaddieActionsForThisRoundHandler.sanitize(data.squaddieActionsForThisRound);
+        SquaddieActionsForThisRoundService.sanitize(data.squaddieActionsForThisRound);
         if (data.movingBattleSquaddieIds === undefined) {
             data.movingBattleSquaddieIds = [];
         }
@@ -61,39 +63,20 @@ export const SquaddieInstructionInProgressHandler = {
                 && data.currentlySelectedAction === undefined
             );
     },
-    addConfirmedAction: (data: SquaddieInstructionInProgress, action: ActionEffect) => {
-        if (!data.squaddieActionsForThisRound) {
+    addConfirmedDecision: (instructionInProgress: SquaddieInstructionInProgress, decision: Decision) => {
+        if (!instructionInProgress.squaddieActionsForThisRound) {
             throw new Error("no squaddie found, cannot add action");
         }
 
-        switch (action.type) {
-            case ActionEffectType.SQUADDIE:
-                addSelectedAction(data, action.squaddieAction);
-                SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound,
-                    {
-                        type: ActionEffectType.SQUADDIE,
-                        squaddieAction: action.squaddieAction,
-                        targetLocation: action.targetLocation,
-                        numberOfActionPointsSpent: action.numberOfActionPointsSpent,
-                    }
-                );
-                break;
-            case ActionEffectType.MOVEMENT:
-                SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
-                    type: ActionEffectType.MOVEMENT,
-                    destination: action.destination,
-                    numberOfActionPointsSpent: action.numberOfActionPointsSpent,
-                });
-                break;
-            default:
-                SquaddieActionsForThisRoundHandler.addAction(data.squaddieActionsForThisRound, {
-                    type: ActionEffectType.END_TURN,
-                });
-                break;
+        const lastSelectedActionEffect = decision.actionEffects.reverse().find(actionEffect => actionEffect.type === ActionEffectType.SQUADDIE);
+        if (lastSelectedActionEffect && lastSelectedActionEffect.type === ActionEffectType.SQUADDIE) {
+            addSelectedActionEffectSquaddieTemplate(instructionInProgress, lastSelectedActionEffect.effect);
         }
+
+        SquaddieActionsForThisRoundService.addDecision(instructionInProgress.squaddieActionsForThisRound, decision);
     },
-    addSelectedAction: (data: SquaddieInstructionInProgress, action: SquaddieSquaddieAction) => {
-        addSelectedAction(data, action);
+    addSelectedActionEffectSquaddieTemplate: (data: SquaddieInstructionInProgress, action: ActionEffectSquaddieTemplate) => {
+        addSelectedActionEffectSquaddieTemplate(data, action);
     },
     markBattleSquaddieIdAsMoving: (data: SquaddieInstructionInProgress, battleSquaddieId: string) => {
         if (isBattleSquaddieIdMoving(data, battleSquaddieId)) {
@@ -115,13 +98,5 @@ export const SquaddieInstructionInProgressHandler = {
     },
     cancelSelectedAction: (data: SquaddieInstructionInProgress) => {
         data.currentlySelectedAction = undefined;
-    }
-}
-
-export const DefaultSquaddieInstructionInProgress = (): SquaddieInstructionInProgress => {
-    return {
-        squaddieActionsForThisRound: undefined,
-        currentlySelectedAction: undefined,
-        movingBattleSquaddieIds: [],
     }
 }

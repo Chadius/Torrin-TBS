@@ -16,7 +16,7 @@ import {GetHitPoints} from "../../squaddie/squaddieService";
 import {WINDOW_SPACING1} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
-import {SquaddieSquaddieAction} from "../../squaddie/action";
+import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
@@ -182,7 +182,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.setupAnimationForTargetHitPointMeters(state);
     }
 
-    private setupAnimationForTargetSprites(state: BattleOrchestratorState, action: SquaddieSquaddieAction, resultPerTarget: {
+    private setupAnimationForTargetSprites(state: BattleOrchestratorState, action: ActionEffectSquaddieTemplate, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
         this._targetSprites = RecordingHandler.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
@@ -251,7 +251,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
 
-        const action: SquaddieSquaddieAction = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+        const action: ActionEffectSquaddieTemplate = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
         this.actorSprite.draw({
             timer: this.actionAnimationTimer,
             graphicsContext,

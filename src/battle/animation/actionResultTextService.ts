@@ -1,4 +1,7 @@
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -15,14 +18,14 @@ import {BattleSquaddie} from "../battleSquaddie";
 
 export const ActionResultTextService = {
     outputResultForTextOnly: ({currentAction, result, squaddieRepository}: {
-        currentAction: SquaddieSquaddieAction,
+        currentAction: ActionEffectSquaddieTemplate,
         result: SquaddieSquaddieResults,
         squaddieRepository: ObjectRepository,
     }): string[] => {
         return outputResultForTextOnly({currentAction, result, squaddieRepository});
     },
     outputIntentForTextOnly: ({currentAction, actingBattleSquaddieId, squaddieRepository, actingSquaddieModifiers}: {
-        currentAction: SquaddieSquaddieAction,
+        currentAction: ActionEffectSquaddieTemplate,
         actingBattleSquaddieId: string,
         squaddieRepository: ObjectRepository,
         actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number },
@@ -36,7 +39,7 @@ export const ActionResultTextService = {
     },
     getSquaddieUsesActionString: ({squaddieTemplate, action, newline}: {
         squaddieTemplate: SquaddieTemplate,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
         newline: boolean
     }): string => {
         return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${action.name}`;
@@ -79,7 +82,7 @@ export const ActionResultTextService = {
                                               }: {
         timer?: ActionTimer
         actorTemplate: SquaddieTemplate,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
         results: SquaddieSquaddieResults,
     }): string => {
         let actorUsesActionDescriptionText = ActionResultTextService.getSquaddieUsesActionString({
@@ -123,11 +126,11 @@ export const ActionResultTextService = {
                           }: {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     }): string => {
         let targetBeforeActionText = `${targetTemplate.squaddieId.name}`;
 
-        if (SquaddieSquaddieActionService.isHindering(action)) {
+        if (ActionEffectSquaddieTemplateService.isHindering(action)) {
             targetBeforeActionText += `\nAC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`;
         }
 
@@ -176,7 +179,7 @@ export const ActionResultTextService = {
 };
 
 const outputResultForTextOnly = ({currentAction, result, squaddieRepository}: {
-    currentAction: SquaddieSquaddieAction,
+    currentAction: ActionEffectSquaddieTemplate,
     result: SquaddieSquaddieResults,
     squaddieRepository: ObjectRepository,
 }): string[] => {
@@ -209,7 +212,7 @@ const outputResultForTextOnly = ({currentAction, result, squaddieRepository}: {
         const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, targetSquaddieId));
         const resultPerTarget = result.resultPerTarget[targetSquaddieId];
 
-        if (SquaddieSquaddieActionService.isHindering(currentAction)) {
+        if (ActionEffectSquaddieTemplateService.isHindering(currentAction)) {
             if (DegreeOfSuccessService.atBestFailure(resultPerTarget.actorDegreeOfSuccess)) {
                 if (resultPerTarget.actorDegreeOfSuccess === DegreeOfSuccess.FAILURE) {
                     output.push(ActionResultTextService.getHinderingActionMissedString({squaddieTemplate: targetSquaddieTemplate}));
@@ -232,7 +235,7 @@ const outputResultForTextOnly = ({currentAction, result, squaddieRepository}: {
                 }
             }
         }
-        if (SquaddieSquaddieActionService.isHelpful(currentAction)) {
+        if (ActionEffectSquaddieTemplateService.isHelpful(currentAction)) {
             output.push(ActionResultTextService.getHelpfulActionHealingReceivedString({
                 squaddieTemplate: targetSquaddieTemplate,
                 healingReceived: resultPerTarget.healingReceived,
@@ -244,7 +247,7 @@ const outputResultForTextOnly = ({currentAction, result, squaddieRepository}: {
 }
 
 const outputIntentForTextOnly = ({currentAction, actingBattleSquaddieId, squaddieRepository, actingSquaddieModifiers}: {
-    currentAction: SquaddieSquaddieAction,
+    currentAction: ActionEffectSquaddieTemplate,
     actingBattleSquaddieId: string,
     squaddieRepository: ObjectRepository,
     actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number },

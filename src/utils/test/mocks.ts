@@ -3,7 +3,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelectedHUD";
-import {ActionEffectEndTurnService} from "../../battle/history/actionEffectEndTurn";
+import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
 import {makeResult} from "../ResultOrError";

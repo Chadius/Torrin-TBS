@@ -9,7 +9,10 @@ import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
@@ -21,8 +24,8 @@ describe('Target Sprite', () => {
     let resultDealsNoDamage: ActionResultPerSquaddie;
     let resultHealsSquaddie: ActionResultPerSquaddie;
 
-    let hinderingAction: SquaddieSquaddieAction;
-    let helpfulAction: SquaddieSquaddieAction;
+    let hinderingAction: ActionEffectSquaddieTemplate;
+    let helpfulAction: ActionEffectSquaddieTemplate;
 
     let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
@@ -74,7 +77,7 @@ describe('Target Sprite', () => {
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
         });
 
-        hinderingAction = SquaddieSquaddieActionService.new({
+        hinderingAction = ActionEffectSquaddieTemplateService.new({
             id: "hindering",
             name: "hindering",
             damageDescriptions: {
@@ -85,7 +88,7 @@ describe('Target Sprite', () => {
             }),
         });
 
-        helpfulAction = SquaddieSquaddieActionService.new({
+        helpfulAction = ActionEffectSquaddieTemplateService.new({
             id: "helping",
             name: "helping",
             healingDescriptions: {
@@ -119,7 +122,7 @@ describe('Target Sprite', () => {
             startingPosition: 0,
         });
 
-        sprite.draw(timer, mockedP5GraphicsContext, SquaddieSquaddieActionService.new({
+        sprite.draw(timer, mockedP5GraphicsContext, ActionEffectSquaddieTemplateService.new({
             id: "attack",
             name: "attack",
             minimumRange: 0,
@@ -255,7 +258,7 @@ describe('Target Sprite', () => {
         let mapping: {
             [name: string]: {
                 result: ActionResultPerSquaddie,
-                action: SquaddieSquaddieAction
+                action: ActionEffectSquaddieTemplate
             }
         };
 

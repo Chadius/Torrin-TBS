@@ -1,4 +1,4 @@
-import {BattleEvent, BattleEventHandler} from "./battleEvent";
+import {BattleEvent, BattleEventService} from "./battleEvent";
 
 export interface Recording {
     history: BattleEvent[];
@@ -10,7 +10,7 @@ export const RecordingHandler = {
             return undefined;
         }
 
-        return BattleEventHandler.clone(data.history[data.history.length - 1]);
+        return BattleEventService.clone(data.history[data.history.length - 1]);
     },
     addEvent: (data: Recording, battleEvent: BattleEvent) => {
         data.history.push(battleEvent);

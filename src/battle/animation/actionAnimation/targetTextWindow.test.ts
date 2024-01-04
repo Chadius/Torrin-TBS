@@ -10,7 +10,10 @@ import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
 
@@ -24,11 +27,11 @@ describe('TargetTextWindow', () => {
     let targetResultTakenDamage: ActionResultPerSquaddie;
     let targetResultHealingReceived: ActionResultPerSquaddie;
 
-    let attackAction: SquaddieSquaddieAction;
-    let healingAction: SquaddieSquaddieAction;
+    let attackAction: ActionEffectSquaddieTemplate;
+    let healingAction: ActionEffectSquaddieTemplate;
 
     beforeEach(() => {
-        attackAction = SquaddieSquaddieActionService.new({
+        attackAction = ActionEffectSquaddieTemplateService.new({
             id: "attack",
             name: "attack action",
             damageDescriptions: {
@@ -40,7 +43,7 @@ describe('TargetTextWindow', () => {
             })
         });
 
-        healingAction = SquaddieSquaddieActionService.new({
+        healingAction = ActionEffectSquaddieTemplateService.new({
             id: "heal",
             name: "healing action",
             healingDescriptions: {

@@ -11,7 +11,7 @@ import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -139,7 +139,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 const {battleSquaddie, battleSquaddieId} = info;
 
                 if (noSquaddieIsCurrentlyActing
-                    || !SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleState.squaddieCurrentlyActing, battleSquaddieId)) {
+                    || !SquaddieInstructionInProgressService.isBattleSquaddieIdMoving(state.battleState.squaddieCurrentlyActing, battleSquaddieId)) {
                     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
                     const squaddieIsOnTheMap: boolean = MissionMapSquaddieLocationHandler.isValid(datum) && state.battleState.missionMap.areCoordinatesOnMap(datum.mapLocation);

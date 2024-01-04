@@ -6,7 +6,10 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {UseActionButton} from "../../squaddie/useActionButton";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
@@ -22,10 +25,13 @@ import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {ActionEffectType} from "../../squaddie/actionEffect";
+import {ActionEffectType} from "../../decision/actionEffect";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -41,7 +47,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieDynamicId: string = "player_squaddie_2";
     let player2SquaddieStatic: SquaddieTemplate;
     let player2SquaddieDynamic: BattleSquaddie;
-    let longswordAction: SquaddieSquaddieAction;
+    let longswordAction: ActionEffectSquaddieTemplate;
     let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -58,7 +64,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
-        longswordAction = SquaddieSquaddieActionService.new({
+        longswordAction = ActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -305,8 +311,8 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
-        let notEnoughActionPointsAction: SquaddieSquaddieAction;
-        notEnoughActionPointsAction = SquaddieSquaddieActionService.new({
+        let notEnoughActionPointsAction: ActionEffectSquaddieTemplate;
+        notEnoughActionPointsAction = ActionEffectSquaddieTemplateService.new({
                 name: "not enough actions",
                 id: "not enough actions",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -368,17 +374,16 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: new BattleCamera(0, 0),
                         squaddieCurrentlyActing: {
                             movingBattleSquaddieIds: [],
-                            currentlySelectedAction: SquaddieSquaddieActionService.new({
+                            currentlySelectedAction: ActionEffectSquaddieTemplateService.new({
                                 name: "purifying stream",
                                 id: "purifying_stream",
                                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                             }),
-                            squaddieActionsForThisRound: {
+                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                 battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                 squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                 startingLocation: {q: 0, r: 0},
-                                actions: [],
-                            },
+                            }),
                         },
                     }),
                 })
@@ -486,12 +491,11 @@ describe('BattleSquaddieSelectedHUD', () => {
                     },
                     squaddieCurrentlyActing: {
                         movingBattleSquaddieIds: [],
-                        squaddieActionsForThisRound: {
+                        squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                             startingLocation: {q: 0, r: 0},
-                            actions: []
-                        },
+                        }),
                         currentlySelectedAction: undefined,
                     }
                 }),
@@ -548,18 +552,21 @@ describe('BattleSquaddieSelectedHUD', () => {
                     },
                     squaddieCurrentlyActing: {
                         movingBattleSquaddieIds: [],
-                        squaddieActionsForThisRound: {
+                        squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                             startingLocation: {q: 0, r: 0},
-                            actions: [
-                                {
-                                    type: ActionEffectType.MOVEMENT,
-                                    destination: {q: 1, r: 0},
-                                    numberOfActionPointsSpent: 1,
-                                }
+                            decisions: [
+                                DecisionService.new({
+                                    actionEffects: [
+                                        ActionEffectMovementService.new({
+                                            destination: {q: 1, r: 0},
+                                            numberOfActionPointsSpent: 1,
+                                        })
+                                    ]
+                                })
                             ]
-                        },
+                        }),
                         currentlySelectedAction: undefined,
                     }
                 }),
@@ -595,12 +602,11 @@ describe('BattleSquaddieSelectedHUD', () => {
                                     },
                                     squaddieCurrentlyActing: {
                                         movingBattleSquaddieIds: [],
-                                        squaddieActionsForThisRound: {
+                                        squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                             startingLocation: {q: 0, r: 0},
-                                            actions: []
-                                        },
+                                        }),
                                         currentlySelectedAction: undefined,
                                     },
                                 }),
@@ -712,12 +718,11 @@ describe('BattleSquaddieSelectedHUD', () => {
                         },
                         squaddieCurrentlyActing: {
                             movingBattleSquaddieIds: [],
-                            squaddieActionsForThisRound: {
+                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                 battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                 squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                 startingLocation: {q: 0, r: 0},
-                                actions: []
-                            },
+                            }),
                             currentlySelectedAction: undefined,
                         },
                     }),
@@ -757,12 +762,11 @@ describe('BattleSquaddieSelectedHUD', () => {
                                 },
                                 squaddieCurrentlyActing: {
                                     movingBattleSquaddieIds: [],
-                                    squaddieActionsForThisRound: {
+                                    squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                         squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                         startingLocation: {q: 0, r: 0},
-                                        actions: []
-                                    },
+                                    }),
                                     currentlySelectedAction: undefined,
                                 },
                             }),

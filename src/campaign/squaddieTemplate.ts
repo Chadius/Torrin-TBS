@@ -1,19 +1,22 @@
 import {SquaddieId, SquaddieIdHelper} from "../squaddie/id";
 import {ArmyAttributes, ArmyAttributesHelper, DefaultArmyAttributes} from "../squaddie/armyAttributes";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../decision/actionEffectSquaddieTemplate";
 import {isValidValue} from "../utils/validityCheck";
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId;
     attributes: ArmyAttributes;
-    actions: SquaddieSquaddieAction[];
+    actions: ActionEffectSquaddieTemplate[];
 }
 
 export const SquaddieTemplateHelper = {
     new: ({squaddieId, attributes, actions}: {
         squaddieId: SquaddieId,
         attributes?: ArmyAttributes,
-        actions?: SquaddieSquaddieAction[],
+        actions?: ActionEffectSquaddieTemplate[],
     }) => {
         const data: SquaddieTemplate = {
             squaddieId,
@@ -35,7 +38,7 @@ const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
     SquaddieIdHelper.sanitize(data.squaddieId);
 
     data.actions = isValidValue(data.actions) ? data.actions : [];
-    data.actions.forEach(SquaddieSquaddieActionService.sanitize);
+    data.actions.forEach(ActionEffectSquaddieTemplateService.sanitize);
 
     data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
     return data;

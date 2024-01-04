@@ -1,5 +1,5 @@
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -26,12 +26,11 @@ describe('Team Strategy State', () => {
     }
 
     it('can reset state to clear the instruction', () => {
-        const newInstruction: SquaddieActionsForThisRound = {
+        const newInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
+        });
 
         const state: TeamStrategyState = createDummyState(newInstruction);
         expect(state.instruction).toStrictEqual(newInstruction);
@@ -44,12 +43,11 @@ describe('Team Strategy State', () => {
         const state: TeamStrategyState = createDummyState();
         expect(state.instruction).toBeUndefined();
 
-        const newInstruction: SquaddieActionsForThisRound = {
+        const newInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
+        });
         state.setInstruction(newInstruction);
 
         expect(state.instruction).toStrictEqual(newInstruction);

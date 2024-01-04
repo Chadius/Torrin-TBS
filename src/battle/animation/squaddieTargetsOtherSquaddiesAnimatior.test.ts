@@ -1,13 +1,16 @@
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {
     SquaddieInstructionInProgress,
-    SquaddieInstructionInProgressHandler
+    SquaddieInstructionInProgressService
 } from "../history/squaddieInstructionInProgress";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -23,10 +26,10 @@ import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
-import {ActionEffectType} from "../../squaddie/actionEffect";
 import {BattleStateHelper} from "../orchestrator/battleState";
 
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
@@ -37,8 +40,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
-    let longswordAction: SquaddieSquaddieAction;
-    let powerAttackLongswordAction: SquaddieSquaddieAction;
+    let longswordAction: ActionEffectSquaddieTemplate;
+    let powerAttackLongswordAction: ActionEffectSquaddieTemplate;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
     let oneActionInstruction: SquaddieActionsForThisRound;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -61,7 +64,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleId: thiefDynamicId,
         }));
 
-        longswordAction = SquaddieSquaddieActionService.new({
+        longswordAction = ActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -88,19 +91,22 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
-        oneActionInstruction = {
-            squaddieTemplateId: "static_squaddie",
-            battleSquaddieId: "dynamic_squaddie",
-            startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
+        const oneActionInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new(
+            {
+                squaddieTemplateId: "static_squaddie",
+                battleSquaddieId: "dynamic_squaddie",
+                startingLocation: {q: 0, r: 0},
 
-        SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
-            type: ActionEffectType.SQUADDIE,
-            numberOfActionPointsSpent: 1,
-            squaddieAction: longswordAction,
-            targetLocation: {q: 0, r: 0},
-        });
+                decisions: [{
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            numberOfActionPointsSpent: 1,
+                            effect: longswordAction,
+                            targetLocation: {q: 0, r: 0},
+                        })
+                    ]
+                }],
+            });
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
@@ -110,7 +116,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             currentlySelectedAction: powerAttackLongswordAction,
             movingBattleSquaddieIds: [],
         };
-        SquaddieInstructionInProgressHandler.addSelectedAction(knightHitsThiefWithLongswordInstructionInProgress, longswordAction);
+        SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(knightHitsThiefWithLongswordInstructionInProgress, longswordAction);
 
         knightHitsThiefWithLongswordEvent = {
             instruction: knightHitsThiefWithLongswordInstructionInProgress,

@@ -4,7 +4,10 @@ import {SquaddieId} from "../../squaddie/id";
 import {ObjectRepository, ObjectRepositoryHelper} from "../../battle/objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../../battle/battleSquaddie";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -29,7 +32,7 @@ export const CreateNewSquaddieAndAddToRepository: (
         battleId: string,
         affiliation: SquaddieAffiliation,
         squaddieRepository: ObjectRepository,
-        actions?: SquaddieSquaddieAction[],
+        actions?: ActionEffectSquaddieTemplate[],
         attributes?: ArmyAttributes,
     }
 ) => {
@@ -49,7 +52,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          battleId: string,
          affiliation: SquaddieAffiliation,
          squaddieRepository: ObjectRepository,
-         actions?: SquaddieSquaddieAction[],
+         actions?: ActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
      }
 ) => {
@@ -87,7 +90,7 @@ export const CreateNewThiefSquaddie: (
         templateId?: string,
         battleId?: string,
         affiliation?: SquaddieAffiliation,
-        actions?: SquaddieSquaddieAction[],
+        actions?: ActionEffectSquaddieTemplate[],
         attributes?: ArmyAttributes,
     }
 ) => {
@@ -107,12 +110,12 @@ export const CreateNewThiefSquaddie: (
          templateId?: string,
          battleId?: string,
          affiliation?: SquaddieAffiliation,
-         actions?: SquaddieSquaddieAction[],
+         actions?: ActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
      }
 ) => {
 
-    const defaultAttackAction = SquaddieSquaddieActionService.new({
+    const defaultAttackAction = ActionEffectSquaddieTemplateService.new({
         name: "knife",
         id: "knife",
         traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -154,7 +157,7 @@ export const CreateNewKnightSquaddie: (
         templateId?: string,
         battleId?: string,
         affiliation?: SquaddieAffiliation,
-        actions?: SquaddieSquaddieAction[],
+        actions?: ActionEffectSquaddieTemplate[],
         attributes?: ArmyAttributes,
     }
 ) => {
@@ -174,12 +177,12 @@ export const CreateNewKnightSquaddie: (
          templateId?: string,
          battleId?: string,
          affiliation?: SquaddieAffiliation,
-         actions?: SquaddieSquaddieAction[],
+         actions?: ActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
      }
 ) => {
 
-    const defaultAttackAction = SquaddieSquaddieActionService.new({
+    const defaultAttackAction = ActionEffectSquaddieTemplateService.new({
         name: "longsword",
         id: "longsword",
         traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -195,7 +198,7 @@ export const CreateNewKnightSquaddie: (
         },
     });
 
-    const powerAttackLongswordAction = SquaddieSquaddieActionService.new({
+    const powerAttackLongswordAction = ActionEffectSquaddieTemplateService.new({
         name: "power attack longsword",
         id: "powerAttackLongsword",
         traits: TraitStatusStorageHelper.newUsingTraitValues({

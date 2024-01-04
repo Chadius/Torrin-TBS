@@ -32,8 +32,7 @@ import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
-import {ActionEffectType} from "../../squaddie/actionEffect";
-import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionMap} from "../../missionMap/missionMap";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
@@ -41,6 +40,8 @@ import {InitializeBattle} from "./initializeBattle";
 import {BattleStateHelper} from "./battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 
 
 describe('Battle Orchestrator', () => {
@@ -392,19 +393,21 @@ describe('Battle Orchestrator', () => {
         nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
             {
                 movingBattleSquaddieIds: [],
-                squaddieActionsForThisRound: {
+                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: "new static squaddie",
                     battleSquaddieId: "new dynamic squaddie",
                     startingLocation: {q: 0, r: 0},
-                    actions: [],
-                },
+                }),
                 currentlySelectedAction: undefined,
             };
-        SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, {
-            type: ActionEffectType.MOVEMENT,
-            destination: {q: 1, r: 2},
-            numberOfActionPointsSpent: 2,
-        });
+        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, DecisionService.new({
+            actionEffects: [
+                ActionEffectMovementService.new({
+                    destination: {q: 1, r: 2},
+                    numberOfActionPointsSpent: 2,
+                })
+            ]
+        }));
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
@@ -430,21 +433,23 @@ describe('Battle Orchestrator', () => {
         nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
             {
                 movingBattleSquaddieIds: [],
-                squaddieActionsForThisRound: {
+                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: "new static squaddie",
                     battleSquaddieId: "new dynamic squaddie",
                     startingLocation: {q: 0, r: 0},
-                    actions: [],
-                },
+                }),
                 currentlySelectedAction: undefined,
             };
 
-        SquaddieActionsForThisRoundHandler.addAction(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
-            {
-                type: ActionEffectType.MOVEMENT,
-                destination: {q: 1, r: 2},
-                numberOfActionPointsSpent: 2,
-            });
+        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
+            DecisionService.new({
+                actionEffects: [
+                    ActionEffectMovementService.new({
+                        destination: {q: 1, r: 2},
+                        numberOfActionPointsSpent: 2,
+                    })
+                ]
+            }));
 
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);

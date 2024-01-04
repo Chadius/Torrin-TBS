@@ -6,7 +6,10 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
@@ -64,7 +67,7 @@ export class TargetSprite {
     start({targetBattleSquaddieId, squaddieRepository, action, result, startingPosition, resourceHandler}: {
         targetBattleSquaddieId: string,
         squaddieRepository: ObjectRepository,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
         result: ActionResultPerSquaddie,
         startingPosition: number,
         resourceHandler: ResourceHandler,
@@ -85,7 +88,7 @@ export class TargetSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw(timer: ActionTimer, graphicsContext: GraphicsContext, action: SquaddieSquaddieAction, result: ActionResultPerSquaddie) {
+    draw(timer: ActionTimer, graphicsContext: GraphicsContext, action: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }
@@ -109,11 +112,11 @@ export class TargetSprite {
         battleSquaddieId: string,
         squaddieRepository: ObjectRepository,
         result: ActionResultPerSquaddie,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
-                if (SquaddieSquaddieActionService.isHindering(action)) {
+                if (ActionEffectSquaddieTemplateService.isHindering(action)) {
                     return SquaddieEmotion.TARGETED;
                 }
                 return SquaddieEmotion.NEUTRAL;
@@ -148,7 +151,7 @@ export class TargetSprite {
         }
     }
 
-    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext, action: SquaddieSquaddieAction) {
+    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext, action: ActionEffectSquaddieTemplate) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
             result: this.actionResult,
@@ -159,7 +162,7 @@ export class TargetSprite {
         return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
     }
 
-    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext, action: SquaddieSquaddieAction, result: ActionResultPerSquaddie) {
+    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext, action: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext, action);
         let horizontalDistance: number = 0;
         let verticalDistance: number = 0;
@@ -179,7 +182,7 @@ export class TargetSprite {
                 horizontalDistance,
                 verticalDistance
             } = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
-        } else if (SquaddieSquaddieActionService.isHindering(action)) {
+        } else if (ActionEffectSquaddieTemplateService.isHindering(action)) {
             if (DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken > 0) {
                 ({
                     horizontalDistance,

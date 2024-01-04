@@ -1,4 +1,4 @@
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {TeamStrategyState} from "./teamStrategyState";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
@@ -11,6 +11,8 @@ import {EndTurnTeamStrategy} from "./endTurn";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 
 describe('end turn team strategy', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
@@ -73,13 +75,18 @@ describe('end turn team strategy', () => {
         });
         missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
 
-        const expectedInstruction: SquaddieActionsForThisRound = {
+        const expectedInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new_static_squaddie",
             battleSquaddieId: "new_dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
-        SquaddieActionsForThisRoundHandler.endTurn(expectedInstruction);
+            decisions: [
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectEndTurnService.new()
+                    ]
+                })
+            ]
+        });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
         const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);

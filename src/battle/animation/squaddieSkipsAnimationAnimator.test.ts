@@ -1,5 +1,8 @@
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
@@ -12,9 +15,9 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
 import {
     SquaddieInstructionInProgress,
-    SquaddieInstructionInProgressHandler
+    SquaddieInstructionInProgressService
 } from "../history/squaddieInstructionInProgress";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
@@ -22,8 +25,8 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {LabelHelper} from "../../ui/label";
 import * as ActionResultTextService from "./actionResultTextService";
-import {ActionEffectType} from "../../squaddie/actionEffect";
 import {BattleStateHelper} from "../orchestrator/battleState";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -31,7 +34,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let squaddieRepository: ObjectRepository;
     let monkStaticId = "monk static";
     let monkDynamicId = "monk dynamic";
-    let monkKoanAction: SquaddieSquaddieAction;
+    let monkKoanAction: ActionEffectSquaddieTemplate;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: SquaddieInstructionInProgress;
 
@@ -44,7 +47,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        monkKoanAction = SquaddieSquaddieActionService.new({
+        monkKoanAction = ActionEffectSquaddieTemplateService.new({
             id: "koan",
             name: "koan",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -67,26 +70,28 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         });
 
         battleEventRecording = {history: []};
-        const oneActionInstruction: SquaddieActionsForThisRound = {
-            squaddieTemplateId: monkStaticId,
-            battleSquaddieId: monkDynamicId,
-            startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
-
-        SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
-            type: ActionEffectType.SQUADDIE,
-            numberOfActionPointsSpent: 1,
-            squaddieAction: monkKoanAction,
-            targetLocation: {q: 0, r: 0},
-        });
+        const oneDecisionInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new(
+            {
+                squaddieTemplateId: monkStaticId,
+                battleSquaddieId: monkDynamicId,
+                startingLocation: {q: 0, r: 0},
+                decisions: [{
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            numberOfActionPointsSpent: 1,
+                            effect: monkKoanAction,
+                            targetLocation: {q: 0, r: 0},
+                        })
+                    ]
+                }],
+            });
 
         monkMeditatesInstruction = {
             currentlySelectedAction: monkKoanAction,
             movingBattleSquaddieIds: [],
-            squaddieActionsForThisRound: oneActionInstruction,
+            squaddieActionsForThisRound: oneDecisionInstruction,
         };
-        SquaddieInstructionInProgressHandler.addSelectedAction(monkMeditatesInstruction, monkKoanAction);
+        SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(monkMeditatesInstruction, monkKoanAction);
 
         monkMeditatesEvent = {
             instruction: monkMeditatesInstruction,

@@ -1,5 +1,5 @@
-import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {ActionEffectType} from "../../squaddie/actionEffect";
+import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
+import {ActionEffectType} from "./actionEffect";
 
 export interface ActionEffectMovement {
     type: ActionEffectType.MOVEMENT;

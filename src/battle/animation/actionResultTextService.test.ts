@@ -1,7 +1,10 @@
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -23,8 +26,8 @@ describe('Action Result Text Writer', () => {
     let rogueStatic: SquaddieTemplate;
     let rogueDynamic: BattleSquaddie;
     let battleMap: MissionMap;
-    let longswordSweepAction: SquaddieSquaddieAction;
-    let bandageWoundsAction: SquaddieSquaddieAction;
+    let longswordSweepAction: ActionEffectSquaddieTemplate;
+    let bandageWoundsAction: ActionEffectSquaddieTemplate;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryHelper.new();
@@ -38,7 +41,7 @@ describe('Action Result Text Writer', () => {
             })
         });
 
-        longswordSweepAction = SquaddieSquaddieActionService.new({
+        longswordSweepAction = ActionEffectSquaddieTemplateService.new({
             name: "Longsword Sweep",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -50,7 +53,7 @@ describe('Action Result Text Writer', () => {
             actionPointCost: 1,
         });
 
-        bandageWoundsAction = SquaddieSquaddieActionService.new({
+        bandageWoundsAction = ActionEffectSquaddieTemplateService.new({
             name: "Bandage Wounds",
             id: "Bandages",
             traits: TraitStatusStorageHelper.newUsingTraitValues({

@@ -8,17 +8,17 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
+import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {MapHighlightHelper} from "../animation/mapHighlight";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
     if (state.battleState.squaddieCurrentlyActing
-        && !SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
+        && !SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
     ) {
         const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
             ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
-                SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+                SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
             )
         );
         const actInfo = CanSquaddieActRightNow({battleSquaddie, squaddieTemplate})
@@ -31,13 +31,13 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: Battle
 export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.battleState.squaddieCurrentlyActing
-        && !SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
+        && !SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
     ) {
         const {
             squaddieTemplate,
             battleSquaddie
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
-            SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+            SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
             squaddieTemplate,
@@ -45,7 +45,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
         });
         if (playerCanControlThisSquaddieRightNow) {
             state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-                battleId: SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing),
+                battleId: SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing),
                 state,
             });
         } else {
@@ -57,13 +57,13 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
 export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.battleState.squaddieCurrentlyActing
-        && !SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
+        && !SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
     ) {
         const {
             squaddieTemplate,
             battleSquaddie
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
-            SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+            SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
         const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
             squaddieTemplate,

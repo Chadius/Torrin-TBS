@@ -9,8 +9,8 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {ActionEffectType} from "../../squaddie/actionEffect";
-import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {ActionEffectType} from "../../decision/actionEffect";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {BattleSquaddieHelper} from "../battleSquaddie";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
@@ -62,7 +62,8 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
                 squaddieTemplate
             } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
-            const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
+            // TODO should look at the currently animating action effect
+            const mostRecentAction = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).actionEffects[0];
 
             if (mostRecentAction.type === ActionEffectType.END_TURN) {
                 BattleSquaddieHelper.endTurn(battleSquaddie);
