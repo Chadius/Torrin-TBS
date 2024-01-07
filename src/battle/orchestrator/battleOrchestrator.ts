@@ -6,7 +6,7 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "./battleOrchestratorComponent";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "./battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "./battleOrchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
@@ -312,7 +312,7 @@ export class BattleOrchestrator implements GameEngineComponent {
           }: {
         resourceHandler: ResourceHandler
     }): BattleOrchestratorState {
-        return BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler});
+        return BattleOrchestratorStateService.newOrchestratorState({resourceHandler});
     }
 
     private setNextComponentMode(state: GameEngineState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {

@@ -1,6 +1,6 @@
 import * as mc from "./missionCondition";
 import {MissionCondition, MissionConditionType} from "./missionCondition";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {MissionRewardType} from "./missionReward";
 import {MissionObjectiveHelper} from "./missionObjective";
 import {BattleStateHelper} from "../orchestrator/battleState";
@@ -38,7 +38,7 @@ describe('Mission Objective', () => {
             numberOfRequiredConditionsToComplete: 2,
         });
 
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -103,7 +103,7 @@ describe('Mission Objective', () => {
         expect(objective.numberOfRequiredConditionsToComplete).toBe(3);
         expect(MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(objective)).toBeTruthy();
 
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -169,7 +169,7 @@ describe('Mission Objective', () => {
         expect(objective.numberOfRequiredConditionsToComplete).toBe(3);
         expect(MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(objective)).toBeTruthy();
 
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -219,7 +219,7 @@ describe('Mission Objective', () => {
             ],
             numberOfRequiredConditionsToComplete: "ALL",
         });
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -270,7 +270,7 @@ describe('Mission Objective', () => {
         });
         expect(objective.numberOfRequiredConditionsToComplete).toBe(0);
 
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,

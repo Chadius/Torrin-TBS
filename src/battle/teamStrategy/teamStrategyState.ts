@@ -1,4 +1,4 @@
-import {SquaddieActionsForThisRound} from "../history/squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase} from "../history/squaddieDecisionsDuringThisPhase";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {ObjectRepository} from "../objectRepository";
@@ -10,7 +10,7 @@ export type TeamStrategyStateRequiredOptions = {
 }
 
 export type TeamStrategyStateOptionalOptions = {
-    instruction: SquaddieActionsForThisRound;
+    instruction: squaddieDecisionsDuringThisPhase;
 };
 
 export class TeamStrategyState {
@@ -37,9 +37,9 @@ export class TeamStrategyState {
         return this._missionMap;
     }
 
-    private _instruction: SquaddieActionsForThisRound;
+    private _instruction: squaddieDecisionsDuringThisPhase;
 
-    get instruction(): SquaddieActionsForThisRound {
+    get instruction(): squaddieDecisionsDuringThisPhase {
         return this._instruction;
     }
 
@@ -47,7 +47,7 @@ export class TeamStrategyState {
         this._instruction = undefined;
     }
 
-    setInstruction(instruction: SquaddieActionsForThisRound) {
+    setInstruction(instruction: squaddieDecisionsDuringThisPhase) {
         this._instruction = instruction;
     }
 }

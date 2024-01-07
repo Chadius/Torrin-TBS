@@ -1,6 +1,6 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -28,7 +28,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieActionsForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): squaddieDecisionsDuringThisPhase | undefined {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
@@ -84,7 +84,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined;
         }
 
-        const moveTowardsLocation: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const moveTowardsLocation: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: mapLocation,

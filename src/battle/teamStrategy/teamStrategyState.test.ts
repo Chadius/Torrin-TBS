@@ -1,12 +1,12 @@
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ObjectRepositoryHelper} from "../objectRepository";
 
 describe('Team Strategy State', () => {
-    const createDummyState = (instruction?: SquaddieActionsForThisRound): TeamStrategyState => {
+    const createDummyState = (instruction?: squaddieDecisionsDuringThisPhase): TeamStrategyState => {
         return new TeamStrategyState({
             squaddieRepository: ObjectRepositoryHelper.new(),
             missionMap: new MissionMap({
@@ -26,7 +26,7 @@ describe('Team Strategy State', () => {
     }
 
     it('can reset state to clear the instruction', () => {
-        const newInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const newInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
@@ -43,7 +43,7 @@ describe('Team Strategy State', () => {
         const state: TeamStrategyState = createDummyState();
         expect(state.instruction).toBeUndefined();
 
-        const newInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const newInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},

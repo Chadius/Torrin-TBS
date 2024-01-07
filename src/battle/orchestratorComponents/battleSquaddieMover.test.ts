@@ -1,7 +1,7 @@
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -9,12 +9,12 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
-    SquaddieInstructionInProgress,
+    CurrentlySelectedSquaddieDecision,
     SquaddieInstructionInProgressService
-} from "../history/squaddieInstructionInProgress";
+} from "../history/currentlySelectedSquaddieDecision";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -95,7 +95,7 @@ describe('BattleSquaddieMover', () => {
 
         const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
-        const moveAction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const moveAction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "player_1",
             battleSquaddieId: "player_1",
             startingLocation: {q: 0, r: 0},
@@ -111,14 +111,14 @@ describe('BattleSquaddieMover', () => {
             ]
         });
 
-        const squaddieCurrentlyActing: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+        const squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: moveAction,
             movingBattleSquaddieIds: [],
         });
         SquaddieInstructionInProgressService.markBattleSquaddieIdAsMoving(squaddieCurrentlyActing, "player_1");
 
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
@@ -156,7 +156,7 @@ describe('BattleSquaddieMover', () => {
                                }: {
             battleSquaddieId: string,
             squaddieAffiliation: SquaddieAffiliation,
-            newInstruction: SquaddieActionsForThisRound,
+            newInstruction: squaddieDecisionsDuringThisPhase,
         }): BattleOrchestratorState => {
             const searchResults: SearchResult = PathfinderHelper.search({
                 searchParameters: SearchParametersHelper.new({
@@ -182,7 +182,7 @@ describe('BattleSquaddieMover', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            return BattleOrchestratorStateHelper.newOrchestratorState({
+            return BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
@@ -201,7 +201,7 @@ describe('BattleSquaddieMover', () => {
         it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const moveAction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
@@ -239,7 +239,7 @@ describe('BattleSquaddieMover', () => {
         it('should open the HUD if the squaddie turn is incomplete', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const moveAction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
@@ -283,7 +283,7 @@ describe('BattleSquaddieMover', () => {
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
             map.addSquaddie("enemy_1", "enemy_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const moveAction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",
                 startingLocation: {q: 0, r: 0},

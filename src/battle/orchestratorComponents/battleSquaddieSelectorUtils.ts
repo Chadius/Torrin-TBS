@@ -10,7 +10,7 @@ import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
+import {SquaddieInstructionInProgressService} from "../history/currentlySelectedSquaddieDecision";
 import {RecordingHandler} from "../history/recording";
 import {ObjectRepositoryHelper} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
@@ -18,7 +18,7 @@ import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinde
 import {MapHighlightHelper} from "../animation/mapHighlight";
 import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {DecisionService} from "../../decision/decision";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);

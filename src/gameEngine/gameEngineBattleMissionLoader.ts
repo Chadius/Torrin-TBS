@@ -2,7 +2,7 @@ import {GameEngineState} from "./gameEngine";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {MissionLoader, MissionLoaderContext} from "../battle/loading/missionLoader";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../battle/orchestrator/uiControlSettings";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MissionObjective} from "../battle/missionResult/missionObjective";
@@ -188,7 +188,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     private resetBattleOrchestratorState(state: BattleOrchestratorState) {
         state.copyOtherOrchestratorState(
-            BattleOrchestratorStateHelper.newOrchestratorState({
+            BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: (state as BattleOrchestratorState).resourceHandler,
             })
         );

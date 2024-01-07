@@ -25,8 +25,8 @@ import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
-import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieInstructionInProgressService} from "../history/currentlySelectedSquaddieDecision";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {RecordingHandler} from "../history/recording";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattleStateHelper} from "../orchestrator/battleState";
@@ -137,7 +137,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!this.playerCanControlAtLeastOneSquaddie(state.battleOrchestratorState)) {
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR;
         } else if (this.gaveCompleteInstruction) {
-            let newDecision = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
+            let newDecision = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase);
             // TODO Scroll through each action effect one at a time
             let newAction: ActionEffect = newDecision.actionEffects[0];
             if (newAction.type === ActionEffectType.MOVEMENT) {

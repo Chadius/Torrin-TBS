@@ -1,6 +1,6 @@
 import {
     BattleOrchestratorState,
-    BattleOrchestratorStateHelper,
+    BattleOrchestratorStateService,
     BattleOrchestratorStateValidityReason
 } from "./battleOrchestratorState";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -123,7 +123,7 @@ describe('orchestratorState', () => {
     });
 
     it('can clone existing objects', () => {
-        let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: ObjectRepositoryHelper.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
@@ -146,7 +146,7 @@ describe('orchestratorState', () => {
     });
 
     it('can change itself to match other objects', () => {
-        let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: ObjectRepositoryHelper.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
@@ -160,7 +160,7 @@ describe('orchestratorState', () => {
         });
         expect(originalBattleOrchestratorState.isValid).toBeTruthy();
 
-        const cloned: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const cloned: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
             }),
@@ -180,7 +180,7 @@ describe('orchestratorState', () => {
         const battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
         const squaddieRepository = ObjectRepositoryHelper.new();
 
-        const newBattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const newBattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: validBattleState,
             numberGenerator,
             battleSquaddieSelectedHUD,

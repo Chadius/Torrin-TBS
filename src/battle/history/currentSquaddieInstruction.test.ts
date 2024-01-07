@@ -1,5 +1,5 @@
-import {SquaddieInstructionInProgress, SquaddieInstructionInProgressService} from "./squaddieInstructionInProgress";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
+import {CurrentlySelectedSquaddieDecision, SquaddieInstructionInProgressService} from "./currentlySelectedSquaddieDecision";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "./squaddieDecisionsDuringThisPhase";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
@@ -11,7 +11,7 @@ import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DecisionService} from "../../decision/decision";
 
 describe('Current Squaddie Instruction', () => {
-    let torrinInstruction: SquaddieActionsForThisRound;
+    let torrinInstruction: squaddieDecisionsDuringThisPhase;
     let purifyingBlast: ActionEffectSquaddieTemplate;
     let purifyingBlastAction: ActionEffectSquaddie;
 
@@ -36,7 +36,7 @@ describe('Current Squaddie Instruction', () => {
     })
 
     it('can be reset', () => {
-        const newInstruction: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+        const newInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "torrin 0",
                 squaddieTemplateId: "torrin",
@@ -68,7 +68,7 @@ describe('Current Squaddie Instruction', () => {
     });
 
     it('will throw an error if an action is added without setting the squaddie', () => {
-        const newInstruction: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+        const newInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: undefined,
             movingBattleSquaddieIds: undefined,
         });
@@ -93,7 +93,7 @@ describe('Current Squaddie Instruction', () => {
 
     describe('mark squaddie as moving', () => {
         it('can mark dynamic squaddies as moving', () => {
-            const newInstruction: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+            const newInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
                 squaddieActionsForThisRound:
                     SquaddieActionsForThisRoundService.new(
                         {

@@ -10,9 +10,9 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
 import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {
-    SquaddieInstructionInProgress,
+    CurrentlySelectedSquaddieDecision,
     SquaddieInstructionInProgressService
-} from "../history/squaddieInstructionInProgress";
+} from "../history/currentlySelectedSquaddieDecision";
 import {TextBoxHelper} from "../../ui/textBox";
 import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
 import {Label, LabelHelper} from "../../ui/label";
@@ -170,7 +170,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedBattleSquaddieId;
     }
 
-    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: GameEngineState, graphicsContext: GraphicsContext) {
+    draw(squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision, state: GameEngineState, graphicsContext: GraphicsContext) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
@@ -324,8 +324,8 @@ export class BattleSquaddieSelectedHUD {
 
         if (
             state.battleState.squaddieCurrentlyActing
-            && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
-            && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.decisions.length > 0
+            && state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase
+            && state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions.length > 0
         ) {
             return false;
         }
@@ -596,18 +596,18 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState) {
+    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision, state: BattleOrchestratorState) {
         if (
             SquaddieInstructionInProgressService.canChangeSelectedSquaddie(squaddieCurrentlyActing)
         ) {
             return;
         }
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${squaddieTemplate.squaddieId.name}`;
 
         if (
-            this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId
+            this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId
         ) {
             if (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined

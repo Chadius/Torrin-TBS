@@ -15,7 +15,7 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {isCoordinateOnScreen} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
@@ -30,7 +30,7 @@ import {ActionCalculator} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
+import {SquaddieInstructionInProgressService} from "../history/currentlySelectedSquaddieDecision";
 import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
@@ -234,7 +234,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             const currentTeamStrategies: TeamStrategy[] = state.battleOrchestratorState.battleState.teamStrategiesById[currentTeam.id] || [];
 
             let strategyIndex = 0;
-            let squaddieInstruction: SquaddieActionsForThisRound = undefined;
+            let squaddieInstruction: squaddieDecisionsDuringThisPhase = undefined;
             while (!squaddieInstruction && strategyIndex < currentTeamStrategies.length) {
                 const nextStrategy: TeamStrategy = currentTeamStrategies[strategyIndex];
                 squaddieInstruction = this.askTeamStrategyToInstructSquaddie(state, currentTeam, nextStrategy);
@@ -289,14 +289,14 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         });
     }
 
-    private askTeamStrategyToInstructSquaddie(state: GameEngineState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): SquaddieActionsForThisRound {
+    private askTeamStrategyToInstructSquaddie(state: GameEngineState, currentTeam: BattleSquaddieTeam, currentTeamStrategy: TeamStrategy): squaddieDecisionsDuringThisPhase {
         const teamStrategyState: TeamStrategyState = new TeamStrategyState({
             missionMap: state.battleOrchestratorState.battleState.missionMap,
             team: currentTeam,
             squaddieRepository: state.battleOrchestratorState.squaddieRepository,
         })
 
-        let squaddieAction: SquaddieActionsForThisRound = DetermineNextInstruction({
+        let squaddieAction: squaddieDecisionsDuringThisPhase = DetermineNextInstruction({
             strategy: currentTeamStrategy,
             state: teamStrategyState,
             squaddieRepository: state.battleOrchestratorState.squaddieRepository,
@@ -334,7 +334,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         }
     }
 
-    private reactToComputerSelectedAction(state: GameEngineState, squaddieInstruction: SquaddieActionsForThisRound) {
+    private reactToComputerSelectedAction(state: GameEngineState, squaddieInstruction: squaddieDecisionsDuringThisPhase) {
         state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         const {
             squaddieTemplate,

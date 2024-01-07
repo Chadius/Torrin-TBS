@@ -6,7 +6,7 @@ import {
     ActionEffectSquaddieTemplateService
 } from "../../decision/actionEffectSquaddieTemplate";
 import {ActionEffectType} from "../../decision/actionEffect";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "./squaddieDecisionsDuringThisPhase";
 import {ActionEffectMovement, ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
@@ -55,7 +55,7 @@ describe('squaddie actions for this round', () => {
             actionPointCost: 1,
         };
 
-        const actionsForThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const actionsForThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "template id",
             battleSquaddieId: "battle id",
             startingLocation: {q: 0, r: 0},
@@ -85,7 +85,7 @@ describe('squaddie actions for this round', () => {
             ],
         });
 
-        const newActionForThisRound: SquaddieActionsForThisRound = {...actionsForThisRound};
+        const newActionForThisRound: squaddieDecisionsDuringThisPhase = {...actionsForThisRound};
         expect(newActionForThisRound.battleSquaddieId).toStrictEqual(actionsForThisRound.battleSquaddieId);
         expect(newActionForThisRound.squaddieTemplateId).toStrictEqual(actionsForThisRound.squaddieTemplateId);
         expect(newActionForThisRound.startingLocation).toStrictEqual(actionsForThisRound.startingLocation);
@@ -93,7 +93,7 @@ describe('squaddie actions for this round', () => {
     });
 
     it('can add starting location', () => {
-        const instruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: undefined,
@@ -104,7 +104,7 @@ describe('squaddie actions for this round', () => {
     });
 
     it('will throw an error if a starting location is added a second time', () => {
-        const instruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
@@ -123,7 +123,7 @@ describe('squaddie actions for this round', () => {
     });
 
     it('can add movement action and its results', () => {
-        const instruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
@@ -168,7 +168,7 @@ describe('squaddie actions for this round', () => {
 
     describe('can calculate multiple attack penalty', () => {
         it('will not apply MAP when there are no actions', () => {
-            const noActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const noActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 startingLocation: {q: 0, r: 0},
@@ -180,7 +180,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will not increase MAP if the action is not an attack', () => {
-            const noAttackActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const noAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -203,7 +203,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 0 for executing the first attack', () => {
-            const oneAttackActionThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const oneAttackActionThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -226,7 +226,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will not increase MAP if the attack has the trait', () => {
-            const oneAttackActionThisRoundWithoutMAP: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const oneAttackActionThisRoundWithoutMAP: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -249,7 +249,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 1 for executing the second attack', () => {
-            const twoAttackActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const twoAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -281,7 +281,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for executing the third attack', () => {
-            const threeAttackActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -322,7 +322,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for executing more than 3 attacks', () => {
-            const threeAttackActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -373,7 +373,7 @@ describe('squaddie actions for this round', () => {
         });
 
         it('will set MAP multiplier to 0 for previewing the first attack', () => {
-            const oneAttackActionThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const oneAttackActionThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 startingLocation: {q: 0, r: 0},
@@ -396,7 +396,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 1 for previewing the second attack', () => {
-            const twoAttackActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const twoAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -431,7 +431,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for previewing the third attack', () => {
-            const threeAttackActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -474,7 +474,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for previewing more than 3 attacks', () => {
-            const threeAttackActionsThisRound: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 startingLocation: {q: 0, r: 0},

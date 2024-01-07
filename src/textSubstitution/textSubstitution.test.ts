@@ -1,6 +1,6 @@
 import * as battleOrchestratorStateSubstitution from "./battleOrchestratorStateSubstitution"
 import {SubstituteText} from "./textSubstitution";
-import {BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleStateHelper} from "../battle/orchestrator/battleState";
 
 describe("TextSubstitution", () => {
@@ -9,7 +9,7 @@ describe("TextSubstitution", () => {
         SubstituteText("No battle orchestrator state", {});
         expect(battleOrchestratorStateSubstitutionSpy).not.toBeCalled();
 
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,

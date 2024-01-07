@@ -9,12 +9,12 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
-import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {
-    SquaddieInstructionInProgress,
+    CurrentlySelectedSquaddieDecision,
     SquaddieInstructionInProgressService
-} from "../history/squaddieInstructionInProgress";
+} from "../history/currentlySelectedSquaddieDecision";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
@@ -24,7 +24,7 @@ import {StreamNumberGenerator} from "../numberGenerator/stream";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ActionCalculator} from "./calculator";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess} from "./degreeOfSuccess";
@@ -135,7 +135,7 @@ describe('calculator', () => {
         missionStatistics?: MissionStatistics,
         numberGenerator?: NumberGeneratorStrategy,
     }) {
-        const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+        const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
             currentlySelectedDecisionForPreview: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
@@ -150,7 +150,7 @@ describe('calculator', () => {
         });
 
         return ActionCalculator.calculateResults({
-                state: BattleOrchestratorStateHelper.newOrchestratorState({
+                state: BattleOrchestratorStateService.newOrchestratorState({
                     squaddieRepository: squaddieRepository,
                     resourceHandler: undefined,
                     battleSquaddieSelectedHUD: undefined,
@@ -248,7 +248,7 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes,
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN);
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.sanitize({
+            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.sanitize({
                 currentlySelectedDecisionForPreview: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
@@ -259,11 +259,11 @@ describe('calculator', () => {
                     ]
                 }),
                 movingBattleSquaddieIds: [],
-                squaddieActionsForThisRound: undefined,
+                squaddieDecisionsDuringThisPhase: undefined,
             });
 
             const results = ActionCalculator.calculateResults({
-                    state: BattleOrchestratorStateHelper.newOrchestratorState({
+                    state: BattleOrchestratorStateService.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
@@ -293,7 +293,7 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN
             );
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.sanitize({
+            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.sanitize({
                 currentlySelectedDecisionForPreview: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
@@ -304,11 +304,11 @@ describe('calculator', () => {
                     ]
                 }),
                 movingBattleSquaddieIds: [],
-                squaddieActionsForThisRound: undefined,
+                squaddieDecisionsDuringThisPhase: undefined,
             });
 
             ActionCalculator.calculateResults({
-                    state: BattleOrchestratorStateHelper.newOrchestratorState({
+                    state: BattleOrchestratorStateService.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateHelper.newBattleState({
@@ -388,7 +388,7 @@ describe('calculator', () => {
             const expectedRolls: number[] = [1, 6];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
                 currentlySelectedDecisionForPreview: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
@@ -402,7 +402,7 @@ describe('calculator', () => {
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default(),
             });
             SquaddieActionsForThisRoundService.addDecision(
-                squaddieCurrentlyInProgress.squaddieActionsForThisRound,
+                squaddieCurrentlyInProgress.squaddieDecisionsDuringThisPhase,
                 DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
@@ -414,7 +414,7 @@ describe('calculator', () => {
                 })
             );
             SquaddieActionsForThisRoundService.addDecision(
-                squaddieCurrentlyInProgress.squaddieActionsForThisRound,
+                squaddieCurrentlyInProgress.squaddieDecisionsDuringThisPhase,
                 DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
@@ -427,7 +427,7 @@ describe('calculator', () => {
             );
 
             const results = ActionCalculator.calculateResults({
-                    state: BattleOrchestratorStateHelper.newOrchestratorState({
+                    state: BattleOrchestratorStateService.newOrchestratorState({
                         squaddieRepository: squaddieRepository,
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,

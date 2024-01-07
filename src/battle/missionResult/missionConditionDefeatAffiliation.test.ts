@@ -1,6 +1,6 @@
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {ObjectRepositoryHelper} from "../objectRepository";
@@ -144,7 +144,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             type: MissionConditionType.DEFEAT_ALL_NO_AFFILIATIONS,
         };
 
-        state = BattleOrchestratorStateHelper.newOrchestratorState({
+        state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,

@@ -17,7 +17,7 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {DIE_SIZE, RollResult, RollResultService} from "./rollResult";
 import {ObjectRepositoryHelper} from "../objectRepository";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "./degreeOfSuccess";
 import {ActionEffectType} from "../../decision/actionEffect";
@@ -56,7 +56,7 @@ function calculateResults({
     if (squaddieActionEffect.type === ActionEffectType.SQUADDIE) {
         actingSquaddieRoll = maybeMakeAttackRoll(squaddieActionEffect.template, state);
     }
-    let {multipleAttackPenalty} = SquaddieActionsForThisRoundService.currentMultipleAttackPenalty(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
+    let {multipleAttackPenalty} = SquaddieActionsForThisRoundService.currentMultipleAttackPenalty(state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase);
     let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
 
     if (multipleAttackPenalty !== 0) {

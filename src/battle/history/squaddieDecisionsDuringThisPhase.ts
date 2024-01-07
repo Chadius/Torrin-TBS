@@ -3,7 +3,7 @@ import {MULTIPLE_ATTACK_PENALTY} from "../modifierConstants";
 import {isValidValue} from "../../utils/validityCheck";
 import {Decision, DecisionService} from "../../decision/decision";
 
-export interface SquaddieActionsForThisRound {
+export interface squaddieDecisionsDuringThisPhase {
     squaddieTemplateId: string;
     battleSquaddieId: string;
     startingLocation: HexCoordinate;
@@ -21,7 +21,7 @@ export const SquaddieActionsForThisRoundService = {
         battleSquaddieId: string,
         startingLocation: HexCoordinate,
         decisions?: Decision[],
-    }): SquaddieActionsForThisRound => {
+    }): squaddieDecisionsDuringThisPhase => {
         return sanitize({
             squaddieTemplateId,
             battleSquaddieId,
@@ -30,7 +30,7 @@ export const SquaddieActionsForThisRoundService = {
         });
     },
     default:
-        (): SquaddieActionsForThisRound => {
+        (): squaddieDecisionsDuringThisPhase => {
             return sanitize({
                 squaddieTemplateId: "",
                 battleSquaddieId: "",
@@ -39,15 +39,15 @@ export const SquaddieActionsForThisRoundService = {
             });
         },
     sanitize:
-        (data: SquaddieActionsForThisRound): SquaddieActionsForThisRound => {
+        (data: squaddieDecisionsDuringThisPhase): squaddieDecisionsDuringThisPhase => {
             return sanitize(data);
         },
     addDecision:
-        (data: SquaddieActionsForThisRound, decision: Decision) => {
+        (data: squaddieDecisionsDuringThisPhase, decision: Decision) => {
             data.decisions.push(decision);
         },
     getMostRecentDecision:
-        (data: SquaddieActionsForThisRound): Decision => {
+        (data: squaddieDecisionsDuringThisPhase): Decision => {
             if (data.decisions.length === 0) {
                 return undefined;
             }
@@ -56,21 +56,21 @@ export const SquaddieActionsForThisRoundService = {
                 ];
         },
     addStartingLocation:
-        (data: SquaddieActionsForThisRound, startingLocation: HexCoordinate) => {
+        (data: squaddieDecisionsDuringThisPhase, startingLocation: HexCoordinate) => {
             if (data.startingLocation !== undefined) {
                 throw new Error(`already has starting location (${startingLocation.q}, ${startingLocation.r}), cannot add another`)
             }
             data.startingLocation = startingLocation;
         },
     currentMultipleAttackPenalty:
-        (actionsForThisRound: SquaddieActionsForThisRound): {
+        (actionsForThisRound: squaddieDecisionsDuringThisPhase): {
             penaltyMultiplier: number,
             multipleAttackPenalty: number,
         } => {
             return calculateMultipleAttackPenalty(actionsForThisRound, undefined);
         },
     previewMultipleAttackPenalty:
-        (actionsForThisRound: SquaddieActionsForThisRound, decisionToPreview: Decision): {
+        (actionsForThisRound: squaddieDecisionsDuringThisPhase, decisionToPreview: Decision): {
             penaltyMultiplier: number,
             multipleAttackPenalty: number,
         } => {
@@ -78,7 +78,7 @@ export const SquaddieActionsForThisRoundService = {
         }
 }
 
-function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieActionsForThisRound, decisionToPreview: Decision) {
+function calculateMultipleAttackPenalty(actionsForThisRound: squaddieDecisionsDuringThisPhase, decisionToPreview: Decision) {
     let multipleAttackPenaltyMultiplier =
         actionsForThisRound.decisions.reduce(
             (accumulator: number, decision: Decision): number => {
@@ -107,7 +107,7 @@ function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieActionsForT
     }
 }
 
-const sanitize = (data: SquaddieActionsForThisRound): SquaddieActionsForThisRound => {
+const sanitize = (data: squaddieDecisionsDuringThisPhase): squaddieDecisionsDuringThisPhase => {
     if (isValidValue(data.decisions) !== true) {
         data.decisions = [];
     }

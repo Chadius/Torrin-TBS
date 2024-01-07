@@ -6,6 +6,7 @@ import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {RandomNumberGenerator} from "../numberGenerator/random";
+import {DecisionActionEffectIterator} from "../orchestratorComponents/decisionActionEffectIterator";
 
 export class BattleOrchestratorState {
     resourceHandler: ResourceHandler;
@@ -13,6 +14,7 @@ export class BattleOrchestratorState {
     battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD;
     numberGenerator: NumberGeneratorStrategy;
     battleState: BattleState;
+    decisionActionEffectIterator: DecisionActionEffectIterator;
 
     constructor({
                     squaddieRepository,
@@ -20,18 +22,21 @@ export class BattleOrchestratorState {
                     battleSquaddieSelectedHUD,
                     numberGenerator,
                     battleState,
+                    decisionActionEffectIterator,
                 }: {
         squaddieRepository: ObjectRepository,
         resourceHandler: ResourceHandler,
         battleSquaddieSelectedHUD: BattleSquaddieSelectedHUD,
         numberGenerator: NumberGeneratorStrategy,
         battleState: BattleState,
+        decisionActionEffectIterator: DecisionActionEffectIterator
     }) {
         this.resourceHandler = resourceHandler;
         this.battleState = battleState;
         this.battleSquaddieSelectedHUD = battleSquaddieSelectedHUD;
         this.squaddieRepository = squaddieRepository;
         this.numberGenerator = numberGenerator;
+        this.decisionActionEffectIterator = decisionActionEffectIterator;
     }
 
     get isValid(): boolean {
@@ -57,7 +62,7 @@ export class BattleOrchestratorState {
     }
 
     public clone(): BattleOrchestratorState {
-        return BattleOrchestratorStateHelper.newOrchestratorState({
+        return BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: this.resourceHandler,
             squaddieRepository: this.squaddieRepository,
             battleState: BattleStateHelper.clone(this.battleState),
@@ -83,19 +88,21 @@ export enum BattleOrchestratorStateValidityReason {
     INVALID_BATTLE_STATE = "INVALID_BATTLE_STATE",
 }
 
-export const BattleOrchestratorStateHelper = {
+export const BattleOrchestratorStateService = {
     newOrchestratorState: ({
                                resourceHandler,
                                squaddieRepository,
                                battleSquaddieSelectedHUD,
                                numberGenerator,
                                battleState,
+                               decisionActionEffectIterator,
                            }: {
         resourceHandler: ResourceHandler,
         squaddieRepository?: ObjectRepository,
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
+        decisionActionEffectIterator?: DecisionActionEffectIterator,
     }): BattleOrchestratorState => {
         return new BattleOrchestratorState({
             resourceHandler,
@@ -110,6 +117,7 @@ export const BattleOrchestratorStateHelper = {
                 battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             }),
             numberGenerator: numberGenerator ?? new RandomNumberGenerator(),
+            decisionActionEffectIterator: decisionActionEffectIterator,
         });
     },
 };

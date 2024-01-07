@@ -1,12 +1,12 @@
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {
-    SquaddieInstructionInProgress,
+    CurrentlySelectedSquaddieDecision,
     SquaddieInstructionInProgressService
-} from "../history/squaddieInstructionInProgress";
+} from "../history/currentlySelectedSquaddieDecision";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
@@ -44,11 +44,11 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let longswordAction: ActionEffectSquaddieTemplate;
     let powerAttackLongswordAction: ActionEffectSquaddieTemplate;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
-    let oneActionInstruction: SquaddieActionsForThisRound;
+    let oneActionInstruction: squaddieDecisionsDuringThisPhase;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let battleEventRecording: Recording;
 
-    let knightHitsThiefWithLongswordInstructionInProgress: SquaddieInstructionInProgress;
+    let knightHitsThiefWithLongswordInstructionInProgress: CurrentlySelectedSquaddieDecision;
     let knightHitsThiefWithLongswordEvent: BattleEvent;
 
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -92,7 +92,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
-        const oneActionInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new(
+        const oneActionInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new(
             {
                 squaddieTemplateId: "static_squaddie",
                 battleSquaddieId: "dynamic_squaddie",
@@ -166,7 +166,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     it('will create an actor sprite and a target sprite', () => {
         RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -190,7 +190,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     it('will skip displaying the results if the user clicks', () => {
         RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -222,7 +222,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
 
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,

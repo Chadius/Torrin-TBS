@@ -14,9 +14,9 @@ import {Recording} from "../history/recording";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {
-    SquaddieInstructionInProgress,
+    CurrentlySelectedSquaddieDecision,
     SquaddieInstructionInProgressService
-} from "../history/squaddieInstructionInProgress";
+} from "../history/currentlySelectedSquaddieDecision";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective} from "../missionResult/missionObjective";
@@ -46,7 +46,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     recording: Recording;
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
-    squaddieCurrentlyActing: SquaddieInstructionInProgress;
+    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision;
 }
 
 export const BattleStateHelper = {
@@ -139,7 +139,7 @@ interface BattleStateConstructorParameters {
     missionMap?: MissionMap;
     camera?: BattleCamera;
     battlePhaseState?: BattlePhaseState;
-    squaddieCurrentlyActing?: SquaddieInstructionInProgress;
+    squaddieCurrentlyActing?: CurrentlySelectedSquaddieDecision;
     recording?: Recording;
     teams?: BattleSquaddieTeam[];
     teamStrategiesById?: { [key: string]: TeamStrategy[] };

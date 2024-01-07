@@ -3,7 +3,7 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import * as mocks from "./../utils/test/mocks";
 import * as DataLoader from "../dataLoader/dataLoader";
 import {ObjectRepository, ObjectRepositoryHelper} from "../battle/objectRepository";
-import {BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
 import {MissionFileFormat} from "../dataLoader/missionLoader";
 import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
@@ -50,7 +50,7 @@ describe('GameEngineBattleMissionLoader', () => {
         squaddieRepository = ObjectRepositoryHelper.new();
 
         state = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler,
                 squaddieRepository,
                 battleSquaddieSelectedHUD: undefined,
@@ -245,7 +245,7 @@ describe('GameEngineBattleMissionLoader', () => {
             originalState = GameEngineStateHelper.new({
                 previousMode: GameModeEnum.BATTLE,
                 battleOrchestratorState:
-                    BattleOrchestratorStateHelper.newOrchestratorState({
+                    BattleOrchestratorStateService.newOrchestratorState({
                         squaddieRepository,
                         resourceHandler,
                         battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
@@ -419,7 +419,7 @@ describe('GameEngineBattleMissionLoader', () => {
             );
 
             originalState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler,
                     squaddieRepository: ObjectRepositoryHelper.new(),
                 }),
@@ -428,7 +428,7 @@ describe('GameEngineBattleMissionLoader', () => {
             originalState.gameSaveFlags.loadRequested = true;
             currentState = GameEngineStateHelper.new({
                 previousMode: GameModeEnum.TITLE_SCREEN,
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler,
                     squaddieRepository: ObjectRepositoryHelper.new(),
                 }),
@@ -524,7 +524,7 @@ describe('GameEngineBattleMissionLoader', () => {
         const missionLoadSpyCalls = loadFileIntoFormatSpy.mock.calls.length;
 
         loader.reset(state);
-        state.battleOrchestratorState.copyOtherOrchestratorState(BattleOrchestratorStateHelper.newOrchestratorState({resourceHandler}));
+        state.battleOrchestratorState.copyOtherOrchestratorState(BattleOrchestratorStateService.newOrchestratorState({resourceHandler}));
 
         await loader.update(state);
         const missionMapCallsCount = 1;

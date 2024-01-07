@@ -1,8 +1,8 @@
-import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
+import {CurrentlySelectedSquaddieDecision} from "./currentlySelectedSquaddieDecision";
 import {SquaddieSquaddieResults} from "./squaddieSquaddieResults";
 
 export interface BattleEvent {
-    instruction: SquaddieInstructionInProgress;
+    instruction: CurrentlySelectedSquaddieDecision;
     results: SquaddieSquaddieResults;
 }
 

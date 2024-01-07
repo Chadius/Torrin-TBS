@@ -1,4 +1,4 @@
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {TeamStrategyState} from "./teamStrategyState";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
@@ -75,7 +75,7 @@ describe('end turn team strategy', () => {
         });
         missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
 
-        const expectedInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const expectedInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new_static_squaddie",
             battleSquaddieId: "new_dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
@@ -89,7 +89,7 @@ describe('end turn team strategy', () => {
         });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
@@ -111,7 +111,7 @@ describe('end turn team strategy', () => {
         });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -125,7 +125,7 @@ describe('end turn team strategy', () => {
         BattleSquaddieHelper.endTurn(playerBattleSquaddie);
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toBeUndefined();
     });

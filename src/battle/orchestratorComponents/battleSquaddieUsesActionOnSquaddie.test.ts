@@ -1,14 +1,14 @@
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {
-    SquaddieInstructionInProgress,
+    CurrentlySelectedSquaddieDecision,
     SquaddieInstructionInProgressService
-} from "../history/squaddieInstructionInProgress";
+} from "../history/currentlySelectedSquaddieDecision";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
 import {
     ActionEffectSquaddieTemplate,
@@ -51,7 +51,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let powerAttackLongswordAction: ActionEffectSquaddieTemplate;
     let monkKoanAction: ActionEffectSquaddieTemplate;
     let monkMeditatesEvent: BattleEvent;
-    let monkMeditatesInstruction: SquaddieInstructionInProgress;
+    let monkMeditatesInstruction: CurrentlySelectedSquaddieDecision;
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let battleEventRecording: Recording;
@@ -142,7 +142,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     function useMonkKoanAndReturnState({missionMap}: {
         missionMap?: MissionMap
     }): GameEngineState {
-        const instruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
@@ -200,7 +200,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
 
-        const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",
@@ -226,7 +226,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     function usePowerAttackLongswordAndReturnState({missionMap}: {
         missionMap?: MissionMap
     }): GameEngineState {
-        const wholeTurnInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const wholeTurnInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
@@ -243,7 +243,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             ]
         });
 
-        const squaddieInstructionInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+        const squaddieInstructionInProgress: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: wholeTurnInstruction,
             movingBattleSquaddieIds: [],
             currentlySelectedDecisionForPreview: DecisionService.new({
@@ -278,7 +278,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         };
         RecordingHandler.addEvent(battleEventRecording, newEvent);
 
-        const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateHelper.newBattleState({
                 missionId: "test mission",

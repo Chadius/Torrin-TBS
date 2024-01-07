@@ -1,10 +1,10 @@
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
+import {SquaddieInstructionInProgressService} from "../history/currentlySelectedSquaddieDecision";
 import {RecordingHandler} from "../history/recording";
 import {SquaddieTurnHandler} from "../../squaddie/turn";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
@@ -121,6 +121,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         if (this.hasConfirmedAction) {
+            // TODO there must be an engine that evaluates the state
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
@@ -265,7 +266,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
         let {multipleAttackPenalty} = SquaddieActionsForThisRoundService.previewMultipleAttackPenalty(
-            state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
+            state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase,
             state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview,
         );
         if (multipleAttackPenalty !== 0) {

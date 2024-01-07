@@ -21,8 +21,8 @@ import {
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
-import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieInstructionInProgressService} from "../history/currentlySelectedSquaddieDecision";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
 
@@ -59,11 +59,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             this.animationStartTime = Date.now();
 
             // TODO should look at the recently selected action effect
-            let actionEffectToAnimate: ActionEffect = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).actionEffects[0];
+            let actionEffectToAnimate: ActionEffect = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0];
 
             if (
                 state.battleOrchestratorState.battleState.squaddieCurrentlyActing
-                && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
+                && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase
                 && actionEffectToAnimate.type === ActionEffectType.MOVEMENT
             ) {
                 SquaddieInstructionInProgressService.markBattleSquaddieIdAsMoving(
@@ -96,15 +96,15 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         let lastActionEffectWasAMovement: boolean = false;
         if (
             state.battleOrchestratorState.battleState.squaddieCurrentlyActing
-            && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
+            && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase
         ) {
-            let actionEffectToAnimate = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).actionEffects[0];
+            let actionEffectToAnimate = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0];
             lastActionEffectWasAMovement = actionEffectToAnimate.type === ActionEffectType.MOVEMENT;
         }
 
         if (
             state.battleOrchestratorState.battleState.squaddieCurrentlyActing
-            && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
+            && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase
             && lastActionEffectWasAMovement
         ) {
             SquaddieInstructionInProgressService.removeBattleSquaddieIdAsMoving(
@@ -142,7 +142,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         updateSquaddieLocation(battleSquaddie, squaddieTemplate, state.battleState.squaddieMovePath.destination, state.battleState.missionMap, battleSquaddie.battleSquaddieId);
 
         // TODO should look at the recently selected action effect
-        let actionEffectToAnimate: ActionEffect = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).actionEffects[0];
+        let actionEffectToAnimate: ActionEffect = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0];
         if (actionEffectToAnimate.type === ActionEffectType.MOVEMENT) {
             spendSquaddieActionPoints(battleSquaddie, actionEffectToAnimate.numberOfActionPointsSpent);
         }

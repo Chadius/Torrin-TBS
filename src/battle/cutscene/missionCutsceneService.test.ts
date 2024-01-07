@@ -5,7 +5,7 @@ import {
     MissionCutsceneCollection,
     MissionCutsceneCollectionHelper
 } from "../orchestrator/missionCutsceneCollection";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
@@ -49,7 +49,7 @@ describe('Mission Cutscene Service', () => {
             triggeringEvent: TriggeringEvent.MISSION_VICTORY,
             systemReactedToTrigger: false,
         };
-        victoryState = BattleOrchestratorStateHelper.newOrchestratorState({
+        victoryState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -87,7 +87,7 @@ describe('Mission Cutscene Service', () => {
             triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
             systemReactedToTrigger: false,
         };
-        defeatState = BattleOrchestratorStateHelper.newOrchestratorState({
+        defeatState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -118,7 +118,7 @@ describe('Mission Cutscene Service', () => {
         });
         defeatState.battleState.battleCompletionStatus = BattleCompletionStatus.IN_PROGRESS;
 
-        victoryAndDefeatState = BattleOrchestratorStateHelper.newOrchestratorState({
+        victoryAndDefeatState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
@@ -166,7 +166,7 @@ describe('Mission Cutscene Service', () => {
             turn: 0,
         }
 
-        turn0State = BattleOrchestratorStateHelper.newOrchestratorState({
+        turn0State = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,

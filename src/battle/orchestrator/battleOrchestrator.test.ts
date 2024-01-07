@@ -1,5 +1,5 @@
 import {BattleOrchestrator, BattleOrchestratorMode} from "./battleOrchestrator";
-import {BattleOrchestratorStateHelper} from "./battleOrchestratorState";
+import {BattleOrchestratorStateService} from "./battleOrchestratorState";
 import {BattleCutscenePlayer} from "../orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleSquaddieMover} from "../orchestratorComponents/battleSquaddieMover";
@@ -32,7 +32,7 @@ import {GameModeEnum} from "../../utils/startupConfig";
 import {DefaultBattleOrchestrator} from "./defaultBattleOrchestrator";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {TriggeringEvent,} from "../../cutscene/cutsceneTrigger";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionMap} from "../../missionMap/missionMap";
 import {MissionStartOfPhaseCutsceneTrigger} from "../cutscene/missionStartOfPhaseCutsceneTrigger";
@@ -42,7 +42,7 @@ import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
+import {SquaddieInstructionInProgressService} from "../history/currentlySelectedSquaddieDecision";
 
 
 describe('Battle Orchestrator', () => {
@@ -174,7 +174,7 @@ describe('Battle Orchestrator', () => {
     beforeEach(() => {
         nullState = GameEngineStateHelper.new({
             battleOrchestratorState:
-                BattleOrchestratorStateHelper.newOrchestratorState({
+                BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: mockHud,
                     resourceHandler: undefined,
                     squaddieRepository: undefined,
@@ -252,7 +252,7 @@ describe('Battle Orchestrator', () => {
         }
 
         const turn0State: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
@@ -294,7 +294,7 @@ describe('Battle Orchestrator', () => {
         });
 
         const stateWithCutscene: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: nullState.battleOrchestratorState.resourceHandler,
                 squaddieRepository: ObjectRepositoryHelper.new(),
                 battleSquaddieSelectedHUD: undefined,
@@ -335,7 +335,7 @@ describe('Battle Orchestrator', () => {
 
         const stateWithCutscene: GameEngineState = GameEngineStateHelper.new({
             battleOrchestratorState:
-                BattleOrchestratorStateHelper.newOrchestratorState({
+                BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler: nullState.battleOrchestratorState.resourceHandler,
                     squaddieRepository: ObjectRepositoryHelper.new(),
                     battleSquaddieSelectedHUD: undefined,
@@ -400,7 +400,7 @@ describe('Battle Orchestrator', () => {
                     startingLocation: {q: 0, r: 0},
                 }),
             });
-        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, DecisionService.new({
+        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase, DecisionService.new({
             actionEffects: [
                 ActionEffectMovementService.new({
                     destination: {q: 1, r: 2},
@@ -440,7 +440,7 @@ describe('Battle Orchestrator', () => {
                 }),
             });
 
-        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
+        SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase,
             DecisionService.new({
                 actionEffects: [
                     ActionEffectMovementService.new({
@@ -573,7 +573,7 @@ describe('Battle Orchestrator', () => {
 
             victoryState = GameEngineStateHelper.new({
                 battleOrchestratorState:
-                    BattleOrchestratorStateHelper.newOrchestratorState({
+                    BattleOrchestratorStateService.newOrchestratorState({
                         battleSquaddieSelectedHUD: mockHud,
                         squaddieRepository: undefined,
                         resourceHandler: undefined,
@@ -617,7 +617,7 @@ describe('Battle Orchestrator', () => {
 
             defeatState = GameEngineStateHelper.new({
                 battleOrchestratorState:
-                    BattleOrchestratorStateHelper.newOrchestratorState({
+                    BattleOrchestratorStateService.newOrchestratorState({
                         battleSquaddieSelectedHUD: mockHud,
                         squaddieRepository: undefined,
                         resourceHandler: undefined,
@@ -660,7 +660,7 @@ describe('Battle Orchestrator', () => {
             victoryAndDefeatState =
                 GameEngineStateHelper.new({
                     battleOrchestratorState:
-                        BattleOrchestratorStateHelper.newOrchestratorState({
+                        BattleOrchestratorStateService.newOrchestratorState({
                             battleSquaddieSelectedHUD: mockHud,
                             squaddieRepository: undefined,
                             resourceHandler: undefined,
@@ -867,7 +867,7 @@ describe('Battle Orchestrator', () => {
             component: BattleOrchestratorComponent
         ) => {
             const stateWantsToDisplayTheMap: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     squaddieRepository: undefined,
                     battleState: BattleStateHelper.newBattleState({
                         missionId: "test mission",
@@ -916,7 +916,7 @@ describe('Battle Orchestrator', () => {
             mockPlayerSquaddieSelector.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({pauseTimer: false}));
 
             const state: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     squaddieRepository: undefined,
                     battleState: BattleStateHelper.newBattleState({
                         missionId: "test mission",
@@ -955,7 +955,7 @@ describe('Battle Orchestrator', () => {
             const stateWantsToDisplayTheMap
                 : GameEngineState = GameEngineStateHelper.new({
                 battleOrchestratorState:
-                    BattleOrchestratorStateHelper.newOrchestratorState({
+                    BattleOrchestratorStateService.newOrchestratorState({
                         battleState: BattleStateHelper.newBattleState({
                             missionId: "test mission",
                         }),
@@ -981,7 +981,7 @@ describe('Battle Orchestrator', () => {
         });
 
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
                 }),

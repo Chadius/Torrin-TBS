@@ -1,4 +1,4 @@
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "./squaddieDecisionsDuringThisPhase";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
@@ -12,7 +12,7 @@ import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 
 describe('SquaddieInstruction', () => {
     it('can add a squaddie and location', () => {
-        const instruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
@@ -23,7 +23,7 @@ describe('SquaddieInstruction', () => {
         expect(instruction.startingLocation).toStrictEqual({q: 0, r: 0});
     });
     it('can add squaddie action', () => {
-        const instruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
@@ -80,7 +80,7 @@ describe('SquaddieInstruction', () => {
         expect(actionsUsedThisRound).toHaveLength(2);
     });
     it('can add end turn action', () => {
-        const instruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},

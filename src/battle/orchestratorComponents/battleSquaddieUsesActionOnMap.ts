@@ -10,10 +10,11 @@ import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestrator
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {ActionEffectType} from "../../decision/actionEffect";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {BattleSquaddieHelper} from "../battleSquaddie";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
+import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -56,16 +57,14 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (this.animationCompleteStartTime === undefined) {
-            const battleSquaddieId = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId;
+            const battleSquaddieId = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;
             const {
                 battleSquaddie,
                 squaddieTemplate
             } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
-            // TODO should look at the currently animating action effect
-            const mostRecentAction = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).actionEffects[0];
-
-            if (mostRecentAction.type === ActionEffectType.END_TURN) {
+            const mostRecentActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
+            if (mostRecentActionEffect.type === ActionEffectType.END_TURN) {
                 BattleSquaddieHelper.endTurn(battleSquaddie);
                 TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             }

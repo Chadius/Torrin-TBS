@@ -1,5 +1,5 @@
-import {SquaddieInstructionInProgress, SquaddieInstructionInProgressService} from "./squaddieInstructionInProgress";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
+import {CurrentlySelectedSquaddieDecision, SquaddieInstructionInProgressService} from "./currentlySelectedSquaddieDecision";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "./squaddieDecisionsDuringThisPhase";
 import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType} from "../../squaddie/squaddieService";
@@ -24,7 +24,7 @@ const longswordAction = ActionEffectSquaddieTemplateService.new({
 
 describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {
-        const squaddieCurrentlyActing: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+        const squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battleSquaddieId",
@@ -39,7 +39,7 @@ describe('SquaddieInstructionInProgress', () => {
     });
 
     it('will indicate the squaddie has acted this round if they cancel after acting', () => {
-        const longswordUsedThisRoundAction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new({
+        const longswordUsedThisRoundAction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             battleSquaddieId: "battleSquaddieId",
             squaddieTemplateId: "templateId",
             startingLocation: {q: 1, r: 1},
@@ -56,7 +56,7 @@ describe('SquaddieInstructionInProgress', () => {
                 ]
             }));
 
-        const squaddieCurrentlyActing: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+        const squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: longswordUsedThisRoundAction,
             currentlySelectedDecisionForPreview: DecisionService.new({
                 actionEffects: [

@@ -14,11 +14,11 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
 import {
-    SquaddieInstructionInProgress,
+    CurrentlySelectedSquaddieDecision,
     SquaddieInstructionInProgressService
-} from "../history/squaddieInstructionInProgress";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+} from "../history/currentlySelectedSquaddieDecision";
+import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -37,7 +37,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let monkDynamicId = "monk dynamic";
     let monkKoanAction: ActionEffectSquaddieTemplate;
     let monkMeditatesEvent: BattleEvent;
-    let monkMeditatesInstruction: SquaddieInstructionInProgress;
+    let monkMeditatesInstruction: CurrentlySelectedSquaddieDecision;
 
     let battleEventRecording: Recording;
 
@@ -71,7 +71,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         });
 
         battleEventRecording = {history: []};
-        const oneDecisionInstruction: SquaddieActionsForThisRound = SquaddieActionsForThisRoundService.new(
+        const oneDecisionInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new(
             {
                 squaddieTemplateId: monkStaticId,
                 battleSquaddieId: monkDynamicId,
@@ -121,7 +121,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     });
 
     it('will create a text window with the action results', () => {
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -150,7 +150,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will complete at the end of the display time', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
@@ -172,7 +172,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will skip displaying the results if the user clicks', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
