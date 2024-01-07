@@ -90,6 +90,7 @@ describe('BattleComputerSquaddieSelector', () => {
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
+                [Trait.ALWAYS_SUCCEEDS]: true,
                 [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
             }),
             minimumRange: 1,
