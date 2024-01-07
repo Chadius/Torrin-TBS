@@ -71,7 +71,7 @@ describe('squaddie actions for this round', () => {
                 DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
-                            effect: squaddieActionData,
+                            template: squaddieActionData,
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 2},
                         })
@@ -189,7 +189,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: notAnAttackAction
+                                template: notAnAttackAction
                             })
                         ]
                     }),
@@ -212,7 +212,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -235,7 +235,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackActionWithoutMAP,
+                                template: attackActionWithoutMAP,
                             })
                         ]
                     }),
@@ -258,7 +258,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -267,7 +267,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -290,7 +290,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -299,7 +299,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -308,7 +308,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -331,7 +331,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -340,7 +340,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -349,7 +349,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -358,7 +358,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -386,7 +386,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            effect: attackAction,
+                            template: attackAction,
                         })
                     ]
                 })
@@ -405,7 +405,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -421,7 +421,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            effect: attackAction,
+                            template: attackAction,
                         })
                     ]
                 })
@@ -440,7 +440,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -449,7 +449,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -464,7 +464,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            effect: attackAction,
+                            template: attackAction,
                         })
                     ]
                 })
@@ -484,7 +484,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
 
                             })
                         ]
@@ -494,7 +494,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -503,7 +503,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                effect: attackAction,
+                                template: attackAction,
                             })
                         ]
                     }),
@@ -517,7 +517,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            effect: attackAction,
+                            template: attackAction,
                         })
                     ]
                 })

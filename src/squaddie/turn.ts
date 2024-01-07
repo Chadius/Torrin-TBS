@@ -13,7 +13,7 @@ export const SquaddieTurnHandler = {
     new: (): SquaddieTurn => {
         return {remainingActionPoints: 3};
     },
-    spendActionPointsOnAction: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate) => {
+    spendActionPointsOnActionTemplate: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate) => {
         data.remainingActionPoints = (data.remainingActionPoints - action.actionPointCost);
     },
     spendActionPoints: (data: SquaddieTurn, number: number) => {

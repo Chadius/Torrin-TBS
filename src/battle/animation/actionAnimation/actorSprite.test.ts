@@ -94,7 +94,7 @@ describe('Actor Sprite', () => {
         sprite.draw({
             timer,
             graphicsContext: mockedP5GraphicsContext,
-            action: hinderingAction,
+            actionEffectSquaddieTemplate: hinderingAction,
         });
 
         expect(getSquaddieEmotionSpy).toBeCalled();

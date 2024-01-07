@@ -174,7 +174,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        effect: action,
+                        template: action,
                         targetLocation: targetLocation,
                         numberOfActionPointsSpent: 1,
                     })
@@ -219,7 +219,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                     DecisionService.new({
                         actionEffects: [
                             ActionEffectSquaddieService.new({
-                                effect: action,
+                                template: action,
                                 targetLocation: desiredSquaddieMapDatum.mapLocation,
                                 numberOfActionPointsSpent: 1,
                             })

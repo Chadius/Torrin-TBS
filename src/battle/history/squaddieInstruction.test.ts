@@ -42,7 +42,7 @@ describe('SquaddieInstruction', () => {
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        effect: longswordAction,
+                        template: longswordAction,
                         targetLocation: {
                             q: 1,
                             r: 0,
@@ -65,7 +65,7 @@ describe('SquaddieInstruction', () => {
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        effect: longswordAction,
+                        template: longswordAction,
                         targetLocation: {
                             q: 1,
                             r: 0,

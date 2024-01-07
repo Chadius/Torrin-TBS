@@ -20,6 +20,7 @@ import {ObjectRepositoryHelper} from "../objectRepository";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "./degreeOfSuccess";
+import {ActionEffectType} from "../../decision/actionEffect";
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -50,7 +51,11 @@ function calculateResults({
         targetedBattleSquaddieIds
     } = getTargetedBattleSquaddieIds(state, validTargetLocation);
 
-    let actingSquaddieRoll: RollResult = maybeMakeAttackRoll(state.battleState.squaddieCurrentlyActing.currentlySelectedAction, state);
+    let actingSquaddieRoll: RollResult;
+    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+    if (squaddieActionEffect.type === ActionEffectType.SQUADDIE) {
+        actingSquaddieRoll = maybeMakeAttackRoll(squaddieActionEffect.template, state);
+    }
     let {multipleAttackPenalty} = SquaddieActionsForThisRoundService.currentMultipleAttackPenalty(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
     let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
 
@@ -153,17 +158,23 @@ const calculateTotalDamageDealt = (
     let damageDealt = 0;
     let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE;
 
-    const action = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+    let actionEffectTemplate: ActionEffectSquaddieTemplate = undefined;
+    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+    if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        return;
+    }
+    actionEffectTemplate = squaddieActionEffect.template;
+
     degreeOfSuccess = compareAttackRollToGetDegreeOfSuccess({
-        action,
+        action: actionEffectTemplate,
         actor: actingBattleSquaddie,
         target: targetedBattleSquaddie,
         actingSquaddieRoll,
         actingSquaddieModifierTotal,
     });
 
-    Object.keys(action.damageDescriptions).forEach((damageType: DamageType) => {
-        let rawDamageFromAction = action.damageDescriptions[damageType]
+    Object.keys(actionEffectTemplate.damageDescriptions).forEach((damageType: DamageType) => {
+        let rawDamageFromAction = actionEffectTemplate.damageDescriptions[damageType]
         if (degreeOfSuccess === DegreeOfSuccess.CRITICAL_SUCCESS) {
             rawDamageFromAction *= 2;
         }
@@ -187,11 +198,16 @@ const calculateTotalDamageDealt = (
 
 function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {
     let healingReceived = 0;
-    if (state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LOST_HIT_POINTS) {
+    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+    if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        return 0;
+    }
+
+    if (squaddieActionEffect.template.healingDescriptions.LOST_HIT_POINTS) {
         ({healingReceived} = GiveHealingToTheSquaddie({
             squaddieTemplate: targetedSquaddieTemplate,
             battleSquaddie: targetedBattleSquaddie,
-            healingAmount: state.battleState.squaddieCurrentlyActing.currentlySelectedAction.healingDescriptions.LOST_HIT_POINTS,
+            healingAmount: squaddieActionEffect.template.healingDescriptions.LOST_HIT_POINTS,
             healingType: HealingType.LOST_HIT_POINTS,
         }));
     }

@@ -42,6 +42,7 @@ import {ActionEffectType} from "../../decision/actionEffect";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
+import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -330,7 +331,7 @@ describe('BattleSquaddieSelector', () => {
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
         const expectedSquaddieInstruction: SquaddieInstructionInProgress =
-            {
+            SquaddieInstructionInProgressService.new({
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: "player_soldier",
@@ -347,8 +348,7 @@ describe('BattleSquaddieSelector', () => {
                         })
                     ]
                 }),
-                currentlySelectedAction: undefined,
-            };
+            });
 
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(1);
@@ -377,7 +377,7 @@ describe('BattleSquaddieSelector', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            squaddieCurrentlyActing = {
+            squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "player_soldier_0",
@@ -394,8 +394,7 @@ describe('BattleSquaddieSelector', () => {
                         })
                     ]
                 }),
-                currentlySelectedAction: undefined,
-            };
+            });
 
             state = GameEngineStateHelper.new({
                 battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -450,7 +449,7 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
         const squaddieCurrentlyActing: SquaddieInstructionInProgress =
-            {
+            SquaddieInstructionInProgressService.new({
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "player_soldier_0",
@@ -467,8 +466,7 @@ describe('BattleSquaddieSelector', () => {
                         })
                     ]
                 }),
-                currentlySelectedAction: undefined,
-            };
+            });
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
@@ -534,7 +532,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        const endTurnInstruction: SquaddieInstructionInProgress = {
+        const endTurnInstruction: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "player_soldier_0",
@@ -548,8 +546,7 @@ describe('BattleSquaddieSelector', () => {
                     })
                 ]
             }),
-            currentlySelectedAction: undefined,
-        };
+        });
 
         expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).actionEffects[0].type).toBe(ActionEffectType.END_TURN);
 
@@ -618,7 +615,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).toStrictEqual(expectedInstruction);
-        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedAction).toStrictEqual(longswordAction);
+        expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0] as ActionEffectSquaddie).template).toStrictEqual(longswordAction);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
@@ -681,11 +678,10 @@ describe('BattleSquaddieSelector', () => {
                 ]
             });
 
-            soldierCurrentlyActing = {
+            soldierCurrentlyActing = SquaddieInstructionInProgressService.new({
                 squaddieActionsForThisRound: movingInstruction,
                 movingBattleSquaddieIds: [],
-                currentlySelectedAction: undefined,
-            };
+            });
 
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
@@ -796,7 +792,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: 0,
                 mouseY: 0
             });
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview).toBeUndefined();
             expect(SquaddieInstructionInProgressService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(
                 SquaddieInstructionInProgressService.battleSquaddieId(soldierCurrentlyActing)
             );

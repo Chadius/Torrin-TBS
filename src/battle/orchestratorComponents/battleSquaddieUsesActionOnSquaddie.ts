@@ -24,6 +24,7 @@ import {RecordingHandler} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryHelper} from "../objectRepository";
+import {ActionEffectType} from "../../decision/actionEffect";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -125,13 +126,20 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         if (
             mostRecentEvent === undefined
             || mostRecentEvent.instruction === undefined
-            || mostRecentEvent.instruction.currentlySelectedAction === undefined
+            || mostRecentEvent.instruction.currentlySelectedDecisionForPreview === undefined
         ) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
             return;
         }
 
-        if (mostRecentEvent.instruction.currentlySelectedAction.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
+
+        // TODO this should be based on the current action
+        let squaddieActionEffect = mostRecentEvent.instruction.currentlySelectedDecisionForPreview.actionEffects[0];
+        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
+
+        if (squaddieActionEffect.template.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator;
             return;
         }

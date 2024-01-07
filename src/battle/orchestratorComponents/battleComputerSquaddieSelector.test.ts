@@ -272,7 +272,7 @@ describe('BattleComputerSquaddieSelector', () => {
             expect(selector.hasCompleted(state)).toBeTruthy();
 
             const endTurnInstruction: SquaddieInstructionInProgress =
-                {
+                SquaddieInstructionInProgressService.new({
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                         squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
@@ -286,8 +286,7 @@ describe('BattleComputerSquaddieSelector', () => {
                             })
                         ]
                     }),
-                    currentlySelectedAction: undefined,
-                };
+                });
 
             expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).actionEffects[0].type).toBe(ActionEffectType.END_TURN);
 
@@ -355,7 +354,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 ActionEffectSquaddieService.new({
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 0, r: 0},
-                    effect: entireTurnDemonBiteAction,
+                    template: entireTurnDemonBiteAction,
                 })
             ]
         }));
@@ -492,7 +491,7 @@ describe('BattleComputerSquaddieSelector', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 1},
-                            effect: demonBiteAction,
+                            template: demonBiteAction,
                         })
                     ]
                 }));
@@ -585,7 +584,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 expect(mostRecentEvent.instruction.squaddieActionsForThisRound.decisions).toHaveLength(1);
                 expect((
                     mostRecentEvent.instruction.squaddieActionsForThisRound.decisions[0].actionEffects[0] as ActionEffectSquaddie
-                ).effect.id).toBe(demonBiteAction.id);
+                ).template.id).toBe(demonBiteAction.id);
                 const results = mostRecentEvent.results;
                 expect(results.actingBattleSquaddieId).toBe(enemyDemonBattleSquaddie.battleSquaddieId);
                 expect(results.targetedBattleSquaddieIds).toHaveLength(1);

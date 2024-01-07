@@ -27,6 +27,7 @@ import {LabelHelper} from "../../ui/label";
 import * as ActionResultTextService from "./actionResultTextService";
 import {BattleStateHelper} from "../orchestrator/battleState";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/decision";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -79,19 +80,26 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
-                            effect: monkKoanAction,
+                            template: monkKoanAction,
                             targetLocation: {q: 0, r: 0},
                         })
                     ]
                 }],
             });
 
-        monkMeditatesInstruction = {
-            currentlySelectedAction: monkKoanAction,
+        monkMeditatesInstruction = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: oneDecisionInstruction,
-        };
-        SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(monkMeditatesInstruction, monkKoanAction);
+            currentlySelectedDecisionForPreview: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: monkKoanAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        });
 
         monkMeditatesEvent = {
             instruction: monkMeditatesInstruction,
@@ -133,7 +141,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         expect(animator.outputTextDisplay).not.toBeUndefined();
         expect(outputResultForTextOnlySpy).toBeCalled();
         expect(outputResultForTextOnlySpy).toBeCalledWith({
-            currentAction: monkKoanAction,
+            currentActionEffectTemplate: monkKoanAction,
             result: monkMeditatesEvent.results,
             squaddieRepository,
         });

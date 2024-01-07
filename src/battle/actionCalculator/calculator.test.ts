@@ -135,11 +135,19 @@ describe('calculator', () => {
         missionStatistics?: MissionStatistics,
         numberGenerator?: NumberGeneratorStrategy,
     }) {
-        const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
-            currentlySelectedAction: currentlySelectedAction ?? actionAlwaysHitsAndDealsBodyDamage,
+        const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+            currentlySelectedDecisionForPreview: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: currentlySelectedAction ?? actionAlwaysHitsAndDealsBodyDamage,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default(),
-        };
+        });
 
         return ActionCalculator.calculateResults({
                 state: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -241,7 +249,15 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN);
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.sanitize({
-                currentlySelectedAction: healsLostHitPoints,
+                currentlySelectedDecisionForPreview: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: healsLostHitPoints,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: undefined,
             });
@@ -278,7 +294,15 @@ describe('calculator', () => {
             );
 
             const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.sanitize({
-                currentlySelectedAction: healsLostHitPoints,
+                currentlySelectedDecisionForPreview: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: healsLostHitPoints,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: undefined,
             });
@@ -364,17 +388,25 @@ describe('calculator', () => {
             const expectedRolls: number[] = [1, 6];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
-                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
+            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
+                currentlySelectedDecisionForPreview: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: actionNeedsAnAttackRollToDealBodyDamage,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default(),
-            };
+            });
             SquaddieActionsForThisRoundService.addDecision(
                 squaddieCurrentlyInProgress.squaddieActionsForThisRound,
                 DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
-                            effect: actionNeedsAnAttackRollToDealBodyDamage,
+                            template: actionNeedsAnAttackRollToDealBodyDamage,
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
                         })
@@ -386,7 +418,7 @@ describe('calculator', () => {
                 DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
-                            effect: actionNeedsAnAttackRollToDealBodyDamage,
+                            template: actionNeedsAnAttackRollToDealBodyDamage,
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
                         })

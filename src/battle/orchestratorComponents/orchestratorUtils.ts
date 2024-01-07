@@ -14,7 +14,7 @@ import {MapHighlightHelper} from "../animation/mapHighlight";
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: BattleOrchestratorState) => {
     if (state.battleState.squaddieCurrentlyActing
-        && !SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
+        && !SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing)
     ) {
         const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
             ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
@@ -31,7 +31,7 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: Battle
 export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.battleState.squaddieCurrentlyActing
-        && !SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
+        && !SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing)
     ) {
         const {
             squaddieTemplate,
@@ -57,7 +57,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
 export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
     if (
         state.battleState.squaddieCurrentlyActing
-        && !SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
+        && !SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing)
     ) {
         const {
             squaddieTemplate,

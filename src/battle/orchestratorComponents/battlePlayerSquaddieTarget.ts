@@ -34,6 +34,7 @@ import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent} from "../history/battleEvent";
 import {DecisionService} from "../../decision/decision";
+import {ActionEffectType} from "../../decision/actionEffect";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -65,7 +66,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
-                    SquaddieInstructionInProgressService.cancelSelectedAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+                    SquaddieInstructionInProgressService.cancelSelectedPreviewDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
                     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
                     return;
                 } else {
@@ -75,6 +76,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
             if (!this.hasConfirmedAction) {
                 if (event.mouseY > BUTTON_TOP) {
+                    SquaddieInstructionInProgressService.cancelSelectedPreviewDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
                     return this.cancelTargetSelection(state.battleOrchestratorState);
                 }
 
@@ -145,7 +147,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private highlightTargetRange(state: BattleOrchestratorState) {
-        const action = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
+        const action = squaddieActionEffect.template;
 
         const {
             squaddieTemplate: actingSquaddieTemplate,
@@ -226,7 +232,12 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
-        const actionConsidered: ActionEffectSquaddieTemplate = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
+        const actionConsidered: ActionEffectSquaddieTemplate = squaddieActionEffect.template;
+
         if (actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
             return;
         }
@@ -253,25 +264,21 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
-        // TODO this should pass in the complete decision
         let {multipleAttackPenalty} = SquaddieActionsForThisRoundService.previewMultipleAttackPenalty(
             state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
-            DecisionService.new({
-                actionEffects: [
-                    ActionEffectSquaddieService.new({
-                        numberOfActionPointsSpent: undefined,
-                        targetLocation: undefined,
-                        effect: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
-                    })
-                ]
-            })
+            state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview,
         );
         if (multipleAttackPenalty !== 0) {
             actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] = multipleAttackPenalty;
         }
 
+        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
+
         const intentMessages = ActionResultTextService.outputIntentForTextOnly({
-            currentAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
+            currentActionEffectTemplate: squaddieActionEffect.template,
             actingBattleSquaddieId: SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing),
             squaddieRepository: state.squaddieRepository,
             actingSquaddieModifiers,
@@ -329,33 +336,39 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         if (
             state.battleState.squaddieCurrentlyActing === undefined
-            || SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)
+            || SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing)
         ) {
             state.battleState.squaddieCurrentlyActing =
-                {
+                SquaddieInstructionInProgressService.new({
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                         battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
                         squaddieTemplateId: actingSquaddieTemplate.squaddieId.templateId,
                         startingLocation: actingSquaddieInfo.mapLocation,
                     }),
-                    currentlySelectedAction: undefined,
-                };
+                });
         }
 
-        SquaddieInstructionInProgressService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing,
-            DecisionService.new({
-                actionEffects: [
-                    ActionEffectSquaddieService.new({
-                            targetLocation: this.validTargetLocation,
-                            effect: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
-                            numberOfActionPointsSpent: state.battleState.squaddieCurrentlyActing.currentlySelectedAction.actionPointCost,
-                        }
-                    )
-                ]
-            }))
+        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
 
-        SquaddieTurnHandler.spendActionPointsOnAction(actingBattleSquaddie.squaddieTurn, state.battleState.squaddieCurrentlyActing.currentlySelectedAction);
+
+        const decision = DecisionService.new({
+            actionEffects: [
+                ActionEffectSquaddieService.new({
+                        targetLocation: this.validTargetLocation,
+                        template: squaddieActionEffect.template,
+                        numberOfActionPointsSpent: squaddieActionEffect.numberOfActionPointsSpent,
+                    }
+                )
+            ]
+        });
+        SquaddieInstructionInProgressService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing, decision)
+        SquaddieInstructionInProgressService.selectDecisionForPreview(state.battleState.squaddieCurrentlyActing, decision);
+
+        SquaddieTurnHandler.spendActionPoints(actingBattleSquaddie.squaddieTurn, squaddieActionEffect.numberOfActionPointsSpent);
         const instructionResults = ActionCalculator.calculateResults({
             state,
             actingBattleSquaddie,

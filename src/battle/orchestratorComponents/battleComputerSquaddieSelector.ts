@@ -151,7 +151,11 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         state: BattleOrchestratorState,
         action: ActionEffectSquaddie,
     ) {
-        const ability = state.battleState.squaddieCurrentlyActing.currentlySelectedAction;
+        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
+        const actionEffectSquaddieTemplate = squaddieActionEffect.template;
 
         const searchResult: SearchResult = PathfinderHelper.search({
             searchParameters: SearchParametersHelper.new({
@@ -161,8 +165,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                 minimumDistanceMoved: 0,
                 canStopOnSquaddies: true,
                 ignoreTerrainCost: false,
-                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(ability.targetingShape)),
-                movementPerAction: action.effect.maximumRange,
+                shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(actionEffectSquaddieTemplate.targetingShape)),
+                movementPerAction: action.template.maximumRange,
                 canPassOverPits: false,
                 canPassThroughWalls: false,
                 numberOfActions: 1,
@@ -192,13 +196,16 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     ) {
         MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
 
-        SquaddieInstructionInProgressService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing,
-            DecisionService.new({
-                actionEffects: [
-                    actionData
-                ]
-            }));
-        SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddie.squaddieTurn, state.battleState.squaddieCurrentlyActing.currentlySelectedAction);
+
+        const decision = DecisionService.new({
+            actionEffects: [
+                actionData
+            ]
+        });
+        SquaddieInstructionInProgressService.selectDecisionForPreview(state.battleState.squaddieCurrentlyActing,decision)
+        SquaddieInstructionInProgressService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing, decision);
+
+        SquaddieTurnHandler.spendActionPointsOnActionTemplate(battleSquaddie.squaddieTurn, actionData.template);
         const instructionResults = ActionCalculator.calculateResults({
             state,
             actingBattleSquaddie: battleSquaddie,
@@ -255,18 +262,17 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId))
         const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         if (state.battleOrchestratorState.battleState.squaddieCurrentlyActing === undefined
-            || SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+            || SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
         ) {
             state.battleOrchestratorState.battleState.squaddieCurrentlyActing =
-                {
+                SquaddieInstructionInProgressService.new({
                     movingBattleSquaddieIds: [],
                     squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
                         squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                         startingLocation: datum.mapLocation,
                     }),
-                    currentlySelectedAction: undefined,
-                };
+                });
         }
 
         SquaddieInstructionInProgressService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing,

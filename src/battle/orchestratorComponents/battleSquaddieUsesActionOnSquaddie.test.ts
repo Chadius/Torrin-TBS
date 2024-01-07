@@ -151,7 +151,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             targetLocation: {q: 0, r: 0},
-                            effect: monkKoanAction,
+                            template: monkKoanAction,
                             numberOfActionPointsSpent: 1,
                         })
                     ]
@@ -159,12 +159,30 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             ]
         });
 
-        monkMeditatesInstruction = {
+        monkMeditatesInstruction = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: instruction,
-            currentlySelectedAction: monkKoanAction,
             movingBattleSquaddieIds: [],
-        };
-        SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(monkMeditatesInstruction, monkKoanAction);
+            currentlySelectedDecisionForPreview: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: monkKoanAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        });
+        SquaddieInstructionInProgressService.selectDecisionForPreview(monkMeditatesInstruction,
+            DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: monkKoanAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        );
 
         monkMeditatesEvent = {
             instruction: monkMeditatesInstruction,
@@ -199,7 +217,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state: battleOrchestratorState,
         });
-        SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
+        SquaddieTurnHandler.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
         return GameEngineStateHelper.new({
             battleOrchestratorState,
         });
@@ -217,7 +235,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             targetLocation: {q: 0, r: 0},
-                            effect: powerAttackLongswordAction,
+                            template: powerAttackLongswordAction,
                             numberOfActionPointsSpent: 1,
                         })
                     ]
@@ -225,11 +243,19 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             ]
         });
 
-        const squaddieInstructionInProgress: SquaddieInstructionInProgress = {
+        const squaddieInstructionInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: wholeTurnInstruction,
-            currentlySelectedAction: powerAttackLongswordAction,
             movingBattleSquaddieIds: [],
-        };
+            currentlySelectedDecisionForPreview: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: powerAttackLongswordAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        });
 
         const newEvent: BattleEvent = {
             instruction: squaddieInstructionInProgress,
@@ -269,7 +295,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state: battleOrchestratorState,
         });
-        SquaddieTurnHandler.spendActionPointsOnAction(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
+        SquaddieTurnHandler.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
         return GameEngineStateHelper.new({
             battleOrchestratorState
         });
@@ -322,7 +348,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes', () => {
@@ -346,7 +372,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('passes mouse events on to the animator', () => {

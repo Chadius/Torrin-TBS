@@ -38,6 +38,7 @@ import {BattleStateHelper} from "../orchestrator/battleState";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {SquaddieInstructionInProgressService} from "./squaddieInstructionInProgress";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -83,7 +84,7 @@ describe("BattleSaveState", () => {
                         actionEffects: [
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
-                                effect: action,
+                                template: action,
                                 targetLocation: {q: 3, r: 4},
                             })
                         ]
@@ -93,11 +94,11 @@ describe("BattleSaveState", () => {
 
         eventRecording0 = {history: []};
         firstBattleEvent = {
-            instruction: {
+            instruction: SquaddieInstructionInProgressService.new({
                 squaddieActionsForThisRound: firstSquaddieDecisions,
-                currentlySelectedAction: undefined,
                 movingBattleSquaddieIds: [],
-            },
+                currentlySelectedDecisionForPreview: undefined,
+            }),
             results: {
                 actingBattleSquaddieId: "actor 1",
                 targetedBattleSquaddieIds: ["target 0, target 1"],
@@ -332,11 +333,11 @@ describe("BattleSaveState", () => {
             });
 
         const secondBattleEvent: BattleEvent = {
-            instruction: {
+            instruction: SquaddieInstructionInProgressService.new({
                 squaddieActionsForThisRound: secondSquaddieDecisions,
-                currentlySelectedAction: undefined,
+                currentlySelectedDecisionForPreview: undefined,
                 movingBattleSquaddieIds: [],
-            },
+            }),
             results: {
                 actingBattleSquaddieId: undefined,
                 targetedBattleSquaddieIds: [],

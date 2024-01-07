@@ -42,6 +42,7 @@ import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
 
 
 describe('Battle Orchestrator', () => {
@@ -391,15 +392,14 @@ describe('Battle Orchestrator', () => {
         });
 
         nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
-            {
+            SquaddieInstructionInProgressService.new({
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: "new static squaddie",
                     battleSquaddieId: "new dynamic squaddie",
                     startingLocation: {q: 0, r: 0},
                 }),
-                currentlySelectedAction: undefined,
-            };
+            });
         SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound, DecisionService.new({
             actionEffects: [
                 ActionEffectMovementService.new({
@@ -431,15 +431,14 @@ describe('Battle Orchestrator', () => {
         });
 
         nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
-            {
+            SquaddieInstructionInProgressService.new({
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: "new static squaddie",
                     battleSquaddieId: "new dynamic squaddie",
                     startingLocation: {q: 0, r: 0},
                 }),
-                currentlySelectedAction: undefined,
-            };
+            });
 
         SquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound,
             DecisionService.new({

@@ -13,7 +13,10 @@ import {BattleCamera} from "../battleCamera";
 import {Recording} from "../history/recording";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    SquaddieInstructionInProgress,
+    SquaddieInstructionInProgressService
+} from "../history/squaddieInstructionInProgress";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective} from "../missionResult/missionObjective";
@@ -190,11 +193,10 @@ const newBattleState = ({
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        squaddieCurrentlyActing: squaddieCurrentlyActing || {
+        squaddieCurrentlyActing: squaddieCurrentlyActing || SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
-            currentlySelectedAction: undefined,
             squaddieActionsForThisRound: undefined,
-        },
+        }),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
     };
 };

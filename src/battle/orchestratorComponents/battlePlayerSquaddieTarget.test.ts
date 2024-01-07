@@ -147,15 +147,23 @@ describe('BattleSquaddieTarget', () => {
         }));
         battleMap.addSquaddie(thiefStatic.squaddieId.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
 
-        const currentInstruction: SquaddieInstructionInProgress = {
+        const currentInstruction: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
                 startingLocation: {q: 1, r: 1},
             }),
-            currentlySelectedAction: longswordAction,
-        };
+            currentlySelectedDecisionForPreview: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: longswordAction,
+                        targetLocation: undefined,
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        });
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
@@ -249,7 +257,7 @@ describe('BattleSquaddieTarget', () => {
                 mouseY: ScreenDimensions.SCREEN_HEIGHT,
             },
         ];
-        it.each(tests)('should cancel if the user clicks on the cancel button', ({
+        it.each(tests)('should cancel target if the user clicks on the cancel button', ({
                                                                                      mouseX,
                                                                                      mouseY,
                                                                                  }) => {
@@ -264,7 +272,7 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedAction).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview).toBeUndefined();
         });
     });
 
@@ -275,21 +283,29 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = {
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
                 startingLocation: {q: 1, r: 1},
             }),
-            currentlySelectedAction: undefined,
-        };
+        });
 
-        SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, longswordAction);
+        const decision = DecisionService.new({
+            actionEffects: [
+                ActionEffectSquaddieService.new({
+                    template: longswordAction,
+                    targetLocation: {q: 0, r: 0},
+                    numberOfActionPointsSpent: 1,
+                })
+            ]
+        });
+        SquaddieInstructionInProgressService.selectDecisionForPreview(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(SquaddieInstructionInProgressService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
-        expect(SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('should remember the squaddie is still acting if they cancel midway through their turn', () => {
@@ -299,7 +315,7 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = {
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
@@ -311,20 +327,28 @@ describe('BattleSquaddieTarget', () => {
                             ActionEffectMovementService.new({
                                 destination: {q: 0, r: 1},
                                 numberOfActionPointsSpent: 1,
-
                             })
                         ],
                     })
                 ],
             }),
-            currentlySelectedAction: undefined,
-        };
+        });
 
-        SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, longswordAction);
+        SquaddieInstructionInProgressService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
+            DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: longswordAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        );
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(SquaddieInstructionInProgressService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
-        expect(SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
+        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
     });
 
     it('should ignore if the user does not click off of the map', () => {
@@ -362,7 +386,7 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
         });
 
-        it('should unset the target location if the user cancels', () => {
+        it('should cancel decision if the user cancels the target', () => {
             const cancelTargetClick: OrchestratorComponentMouseEvent = {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX: ScreenDimensions.SCREEN_WIDTH,
@@ -373,21 +397,29 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedAction).toEqual(longswordAction);
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview).toBeUndefined();
         });
     });
 
     describe('user clicks on target with heal', () => {
         beforeEach(() => {
-            const currentInstruction: SquaddieInstructionInProgress = {
+            const currentInstruction: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
                     startingLocation: {q: 1, r: 1},
                 }),
-                currentlySelectedAction: bandageWoundsAction,
+                currentlySelectedDecisionForPreview: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: bandageWoundsAction,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
                 movingBattleSquaddieIds: [],
-            };
+            });
 
             state = GameEngineStateHelper.new({
                 battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
@@ -430,7 +462,7 @@ describe('BattleSquaddieTarget', () => {
                         actionEffects: [
                             ActionEffectSquaddieService.new({
                                 targetLocation: {q: 1, r: 2},
-                                effect: longswordAction,
+                                template: longswordAction,
                                 numberOfActionPointsSpent: 1,
                             })
                         ]
@@ -461,15 +493,23 @@ describe('BattleSquaddieTarget', () => {
 
     describe('confirming an action mid turn', () => {
         beforeEach(() => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = {
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     startingLocation: {q: 1, r: 1},
                 }),
-                currentlySelectedAction: longswordAction,
-            };
+                currentlySelectedDecisionForPreview: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: longswordAction,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
+            });
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             targetComponent.update(state, mockedP5GraphicsContext);
@@ -488,7 +528,7 @@ describe('BattleSquaddieTarget', () => {
                         actionEffects: [
                             ActionEffectSquaddieService.new({
                                 targetLocation: {q: 1, r: 2},
-                                effect: longswordAction,
+                                template: longswordAction,
                                 numberOfActionPointsSpent: 1,
                             })
                         ]
@@ -513,7 +553,7 @@ describe('BattleSquaddieTarget', () => {
             expect(mostRecentEvent.instruction.squaddieActionsForThisRound.decisions).toHaveLength(1);
             expect((
                 mostRecentEvent.instruction.squaddieActionsForThisRound.decisions[0].actionEffects[0] as ActionEffectSquaddie
-            ).effect.id).toBe(longswordAction.id);
+            ).template.id).toBe(longswordAction.id);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);
             expect(results.targetedBattleSquaddieIds).toHaveLength(1);
@@ -562,15 +602,23 @@ describe('BattleSquaddieTarget', () => {
                 minimumRange: 0,
                 maximumRange: 9001,
             });
-            const currentInstruction: SquaddieInstructionInProgress = {
+            const currentInstruction: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
                     startingLocation: {q: 1, r: 1},
                 }),
-                currentlySelectedAction: action,
+                currentlySelectedDecisionForPreview: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: action,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
                 movingBattleSquaddieIds: [],
-            };
+            });
 
             state = GameEngineStateHelper.new({
                 battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({

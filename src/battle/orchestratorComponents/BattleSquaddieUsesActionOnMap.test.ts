@@ -70,11 +70,10 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateHelper.newBattleState({
                     missionId: "test mission",
-                    squaddieCurrentlyActing: {
+                    squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
                         squaddieActionsForThisRound: endTurnInstruction,
                         movingBattleSquaddieIds: [],
-                        currentlySelectedAction: undefined,
-                    },
+                    }),
                 }),
             })
         })
@@ -93,6 +92,6 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
         mapAction.reset(state);
         expect(mapAction.animationCompleteStartTime).toBeUndefined();
-        expect(SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
     });
 });

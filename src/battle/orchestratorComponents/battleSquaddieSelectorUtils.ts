@@ -96,11 +96,11 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
 }
 
 export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) {
-    if (SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)) {
+    if (SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing)) {
         const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
-        state.battleState.squaddieCurrentlyActing = {
+        state.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
@@ -110,10 +110,7 @@ export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, b
                     r: datum.mapLocation.r,
                 },
             }),
-            currentlySelectedAction: undefined,
-        };
-
-
+        });
     }
 }
 

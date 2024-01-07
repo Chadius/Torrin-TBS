@@ -82,10 +82,10 @@ export class ActorSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw({timer, graphicsContext, action,}: {
+    draw({timer, graphicsContext, actionEffectSquaddieTemplate,}: {
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: ActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
@@ -93,7 +93,7 @@ export class ActorSprite {
 
         this.sprite.createActorImagesWithLoadedData();
 
-        this.drawActorSprite(timer, graphicsContext, action);
+        this.drawActorSprite(timer, graphicsContext, actionEffectSquaddieTemplate);
     }
 
     getSquaddieImageBasedOnTimer(

@@ -37,6 +37,7 @@ import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinde
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {MapHighlightHelper} from "../animation/mapHighlight";
 import {DecisionService} from "../../decision/decision";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -249,7 +250,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing);
+        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing);
         const battleSquaddieToHighlightId: string = startOfANewSquaddieTurn
             ? squaddieClickedOnInfoAndMapLocation.battleSquaddieId
             : SquaddieInstructionInProgressService.battleSquaddieId(state.battleState.squaddieCurrentlyActing);
@@ -319,7 +320,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private isHudInstructingTheCurrentlyActingSquaddie(state: BattleOrchestratorState): boolean {
-        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing);
+        const startOfANewSquaddieTurn = !state.battleState.squaddieCurrentlyActing || SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing);
         const squaddieShownInHUD = state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId();
 
         if (
@@ -342,16 +343,15 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId()));
         const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
-        if (SquaddieInstructionInProgressService.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)) {
-            state.battleState.squaddieCurrentlyActing = {
+        if (SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleState.squaddieCurrentlyActing)) {
+            state.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
                 movingBattleSquaddieIds: [],
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: battleSquaddie.battleSquaddieId,
                     squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                     startingLocation: datum.mapLocation,
                 }),
-                currentlySelectedAction: undefined,
-            };
+            });
         }
 
         if (state.battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()) {
@@ -371,7 +371,18 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             this.gaveCompleteInstruction = true;
         } else if (state.battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()) {
             const newAction = state.battleSquaddieSelectedHUD.getSquaddieSquaddieAction();
-            SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(state.battleState.squaddieCurrentlyActing, newAction);
+            SquaddieInstructionInProgressService.selectDecisionForPreview(
+                state.battleState.squaddieCurrentlyActing,
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: newAction,
+                            targetLocation: undefined,
+                            numberOfActionPointsSpent: newAction.actionPointCost,
+                        })
+                    ]
+                })
+            );
             this.gaveInstructionThatNeedsATarget = true;
         }
 

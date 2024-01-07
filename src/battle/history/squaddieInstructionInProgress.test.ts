@@ -24,19 +24,18 @@ const longswordAction = ActionEffectSquaddieTemplateService.new({
 
 describe('SquaddieInstructionInProgress', () => {
     it('will indicate the squaddie has not acted this round if they cancel', () => {
-        const squaddieCurrentlyActing: SquaddieInstructionInProgress = {
+        const squaddieCurrentlyActing: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battleSquaddieId",
                 squaddieTemplateId: "templateId",
                 startingLocation: {q: 1, r: 1},
             }),
-            currentlySelectedAction: longswordAction,
-        };
+        });
 
-        SquaddieInstructionInProgressService.cancelSelectedAction(squaddieCurrentlyActing);
+        SquaddieInstructionInProgressService.cancelSelectedPreviewDecision(squaddieCurrentlyActing);
         expect(SquaddieInstructionInProgressService.squaddieHasActedThisTurn(squaddieCurrentlyActing)).toBeFalsy();
-        expect(SquaddieInstructionInProgressService.isReadyForNewSquaddie(squaddieCurrentlyActing)).toBeTruthy();
+        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(squaddieCurrentlyActing)).toBeTruthy();
     });
 
     it('will indicate the squaddie has acted this round if they cancel after acting', () => {
@@ -50,21 +49,29 @@ describe('SquaddieInstructionInProgress', () => {
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        effect: longswordAction,
+                        template: longswordAction,
                         targetLocation: {q: 0, r: 0},
                         numberOfActionPointsSpent: 1,
                     })
                 ]
             }));
 
-        const squaddieCurrentlyActing: SquaddieInstructionInProgress = {
+        const squaddieCurrentlyActing: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: longswordUsedThisRoundAction,
-            currentlySelectedAction: longswordAction,
+            currentlySelectedDecisionForPreview: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: longswordAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
             movingBattleSquaddieIds: [],
-        };
+        });
 
-        SquaddieInstructionInProgressService.cancelSelectedAction(squaddieCurrentlyActing);
+        SquaddieInstructionInProgressService.cancelSelectedPreviewDecision(squaddieCurrentlyActing);
         expect(SquaddieInstructionInProgressService.squaddieHasActedThisTurn(squaddieCurrentlyActing)).toBeTruthy();
-        expect(SquaddieInstructionInProgressService.isReadyForNewSquaddie(squaddieCurrentlyActing)).toBeFalsy();
+        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(squaddieCurrentlyActing)).toBeFalsy();
     });
 });

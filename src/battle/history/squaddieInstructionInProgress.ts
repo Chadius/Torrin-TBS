@@ -1,17 +1,16 @@
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
-import {ActionEffectType} from "../../decision/actionEffect";
 import {Decision} from "../../decision/decision";
+import {ActionEffectType} from "../../decision/actionEffect";
+import {isValidValue} from "../../utils/validityCheck";
 
 
 export interface SquaddieInstructionInProgress {
     squaddieActionsForThisRound: SquaddieActionsForThisRound;
-    // TODO You want to use the decision here
-    currentlySelectedAction: ActionEffectSquaddieTemplate;
+    currentlySelectedDecisionForPreview: Decision;
     movingBattleSquaddieIds: string[];
 }
 
-const squaddieHasActedThisTurn = (data: SquaddieInstructionInProgress) => {
+const squaddieHasMadeADecision = (data: SquaddieInstructionInProgress) => {
     if (data === undefined) {
         return false;
     }
@@ -20,34 +19,31 @@ const squaddieHasActedThisTurn = (data: SquaddieInstructionInProgress) => {
         && data.squaddieActionsForThisRound.decisions.length > 0;
 };
 
-const addSelectedActionEffectSquaddieTemplate = (data: SquaddieInstructionInProgress, action: ActionEffectSquaddieTemplate) => {
-    if (!data.squaddieActionsForThisRound) {
-        throw new Error("no squaddie found, cannot add action");
-    }
-
-    data.currentlySelectedAction = action;
-}
-
 const isBattleSquaddieIdMoving = (data: SquaddieInstructionInProgress, battleSquaddieId: string): boolean => {
     return data.movingBattleSquaddieIds.some((id) => id === battleSquaddieId);
 }
 
 export const SquaddieInstructionInProgressService = {
+    new: ({
+              squaddieActionsForThisRound,
+              currentlySelectedDecisionForPreview,
+              movingBattleSquaddieIds,
+          }: {
+        squaddieActionsForThisRound: SquaddieActionsForThisRound;
+        currentlySelectedDecisionForPreview?: Decision;
+        movingBattleSquaddieIds: string[];
+    }): SquaddieInstructionInProgress => {
+        return sanitize({
+            squaddieActionsForThisRound,
+            currentlySelectedDecisionForPreview: currentlySelectedDecisionForPreview,
+            movingBattleSquaddieIds,
+        });
+    },
     sanitize: (data: SquaddieInstructionInProgress): SquaddieInstructionInProgress => {
-        if (data.squaddieActionsForThisRound === undefined) {
-            data.squaddieActionsForThisRound = {
-                ...SquaddieActionsForThisRoundService.default(),
-            };
-        }
-
-        SquaddieActionsForThisRoundService.sanitize(data.squaddieActionsForThisRound);
-        if (data.movingBattleSquaddieIds === undefined) {
-            data.movingBattleSquaddieIds = [];
-        }
-        return data;
+        return sanitize(data);
     },
     squaddieHasActedThisTurn: (data: SquaddieInstructionInProgress): boolean => {
-        return squaddieHasActedThisTurn(data);
+        return squaddieHasMadeADecision(data);
     },
     battleSquaddieId: (data: SquaddieInstructionInProgress): string => {
         if (data.squaddieActionsForThisRound !== undefined) {
@@ -56,27 +52,30 @@ export const SquaddieInstructionInProgressService = {
 
         return "";
     },
-    isReadyForNewSquaddie: (data: SquaddieInstructionInProgress): boolean => {
-        return data === undefined
-            || (
-                !squaddieHasActedThisTurn(data)
-                && data.currentlySelectedAction === undefined
-            );
-    },
-    addConfirmedDecision: (instructionInProgress: SquaddieInstructionInProgress, decision: Decision) => {
-        if (!instructionInProgress.squaddieActionsForThisRound) {
-            throw new Error("no squaddie found, cannot add action");
+    canChangeSelectedSquaddie: (data: SquaddieInstructionInProgress): boolean => {
+        if (!isValidValue(data)) {
+            return true;
         }
 
-        const lastSelectedActionEffect = decision.actionEffects.reverse().find(actionEffect => actionEffect.type === ActionEffectType.SQUADDIE);
-        if (lastSelectedActionEffect && lastSelectedActionEffect.type === ActionEffectType.SQUADDIE) {
-            addSelectedActionEffectSquaddieTemplate(instructionInProgress, lastSelectedActionEffect.effect);
+        if (squaddieHasMadeADecision(data)) {
+            return false;
+        }
+
+        return data.currentlySelectedDecisionForPreview === undefined;
+    },
+    addConfirmedDecision: (instructionInProgress: SquaddieInstructionInProgress, decision: Decision) => {
+        if (
+            !instructionInProgress.squaddieActionsForThisRound
+            || instructionInProgress.squaddieActionsForThisRound.battleSquaddieId == ""
+            || instructionInProgress.squaddieActionsForThisRound.squaddieTemplateId == ""
+        ) {
+            throw new Error("no squaddie found, cannot add action");
         }
 
         SquaddieActionsForThisRoundService.addDecision(instructionInProgress.squaddieActionsForThisRound, decision);
     },
-    addSelectedActionEffectSquaddieTemplate: (data: SquaddieInstructionInProgress, action: ActionEffectSquaddieTemplate) => {
-        addSelectedActionEffectSquaddieTemplate(data, action);
+    selectDecisionForPreview: (instructionInProgress: SquaddieInstructionInProgress, decisionToPreview: Decision) => {
+        instructionInProgress.currentlySelectedDecisionForPreview = decisionToPreview;
     },
     markBattleSquaddieIdAsMoving: (data: SquaddieInstructionInProgress, battleSquaddieId: string) => {
         if (isBattleSquaddieIdMoving(data, battleSquaddieId)) {
@@ -90,13 +89,26 @@ export const SquaddieInstructionInProgressService = {
         }
         return data.movingBattleSquaddieIds.some((id) => id === battleSquaddieId);
     },
-
     removeBattleSquaddieIdAsMoving: (data: SquaddieInstructionInProgress, battleSquaddieId: string) => {
         data.movingBattleSquaddieIds = data.movingBattleSquaddieIds.filter(
             (id) => id !== battleSquaddieId
         );
     },
-    cancelSelectedAction: (data: SquaddieInstructionInProgress) => {
-        data.currentlySelectedAction = undefined;
+    cancelSelectedPreviewDecision: (data: SquaddieInstructionInProgress) => {
+        data.currentlySelectedDecisionForPreview = undefined;
     }
 }
+
+const sanitize = (data: SquaddieInstructionInProgress): SquaddieInstructionInProgress => {
+    if (data.squaddieActionsForThisRound === undefined) {
+        data.squaddieActionsForThisRound = {
+            ...SquaddieActionsForThisRoundService.default(),
+        };
+    }
+
+    SquaddieActionsForThisRoundService.sanitize(data.squaddieActionsForThisRound);
+    if (data.movingBattleSquaddieIds === undefined) {
+        data.movingBattleSquaddieIds = [];
+    }
+    return data;
+};

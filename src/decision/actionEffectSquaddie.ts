@@ -4,7 +4,7 @@ import {ActionEffectType} from "./actionEffect";
 
 export interface ActionEffectSquaddie {
     type: ActionEffectType.SQUADDIE;
-    effect: ActionEffectSquaddieTemplate;
+    template: ActionEffectSquaddieTemplate;
     numberOfActionPointsSpent: number;
     targetLocation: HexCoordinate;
 }
@@ -13,17 +13,17 @@ export const ActionEffectSquaddieService = {
     new: ({
               targetLocation,
               numberOfActionPointsSpent,
-              effect,
+              template,
           }: {
         targetLocation: HexCoordinate;
         numberOfActionPointsSpent: number;
-        effect: ActionEffectSquaddieTemplate;
+        template: ActionEffectSquaddieTemplate;
     }): ActionEffectSquaddie => {
         return {
             type: ActionEffectType.SQUADDIE,
             targetLocation,
             numberOfActionPointsSpent,
-            effect: effect,
+            template: template,
         }
     }
 };

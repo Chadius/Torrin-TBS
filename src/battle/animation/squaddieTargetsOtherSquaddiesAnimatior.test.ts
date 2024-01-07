@@ -30,6 +30,7 @@ import {BattleStateHelper} from "../orchestrator/battleState";
 
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/decision";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
@@ -101,7 +102,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
-                            effect: longswordAction,
+                            template: longswordAction,
                             targetLocation: {q: 0, r: 0},
                         })
                     ]
@@ -111,12 +112,30 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        knightHitsThiefWithLongswordInstructionInProgress = {
+        knightHitsThiefWithLongswordInstructionInProgress = SquaddieInstructionInProgressService.new({
             squaddieActionsForThisRound: oneActionInstruction,
-            currentlySelectedAction: powerAttackLongswordAction,
             movingBattleSquaddieIds: [],
-        };
-        SquaddieInstructionInProgressService.addSelectedActionEffectSquaddieTemplate(knightHitsThiefWithLongswordInstructionInProgress, longswordAction);
+            currentlySelectedDecisionForPreview: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: powerAttackLongswordAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        });
+        const decision = DecisionService.new({
+            actionEffects: [
+                ActionEffectSquaddieService.new({
+                    template: longswordAction,
+                    targetLocation: {q: 0, r: 0},
+                    numberOfActionPointsSpent: 1,
+                })
+            ]
+        });
+        SquaddieInstructionInProgressService.addConfirmedDecision(knightHitsThiefWithLongswordInstructionInProgress, decision);
+        SquaddieInstructionInProgressService.selectDecisionForPreview(knightHitsThiefWithLongswordInstructionInProgress, decision);
 
         knightHitsThiefWithLongswordEvent = {
             instruction: knightHitsThiefWithLongswordInstructionInProgress,

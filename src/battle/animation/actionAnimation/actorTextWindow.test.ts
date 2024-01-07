@@ -54,7 +54,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: undefined,
         });
 
@@ -69,7 +69,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -98,7 +98,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -127,7 +127,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -156,7 +156,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -186,7 +186,7 @@ describe('ActorTextWindow', () => {
             window.start({
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
-                action: attackThatUsesAttackRoll,
+                actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
                 results: {
                     resultPerTarget: {},
                     actingBattleSquaddieId: "",
@@ -217,7 +217,7 @@ describe('ActorTextWindow', () => {
             window.start({
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
-                action: attackThatUsesAttackRoll,
+                actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
                 results: {
                     resultPerTarget: {},
                     actingBattleSquaddieId: "",

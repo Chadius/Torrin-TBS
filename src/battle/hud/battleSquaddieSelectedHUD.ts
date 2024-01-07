@@ -598,7 +598,7 @@ export class BattleSquaddieSelectedHUD {
 
     private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState) {
         if (
-            SquaddieInstructionInProgressService.isReadyForNewSquaddie(squaddieCurrentlyActing)
+            SquaddieInstructionInProgressService.canChangeSelectedSquaddie(squaddieCurrentlyActing)
         ) {
             return;
         }

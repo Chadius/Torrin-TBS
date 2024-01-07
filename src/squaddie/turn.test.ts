@@ -23,7 +23,7 @@ describe('Squaddie turn and resources', () => {
             expect(turn.remainingActionPoints).toBe(3);
         });
         it('should spend 1 action by default', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn,
+            SquaddieTurnHandler.spendActionPointsOnActionTemplate(turn,
                 ActionEffectSquaddieTemplateService.new({
                     id: "strike",
                     name: "longsword",
@@ -33,17 +33,17 @@ describe('Squaddie turn and resources', () => {
             expect(turn.remainingActionPoints).toBe(2);
         });
         it('should spend multiple actions if action uses more', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn, actionSpends2ActionPoints);
+            SquaddieTurnHandler.spendActionPointsOnActionTemplate(turn, actionSpends2ActionPoints);
             expect(turn.remainingActionPoints).toBe(1);
         });
         it('should report when an action cannot be spent', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn, actionSpends2ActionPoints);
+            SquaddieTurnHandler.spendActionPointsOnActionTemplate(turn, actionSpends2ActionPoints);
             const query = SquaddieTurnHandler.canPerformAction(turn, actionSpends2ActionPoints);
             expect(query.canPerform).toBeFalsy();
             expect(query.reason).toBe(ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING);
         });
         it('should give 3 action points upon starting a new round', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn, actionSpends2ActionPoints);
+            SquaddieTurnHandler.spendActionPointsOnActionTemplate(turn, actionSpends2ActionPoints);
             SquaddieTurnHandler.beginNewRound(turn);
             expect(turn.remainingActionPoints).toBe(3);
         });

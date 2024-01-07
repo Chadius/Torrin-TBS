@@ -1,7 +1,6 @@
 import {ActionEffect, ActionEffectType} from "./actionEffect";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {isValidValue} from "../utils/validityCheck";
-import {ActionEffectEndTurnService} from "./actionEffectEndTurn";
 import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 
 export interface Decision {
@@ -45,11 +44,11 @@ export const DecisionService = {
                 return accumulator;
             }
 
-            if (TraitStatusStorageHelper.getStatus(actionEffect.effect.traits, Trait.ATTACK) !== true) {
+            if (TraitStatusStorageHelper.getStatus(actionEffect.template.traits, Trait.ATTACK) !== true) {
                 return accumulator;
             }
 
-            const map = TraitStatusStorageHelper.getStatus(actionEffect.effect.traits, Trait.NO_MULTIPLE_ATTACK_PENALTY) ? 0 : 1;
+            const map = TraitStatusStorageHelper.getStatus(actionEffect.template.traits, Trait.NO_MULTIPLE_ATTACK_PENALTY) ? 0 : 1;
             return accumulator + map;
         }
 

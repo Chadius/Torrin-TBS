@@ -75,7 +75,7 @@ describe('decision', () => {
                 ActionEffectSquaddieService.new({
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 1, r: 0},
-                    effect: ActionEffectSquaddieTemplateService.new({
+                    template: ActionEffectSquaddieTemplateService.new({
                         id: "attack",
                         name: "attack",
                         traits: TraitStatusStorageHelper.newUsingTraitValues({

@@ -1,7 +1,7 @@
 import {Recording, RecordingHandler} from "./recording";
 import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundService} from "./squaddieActionsForThisRound";
 import {BattleEvent} from "./battleEvent";
-import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
+import {SquaddieInstructionInProgress, SquaddieInstructionInProgressService} from "./squaddieInstructionInProgress";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {DecisionService} from "../../decision/decision";
@@ -25,7 +25,7 @@ describe('Recording', () => {
             ]
         });
 
-        const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = {
+        const squaddieMovesAndEndsTurn: SquaddieInstructionInProgress = SquaddieInstructionInProgressService.new({
             movingBattleSquaddieIds: [],
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "static",
@@ -47,8 +47,7 @@ describe('Recording', () => {
                     }),
                 ],
             }),
-            currentlySelectedAction: undefined,
-        }
+        })
 
         RecordingHandler.addEvent(
             recording,

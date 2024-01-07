@@ -49,21 +49,21 @@ export class ActorTextWindow {
         this._actorUsesActionDescriptionText = "";
     }
 
-    start({actorTemplate, actorBattle, action, results}: {
+    start({actorTemplate, actorBattle, actionEffectSquaddieTemplate, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
-        action: ActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         results: SquaddieSquaddieResults,
     }) {
         this.reset();
 
         this.actorTemplate = actorTemplate;
         this.actorBattle = actorBattle;
-        this.action = action;
+        this.action = actionEffectSquaddieTemplate;
         this.results = results;
 
         const actorName: string = actorTemplate.squaddieId.name;
-        const actionName: string = action.name;
+        const actionName: string = actionEffectSquaddieTemplate.name;
 
         this._actorUsesActionDescriptionText = `${actorName} uses\n${actionName}`;
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[actorTemplate.squaddieId.affiliation];

@@ -32,6 +32,8 @@ import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngin
 import {SquaddieActionsForThisRoundService} from "../history/squaddieActionsForThisRound";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {SquaddieInstructionInProgressService} from "../history/squaddieInstructionInProgress";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -372,19 +374,27 @@ describe('BattleSquaddieSelectedHUD', () => {
                         missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
-                        squaddieCurrentlyActing: {
+                        squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
                             movingBattleSquaddieIds: [],
-                            currentlySelectedAction: ActionEffectSquaddieTemplateService.new({
-                                name: "purifying stream",
-                                id: "purifying_stream",
-                                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                            currentlySelectedDecisionForPreview: DecisionService.new({
+                                actionEffects: [
+                                    ActionEffectSquaddieService.new({
+                                        template: ActionEffectSquaddieTemplateService.new({
+                                            name: "purifying stream",
+                                            id: "purifying_stream",
+                                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                                        }),
+                                        targetLocation: {q: 0, r: 0},
+                                        numberOfActionPointsSpent: 1,
+                                    })
+                                ]
                             }),
                             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                 battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                 squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                 startingLocation: {q: 0, r: 0},
                             }),
-                        },
+                        }),
                     }),
                 })
             })
@@ -489,15 +499,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                         currentAffiliation: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
-                    squaddieCurrentlyActing: {
+                    squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
                         movingBattleSquaddieIds: [],
                         squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                             startingLocation: {q: 0, r: 0},
                         }),
-                        currentlySelectedAction: undefined,
-                    }
+                    })
                 }),
             });
 
@@ -550,7 +559,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         currentAffiliation: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
-                    squaddieCurrentlyActing: {
+                    squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
                         movingBattleSquaddieIds: [],
                         squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
@@ -567,8 +576,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                                 })
                             ]
                         }),
-                        currentlySelectedAction: undefined,
-                    }
+                    })
                 }),
             });
 
@@ -600,15 +608,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                                         currentAffiliation: BattlePhase.PLAYER,
                                         turnCount: 0,
                                     },
-                                    squaddieCurrentlyActing: {
+                                    squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
                                         movingBattleSquaddieIds: [],
                                         squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                             startingLocation: {q: 0, r: 0},
                                         }),
-                                        currentlySelectedAction: undefined,
-                                    },
+                                    }),
                                 }),
                             })
                     });
@@ -716,15 +723,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        squaddieCurrentlyActing: {
+                        squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
                             movingBattleSquaddieIds: [],
                             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                 battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                 squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                 startingLocation: {q: 0, r: 0},
                             }),
-                            currentlySelectedAction: undefined,
-                        },
+                        }),
                     }),
                 })
             });
@@ -760,15 +766,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                                     currentAffiliation: BattlePhase.PLAYER,
                                     turnCount: 0,
                                 },
-                                squaddieCurrentlyActing: {
+                                squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
                                     movingBattleSquaddieIds: [],
                                     squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                         squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                         startingLocation: {q: 0, r: 0},
                                     }),
-                                    currentlySelectedAction: undefined,
-                                },
+                                }),
                             }),
                         })
                 });

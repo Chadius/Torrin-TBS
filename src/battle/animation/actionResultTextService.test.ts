@@ -145,7 +145,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });
@@ -182,7 +182,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: bandageWoundsAction,
+            currentActionEffectTemplate: bandageWoundsAction,
             result: healingResult,
             squaddieRepository,
         });
@@ -195,7 +195,7 @@ describe('Action Result Text Writer', () => {
 
     it('Explains intent to use a power', () => {
         const outputStrings: string[] = ActionResultTextService.outputIntentForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieRepository,
             actingSquaddieModifiers: {},
@@ -207,7 +207,7 @@ describe('Action Result Text Writer', () => {
 
     it('Explains attack modifiers with intent', () => {
         const outputStrings: string[] = ActionResultTextService.outputIntentForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieRepository,
             actingSquaddieModifiers: {
@@ -221,7 +221,7 @@ describe('Action Result Text Writer', () => {
 
     it('Explains action but does not show attack modifiers if the action always succeeds', () => {
         const outputStrings: string[] = ActionResultTextService.outputIntentForTextOnly({
-            currentAction: bandageWoundsAction,
+            currentActionEffectTemplate: bandageWoundsAction,
             actingBattleSquaddieId: knightDynamic.battleSquaddieId,
             squaddieRepository,
             actingSquaddieModifiers: {
@@ -257,7 +257,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });
@@ -294,7 +294,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });
@@ -326,7 +326,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });
@@ -357,7 +357,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });
@@ -395,7 +395,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });
@@ -435,7 +435,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            currentAction: longswordSweepAction,
+            currentActionEffectTemplate: longswordSweepAction,
             result: damagingResult,
             squaddieRepository,
         });

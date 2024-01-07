@@ -172,7 +172,7 @@ describe('target a squaddie within reach of actions', () => {
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         targetLocation: {q: 0, r: 1},
-                        effect: shortBowAction,
+                        template: shortBowAction,
                         numberOfActionPointsSpent: 1,
                     })
                 ]
@@ -206,7 +206,7 @@ describe('target a squaddie within reach of actions', () => {
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         targetLocation: {q: 0, r: 2},
-                        effect: shortBowAction,
+                        template: shortBowAction,
                         numberOfActionPointsSpent: 1,
                     })
                 ]
@@ -312,7 +312,7 @@ describe('target a squaddie within reach of actions', () => {
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         targetLocation: {q: 0, r: 1},
-                        effect: shortBowAction,
+                        template: shortBowAction,
                         numberOfActionPointsSpent: 1,
                     })
                 ]
@@ -403,7 +403,7 @@ describe('target a squaddie within reach of actions', () => {
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         targetLocation: {q: 0, r: 2},
-                        effect: shortBowAction,
+                        template: shortBowAction,
                         numberOfActionPointsSpent: 1,
                     })
                 ]

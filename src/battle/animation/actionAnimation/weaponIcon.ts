@@ -27,18 +27,18 @@ export class WeaponIcon {
     }
 
     draw({
-             action,
+             actionEffectSquaddieTemplate,
              graphicsContext,
              actorImageArea,
          }:
              {
-                 action: ActionEffectSquaddieTemplate,
+                 actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
                  graphicsContext: GraphicsContext,
                  actorImageArea: RectArea,
              }
     ) {
         if (this.attackingLabel === undefined) {
-            this.lazyLoadAttackingTextBox(action, actorImageArea);
+            this.lazyLoadAttackingTextBox(actionEffectSquaddieTemplate, actorImageArea);
         }
 
         RectAreaHelper.move(this.attackingLabel.rectangle.area, {

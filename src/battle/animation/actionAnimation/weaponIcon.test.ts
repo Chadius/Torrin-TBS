@@ -51,7 +51,7 @@ describe('weapon icon', () => {
             height: 20,
         });
         icon.draw({
-            action: hinderingAction,
+            actionEffectSquaddieTemplate: hinderingAction,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         });
@@ -74,7 +74,7 @@ describe('weapon icon', () => {
             height: 20,
         });
         icon.draw({
-            action: helpingAction,
+            actionEffectSquaddieTemplate: helpingAction,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         });

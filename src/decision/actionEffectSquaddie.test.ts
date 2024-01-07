@@ -10,7 +10,7 @@ describe('action effect squaddie', () => {
             type: ActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 0},
             numberOfActionPointsSpent: 1,
-            effect: {
+            template: {
                 id: "attackId",
                 name: "cool attack",
                 minimumRange: 0,
@@ -28,7 +28,7 @@ describe('action effect squaddie', () => {
         });
         expect(coolAttackAgainstOrigin.targetLocation).toStrictEqual(data.targetLocation);
         expect(coolAttackAgainstOrigin.numberOfActionPointsSpent).toStrictEqual(data.numberOfActionPointsSpent);
-        expect(data.effect)
-            .toStrictEqual(coolAttackAgainstOrigin.effect);
+        expect(data.template)
+            .toStrictEqual(coolAttackAgainstOrigin.template);
     });
 });
