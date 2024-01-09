@@ -1,12 +1,11 @@
-import {SquaddieActionsForThisRoundService, squaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
+import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {Decision} from "../../decision/decision";
 import {isValidValue} from "../../utils/validityCheck";
 
-
 export interface CurrentlySelectedSquaddieDecision {
-    squaddieDecisionsDuringThisPhase: squaddieDecisionsDuringThisPhase;
+    squaddieDecisionsDuringThisPhase: SquaddieDecisionsDuringThisPhase;
     currentlySelectedDecisionForPreview: Decision;
-    movingBattleSquaddieIds: string[];
+    decisionIndex: number;
 }
 
 const squaddieHasMadeADecision = (data: CurrentlySelectedSquaddieDecision) => {
@@ -18,24 +17,20 @@ const squaddieHasMadeADecision = (data: CurrentlySelectedSquaddieDecision) => {
         && data.squaddieDecisionsDuringThisPhase.decisions.length > 0;
 };
 
-const isBattleSquaddieIdMoving = (data: CurrentlySelectedSquaddieDecision, battleSquaddieId: string): boolean => {
-    return data.movingBattleSquaddieIds.some((id) => id === battleSquaddieId);
-}
-
-export const SquaddieInstructionInProgressService = {
+export const CurrentlySelectedSquaddieDecisionService = {
     new: ({
               squaddieActionsForThisRound,
               currentlySelectedDecisionForPreview,
-              movingBattleSquaddieIds,
+              decisionIndex,
           }: {
-        squaddieActionsForThisRound: squaddieDecisionsDuringThisPhase;
+        squaddieActionsForThisRound: SquaddieDecisionsDuringThisPhase;
         currentlySelectedDecisionForPreview?: Decision;
-        movingBattleSquaddieIds: string[];
+        decisionIndex?: number;
     }): CurrentlySelectedSquaddieDecision => {
         return sanitize({
             squaddieDecisionsDuringThisPhase: squaddieActionsForThisRound,
             currentlySelectedDecisionForPreview: currentlySelectedDecisionForPreview,
-            movingBattleSquaddieIds,
+            decisionIndex,
         });
     },
     sanitize: (data: CurrentlySelectedSquaddieDecision): CurrentlySelectedSquaddieDecision => {
@@ -51,17 +46,6 @@ export const SquaddieInstructionInProgressService = {
 
         return "";
     },
-    canChangeSelectedSquaddie: (data: CurrentlySelectedSquaddieDecision): boolean => {
-        if (!isValidValue(data)) {
-            return true;
-        }
-
-        if (squaddieHasMadeADecision(data)) {
-            return false;
-        }
-
-        return data.currentlySelectedDecisionForPreview === undefined;
-    },
     addConfirmedDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, decision: Decision) => {
         if (
             !instructionInProgress.squaddieDecisionsDuringThisPhase
@@ -76,25 +60,56 @@ export const SquaddieInstructionInProgressService = {
     selectDecisionForPreview: (instructionInProgress: CurrentlySelectedSquaddieDecision, decisionToPreview: Decision) => {
         instructionInProgress.currentlySelectedDecisionForPreview = decisionToPreview;
     },
-    markBattleSquaddieIdAsMoving: (data: CurrentlySelectedSquaddieDecision, battleSquaddieId: string) => {
-        if (isBattleSquaddieIdMoving(data, battleSquaddieId)) {
-            return;
-        }
-        data.movingBattleSquaddieIds.push(battleSquaddieId);
-    },
-    isBattleSquaddieIdMoving: (data: CurrentlySelectedSquaddieDecision, battleSquaddieId: string): boolean => {
-        if (data === undefined) {
-            return false;
-        }
-        return data.movingBattleSquaddieIds.some((id) => id === battleSquaddieId);
-    },
-    removeBattleSquaddieIdAsMoving: (data: CurrentlySelectedSquaddieDecision, battleSquaddieId: string) => {
-        data.movingBattleSquaddieIds = data.movingBattleSquaddieIds.filter(
-            (id) => id !== battleSquaddieId
-        );
-    },
     cancelSelectedPreviewDecision: (data: CurrentlySelectedSquaddieDecision) => {
         data.currentlySelectedDecisionForPreview = undefined;
+    },
+    hasFinishedIteratingThoughDecisions: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
+        return decisionIndexIsOutOfBounds(currentDecision);
+    },
+    peekDecision: (currentDecision: CurrentlySelectedSquaddieDecision): Decision => {
+        if (decisionIndexIsOutOfBounds(currentDecision)) {
+            return undefined;
+        }
+
+        return currentDecision.squaddieDecisionsDuringThisPhase.decisions[currentDecision.decisionIndex];
+    },
+    nextDecision: (currentDecision: CurrentlySelectedSquaddieDecision): Decision => {
+        if (decisionIndexIsOutOfBounds(currentDecision)) {
+            return undefined;
+        }
+
+        const nextActionEffect = currentDecision.squaddieDecisionsDuringThisPhase.decisions[currentDecision.decisionIndex];
+
+        currentDecision.decisionIndex += 1;
+        return nextActionEffect;
+    },
+    isPreviewingADecision: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
+        if (!isValidValue(currentDecision)) {
+            return false;
+        }
+
+        return currentDecision.currentlySelectedDecisionForPreview !== undefined;
+    },
+    hasSquaddieMadeADecision: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
+        if (!isValidValue(currentDecision)) {
+            return false;
+        }
+
+        return currentDecision.squaddieDecisionsDuringThisPhase.decisions.length > 0;
+    },
+    addPreviewedDecisionToDecisionsMadeThisRound: (currentDecision: CurrentlySelectedSquaddieDecision) => {
+        if (!isValidValue(currentDecision)) {
+            return;
+        }
+
+        SquaddieActionsForThisRoundService.addDecision(currentDecision.squaddieDecisionsDuringThisPhase, currentDecision.currentlySelectedDecisionForPreview);
+        currentDecision.currentlySelectedDecisionForPreview = undefined;
+        return;
+    },
+    isDefault: (squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision): boolean => {
+        const defaultSquaddieActions = SquaddieActionsForThisRoundService.default();
+        return squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.squaddieTemplateId === defaultSquaddieActions.squaddieTemplateId
+            && squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId === defaultSquaddieActions.battleSquaddieId;
     }
 }
 
@@ -105,9 +120,19 @@ const sanitize = (data: CurrentlySelectedSquaddieDecision): CurrentlySelectedSqu
         };
     }
 
-    SquaddieActionsForThisRoundService.sanitize(data.squaddieDecisionsDuringThisPhase);
-    if (data.movingBattleSquaddieIds === undefined) {
-        data.movingBattleSquaddieIds = [];
+    if (isValidValue(data.decisionIndex) && data.decisionIndex >= data.squaddieDecisionsDuringThisPhase.decisions.length) {
+        throw new Error("DecisionActionEffectIterator cannot sanitize, action effect index is out of bounds");
     }
+
+    if (!isValidValue(data.decisionIndex)) {
+        data.decisionIndex = 0;
+    }
+
+    SquaddieActionsForThisRoundService.sanitize(data.squaddieDecisionsDuringThisPhase);
     return data;
 };
+
+const decisionIndexIsOutOfBounds = (state: CurrentlySelectedSquaddieDecision) =>
+    !isValidValue(state)
+    || state.decisionIndex === undefined
+    || state.decisionIndex >= state.squaddieDecisionsDuringThisPhase.decisions.length;

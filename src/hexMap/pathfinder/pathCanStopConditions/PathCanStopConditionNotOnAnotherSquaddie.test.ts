@@ -2,11 +2,11 @@ import {SearchParametersHelper} from "../searchParams";
 import {SearchPathHelper} from "../searchPath";
 import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
 import {TerrainTileMap} from "../../terrainTileMap";
-import {ObjectRepository, ObjectRepositoryHelper} from "../../../battle/objectRepository";
-import {SquaddieTemplateHelper} from "../../../campaign/squaddieTemplate";
-import {SquaddieIdHelper} from "../../../squaddie/id";
+import {ObjectRepository, ObjectRepositoryService} from "../../../battle/objectRepository";
+import {SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
+import {SquaddieIdService} from "../../../squaddie/id";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
-import {BattleSquaddieHelper} from "../../../battle/battleSquaddie";
+import {BattleSquaddieService} from "../../../battle/battleSquaddie";
 import {DamageType, DealDamageToTheSquaddie} from "../../../squaddie/squaddieService";
 import {PathCanStopConditionNotOnAnotherSquaddie} from "./pathCanStopConditionNotOnAnotherSquaddie";
 
@@ -21,20 +21,20 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             }),
         });
 
-        const repository: ObjectRepository = ObjectRepositoryHelper.new();
-        const blockingSquaddieTemplate = SquaddieTemplateHelper.new({
-            squaddieId: SquaddieIdHelper.new({
+        const repository: ObjectRepository = ObjectRepositoryService.new();
+        const blockingSquaddieTemplate = SquaddieTemplateService.new({
+            squaddieId: SquaddieIdService.new({
                 templateId: "blocker",
                 name: "blocker",
                 affiliation: SquaddieAffiliation.UNKNOWN,
             })
         });
-        ObjectRepositoryHelper.addSquaddieTemplate(repository, blockingSquaddieTemplate);
-        const blockingSquaddieBattle = BattleSquaddieHelper.new({
+        ObjectRepositoryService.addSquaddieTemplate(repository, blockingSquaddieTemplate);
+        const blockingSquaddieBattle = BattleSquaddieService.new({
             squaddieTemplate: blockingSquaddieTemplate,
             battleSquaddieId: "blocker 0"
         });
-        ObjectRepositoryHelper.addBattleSquaddie(repository, blockingSquaddieBattle);
+        ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
         MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 1,
             r: 2
@@ -64,20 +64,20 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         const pathAtHead = SearchPathHelper.newSearchPath();
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 0, r: 0}, cumulativeMovementCost: 0}, 0);
 
-        const repository: ObjectRepository = ObjectRepositoryHelper.new();
-        const blockingSquaddieTemplate = SquaddieTemplateHelper.new({
-            squaddieId: SquaddieIdHelper.new({
+        const repository: ObjectRepository = ObjectRepositoryService.new();
+        const blockingSquaddieTemplate = SquaddieTemplateService.new({
+            squaddieId: SquaddieIdService.new({
                 templateId: "blocker",
                 name: "blocker",
                 affiliation: SquaddieAffiliation.UNKNOWN,
             })
         });
-        ObjectRepositoryHelper.addSquaddieTemplate(repository, blockingSquaddieTemplate);
-        const blockingSquaddieBattle = BattleSquaddieHelper.new({
+        ObjectRepositoryService.addSquaddieTemplate(repository, blockingSquaddieTemplate);
+        const blockingSquaddieBattle = BattleSquaddieService.new({
             squaddieTemplate: blockingSquaddieTemplate,
             battleSquaddieId: "blocker 0"
         });
-        ObjectRepositoryHelper.addBattleSquaddie(repository, blockingSquaddieBattle);
+        ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
         MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 0,
             r: 0
@@ -104,20 +104,20 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, cumulativeMovementCost: 1}, 1);
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 2}, 2);
 
-        const repository: ObjectRepository = ObjectRepositoryHelper.new();
-        const blockingSquaddieTemplate = SquaddieTemplateHelper.new({
-            squaddieId: SquaddieIdHelper.new({
+        const repository: ObjectRepository = ObjectRepositoryService.new();
+        const blockingSquaddieTemplate = SquaddieTemplateService.new({
+            squaddieId: SquaddieIdService.new({
                 templateId: "blocker",
                 name: "blocker",
                 affiliation: SquaddieAffiliation.UNKNOWN,
             })
         });
-        ObjectRepositoryHelper.addSquaddieTemplate(repository, blockingSquaddieTemplate);
-        const blockingSquaddieBattle = BattleSquaddieHelper.new({
+        ObjectRepositoryService.addSquaddieTemplate(repository, blockingSquaddieTemplate);
+        const blockingSquaddieBattle = BattleSquaddieService.new({
             squaddieTemplate: blockingSquaddieTemplate,
             battleSquaddieId: "blocker 0"
         });
-        ObjectRepositoryHelper.addBattleSquaddie(repository, blockingSquaddieBattle);
+        ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
         MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 1,
             r: 2
@@ -144,20 +144,20 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             }),
         });
 
-        const repository: ObjectRepository = ObjectRepositoryHelper.new();
-        const blockingSquaddieTemplate = SquaddieTemplateHelper.new({
-            squaddieId: SquaddieIdHelper.new({
+        const repository: ObjectRepository = ObjectRepositoryService.new();
+        const blockingSquaddieTemplate = SquaddieTemplateService.new({
+            squaddieId: SquaddieIdService.new({
                 templateId: "blocker",
                 name: "blocker",
                 affiliation: SquaddieAffiliation.UNKNOWN,
             })
         });
-        ObjectRepositoryHelper.addSquaddieTemplate(repository, blockingSquaddieTemplate);
-        const blockingSquaddieBattle = BattleSquaddieHelper.new({
+        ObjectRepositoryService.addSquaddieTemplate(repository, blockingSquaddieTemplate);
+        const blockingSquaddieBattle = BattleSquaddieService.new({
             squaddieTemplate: blockingSquaddieTemplate,
             battleSquaddieId: "blocker 0",
         });
-        ObjectRepositoryHelper.addBattleSquaddie(repository, blockingSquaddieBattle);
+        ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
         MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 1,
             r: 2
@@ -192,7 +192,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 1}, cumulativeMovementCost: 1}, 1);
         SearchPathHelper.add(pathAtHead, {hexCoordinate: {q: 1, r: 2}, cumulativeMovementCost: 2}, 2);
 
-        const repository: ObjectRepository = ObjectRepositoryHelper.new();
+        const repository: ObjectRepository = ObjectRepositoryService.new();
         const searchParameters = SearchParametersHelper.new({
             squaddieAffiliation: SquaddieAffiliation.PLAYER,
         });
@@ -210,7 +210,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             }),
         });
 
-        const repository: ObjectRepository = ObjectRepositoryHelper.new();
+        const repository: ObjectRepository = ObjectRepositoryService.new();
         const searchParameters = SearchParametersHelper.new({});
 
         const condition = new PathCanStopConditionNotOnAnotherSquaddie({missionMap, repository});

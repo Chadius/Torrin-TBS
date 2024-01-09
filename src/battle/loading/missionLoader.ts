@@ -13,10 +13,10 @@ import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
-import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
+import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
+import {SquaddieTurnService} from "../../squaddie/turn";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
@@ -205,7 +205,7 @@ export const MissionLoader = {
     }) => {
         const playerArmyData: PlayerArmy = await LoadPlayerArmyFromFile();
         playerArmyData.squaddieTemplates.forEach(template => {
-            SquaddieTemplateHelper.sanitize(template);
+            SquaddieTemplateService.sanitize(template);
             missionLoaderContext.squaddieData.templates[template.squaddieId.templateId] = template;
         });
 
@@ -215,13 +215,13 @@ export const MissionLoader = {
         });
 
         playerArmyData.squaddieTemplates.forEach(template => {
-            const battleSquaddie: BattleSquaddie = BattleSquaddieHelper.new({
+            const battleSquaddie: BattleSquaddie = BattleSquaddieService.new({
                 battleSquaddieId: template.squaddieId.templateId,
                 inBattleAttributes: InBattleAttributesHandler.new(template.attributes),
                 squaddieTemplate: template,
             })
 
-            ObjectRepositoryHelper.addSquaddie(squaddieRepository, template, battleSquaddie);
+            ObjectRepositoryService.addSquaddie(squaddieRepository, template, battleSquaddie);
         });
     }
 }
@@ -261,9 +261,9 @@ const initializeSquaddieResources = ({
     missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
 }) => {
-    ObjectRepositoryHelper.getBattleSquaddieIterator(repository).forEach((info) => {
+    ObjectRepositoryService.getBattleSquaddieIterator(repository).forEach((info) => {
         const {battleSquaddie, battleSquaddieId} = info;
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
 
         let image: GraphicImage = getResultOrThrowError(
             resourceHandler.getResource(squaddieTemplate.squaddieId.resources.mapIconResourceKey)
@@ -634,7 +634,7 @@ const loadNPCTemplatesFromFile = async (templateIds: string[]): Promise<{ [p: st
     for (const templateId of templateIds) {
         try {
             const squaddieTemplate = await LoadFileIntoFormat<SquaddieTemplate>(`assets/npcData/templates/${templateId}.json`)
-            squaddiesById[templateId] = SquaddieTemplateHelper.sanitize(squaddieTemplate);
+            squaddiesById[templateId] = SquaddieTemplateService.sanitize(squaddieTemplate);
         } catch (e) {
             console.error(`Failed to load template: ${templateId}`);
             console.error(e);
@@ -658,7 +658,7 @@ const loadAndPrepareNPCTemplateData = async ({
     loadedTemplatesById = {...loadedNPCTemplatesById};
 
     Object.values(loadedTemplatesById).forEach(template => {
-        SquaddieTemplateHelper.sanitize(template);
+        SquaddieTemplateService.sanitize(template);
     });
 
     Object.assign(missionLoaderContext.squaddieData.templates, loadedTemplatesById);
@@ -672,7 +672,7 @@ const loadAndPrepareNPCTemplateData = async ({
             ...Object.values(template.squaddieId.resources.actionSpritesByEmotion)
         );
 
-        ObjectRepositoryHelper.addSquaddieTemplate(repository, template);
+        ObjectRepositoryService.addSquaddieTemplate(repository, template);
     });
 }
 
@@ -691,11 +691,11 @@ const spawnNPCSquaddiesAndAddToMap = ({
             battleSquaddieId,
             squaddieTemplateId,
         } = mapPlacement;
-        ObjectRepositoryHelper.addBattleSquaddie(repository,
-            BattleSquaddieHelper.newBattleSquaddie({
+        ObjectRepositoryService.addBattleSquaddie(repository,
+            BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId,
                 squaddieTemplateId,
-                squaddieTurn: SquaddieTurnHandler.new(),
+                squaddieTurn: SquaddieTurnService.new(),
             })
         );
         missionLoaderContext.missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);

@@ -1,9 +1,12 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
@@ -12,7 +15,7 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     constructor(options: TeamStrategyOptions) {
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): squaddieDecisionsDuringThisPhase | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
         const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
@@ -22,10 +25,10 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
 
         const datum = state.missionMap.getSquaddieByBattleId(squaddieToAct);
-        const endTurnAction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const endTurnAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: datum.mapLocation,

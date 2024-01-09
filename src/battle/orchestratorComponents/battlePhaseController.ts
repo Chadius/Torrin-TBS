@@ -25,9 +25,9 @@ import {
 } from "../../hexMap/convertCoordinates";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {isValidValue} from "../../utils/validityCheck";
 
 export const BANNER_ANIMATION_TIME = 2000;
@@ -51,7 +51,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
     hasCompleted(state: GameEngineState): boolean {
         if (!this.newBannerShown
-            && BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository) !== undefined
+            && BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository) !== undefined
         ) {
             return true;
         }
@@ -83,7 +83,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (!this.newBannerShown
             && state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation !== BattlePhase.UNKNOWN
-            && BattleStateHelper.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository)
+            && BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository)
         ) {
             return;
         }
@@ -213,7 +213,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, id));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, id));
             const {
                 playerCanControlThisSquaddieRightNow,
             } = CanPlayerControlSquaddieRightNow({battleSquaddie, squaddieTemplate});

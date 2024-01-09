@@ -6,33 +6,33 @@ import {
     ActionEffectSquaddieTemplateService
 } from "../../decision/actionEffectSquaddieTemplate";
 import {ActionEffectType} from "../../decision/actionEffect";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "./squaddieDecisionsDuringThisPhase";
+import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {ActionEffectMovement, ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 
-describe('squaddie actions for this round', () => {
-    let attackAction: ActionEffectSquaddieTemplate;
-    let notAnAttackAction: ActionEffectSquaddieTemplate;
-    let attackActionWithoutMAP: ActionEffectSquaddieTemplate;
+describe('squaddie decisions for this phase', () => {
+    let attackActionEffectTemplate: ActionEffectSquaddieTemplate;
+    let notAnAttackActionEffectTemplate: ActionEffectSquaddieTemplate;
+    let attackActionEffectTemplateWithoutMAP: ActionEffectSquaddieTemplate;
 
     beforeEach(() => {
-        attackAction = ActionEffectSquaddieTemplateService.new({
+        attackActionEffectTemplate = ActionEffectSquaddieTemplateService.new({
             id: "attackAction",
             name: "Attack Action",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             })
         });
-        notAnAttackAction = ActionEffectSquaddieTemplateService.new({
+        notAnAttackActionEffectTemplate = ActionEffectSquaddieTemplateService.new({
             id: "notAnAttackAction",
             name: "Not An Attack Action",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: false,
             })
         });
-        attackActionWithoutMAP = ActionEffectSquaddieTemplateService.new({
+        attackActionEffectTemplateWithoutMAP = ActionEffectSquaddieTemplateService.new({
             id: "attackActionWithoutMAP",
             name: "Attack Action without MAP",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -55,7 +55,7 @@ describe('squaddie actions for this round', () => {
             actionPointCost: 1,
         };
 
-        const actionsForThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const actionsForThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "template id",
             battleSquaddieId: "battle id",
             startingLocation: {q: 0, r: 0},
@@ -85,7 +85,7 @@ describe('squaddie actions for this round', () => {
             ],
         });
 
-        const newActionForThisRound: squaddieDecisionsDuringThisPhase = {...actionsForThisRound};
+        const newActionForThisRound: SquaddieDecisionsDuringThisPhase = {...actionsForThisRound};
         expect(newActionForThisRound.battleSquaddieId).toStrictEqual(actionsForThisRound.battleSquaddieId);
         expect(newActionForThisRound.squaddieTemplateId).toStrictEqual(actionsForThisRound.squaddieTemplateId);
         expect(newActionForThisRound.startingLocation).toStrictEqual(actionsForThisRound.startingLocation);
@@ -93,7 +93,7 @@ describe('squaddie actions for this round', () => {
     });
 
     it('can add starting location', () => {
-        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: undefined,
@@ -104,7 +104,7 @@ describe('squaddie actions for this round', () => {
     });
 
     it('will throw an error if a starting location is added a second time', () => {
-        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
@@ -123,7 +123,7 @@ describe('squaddie actions for this round', () => {
     });
 
     it('can add movement action and its results', () => {
-        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new static squaddie",
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
@@ -168,7 +168,7 @@ describe('squaddie actions for this round', () => {
 
     describe('can calculate multiple attack penalty', () => {
         it('will not apply MAP when there are no actions', () => {
-            const noActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const noActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 startingLocation: {q: 0, r: 0},
@@ -180,7 +180,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will not increase MAP if the action is not an attack', () => {
-            const noAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const noAttackActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -189,7 +189,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: notAnAttackAction
+                                template: notAnAttackActionEffectTemplate
                             })
                         ]
                     }),
@@ -203,7 +203,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 0 for executing the first attack', () => {
-            const oneAttackActionThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const oneAttackActionThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -212,7 +212,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -226,7 +226,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will not increase MAP if the attack has the trait', () => {
-            const oneAttackActionThisRoundWithoutMAP: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const oneAttackActionThisRoundWithoutMAP: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -235,7 +235,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackActionWithoutMAP,
+                                template: attackActionEffectTemplateWithoutMAP,
                             })
                         ]
                     }),
@@ -249,7 +249,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 1 for executing the second attack', () => {
-            const twoAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const twoAttackActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -258,7 +258,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -267,7 +267,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -281,7 +281,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for executing the third attack', () => {
-            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -290,7 +290,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -299,7 +299,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -308,7 +308,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -322,7 +322,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for executing more than 3 attacks', () => {
-            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -331,7 +331,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -340,7 +340,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -349,7 +349,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -358,7 +358,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -373,7 +373,7 @@ describe('squaddie actions for this round', () => {
         });
 
         it('will set MAP multiplier to 0 for previewing the first attack', () => {
-            const oneAttackActionThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const oneAttackActionThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 startingLocation: {q: 0, r: 0},
@@ -386,7 +386,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            template: attackAction,
+                            template: attackActionEffectTemplate,
                         })
                     ]
                 })
@@ -396,7 +396,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 1 for previewing the second attack', () => {
-            const twoAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const twoAttackActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -405,7 +405,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -421,7 +421,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            template: attackAction,
+                            template: attackActionEffectTemplate,
                         })
                     ]
                 })
@@ -431,7 +431,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for previewing the third attack', () => {
-            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 decisions: [
@@ -440,7 +440,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -449,7 +449,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -464,7 +464,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            template: attackAction,
+                            template: attackActionEffectTemplate,
                         })
                     ]
                 })
@@ -474,7 +474,7 @@ describe('squaddie actions for this round', () => {
             });
         });
         it('will set MAP multiplier to 2 for previewing more than 3 attacks', () => {
-            const threeAttackActionsThisRound: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const threeAttackActionsThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 squaddieTemplateId: "squaddie template",
                 startingLocation: {q: 0, r: 0},
@@ -484,7 +484,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
 
                             })
                         ]
@@ -494,7 +494,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -503,7 +503,7 @@ describe('squaddie actions for this round', () => {
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
                                 targetLocation: {q: 0, r: 0},
-                                template: attackAction,
+                                template: attackActionEffectTemplate,
                             })
                         ]
                     }),
@@ -517,7 +517,7 @@ describe('squaddie actions for this round', () => {
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
                             targetLocation: {q: 0, r: 0},
-                            template: attackAction,
+                            template: attackActionEffectTemplate,
                         })
                     ]
                 })
@@ -526,5 +526,31 @@ describe('squaddie actions for this round', () => {
                 multipleAttackPenalty: -6,
             });
         });
+    });
+
+    it('knows when one of its decisions will end the turn', () => {
+        const noDecisionsWIllNotEndTurn: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            squaddieTemplateId: "new static squaddie",
+            battleSquaddieId: "new dynamic squaddie",
+            startingLocation: {q: 0, r: 0},
+            decisions: []
+        });
+
+        expect(SquaddieActionsForThisRoundService.willAnyDecisionEndTurn(noDecisionsWIllNotEndTurn)).toBeFalsy();
+
+        const willEndTheTurn: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            squaddieTemplateId: "new static squaddie",
+            battleSquaddieId: "new dynamic squaddie",
+            startingLocation: {q: 0, r: 0},
+            decisions: [
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectEndTurnService.new()
+                    ]
+                })
+            ]
+        });
+
+        expect(SquaddieActionsForThisRoundService.willAnyDecisionEndTurn(willEndTheTurn)).toBeTruthy();
     });
 });

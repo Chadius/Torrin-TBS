@@ -1,4 +1,4 @@
-import {SquaddieTemplate, SquaddieTemplateHelper} from "./squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "./squaddieTemplate";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ArmyAttributes, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {NewDummySquaddieID} from "../utils/test/squaddie";
@@ -31,7 +31,7 @@ describe('Squaddie Template', () => {
             actions: undefined,
         }
 
-        SquaddieTemplateHelper.sanitize(templateWithInvalidFields);
+        SquaddieTemplateService.sanitize(templateWithInvalidFields);
 
         expect(templateWithInvalidFields.actions).toHaveLength(0);
         expect(templateWithInvalidFields.attributes).toEqual(DefaultArmyAttributes());
@@ -47,7 +47,7 @@ describe('Squaddie Template', () => {
         }
 
         const throwErrorBecauseOfNoSquaddieId = () => {
-            SquaddieTemplateHelper.sanitize(templateWithoutASquaddieId);
+            SquaddieTemplateService.sanitize(templateWithoutASquaddieId);
         };
 
         expect(throwErrorBecauseOfNoSquaddieId).toThrowError('cannot sanitize');

@@ -17,7 +17,7 @@ import {MissionStartOfPhaseCutsceneTrigger} from "./missionStartOfPhaseCutsceneT
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
 describe('Mission Cutscene Service', () => {
@@ -53,7 +53,7 @@ describe('Mission Cutscene Service', () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
@@ -91,7 +91,7 @@ describe('Mission Cutscene Service', () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
@@ -122,7 +122,7 @@ describe('Mission Cutscene Service', () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({
@@ -170,7 +170,7 @@ describe('Mission Cutscene Service', () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap: new MissionMap({
                     terrainTileMap: new TerrainTileMap({

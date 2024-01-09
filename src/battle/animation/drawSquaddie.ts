@@ -5,14 +5,14 @@ import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../ui/rectangle";
 import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {
     CanPlayerControlSquaddieRightNow,
-    CanSquaddieActRightNow,
-    GetNumberOfActionPoints
+    GetNumberOfActionPoints,
+    SquaddieService
 } from "../../squaddie/squaddieService";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -39,7 +39,7 @@ export const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContex
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     setImageToLocation(mapIcon, xyCoords);
-    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
     const {
         squaddieHasThePlayerControlledAffiliation,
         squaddieCanCurrentlyAct
@@ -100,7 +100,7 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTe
 export const TintSquaddieIfTurnIsComplete = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {
     let {
         canAct,
-    } = CanSquaddieActRightNow({
+    } = SquaddieService.canSquaddieActRightNow({
         squaddieTemplate,
         battleSquaddie,
     });

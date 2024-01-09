@@ -16,7 +16,7 @@ import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieT
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
 import {DIE_SIZE, RollResult, RollResultService} from "./rollResult";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "./degreeOfSuccess";
@@ -69,7 +69,7 @@ function calculateResults({
         const {
             squaddieTemplate: targetedSquaddieTemplate,
             battleSquaddie: targetedBattleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, targetedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, targetedBattleSquaddieId));
 
         let healingReceived = calculateTotalHealingReceived(state, targetedSquaddieTemplate, targetedBattleSquaddie);
         let {damageDealt, degreeOfSuccess} = calculateTotalDamageDealt({
@@ -220,7 +220,7 @@ function maybeUpdateMissionStatistics(targetedSquaddieTemplate: SquaddieTemplate
         MissionStatisticsHandler.addDamageTakenByPlayerTeam(state.battleState.missionStatistics, damageDealt);
     }
 
-    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, actingBattleSquaddie.battleSquaddieId));
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, actingBattleSquaddie.battleSquaddieId));
     if (actingSquaddieTemplate.squaddieId.affiliation === SquaddieAffiliation.PLAYER) {
         MissionStatisticsHandler.addDamageDealtByPlayerTeam(state.battleState.missionStatistics, damageDealt);
     }

@@ -1,4 +1,4 @@
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
@@ -11,11 +11,14 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieTurnHandler} from "../../squaddie/turn";
+import {SquaddieTurnService} from "../../squaddie/turn";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
@@ -30,9 +33,9 @@ describe('target a squaddie within reach of actions', () => {
     let allyClericDynamic: BattleSquaddie;
     let shortBowAction: ActionEffectSquaddieTemplate;
     let enemyTeam: BattleSquaddieTeam;
-    let expectedInstruction: squaddieDecisionsDuringThisPhase;
+    let expectedInstruction: SquaddieDecisionsDuringThisPhase;
     beforeEach(() => {
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
 
         shortBowAction = ActionEffectSquaddieTemplateService.new({
             name: "short bow",
@@ -121,7 +124,7 @@ describe('target a squaddie within reach of actions', () => {
         const strategy: TargetSquaddieInRange = new TargetSquaddieInRange({
             desiredAffiliation: SquaddieAffiliation.PLAYER
         });
-        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -179,7 +182,7 @@ describe('target a squaddie within reach of actions', () => {
             })
         );
 
-        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
@@ -213,7 +216,7 @@ describe('target a squaddie within reach of actions', () => {
             })
         );
 
-        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
@@ -232,7 +235,7 @@ describe('target a squaddie within reach of actions', () => {
             desiredAffiliation: SquaddieAffiliation.ALLY
         });
 
-        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -245,7 +248,7 @@ describe('target a squaddie within reach of actions', () => {
             q: 0,
             r: 2
         });
-        SquaddieTurnHandler.spendActionPoints(enemyBanditDynamic.squaddieTurn, 4 - shortBowAction.actionPointCost);
+        SquaddieTurnService.spendActionPoints(enemyBanditDynamic.squaddieTurn, 4 - shortBowAction.actionPointCost);
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -256,7 +259,7 @@ describe('target a squaddie within reach of actions', () => {
             desiredBattleSquaddieId: playerKnightDynamic.battleSquaddieId,
         });
 
-        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -266,7 +269,7 @@ describe('target a squaddie within reach of actions', () => {
             r: 1
         });
 
-        const startingInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const startingInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: enemyBanditStatic.squaddieId.templateId,
             battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
             startingLocation: {q: 0, r: 0},
@@ -319,7 +322,7 @@ describe('target a squaddie within reach of actions', () => {
             })
         );
 
-        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });
@@ -358,7 +361,7 @@ describe('target a squaddie within reach of actions', () => {
             r: 2
         });
 
-        const startingInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const startingInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: enemyBanditStatic.squaddieId.templateId,
             battleSquaddieId: enemyBanditDynamic.battleSquaddieId,
             startingLocation: {q: 0, r: 0},
@@ -410,7 +413,7 @@ describe('target a squaddie within reach of actions', () => {
             })
         );
 
-        const actualInstruction: squaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
     });

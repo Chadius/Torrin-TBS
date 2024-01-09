@@ -2,6 +2,10 @@ import {Decision} from "../../decision/decision";
 import {ActionEffect} from "../../decision/actionEffect";
 import {isValidValue} from "../../utils/validityCheck";
 
+// TODO questions that need to be asked and answered:
+// 2 can the user make a new decision for the squaddie? <-- see if the Decision Action Effect iterator is active
+// 3 are we in the middle of showing the results of a decision? <--- see if the Decision Action Effect iterator is active
+
 export interface DecisionActionEffectIterator {
     decision: Decision;
     actionEffectIndex: number;
@@ -21,16 +25,16 @@ export const DecisionActionEffectIteratorService = {
         return sanitize(state);
     },
     nextActionEffect: (state: DecisionActionEffectIterator): ActionEffect | undefined => {
-        if (actionEffectIndexIsOutOfBounds(state)) {
+        if (
+            actionEffectIndexIsOutOfBounds(state)
+        ) {
             return undefined;
         }
 
+        const nextActionEffect = state.decision.actionEffects[state.actionEffectIndex];
+
         state.actionEffectIndex += 1;
-        if (actionEffectIndexIsOutOfBounds(state)) {
-            state.actionEffectIndex = undefined;
-            return undefined;
-        }
-        return state.decision.actionEffects[state.actionEffectIndex];
+        return nextActionEffect;
     },
     peekActionEffect: (state: DecisionActionEffectIterator): ActionEffect | undefined => {
         if (actionEffectIndexIsOutOfBounds(state)) {
@@ -60,5 +64,7 @@ const sanitize = (state: DecisionActionEffectIterator): DecisionActionEffectIter
     return state;
 }
 
-const actionEffectIndexIsOutOfBounds = (state: DecisionActionEffectIterator) => state.actionEffectIndex === undefined
+const actionEffectIndexIsOutOfBounds = (state: DecisionActionEffectIterator) =>
+    !isValidValue(state)
+    || state.actionEffectIndex === undefined
     || state.actionEffectIndex >= state.decision.actionEffects.length;

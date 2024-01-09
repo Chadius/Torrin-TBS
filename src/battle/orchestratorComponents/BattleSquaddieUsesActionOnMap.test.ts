@@ -1,23 +1,24 @@
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {
     SquaddieActionsForThisRoundService,
-    squaddieDecisionsDuringThisPhase
+    SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
-import {SquaddieInstructionInProgressService} from "../history/currentlySelectedSquaddieDecision";
+import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: ObjectRepository;
@@ -27,7 +28,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         ({
             squaddieTemplate: squaddieTemplateBase,
             battleSquaddie: battleSquaddieBase,
@@ -51,7 +52,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
     });
 
     it('can wait half a second before ending turn', () => {
-        const endTurnInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const endTurnInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
@@ -72,11 +73,11 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 squaddieRepository: squaddieRepository,
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
-                    squaddieCurrentlyActing: SquaddieInstructionInProgressService.new({
+                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: endTurnInstruction,
-                        movingBattleSquaddieIds: [],
+
                     }),
                 }),
                 decisionActionEffectIterator: DecisionActionEffectIteratorService.new({
@@ -99,6 +100,6 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
         mapAction.reset(state);
         expect(mapAction.animationCompleteStartTime).toBeUndefined();
-        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
     });
 });

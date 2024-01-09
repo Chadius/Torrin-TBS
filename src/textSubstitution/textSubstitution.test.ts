@@ -1,7 +1,7 @@
 import * as battleOrchestratorStateSubstitution from "./battleOrchestratorStateSubstitution"
 import {SubstituteText} from "./textSubstitution";
 import {BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
-import {BattleStateHelper} from "../battle/orchestrator/battleState";
+import {BattleStateService} from "../battle/orchestrator/battleState";
 
 describe("TextSubstitution", () => {
     it('will pass input to the BattleOrchestratorStateSubstitution when a battle orchestrator state is provided', () => {
@@ -13,7 +13,7 @@ describe("TextSubstitution", () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
         });

@@ -4,7 +4,7 @@ import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {SquaddieTurnHandler} from "../../../squaddie/turn";
+import {SquaddieTurnService} from "../../../squaddie/turn";
 import {InBattleAttributesHandler} from "../../stats/inBattleAttributes";
 import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
@@ -73,7 +73,7 @@ describe('TargetTextWindow', () => {
 
         targetBattle = {
             squaddieTemplateId: targetSquaddie.squaddieId.templateId,
-            squaddieTurn: SquaddieTurnHandler.new(),
+            squaddieTurn: SquaddieTurnService.new(),
             battleSquaddieId: "targetBattleId",
             inBattleAttributes: InBattleAttributesHandler.new(),
         }

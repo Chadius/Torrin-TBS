@@ -23,8 +23,9 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ObjectRepositoryHelper} from "../objectRepository";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {ObjectRepositoryService} from "../objectRepository";
+import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
+import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -113,7 +114,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             const {
                 battleSquaddie,
                 squaddieTemplate
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieId));
             if (!IsSquaddieAlive({battleSquaddie, squaddieTemplate})) {
                 state.battleState.missionMap.hideSquaddieFromDrawing(battleSquaddieId);
                 state.battleState.missionMap.updateSquaddieLocation(battleSquaddieId, undefined);
@@ -132,9 +133,13 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             return;
         }
 
+        if (state.decisionActionEffectIterator === undefined) {
+            state.decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
+                decision: mostRecentEvent.instruction.currentlySelectedDecisionForPreview
+            })
+        }
 
-        // TODO this should be based on the current action
-        let squaddieActionEffect = mostRecentEvent.instruction.currentlySelectedDecisionForPreview.actionEffects[0];
+        let squaddieActionEffect: ActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator);
         if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
             return;
         }

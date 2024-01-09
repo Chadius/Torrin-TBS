@@ -1,7 +1,7 @@
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
-import {BattleState, BattleStateHelper} from "./battleState";
+import {BattleState, BattleStateService} from "./battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
@@ -40,7 +40,7 @@ export class BattleOrchestratorState {
     }
 
     get isValid(): boolean {
-        if (!BattleStateHelper.isValid(this.battleState)) {
+        if (!BattleStateService.isValid(this.battleState)) {
             return false;
         }
 
@@ -52,7 +52,7 @@ export class BattleOrchestratorState {
             [BattleOrchestratorStateValidityReason.MISSING_RESOURCE_HANDLER]: this.resourceHandler !== undefined,
             [BattleOrchestratorStateValidityReason.MISSING_SQUADDIE_REPOSITORY]: this.squaddieRepository !== undefined,
             [BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD]: this.battleSquaddieSelectedHUD !== undefined,
-            [BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE]: BattleStateHelper.isValid(this.battleState),
+            [BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE]: BattleStateService.isValid(this.battleState),
             [BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR]: this.numberGenerator !== undefined,
         }
 
@@ -65,7 +65,7 @@ export class BattleOrchestratorState {
         return BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: this.resourceHandler,
             squaddieRepository: this.squaddieRepository,
-            battleState: BattleStateHelper.clone(this.battleState),
+            battleState: BattleStateService.clone(this.battleState),
             battleSquaddieSelectedHUD: this.battleSquaddieSelectedHUD,
             numberGenerator: this.numberGenerator ? this.numberGenerator.clone() : undefined,
         });
@@ -74,7 +74,7 @@ export class BattleOrchestratorState {
     public copyOtherOrchestratorState(other: BattleOrchestratorState): void {
         this.resourceHandler = other.resourceHandler;
         this.squaddieRepository = other.squaddieRepository;
-        this.battleState = BattleStateHelper.clone(other.battleState);
+        this.battleState = BattleStateService.clone(other.battleState);
         this.battleSquaddieSelectedHUD = other.battleSquaddieSelectedHUD;
         this.numberGenerator = other.numberGenerator.clone();
     }
@@ -106,9 +106,9 @@ export const BattleOrchestratorStateService = {
     }): BattleOrchestratorState => {
         return new BattleOrchestratorState({
             resourceHandler,
-            squaddieRepository: squaddieRepository ?? ObjectRepositoryHelper.new(),
+            squaddieRepository: squaddieRepository ?? ObjectRepositoryService.new(),
             battleSquaddieSelectedHUD: battleSquaddieSelectedHUD ?? new BattleSquaddieSelectedHUD(),
-            battleState: battleState ?? BattleStateHelper.newBattleState({
+            battleState: battleState ?? BattleStateService.newBattleState({
                 missionId: "test mission",
                 battlePhaseState: {
                     turnCount: 0,

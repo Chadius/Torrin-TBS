@@ -1,7 +1,10 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategyState} from "./teamStrategyState";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FindValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -9,8 +12,8 @@ import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieT
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
-import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {SquaddieTurnService} from "../../squaddie/turn";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {DecisionService} from "../../decision/decision";
@@ -25,7 +28,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): squaddieDecisionsDuringThisPhase | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
         if (!this.desiredBattleSquaddieId && (!this.desiredAffiliation || this.desiredAffiliation === SquaddieAffiliation.UNKNOWN)) {
             throw new Error("Target Squaddie In Range strategy has no target");
         }
@@ -53,14 +56,14 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         return actingSquaddie;
     }
 
-    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingBattleSquaddieId: string): squaddieDecisionsDuringThisPhase | undefined {
+    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingBattleSquaddieId: string): SquaddieDecisionsDuringThisPhase | undefined {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, actingBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, actingBattleSquaddieId));
 
         const validActions = squaddieTemplate.actions.filter((action) => {
-            return SquaddieTurnHandler.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
+            return SquaddieTurnService.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
         });
 
         const targetingResultsInfo = this.getTargetingResultsOfActionWithTargets({
@@ -90,7 +93,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
         if (this.desiredAffiliation !== SquaddieAffiliation.UNKNOWN) {
             const squaddiesOfDesiredAffiliation = targetingResults.battleSquaddieIdsInRange.filter((battleId) => {
-                const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleId))
+                const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleId))
                 return targetSquaddieTemplate.squaddieId.affiliation === this.desiredAffiliation;
             });
 
@@ -161,7 +164,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         actingSquaddieAction: ActionEffectSquaddieTemplate,
         targetLocation: HexCoordinate,
     }) {
-        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
             squaddieTemplateId: actingSquaddieTemplate.squaddieId.templateId,
             startingLocation: actingSquaddieMapLocation,
@@ -169,7 +172,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         return this.addSquaddieActionTemplateDecisionToInstruction(instruction, actingSquaddieAction, targetLocation)
     }
 
-    private addSquaddieActionTemplateDecisionToInstruction(instruction: squaddieDecisionsDuringThisPhase, action: ActionEffectSquaddieTemplate, targetLocation: HexCoordinate) {
+    private addSquaddieActionTemplateDecisionToInstruction(instruction: SquaddieDecisionsDuringThisPhase, action: ActionEffectSquaddieTemplate, targetLocation: HexCoordinate) {
         SquaddieActionsForThisRoundService.addDecision(instruction,
             DecisionService.new({
                 actionEffects: [
@@ -197,7 +200,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         actingBattleSquaddie: BattleSquaddie,
         actingSquaddieTemplate: SquaddieTemplate
         action: ActionEffectSquaddieTemplate
-    }): squaddieDecisionsDuringThisPhase | undefined {
+    }): SquaddieDecisionsDuringThisPhase | undefined {
         const targetingSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId);
         const desiredSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(squaddieToTarget);
         if (MissionMapSquaddieLocationHandler.isValid(desiredSquaddieMapDatum)) {

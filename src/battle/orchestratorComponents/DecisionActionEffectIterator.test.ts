@@ -57,14 +57,14 @@ describe('DecisionAnimationState', () => {
     it('throws an error if the decision has no action effects', () => {
         const throwsAnErrorBecauseDecisionHasNoActionEffects = () => {
             DecisionActionEffectIteratorService.new({
-                decision: DecisionService.new({ actionEffects: [] }),
+                decision: DecisionService.new({actionEffects: []}),
             });
         };
 
         expect(throwsAnErrorBecauseDecisionHasNoActionEffects).toThrowError('no action effects');
     });
 
-    it('throws an error if the action effect index is out of bounds', () => {
+    it('throws an error if the action effect index is out of bounds during creation', () => {
         const throwsAnErrorBecauseActionEffectIndexIsOutOfBounds = () => {
             DecisionActionEffectIteratorService.new({
                 decision: chargeDecision,
@@ -84,7 +84,7 @@ describe('DecisionAnimationState', () => {
         DecisionActionEffectIteratorService.nextActionEffect(animationState);
         expect(animationState.actionEffectIndex).toEqual(2);
         DecisionActionEffectIteratorService.nextActionEffect(animationState);
-        expect(animationState.actionEffectIndex).toBeUndefined();
+        expect(animationState.actionEffectIndex).toEqual(3);
     });
 
     it('will peek at the current action effect', () => {
@@ -111,5 +111,28 @@ describe('DecisionAnimationState', () => {
         expect(DecisionActionEffectIteratorService.hasFinishedIteratingThoughActionEffects(animationState)).toBeFalsy();
         DecisionActionEffectIteratorService.nextActionEffect(animationState);
         expect(DecisionActionEffectIteratorService.hasFinishedIteratingThoughActionEffects(animationState)).toBeTruthy();
+    });
+
+    it('works when the decision has 1 action', () => {
+        const movement = ActionEffectMovementService.new({
+            numberOfActionPointsSpent: 1,
+            destination: {q: 0, r: 0},
+        });
+
+        let decisionWithOneActionEffect = DecisionService.new({
+            actionEffects: [
+                movement,
+            ]
+        });
+
+        let animationState: DecisionActionEffectIterator = DecisionActionEffectIteratorService.new({
+            decision: decisionWithOneActionEffect,
+        });
+
+        expect(DecisionActionEffectIteratorService.peekActionEffect(animationState)).toEqual(movement);
+        let nextActionEffect = DecisionActionEffectIteratorService.nextActionEffect(animationState);
+        expect(nextActionEffect).toEqual(movement);
+        expect(DecisionActionEffectIteratorService.hasFinishedIteratingThoughActionEffects(animationState)).toBeTruthy();
+        expect(DecisionActionEffectIteratorService.nextActionEffect(animationState)).toBeUndefined();
     });
 });

@@ -1,5 +1,5 @@
 import {ActionResultPerSquaddie, ActionResultPerSquaddieService} from "../../history/actionResultPerSquaddie";
-import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {TargetSprite} from "./targetSprite";
@@ -35,7 +35,7 @@ describe('Target Sprite', () => {
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {
@@ -49,7 +49,7 @@ describe('Target Sprite', () => {
             templateId: "target"
         });
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
 
         resultTookDamage = ActionResultPerSquaddieService.new({
             damageTaken: 1,
@@ -180,7 +180,7 @@ describe('Target Sprite', () => {
         expect(getterSpy).toBeCalled();
     });
     it('transitions to DEAD if it kills the target', () => {
-        const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+        const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
         battleSquaddie.inBattleAttributes.currentHitPoints = 0;
 
         const getterSpy = mockActionTimerPhase(ActionAnimationPhase.TARGET_REACTS);

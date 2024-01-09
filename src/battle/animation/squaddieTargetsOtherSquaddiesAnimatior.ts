@@ -22,7 +22,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingHandler} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaHelper} from "../../ui/rectArea";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
 import {ActionEffectType} from "../../decision/actionEffect";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
@@ -156,7 +156,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         const {
             battleSquaddie: actorBattle,
             squaddieTemplate: actorTemplate,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
             mostRecentResults.results.actingBattleSquaddieId
         ));
 
@@ -213,7 +213,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleId));
 
             let squaddieActionEffect = RecordingHandler.mostRecentEvent(state.battleState.recording).instruction.currentlySelectedDecisionForPreview.actionEffects[0];
             if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
@@ -237,7 +237,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleId));
 
             let {
                 currentHitPoints: displayedHitPointsBeforeChange,

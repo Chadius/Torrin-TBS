@@ -1,13 +1,16 @@
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {
     CurrentlySelectedSquaddieDecision,
-    SquaddieInstructionInProgressService
+    CurrentlySelectedSquaddieDecisionService
 } from "../history/currentlySelectedSquaddieDecision";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
 import {
@@ -23,6 +26,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as orchestratorUtils from "./orchestratorUtils";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -34,8 +38,8 @@ import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTarget
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
-import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {SquaddieTurnService} from "../../squaddie/turn";
+import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
@@ -59,7 +63,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         ({
             squaddieTemplate: squaddieTemplateBase,
             battleSquaddie: battleSquaddieBase,
@@ -142,7 +146,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     function useMonkKoanAndReturnState({missionMap}: {
         missionMap?: MissionMap
     }): GameEngineState {
-        const instruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
@@ -159,9 +163,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             ]
         });
 
-        monkMeditatesInstruction = SquaddieInstructionInProgressService.new({
+        monkMeditatesInstruction = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: instruction,
-            movingBattleSquaddieIds: [],
+
             currentlySelectedDecisionForPreview: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
@@ -172,7 +176,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 ]
             }),
         });
-        SquaddieInstructionInProgressService.selectDecisionForPreview(monkMeditatesInstruction,
+        CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(monkMeditatesInstruction,
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
@@ -202,7 +206,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 missionMap,
@@ -217,7 +221,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state: battleOrchestratorState,
         });
-        SquaddieTurnHandler.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
+        SquaddieTurnService.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
         return GameEngineStateHelper.new({
             battleOrchestratorState,
         });
@@ -226,7 +230,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     function usePowerAttackLongswordAndReturnState({missionMap}: {
         missionMap?: MissionMap
     }): GameEngineState {
-        const wholeTurnInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const wholeTurnInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
@@ -243,9 +247,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             ]
         });
 
-        const squaddieInstructionInProgress: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
+        const squaddieInstructionInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: wholeTurnInstruction,
-            movingBattleSquaddieIds: [],
+
             currentlySelectedDecisionForPreview: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
@@ -280,7 +284,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
                 squaddieCurrentlyActing: squaddieInstructionInProgress,
@@ -295,7 +299,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state: battleOrchestratorState,
         });
-        SquaddieTurnHandler.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
+        SquaddieTurnService.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
         return GameEngineStateHelper.new({
             battleOrchestratorState
         });
@@ -348,7 +352,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
     });
 
     it('uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes', () => {
@@ -372,7 +376,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled();
-        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
     });
 
     it('passes mouse events on to the animator', () => {

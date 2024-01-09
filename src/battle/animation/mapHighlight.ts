@@ -1,5 +1,5 @@
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {HighlightTileDescription} from "../../hexMap/terrainTileMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieService} from "../../squaddie/squaddieService";
@@ -66,7 +66,7 @@ export const MapHighlightHelper = {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
 
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({battleSquaddie, squaddieTemplate});
 
@@ -132,7 +132,7 @@ const addAttackRangeOntoMovementRange = (repository: ObjectRepository, battleSqu
     const {
         squaddieTemplate,
         battleSquaddie
-    } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieId));
+    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
 
     const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({battleSquaddie, squaddieTemplate});
 

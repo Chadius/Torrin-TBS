@@ -1,6 +1,6 @@
 import {PlayerArmy, PlayerArmyHelper} from "./playerArmy";
-import {SquaddieTemplateHelper} from "./squaddieTemplate";
-import {SquaddieIdHelper} from "../squaddie/id";
+import {SquaddieTemplateService} from "./squaddieTemplate";
+import {SquaddieIdService} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 
 describe('Player Army', () => {
@@ -15,15 +15,15 @@ describe('Player Army', () => {
         it('sanitizes each squaddie template', () => {
             const armyOfTwo: PlayerArmy = {
                 squaddieTemplates: [
-                    SquaddieTemplateHelper.new({
-                        squaddieId: SquaddieIdHelper.new({
+                    SquaddieTemplateService.new({
+                        squaddieId: SquaddieIdService.new({
                             templateId: "squaddie 1",
                             name: "Number 1",
                             affiliation: SquaddieAffiliation.PLAYER,
                         })
                     }),
-                    SquaddieTemplateHelper.new({
-                        squaddieId: SquaddieIdHelper.new({
+                    SquaddieTemplateService.new({
+                        squaddieId: SquaddieIdService.new({
                             templateId: "squaddie 2",
                             name: "Number 2",
                             affiliation: SquaddieAffiliation.PLAYER,
@@ -31,7 +31,7 @@ describe('Player Army', () => {
                     }),
                 ],
             };
-            const squaddieTemplateSanitizer = jest.spyOn(SquaddieTemplateHelper, "sanitize");
+            const squaddieTemplateSanitizer = jest.spyOn(SquaddieTemplateService, "sanitize");
 
             PlayerArmyHelper.sanitize(armyOfTwo);
 

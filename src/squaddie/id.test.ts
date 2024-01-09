@@ -1,4 +1,4 @@
-import {SquaddieId, SquaddieIdHelper} from "./id";
+import {SquaddieId, SquaddieIdService} from "./id";
 import {SquaddieResourceHelper} from "./resource";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
@@ -13,7 +13,7 @@ describe('Squaddie Id', () => {
             affiliation: undefined,
         };
 
-        SquaddieIdHelper.sanitize(squaddieIdWithMissingFields);
+        SquaddieIdService.sanitize(squaddieIdWithMissingFields);
         expect(squaddieIdWithMissingFields.templateId).toEqual("templateId");
         expect(squaddieIdWithMissingFields.name).toEqual("name");
         expect(squaddieIdWithMissingFields.affiliation).toEqual(SquaddieAffiliation.UNKNOWN);
@@ -30,7 +30,7 @@ describe('Squaddie Id', () => {
         };
 
         const throwErrorBecauseOfNoTemplateIdOrName = () => {
-            SquaddieIdHelper.sanitize(invalidSquaddie);
+            SquaddieIdService.sanitize(invalidSquaddie);
         };
 
         expect(throwErrorBecauseOfNoTemplateIdOrName).toThrowError('cannot sanitize');
@@ -85,7 +85,7 @@ describe('Squaddie Id', () => {
                 [field]: value,
             }
             const throwErrorBecauseInvalid = () => {
-                SquaddieIdHelper.sanitize(invalidSquaddie);
+                SquaddieIdService.sanitize(invalidSquaddie);
             };
 
             expect(throwErrorBecauseInvalid).toThrowError('cannot sanitize');

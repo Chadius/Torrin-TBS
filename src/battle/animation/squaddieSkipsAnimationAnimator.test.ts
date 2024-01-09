@@ -1,4 +1,4 @@
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
@@ -15,9 +15,12 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
 import {
     CurrentlySelectedSquaddieDecision,
-    SquaddieInstructionInProgressService
+    CurrentlySelectedSquaddieDecisionService
 } from "../history/currentlySelectedSquaddieDecision";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
@@ -25,7 +28,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {LabelHelper} from "../../ui/label";
 import * as ActionResultTextService from "./actionResultTextService";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {DecisionService} from "../../decision/decision";
 
@@ -60,7 +63,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             minimumRange: 0,
         });
 
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         CreateNewSquaddieAndAddToRepository({
             actions: [monkKoanAction],
             affiliation: SquaddieAffiliation.PLAYER,
@@ -71,7 +74,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         });
 
         battleEventRecording = {history: []};
-        const oneDecisionInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new(
+        const oneDecisionInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new(
             {
                 squaddieTemplateId: monkStaticId,
                 battleSquaddieId: monkDynamicId,
@@ -87,8 +90,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                 }],
             });
 
-        monkMeditatesInstruction = SquaddieInstructionInProgressService.new({
-            movingBattleSquaddieIds: [],
+        monkMeditatesInstruction = CurrentlySelectedSquaddieDecisionService.new({
+
             squaddieActionsForThisRound: oneDecisionInstruction,
             currentlySelectedDecisionForPreview: DecisionService.new({
                 actionEffects: [
@@ -125,7 +128,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 recording: battleEventRecording,
@@ -154,7 +157,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 recording: battleEventRecording,
@@ -176,7 +179,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 squaddieCurrentlyActing: monkMeditatesInstruction,
                 recording: battleEventRecording,

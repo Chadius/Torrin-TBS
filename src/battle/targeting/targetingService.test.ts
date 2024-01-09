@@ -4,7 +4,7 @@ import {
     ActionEffectSquaddieTemplateService
 } from "../../decision/actionEffectSquaddieTemplate";
 import {BattleSquaddie} from "../battleSquaddie";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
@@ -33,7 +33,7 @@ describe('Targeting Service', () => {
             maximumRange: 1,
         });
 
-        squaddieRepo = ObjectRepositoryHelper.new();
+        squaddieRepo = ObjectRepositoryService.new();
         ({
             squaddieTemplate: sirCamilSquaddieTemplate,
             battleSquaddie: sirCamilBattleSquaddie,
@@ -128,7 +128,7 @@ describe('Targeting Service', () => {
             maximumRange: 3,
         });
 
-        squaddieRepo = ObjectRepositoryHelper.new();
+        squaddieRepo = ObjectRepositoryService.new();
         let {
             squaddieTemplate: archerSquaddieTemplate,
             battleSquaddie: archerBattleSquaddie,

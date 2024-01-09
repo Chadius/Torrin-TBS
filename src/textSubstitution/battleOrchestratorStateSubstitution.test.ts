@@ -2,7 +2,7 @@ import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {SubstituteTextUsingBattleOrchestraState} from "./BattleOrchestratorStateSubstitution";
 import {MissionStatisticsHandler} from "../battle/missionStatistics/missionStatistics";
-import {BattleStateHelper} from "../battle/orchestrator/battleState";
+import {BattleStateService} from "../battle/orchestrator/battleState";
 
 describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute the same token multiple times in the same input', () => {
@@ -10,7 +10,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             resourceHandler: undefined,
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -28,7 +28,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('does not change the input if there are no recognized tags', () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
             resourceHandler: undefined,
@@ -45,7 +45,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
 
     it('can substitute Turn Count', () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -79,7 +79,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionStatistics: {
                         ...MissionStatisticsHandler.new(),
@@ -111,7 +111,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
@@ -131,7 +131,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),
@@ -151,7 +151,7 @@ describe("BattleOrchestratorStateSubstitution", () => {
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {
                     ...MissionStatisticsHandler.new(),

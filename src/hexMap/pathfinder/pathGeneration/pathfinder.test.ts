@@ -5,7 +5,7 @@ import {HexGridMovementCost} from "../../hexGridMovementCost";
 import {SearchPath, SearchPathHelper} from "../searchPath";
 import {SearchResult, SearchResultsHelper} from "../searchResults/searchResult";
 import {PathfinderHelper} from "./pathfinder";
-import {ObjectRepositoryHelper} from "../../../battle/objectRepository";
+import {ObjectRepositoryService} from "../../../battle/objectRepository";
 
 describe("Pathfinder", () => {
     describe("generate shortest paths for every location in a given map", () => {
@@ -32,7 +32,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
         });
 
@@ -67,7 +67,7 @@ describe("Pathfinder", () => {
             PathfinderHelper.search({
                 searchParameters: SearchParametersHelper.new({}),
                 missionMap: MissionMapHelper.default(),
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
         }
 
@@ -97,7 +97,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -130,7 +130,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -160,7 +160,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -190,7 +190,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -217,7 +217,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -244,7 +244,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -271,7 +271,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -301,7 +301,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
@@ -336,7 +336,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
@@ -364,7 +364,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
@@ -394,7 +394,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(true);
@@ -422,7 +422,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(false);
@@ -460,7 +460,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
         });
 
@@ -513,7 +513,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(searchResults.shortestPathByLocation[0][0]).toBeTruthy();
@@ -559,7 +559,7 @@ describe("Pathfinder", () => {
             const searchResults: SearchResult = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(searchResults.stopLocationsReached).toHaveLength(2);

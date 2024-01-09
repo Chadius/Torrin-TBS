@@ -10,10 +10,9 @@ import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestrator
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {ActionEffectType} from "../../decision/actionEffect";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
-import {BattleSquaddieHelper} from "../battleSquaddie";
+import {BattleSquaddieService} from "../battleSquaddie";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
@@ -44,6 +43,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
+        // TODO This should call to iterate the effect iterator, peek at the next action effect, and suggest the next mode
         return {
             displayMap: true,
             checkMissionObjectives: true,
@@ -61,11 +61,11 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
             const {
                 battleSquaddie,
                 squaddieTemplate
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
             const mostRecentActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
             if (mostRecentActionEffect.type === ActionEffectType.END_TURN) {
-                BattleSquaddieHelper.endTurn(battleSquaddie);
+                BattleSquaddieService.endTurn(battleSquaddie);
                 TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             }
             this.animationCompleteStartTime = Date.now();

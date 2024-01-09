@@ -9,7 +9,7 @@ import {
     MissionLoader,
     MissionLoaderContext
 } from "./missionLoader";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestrator/missionCutsceneCollection";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
@@ -63,7 +63,7 @@ describe('Mission Loader', () => {
             }
         });
         missionLoaderContext = MissionLoader.newEmptyMissionLoaderContext();
-        repository = ObjectRepositoryHelper.new();
+        repository = ObjectRepositoryService.new();
     });
 
     it('knows it has not started yet', () => {
@@ -168,16 +168,16 @@ describe('Mission Loader', () => {
                 expect(resourceHandler.loadResources).toBeCalledWith(Object.values(enemyDemonSlitherTemplate.squaddieId.resources.actionSpritesByEmotion));
             });
             it('knows to add the template to the squaddie repository', () => {
-                expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
-                expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate.squaddieId.templateId));
-                expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate2.squaddieId.templateId));
+                expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
+                expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate.squaddieId.templateId));
+                expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate2.squaddieId.templateId));
             });
             it('adds battle squaddies to the squaddie repository', () => {
                 missionData.enemy.mapPlacements.forEach(placement => {
                     const {
                         battleSquaddie,
                         squaddieTemplate
-                    } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, placement.battleSquaddieId));
+                    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, placement.battleSquaddieId));
                     expect(battleSquaddie.battleSquaddieId).toEqual(placement.battleSquaddieId);
                     expect(battleSquaddie.squaddieTemplateId).toEqual(placement.squaddieTemplateId);
                 });
@@ -266,8 +266,8 @@ describe('Mission Loader', () => {
         });
 
         it('adds player squaddies to the repository', () => {
-            expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).some(template => template.squaddieTemplateId === playerArmy.squaddieTemplates[0].squaddieId.templateId)).toBeTruthy();
-            expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).some(template => template.squaddieTemplateId === playerArmy.squaddieTemplates[1].squaddieId.templateId)).toBeTruthy();
+            expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).some(template => template.squaddieTemplateId === playerArmy.squaddieTemplates[0].squaddieId.templateId)).toBeTruthy();
+            expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).some(template => template.squaddieTemplateId === playerArmy.squaddieTemplates[1].squaddieId.templateId)).toBeTruthy();
         });
 
         it('adds player deployment positions to the map', () => {
@@ -322,7 +322,7 @@ describe('Mission Loader', () => {
         });
 
         it('gets squaddies and queues resources to load based on the squaddie resources', () => {
-            expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
+            expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
             expect(missionLoaderContext.squaddieData.teams.length).toBeGreaterThan(0);
             expect(Object.keys(missionLoaderContext.squaddieData.teamStrategyById).length).toBeGreaterThan(0);
 
@@ -393,7 +393,7 @@ describe('Mission Loader', () => {
         });
 
         it('initializes squaddie resources', () => {
-            expect(Object.keys(repository.imageUIByBattleSquaddieId)).toHaveLength(ObjectRepositoryHelper.getBattleSquaddieIterator(repository).length);
+            expect(Object.keys(repository.imageUIByBattleSquaddieId)).toHaveLength(ObjectRepositoryService.getBattleSquaddieIterator(repository).length);
         });
 
         it('initializes cutscenes', () => {
@@ -401,8 +401,8 @@ describe('Mission Loader', () => {
         });
 
         it('has the squaddie templates that were loaded from files', () => {
-            expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate.squaddieId.templateId));
-            expect(ObjectRepositoryHelper.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate2.squaddieId.templateId));
+            expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate.squaddieId.templateId));
+            expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).some(val => val.squaddieTemplateId === enemyDemonSlitherTemplate2.squaddieId.templateId));
         });
 
         it('copies the banner by squaddie affiliation information', () => {

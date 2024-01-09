@@ -9,7 +9,7 @@ import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {SquaddieSprite} from "./squaddieSprite";
-import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
@@ -73,7 +73,7 @@ export class ActorSprite {
         this._battleSquaddieId = actorBattleSquaddieId;
         this.squaddieResult = squaddieResult;
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,

@@ -3,7 +3,7 @@ import {MULTIPLE_ATTACK_PENALTY} from "../modifierConstants";
 import {isValidValue} from "../../utils/validityCheck";
 import {Decision, DecisionService} from "../../decision/decision";
 
-export interface squaddieDecisionsDuringThisPhase {
+export interface SquaddieDecisionsDuringThisPhase {
     squaddieTemplateId: string;
     battleSquaddieId: string;
     startingLocation: HexCoordinate;
@@ -21,7 +21,7 @@ export const SquaddieActionsForThisRoundService = {
         battleSquaddieId: string,
         startingLocation: HexCoordinate,
         decisions?: Decision[],
-    }): squaddieDecisionsDuringThisPhase => {
+    }): SquaddieDecisionsDuringThisPhase => {
         return sanitize({
             squaddieTemplateId,
             battleSquaddieId,
@@ -30,7 +30,7 @@ export const SquaddieActionsForThisRoundService = {
         });
     },
     default:
-        (): squaddieDecisionsDuringThisPhase => {
+        (): SquaddieDecisionsDuringThisPhase => {
             return sanitize({
                 squaddieTemplateId: "",
                 battleSquaddieId: "",
@@ -39,15 +39,15 @@ export const SquaddieActionsForThisRoundService = {
             });
         },
     sanitize:
-        (data: squaddieDecisionsDuringThisPhase): squaddieDecisionsDuringThisPhase => {
+        (data: SquaddieDecisionsDuringThisPhase): SquaddieDecisionsDuringThisPhase => {
             return sanitize(data);
         },
     addDecision:
-        (data: squaddieDecisionsDuringThisPhase, decision: Decision) => {
+        (data: SquaddieDecisionsDuringThisPhase, decision: Decision) => {
             data.decisions.push(decision);
         },
     getMostRecentDecision:
-        (data: squaddieDecisionsDuringThisPhase): Decision => {
+        (data: SquaddieDecisionsDuringThisPhase): Decision => {
             if (data.decisions.length === 0) {
                 return undefined;
             }
@@ -56,29 +56,33 @@ export const SquaddieActionsForThisRoundService = {
                 ];
         },
     addStartingLocation:
-        (data: squaddieDecisionsDuringThisPhase, startingLocation: HexCoordinate) => {
+        (data: SquaddieDecisionsDuringThisPhase, startingLocation: HexCoordinate) => {
             if (data.startingLocation !== undefined) {
                 throw new Error(`already has starting location (${startingLocation.q}, ${startingLocation.r}), cannot add another`)
             }
             data.startingLocation = startingLocation;
         },
     currentMultipleAttackPenalty:
-        (actionsForThisRound: squaddieDecisionsDuringThisPhase): {
+        (actionsForThisRound: SquaddieDecisionsDuringThisPhase): {
             penaltyMultiplier: number,
             multipleAttackPenalty: number,
         } => {
             return calculateMultipleAttackPenalty(actionsForThisRound, undefined);
         },
     previewMultipleAttackPenalty:
-        (actionsForThisRound: squaddieDecisionsDuringThisPhase, decisionToPreview: Decision): {
+        (actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: Decision): {
             penaltyMultiplier: number,
             multipleAttackPenalty: number,
         } => {
             return calculateMultipleAttackPenalty(actionsForThisRound, decisionToPreview);
-        }
+        },
+    willAnyDecisionEndTurn: (decisionsThisPhase: SquaddieDecisionsDuringThisPhase): boolean => {
+        return decisionsThisPhase.decisions.length > 0
+            && decisionsThisPhase.decisions.some(decision => DecisionService.willDecisionEndTurn);
+    }
 }
 
-function calculateMultipleAttackPenalty(actionsForThisRound: squaddieDecisionsDuringThisPhase, decisionToPreview: Decision) {
+function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: Decision) {
     let multipleAttackPenaltyMultiplier =
         actionsForThisRound.decisions.reduce(
             (accumulator: number, decision: Decision): number => {
@@ -107,7 +111,7 @@ function calculateMultipleAttackPenalty(actionsForThisRound: squaddieDecisionsDu
     }
 }
 
-const sanitize = (data: squaddieDecisionsDuringThisPhase): squaddieDecisionsDuringThisPhase => {
+const sanitize = (data: SquaddieDecisionsDuringThisPhase): SquaddieDecisionsDuringThisPhase => {
     if (isValidValue(data.decisions) !== true) {
         data.decisions = [];
     }

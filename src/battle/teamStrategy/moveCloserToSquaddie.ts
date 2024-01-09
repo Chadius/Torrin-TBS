@@ -1,12 +1,15 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
@@ -28,7 +31,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): squaddieDecisionsDuringThisPhase | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
@@ -43,7 +46,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
         const movementPerActionThisRound = squaddieTemplate.attributes.movement.movementPerAction;
@@ -84,7 +87,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined;
         }
 
-        const moveTowardsLocation: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const moveTowardsLocation: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: mapLocation,
@@ -139,7 +142,7 @@ const getClosestSquaddieAndLocationToFollow = ({
     const desiredBattleSquaddies = selectDesiredBattleSquaddies(repository, actingSquaddieBattleId, desiredBattleSquaddieId, desiredAffiliation);
 
     const {mapLocation: actorLocation} = missionMap.getSquaddieByBattleId(actingSquaddieBattleId);
-    const {squaddieTemplate: actorSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, actingSquaddieBattleId));
+    const {squaddieTemplate: actorSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, actingSquaddieBattleId));
     const maximumDistanceToConsider: number = (movementPerAction > 0 && numberOfActions > 0)
         ? movementPerAction * numberOfActions
         : missionMap.terrainTileMap.getDimensions().numberOfRows + missionMap.terrainTileMap.getDimensions().widthOfWidestRow;
@@ -206,7 +209,7 @@ const getClosestSquaddieAndLocationToFollow = ({
 }
 
 function selectDesiredBattleSquaddies(repository: ObjectRepository, actingSquaddieBattleId: string, desiredBattleSquaddieId: string, desiredAffiliation: SquaddieAffiliation) {
-    return ObjectRepositoryHelper.getBattleSquaddieIterator(repository).filter(battleSquaddieIter => {
+    return ObjectRepositoryService.getBattleSquaddieIterator(repository).filter(battleSquaddieIter => {
         if (battleSquaddieIter.battleSquaddieId === actingSquaddieBattleId) {
             return false;
         }
@@ -217,7 +220,7 @@ function selectDesiredBattleSquaddies(repository: ObjectRepository, actingSquadd
 
         const {
             squaddieTemplate,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieIter.battleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieIter.battleSquaddieId));
 
         return desiredAffiliation && squaddieTemplate.squaddieId.affiliation === desiredAffiliation;
     });

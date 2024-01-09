@@ -3,7 +3,7 @@ import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattleCutscenePlayer', () => {
@@ -40,7 +40,7 @@ describe('BattleCutscenePlayer', () => {
                 squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
                 })
@@ -60,7 +60,7 @@ describe('BattleCutscenePlayer', () => {
                 squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
                 })
@@ -84,7 +84,7 @@ describe('BattleCutscenePlayer', () => {
                 squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
                 })
@@ -109,7 +109,7 @@ describe('BattleCutscenePlayer', () => {
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 cutsceneCollection
             })
@@ -139,7 +139,7 @@ describe('BattleCutscenePlayer', () => {
             squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 cutsceneCollection
             })
@@ -167,7 +167,7 @@ describe('BattleCutscenePlayer', () => {
                 squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
                 })

@@ -6,13 +6,13 @@ import {
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionType} from "../missionResult/missionCondition";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
-import {BattleState, BattleStateHelper} from "./battleState";
+import {BattleState, BattleStateService} from "./battleState";
 import {FixedNumberGenerator} from "../numberGenerator/fixed";
 import {RandomNumberGenerator} from "../numberGenerator/random";
 
@@ -20,7 +20,7 @@ describe('orchestratorState', () => {
     let validBattleState: BattleState;
 
     beforeEach(() => {
-        validBattleState = BattleStateHelper.newBattleState({
+        validBattleState = BattleStateService.newBattleState({
             missionId: "test mission",
             missionMap: NullMissionMap(),
             teams: [
@@ -87,7 +87,7 @@ describe('orchestratorState', () => {
             BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
-        const squaddieRepository: ObjectRepository = ObjectRepositoryHelper.new();
+        const squaddieRepository: ObjectRepository = ObjectRepositoryService.new();
         args = {
             ...args,
             squaddieRepository,
@@ -124,7 +124,7 @@ describe('orchestratorState', () => {
 
     it('can clone existing objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: ObjectRepositoryHelper.new(),
+            squaddieRepository: ObjectRepositoryService.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
                 allResources: []
@@ -147,7 +147,7 @@ describe('orchestratorState', () => {
 
     it('can change itself to match other objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: ObjectRepositoryHelper.new(),
+            squaddieRepository: ObjectRepositoryService.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
                 allResources: []
@@ -161,7 +161,7 @@ describe('orchestratorState', () => {
         expect(originalBattleOrchestratorState.isValid).toBeTruthy();
 
         const cloned: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
             squaddieRepository: undefined,
@@ -178,7 +178,7 @@ describe('orchestratorState', () => {
     it('can make a new object using creator function', () => {
         const numberGenerator = new RandomNumberGenerator();
         const battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
-        const squaddieRepository = ObjectRepositoryHelper.new();
+        const squaddieRepository = ObjectRepositoryService.new();
 
         const newBattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: validBattleState,

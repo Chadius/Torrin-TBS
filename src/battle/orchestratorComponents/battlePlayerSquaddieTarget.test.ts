@@ -1,4 +1,4 @@
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -11,7 +11,10 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinateToKey} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -23,7 +26,7 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {ActionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {
     CurrentlySelectedSquaddieDecision,
-    SquaddieInstructionInProgressService
+    CurrentlySelectedSquaddieDecisionService
 } from "../history/currentlySelectedSquaddieDecision";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
@@ -34,14 +37,15 @@ import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/
 import {BattleEvent} from "../history/battleEvent";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 
 describe('BattleSquaddieTarget', () => {
-    let squaddieRepo: ObjectRepository = ObjectRepositoryHelper.new();
+    let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
     let targetComponent: BattlePlayerSquaddieTarget;
     let knightStatic: SquaddieTemplate;
     let knightDynamic: BattleSquaddie;
@@ -61,7 +65,7 @@ describe('BattleSquaddieTarget', () => {
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         targetComponent = new BattlePlayerSquaddieTarget();
-        squaddieRepo = ObjectRepositoryHelper.new();
+        squaddieRepo = ObjectRepositoryService.new();
         battleMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
@@ -148,8 +152,7 @@ describe('BattleSquaddieTarget', () => {
         }));
         battleMap.addSquaddie(thiefStatic.squaddieId.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
 
-        const currentInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
-            movingBattleSquaddieIds: [],
+        const currentInstruction: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
@@ -172,7 +175,7 @@ describe('BattleSquaddieTarget', () => {
         state = GameEngineStateHelper.new({
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: battleMap,
                     squaddieCurrentlyActing: currentInstruction,
@@ -259,9 +262,9 @@ describe('BattleSquaddieTarget', () => {
             },
         ];
         it.each(tests)('should cancel target if the user clicks on the cancel button', ({
-                                                                                     mouseX,
-                                                                                     mouseY,
-                                                                                 }) => {
+                                                                                            mouseX,
+                                                                                            mouseY,
+                                                                                        }) => {
             const mouseEvent: OrchestratorComponentMouseEvent = {
                 eventType: OrchestratorComponentMouseEventType.CLICKED,
                 mouseX,
@@ -284,8 +287,8 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
-            movingBattleSquaddieIds: [],
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
@@ -302,11 +305,11 @@ describe('BattleSquaddieTarget', () => {
                 })
             ]
         });
-        SquaddieInstructionInProgressService.selectDecisionForPreview(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
+        CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
-        expect(SquaddieInstructionInProgressService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
-        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
     });
 
     it('should remember the squaddie is still acting if they cancel midway through their turn', () => {
@@ -316,8 +319,8 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
-            movingBattleSquaddieIds: [],
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
@@ -335,7 +338,7 @@ describe('BattleSquaddieTarget', () => {
             }),
         });
 
-        SquaddieInstructionInProgressService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
+        CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
@@ -348,8 +351,8 @@ describe('BattleSquaddieTarget', () => {
         );
 
         targetComponent.mouseEventHappened(state, mouseEvent);
-        expect(SquaddieInstructionInProgressService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
-        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
+        expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeTruthy();
     });
 
     it('should ignore if the user does not click off of the map', () => {
@@ -404,7 +407,7 @@ describe('BattleSquaddieTarget', () => {
 
     describe('user clicks on target with heal', () => {
         beforeEach(() => {
-            const currentInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
+            const currentInstruction: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
@@ -419,13 +422,13 @@ describe('BattleSquaddieTarget', () => {
                         })
                     ]
                 }),
-                movingBattleSquaddieIds: [],
+
             });
 
             state = GameEngineStateHelper.new({
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap: battleMap,
                         squaddieCurrentlyActing: currentInstruction,
@@ -454,7 +457,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should create a squaddie instruction', () => {
-            const expectedInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
@@ -494,8 +497,8 @@ describe('BattleSquaddieTarget', () => {
 
     describe('confirming an action mid turn', () => {
         beforeEach(() => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = SquaddieInstructionInProgressService.new({
-                movingBattleSquaddieIds: [],
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
                     battleSquaddieId: knightDynamic.battleSquaddieId,
@@ -520,7 +523,7 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should add to existing instruction when confirmed mid turn', () => {
-            const expectedInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
@@ -603,7 +606,7 @@ describe('BattleSquaddieTarget', () => {
                 minimumRange: 0,
                 maximumRange: 9001,
             });
-            const currentInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
+            const currentInstruction: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
@@ -618,7 +621,7 @@ describe('BattleSquaddieTarget', () => {
                         })
                     ]
                 }),
-                movingBattleSquaddieIds: [],
+
             });
 
             state = GameEngineStateHelper.new({
@@ -626,7 +629,7 @@ describe('BattleSquaddieTarget', () => {
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                     resourceHandler: mockResourceHandler,
                     squaddieRepository: squaddieRepo,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         squaddieCurrentlyActing: currentInstruction,
                         missionMap: battleMap,

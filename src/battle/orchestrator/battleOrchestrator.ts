@@ -31,7 +31,7 @@ import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService"
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {InitializeBattle} from "./initializeBattle";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -303,7 +303,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         const squaddieRepo = state.battleOrchestratorState.squaddieRepository;
         if (squaddieRepo) {
-            ObjectRepositoryHelper.reset(squaddieRepo);
+            ObjectRepositoryService.reset(squaddieRepo);
         }
     }
 

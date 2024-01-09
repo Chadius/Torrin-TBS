@@ -1,7 +1,10 @@
 import {Recording, RecordingHandler} from "./recording";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "./squaddieDecisionsDuringThisPhase";
+import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {BattleEvent} from "./battleEvent";
-import {CurrentlySelectedSquaddieDecision, SquaddieInstructionInProgressService} from "./currentlySelectedSquaddieDecision";
+import {
+    CurrentlySelectedSquaddieDecision,
+    CurrentlySelectedSquaddieDecisionService
+} from "./currentlySelectedSquaddieDecision";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {DecisionService} from "../../decision/decision";
@@ -12,7 +15,7 @@ describe('Recording', () => {
             history: []
         };
 
-        const endTurnInstruction: squaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const endTurnInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "player_squaddie",
             battleSquaddieId: "player_squaddie_0",
             startingLocation: {q: 0, r: 0},
@@ -25,8 +28,7 @@ describe('Recording', () => {
             ]
         });
 
-        const squaddieMovesAndEndsTurn: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
-            movingBattleSquaddieIds: [],
+        const squaddieMovesAndEndsTurn: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "static",
                 battleSquaddieId: "dynamic",

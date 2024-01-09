@@ -1,4 +1,4 @@
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
 import {
@@ -16,7 +16,7 @@ import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {ActionResultTextService} from "./actionResultTextService";
 
 describe('Action Result Text Writer', () => {
-    let squaddieRepository: ObjectRepository = ObjectRepositoryHelper.new();
+    let squaddieRepository: ObjectRepository = ObjectRepositoryService.new();
     let knightStatic: SquaddieTemplate;
     let knightDynamic: BattleSquaddie;
     let citizenStatic: SquaddieTemplate;
@@ -30,7 +30,7 @@ describe('Action Result Text Writer', () => {
     let bandageWoundsAction: ActionEffectSquaddieTemplate;
 
     beforeEach(() => {
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         battleMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [

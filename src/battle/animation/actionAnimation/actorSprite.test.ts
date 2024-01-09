@@ -1,4 +1,4 @@
-import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {CreateNewSquaddieAndAddToRepository} from "../../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {ActorSprite} from "./actorSprite";
@@ -26,7 +26,7 @@ describe('Actor Sprite', () => {
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
 
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         CreateNewSquaddieAndAddToRepository({
             affiliation: SquaddieAffiliation.ALLY,
             attributes: {

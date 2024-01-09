@@ -15,7 +15,7 @@ import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {ActionResultPerSquaddie, ActionResultPerSquaddieService} from "../../history/actionResultPerSquaddie";
 import {SquaddieSprite} from "./squaddieSprite";
-import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
@@ -79,7 +79,7 @@ export class TargetSprite {
         this._battleSquaddieId = targetBattleSquaddieId;
         this._actionResult = result;
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
@@ -126,7 +126,7 @@ export class TargetSprite {
                 const {
                     squaddieTemplate,
                     battleSquaddie
-                } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+                } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
                 const stillAlive = IsSquaddieAlive({squaddieTemplate, battleSquaddie});
                 if (!stillAlive) {
                     return SquaddieEmotion.DEAD;

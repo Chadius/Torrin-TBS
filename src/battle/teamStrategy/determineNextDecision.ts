@@ -6,12 +6,12 @@ import {TargetSquaddieInRange} from "./targetSquaddieInRange";
 import {EndTurnTeamStrategy} from "./endTurn";
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 
-export const DetermineNextInstruction = ({strategy, state, squaddieRepository}:
-                                             {
-                                                 strategy: TeamStrategy,
-                                                 state: TeamStrategyState,
-                                                 squaddieRepository: ObjectRepository
-                                             }) => {
+export const DetermineNextDecision = ({strategy, state, squaddieRepository}:
+                                          {
+                                              strategy: TeamStrategy,
+                                              state: TeamStrategyState,
+                                              squaddieRepository: ObjectRepository
+                                          }) => {
     let calculator: TeamStrategyCalculator;
     switch (strategy.type) {
         case TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE:

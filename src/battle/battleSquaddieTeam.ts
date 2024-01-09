@@ -1,9 +1,9 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
-import {ObjectRepository, ObjectRepositoryHelper} from "./objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "./objectRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {TintSquaddieIfTurnIsComplete, unTintSquaddieMapIcon} from "./animation/drawSquaddie";
-import {CanPlayerControlSquaddieRightNow, CanSquaddieActRightNow} from "../squaddie/squaddieService";
-import {BattleSquaddieHelper} from "./battleSquaddie";
+import {CanPlayerControlSquaddieRightNow, SquaddieService} from "../squaddie/squaddieService";
+import {BattleSquaddieService} from "./battleSquaddie";
 import {isValidValue} from "../utils/validityCheck";
 
 export interface BattleSquaddieTeam {
@@ -23,8 +23,8 @@ export const BattleSquaddieTeamHelper = {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-            const {canAct} = CanSquaddieActRightNow({squaddieTemplate, battleSquaddie,});
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+            const {canAct} = SquaddieService.canSquaddieActRightNow({squaddieTemplate, battleSquaddie,});
             return canAct;
         })
     },
@@ -42,7 +42,7 @@ export const BattleSquaddieTeamHelper = {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
             const {playerCanControlThisSquaddieRightNow} = CanPlayerControlSquaddieRightNow({
                 squaddieTemplate,
                 battleSquaddie,
@@ -55,7 +55,7 @@ export const BattleSquaddieTeamHelper = {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
             const {
                 squaddieCanCurrentlyAct,
                 squaddieHasThePlayerControlledAffiliation
@@ -67,8 +67,8 @@ export const BattleSquaddieTeamHelper = {
         return team.battleSquaddieIds.filter(battleSquaddieId => {
             const {
                 squaddieTemplate, battleSquaddie
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-            const {canAct} = CanSquaddieActRightNow({squaddieTemplate, battleSquaddie,});
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+            const {canAct} = SquaddieService.canSquaddieActRightNow({squaddieTemplate, battleSquaddie,});
             return canAct;
         });
     },
@@ -77,8 +77,8 @@ export const BattleSquaddieTeamHelper = {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-            BattleSquaddieHelper.beginNewRound(battleSquaddie);
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+            BattleSquaddieService.beginNewRound(battleSquaddie);
             unTintSquaddieMapIcon(squaddieRepository, battleSquaddie);
         }));
     },
@@ -90,8 +90,8 @@ export const BattleSquaddieTeamHelper = {
             const {
                 squaddieTemplate,
                 battleSquaddie
-            } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
-            BattleSquaddieHelper.endTurn(battleSquaddie);
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+            BattleSquaddieService.endTurn(battleSquaddie);
             TintSquaddieIfTurnIsComplete(squaddieRepository, battleSquaddie, squaddieTemplate);
         }));
     },

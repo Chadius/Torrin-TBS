@@ -15,7 +15,7 @@ import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus"
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {
     CurrentlySelectedSquaddieDecision,
-    SquaddieInstructionInProgressService
+    CurrentlySelectedSquaddieDecisionService
 } from "../history/currentlySelectedSquaddieDecision";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
@@ -49,7 +49,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision;
 }
 
-export const BattleStateHelper = {
+export const BattleStateService = {
     new: (params: BattleStateConstructorParameters): BattleState => {
         return newBattleState(params);
     },
@@ -193,8 +193,8 @@ const newBattleState = ({
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        squaddieCurrentlyActing: squaddieCurrentlyActing || SquaddieInstructionInProgressService.new({
-            movingBattleSquaddieIds: [],
+        squaddieCurrentlyActing: squaddieCurrentlyActing || CurrentlySelectedSquaddieDecisionService.new({
+
             squaddieActionsForThisRound: undefined,
         }),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,

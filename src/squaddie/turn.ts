@@ -1,5 +1,7 @@
 import {ActionEffectSquaddieTemplate} from "../decision/actionEffectSquaddieTemplate";
 
+export const DEFAULT_ACTION_POINTS_PER_TURN = 3;
+
 export enum ACTION_PERFORM_FAILURE_REASON {
     UNKNOWN,
     TOO_FEW_ACTIONS_REMAINING
@@ -9,9 +11,9 @@ export interface SquaddieTurn {
     remainingActionPoints: number;
 }
 
-export const SquaddieTurnHandler = {
+export const SquaddieTurnService = {
     new: (): SquaddieTurn => {
-        return {remainingActionPoints: 3};
+        return {remainingActionPoints: DEFAULT_ACTION_POINTS_PER_TURN};
     },
     spendActionPointsOnActionTemplate: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate) => {
         data.remainingActionPoints = (data.remainingActionPoints - action.actionPointCost);
@@ -47,5 +49,5 @@ export const SquaddieTurnHandler = {
 };
 
 const refreshActionPoints = (data: SquaddieTurn) => {
-    data.remainingActionPoints = 3;
+    data.remainingActionPoints = DEFAULT_ACTION_POINTS_PER_TURN;
 }

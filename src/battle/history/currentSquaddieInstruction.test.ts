@@ -1,17 +1,18 @@
-import {CurrentlySelectedSquaddieDecision, SquaddieInstructionInProgressService} from "./currentlySelectedSquaddieDecision";
-import {squaddieDecisionsDuringThisPhase, SquaddieActionsForThisRoundService} from "./squaddieDecisionsDuringThisPhase";
+import {
+    CurrentlySelectedSquaddieDecision,
+    CurrentlySelectedSquaddieDecisionService
+} from "./currentlySelectedSquaddieDecision";
+import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
 } from "../../decision/actionEffectSquaddieTemplate";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {ActionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DecisionService} from "../../decision/decision";
 
 describe('Current Squaddie Instruction', () => {
-    let torrinInstruction: squaddieDecisionsDuringThisPhase;
+    let torrinInstruction: SquaddieDecisionsDuringThisPhase;
     let purifyingBlast: ActionEffectSquaddieTemplate;
     let purifyingBlastAction: ActionEffectSquaddie;
 
@@ -33,48 +34,15 @@ describe('Current Squaddie Instruction', () => {
             targetLocation: {q: 3, r: 4},
             numberOfActionPointsSpent: 1,
         });
-    })
-
-    it('can be reset', () => {
-        const newInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
-            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                battleSquaddieId: "torrin 0",
-                squaddieTemplateId: "torrin",
-                startingLocation: {q: 0, r: 0},
-            }),
-            currentlySelectedDecisionForPreview: DecisionService.new({
-                actionEffects: [
-                    ActionEffectSquaddieService.new({
-                        template: ActionEffectSquaddieTemplateService.new({
-                            name: "purifying stream",
-                            id: "purifying_stream",
-                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
-                            damageDescriptions: {},
-                            healingDescriptions: {},
-                            actionPointCost: 1,
-                            minimumRange: 0,
-                            maximumRange: 1,
-                            targetingShape: TargetingShape.SNAKE,
-                        }),
-                        targetLocation: {q: 0, r: 0},
-                        numberOfActionPointsSpent: 1,
-                    })
-                ]
-            }),
-            movingBattleSquaddieIds: [],
-        });
-
-        expect(SquaddieInstructionInProgressService.canChangeSelectedSquaddie(newInstruction)).toBeFalsy();
     });
 
     it('will throw an error if an action is added without setting the squaddie', () => {
-        const newInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
+        const newInstruction: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: undefined,
-            movingBattleSquaddieIds: undefined,
         });
 
         const shouldThrowError = () => {
-            SquaddieInstructionInProgressService.addConfirmedDecision(newInstruction,
+            CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(newInstruction,
                 DecisionService.new({
                     actionEffects: [
                         purifyingBlastAction
@@ -89,25 +57,5 @@ describe('Current Squaddie Instruction', () => {
         expect(() => {
             shouldThrowError()
         }).toThrow("no squaddie found, cannot add action");
-    });
-
-    describe('mark squaddie as moving', () => {
-        it('can mark dynamic squaddies as moving', () => {
-            const newInstruction: CurrentlySelectedSquaddieDecision = SquaddieInstructionInProgressService.new({
-                squaddieActionsForThisRound:
-                    SquaddieActionsForThisRoundService.new(
-                        {
-                            squaddieTemplateId: "Torrin",
-                            battleSquaddieId: "Torrin 0",
-                            startingLocation: {q: 0, r: 0},
-                        }),
-                movingBattleSquaddieIds: [],
-            });
-            SquaddieInstructionInProgressService.markBattleSquaddieIdAsMoving(newInstruction, "Torrin 0");
-            expect(SquaddieInstructionInProgressService.isBattleSquaddieIdMoving(newInstruction, "Torrin 0")).toBeTruthy();
-
-            SquaddieInstructionInProgressService.removeBattleSquaddieIdAsMoving(newInstruction, "Torrin 0");
-            expect(SquaddieInstructionInProgressService.isBattleSquaddieIdMoving(newInstruction, "Torrin 0")).toBeFalsy();
-        });
     });
 });

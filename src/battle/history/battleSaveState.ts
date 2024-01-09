@@ -10,7 +10,7 @@ import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
@@ -74,7 +74,7 @@ export const BattleSaveStateHandler = {
         });
 
         for (let squaddieBattleId in battleSaveState.inBattleAttributesBySquaddieBattleId) {
-            const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, squaddieBattleId));
+            const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, squaddieBattleId));
 
             battleSquaddie.inBattleAttributes = battleSaveState.inBattleAttributesBySquaddieBattleId[squaddieBattleId].inBattleAttributes;
             battleSquaddie.squaddieTurn = battleSaveState.inBattleAttributesBySquaddieBattleId[squaddieBattleId].turn;
@@ -103,7 +103,7 @@ export const BattleSaveStateHandler = {
             [squaddieBattleId: string]:
                 InBattleAttributesAndTurn
         } = {};
-        ObjectRepositoryHelper.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((battleSquaddieInfo) => {
+        ObjectRepositoryService.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((battleSquaddieInfo) => {
             inBattleAttributesBySquaddieBattleId[battleSquaddieInfo.battleSquaddieId] = {
                 inBattleAttributes: battleSquaddieInfo.battleSquaddie.inBattleAttributes,
                 turn: battleSquaddieInfo.battleSquaddie.squaddieTurn,

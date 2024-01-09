@@ -6,7 +6,7 @@ import {
 } from "../../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../../battle/orchestratorComponents/battlePhaseTracker";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {BattleStateHelper} from "../../battle/orchestrator/battleState";
+import {BattleStateService} from "../../battle/orchestrator/battleState";
 
 describe('dialogue box', () => {
 
@@ -111,7 +111,7 @@ describe('dialogue box', () => {
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,

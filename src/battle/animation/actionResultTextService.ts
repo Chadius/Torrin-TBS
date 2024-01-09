@@ -3,7 +3,7 @@ import {
     ActionEffectSquaddieTemplateService
 } from "../../decision/actionEffectSquaddieTemplate";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {ATTACK_MODIFIER} from "../modifierConstants";
@@ -22,7 +22,11 @@ export const ActionResultTextService = {
         result: SquaddieSquaddieResults,
         squaddieRepository: ObjectRepository,
     }): string[] => {
-        return outputResultForTextOnly({currentActionEffectSquaddieTemplate: currentActionEffectTemplate, result, squaddieRepository});
+        return outputResultForTextOnly({
+            currentActionEffectSquaddieTemplate: currentActionEffectTemplate,
+            result,
+            squaddieRepository
+        });
     },
     outputIntentForTextOnly: ({
                                   currentActionEffectTemplate,
@@ -188,7 +192,7 @@ const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, s
     result: SquaddieSquaddieResults,
     squaddieRepository: ObjectRepository,
 }): string[] => {
-    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, result.actingBattleSquaddieId))
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, result.actingBattleSquaddieId))
 
     let output: string[] = [];
     let actorUsesActionDescriptionText = ActionResultTextService.getSquaddieUsesActionString({
@@ -214,7 +218,7 @@ const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, s
     }
 
     result.targetedBattleSquaddieIds.forEach((targetSquaddieId: string) => {
-        const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, targetSquaddieId));
+        const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, targetSquaddieId));
         const resultPerTarget = result.resultPerTarget[targetSquaddieId];
 
         if (ActionEffectSquaddieTemplateService.isHindering(currentActionEffectSquaddieTemplate)) {
@@ -251,13 +255,18 @@ const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, s
     return output;
 }
 
-const outputIntentForTextOnly = ({currentActionEffectSquaddieTemplate, actingBattleSquaddieId, squaddieRepository, actingSquaddieModifiers}: {
+const outputIntentForTextOnly = ({
+                                     currentActionEffectSquaddieTemplate,
+                                     actingBattleSquaddieId,
+                                     squaddieRepository,
+                                     actingSquaddieModifiers
+                                 }: {
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     actingBattleSquaddieId: string,
     squaddieRepository: ObjectRepository,
     actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number },
 }): string[] => {
-    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, actingBattleSquaddieId))
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, actingBattleSquaddieId))
 
     let output: string[] = [];
     output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentActionEffectSquaddieTemplate.name}`);
