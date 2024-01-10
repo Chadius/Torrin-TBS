@@ -5,7 +5,7 @@ import {
     InBattleAttributesAndTurn
 } from "./battleSaveState";
 import {BattleCamera} from "../battleCamera";
-import {Recording, RecordingHandler} from "./recording";
+import {Recording, RecordingService} from "./recording";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent} from "./battleEvent";
@@ -395,7 +395,7 @@ describe("BattleSaveState", () => {
         expect(newBattleState.battleState.recording.history).toHaveLength(2);
         expect(newBattleState.battleState.recording.history[0]).toStrictEqual(firstBattleEvent);
         expect(newBattleState.battleState.recording.history[1]).toStrictEqual(secondBattleEvent);
-        expect(RecordingHandler.mostRecentEvent(newBattleState.battleState.recording)).toStrictEqual(secondBattleEvent);
+        expect(RecordingService.mostRecentEvent(newBattleState.battleState.recording)).toStrictEqual(secondBattleEvent);
     });
 
     it("Can read the squaddie placement on a mission map and create a similar one", () => {

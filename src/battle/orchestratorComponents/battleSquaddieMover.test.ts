@@ -24,10 +24,15 @@ import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
-import {DecisionService} from "../../decision/decision";
+import {Decision, DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {ActionEffect} from "../../decision/actionEffect";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
+import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: ObjectRepository;
@@ -324,5 +329,129 @@ describe('BattleSquaddieMover', () => {
         });
     });
 
-    // TODO Make sure reset calls the utility function
+    describe('will determine the next mode based on the next action effect', () => {
+        let movementActionEffect: ActionEffect;
+        let squaddieActionEffect: ActionEffect;
+        let endTurnActionEffect: ActionEffect;
+
+        beforeEach(() => {
+            movementActionEffect = ActionEffectMovementService.new({
+                destination: {q: 0, r: 2},
+                numberOfActionPointsSpent: 2,
+            });
+
+            squaddieActionEffect = ActionEffectSquaddieService.new({
+                targetLocation: {q: 0, r: 2},
+                numberOfActionPointsSpent: 1,
+                template: ActionEffectSquaddieTemplateService.new({
+                    id: "shout",
+                    name: "shout"
+                })
+            });
+
+            endTurnActionEffect = ActionEffectEndTurnService.new();
+        });
+
+        const setupStateWithDecisions = (decision: Decision, decision1: Decision): GameEngineState => {
+            const moveDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+                squaddieTemplateId: "enemy_1",
+                battleSquaddieId: "enemy_1",
+                startingLocation: {q: 0, r: 0},
+                decisions: [
+                    decision,
+                    decision1,
+                ].filter(x => x)
+            });
+
+            return GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    resourceHandler: undefined,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "the mission",
+                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                            squaddieActionsForThisRound: moveDecisions,
+                        })
+                    })
+                }),
+            });
+        }
+
+        it('will suggest the squaddie mover if it has a movement action', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    ActionEffectMovementService.new({
+                        destination: {q: 1, r: 1},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            });
+            const decision1 = DecisionService.new({
+                actionEffects: [
+                    ActionEffectMovementService.new({
+                        destination: {q: 1, r: 2},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            });
+
+            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
+        });
+
+        it('will suggest the squaddie act on squaddie mode if it has a squaddie action', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    movementActionEffect
+                ]
+            });
+            const decision1 = DecisionService.new({
+                actionEffects: [
+                    squaddieActionEffect
+                ]
+            });
+            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
+        });
+
+        it('will suggest the squaddie act on map mode if it has an end turn action', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    movementActionEffect
+                ]
+            });
+            const decision1 = DecisionService.new({
+                actionEffects: [
+                    endTurnActionEffect
+                ]
+            });
+            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
+        });
+
+        it('will not suggest a mode if there are no more decisions to process', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    movementActionEffect
+                ]
+            });
+            const state: GameEngineState = setupStateWithDecisions(decision, undefined);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeUndefined();
+            expect(recommendedChanges.nextMode).toBeUndefined();
+        });
+    });
 });

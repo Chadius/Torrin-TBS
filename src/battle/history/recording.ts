@@ -4,7 +4,7 @@ export interface Recording {
     history: BattleEvent[];
 }
 
-export const RecordingHandler = {
+export const RecordingService = {
     mostRecentEvent: (data: Recording): BattleEvent => {
         if (data.history.length === 0) {
             return undefined;

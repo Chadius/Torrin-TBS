@@ -5,7 +5,7 @@ import {
     SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {DecisionService} from "../../decision/decision";
@@ -16,7 +16,7 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     }
 
     DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
-        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
+        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
         }

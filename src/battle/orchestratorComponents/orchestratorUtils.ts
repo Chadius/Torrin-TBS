@@ -303,6 +303,3 @@ export function GetSquaddieAtMapLocation(param: {
         squaddieMapLocation: squaddieAndLocationIdentifier.mapLocation,
     }
 }
-
-// TODO Add calls to: 1 iterate to the next action effect, and 2 suggest the next mode based on the current iteration and the squaddie currently acting.
-// TODO Make sure ActionOnMap and Mover and SquaddieSquaddie request it

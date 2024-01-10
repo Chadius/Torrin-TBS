@@ -9,7 +9,7 @@ import {Label, LabelHelper} from "../../ui/label";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {RecordingHandler} from "../history/recording";
+import {RecordingService} from "../history/recording";
 import {ActionEffectType} from "../../decision/actionEffect";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
@@ -67,7 +67,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: state.squaddieRepository,
                 currentActionEffectTemplate: squaddieActionEffect.template,
-                result: RecordingHandler.mostRecentEvent(state.battleState.recording).results,
+                result: RecordingService.mostRecentEvent(state.battleState.recording).results,
             });
 
             const textToDraw = this.outputTextStrings.join("\n");

@@ -1,7 +1,7 @@
 import {BattlePlayerSquaddieSelector} from "./battlePlayerSquaddieSelector";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
@@ -113,7 +113,7 @@ describe('BattleSquaddieSelector', () => {
             })
         );
 
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0", "enemy_demon_1"]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0", "enemy_demon_1"]);
 
         teams.push(enemyTeam);
 
@@ -152,7 +152,7 @@ describe('BattleSquaddieSelector', () => {
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
         });
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(playerTeam, ["player_soldier_0"]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, ["player_soldier_0"]);
 
         missionMap.addSquaddie(
             "player_soldier",
@@ -208,7 +208,7 @@ describe('BattleSquaddieSelector', () => {
             squaddieRepository: squaddieRepo,
             actions: [demonBiteAction],
         }));
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0"]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0"]);
         teams.push(enemyTeam);
         missionMap.addSquaddie(
             enemyDemonStatic.squaddieId.templateId,

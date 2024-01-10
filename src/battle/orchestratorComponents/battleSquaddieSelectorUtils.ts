@@ -11,7 +11,7 @@ import {OrchestratorUtilities, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAc
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
-import {RecordingHandler} from "../history/recording";
+import {RecordingService} from "../history/recording";
 import {ObjectRepositoryService} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
@@ -81,14 +81,14 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
         numberOfActionPointsSpent: numberOfActionPointsSpentMoving,
     });
 
-    CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing,
-        DecisionService.new({
-            actionEffects: [
-                moveAction
-            ]
-        }))
+    const decision = DecisionService.new({
+        actionEffects: [
+            moveAction
+        ]
+    });
+    CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing, decision)
 
-    RecordingHandler.addEvent(state.battleState.recording, {
+    RecordingService.addEvent(state.battleState.recording, {
         instruction: state.battleState.squaddieCurrentlyActing,
         results: undefined,
     });
@@ -101,7 +101,6 @@ export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, b
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
         state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId,

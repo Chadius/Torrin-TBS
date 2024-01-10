@@ -6,7 +6,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {OrchestratorUtilities, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {ActionEffectType} from "../../decision/actionEffect";
@@ -14,6 +14,7 @@ import {BattleSquaddieService} from "../battleSquaddie";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -43,8 +44,19 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
-        // TODO This should call to iterate the effect iterator, peek at the next action effect, and suggest the next mode
+        OrchestratorUtilities.nextActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+        const nextActionEffect = OrchestratorUtilities.peekActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+
+        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+
         return {
+            nextMode,
             displayMap: true,
             checkMissionObjectives: true,
         }
@@ -63,11 +75,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
                 squaddieTemplate
             } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
-            const mostRecentActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
-            if (mostRecentActionEffect.type === ActionEffectType.END_TURN) {
-                BattleSquaddieService.endTurn(battleSquaddie);
-                TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
-            }
+            TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
             this.animationCompleteStartTime = Date.now();
         }
     }

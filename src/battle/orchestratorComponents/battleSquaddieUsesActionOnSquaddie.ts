@@ -9,7 +9,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
-    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation
+    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities
 } from "./orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -20,12 +20,13 @@ import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionA
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {Trait} from "../../trait/traitStatusStorage";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {RecordingHandler} from "../history/recording";
+import {RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -78,7 +79,19 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
+        OrchestratorUtilities.nextActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+        const nextActionEffect = OrchestratorUtilities.peekActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+
+        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+
         return {
+            nextMode,
             displayMap: true,
             checkMissionObjectives: true,
         }
@@ -109,7 +122,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     private hideDeadSquaddies(state: BattleOrchestratorState) {
-        const mostRecentResults = RecordingHandler.mostRecentEvent(state.battleState.recording).results;
+        const mostRecentResults = RecordingService.mostRecentEvent(state.battleState.recording).results;
         mostRecentResults.targetedBattleSquaddieIds.forEach((battleSquaddieId) => {
             const {
                 battleSquaddie,
@@ -123,7 +136,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     private setSquaddieActionAnimatorBasedOnAction(state: BattleOrchestratorState) {
-        const mostRecentEvent: BattleEvent = RecordingHandler.mostRecentEvent(state.battleState.recording);
+        const mostRecentEvent: BattleEvent = RecordingService.mostRecentEvent(state.battleState.recording);
         if (
             mostRecentEvent === undefined
             || mostRecentEvent.instruction === undefined

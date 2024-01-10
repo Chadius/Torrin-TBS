@@ -1,7 +1,7 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {
     ActionEffectSquaddieTemplate,
@@ -101,7 +101,7 @@ describe('target a squaddie within reach of actions', () => {
             battleSquaddieIds: [],
             iconResourceKey: "icon_enemy_team",
         };
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyBanditDynamic.battleSquaddieId]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [enemyBanditDynamic.battleSquaddieId]);
 
         expectedInstruction = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: enemyBanditStatic.squaddieId.templateId,
@@ -351,7 +351,7 @@ describe('target a squaddie within reach of actions', () => {
             squaddieRepository,
             actions: [longBowAction],
         });
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyBanditDynamic2.battleSquaddieId]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [enemyBanditDynamic2.battleSquaddieId]);
         missionMap.addSquaddie(enemyBanditStatic2.squaddieId.templateId, enemyBanditDynamic2.battleSquaddieId, {
             q: 0,
             r: 1

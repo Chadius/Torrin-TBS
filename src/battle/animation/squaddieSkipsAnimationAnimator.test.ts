@@ -7,7 +7,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {Recording, RecordingHandler} from "../history/recording";
+import {Recording, RecordingService} from "../history/recording";
 import {ANIMATE_TEXT_WINDOW_WAIT_TIME, SquaddieSkipsAnimationAnimator} from "./squaddieSkipsAnimationAnimator";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -117,7 +117,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                 actingSquaddieModifiers: {},
             }
         };
-        RecordingHandler.addEvent(battleEventRecording, monkMeditatesEvent);
+        RecordingService.addEvent(battleEventRecording, monkMeditatesEvent);
 
         animator = new SquaddieSkipsAnimationAnimator();
         mockedP5GraphicsContext = new MockedP5GraphicsContext();

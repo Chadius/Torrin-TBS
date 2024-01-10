@@ -10,7 +10,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
@@ -36,7 +36,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
 
-        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
+        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
         }

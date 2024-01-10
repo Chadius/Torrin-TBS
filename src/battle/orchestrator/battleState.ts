@@ -5,7 +5,7 @@ import {
 } from "./missionObjectivesAndCutscenes";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
@@ -82,7 +82,7 @@ export const BattleStateService = {
             ConvertBattlePhaseToSquaddieAffiliation(battleState.battlePhaseState.currentAffiliation),
         );
 
-        return teamsOfAffiliation.find(team => BattleSquaddieTeamHelper.hasAnActingSquaddie(team, squaddieRepository));
+        return teamsOfAffiliation.find(team => BattleSquaddieTeamService.hasAnActingSquaddie(team, squaddieRepository));
     },
     clone: (battleState: BattleState): BattleState => {
         return {...battleState};

@@ -24,7 +24,7 @@ import {
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
@@ -106,7 +106,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 team.affiliation === ConvertBattlePhaseToSquaddieAffiliation(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation)
             );
 
-            teamsOfCurrentAffiliation.forEach(team => BattleSquaddieTeamHelper.beginNewRound(team, state.battleOrchestratorState.squaddieRepository));
+            teamsOfCurrentAffiliation.forEach(team => BattleSquaddieTeamService.beginNewRound(team, state.battleOrchestratorState.squaddieRepository));
 
             this.newBannerShown = true;
             AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, state.battleOrchestratorState.battleState.teams);
@@ -122,7 +122,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 state.battleOrchestratorState.battleState.teams,
                 ConvertBattlePhaseToSquaddieAffiliation(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation),
             ).forEach(team => {
-                BattleSquaddieTeamHelper.beginNewRound(team, state.battleOrchestratorState.squaddieRepository);
+                BattleSquaddieTeamService.beginNewRound(team, state.battleOrchestratorState.squaddieRepository);
             })
 
             state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
@@ -255,6 +255,6 @@ const findFirstTeamOfAffiliationThatCanAct = (teams: BattleSquaddieTeam[], affil
     }
 
     return teamsOfAffiliation.find(team =>
-        BattleSquaddieTeamHelper.hasAnActingSquaddie(team, squaddieRepository)
+        BattleSquaddieTeamService.hasAnActingSquaddie(team, squaddieRepository)
     );
 }

@@ -7,7 +7,7 @@ import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {SquaddieIdService} from "../../squaddie/id";
@@ -359,13 +359,13 @@ describe('Battle State', () => {
             expect(BattleStateService.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam0);
         });
         it('reports the second added team of a given affiliation if the first team cannot act', () => {
-            BattleSquaddieTeamHelper.endTurn(playerTeam0, squaddieRepository);
+            BattleSquaddieTeamService.endTurn(playerTeam0, squaddieRepository);
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
             expect(BattleStateService.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam1);
         });
         it('reports no teams when all of the teams of a given affiliation cannot act', () => {
-            BattleSquaddieTeamHelper.endTurn(playerTeam0, squaddieRepository);
-            BattleSquaddieTeamHelper.endTurn(playerTeam1, squaddieRepository);
+            BattleSquaddieTeamService.endTurn(playerTeam0, squaddieRepository);
+            BattleSquaddieTeamService.endTurn(playerTeam1, squaddieRepository);
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
             expect(BattleStateService.getCurrentTeam(battleState, squaddieRepository)).toBeUndefined();
         });

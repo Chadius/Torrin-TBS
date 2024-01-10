@@ -1,6 +1,6 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
@@ -83,7 +83,7 @@ describe('move towards closest squaddie in range', () => {
             battleSquaddieIds: [],
             iconResourceKey: "icon_ally_team",
         };
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(allyTeam, ["searching_squaddie_0"]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(allyTeam, ["searching_squaddie_0"]);
     });
 
     it('will move towards squaddie with given dynamic Id', () => {
@@ -158,7 +158,7 @@ describe('move towards closest squaddie in range', () => {
                 }
             }
         });
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(allyTeam, [searchingSquaddieDynamic2.battleSquaddieId]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(allyTeam, [searchingSquaddieDynamic2.battleSquaddieId]);
 
         missionMap.addSquaddie(targetSquaddieTemplate.squaddieId.templateId, "target_squaddie_0", {
             q: 0,

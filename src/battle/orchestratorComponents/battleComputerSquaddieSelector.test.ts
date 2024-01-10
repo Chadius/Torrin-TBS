@@ -1,6 +1,6 @@
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "./battlePhaseTracker";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
@@ -50,7 +50,9 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {ActionEffectMovement, ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {OrchestratorUtilities} from "./orchestratorUtils";
+import {ActionCalculator} from "../actionCalculator/calculator";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -64,6 +66,7 @@ describe('BattleComputerSquaddieSelector', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let battlePhaseState: BattlePhaseState;
     let teams: BattleSquaddieTeam[];
+    let actionEffectMovement: ActionEffectMovement;
 
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector();
@@ -146,7 +149,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo, enemyDemonDynamic2);
 
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(enemyTeam, [enemyDemonBattleSquaddie.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, [enemyDemonBattleSquaddie.battleSquaddieId, enemyDemonDynamic2.battleSquaddieId]);
 
         battlePhaseState = {
             currentAffiliation: BattlePhase.ENEMY,
@@ -173,12 +176,13 @@ describe('BattleComputerSquaddieSelector', () => {
             battleSquaddieId,
             startingLocation: {q: 0, r: 0},
         });
+        actionEffectMovement = ActionEffectMovementService.new({
+            destination: {q: 1, r: 1},
+            numberOfActionPointsSpent: 1,
+        });
         SquaddieActionsForThisRoundService.addDecision(moveAction, DecisionService.new({
             actionEffects: [
-                ActionEffectMovementService.new({
-                    destination: {q: 1, r: 1},
-                    numberOfActionPointsSpent: 1,
-                })
+                actionEffectMovement
             ]
         }));
         return moveAction;
@@ -275,21 +279,22 @@ describe('BattleComputerSquaddieSelector', () => {
             selector.update(state, mockedP5GraphicsContext);
             expect(selector.hasCompleted(state)).toBeTruthy();
 
+            const endTurnDecision = DecisionService.new({
+                actionEffects: [
+                    ActionEffectEndTurnService.new()
+                ]
+            });
             const endTurnInstruction: CurrentlySelectedSquaddieDecision =
                 CurrentlySelectedSquaddieDecisionService.new({
-
                     squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                         squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
                         battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
                         startingLocation: {q: 0, r: 0},
                         decisions: [
-                            DecisionService.new({
-                                actionEffects: [
-                                    ActionEffectEndTurnService.new()
-                                ]
-                            })
+                            endTurnDecision
                         ]
                     }),
+                    currentlySelectedDecisionForPreview: undefined,
                 });
 
             expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(ActionEffectType.END_TURN);
@@ -300,12 +305,17 @@ describe('BattleComputerSquaddieSelector', () => {
             const history = state.battleOrchestratorState.battleState.recording.history;
             expect(history).toHaveLength(1);
             expect(history[0]).toStrictEqual({
-                instruction: endTurnInstruction,
+                instruction: {
+                    ...endTurnInstruction,
+                    currentlySelectedDecisionForPreview: endTurnDecision,
+                },
                 results: undefined,
             });
 
             expect(strategySpy).toHaveBeenCalled();
             strategySpy.mockClear();
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(endTurnInstruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0]);
         });
 
         it('will default to ending its turn if none of the strategies provide instruction', () => {
@@ -385,10 +395,13 @@ describe('BattleComputerSquaddieSelector', () => {
             })
         });
 
-        jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(squaddieSquaddieAction);
+        const determineNextActionSpy = jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(squaddieSquaddieAction);
+        const resultCalculationSpy = jest.spyOn(ActionCalculator, 'calculateResults').mockReturnValueOnce(undefined);
+
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         selector.update(state, mockedP5GraphicsContext);
-
+        expect(determineNextActionSpy).toBeCalled();
+        expect(resultCalculationSpy).toBeCalled();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         selector.update(state, mockedP5GraphicsContext);
@@ -478,26 +491,31 @@ describe('BattleComputerSquaddieSelector', () => {
             expect(CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe("enemy_demon_0");
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
             expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(ActionEffectType.MOVEMENT);
+
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeTruthy();
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(actionEffectMovement);
+
             expect(hexMapHighlightTilesSpy).toBeCalled();
         });
 
         describe('computer controlled squaddie acts', () => {
             let state: GameEngineState;
+            let squaddieActionEffect: ActionEffectSquaddie;
 
             beforeEach(() => {
+                squaddieActionEffect = ActionEffectSquaddieService.new({
+                    numberOfActionPointsSpent: 1,
+                    targetLocation: {q: 0, r: 1},
+                    template: demonBiteAction,
+                });
+
                 const squaddieSquaddieAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
                     battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
                 });
                 SquaddieActionsForThisRoundService.addDecision(squaddieSquaddieAction, DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            numberOfActionPointsSpent: 1,
-                            targetLocation: {q: 0, r: 1},
-                            template: demonBiteAction,
-                        })
-                    ]
+                    actionEffects: [squaddieActionEffect]
                 }));
 
                 state = GameEngineStateHelper.new({
@@ -557,6 +575,9 @@ describe('BattleComputerSquaddieSelector', () => {
                 selector.update(state, mockedP5GraphicsContext);
                 const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
                 expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
+
+                expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeTruthy();
+                expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(squaddieActionEffect);
             });
 
             it('player can click to complete the component if an action is selected', () => {

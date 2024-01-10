@@ -12,7 +12,7 @@ import {
     convertScreenCoordinatesToMapCoordinates
 } from "../../hexMap/convertCoordinates";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -27,7 +27,7 @@ import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targeting
 import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
-import {RecordingHandler} from "../history/recording";
+import {RecordingService} from "../history/recording";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -65,7 +65,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository);
-            if (BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.battleOrchestratorState.squaddieRepository)) {
+            if (BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.battleOrchestratorState.squaddieRepository)) {
                 let hudUsedMouseClick: boolean = false;
                 if (state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()) {
                     hudUsedMouseClick = state.battleOrchestratorState.battleSquaddieSelectedHUD.didMouseClickOnHUD(event.mouseX, event.mouseY);
@@ -95,7 +95,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     keyEventHappened(state: GameEngineState, event: OrchestratorComponentKeyEvent): void {
         if (event.eventType === OrchestratorComponentKeyEventType.PRESSED) {
             const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository);
-            if (BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.battleOrchestratorState.squaddieRepository)) {
+            if (BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.battleOrchestratorState.squaddieRepository)) {
                 state.battleOrchestratorState.battleSquaddieSelectedHUD.keyPressed(event.keyCode, state.battleOrchestratorState);
 
                 if (state.battleOrchestratorState.battleSquaddieSelectedHUD.selectedBattleSquaddieId != "") {
@@ -122,8 +122,8 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         const currentTeam: BattleSquaddieTeam = BattleStateService.getCurrentTeam(state.battleOrchestratorState.battleState, state.battleOrchestratorState.squaddieRepository);
         if (
-            BattleSquaddieTeamHelper.hasAnActingSquaddie(currentTeam, state.battleOrchestratorState.squaddieRepository)
-            && !BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.battleOrchestratorState.squaddieRepository)
+            BattleSquaddieTeamService.hasAnActingSquaddie(currentTeam, state.battleOrchestratorState.squaddieRepository)
+            && !BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.battleOrchestratorState.squaddieRepository)
         ) {
             return;
         }
@@ -138,6 +138,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!this.playerCanControlAtLeastOneSquaddie(state.battleOrchestratorState)) {
             nextMode = BattleOrchestratorMode.COMPUTER_SQUADDIE_SELECTOR;
         } else if (this.gaveCompleteInstruction) {
+            // TODO Do this when the player confirms the location or decision
             let newDecision = SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase);
 
             if (state.battleOrchestratorState.decisionActionEffectIterator === undefined) {
@@ -175,7 +176,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private playerCanControlAtLeastOneSquaddie(state: BattleOrchestratorState): boolean {
-        return BattleSquaddieTeamHelper.canPlayerControlAnySquaddieOnThisTeamRightNow(BattleStateService.getCurrentTeam(state.battleState, state.squaddieRepository), state.squaddieRepository);
+        return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(BattleStateService.getCurrentTeam(state.battleState, state.squaddieRepository), state.squaddieRepository);
     }
 
     private updateBattleSquaddieUIMouseClicked(state: BattleOrchestratorState, mouseX: number, mouseY: number) {
@@ -365,7 +366,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
             state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 
-            RecordingHandler.addEvent(state.battleState.recording, {
+            RecordingService.addEvent(state.battleState.recording, {
                 instruction: state.battleState.squaddieCurrentlyActing,
                 results: undefined,
             });

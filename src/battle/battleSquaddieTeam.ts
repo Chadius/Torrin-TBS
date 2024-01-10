@@ -14,7 +14,7 @@ export interface BattleSquaddieTeam {
     iconResourceKey: string,
 }
 
-export const BattleSquaddieTeamHelper = {
+export const BattleSquaddieTeamService = {
     hasSquaddies: (team: BattleSquaddieTeam): boolean => {
         return team.battleSquaddieIds.length > 0;
     },

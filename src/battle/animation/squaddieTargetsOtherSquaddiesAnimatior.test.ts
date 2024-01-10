@@ -23,7 +23,7 @@ import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
-import {Recording, RecordingHandler} from "../history/recording";
+import {Recording, RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
@@ -167,7 +167,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     }
 
     it('will create an actor sprite and a target sprite', () => {
-        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
+        RecordingService.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
@@ -191,7 +191,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     });
 
     it('will skip displaying the results if the user clicks', () => {
-        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
+        RecordingService.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
@@ -222,7 +222,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     });
 
     it('is complete at the end of the animation time', () => {
-        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
+        RecordingService.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
 
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({

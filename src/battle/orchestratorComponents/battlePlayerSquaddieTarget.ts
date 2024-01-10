@@ -1,6 +1,6 @@
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
-import {RecordingHandler} from "../history/recording";
+import {RecordingService} from "../history/recording";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
@@ -35,6 +35,7 @@ import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent} from "../history/battleEvent";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectType} from "../../decision/actionEffect";
+import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -121,10 +122,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         if (this.hasConfirmedAction) {
-            // TODO Create the decision iterator based on the selected Decision
-            // TODO peek at the next action effect
-            // TODO pick the next thing
-            // TODO you totally need to test this
             return {
                 displayMap: true,
                 nextMode: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
@@ -367,7 +364,13 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing, decision)
         CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(state.battleState.squaddieCurrentlyActing, decision);
 
-        SquaddieTurnService.spendActionPoints(actingBattleSquaddie.squaddieTurn, squaddieActionEffect.numberOfActionPointsSpent);
+        OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
+            battleSquaddieId: CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing),
+            missionMap: state.battleState.missionMap,
+            repository: state.squaddieRepository,
+            actionEffect: squaddieActionEffect,
+        });
+
         const instructionResults = ActionCalculator.calculateResults({
             state,
             actingBattleSquaddie,
@@ -379,7 +382,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             results: instructionResults,
         };
 
-        RecordingHandler.addEvent(state.battleState.recording, newEvent);
+        RecordingService.addEvent(state.battleState.recording, newEvent);
 
         this.hasConfirmedAction = true;
     }

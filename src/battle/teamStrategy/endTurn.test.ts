@@ -7,7 +7,7 @@ import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnService} from "../../squaddie/turn";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
@@ -63,7 +63,7 @@ describe('end turn team strategy', () => {
             battleSquaddieIds: [],
             iconResourceKey: "icon_player_team",
         };
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(squaddieTeam, ["new_dynamic_squaddie"]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(squaddieTeam, ["new_dynamic_squaddie"]);
 
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 "]})

@@ -1,6 +1,6 @@
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -522,10 +522,10 @@ describe('BattlePhaseController', () => {
             expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
             expect(state.battleOrchestratorState.battleState.battlePhaseState.turnCount).toBe(0);
 
-            expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(playerSquaddieTeam, squaddieRepo)).toEqual(
+            expect(BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(playerSquaddieTeam, squaddieRepo)).toEqual(
                 expect.arrayContaining(playerSquaddieTeam.battleSquaddieIds)
             );
-            expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(playerTeam2, squaddieRepo)).toEqual(
+            expect(BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(playerTeam2, squaddieRepo)).toEqual(
                 expect.arrayContaining(playerTeam2.battleSquaddieIds)
             );
         });

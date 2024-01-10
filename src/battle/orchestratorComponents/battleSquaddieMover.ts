@@ -25,6 +25,7 @@ import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySele
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -67,7 +68,19 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
+        OrchestratorUtilities.nextActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+        const nextActionEffect = OrchestratorUtilities.peekActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+
+        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+
         return {
+            nextMode,
             displayMap: true,
             checkMissionObjectives: true,
         }

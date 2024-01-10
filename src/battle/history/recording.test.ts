@@ -1,4 +1,4 @@
-import {Recording, RecordingHandler} from "./recording";
+import {Recording, RecordingService} from "./recording";
 import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {BattleEvent} from "./battleEvent";
 import {
@@ -51,7 +51,7 @@ describe('Recording', () => {
             }),
         })
 
-        RecordingHandler.addEvent(
+        RecordingService.addEvent(
             recording,
             {
                 instruction: squaddieMovesAndEndsTurn,
