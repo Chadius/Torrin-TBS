@@ -48,9 +48,7 @@ import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {ActionEffect} from "../../decision/actionEffect";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
-import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieSquaddieResults, SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -361,7 +359,6 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieTargetsOtherSquaddiesAnimatorResetSpy).toBeCalled();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
     });
 
     it('uses the SquaddieSkipsAnimationAnimator for actions that lack animation and waits after it completes', () => {
@@ -385,7 +382,6 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.reset(state);
         expect(squaddieSkipsAnimationAnimatorResetSpy).toBeCalled();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
     });
 
     it('passes mouse events on to the animator', () => {

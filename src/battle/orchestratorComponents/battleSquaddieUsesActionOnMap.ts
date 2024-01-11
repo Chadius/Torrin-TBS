@@ -6,14 +6,11 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {OrchestratorUtilities, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {ActionEffectType} from "../../decision/actionEffect";
-import {BattleSquaddieService} from "../battleSquaddie";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 const ACTION_COMPLETED_WAIT_TIME_MS = 500;
@@ -64,7 +61,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
     reset(state: GameEngineState): void {
         this.animationCompleteStartTime = undefined;
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
+        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {

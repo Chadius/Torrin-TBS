@@ -501,7 +501,7 @@ describe("Orchestration Utils", () => {
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
                 }),
-                decisionActionEffectIterator: DecisionActionEffectIteratorService.new({ decision: decision1 }),
+                decisionActionEffectIterator: DecisionActionEffectIteratorService.new({decision: decision1}),
             });
             expect(DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator)).toEqual(squaddieActionEffect);
 

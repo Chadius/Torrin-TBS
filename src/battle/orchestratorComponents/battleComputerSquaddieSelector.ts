@@ -55,9 +55,9 @@ export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
 
 export class BattleComputerSquaddieSelector implements BattleOrchestratorComponent {
+    mostRecentDecision: Decision;
     private showSelectedActionWaitTime?: number;
     private clickedToSkipActionDescription: boolean;
-    mostRecentDecision: Decision;
 
     constructor() {
         this.resetInternalState();
@@ -205,9 +205,6 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                 strategyIndex++;
             }
 
-            // TODO The SquaddieDecisionsThisRound have a list of decisions they can make.
-            // TODO For now, assume they make 1 decision and pass that into reactToComputerSelectedAction.
-
             if (squaddieInstruction) {
                 this.reactToComputerSelectedAction(state, squaddieInstruction);
             } else {
@@ -218,7 +215,6 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         }
     }
 
-    // TODO double check the player ends their turn when they click the end turn button
     private defaultSquaddieToEndTurn(state: GameEngineState, currentTeam: BattleSquaddieTeam) {
         const battleSquaddieId: string = BattleSquaddieTeamService.getBattleSquaddieIdThatCanActButNotPlayerControlled(currentTeam, state.battleOrchestratorState.squaddieRepository);
         const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));

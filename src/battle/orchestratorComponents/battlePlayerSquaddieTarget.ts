@@ -1,7 +1,6 @@
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
-import {SquaddieTurnService} from "../../squaddie/turn";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
@@ -35,7 +34,6 @@ import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent} from "../history/battleEvent";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectType} from "../../decision/actionEffect";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;

@@ -12,15 +12,14 @@ import {
     updateSquaddieIconLocation
 } from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {spendSquaddieActionPoints, updateSquaddieLocation} from "../squaddieMovementLogic";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
-    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities,
+    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
+    OrchestratorUtilities,
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
 } from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";

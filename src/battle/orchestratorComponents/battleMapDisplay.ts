@@ -132,10 +132,10 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
     private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const noSquaddieIsCurrentlyActing: boolean = state.battleState.squaddieCurrentlyActing === undefined;
-        // TODO We should be able to read the results of movement to figure out who is moving where.
         let currentlyMovingSquaddieId: string = undefined;
         if (
             !noSquaddieIsCurrentlyActing
+            && DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator)
             && DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator).type === ActionEffectType.MOVEMENT
         ) {
             currentlyMovingSquaddieId = state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;

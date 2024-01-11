@@ -2,10 +2,6 @@ import {Decision} from "../../decision/decision";
 import {ActionEffect} from "../../decision/actionEffect";
 import {isValidValue} from "../../utils/validityCheck";
 
-// TODO questions that need to be asked and answered:
-// 2 can the user make a new decision for the squaddie? <-- see if the Decision Action Effect iterator is active
-// 3 are we in the middle of showing the results of a decision? <--- see if the Decision Action Effect iterator is active
-
 export interface DecisionActionEffectIterator {
     decision: Decision;
     actionEffectIndex: number;

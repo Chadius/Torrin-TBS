@@ -44,7 +44,6 @@ import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 
-
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
         cutscenePlayer: BattleCutscenePlayer;
@@ -495,9 +494,10 @@ describe('Battle Orchestrator', () => {
             });
             expect(orchestrator.getCurrentMode()).toBe(options.mode);
             expect(orchestrator.getCurrentComponent()).toBe(options.orchestratorComponent);
-
+            //const resetSpy = jest.spyOn(OrchestratorUtilities, 'resetCurrentlyActingSquaddieIfTheSquaddieCannotAct').mockReturnValueOnce(undefined);
             orchestrator.update(nullState, mockedP5GraphicsContext);
             expect(options.orchestratorComponent.update).toBeCalled();
+            //expect(resetSpy).toBeCalled();
         }
 
         describe('knows which component to load based on the state', () => {

@@ -5,7 +5,7 @@ import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTe
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
-import {SquaddieTurnService} from "../../squaddie/turn";
+import {DEFAULT_ACTION_POINTS_PER_TURN, SquaddieTurnService} from "../../squaddie/turn";
 import {
     BattleOrchestratorChanges,
     OrchestratorComponentKeyEventType,
@@ -57,6 +57,7 @@ describe('BattleSquaddieSelector', () => {
     let demonBiteAction: ActionEffectSquaddieTemplate;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let teams: BattleSquaddieTeam[];
+    let playerSoldierBattleSquaddie: BattleSquaddie;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -145,13 +146,13 @@ describe('BattleSquaddieSelector', () => {
         ;
         teams.push(playerTeam);
 
-        CreateNewSquaddieAndAddToRepository({
+        ({battleSquaddie: playerSoldierBattleSquaddie} = CreateNewSquaddieAndAddToRepository({
             name: "Player Soldier",
             templateId: "player_soldier",
             battleId: "player_soldier_0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
-        });
+        }));
         BattleSquaddieTeamService.addBattleSquaddieIds(playerTeam, ["player_soldier_0"]);
 
         missionMap.addSquaddie(
@@ -359,6 +360,8 @@ describe('BattleSquaddieSelector', () => {
             instruction: expectedSquaddieInstruction,
             results: undefined,
         });
+
+        expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1);
     });
 
     describe('adding movement mid turn instruction', () => {
@@ -509,7 +512,7 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
-        mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
+        mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue(playerSoldierBattleSquaddie.battleSquaddieId);
         mockHud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(true);
 
         const state: GameEngineState = GameEngineStateHelper.new({
@@ -536,10 +539,9 @@ describe('BattleSquaddieSelector', () => {
 
         expect(selector.hasCompleted(state)).toBeTruthy();
         const endTurnInstruction: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
-                battleSquaddieId: "player_soldier_0",
-                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                squaddieTemplateId: playerSoldierBattleSquaddie.squaddieTemplateId,
                 startingLocation: {q: 0, r: 0},
                 decisions: [
                     DecisionService.new({
@@ -562,6 +564,7 @@ describe('BattleSquaddieSelector', () => {
             instruction: endTurnInstruction,
             results: undefined,
         });
+        expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(0);
     });
 
     it('will recommend squaddie target if a SquaddieAction is selected that requires a target', () => {

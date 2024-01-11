@@ -7,10 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {
-    DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
-    DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities
-} from "./orchestratorUtils";
+import {DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities} from "./orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
@@ -102,7 +99,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         this._squaddieActionAnimator = undefined;
         this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
-        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
+        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
         MaybeEndSquaddieTurn(state.battleOrchestratorState);
     }
 

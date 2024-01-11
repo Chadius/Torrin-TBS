@@ -19,7 +19,7 @@ export const BattleSquaddieTeamService = {
         return team.battleSquaddieIds.length > 0;
     },
     hasAnActingSquaddie: (team: BattleSquaddieTeam, squaddieRepository: ObjectRepository): boolean => {
-        return isValidValue(team.battleSquaddieIds) && team.battleSquaddieIds.some(battleSquaddieId => {
+        return isValidValue(team) && isValidValue(team.battleSquaddieIds) && team.battleSquaddieIds.some(battleSquaddieId => {
             const {
                 squaddieTemplate,
                 battleSquaddie

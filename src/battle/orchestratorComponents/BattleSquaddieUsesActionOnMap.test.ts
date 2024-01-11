@@ -23,8 +23,6 @@ import {ActionEffect} from "../../decision/actionEffect";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
-import {RecordingService} from "../history/recording";
-import {SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
