@@ -23,7 +23,6 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
@@ -114,13 +113,6 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
             CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
-
-        OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
-            battleSquaddieId: CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing),
-            missionMap: state.battleState.missionMap,
-            repository: state.squaddieRepository,
-            actionEffect: DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator),
-        });
 
         const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
         if (mapIcon) {

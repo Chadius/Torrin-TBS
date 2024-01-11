@@ -1,6 +1,6 @@
 import {SearchParametersHelper} from "../searchParams";
 import {SearchPathHelper} from "../searchPath";
-import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../../missionMap/missionMap";
 import {TerrainTileMap} from "../../terrainTileMap";
 import {ObjectRepository, ObjectRepositoryService} from "../../../battle/objectRepository";
 import {SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
@@ -12,7 +12,7 @@ import {PathCanStopConditionNotOnAnotherSquaddie} from "./pathCanStopConditionNo
 
 describe('PathCanStopConditionNotOnASquaddie', () => {
     it('returns false if there is a squaddie at the location', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -35,7 +35,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             battleSquaddieId: "blocker 0"
         });
         ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-        MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+        MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 1,
             r: 2
         });
@@ -52,7 +52,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(false);
     });
     it('returns true because the squaddie can stop at its own location', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -78,7 +78,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             battleSquaddieId: "blocker 0"
         });
         ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-        MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+        MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 0,
             r: 0
         });
@@ -89,7 +89,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns true if the squaddie is not alive', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -118,7 +118,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             battleSquaddieId: "blocker 0"
         });
         ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-        MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+        MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 1,
             r: 2
         });
@@ -135,7 +135,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns true if squaddies are not friendly but search parameters can stop on squaddies anyway', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -158,7 +158,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
             battleSquaddieId: "blocker 0",
         });
         ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-        MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+        MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
             q: 1,
             r: 2
         });
@@ -177,7 +177,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns true if there is no squaddie at the location', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -201,7 +201,7 @@ describe('PathCanStopConditionNotOnASquaddie', () => {
         expect(condition.shouldMarkPathLocationAsStoppable({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns undefined if there is no path', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",

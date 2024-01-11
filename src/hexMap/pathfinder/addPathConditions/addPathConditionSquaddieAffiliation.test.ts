@@ -1,6 +1,6 @@
 import {SearchParametersHelper} from "../searchParams";
 import {SearchPathHelper} from "../searchPath";
-import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../../missionMap/missionMap";
 import {TerrainTileMap} from "../../terrainTileMap";
 import {ObjectRepository, ObjectRepositoryService} from "../../../battle/objectRepository";
 import {SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
@@ -12,7 +12,7 @@ import {DamageType, DealDamageToTheSquaddie} from "../../../squaddie/squaddieSer
 
 describe('AddPathConditionPathIsLessThanTotalMovement', () => {
     it('returns true if squaddies are friendly, false if they are not', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -53,7 +53,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
                     battleSquaddieId: "blocker 0"
                 });
                 ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-                MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+                MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
                     q: 1,
                     r: 2
                 });
@@ -73,7 +73,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
     });
     it('returns true if squaddies are not friendly but one is not alive', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -114,7 +114,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
                     battleSquaddieId: "blocker 0"
                 });
                 ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-                MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+                MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
                     q: 1,
                     r: 2
                 });
@@ -135,7 +135,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
     });
     it('returns true if squaddies are not friendly but search parameters can stop on squaddies anyway', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -176,7 +176,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
                     battleSquaddieId: "blocker 0"
                 });
                 ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-                MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+                MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
                     q: 1,
                     r: 2
                 });
@@ -192,7 +192,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
     });
     it('returns true if there is no squaddie at the location', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -216,7 +216,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         expect(condition.shouldAddNewPath({newPath: pathAtHead, searchParameters})).toBe(true);
     });
     it('returns true if the searching squaddie has an unknown affiliation', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -253,7 +253,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
                 battleSquaddieId: "blocker 0"
             });
             ObjectRepositoryService.addBattleSquaddie(repository, blockingSquaddieBattle);
-            MissionMapHelper.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
+            MissionMapService.addSquaddie(missionMap, blockingSquaddieTemplate.squaddieId.templateId, blockingSquaddieBattle.battleSquaddieId, {
                 q: 1,
                 r: 2
             });
@@ -270,7 +270,7 @@ describe('AddPathConditionPathIsLessThanTotalMovement', () => {
         });
     });
     it('returns undefined if there is no path', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",

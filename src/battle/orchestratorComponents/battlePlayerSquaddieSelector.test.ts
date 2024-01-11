@@ -18,7 +18,7 @@ import {
     SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {MissionMap} from "../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
 import {
     convertMapCoordinatesToScreenCoordinates,
@@ -46,6 +46,7 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
+import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -384,7 +385,6 @@ describe('BattleSquaddieSelector', () => {
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
             squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "player_soldier_0",
                     squaddieTemplateId: "player_soldier",
@@ -437,16 +437,38 @@ describe('BattleSquaddieSelector', () => {
             });
             expect(selector.hasCompleted(state)).toBeTruthy();
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(2);
+            const actionEffectMovement = ActionEffectMovementService.new({
+                destination: {q: 0, r: 2},
+                numberOfActionPointsSpent: 1,
+            });
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1]).toStrictEqual(
                 DecisionService.new({
                     actionEffects: [
-                        ActionEffectMovementService.new({
-                            destination: {q: 0, r: 2},
-                            numberOfActionPointsSpent: 1,
-                        })
+                        actionEffectMovement
                     ]
                 })
             );
+            expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator)).toEqual(
+                actionEffectMovement
+            );
+        });
+        it('will update squaddie location to destination and spend action points', () => {
+            const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 2, ...camera.getCoordinates());
+
+            selector.mouseEventHappened(state, {
+                eventType: OrchestratorComponentMouseEventType.CLICKED,
+                mouseX,
+                mouseY,
+            });
+
+            expect(MissionMapService.getByBattleSquaddieId(state.battleOrchestratorState.battleState.missionMap, playerSoldierBattleSquaddie.battleSquaddieId)).toEqual(
+                {
+                    battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                    squaddieTemplateId: playerSoldierBattleSquaddie.squaddieTemplateId,
+                    mapLocation: {q: 0, r: 2},
+                });
+            expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1);
+            expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(ActionEffectType.MOVEMENT);
         });
     });
 
@@ -504,6 +526,9 @@ describe('BattleSquaddieSelector', () => {
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(2);
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1].actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+        expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toEqual(
+            ActionEffectType.END_TURN
+        );
     });
 
     it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
@@ -565,6 +590,7 @@ describe('BattleSquaddieSelector', () => {
             results: undefined,
         });
         expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(0);
+        expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(ActionEffectType.END_TURN);
     });
 
     it('will recommend squaddie target if a SquaddieAction is selected that requires a target', () => {
@@ -628,6 +654,10 @@ describe('BattleSquaddieSelector', () => {
 
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(0);
+
+        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0].type).toEqual(
+            ActionEffectType.SQUADDIE
+        );
     });
 
     describe('squaddie must complete their turn before moving other squaddies', () => {

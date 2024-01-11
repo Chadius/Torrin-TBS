@@ -15,7 +15,7 @@ import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS} from "../loading/missionLoader";
 import {MapHighlightHelper} from "./mapHighlight";
-import {MissionMapHelper} from "../../missionMap/missionMap";
+import {MissionMapService} from "../../missionMap/missionMap";
 import {SquaddieTurnService} from "../../squaddie/turn";
 
 describe('map highlight generator', () => {
@@ -210,7 +210,7 @@ describe('map highlight generator', () => {
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(1);
 
             const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-                missionMap: MissionMapHelper.new({terrainTileMap: terrainAllSingleMovement}),
+                missionMap: MissionMapService.new({terrainTileMap: terrainAllSingleMovement}),
                 startLocation: {q: 0, r: 2},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -238,7 +238,7 @@ describe('map highlight generator', () => {
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3);
 
             const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-                missionMap: MissionMapHelper.new({terrainTileMap: terrainAllSingleMovement}),
+                missionMap: MissionMapService.new({terrainTileMap: terrainAllSingleMovement}),
                 startLocation: {q: 0, r: 2},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -281,7 +281,7 @@ describe('map highlight generator', () => {
             expect(battleSquaddie.squaddieTurn.remainingActionPoints).toBe(3);
 
             const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-                missionMap: MissionMapHelper.new({terrainTileMap: terrainAllDoubleMovement}),
+                missionMap: MissionMapService.new({terrainTileMap: terrainAllDoubleMovement}),
                 startLocation: {q: 0, r: 2},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -336,7 +336,7 @@ describe('map highlight generator', () => {
 
         it('highlights correct locations when squaddie has a ranged weapon', () => {
             const highlightedDescription: HighlightTileDescription[] = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-                missionMap: MissionMapHelper.new({terrainTileMap: terrainAlternatingPits}),
+                missionMap: MissionMapService.new({terrainTileMap: terrainAlternatingPits}),
                 startLocation: {q: 0, r: 4},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,

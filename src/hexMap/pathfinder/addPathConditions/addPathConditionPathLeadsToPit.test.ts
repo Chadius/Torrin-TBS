@@ -1,12 +1,12 @@
 import {SearchParametersHelper} from "../searchParams";
 import {SearchPathHelper} from "../searchPath";
-import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../../missionMap/missionMap";
 import {TerrainTileMap} from "../../terrainTileMap";
 import {AddPathConditionPathLeadsToPit} from "./addPathConditionPathLeadsToPit";
 
 describe('addPathConditionPathLeadsToPit', () => {
     it('returns true if the path is not on a Pit', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -29,7 +29,7 @@ describe('addPathConditionPathLeadsToPit', () => {
     });
 
     it('returns false if the path is in a Pit and search cannot cross pits', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -54,7 +54,7 @@ describe('addPathConditionPathLeadsToPit', () => {
     });
 
     it('returns true if the path is in a Pit and search can cross pits', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -81,7 +81,7 @@ describe('addPathConditionPathLeadsToPit', () => {
     });
 
     it('returns undefined if there is no path', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
