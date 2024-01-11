@@ -376,7 +376,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                         camera: new BattleCamera(0, 0),
                         squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
 
-                            currentlySelectedDecisionForPreview: DecisionService.new({
+                            currentlySelectedDecision: DecisionService.new({
                                 actionEffects: [
                                     ActionEffectSquaddieService.new({
                                         template: ActionEffectSquaddieTemplateService.new({

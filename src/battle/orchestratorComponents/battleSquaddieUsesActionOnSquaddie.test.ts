@@ -168,7 +168,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         monkMeditatesInstruction = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: instruction,
 
-            currentlySelectedDecisionForPreview: DecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         template: monkKoanAction,
@@ -178,7 +178,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 ]
             }),
         });
-        CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(monkMeditatesInstruction,
+        CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(monkMeditatesInstruction,
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
@@ -256,8 +256,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         const squaddieInstructionInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: wholeTurnInstruction,
-
-            currentlySelectedDecisionForPreview: DecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         template: powerAttackLongswordAction,
@@ -332,6 +331,23 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
         expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
         expect(missionMap.isSquaddieHiddenFromDrawing(targetDynamic.battleSquaddieId)).toBeTruthy();
+    });
+
+    it('resets squaddie currently acting when it runs out of actions and finishes acting', () => {
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
+        })
+
+        const state = usePowerAttackLongswordAndReturnState({missionMap});
+        battleSquaddieBase.squaddieTurn.remainingActionPoints = 0;
+
+        jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
+
+        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
+        expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
+        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy();
+        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).toBeUndefined();
     });
 
     it('uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes', () => {

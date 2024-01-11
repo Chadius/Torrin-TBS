@@ -87,7 +87,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     reset(state: GameEngineState) {
         state.battleOrchestratorState.battleState.squaddieMovePath = undefined;
         this.animationStartTime = undefined;
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
+        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
         DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
     }

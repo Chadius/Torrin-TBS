@@ -93,7 +93,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         monkMeditatesInstruction = CurrentlySelectedSquaddieDecisionService.new({
 
             squaddieActionsForThisRound: oneDecisionInstruction,
-            currentlySelectedDecisionForPreview: DecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         template: monkKoanAction,

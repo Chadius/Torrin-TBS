@@ -52,7 +52,7 @@ function calculateResults({
     } = getTargetedBattleSquaddieIds(state, validTargetLocation);
 
     let actingSquaddieRoll: RollResult;
-    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
     if (squaddieActionEffect.type === ActionEffectType.SQUADDIE) {
         actingSquaddieRoll = maybeMakeAttackRoll(squaddieActionEffect.template, state);
     }
@@ -159,7 +159,7 @@ const calculateTotalDamageDealt = (
     let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE;
 
     let actionEffectTemplate: ActionEffectSquaddieTemplate = undefined;
-    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
     if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
         return;
     }
@@ -198,7 +198,7 @@ const calculateTotalDamageDealt = (
 
 function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {
     let healingReceived = 0;
-    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
     if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
         return 0;
     }

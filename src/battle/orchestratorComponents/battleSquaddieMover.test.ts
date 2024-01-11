@@ -146,8 +146,6 @@ describe('BattleSquaddieMover', () => {
     });
 
     describe('reset actions based on squaddie', () => {
-        let updateSquaddieSpy: jest.SpyInstance;
-
         const setupSquaddie = ({
                                    battleSquaddieId,
                                    squaddieAffiliation,
@@ -184,8 +182,6 @@ describe('BattleSquaddieMover', () => {
             let decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
                 decision: SquaddieActionsForThisRoundService.getMostRecentDecision(newInstruction)
             });
-
-            updateSquaddieSpy = jest.spyOn(OrchestratorUtilities, 'updateSquaddieBasedOnActionEffect');
 
             return BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: mockResourceHandler,
@@ -229,7 +225,7 @@ describe('BattleSquaddieMover', () => {
                     newInstruction: moveAction,
                 })
             });
-
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).not.toBeUndefined();
             player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0;
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -239,7 +235,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
-            expect(updateSquaddieSpy).toBeCalled();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).toBeUndefined();
         });
 
         it('should open the HUD if the squaddie turn has actions remaining', () => {
@@ -282,7 +278,6 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
-            expect(updateSquaddieSpy).toBeCalled();
         });
 
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
@@ -325,7 +320,6 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
-            expect(updateSquaddieSpy).toBeCalled();
         });
     });
 

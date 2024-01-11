@@ -88,7 +88,7 @@ export const SquaddieService = {
         }
 
         return CurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentlySelectedSquaddieDecision)
-            || CurrentlySelectedSquaddieDecisionService.isPreviewingADecision(currentlySelectedSquaddieDecision);
+            || CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentlySelectedSquaddieDecision);
     },
     canSquaddieActRightNow: ({
                                  squaddieTemplate,

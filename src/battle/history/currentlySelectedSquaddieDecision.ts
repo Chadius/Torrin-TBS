@@ -4,32 +4,23 @@ import {isValidValue} from "../../utils/validityCheck";
 
 export interface CurrentlySelectedSquaddieDecision {
     squaddieDecisionsDuringThisPhase: SquaddieDecisionsDuringThisPhase;
-    currentlySelectedDecisionForPreview: Decision;
+    currentlySelectedDecision: Decision;
     decisionIndex: number;
 }
-
-const squaddieHasMadeADecision = (data: CurrentlySelectedSquaddieDecision) => {
-    if (data === undefined) {
-        return false;
-    }
-
-    return data.squaddieDecisionsDuringThisPhase !== undefined
-        && data.squaddieDecisionsDuringThisPhase.decisions.length > 0;
-};
 
 export const CurrentlySelectedSquaddieDecisionService = {
     new: ({
               squaddieActionsForThisRound,
-              currentlySelectedDecisionForPreview,
+              currentlySelectedDecision,
               decisionIndex,
           }: {
         squaddieActionsForThisRound: SquaddieDecisionsDuringThisPhase;
-        currentlySelectedDecisionForPreview?: Decision;
+        currentlySelectedDecision?: Decision;
         decisionIndex?: number;
     }): CurrentlySelectedSquaddieDecision => {
         return sanitize({
             squaddieDecisionsDuringThisPhase: squaddieActionsForThisRound,
-            currentlySelectedDecisionForPreview: currentlySelectedDecisionForPreview,
+            currentlySelectedDecision: currentlySelectedDecision,
             decisionIndex,
         });
     },
@@ -40,10 +31,12 @@ export const CurrentlySelectedSquaddieDecisionService = {
         return squaddieHasMadeADecision(data);
     },
     battleSquaddieId: (data: CurrentlySelectedSquaddieDecision): string => {
-        if (data.squaddieDecisionsDuringThisPhase !== undefined) {
+        if (
+            isValidValue(data)
+            && isValidValue(data.squaddieDecisionsDuringThisPhase)
+        ) {
             return data.squaddieDecisionsDuringThisPhase.battleSquaddieId;
         }
-
         return "";
     },
     addConfirmedDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, decision: Decision) => {
@@ -57,11 +50,11 @@ export const CurrentlySelectedSquaddieDecisionService = {
 
         SquaddieActionsForThisRoundService.addDecision(instructionInProgress.squaddieDecisionsDuringThisPhase, decision);
     },
-    selectDecisionForPreview: (instructionInProgress: CurrentlySelectedSquaddieDecision, decisionToPreview: Decision) => {
-        instructionInProgress.currentlySelectedDecisionForPreview = decisionToPreview;
+    selectCurrentDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, currentDecision: Decision) => {
+        instructionInProgress.currentlySelectedDecision = currentDecision;
     },
-    cancelSelectedPreviewDecision: (data: CurrentlySelectedSquaddieDecision) => {
-        data.currentlySelectedDecisionForPreview = undefined;
+    cancelSelectedCurrentDecision: (data: CurrentlySelectedSquaddieDecision) => {
+        data.currentlySelectedDecision = undefined;
     },
     hasFinishedIteratingThoughDecisions: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
         return decisionIndexIsOutOfBounds(currentDecision);
@@ -83,12 +76,12 @@ export const CurrentlySelectedSquaddieDecisionService = {
         currentDecision.decisionIndex += 1;
         return nextActionEffect;
     },
-    isPreviewingADecision: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
+    hasACurrentDecision: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
         if (!isValidValue(currentDecision)) {
             return false;
         }
 
-        return currentDecision.currentlySelectedDecisionForPreview !== undefined;
+        return currentDecision.currentlySelectedDecision !== undefined;
     },
     hasSquaddieMadeADecision: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
         if (!isValidValue(currentDecision)) {
@@ -97,13 +90,13 @@ export const CurrentlySelectedSquaddieDecisionService = {
 
         return currentDecision.squaddieDecisionsDuringThisPhase.decisions.length > 0;
     },
-    addPreviewedDecisionToDecisionsMadeThisRound: (currentDecision: CurrentlySelectedSquaddieDecision) => {
+    addCurrentDecisionToDecisionsMadeThisRound: (currentDecision: CurrentlySelectedSquaddieDecision) => {
         if (!isValidValue(currentDecision)) {
             return;
         }
 
-        SquaddieActionsForThisRoundService.addDecision(currentDecision.squaddieDecisionsDuringThisPhase, currentDecision.currentlySelectedDecisionForPreview);
-        currentDecision.currentlySelectedDecisionForPreview = undefined;
+        SquaddieActionsForThisRoundService.addDecision(currentDecision.squaddieDecisionsDuringThisPhase, currentDecision.currentlySelectedDecision);
+        currentDecision.currentlySelectedDecision = undefined;
         return;
     },
     isDefault: (squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision): boolean => {
@@ -136,3 +129,12 @@ const decisionIndexIsOutOfBounds = (state: CurrentlySelectedSquaddieDecision) =>
     !isValidValue(state)
     || state.decisionIndex === undefined
     || state.decisionIndex >= state.squaddieDecisionsDuringThisPhase.decisions.length;
+
+const squaddieHasMadeADecision = (data: CurrentlySelectedSquaddieDecision) => {
+    if (data === undefined) {
+        return false;
+    }
+
+    return data.squaddieDecisionsDuringThisPhase !== undefined
+        && data.squaddieDecisionsDuringThisPhase.decisions.length > 0;
+};

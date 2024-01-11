@@ -118,7 +118,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         knightHitsThiefWithLongswordInstructionInProgress = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: oneActionInstruction,
 
-            currentlySelectedDecisionForPreview: DecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         template: powerAttackLongswordAction,
@@ -138,7 +138,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             ]
         });
         CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(knightHitsThiefWithLongswordInstructionInProgress, decision);
-        CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(knightHitsThiefWithLongswordInstructionInProgress, decision);
+        CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(knightHitsThiefWithLongswordInstructionInProgress, decision);
 
         knightHitsThiefWithLongswordEvent = {
             instruction: knightHitsThiefWithLongswordInstructionInProgress,

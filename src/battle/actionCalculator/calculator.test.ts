@@ -136,7 +136,7 @@ describe('calculator', () => {
         numberGenerator?: NumberGeneratorStrategy,
     }) {
         const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-            currentlySelectedDecisionForPreview: DecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         template: currentlySelectedAction ?? actionAlwaysHitsAndDealsBodyDamage,
@@ -249,7 +249,7 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN);
 
             const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                currentlySelectedDecisionForPreview: DecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             template: healsLostHitPoints,
@@ -293,7 +293,7 @@ describe('calculator', () => {
             );
 
             const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                currentlySelectedDecisionForPreview: DecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             template: healsLostHitPoints,
@@ -387,7 +387,7 @@ describe('calculator', () => {
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
             const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                currentlySelectedDecisionForPreview: DecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             template: actionNeedsAnAttackRollToDealBodyDamage,

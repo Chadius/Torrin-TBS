@@ -158,7 +158,7 @@ describe('BattleSquaddieTarget', () => {
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
                 startingLocation: {q: 1, r: 1},
             }),
-            currentlySelectedDecisionForPreview: DecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         template: longswordAction,
@@ -276,7 +276,7 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
         });
     });
 
@@ -305,7 +305,7 @@ describe('BattleSquaddieTarget', () => {
                 })
             ]
         });
-        CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
+        CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
@@ -401,7 +401,7 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
         });
     });
 
@@ -413,7 +413,7 @@ describe('BattleSquaddieTarget', () => {
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
                     startingLocation: {q: 1, r: 1},
                 }),
-                currentlySelectedDecisionForPreview: DecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             template: bandageWoundsAction,
@@ -457,24 +457,26 @@ describe('BattleSquaddieTarget', () => {
         });
 
         it('should create a squaddie instruction', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        targetLocation: {q: 1, r: 2},
+                        template: longswordAction,
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            });
             const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: knightStatic.squaddieId.templateId,
                 battleSquaddieId: knightDynamic.battleSquaddieId,
                 startingLocation: {q: 1, r: 1},
                 decisions: [
-                    DecisionService.new({
-                        actionEffects: [
-                            ActionEffectSquaddieService.new({
-                                targetLocation: {q: 1, r: 2},
-                                template: longswordAction,
-                                numberOfActionPointsSpent: 1,
-                            })
-                        ]
-                    })
+                    decision
                 ]
             });
 
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision).toEqual(decision);
         });
 
         it('should be completed', () => {
@@ -504,7 +506,7 @@ describe('BattleSquaddieTarget', () => {
                     battleSquaddieId: knightDynamic.battleSquaddieId,
                     startingLocation: {q: 1, r: 1},
                 }),
-                currentlySelectedDecisionForPreview: DecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             template: longswordAction,
@@ -612,7 +614,7 @@ describe('BattleSquaddieTarget', () => {
                     squaddieTemplateId: knightStatic.squaddieId.templateId,
                     startingLocation: {q: 1, r: 1},
                 }),
-                currentlySelectedDecisionForPreview: DecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             template: action,

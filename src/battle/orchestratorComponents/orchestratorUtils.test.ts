@@ -235,7 +235,7 @@ describe("Orchestration Utils", () => {
                     startingLocation: {q: 0, r: 0},
                     decisions: [],
                 }),
-                currentlySelectedDecisionForPreview: moveDecision,
+                currentlySelectedDecision: moveDecision,
             });
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeTruthy();
         });

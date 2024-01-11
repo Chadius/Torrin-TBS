@@ -107,7 +107,7 @@ const isSquaddieCurrentlyTakingATurn = (state: BattleOrchestratorState): boolean
         return false;
     }
 
-    if (CurrentlySelectedSquaddieDecisionService.isPreviewingADecision(state.battleState.squaddieCurrentlyActing)) {
+    if (CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(state.battleState.squaddieCurrentlyActing)) {
         return true;
     }
 

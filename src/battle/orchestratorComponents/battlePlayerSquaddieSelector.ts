@@ -391,7 +391,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             this.gaveCompleteInstruction = true;
         } else if (state.battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()) {
             const newAction = state.battleSquaddieSelectedHUD.getSquaddieSquaddieAction();
-            CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(
+            CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(
                 state.battleState.squaddieCurrentlyActing,
                 DecisionService.new({
                     actionEffects: [

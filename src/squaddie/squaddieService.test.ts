@@ -341,7 +341,7 @@ describe('Squaddie Service', () => {
                     battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
                 }),
-                currentlySelectedDecisionForPreview: moveDecision,
+                currentlySelectedDecision: moveDecision,
             });
 
             expect(SquaddieService.isSquaddieCurrentlyTakingATurn({
@@ -382,7 +382,7 @@ describe('Squaddie Service', () => {
                     battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
                 }),
-                currentlySelectedDecisionForPreview: moveDecision,
+                currentlySelectedDecision: moveDecision,
             });
             SquaddieTurnService.endTurn(playerBattleSquaddie.squaddieTurn);
 

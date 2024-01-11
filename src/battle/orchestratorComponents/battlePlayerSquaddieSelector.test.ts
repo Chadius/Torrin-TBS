@@ -647,7 +647,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
-        expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0] as ActionEffectSquaddie).template).toStrictEqual(longswordAction);
+        expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0] as ActionEffectSquaddie).template).toStrictEqual(longswordAction);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
@@ -655,7 +655,7 @@ describe('BattleSquaddieSelector', () => {
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(0);
 
-        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0].type).toEqual(
+        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0].type).toEqual(
             ActionEffectType.SQUADDIE
         );
     });
@@ -829,7 +829,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: 0,
                 mouseY: 0
             });
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
             expect(CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(
                 CurrentlySelectedSquaddieDecisionService.battleSquaddieId(soldierCurrentlyActing)
             );

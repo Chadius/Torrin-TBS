@@ -19,6 +19,12 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
 
+export const DrawSquaddieUtilities = {
+    tintSquaddieIfTurnIsComplete: (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {
+        return TintSquaddieIfTurnIsComplete(squaddieRepository, battleSquaddie, squaddieTemplate);
+    }
+}
+
 export const tintSquaddieMapIconTurnComplete = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];

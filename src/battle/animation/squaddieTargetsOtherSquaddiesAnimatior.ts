@@ -161,7 +161,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         ));
 
         let actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
-        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
         if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
             return;
         }
@@ -215,7 +215,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 squaddieTemplate: targetTemplate,
             } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleId));
 
-            let squaddieActionEffect = RecordingService.mostRecentEvent(state.battleState.recording).instruction.currentlySelectedDecisionForPreview.actionEffects[0];
+            let squaddieActionEffect = RecordingService.mostRecentEvent(state.battleState.recording).instruction.currentlySelectedDecision.actionEffects[0];
             if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
                 return undefined;
             }
@@ -263,7 +263,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
 
-        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecisionForPreview.actionEffects[0];
+        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
         if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
             return;
         }

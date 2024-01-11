@@ -97,7 +97,7 @@ describe("BattleSaveState", () => {
             instruction: CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: firstSquaddieDecisions,
 
-                currentlySelectedDecisionForPreview: undefined,
+                currentlySelectedDecision: undefined,
             }),
             results: {
                 actingBattleSquaddieId: "actor 1",
@@ -335,7 +335,7 @@ describe("BattleSaveState", () => {
         const secondBattleEvent: BattleEvent = {
             instruction: CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: secondSquaddieDecisions,
-                currentlySelectedDecisionForPreview: undefined,
+                currentlySelectedDecision: undefined,
             }),
             results: {
                 actingBattleSquaddieId: undefined,

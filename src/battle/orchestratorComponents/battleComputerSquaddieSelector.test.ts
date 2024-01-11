@@ -294,7 +294,7 @@ describe('BattleComputerSquaddieSelector', () => {
                             endTurnDecision
                         ]
                     }),
-                    currentlySelectedDecisionForPreview: undefined,
+                    currentlySelectedDecision: undefined,
                 });
 
             expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(ActionEffectType.END_TURN);

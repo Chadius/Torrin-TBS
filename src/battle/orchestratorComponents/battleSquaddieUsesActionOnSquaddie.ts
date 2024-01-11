@@ -24,6 +24,9 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -110,6 +113,21 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         this.squaddieActionAnimator.update(state.battleOrchestratorState, graphicsContext);
         if (this.squaddieActionAnimator.hasCompleted(state.battleOrchestratorState)) {
             this.hideDeadSquaddies(state.battleOrchestratorState);
+
+            const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
+                ObjectRepositoryService.getSquaddieByBattleId(
+                    state.battleOrchestratorState.squaddieRepository,
+                    state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
+                )
+            )
+            DrawSquaddieUtilities.tintSquaddieIfTurnIsComplete(
+                state.battleOrchestratorState.squaddieRepository,
+                battleSquaddie,
+                squaddieTemplate,
+            );
+
+            CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+            OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
             this.sawResultAftermath = true;
         }
     }
@@ -137,7 +155,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         if (
             mostRecentEvent === undefined
             || mostRecentEvent.instruction === undefined
-            || mostRecentEvent.instruction.currentlySelectedDecisionForPreview === undefined
+            || mostRecentEvent.instruction.currentlySelectedDecision === undefined
         ) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
             return;
@@ -145,7 +163,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
 
         if (state.decisionActionEffectIterator === undefined) {
             state.decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
-                decision: mostRecentEvent.instruction.currentlySelectedDecisionForPreview
+                decision: mostRecentEvent.instruction.currentlySelectedDecision
             })
         }
 

@@ -309,7 +309,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         let results: SquaddieSquaddieResults;
 
         MaybeCreateSquaddieInstruction(state.battleOrchestratorState, battleSquaddie, squaddieTemplate);
-        CurrentlySelectedSquaddieDecisionService.selectDecisionForPreview(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, newDecision);
+        CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, newDecision);
 
         newDecision.actionEffects.forEach(actionEffect => {
             switch (actionEffect.type) {

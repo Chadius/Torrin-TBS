@@ -82,7 +82,7 @@ describe('CurrentlySelectedSquaddieDecision', () => {
 
         const squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: longswordUsedThisRoundAction,
-            currentlySelectedDecisionForPreview: DecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         template: longswordAction,
@@ -93,7 +93,7 @@ describe('CurrentlySelectedSquaddieDecision', () => {
             }),
         });
 
-        CurrentlySelectedSquaddieDecisionService.cancelSelectedPreviewDecision(squaddieCurrentlyActing);
+        CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(squaddieCurrentlyActing);
         expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(squaddieCurrentlyActing)).toBeTruthy();
     });
 
@@ -104,12 +104,12 @@ describe('CurrentlySelectedSquaddieDecision', () => {
                 battleSquaddieId: "battle",
                 startingLocation: {q: 0, r: 0},
             }),
-            currentlySelectedDecisionForPreview: undefined,
+            currentlySelectedDecision: undefined,
         });
 
-        expect(CurrentlySelectedSquaddieDecisionService.isPreviewingADecision(currentDecisions)).toBeFalsy();
-        currentDecisions.currentlySelectedDecisionForPreview = moveDecision;
-        expect(CurrentlySelectedSquaddieDecisionService.isPreviewingADecision(currentDecisions)).toBeTruthy();
+        expect(CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentDecisions)).toBeFalsy();
+        currentDecisions.currentlySelectedDecision = moveDecision;
+        expect(CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentDecisions)).toBeTruthy();
     });
 
     it('can cancel the previewed decision', () => {
@@ -119,10 +119,10 @@ describe('CurrentlySelectedSquaddieDecision', () => {
                 battleSquaddieId: "battle",
                 startingLocation: {q: 0, r: 0},
             }),
-            currentlySelectedDecisionForPreview: moveDecision,
+            currentlySelectedDecision: moveDecision,
         });
-        CurrentlySelectedSquaddieDecisionService.cancelSelectedPreviewDecision(currentDecisions);
-        expect(CurrentlySelectedSquaddieDecisionService.isPreviewingADecision(currentDecisions)).toBeFalsy();
+        CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(currentDecisions);
+        expect(CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentDecisions)).toBeFalsy();
         expect(CurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentDecisions)).toBeFalsy();
     });
 
@@ -136,11 +136,11 @@ describe('CurrentlySelectedSquaddieDecision', () => {
                     moveDecision
                 ],
             }),
-            currentlySelectedDecisionForPreview: healDecision,
+            currentlySelectedDecision: healDecision,
         });
 
         expect(CurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentDecisions)).toBeTruthy();
-        CurrentlySelectedSquaddieDecisionService.cancelSelectedPreviewDecision(currentDecisions);
+        CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(currentDecisions);
         expect(CurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentDecisions)).toBeTruthy();
     });
 
@@ -154,11 +154,11 @@ describe('CurrentlySelectedSquaddieDecision', () => {
                     moveDecision,
                 ]
             }),
-            currentlySelectedDecisionForPreview: healDecision,
+            currentlySelectedDecision: healDecision,
         });
 
-        CurrentlySelectedSquaddieDecisionService.addPreviewedDecisionToDecisionsMadeThisRound(currentDecisions);
-        expect(CurrentlySelectedSquaddieDecisionService.isPreviewingADecision(currentDecisions)).toBeFalsy();
+        CurrentlySelectedSquaddieDecisionService.addCurrentDecisionToDecisionsMadeThisRound(currentDecisions);
+        expect(CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentDecisions)).toBeFalsy();
         expect(currentDecisions.squaddieDecisionsDuringThisPhase.decisions).toEqual([moveDecision, healDecision]);
     });
 
