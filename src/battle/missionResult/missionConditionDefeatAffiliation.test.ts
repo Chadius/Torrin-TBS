@@ -1,16 +1,16 @@
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {CanSquaddieActRightNow, DamageType} from "../../squaddie/squaddieService";
+import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
 import {MissionCondition, MissionConditionType, MissionShouldBeComplete} from "./missionCondition";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 
 describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () => {
     let missionMap: MissionMap;
@@ -33,7 +33,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
     let enemy2Dynamic: BattleSquaddie;
     let conditionDefeatAllEnemies: MissionCondition;
     let state: BattleOrchestratorState;
-    let squaddieRepository = ObjectRepositoryHelper.new();
+    let squaddieRepository = ObjectRepositoryService.new();
 
     beforeEach(() => {
         missionMap = new MissionMap({
@@ -42,7 +42,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             })
         });
 
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
 
         ({
             squaddieTemplate: enemy1Static,
@@ -144,11 +144,11 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             type: MissionConditionType.DEFEAT_ALL_NO_AFFILIATIONS,
         };
 
-        state = BattleOrchestratorStateHelper.newOrchestratorState({
+        state = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
                 missionCompletionStatus: {
@@ -196,7 +196,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
         );
         const {
             isDead
-        } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
+        } = SquaddieService.canSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
         expect(MissionShouldBeComplete(conditionDefeatAllEnemies, state, "enemy objective id")).toBeFalsy();
     });
@@ -233,7 +233,7 @@ describe('Mission Condition: Defeat All Squaddies of a given Affiliation', () =>
             9001, DamageType.UNKNOWN);
         const {
             isDead
-        } = CanSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
+        } = SquaddieService.canSquaddieActRightNow({squaddieTemplate: enemy1Static, battleSquaddie: enemy1Dynamic})
         expect(isDead).toBeTruthy();
         expect(MissionShouldBeComplete(conditionDefeatAllEnemies, state, "enemy objective id")).toBeTruthy();
         expect(MissionShouldBeComplete(conditionDefeatAllPlayers, state, "player objective id")).toBeFalsy();

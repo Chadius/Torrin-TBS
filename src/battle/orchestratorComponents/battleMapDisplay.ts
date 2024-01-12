@@ -11,11 +11,12 @@ import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
+import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {ActionEffectType} from "../../decision/actionEffect";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: GameEngineState, graphicsContext: GraphicsContext): void {
@@ -131,7 +132,16 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 
     private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const noSquaddieIsCurrentlyActing: boolean = state.battleState.squaddieCurrentlyActing === undefined;
-        ObjectRepositoryHelper.getBattleSquaddieIterator(state.squaddieRepository)
+        let currentlyMovingSquaddieId: string = undefined;
+        if (
+            !noSquaddieIsCurrentlyActing
+            && DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator)
+            && DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator).type === ActionEffectType.MOVEMENT
+        ) {
+            currentlyMovingSquaddieId = state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;
+        }
+
+        ObjectRepositoryService.getBattleSquaddieIterator(state.squaddieRepository)
             .filter((info) =>
                 info.battleSquaddieId in state.squaddieRepository.imageUIByBattleSquaddieId
             )
@@ -139,7 +149,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
                 const {battleSquaddie, battleSquaddieId} = info;
 
                 if (noSquaddieIsCurrentlyActing
-                    || !SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleState.squaddieCurrentlyActing, battleSquaddieId)) {
+                    || battleSquaddieId !== currentlyMovingSquaddieId) {
                     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
                     const squaddieIsOnTheMap: boolean = MissionMapSquaddieLocationHandler.isValid(datum) && state.battleState.missionMap.areCoordinatesOnMap(datum.mapLocation);

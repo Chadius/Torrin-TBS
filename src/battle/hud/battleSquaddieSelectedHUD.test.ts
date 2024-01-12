@@ -1,4 +1,4 @@
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleSquaddieSelectedHUD, FILE_MESSAGE_DISPLAY_DURATION} from "./battleSquaddieSelectedHUD";
@@ -6,14 +6,17 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {UseActionButton} from "../../squaddie/useActionButton";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {BattleCamera} from "../battleCamera";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
-import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {KeyButtonName} from "../../utils/keyboardConfig";
 import {config} from "../../configuration/config";
 import * as mocks from "../../utils/test/mocks";
@@ -22,10 +25,15 @@ import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {ActionEffectType} from "../../squaddie/actionEffect";
+import {ActionEffectType} from "../../decision/actionEffect";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -41,7 +49,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieDynamicId: string = "player_squaddie_2";
     let player2SquaddieStatic: SquaddieTemplate;
     let player2SquaddieDynamic: BattleSquaddie;
-    let longswordAction: SquaddieSquaddieAction;
+    let longswordAction: ActionEffectSquaddieTemplate;
     let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -52,13 +60,13 @@ describe('BattleSquaddieSelectedHUD', () => {
             })
         })
 
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
 
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
-        longswordAction = SquaddieSquaddieActionService.new({
+        longswordAction = ActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -126,11 +134,11 @@ describe('BattleSquaddieSelectedHUD', () => {
         hud.selectSquaddieAndDrawWindow({
                 battleId: playerSquaddieDynamicID,
                 repositionWindow: {mouseX: 0, mouseY: 0},
-                state: BattleOrchestratorStateHelper.newOrchestratorState({
+                state: BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepository,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
@@ -149,11 +157,11 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('reports when an action button is clicked', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepository,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -183,11 +191,11 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('reports when an action button is hovered', () => {
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
@@ -211,11 +219,11 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('generates a Wait Turn action button when a squaddie is selected', () => {
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
@@ -239,11 +247,11 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('reports when a Wait Turn action button was clicked on', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepository,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -276,11 +284,11 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('can reopen the window in the previous position if no mouse location is given', () => {
-        const state = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state = BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: resourceHandler,
             battleSquaddieSelectedHUD: undefined,
             squaddieRepository: squaddieRepository,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionMap,
                 camera: new BattleCamera(0, 0),
@@ -305,8 +313,8 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
-        let notEnoughActionPointsAction: SquaddieSquaddieAction;
-        notEnoughActionPointsAction = SquaddieSquaddieActionService.new({
+        let notEnoughActionPointsAction: ActionEffectSquaddieTemplate;
+        notEnoughActionPointsAction = ActionEffectSquaddieTemplateService.new({
                 name: "not enough actions",
                 id: "not enough actions",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -317,15 +325,15 @@ describe('BattleSquaddieSelectedHUD', () => {
             }
         );
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, playerSquaddieDynamicID));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, playerSquaddieDynamicID));
         squaddieTemplate.actions.push(notEnoughActionPointsAction);
 
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepository,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -358,28 +366,35 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('will warn the user if another squaddie is still completing their turn', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepository,
                     resourceHandler: resourceHandler,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
-                        squaddieCurrentlyActing: {
-                            movingBattleSquaddieIds: [],
-                            currentlySelectedAction: SquaddieSquaddieActionService.new({
-                                name: "purifying stream",
-                                id: "purifying_stream",
-                                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+
+                            currentlySelectedDecision: DecisionService.new({
+                                actionEffects: [
+                                    ActionEffectSquaddieService.new({
+                                        template: ActionEffectSquaddieTemplateService.new({
+                                            name: "purifying stream",
+                                            id: "purifying_stream",
+                                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                                        }),
+                                        targetLocation: {q: 0, r: 0},
+                                        numberOfActionPointsSpent: 1,
+                                    })
+                                ]
                             }),
-                            squaddieActionsForThisRound: {
+                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                 battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                 squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                 startingLocation: {q: 0, r: 0},
-                                actions: [],
-                            },
-                        },
+                            }),
+                        }),
                     }),
                 })
             })
@@ -405,11 +420,11 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('will warn the user they cannot control enemy squaddies', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -437,11 +452,11 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     it('will not let the player command uncontrollable enemy squaddies', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -472,11 +487,11 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     describe("Save game button", () => {
         it('should show the button during the player phase', () => {
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -484,16 +499,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                         currentAffiliation: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
-                    squaddieCurrentlyActing: {
-                        movingBattleSquaddieIds: [],
-                        squaddieActionsForThisRound: {
+                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+
+                        squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                             startingLocation: {q: 0, r: 0},
-                            actions: []
-                        },
-                        currentlySelectedAction: undefined,
-                    }
+                        }),
+                    })
                 }),
             });
 
@@ -508,11 +521,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(hud.shouldDrawSaveAndLoadButton(state)).toBeTruthy();
         });
         it('should not show the button during other phases', () => {
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -534,11 +547,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
         });
         it('should not show the button if the player controlled squaddie is mid way through their turn', () => {
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -546,22 +559,24 @@ describe('BattleSquaddieSelectedHUD', () => {
                         currentAffiliation: BattlePhase.PLAYER,
                         turnCount: 0,
                     },
-                    squaddieCurrentlyActing: {
-                        movingBattleSquaddieIds: [],
-                        squaddieActionsForThisRound: {
+                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+
+                        squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                             startingLocation: {q: 0, r: 0},
-                            actions: [
-                                {
-                                    type: ActionEffectType.MOVEMENT,
-                                    destination: {q: 1, r: 0},
-                                    numberOfActionPointsSpent: 1,
-                                }
+                            decisions: [
+                                DecisionService.new({
+                                    actionEffects: [
+                                        ActionEffectMovementService.new({
+                                            destination: {q: 1, r: 0},
+                                            numberOfActionPointsSpent: 1,
+                                        })
+                                    ]
+                                })
                             ]
-                        },
-                        currentlySelectedAction: undefined,
-                    }
+                        }),
+                    })
                 }),
             });
 
@@ -581,11 +596,11 @@ describe('BattleSquaddieSelectedHUD', () => {
                 state =
                     GameEngineStateHelper.new({
                         battleOrchestratorState:
-                            BattleOrchestratorStateHelper.newOrchestratorState({
+                            BattleOrchestratorStateService.newOrchestratorState({
                                 squaddieRepository: squaddieRepository,
                                 resourceHandler: resourceHandler,
                                 battleSquaddieSelectedHUD: undefined,
-                                battleState: BattleStateHelper.newBattleState({
+                                battleState: BattleStateService.newBattleState({
                                     missionId: "test mission",
                                     missionMap,
                                     camera: new BattleCamera(0, 0),
@@ -593,16 +608,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                                         currentAffiliation: BattlePhase.PLAYER,
                                         turnCount: 0,
                                     },
-                                    squaddieCurrentlyActing: {
-                                        movingBattleSquaddieIds: [],
-                                        squaddieActionsForThisRound: {
+                                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+
+                                        squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                             startingLocation: {q: 0, r: 0},
-                                            actions: []
-                                        },
-                                        currentlySelectedAction: undefined,
-                                    },
+                                        }),
+                                    }),
                                 }),
                             })
                     });
@@ -698,11 +711,11 @@ describe('BattleSquaddieSelectedHUD', () => {
     describe("Load game button", () => {
         it('should remember the user requested a load function', () => {
             const state: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     squaddieRepository: squaddieRepository,
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
                         camera: new BattleCamera(0, 0),
@@ -710,16 +723,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        squaddieCurrentlyActing: {
-                            movingBattleSquaddieIds: [],
-                            squaddieActionsForThisRound: {
+                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+
+                            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                 battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                 squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                 startingLocation: {q: 0, r: 0},
-                                actions: []
-                            },
-                            currentlySelectedAction: undefined,
-                        },
+                            }),
+                        }),
                     }),
                 })
             });
@@ -743,11 +754,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             beforeEach(() => {
                 state = GameEngineStateHelper.new({
                     battleOrchestratorState:
-                        BattleOrchestratorStateHelper.newOrchestratorState({
+                        BattleOrchestratorStateService.newOrchestratorState({
                             squaddieRepository: squaddieRepository,
                             resourceHandler: resourceHandler,
                             battleSquaddieSelectedHUD: undefined,
-                            battleState: BattleStateHelper.newBattleState({
+                            battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
                                 missionMap,
                                 camera: new BattleCamera(0, 0),
@@ -755,16 +766,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                                     currentAffiliation: BattlePhase.PLAYER,
                                     turnCount: 0,
                                 },
-                                squaddieCurrentlyActing: {
-                                    movingBattleSquaddieIds: [],
-                                    squaddieActionsForThisRound: {
+                                squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+
+                                    squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                         battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                         squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
                                         startingLocation: {q: 0, r: 0},
-                                        actions: []
-                                    },
-                                    currentlySelectedAction: undefined,
-                                },
+                                    }),
+                                }),
                             }),
                         })
                 });
@@ -845,11 +854,11 @@ describe('BattleSquaddieSelectedHUD', () => {
 
     describe("Next Squaddie button", () => {
         it('should show the button if there are at least 2 player controllable squaddies', () => {
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -868,15 +877,15 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         it('should show the button if there is 1 player controllable squaddie and the HUD is focused on an uncontrollable squaddie', () => {
-            const onePlayerOneEnemy = ObjectRepositoryHelper.new();
-            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
-            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
+            const onePlayerOneEnemy = ObjectRepositoryService.new();
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
 
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -896,15 +905,15 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         it('should show the button if there is 1 player controllable squaddie and the HUD is not focused', () => {
-            const onePlayerOneEnemy = ObjectRepositoryHelper.new();
-            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
-            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
+            const onePlayerOneEnemy = ObjectRepositoryService.new();
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
 
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: onePlayerOneEnemy,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -917,12 +926,12 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         it('should not show the button if there is fewer than 2 player controllable squaddies', () => {
-            const onePlayerOneEnemy = ObjectRepositoryHelper.new();
-            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
-            ObjectRepositoryHelper.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const onePlayerOneEnemy = ObjectRepositoryService.new();
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, playerSquaddieStatic, playerSquaddieDynamic);
+            ObjectRepositoryService.addSquaddie(onePlayerOneEnemy, enemySquaddieStatic, enemySquaddieDynamic);
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: new BattleCamera(0, 0),
@@ -955,11 +964,11 @@ describe('BattleSquaddieSelectedHUD', () => {
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     squaddieRepository: squaddieRepository,
                     resourceHandler: resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
                         camera: battleCamera,
@@ -1010,11 +1019,11 @@ describe('BattleSquaddieSelectedHUD', () => {
                 r: 1
             });
 
-            const state = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepository,
                 resourceHandler: resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
                     camera: battleCamera,

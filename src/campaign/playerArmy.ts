@@ -1,4 +1,4 @@
-import {SquaddieTemplate, SquaddieTemplateHelper} from "./squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "./squaddieTemplate";
 import {isValidValue} from "../utils/validityCheck";
 
 export interface PlayerArmy {
@@ -13,6 +13,6 @@ export const PlayerArmyHelper = {
 
 const sanitize = (data: PlayerArmy): PlayerArmy => {
     data.squaddieTemplates = isValidValue(data.squaddieTemplates) ? data.squaddieTemplates : [];
-    data.squaddieTemplates.forEach(SquaddieTemplateHelper.sanitize);
+    data.squaddieTemplates.forEach(SquaddieTemplateService.sanitize);
     return data;
 }

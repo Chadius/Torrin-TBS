@@ -1,4 +1,4 @@
-import {BattleState, BattleStateHelper, BattleStateValidityMissingComponent} from "./BattleState";
+import {BattleState, BattleStateService, BattleStateValidityMissingComponent} from "./BattleState";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
@@ -7,15 +7,15 @@ import {MissionConditionType} from "../missionResult/missionCondition";
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {SquaddieTemplate, SquaddieTemplateHelper} from "../../campaign/squaddieTemplate";
-import {SquaddieIdHelper} from "../../squaddie/id";
-import {BattleSquaddieHelper} from "../battleSquaddie";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
+import {SquaddieIdService} from "../../squaddie/id";
+import {BattleSquaddieService} from "../battleSquaddie";
 
 describe('Battle State', () => {
     it('overrides team strategy for non-player teams', () => {
-        const state: BattleState = BattleStateHelper.newBattleState({
+        const state: BattleState = BattleStateService.newBattleState({
             missionId: "test mission",
             teams: [
                 {
@@ -36,11 +36,11 @@ describe('Battle State', () => {
             },
         });
 
-        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+        expect(BattleStateService.getTeamsAndStrategiesByAffiliation({
             battleState: state,
             affiliation: SquaddieAffiliation.PLAYER
         })).toBeUndefined();
-        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+        expect(BattleStateService.getTeamsAndStrategiesByAffiliation({
             battleState: state,
             affiliation: SquaddieAffiliation.ENEMY
         })).toEqual({
@@ -62,14 +62,14 @@ describe('Battle State', () => {
                 ],
             }
         });
-        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+        expect(BattleStateService.getTeamsAndStrategiesByAffiliation({
             battleState: state,
             affiliation: SquaddieAffiliation.ALLY
         })).toEqual({
             teams: [],
             strategies: {}
         });
-        expect(BattleStateHelper.getTeamsAndStrategiesByAffiliation({
+        expect(BattleStateService.getTeamsAndStrategiesByAffiliation({
             battleState: state,
             affiliation: SquaddieAffiliation.NONE
         })).toEqual({
@@ -80,10 +80,10 @@ describe('Battle State', () => {
 
     it('will indicate if it is ready for battle', () => {
         const validityCheck = (args: any, isValid: boolean, isReadyToContinueMission: boolean, reasons: BattleStateValidityMissingComponent[]) => {
-            const state: BattleState = BattleStateHelper.newBattleState(args);
-            expect(BattleStateHelper.isValid(state)).toBe(isValid);
-            expect(BattleStateHelper.isReadyToContinueMission(state)).toBe(isReadyToContinueMission);
-            expect(BattleStateHelper.missingComponents(state)).toEqual(
+            const state: BattleState = BattleStateService.newBattleState(args);
+            expect(BattleStateService.isValid(state)).toBe(isValid);
+            expect(BattleStateService.isReadyToContinueMission(state)).toBe(isReadyToContinueMission);
+            expect(BattleStateService.missingComponents(state)).toEqual(
                 expect.arrayContaining(reasons)
             );
         }
@@ -146,7 +146,7 @@ describe('Battle State', () => {
     });
 
     it('can clone existing objects', () => {
-        let originalBattleState: BattleState = BattleStateHelper.newBattleState({
+        let originalBattleState: BattleState = BattleStateService.newBattleState({
             missionId: "test mission",
             missionMap: NullMissionMap(),
             teams: [
@@ -196,16 +196,16 @@ describe('Battle State', () => {
             }
         });
 
-        expect(BattleStateHelper.isValid(originalBattleState)).toBeTruthy();
+        expect(BattleStateService.isValid(originalBattleState)).toBeTruthy();
 
-        const cloned: BattleState = BattleStateHelper.clone(originalBattleState);
+        const cloned: BattleState = BattleStateService.clone(originalBattleState);
 
-        expect(BattleStateHelper.isValid(cloned)).toBeTruthy();
+        expect(BattleStateService.isValid(cloned)).toBeTruthy();
         expect(cloned).toEqual(originalBattleState);
     });
 
     it('can change itself to match other objects', () => {
-        let originalBattleState: BattleState = BattleStateHelper.newBattleState({
+        let originalBattleState: BattleState = BattleStateService.newBattleState({
             missionId: "test mission",
             missionMap: NullMissionMap(),
             teams: [
@@ -255,14 +255,14 @@ describe('Battle State', () => {
             }
         });
 
-        expect(BattleStateHelper.isValid(originalBattleState)).toBeTruthy();
+        expect(BattleStateService.isValid(originalBattleState)).toBeTruthy();
 
-        const cloned: BattleState = BattleStateHelper.newBattleState({
+        const cloned: BattleState = BattleStateService.newBattleState({
             missionId: "test mission",
         });
-        BattleStateHelper.update(cloned, originalBattleState);
+        BattleStateService.update(cloned, originalBattleState);
 
-        expect(BattleStateHelper.isValid(cloned)).toBeTruthy();
+        expect(BattleStateService.isValid(cloned)).toBeTruthy();
         expect(cloned).toEqual(originalBattleState);
     });
 
@@ -274,29 +274,29 @@ describe('Battle State', () => {
         let squaddieRepository: ObjectRepository;
 
         beforeEach(() => {
-            squaddieRepository = ObjectRepositoryHelper.new();
-            const playerTemplate: SquaddieTemplate = SquaddieTemplateHelper.new({
-                squaddieId: SquaddieIdHelper.new({
+            squaddieRepository = ObjectRepositoryService.new();
+            const playerTemplate: SquaddieTemplate = SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
                     templateId: "player template",
                     name: "player template",
                     affiliation: SquaddieAffiliation.PLAYER,
                 })
             });
-            ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository, playerTemplate);
-            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
-                BattleSquaddieHelper.newBattleSquaddie({
+            ObjectRepositoryService.addSquaddieTemplate(squaddieRepository, playerTemplate);
+            ObjectRepositoryService.addBattleSquaddie(squaddieRepository,
+                BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "player 0",
                     squaddieTemplate: playerTemplate,
                 })
             );
-            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
-                BattleSquaddieHelper.newBattleSquaddie({
+            ObjectRepositoryService.addBattleSquaddie(squaddieRepository,
+                BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "player 0 1",
                     squaddieTemplate: playerTemplate,
                 })
             );
-            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
-                BattleSquaddieHelper.newBattleSquaddie({
+            ObjectRepositoryService.addBattleSquaddie(squaddieRepository,
+                BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "player 1",
                     squaddieTemplate: playerTemplate,
                 })
@@ -318,16 +318,16 @@ describe('Battle State', () => {
                 iconResourceKey: "icon_player_team",
             };
 
-            const enemyTemplate: SquaddieTemplate = SquaddieTemplateHelper.new({
-                squaddieId: SquaddieIdHelper.new({
+            const enemyTemplate: SquaddieTemplate = SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
                     templateId: "enemy template",
                     name: "enemy template",
                     affiliation: SquaddieAffiliation.ENEMY,
                 })
             });
-            ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository, enemyTemplate);
-            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
-                BattleSquaddieHelper.newBattleSquaddie({
+            ObjectRepositoryService.addSquaddieTemplate(squaddieRepository, enemyTemplate);
+            ObjectRepositoryService.addBattleSquaddie(squaddieRepository,
+                BattleSquaddieService.newBattleSquaddie({
                     battleSquaddieId: "enemy 0",
                     squaddieTemplate: enemyTemplate,
                 })
@@ -341,7 +341,7 @@ describe('Battle State', () => {
                 iconResourceKey: "icon_enemy_team",
             };
 
-            battleState = BattleStateHelper.new({
+            battleState = BattleStateService.new({
                 missionId: "mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,
@@ -352,22 +352,22 @@ describe('Battle State', () => {
         });
         it('reports no teams when there are no teams with the current affiliation', () => {
             battleState.battlePhaseState.currentAffiliation = BattlePhase.UNKNOWN;
-            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBeUndefined();
+            expect(BattleStateService.getCurrentTeam(battleState, squaddieRepository)).toBeUndefined();
         });
         it('reports the first added team of a given affiliation when all teams are ready', () => {
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
-            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam0);
+            expect(BattleStateService.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam0);
         });
         it('reports the second added team of a given affiliation if the first team cannot act', () => {
-            BattleSquaddieTeamHelper.endTurn(playerTeam0, squaddieRepository);
+            BattleSquaddieTeamService.endTurn(playerTeam0, squaddieRepository);
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
-            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam1);
+            expect(BattleStateService.getCurrentTeam(battleState, squaddieRepository)).toBe(playerTeam1);
         });
         it('reports no teams when all of the teams of a given affiliation cannot act', () => {
-            BattleSquaddieTeamHelper.endTurn(playerTeam0, squaddieRepository);
-            BattleSquaddieTeamHelper.endTurn(playerTeam1, squaddieRepository);
+            BattleSquaddieTeamService.endTurn(playerTeam0, squaddieRepository);
+            BattleSquaddieTeamService.endTurn(playerTeam1, squaddieRepository);
             battleState.battlePhaseState.currentAffiliation = BattlePhase.PLAYER;
-            expect(BattleStateHelper.getCurrentTeam(battleState, squaddieRepository)).toBeUndefined();
+            expect(BattleStateService.getCurrentTeam(battleState, squaddieRepository)).toBeUndefined();
         });
     });
 });

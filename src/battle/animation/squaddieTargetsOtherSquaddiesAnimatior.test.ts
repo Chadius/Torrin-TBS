@@ -1,13 +1,19 @@
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {
-    SquaddieInstructionInProgress,
-    SquaddieInstructionInProgressHandler
-} from "../history/squaddieInstructionInProgress";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+    CurrentlySelectedSquaddieDecision,
+    CurrentlySelectedSquaddieDecisionService
+} from "../history/currentlySelectedSquaddieDecision";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -17,16 +23,17 @@ import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
-import {Recording, RecordingHandler} from "../history/recording";
+import {Recording, RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
 import {ActionTimer} from "./actionAnimation/actionTimer";
-import {ActionEffectType} from "../../squaddie/actionEffect";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/decision";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
@@ -37,21 +44,21 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
-    let longswordAction: SquaddieSquaddieAction;
-    let powerAttackLongswordAction: SquaddieSquaddieAction;
+    let longswordAction: ActionEffectSquaddieTemplate;
+    let powerAttackLongswordAction: ActionEffectSquaddieTemplate;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
-    let oneActionInstruction: SquaddieActionsForThisRound;
+    let oneActionInstruction: SquaddieDecisionsDuringThisPhase;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let battleEventRecording: Recording;
 
-    let knightHitsThiefWithLongswordInstructionInProgress: SquaddieInstructionInProgress;
+    let knightHitsThiefWithLongswordInstructionInProgress: CurrentlySelectedSquaddieDecision;
     let knightHitsThiefWithLongswordEvent: BattleEvent;
 
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
 
         ({
             thiefBattleSquaddie,
@@ -61,7 +68,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleId: thiefDynamicId,
         }));
 
-        longswordAction = SquaddieSquaddieActionService.new({
+        longswordAction = ActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -88,29 +95,50 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
-        oneActionInstruction = {
-            squaddieTemplateId: "static_squaddie",
-            battleSquaddieId: "dynamic_squaddie",
-            startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
+        const oneActionInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new(
+            {
+                squaddieTemplateId: "static_squaddie",
+                battleSquaddieId: "dynamic_squaddie",
+                startingLocation: {q: 0, r: 0},
 
-        SquaddieActionsForThisRoundHandler.addAction(oneActionInstruction, {
-            type: ActionEffectType.SQUADDIE,
-            numberOfActionPointsSpent: 1,
-            squaddieAction: longswordAction,
-            targetLocation: {q: 0, r: 0},
-        });
+                decisions: [{
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            numberOfActionPointsSpent: 1,
+                            template: longswordAction,
+                            targetLocation: {q: 0, r: 0},
+                        })
+                    ]
+                }],
+            });
 
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        knightHitsThiefWithLongswordInstructionInProgress = {
+        knightHitsThiefWithLongswordInstructionInProgress = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: oneActionInstruction,
-            currentlySelectedAction: powerAttackLongswordAction,
-            movingBattleSquaddieIds: [],
-        };
-        SquaddieInstructionInProgressHandler.addSelectedAction(knightHitsThiefWithLongswordInstructionInProgress, longswordAction);
+
+            currentlySelectedDecision: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: powerAttackLongswordAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        });
+        const decision = DecisionService.new({
+            actionEffects: [
+                ActionEffectSquaddieService.new({
+                    template: longswordAction,
+                    targetLocation: {q: 0, r: 0},
+                    numberOfActionPointsSpent: 1,
+                })
+            ]
+        });
+        CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(knightHitsThiefWithLongswordInstructionInProgress, decision);
+        CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(knightHitsThiefWithLongswordInstructionInProgress, decision);
 
         knightHitsThiefWithLongswordEvent = {
             instruction: knightHitsThiefWithLongswordInstructionInProgress,
@@ -139,13 +167,13 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     }
 
     it('will create an actor sprite and a target sprite', () => {
-        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
+        RecordingService.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
                 recording: battleEventRecording,
@@ -163,13 +191,13 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     });
 
     it('will skip displaying the results if the user clicks', () => {
-        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
+        RecordingService.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
                 recording: battleEventRecording,
@@ -194,14 +222,14 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     });
 
     it('is complete at the end of the animation time', () => {
-        RecordingHandler.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
+        RecordingService.addEvent(battleEventRecording, knightHitsThiefWithLongswordEvent);
 
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
-        const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepository,
             resourceHandler: mockResourceHandler,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 squaddieCurrentlyActing: knightHitsThiefWithLongswordInstructionInProgress,
                 recording: battleEventRecording,

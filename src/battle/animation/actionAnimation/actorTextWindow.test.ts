@@ -4,7 +4,7 @@ import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {TargetingShape} from "../../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {SquaddieSquaddieAction} from "../../../squaddie/action";
+import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
@@ -15,7 +15,7 @@ describe('ActorTextWindow', () => {
     let mockedActionTimer: ActionTimer;
 
     let actorTemplate: SquaddieTemplate;
-    let attackThatUsesAttackRoll: SquaddieSquaddieAction;
+    let attackThatUsesAttackRoll: ActionEffectSquaddieTemplate;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -54,7 +54,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: undefined,
         });
 
@@ -69,7 +69,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -98,7 +98,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -127,7 +127,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -156,7 +156,7 @@ describe('ActorTextWindow', () => {
         window.start({
             actorTemplate: actorTemplate,
             actorBattle: undefined,
-            action: attackThatUsesAttackRoll,
+            actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
             results: {
                 resultPerTarget: {},
                 actingBattleSquaddieId: "",
@@ -186,7 +186,7 @@ describe('ActorTextWindow', () => {
             window.start({
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
-                action: attackThatUsesAttackRoll,
+                actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
                 results: {
                     resultPerTarget: {},
                     actingBattleSquaddieId: "",
@@ -217,7 +217,7 @@ describe('ActorTextWindow', () => {
             window.start({
                 actorTemplate: actorTemplate,
                 actorBattle: undefined,
-                action: attackThatUsesAttackRoll,
+                actionEffectSquaddieTemplate: attackThatUsesAttackRoll,
                 results: {
                     resultPerTarget: {},
                     actingBattleSquaddieId: "",

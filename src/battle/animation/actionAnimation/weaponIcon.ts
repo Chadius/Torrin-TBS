@@ -3,7 +3,10 @@ import {RectArea, RectAreaHelper} from "../../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {Label, LabelHelper} from "../../../ui/label";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 
 export class WeaponIcon {
     constructor() {
@@ -24,18 +27,18 @@ export class WeaponIcon {
     }
 
     draw({
-             action,
+             actionEffectSquaddieTemplate,
              graphicsContext,
              actorImageArea,
          }:
              {
-                 action: SquaddieSquaddieAction,
+                 actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
                  graphicsContext: GraphicsContext,
                  actorImageArea: RectArea,
              }
     ) {
         if (this.attackingLabel === undefined) {
-            this.lazyLoadAttackingTextBox(action, actorImageArea);
+            this.lazyLoadAttackingTextBox(actionEffectSquaddieTemplate, actorImageArea);
         }
 
         RectAreaHelper.move(this.attackingLabel.rectangle.area, {
@@ -49,7 +52,7 @@ export class WeaponIcon {
         LabelHelper.draw(this.attackingLabel, graphicsContext);
     }
 
-    private lazyLoadAttackingTextBox(action: SquaddieSquaddieAction, actorImageArea: RectArea) {
+    private lazyLoadAttackingTextBox(action: ActionEffectSquaddieTemplate, actorImageArea: RectArea) {
         const labelBackgroundColor = [
             0,
             10,
@@ -57,9 +60,9 @@ export class WeaponIcon {
         ];
 
         let labelText: string = "(Using)";
-        if (SquaddieSquaddieActionService.isHindering(action)) {
+        if (ActionEffectSquaddieTemplateService.isHindering(action)) {
             labelText = "Attacking!";
-        } else if (SquaddieSquaddieActionService.isHelpful(action)) {
+        } else if (ActionEffectSquaddieTemplateService.isHelpful(action)) {
             labelText = "Helping...";
         }
 

@@ -7,12 +7,9 @@ import {ImageUI} from "../../ui/imageUI";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {UseActionButton} from "../../squaddie/useActionButton";
 import {BattleSquaddie} from "../battleSquaddie";
-import {SquaddieSquaddieAction} from "../../squaddie/action";
-import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../history/actionEffectEndTurn";
-import {
-    SquaddieInstructionInProgress,
-    SquaddieInstructionInProgressHandler
-} from "../history/squaddieInstructionInProgress";
+import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
+import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {CurrentlySelectedSquaddieDecision} from "../history/currentlySelectedSquaddieDecision";
 import {TextBoxHelper} from "../../ui/textBox";
 import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
 import {Label, LabelHelper} from "../../ui/label";
@@ -26,7 +23,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
 import {DrawBattleHUD} from "./drawBattleHUD";
 import {
     BattleHUDGraphicsObject,
@@ -34,6 +31,7 @@ import {
     BattleHUDGraphicsObjectTextBoxTypes
 } from "./graphicsObject";
 import {isValidValue} from "../../utils/validityCheck";
+import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -81,7 +79,7 @@ export class BattleSquaddieSelectedHUD {
     selectedBattleSquaddieId: string;
     affiliateIcon?: ImageUI;
     selectedAction: {
-        squaddieAction?: SquaddieSquaddieAction,
+        squaddieAction?: ActionEffectSquaddieTemplate,
         endTurnAction?: ActionEffectEndTurn,
     };
     useActionButtons: UseActionButton[];
@@ -122,7 +120,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId))
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId))
 
         const {windowDimensions, squaddieAffiliationHue} = this.setBackgroundWindowAndGetWindowDimensions(
             squaddieTemplate.squaddieId.affiliation,
@@ -170,7 +168,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedBattleSquaddieId;
     }
 
-    draw(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: GameEngineState, graphicsContext: GraphicsContext) {
+    draw(squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision, state: GameEngineState, graphicsContext: GraphicsContext) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
@@ -212,11 +210,11 @@ export class BattleSquaddieSelectedHUD {
         return !!this.selectedAction.squaddieAction;
     }
 
-    getSquaddieSquaddieAction(): SquaddieSquaddieAction {
+    getSquaddieSquaddieAction(): ActionEffectSquaddieTemplate {
         return this.selectedAction.squaddieAction;
     }
 
-    getSelectedAction(): SquaddieSquaddieAction | ActionEffectEndTurn {
+    getSelectedAction(): ActionEffectSquaddieTemplate | ActionEffectEndTurn {
         return this.selectedAction.squaddieAction ? this.selectedAction.squaddieAction : this.selectedAction.endTurnAction;
     }
 
@@ -301,7 +299,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     shouldDrawNextButton(state: BattleOrchestratorState): boolean {
-        const numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct: number = ObjectRepositoryHelper.getBattleSquaddieIterator(state.squaddieRepository).filter((info) => {
+        const numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct: number = ObjectRepositoryService.getBattleSquaddieIterator(state.squaddieRepository).filter((info) => {
             return this.isSquaddiePlayerControllableRightNow(info.battleSquaddieId, state) === true
         }).length;
 
@@ -324,8 +322,8 @@ export class BattleSquaddieSelectedHUD {
 
         if (
             state.battleState.squaddieCurrentlyActing
-            && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
-            && state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound.actions.length > 0
+            && state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase
+            && state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions.length > 0
         ) {
             return false;
         }
@@ -348,7 +346,7 @@ export class BattleSquaddieSelectedHUD {
         windowDimensions: RectArea
     ) {
         this.useActionButtons = [];
-        squaddieTemplate.actions.forEach((action: SquaddieSquaddieAction, index: number) => {
+        squaddieTemplate.actions.forEach((action: ActionEffectSquaddieTemplate, index: number) => {
             this.useActionButtons.push(
                 new UseActionButton({
                     buttonArea: RectAreaHelper.new({
@@ -413,7 +411,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie});
 
         graphicsContext.push();
@@ -447,7 +445,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
         const {currentHitPoints, maxHitPoints} = SquaddieService.getHitPoints({squaddieTemplate, battleSquaddie});
 
         graphicsContext.push();
@@ -518,7 +516,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             battleSquaddie,
             squaddieTemplate
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
 
         const {
             squaddieHasThePlayerControlledAffiliation,
@@ -596,18 +594,16 @@ export class BattleSquaddieSelectedHUD {
         }
     }
 
-    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: SquaddieInstructionInProgress, state: BattleOrchestratorState) {
-        if (
-            SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(squaddieCurrentlyActing)
-        ) {
+    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision, state: BattleOrchestratorState) {
+        if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
             return;
         }
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId));
         const differentSquaddieWarningText: string = `Cannot act, wait for ${squaddieTemplate.squaddieId.name}`;
 
         if (
-            this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieActionsForThisRound.battleSquaddieId
+            this.selectedBattleSquaddieId === squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId
         ) {
             if (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined
@@ -658,7 +654,7 @@ export class BattleSquaddieSelectedHUD {
             });
     }
 
-    private warnUserNotEnoughActionPointsToPerformAction(action: SquaddieSquaddieAction): void {
+    private warnUserNotEnoughActionPointsToPerformAction(action: ActionEffectSquaddieTemplate): void {
         let warningText: string = '';
         warningText = `Need ${action.actionPointCost} action points`
 
@@ -672,13 +668,13 @@ export class BattleSquaddieSelectedHUD {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
 
         const canPlayerControlSquaddieRightNow = CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
         return canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow;
     }
 
-    private checkIfActionIsValid(action: SquaddieSquaddieAction, state: BattleOrchestratorState): ActionValidityCheck {
+    private checkIfActionIsValid(action: ActionEffectSquaddieTemplate, state: BattleOrchestratorState): ActionValidityCheck {
         if (!this.canPlayerControlThisSquaddie(state)) {
             return ActionValidityCheck.PLAYER_CANNOT_CONTROL_SQUADDIE;
         }
@@ -686,7 +682,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
 
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie})
         if (actionPointsRemaining < action.actionPointCost) {
@@ -700,7 +696,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, this.selectedBattleSquaddieId));
 
         const textSize = 16;
         const fontColor = [100, 0, 80];
@@ -858,7 +854,7 @@ export class BattleSquaddieSelectedHUD {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieId));
 
         const {
             playerCanControlThisSquaddieRightNow
@@ -872,7 +868,7 @@ export class BattleSquaddieSelectedHUD {
 
     private selectNextSquaddie(state: BattleOrchestratorState) {
         if (this.nextBattleSquaddieIds.length === 0) {
-            this.nextBattleSquaddieIds = ObjectRepositoryHelper.getBattleSquaddieIterator(state.squaddieRepository).filter((info) => {
+            this.nextBattleSquaddieIds = ObjectRepositoryService.getBattleSquaddieIterator(state.squaddieRepository).filter((info) => {
                 return this.isSquaddiePlayerControllableRightNow(info.battleSquaddieId, state) === true
             }).map((info) => info.battleSquaddieId);
         }

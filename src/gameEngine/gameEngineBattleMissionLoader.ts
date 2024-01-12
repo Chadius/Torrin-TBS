@@ -2,7 +2,7 @@ import {GameEngineState} from "./gameEngine";
 import {MouseButton} from "../utils/mouseConfig";
 import {GameEngineChanges, GameEngineComponent} from "./gameEngineComponent";
 import {MissionLoader, MissionLoaderContext} from "../battle/loading/missionLoader";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../battle/orchestrator/uiControlSettings";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MissionObjective} from "../battle/missionResult/missionObjective";
@@ -13,7 +13,7 @@ import {TintSquaddieIfTurnIsComplete} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattleCameraHelper} from "../battle/battleCamera";
-import {ObjectRepositoryHelper} from "../battle/objectRepository";
+import {ObjectRepositoryService} from "../battle/objectRepository";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
     missionLoaderContext: MissionLoaderContext;
@@ -188,7 +188,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     private resetBattleOrchestratorState(state: BattleOrchestratorState) {
         state.copyOtherOrchestratorState(
-            BattleOrchestratorStateHelper.newOrchestratorState({
+            BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: (state as BattleOrchestratorState).resourceHandler,
             })
         );
@@ -203,10 +203,10 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
     }
 
     private addMidTurnEffects(battleOrchestratorState: BattleOrchestratorState) {
-        ObjectRepositoryHelper.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((info) => {
+        ObjectRepositoryService.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((info) => {
             const {battleSquaddie, battleSquaddieId} = info;
             const {squaddieTemplate} = getResultOrThrowError(
-                ObjectRepositoryHelper.getSquaddieByBattleId(battleOrchestratorState.squaddieRepository, battleSquaddieId));
+                ObjectRepositoryService.getSquaddieByBattleId(battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
             TintSquaddieIfTurnIsComplete(
                 battleOrchestratorState.squaddieRepository,

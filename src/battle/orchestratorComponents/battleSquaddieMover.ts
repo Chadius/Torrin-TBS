@@ -5,26 +5,21 @@ import {
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {
-    hasMovementAnimationFinished,
-    moveSquaddieAlongPath,
-    TintSquaddieIfTurnIsComplete,
-    updateSquaddieIconLocation
-} from "../animation/drawSquaddie";
+import {DrawSquaddieUtilities, hasMovementAnimationFinished, moveSquaddieAlongPath} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {spendSquaddieActionPoints, updateSquaddieLocation} from "../squaddieMovementLogic";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
     DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
-    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
+    OrchestratorUtilities
 } from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {ActionEffectType} from "../../squaddie/actionEffect";
-import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
-import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepositoryService} from "../objectRepository";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {BattleSquaddie} from "../battleSquaddie";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -57,18 +52,6 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (!this.animationStartTime) {
             this.animationStartTime = Date.now();
-
-            if (
-                state.battleOrchestratorState.battleState.squaddieCurrentlyActing
-                && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
-                && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type
-                === ActionEffectType.MOVEMENT
-            ) {
-                SquaddieInstructionInProgressHandler.markBattleSquaddieIdAsMoving(
-                    state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
-                    SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
-                );
-            }
         }
 
         if (!hasMovementAnimationFinished(this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath)) {
@@ -79,7 +62,19 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
+        OrchestratorUtilities.nextActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+        const nextActionEffect = OrchestratorUtilities.peekActionEffect(
+            state.battleOrchestratorState,
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        );
+
+        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+
         return {
+            nextMode,
             displayMap: true,
             checkMissionObjectives: true,
         }
@@ -88,20 +83,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     reset(state: GameEngineState) {
         state.battleOrchestratorState.battleState.squaddieMovePath = undefined;
         this.animationStartTime = undefined;
-        ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
-
-        if (
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
-            && state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound
-            && SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound).type
-            === ActionEffectType.MOVEMENT
-        ) {
-            SquaddieInstructionInProgressHandler.removeBattleSquaddieIdAsMoving(
-                state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
-                SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
-            );
-        }
-
+        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
         DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
     }
@@ -109,8 +91,8 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     private updateWhileAnimationIsInProgress(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         const {
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
-            SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
+            CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
 
         moveSquaddieAlongPath(state.squaddieRepository, battleSquaddie, this.animationStartTime, state.battleState.squaddieMovePath, state.battleState.camera);
@@ -124,22 +106,27 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
-            SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
+            CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
-
-        updateSquaddieLocation(battleSquaddie, squaddieTemplate, state.battleState.squaddieMovePath.destination, state.battleState.missionMap, battleSquaddie.battleSquaddieId);
-        const mostRecentAction = SquaddieActionsForThisRoundHandler.getMostRecentAction(state.battleState.squaddieCurrentlyActing.squaddieActionsForThisRound);
-        if (mostRecentAction.type === ActionEffectType.MOVEMENT) {
-            spendSquaddieActionPoints(battleSquaddie, mostRecentAction.numberOfActionPointsSpent);
-        }
-
-        const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
-        if (mapIcon) {
-            updateSquaddieIconLocation(state.squaddieRepository, battleSquaddie, state.battleState.squaddieMovePath.destination, state.battleState.camera);
-            TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
-            mapIcon.draw(graphicsContext);
-        }
         state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+        updateIconAndMapBasedOnWhetherSquaddieCanAct(state, battleSquaddie, squaddieTemplate, graphicsContext);
     }
 }
+
+const updateIconAndMapBasedOnWhetherSquaddieCanAct = (state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, graphicsContext: GraphicsContext) => {
+    const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
+    if (!mapIcon) {
+        return;
+    }
+    DrawSquaddieUtilities.updateSquaddieIconLocation({
+        repository: state.squaddieRepository,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        destination: state.battleState.squaddieMovePath.destination,
+        camera: state.battleState.camera,
+    });
+    DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, state.battleState.missionMap, state.squaddieRepository);
+    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.squaddieRepository);
+    mapIcon.draw(graphicsContext);
+};
+

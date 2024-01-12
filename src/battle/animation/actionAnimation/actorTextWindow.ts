@@ -1,7 +1,7 @@
 import {RectAreaHelper} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {SquaddieSquaddieAction} from "../../../squaddie/action";
+import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelHelper} from "../../../ui/label";
@@ -16,7 +16,7 @@ export class ActorTextWindow {
     results: SquaddieSquaddieResults;
     actorTemplate: SquaddieTemplate;
     actorBattle: BattleSquaddie;
-    action: SquaddieSquaddieAction;
+    action: ActionEffectSquaddieTemplate;
 
     constructor() {
 
@@ -49,21 +49,21 @@ export class ActorTextWindow {
         this._actorUsesActionDescriptionText = "";
     }
 
-    start({actorTemplate, actorBattle, action, results}: {
+    start({actorTemplate, actorBattle, actionEffectSquaddieTemplate, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
-        action: SquaddieSquaddieAction,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         results: SquaddieSquaddieResults,
     }) {
         this.reset();
 
         this.actorTemplate = actorTemplate;
         this.actorBattle = actorBattle;
-        this.action = action;
+        this.action = actionEffectSquaddieTemplate;
         this.results = results;
 
         const actorName: string = actorTemplate.squaddieId.name;
-        const actionName: string = action.name;
+        const actionName: string = actionEffectSquaddieTemplate.name;
 
         this._actorUsesActionDescriptionText = `${actorName} uses\n${actionName}`;
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[actorTemplate.squaddieId.affiliation];

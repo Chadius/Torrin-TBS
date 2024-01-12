@@ -1,10 +1,10 @@
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
+import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieTurnHandler} from "../../squaddie/turn";
+import {SquaddieTurnService} from "../../squaddie/turn";
 import {BANNER_ANIMATION_TIME, BattlePhaseController, BattlePhaseState} from "./battlePhaseController";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {ResourceHandler} from "../../resource/resourceHandler";
@@ -18,7 +18,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('BattlePhaseController', () => {
@@ -36,7 +36,7 @@ describe('BattlePhaseController', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepo = ObjectRepositoryHelper.new();
+        squaddieRepo = ObjectRepositoryService.new();
 
         playerSquaddieTemplate = {
             squaddieId: {
@@ -52,20 +52,20 @@ describe('BattlePhaseController', () => {
             actions: [],
             attributes: DefaultArmyAttributes(),
         };
-        playerBattleSquaddie = BattleSquaddieHelper.newBattleSquaddie({
+        playerBattleSquaddie = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
-            squaddieTurn: SquaddieTurnHandler.new(),
+            squaddieTurn: SquaddieTurnService.new(),
         });
 
-        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
+        ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
             playerSquaddieTemplate,
         );
-        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
+        ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
             playerBattleSquaddie,
         );
 
-        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepo,
+        ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
             {
                 squaddieId: {
                     templateId: "enemy_squaddie",
@@ -81,11 +81,11 @@ describe('BattlePhaseController', () => {
                 attributes: DefaultArmyAttributes(),
             }
         );
-        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
-            BattleSquaddieHelper.newBattleSquaddie({
+        ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
+            BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "enemy_squaddie_0",
                 squaddieTemplateId: "enemy_squaddie",
-                squaddieTurn: SquaddieTurnHandler.new(),
+                squaddieTurn: SquaddieTurnService.new(),
             })
         );
 
@@ -112,11 +112,11 @@ describe('BattlePhaseController', () => {
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult("Hi"));
 
         state = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState: {
                         currentAffiliation: BattlePhase.UNKNOWN,
@@ -152,11 +152,11 @@ describe('BattlePhaseController', () => {
 
     it('starts showing the player phase banner by default', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
                     missionMap: new MissionMap({
@@ -190,11 +190,11 @@ describe('BattlePhaseController', () => {
 
     it('stops the camera when it displays the banner if it is not the player phase', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
                 resourceHandler,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
                     missionMap: new MissionMap({
@@ -240,11 +240,11 @@ describe('BattlePhaseController', () => {
             camera: BattleCamera,
         }): GameEngineState => {
             missionMap.addSquaddie(squaddieTemplateIdToAdd, battleSquaddieIdToAdd, {q: 0, r: 0});
-            const state: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+            const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
                 resourceHandler,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
                     missionMap,
@@ -314,8 +314,8 @@ describe('BattlePhaseController', () => {
         AdvanceToNextPhase(state.battleOrchestratorState.battleState.battlePhaseState, teams);
         expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.PLAYER);
 
-        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
-        BattleSquaddieHelper.endTurn(battleSquaddie0);
+        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
+        BattleSquaddieService.endTurn(battleSquaddie0);
 
         const startTime = 100;
         jest.spyOn(Date, 'now').mockImplementation(() => startTime);
@@ -331,11 +331,11 @@ describe('BattlePhaseController', () => {
 
     it('only draws the banner while the timer is going', () => {
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler,
                 squaddieRepository: squaddieRepo,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
                     missionMap: new MissionMap({
@@ -377,11 +377,11 @@ describe('BattlePhaseController', () => {
         battlePhaseController.reset(
             GameEngineStateHelper.new({
                 battleOrchestratorState:
-                    BattleOrchestratorStateHelper.newOrchestratorState({
+                    BattleOrchestratorStateService.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         squaddieRepository: undefined,
-                        battleState: BattleStateHelper.newBattleState({
+                        battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                         }),
                     })
@@ -390,9 +390,9 @@ describe('BattlePhaseController', () => {
     });
 
     it('restores team squaddie turns once the banner appears starts', () => {
-        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
-        BattleSquaddieHelper.endTurn(battleSquaddie0);
-        expect(BattleSquaddieHelper.canStillActThisRound(battleSquaddie0)).toBeFalsy();
+        const {battleSquaddie: battleSquaddie0} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepo, "player_squaddie_0"));
+        BattleSquaddieService.endTurn(battleSquaddie0);
+        expect(BattleSquaddieService.canStillActThisRound(battleSquaddie0)).toBeFalsy();
 
         const phase: BattlePhaseState = {
             currentAffiliation: BattlePhase.UNKNOWN,
@@ -400,11 +400,11 @@ describe('BattlePhaseController', () => {
         };
 
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler,
                 squaddieRepository: squaddieRepo,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState: phase,
                     teams,
@@ -424,7 +424,7 @@ describe('BattlePhaseController', () => {
 
         expect(battlePhaseController.hasCompleted(state)).toBeFalsy();
         expect(phase.currentAffiliation).toBe(BattlePhase.PLAYER);
-        expect(BattleSquaddieHelper.canStillActThisRound(battleSquaddie0)).toBeTruthy();
+        expect(BattleSquaddieService.canStillActThisRound(battleSquaddie0)).toBeTruthy();
     });
 
     describe('multiple teams of the same affiliation', () => {
@@ -432,13 +432,13 @@ describe('BattlePhaseController', () => {
         let playerBattleSquaddie2: BattleSquaddie;
 
         beforeEach(() => {
-            playerBattleSquaddie2 = BattleSquaddieHelper.newBattleSquaddie({
+            playerBattleSquaddie2 = BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "player_squaddie_1",
                 squaddieTemplateId: "player_squaddie",
-                squaddieTurn: SquaddieTurnHandler.new(),
+                squaddieTurn: SquaddieTurnService.new(),
             });
 
-            ObjectRepositoryHelper.addBattleSquaddie(squaddieRepo,
+            ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
                 playerBattleSquaddie2,
             );
 
@@ -455,16 +455,16 @@ describe('BattlePhaseController', () => {
 
         it('will stay with the current affiliation if the current team is done', () => {
             playerSquaddieTeam.battleSquaddieIds.forEach(battleSquaddieId => {
-                const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, battleSquaddieId));
-                SquaddieTurnHandler.endTurn(battleSquaddie.squaddieTurn);
+                const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepo, battleSquaddieId));
+                SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn);
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepo,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         teams,
                         missionMap: new MissionMap({
@@ -491,17 +491,17 @@ describe('BattlePhaseController', () => {
                 playerTeam2,
             ].forEach(team =>
                 team.battleSquaddieIds.forEach(battleSquaddieId => {
-                    const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepo, battleSquaddieId));
-                    SquaddieTurnHandler.endTurn(battleSquaddie.squaddieTurn);
+                    const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepo, battleSquaddieId));
+                    SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn);
                 })
             );
 
             const state: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     squaddieRepository: squaddieRepo,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         teams,
                         missionMap: new MissionMap({
@@ -522,10 +522,10 @@ describe('BattlePhaseController', () => {
             expect(state.battleOrchestratorState.battleState.battlePhaseState.currentAffiliation).toBe(BattlePhase.ENEMY);
             expect(state.battleOrchestratorState.battleState.battlePhaseState.turnCount).toBe(0);
 
-            expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(playerSquaddieTeam, squaddieRepo)).toEqual(
+            expect(BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(playerSquaddieTeam, squaddieRepo)).toEqual(
                 expect.arrayContaining(playerSquaddieTeam.battleSquaddieIds)
             );
-            expect(BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(playerTeam2, squaddieRepo)).toEqual(
+            expect(BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(playerTeam2, squaddieRepo)).toEqual(
                 expect.arrayContaining(playerTeam2.battleSquaddieIds)
             );
         });

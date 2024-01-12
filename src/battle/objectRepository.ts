@@ -1,4 +1,4 @@
-import {BattleSquaddie, BattleSquaddieHelper} from "./battleSquaddie";
+import {BattleSquaddie, BattleSquaddieService} from "./battleSquaddie";
 import {makeError, makeResult, ResultOrError} from "../utils/ResultOrError";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {ImageUI} from "../ui/imageUI";
@@ -20,7 +20,7 @@ export interface ObjectRepository {
     };
 }
 
-export const ObjectRepositoryHelper = {
+export const ObjectRepositoryService = {
     new: (): ObjectRepository => {
         return {
             imageUIByBattleSquaddieId: {},
@@ -46,7 +46,7 @@ export const ObjectRepositoryHelper = {
         addBattleSquaddie(repo, battleSquaddie);
     },
     updateBattleSquaddie: (repo: ObjectRepository, battleSquaddie: BattleSquaddie) => {
-        BattleSquaddieHelper.assertBattleSquaddie(battleSquaddie);
+        BattleSquaddieService.assertBattleSquaddie(battleSquaddie);
         if (!repo.squaddieTemplates[battleSquaddie.squaddieTemplateId]) {
             throw new Error(`cannot updateBattleSquaddie '${battleSquaddie.battleSquaddieId}', no squaddie template with id '${battleSquaddie.squaddieTemplateId}' exists`);
         }
@@ -108,7 +108,7 @@ const addSquaddieTemplate = (repo: ObjectRepository, squaddieTemplate: SquaddieT
 };
 
 const addBattleSquaddie = (repo: ObjectRepository, battleSquaddie: BattleSquaddie) => {
-    BattleSquaddieHelper.assertBattleSquaddie(battleSquaddie);
+    BattleSquaddieService.assertBattleSquaddie(battleSquaddie);
     if (!repo.squaddieTemplates[battleSquaddie.squaddieTemplateId]) {
         throw new Error(`cannot addBattleSquaddie '${battleSquaddie.battleSquaddieId}', no squaddie template with Id '${battleSquaddie.squaddieTemplateId}' exists`);
     }
@@ -118,7 +118,7 @@ const addBattleSquaddie = (repo: ObjectRepository, battleSquaddie: BattleSquaddi
     }
 
     const squaddieTemplate: SquaddieTemplate = repo.squaddieTemplates[battleSquaddie.squaddieTemplateId];
-    BattleSquaddieHelper.initializeInBattleAttributes(battleSquaddie, squaddieTemplate.attributes);
+    BattleSquaddieService.initializeInBattleAttributes(battleSquaddie, squaddieTemplate.attributes);
 
     repo.battleSquaddies[battleSquaddie.battleSquaddieId] = battleSquaddie;
 };

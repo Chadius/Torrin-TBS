@@ -6,17 +6,19 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
-import {ActionEffectMovementService} from "../history/actionEffectMovement";
-import {ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {OrchestratorUtilities, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {SquaddieInstructionInProgressHandler} from "../history/squaddieInstructionInProgress";
-import {RecordingHandler} from "../history/recording";
-import {ObjectRepositoryHelper} from "../objectRepository";
+import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {RecordingService} from "../history/recording";
+import {ObjectRepositoryService} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {MapHighlightHelper} from "../animation/mapHighlight";
 import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
+import {DecisionService} from "../../decision/decision";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -79,8 +81,14 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
         numberOfActionPointsSpent: numberOfActionPointsSpentMoving,
     });
 
-    SquaddieInstructionInProgressHandler.addConfirmedAction(state.battleState.squaddieCurrentlyActing, moveAction);
-    RecordingHandler.addEvent(state.battleState.recording, {
+    const decision = DecisionService.new({
+        actionEffects: [
+            moveAction
+        ]
+    });
+    CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing, decision)
+
+    RecordingService.addEvent(state.battleState.recording, {
         instruction: state.battleState.squaddieCurrentlyActing,
         results: undefined,
     });
@@ -88,25 +96,20 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
 }
 
 export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) {
-    if (SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleState.squaddieCurrentlyActing)) {
+    if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
         const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
-        state.battleState.squaddieCurrentlyActing = {
-            movingBattleSquaddieIds: [],
-            squaddieActionsForThisRound: {
+        state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId,
                 startingLocation: {
                     q: datum.mapLocation.q,
                     r: datum.mapLocation.r,
                 },
-                actions: [],
-            },
-            currentlySelectedAction: undefined,
-        };
-
-
+            }),
+        });
     }
 }
 
@@ -115,15 +118,15 @@ export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
         return;
     }
 
-    if (!SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)) {
+    if (!CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)) {
         return;
     }
 
     const {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
-    } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository,
-        SquaddieInstructionInProgressHandler.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
+        CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     TintSquaddieIfTurnIsComplete(state.squaddieRepository, actingBattleSquaddie, actingSquaddieTemplate);

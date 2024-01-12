@@ -4,8 +4,8 @@ import {Cutscene} from "./cutscene";
 import {DecisionTrigger} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
-import {BattleStateHelper} from "../battle/orchestrator/battleState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleStateService} from "../battle/orchestrator/battleState";
 
 describe('Cutscene', () => {
     const splash1 = new SplashScreen({id: "splash1"})
@@ -447,11 +447,11 @@ describe('Cutscene', () => {
                 frontDoorGreeting
             ]
         });
-        const battleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
         });

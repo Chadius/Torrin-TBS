@@ -5,21 +5,76 @@ import {RectArea, RectAreaHelper} from "../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../ui/rectangle";
 import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {getSquaddiePositionAlongPath, TIME_TO_MOVE} from "./squaddieMoveAnimationUtils";
 import {
     CanPlayerControlSquaddieRightNow,
-    CanSquaddieActRightNow,
-    GetNumberOfActionPoints
+    GetNumberOfActionPoints,
+    SquaddieService
 } from "../../squaddie/squaddieService";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
+import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
+import {MapHighlightHelper} from "./mapHighlight";
 
-export const tintSquaddieMapIconTurnComplete = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
+export const DrawSquaddieUtilities = {
+    tintSquaddieMapIcon: ({
+                              repository,
+                              battleSquaddieId,
+                          }: {
+        repository: ObjectRepository,
+        battleSquaddieId: string
+    }) => {
+        const {
+            battleSquaddie,
+            squaddieTemplate
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
+        return tintSquaddieMapIcon(repository, squaddieTemplate, battleSquaddie);
+    },
+    tintSquaddieIfTurnIsComplete: (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {
+        return TintSquaddieIfTurnIsComplete(squaddieRepository, battleSquaddie, squaddieTemplate);
+    },
+    highlightSquaddieRange: ({missionMap, battleSquaddieId, repository}: {
+        missionMap: MissionMap,
+        battleSquaddieId: string,
+        repository: ObjectRepository
+    }) => {
+        const {mapLocation} = MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId);
+        const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+            repository: repository,
+            missionMap,
+            battleSquaddieId,
+            startLocation: mapLocation,
+        })
+        missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
+    },
+    updateSquaddieIconLocation: ({
+                                     repository,
+                                     battleSquaddieId,
+                                     destination,
+                                     camera,
+                                 }: {
+        repository: ObjectRepository,
+        battleSquaddieId: string,
+        destination: HexCoordinate,
+        camera: BattleCamera
+    }) => {
+        const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
+        return updateSquaddieIconLocation(repository, battleSquaddie, destination, camera);
+    },
+    highlightPlayableSquaddieReachIfTheyCanAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, repository: ObjectRepository) => {
+        return highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, missionMap, repository);
+    },
+    tintSquaddieMapIconIfTheyCannotAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
+        return tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
+    }
+}
+
+const tintSquaddieMapIcon = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     if (mapIcon) {
@@ -39,7 +94,7 @@ export const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContex
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     setImageToLocation(mapIcon, xyCoords);
-    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
+    const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
     const {
         squaddieHasThePlayerControlledAffiliation,
         squaddieCanCurrentlyAct
@@ -100,13 +155,13 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTe
 export const TintSquaddieIfTurnIsComplete = (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {
     let {
         canAct,
-    } = CanSquaddieActRightNow({
+    } = SquaddieService.canSquaddieActRightNow({
         squaddieTemplate,
         battleSquaddie,
     });
 
     if (!canAct) {
-        tintSquaddieMapIconTurnComplete(squaddieRepository, squaddieTemplate, battleSquaddie)
+        tintSquaddieMapIcon(squaddieRepository, squaddieTemplate, battleSquaddie)
     }
 }
 
@@ -145,4 +200,47 @@ export const moveSquaddieAlongPath = (squaddieRepository: ObjectRepository, batt
     if (mapIcon) {
         setImageToLocation(mapIcon, squaddieDrawCoordinates);
     }
+}
+
+const highlightPlayableSquaddieReachIfTheyCanAct = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, repository: ObjectRepository) => {
+    let {
+        canAct,
+    } = SquaddieService.canSquaddieActRightNow({
+        squaddieTemplate,
+        battleSquaddie,
+    });
+
+    let {squaddieHasThePlayerControlledAffiliation} =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        });
+
+    if (!canAct || !squaddieHasThePlayerControlledAffiliation) {
+        return;
+    }
+
+    DrawSquaddieUtilities.highlightSquaddieRange({
+        missionMap: missionMap,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        repository: repository,
+    });
+}
+
+const tintSquaddieMapIconIfTheyCannotAct = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
+    let {
+        canAct,
+    } = SquaddieService.canSquaddieActRightNow({
+        squaddieTemplate,
+        battleSquaddie,
+    });
+
+    if (canAct) {
+        return;
+    }
+
+    DrawSquaddieUtilities.tintSquaddieMapIcon({
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        repository,
+    })
 }

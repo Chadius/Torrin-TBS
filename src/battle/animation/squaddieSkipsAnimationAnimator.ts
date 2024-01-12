@@ -9,7 +9,8 @@ import {Label, LabelHelper} from "../../ui/label";
 import {RectAreaHelper} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {RecordingHandler} from "../history/recording";
+import {RecordingService} from "../history/recording";
+import {ActionEffectType} from "../../decision/actionEffect";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 
@@ -58,10 +59,15 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
     private drawActionDescription(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
+            let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+            if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+                return;
+            }
+
             this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: state.squaddieRepository,
-                currentAction: state.battleState.squaddieCurrentlyActing.currentlySelectedAction,
-                result: RecordingHandler.mostRecentEvent(state.battleState.recording).results,
+                currentActionEffectTemplate: squaddieActionEffect.template,
+                result: RecordingService.mostRecentEvent(state.battleState.recording).results,
             });
 
             const textToDraw = this.outputTextStrings.join("\n");

@@ -1,4 +1,7 @@
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
@@ -6,14 +9,14 @@ import {WeaponIcon} from "./weaponIcon";
 import {RectArea, RectAreaHelper} from "../../../ui/rectArea";
 
 describe('weapon icon', () => {
-    let hinderingAction: SquaddieSquaddieAction;
-    let helpingAction: SquaddieSquaddieAction;
+    let hinderingAction: ActionEffectSquaddieTemplate;
+    let helpingAction: ActionEffectSquaddieTemplate;
 
     let textSpy: jest.SpyInstance;
     let mockedGraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        hinderingAction = SquaddieSquaddieActionService.new({
+        hinderingAction = ActionEffectSquaddieTemplateService.new({
             id: "hindering",
             name: "hindering",
             damageDescriptions: {
@@ -24,7 +27,7 @@ describe('weapon icon', () => {
             }),
         });
 
-        helpingAction = SquaddieSquaddieActionService.new({
+        helpingAction = ActionEffectSquaddieTemplateService.new({
             id: "helping",
             name: "helping",
             healingDescriptions: {
@@ -48,7 +51,7 @@ describe('weapon icon', () => {
             height: 20,
         });
         icon.draw({
-            action: hinderingAction,
+            actionEffectSquaddieTemplate: hinderingAction,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         });
@@ -71,7 +74,7 @@ describe('weapon icon', () => {
             height: 20,
         });
         icon.draw({
-            action: helpingAction,
+            actionEffectSquaddieTemplate: helpingAction,
             graphicsContext: mockedGraphicsContext,
             actorImageArea: area,
         });

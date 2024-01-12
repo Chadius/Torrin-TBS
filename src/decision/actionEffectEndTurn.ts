@@ -1,4 +1,4 @@
-import {ActionEffectType} from "../../squaddie/actionEffect";
+import {ActionEffectType} from "./actionEffect";
 
 export interface ActionEffectEndTurn {
     type: ActionEffectType.END_TURN;

@@ -1,14 +1,16 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
-import {ActionEffectType} from "../../squaddie/actionEffect";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
+import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
@@ -17,6 +19,8 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattleSquaddie} from "../battleSquaddie";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -27,12 +31,12 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieActionsForThisRound | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
 
-        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamHelper.getBattleSquaddiesThatCanAct(state.team, repository);
+        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
         }
@@ -42,7 +46,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
         const movementPerActionThisRound = squaddieTemplate.attributes.movement.movementPerAction;
@@ -83,16 +87,20 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined;
         }
 
-        const moveTowardsLocation: SquaddieActionsForThisRound = {
+        const moveTowardsLocation: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: mapLocation,
-            actions: [],
-        };
-        SquaddieActionsForThisRoundHandler.addAction(moveTowardsLocation, {
-            type: ActionEffectType.MOVEMENT,
-            destination: shortestRoute.destination,
-            numberOfActionPointsSpent: shortestRoute.currentNumberOfMoveActions,
+            decisions: [
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectMovementService.new({
+                            destination: shortestRoute.destination,
+                            numberOfActionPointsSpent: shortestRoute.currentNumberOfMoveActions,
+                        })
+                    ]
+                })
+            ]
         });
         state.setInstruction(moveTowardsLocation);
         return moveTowardsLocation;
@@ -134,7 +142,7 @@ const getClosestSquaddieAndLocationToFollow = ({
     const desiredBattleSquaddies = selectDesiredBattleSquaddies(repository, actingSquaddieBattleId, desiredBattleSquaddieId, desiredAffiliation);
 
     const {mapLocation: actorLocation} = missionMap.getSquaddieByBattleId(actingSquaddieBattleId);
-    const {squaddieTemplate: actorSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, actingSquaddieBattleId));
+    const {squaddieTemplate: actorSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, actingSquaddieBattleId));
     const maximumDistanceToConsider: number = (movementPerAction > 0 && numberOfActions > 0)
         ? movementPerAction * numberOfActions
         : missionMap.terrainTileMap.getDimensions().numberOfRows + missionMap.terrainTileMap.getDimensions().widthOfWidestRow;
@@ -192,7 +200,7 @@ const getClosestSquaddieAndLocationToFollow = ({
             const closestReachableLocationsFromTheCandidate: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(routesToAllSquaddies, candidateLocation, distanceFromCandidate);
             const shortestRoutesThatLeadToSquaddieAndInfo = getShortestRoutesThatLeadToSquaddie(closestReachableLocationsFromTheCandidate, candidateToChase, distanceFromActor, candidateLocation);
             if (shortestRoutesThatLeadToSquaddieAndInfo.length > 0) {
-                return shortestRoutesThatLeadToSquaddieAndInfo[0];
+                return shortestRoutesThatLeadToSquaddieAndInfo.find(route => route.shortestRoute.currentNumberOfMoveActions !== 0)
             }
         }
     }
@@ -201,7 +209,7 @@ const getClosestSquaddieAndLocationToFollow = ({
 }
 
 function selectDesiredBattleSquaddies(repository: ObjectRepository, actingSquaddieBattleId: string, desiredBattleSquaddieId: string, desiredAffiliation: SquaddieAffiliation) {
-    return ObjectRepositoryHelper.getBattleSquaddieIterator(repository).filter(battleSquaddieIter => {
+    return ObjectRepositoryService.getBattleSquaddieIterator(repository).filter(battleSquaddieIter => {
         if (battleSquaddieIter.battleSquaddieId === actingSquaddieBattleId) {
             return false;
         }
@@ -212,7 +220,7 @@ function selectDesiredBattleSquaddies(repository: ObjectRepository, actingSquadd
 
         const {
             squaddieTemplate,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(repository, battleSquaddieIter.battleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieIter.battleSquaddieId));
 
         return desiredAffiliation && squaddieTemplate.squaddieId.affiliation === desiredAffiliation;
     });

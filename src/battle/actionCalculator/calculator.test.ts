@@ -1,31 +1,35 @@
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../decision/actionEffectSquaddieTemplate";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
-import {BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {
-    SquaddieInstructionInProgress,
-    SquaddieInstructionInProgressHandler
-} from "../history/squaddieInstructionInProgress";
+    CurrentlySelectedSquaddieDecision,
+    CurrentlySelectedSquaddieDecisionService
+} from "../history/currentlySelectedSquaddieDecision";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {StreamNumberGenerator} from "../numberGenerator/stream";
 import {NumberGeneratorStrategy} from "../numberGenerator/strategy";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {ActionCalculator} from "./calculator";
-import {SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {ActionEffectType} from "../../squaddie/actionEffect";
+import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess} from "./degreeOfSuccess";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 
 describe('calculator', () => {
     let squaddieRepository: ObjectRepository;
@@ -39,11 +43,11 @@ describe('calculator', () => {
     let ally1DynamicId = "ally 1";
     let ally1StaticId = "ally 1";
     let ally1BattleSquaddie: BattleSquaddie;
-    let actionAlwaysHitsAndDealsBodyDamage: SquaddieSquaddieAction;
-    let actionNeedsAnAttackRollToDealBodyDamage: SquaddieSquaddieAction;
+    let actionAlwaysHitsAndDealsBodyDamage: ActionEffectSquaddieTemplate;
+    let actionNeedsAnAttackRollToDealBodyDamage: ActionEffectSquaddieTemplate;
 
     beforeEach(() => {
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: ["1 1 1 1 1 1 1 "]
@@ -93,7 +97,7 @@ describe('calculator', () => {
                 })
         );
 
-        actionAlwaysHitsAndDealsBodyDamage = SquaddieSquaddieActionService.new({
+        actionAlwaysHitsAndDealsBodyDamage = ActionEffectSquaddieTemplateService.new({
             id: "deal body damage auto hit",
             name: "deal body damage (Auto Hit)",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -105,7 +109,7 @@ describe('calculator', () => {
             maximumRange: 9001,
             damageDescriptions: {[DamageType.BODY]: 2}
         });
-        actionNeedsAnAttackRollToDealBodyDamage = SquaddieSquaddieActionService.new({
+        actionNeedsAnAttackRollToDealBodyDamage = ActionEffectSquaddieTemplateService.new({
             id: "deal body damage",
             name: "deal body damage",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -125,25 +129,33 @@ describe('calculator', () => {
                                 currentlySelectedAction,
                                 numberGenerator,
                             }: {
-        currentlySelectedAction?: SquaddieSquaddieAction,
+        currentlySelectedAction?: ActionEffectSquaddieTemplate,
         actingBattleSquaddie?: BattleSquaddie,
         validTargetLocation?: HexCoordinate,
         missionStatistics?: MissionStatistics,
         numberGenerator?: NumberGeneratorStrategy,
     }) {
-        const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
-            currentlySelectedAction: currentlySelectedAction ?? actionAlwaysHitsAndDealsBodyDamage,
-            movingBattleSquaddieIds: [],
-            squaddieActionsForThisRound: SquaddieActionsForThisRoundHandler.default(),
-        };
+        const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
+            currentlySelectedDecision: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: currentlySelectedAction ?? actionAlwaysHitsAndDealsBodyDamage,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+
+            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default(),
+        });
 
         return ActionCalculator.calculateResults({
-                state: BattleOrchestratorStateHelper.newOrchestratorState({
+                state: BattleOrchestratorStateService.newOrchestratorState({
                     squaddieRepository: squaddieRepository,
                     resourceHandler: undefined,
                     battleSquaddieSelectedHUD: undefined,
                     numberGenerator,
-                    battleState: BattleStateHelper.newBattleState({
+                    battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
                         squaddieCurrentlyActing: squaddieCurrentlyInProgress,
@@ -210,13 +222,13 @@ describe('calculator', () => {
     });
 
     describe('healing abilities', () => {
-        let healsLostHitPoints: SquaddieSquaddieAction;
+        let healsLostHitPoints: ActionEffectSquaddieTemplate;
 
         beforeEach(() => {
             missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
             missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {q: 0, r: 2});
 
-            healsLostHitPoints = SquaddieSquaddieActionService.new({
+            healsLostHitPoints = ActionEffectSquaddieTemplateService.new({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -236,17 +248,24 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes,
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN);
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressHandler.sanitize({
-                currentlySelectedAction: healsLostHitPoints,
-                movingBattleSquaddieIds: [],
-                squaddieActionsForThisRound: undefined,
+            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: healsLostHitPoints,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
+                squaddieActionsForThisRound: undefined
             });
 
             const results = ActionCalculator.calculateResults({
-                    state: BattleOrchestratorStateHelper.newOrchestratorState({
+                    state: BattleOrchestratorStateService.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
-                        battleState: BattleStateHelper.newBattleState({
+                        battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             missionMap,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
@@ -273,17 +292,24 @@ describe('calculator', () => {
                 ally1BattleSquaddie.inBattleAttributes.armyAttributes.maxHitPoints - 1, DamageType.UNKNOWN
             );
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = SquaddieInstructionInProgressHandler.sanitize({
-                currentlySelectedAction: healsLostHitPoints,
-                movingBattleSquaddieIds: [],
+            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: healsLostHitPoints,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
                 squaddieActionsForThisRound: undefined,
             });
 
             ActionCalculator.calculateResults({
-                    state: BattleOrchestratorStateHelper.newOrchestratorState({
+                    state: BattleOrchestratorStateService.newOrchestratorState({
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
-                        battleState: BattleStateHelper.newBattleState({
+                        battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             missionMap,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
@@ -308,7 +334,7 @@ describe('calculator', () => {
         });
 
         it('will hit if the roll hits the defender armor', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
             const expectedRolls: number[] = [1, 6];
@@ -323,7 +349,7 @@ describe('calculator', () => {
         });
 
         it('will miss if the roll is less than the defender armor class', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
             const expectedRolls: number[] = [1, 2];
@@ -338,7 +364,7 @@ describe('calculator', () => {
         });
 
         it('will always hit if the action always hits', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
             const expectedRolls: number[] = [1, 2];
@@ -354,43 +380,57 @@ describe('calculator', () => {
         });
 
         it('knows when multiple attack penalties should apply', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 7;
 
             const expectedRolls: number[] = [1, 6];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            const squaddieCurrentlyInProgress: SquaddieInstructionInProgress = {
-                currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
-                movingBattleSquaddieIds: [],
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundHandler.default(),
-            };
-            SquaddieActionsForThisRoundHandler.addAction(
-                squaddieCurrentlyInProgress.squaddieActionsForThisRound,
-                {
-                    type: ActionEffectType.SQUADDIE,
-                    squaddieAction: actionNeedsAnAttackRollToDealBodyDamage,
-                    numberOfActionPointsSpent: 1,
-                    targetLocation: {q: 0, r: 0},
-                }
+            const squaddieCurrentlyInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
+                currentlySelectedDecision: DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: actionNeedsAnAttackRollToDealBodyDamage,
+                            targetLocation: {q: 0, r: 0},
+                            numberOfActionPointsSpent: 1,
+                        })
+                    ]
+                }),
+
+                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default(),
+            });
+            SquaddieActionsForThisRoundService.addDecision(
+                squaddieCurrentlyInProgress.squaddieDecisionsDuringThisPhase,
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: actionNeedsAnAttackRollToDealBodyDamage,
+                            numberOfActionPointsSpent: 1,
+                            targetLocation: {q: 0, r: 0},
+                        })
+                    ]
+                })
             );
-            SquaddieActionsForThisRoundHandler.addAction(
-                squaddieCurrentlyInProgress.squaddieActionsForThisRound,
-                {
-                    type: ActionEffectType.SQUADDIE,
-                    squaddieAction: actionNeedsAnAttackRollToDealBodyDamage,
-                    numberOfActionPointsSpent: 1,
-                    targetLocation: {q: 0, r: 0},
-                }
+            SquaddieActionsForThisRoundService.addDecision(
+                squaddieCurrentlyInProgress.squaddieDecisionsDuringThisPhase,
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectSquaddieService.new({
+                            template: actionNeedsAnAttackRollToDealBodyDamage,
+                            numberOfActionPointsSpent: 1,
+                            targetLocation: {q: 0, r: 0},
+                        })
+                    ]
+                })
             );
 
             const results = ActionCalculator.calculateResults({
-                    state: BattleOrchestratorStateHelper.newOrchestratorState({
+                    state: BattleOrchestratorStateService.newOrchestratorState({
                         squaddieRepository: squaddieRepository,
                         resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         numberGenerator,
-                        battleState: BattleStateHelper.newBattleState({
+                        battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             missionMap,
                             squaddieCurrentlyActing: squaddieCurrentlyInProgress,
@@ -414,7 +454,7 @@ describe('calculator', () => {
         });
 
         it('will critically hit if the roll hits the defender armor by 6 points or more', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2;
 
             const expectedRolls: number[] = [2, 6];
@@ -429,7 +469,7 @@ describe('calculator', () => {
         });
 
         it('will critically hit if the roll is 6 and 6', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001;
 
             const expectedRolls: number[] = [6, 6];
@@ -444,7 +484,7 @@ describe('calculator', () => {
         });
 
         it('cannot critically hit if the action is forbidden from critically succeeding', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 2;
 
             const expectedRolls: number[] = [6, 6];
@@ -461,7 +501,7 @@ describe('calculator', () => {
         });
 
         it('will critically miss if the roll is 6 points or more under the defender armor', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10;
 
             const expectedRolls: number[] = [2, 2];
@@ -476,7 +516,7 @@ describe('calculator', () => {
         });
 
         it('will critically miss if the roll is 1 and 1', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 9001;
 
             const expectedRolls: number[] = [1, 1];
@@ -491,7 +531,7 @@ describe('calculator', () => {
         });
 
         it('cannot critically fail if the action is forbidden from critically failing', () => {
-            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
+            const {battleSquaddie: enemyBattle} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, enemy1DynamicId));
             enemyBattle.inBattleAttributes.armyAttributes.armorClass = 10;
 
             const expectedRolls: number[] = [2, 2];

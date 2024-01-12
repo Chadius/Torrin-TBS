@@ -4,13 +4,16 @@ import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {SquaddieTurnHandler} from "../../../squaddie/turn";
+import {SquaddieTurnService} from "../../../squaddie/turn";
 import {InBattleAttributesHandler} from "../../stats/inBattleAttributes";
 import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
 
@@ -24,11 +27,11 @@ describe('TargetTextWindow', () => {
     let targetResultTakenDamage: ActionResultPerSquaddie;
     let targetResultHealingReceived: ActionResultPerSquaddie;
 
-    let attackAction: SquaddieSquaddieAction;
-    let healingAction: SquaddieSquaddieAction;
+    let attackAction: ActionEffectSquaddieTemplate;
+    let healingAction: ActionEffectSquaddieTemplate;
 
     beforeEach(() => {
-        attackAction = SquaddieSquaddieActionService.new({
+        attackAction = ActionEffectSquaddieTemplateService.new({
             id: "attack",
             name: "attack action",
             damageDescriptions: {
@@ -40,7 +43,7 @@ describe('TargetTextWindow', () => {
             })
         });
 
-        healingAction = SquaddieSquaddieActionService.new({
+        healingAction = ActionEffectSquaddieTemplateService.new({
             id: "heal",
             name: "healing action",
             healingDescriptions: {
@@ -70,7 +73,7 @@ describe('TargetTextWindow', () => {
 
         targetBattle = {
             squaddieTemplateId: targetSquaddie.squaddieId.templateId,
-            squaddieTurn: SquaddieTurnHandler.new(),
+            squaddieTurn: SquaddieTurnService.new(),
             battleSquaddieId: "targetBattleId",
             inBattleAttributes: InBattleAttributesHandler.new(),
         }
@@ -92,7 +95,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            action: attackAction,
+            actionEffectSquaddieTemplate: attackAction,
         });
 
         expect(targetWindow.targetLabel.textBox.text).toContain(targetSquaddie.squaddieId.name);
@@ -103,7 +106,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            action: attackAction,
+            actionEffectSquaddieTemplate: attackAction,
         });
 
         expect(targetWindow.targetLabel.textBox.text).toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
@@ -114,7 +117,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
-            action: healingAction,
+            actionEffectSquaddieTemplate: healingAction,
         });
 
         expect(targetWindow.targetLabel.textBox.text).not.toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
@@ -125,7 +128,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            action: attackAction,
+            actionEffectSquaddieTemplate: attackAction,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
@@ -143,7 +146,7 @@ describe('TargetTextWindow', () => {
                 ...targetResultTakenDamage,
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
             },
-            action: attackAction,
+            actionEffectSquaddieTemplate: attackAction,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
@@ -163,7 +166,7 @@ describe('TargetTextWindow', () => {
                 damageTaken: 0,
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
             },
-            action: attackAction,
+            actionEffectSquaddieTemplate: attackAction,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
@@ -177,7 +180,7 @@ describe('TargetTextWindow', () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
-            action: attackAction,
+            actionEffectSquaddieTemplate: attackAction,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
                 damageTaken: 0,
@@ -196,7 +199,7 @@ describe('TargetTextWindow', () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
-            action: attackAction,
+            actionEffectSquaddieTemplate: attackAction,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 damageTaken: 0,
@@ -222,7 +225,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
-            action: healingAction,
+            actionEffectSquaddieTemplate: healingAction,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);

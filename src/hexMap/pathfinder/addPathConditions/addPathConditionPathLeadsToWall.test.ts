@@ -1,12 +1,12 @@
 import {SearchParametersHelper} from "../searchParams";
 import {SearchPathHelper} from "../searchPath";
-import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../../missionMap/missionMap";
 import {TerrainTileMap} from "../../terrainTileMap";
 import {AddPathConditionPathLeadsToWall} from "./addPathConditionPathLeadsToWall";
 
 describe('addPathConditionPathLeadsToWall', () => {
     it('returns true if the path is not on a wall', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -29,7 +29,7 @@ describe('addPathConditionPathLeadsToWall', () => {
     });
 
     it('returns false if the path is in a wall', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -53,7 +53,7 @@ describe('addPathConditionPathLeadsToWall', () => {
     });
 
     it('returns true if the path is in a wall and search can pass through walls', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -79,7 +79,7 @@ describe('addPathConditionPathLeadsToWall', () => {
     });
 
     it('returns undefined if there is no path', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",

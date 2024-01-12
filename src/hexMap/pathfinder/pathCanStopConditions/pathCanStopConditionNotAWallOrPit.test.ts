@@ -1,12 +1,12 @@
 import {SearchParametersHelper} from "../searchParams";
 import {SearchPathHelper} from "../searchPath";
-import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../../missionMap/missionMap";
 import {TerrainTileMap} from "../../terrainTileMap";
 import {PathCanStopConditionNotAWallOrPit} from "./pathCanStopConditionNotAWallOrPit";
 
 describe('pathCanStopConditionNotAWallOrPit', () => {
     it('returns true if the path is not on a wall or pit', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -29,7 +29,7 @@ describe('pathCanStopConditionNotAWallOrPit', () => {
     });
 
     it('returns false if the path is in a wall', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -53,7 +53,7 @@ describe('pathCanStopConditionNotAWallOrPit', () => {
     });
 
     it('returns false if the path is in a pit', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",
@@ -78,7 +78,7 @@ describe('pathCanStopConditionNotAWallOrPit', () => {
     });
 
     it('returns undefined if there is no path', () => {
-        const missionMap: MissionMap = MissionMapHelper.new({
+        const missionMap: MissionMap = MissionMapService.new({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
                     "1 1 2 1 2 ",

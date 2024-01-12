@@ -6,7 +6,7 @@ import {SquaddieDeployment, SquaddieDeploymentHelper} from "./squaddieDeployment
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {NullMissionMap} from "../utils/test/battleOrchestratorState";
 
-export const MissionMapHelper = {
+export const MissionMapService = {
     new: ({terrainTileMap}: { terrainTileMap: TerrainTileMap }): MissionMap => {
         return new MissionMap({terrainTileMap});
     },
@@ -15,6 +15,15 @@ export const MissionMapHelper = {
     },
     addSquaddie: (missionMap: MissionMap, squaddieTemplateId: string, battleSquaddieId: string, location?: HexCoordinate): Error | undefined => {
         return missionMap.addSquaddie(squaddieTemplateId, battleSquaddieId, location);
+    },
+    getByBattleSquaddieId: (missionMap: MissionMap, battleSquaddieId: string): MissionMapSquaddieLocation => {
+        return missionMap.getSquaddieByBattleId(battleSquaddieId);
+    },
+    updateBattleSquaddieLocation: (missionMap: MissionMap, battleSquaddieId: string, location: HexCoordinate): Error | undefined => {
+        return missionMap.updateSquaddieLocation(battleSquaddieId, location);
+    },
+    getBattleSquaddieAtLocation: (missionMap: MissionMap, location: HexCoordinate): MissionMapSquaddieLocation => {
+        return missionMap.getSquaddieAtLocation(location);
     }
 };
 

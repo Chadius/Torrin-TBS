@@ -1,4 +1,4 @@
-import {SquaddieTurn, SquaddieTurnHandler} from "../squaddie/turn";
+import {SquaddieTurn, SquaddieTurnService} from "../squaddie/turn";
 import {ArmyAttributes} from "../squaddie/armyAttributes";
 import {InBattleAttributes, InBattleAttributesHandler} from "./stats/inBattleAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
@@ -18,7 +18,7 @@ export interface BattleSquaddieConstructorParams {
     inBattleAttributes?: InBattleAttributes,
 }
 
-export const BattleSquaddieHelper = {
+export const BattleSquaddieService = {
     new: (params: BattleSquaddieConstructorParams): BattleSquaddie => {
         return newBattleSquaddie(params);
     },
@@ -29,13 +29,13 @@ export const BattleSquaddieHelper = {
         assertBattleSquaddie(data);
     },
     canStillActThisRound: (data: BattleSquaddie): boolean => {
-        return SquaddieTurnHandler.hasActionPointsRemaining(data.squaddieTurn);
+        return SquaddieTurnService.hasActionPointsRemaining(data.squaddieTurn);
     },
     beginNewRound: (data: BattleSquaddie) => {
-        return SquaddieTurnHandler.beginNewRound(data.squaddieTurn);
+        return SquaddieTurnService.beginNewRound(data.squaddieTurn);
     },
     endTurn: (data: BattleSquaddie) => {
-        return SquaddieTurnHandler.endTurn(data.squaddieTurn);
+        return SquaddieTurnService.endTurn(data.squaddieTurn);
     },
     initializeInBattleAttributes: (data: BattleSquaddie, attributes: ArmyAttributes): void => {
         data.inBattleAttributes = InBattleAttributesHandler.new(attributes);
@@ -52,7 +52,7 @@ const newBattleSquaddie = ({
 ): BattleSquaddie => {
     let newBattleSquaddie: BattleSquaddie = {
         battleSquaddieId,
-        squaddieTurn: squaddieTurn || SquaddieTurnHandler.new(),
+        squaddieTurn: squaddieTurn || SquaddieTurnService.new(),
         squaddieTemplateId,
         inBattleAttributes: InBattleAttributesHandler.new(),
     };

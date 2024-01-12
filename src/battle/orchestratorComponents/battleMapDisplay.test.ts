@@ -1,6 +1,6 @@
 import {BattleMapDisplay} from "./battleMapDisplay";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleCamera} from "../battleCamera";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
@@ -11,7 +11,7 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 
 describe('battleMapDisplay', () => {
@@ -23,7 +23,7 @@ describe('battleMapDisplay', () => {
     beforeEach(() => {
         battleSquaddieSelectedHUD = mocks.battleSquaddieSelectedHUD();
 
-        jest.spyOn(ObjectRepositoryHelper, "getBattleSquaddieIterator").mockReturnValue([]);
+        jest.spyOn(ObjectRepositoryService, "getBattleSquaddieIterator").mockReturnValue([]);
 
         battleMapDisplay = new BattleMapDisplay();
 
@@ -37,11 +37,11 @@ describe('battleMapDisplay', () => {
         camera.setYVelocity = jest.fn();
 
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: undefined,
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera,
                 })
@@ -67,11 +67,11 @@ describe('battleMapDisplay', () => {
 
             state = GameEngineStateHelper.new({
                 battleOrchestratorState:
-                    BattleOrchestratorStateHelper.newOrchestratorState({
+                    BattleOrchestratorStateService.newOrchestratorState({
                         squaddieRepository: squaddieRepo,
                         battleSquaddieSelectedHUD,
                         resourceHandler: undefined,
-                        battleState: BattleStateHelper.newBattleState({
+                        battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
                             camera,
                             missionMap: new MissionMap({
@@ -129,11 +129,11 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD.isMouseInsideHUD = jest.fn().mockReturnValue(false);
             battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
-            state = BattleOrchestratorStateHelper.newOrchestratorState({
+            state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera,
                 })
@@ -194,11 +194,11 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = BattleOrchestratorStateHelper.newOrchestratorState({
+            state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera,
                 })
@@ -234,11 +234,11 @@ describe('battleMapDisplay', () => {
             })
         );
 
-        const stateWithOpenedHUD = BattleOrchestratorStateHelper.newOrchestratorState({
+        const stateWithOpenedHUD = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 camera,
             })
@@ -262,11 +262,11 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = BattleOrchestratorStateHelper.newOrchestratorState({
+            state = BattleOrchestratorStateService.newOrchestratorState({
                 squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     camera,
                 })
@@ -315,11 +315,11 @@ describe('battleMapDisplay', () => {
             })
         );
 
-        const stateWithOpenedHUD = BattleOrchestratorStateHelper.newOrchestratorState({
+        const stateWithOpenedHUD = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 camera,
             })

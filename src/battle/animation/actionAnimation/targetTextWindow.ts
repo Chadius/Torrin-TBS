@@ -9,7 +9,7 @@ import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {SquaddieSquaddieAction} from "../../../squaddie/action";
+import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
 import {ActionResultTextService} from "../actionResultTextService";
 
 export class TargetTextWindow {
@@ -53,15 +53,15 @@ export class TargetTextWindow {
         this._targetAfterActionText = "";
     }
 
-    start({targetTemplate, targetBattle, result, action}: {
+    start({targetTemplate, targetBattle, result, actionEffectSquaddieTemplate}: {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
-        action: SquaddieSquaddieAction,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     }) {
         this.reset();
 
-        this.createBeforeActionText({targetTemplate, targetBattle, result, action});
+        this.createBeforeActionText({targetTemplate, targetBattle, result, actionEffectSquaddieTemplate});
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[targetTemplate.squaddieId.affiliation];
 
         this._result = result;
@@ -80,16 +80,16 @@ export class TargetTextWindow {
         LabelHelper.draw(this.targetLabel, graphicsContext);
     }
 
-    private createBeforeActionText({targetTemplate, targetBattle, result, action}: {
+    private createBeforeActionText({targetTemplate, targetBattle, result, actionEffectSquaddieTemplate}: {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
-        action: SquaddieSquaddieAction,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     }) {
         this._targetBeforeActionText = ActionResultTextService.getBeforeActionText({
             targetTemplate,
             targetBattle,
-            action
+            actionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
         });
     }
 

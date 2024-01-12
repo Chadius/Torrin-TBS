@@ -1,11 +1,11 @@
 import {assertsInteger} from "../utils/mathAssert";
 import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
-import {DamageType, HealingType} from "./squaddieService";
-import {ActionRange} from "./actionRange";
+import {DamageType, HealingType} from "../squaddie/squaddieService";
+import {ActionRange} from "../squaddie/actionRange";
 import {isValidValue} from "../utils/validityCheck";
 
-export interface SquaddieSquaddieAction {
+export interface ActionEffectSquaddieTemplate {
     damageDescriptions: { [t in DamageType]?: number };
     healingDescriptions: { [t in HealingType]?: number };
     name: string;
@@ -19,7 +19,7 @@ export interface SquaddieSquaddieAction {
     targetingShape: TargetingShape;
 }
 
-export const SquaddieSquaddieActionService = {
+export const ActionEffectSquaddieTemplateService = {
     new: ({
               actionPointCost,
               damageDescriptions,
@@ -31,8 +31,8 @@ export const SquaddieSquaddieActionService = {
               traits,
               targetingShape,
           }: {
-        name?: string;
-        id?: string;
+        name: string;
+        id: string;
         traits?: {
             booleanTraits: { [key in Trait]?: boolean };
         };
@@ -40,7 +40,7 @@ export const SquaddieSquaddieActionService = {
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
         targetingShape?: TargetingShape,
-    } & Partial<ActionRange>): SquaddieSquaddieAction => {
+    } & Partial<ActionRange>): ActionEffectSquaddieTemplate => {
         if (minimumRange !== undefined) {
             assertsInteger(minimumRange);
         }
@@ -69,18 +69,18 @@ export const SquaddieSquaddieActionService = {
         sanitize(data);
         return data;
     },
-    isHelpful: (data: SquaddieSquaddieAction): boolean => {
+    isHelpful: (data: ActionEffectSquaddieTemplate): boolean => {
         return TraitStatusStorageHelper.getStatus(data.traits, Trait.HEALING);
     },
-    isHindering: (data: SquaddieSquaddieAction): boolean => {
+    isHindering: (data: ActionEffectSquaddieTemplate): boolean => {
         return TraitStatusStorageHelper.getStatus(data.traits, Trait.ATTACK);
     },
-    sanitize: (data: SquaddieSquaddieAction): SquaddieSquaddieAction => {
+    sanitize: (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTemplate => {
         return sanitize(data);
     },
 };
 
-const sanitize = (data: SquaddieSquaddieAction): SquaddieSquaddieAction => {
+const sanitize = (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTemplate => {
     if (!data.id || !isValidValue(data.id)) {
         throw new Error('SquaddieAction cannot sanitize, missing id');
     }

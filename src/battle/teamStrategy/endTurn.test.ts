@@ -1,16 +1,21 @@
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
+import {
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
 import {TeamStrategyState} from "./teamStrategyState";
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
-import {BattleSquaddie, BattleSquaddieHelper} from "../battleSquaddie";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
+import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {SquaddieTurnHandler} from "../../squaddie/turn";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {SquaddieTurnService} from "../../squaddie/turn";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
+import {DecisionService} from "../../decision/decision";
+import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 
 describe('end turn team strategy', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
@@ -20,7 +25,7 @@ describe('end turn team strategy', () => {
     let missionMap: MissionMap;
 
     beforeEach(() => {
-        squaddieRepository = ObjectRepositoryHelper.new();
+        squaddieRepository = ObjectRepositoryService.new();
         playerSquaddieTemplate = {
             squaddieId: {
                 templateId: "new_static_squaddie",
@@ -36,18 +41,18 @@ describe('end turn team strategy', () => {
             attributes: DefaultArmyAttributes(),
         };
 
-        ObjectRepositoryHelper.addSquaddieTemplate(squaddieRepository,
+        ObjectRepositoryService.addSquaddieTemplate(squaddieRepository,
             playerSquaddieTemplate
         );
 
         playerBattleSquaddie =
-            BattleSquaddieHelper.newBattleSquaddie({
+            BattleSquaddieService.newBattleSquaddie({
                 battleSquaddieId: "new_dynamic_squaddie",
                 squaddieTemplateId: "new_static_squaddie",
-                squaddieTurn: SquaddieTurnHandler.new(),
+                squaddieTurn: SquaddieTurnService.new(),
             });
 
-        ObjectRepositoryHelper.addBattleSquaddie(squaddieRepository,
+        ObjectRepositoryService.addBattleSquaddie(squaddieRepository,
             playerBattleSquaddie
         );
 
@@ -58,7 +63,7 @@ describe('end turn team strategy', () => {
             battleSquaddieIds: [],
             iconResourceKey: "icon_player_team",
         };
-        BattleSquaddieTeamHelper.addBattleSquaddieIds(squaddieTeam, ["new_dynamic_squaddie"]);
+        BattleSquaddieTeamService.addBattleSquaddieIds(squaddieTeam, ["new_dynamic_squaddie"]);
 
         missionMap = new MissionMap({
             terrainTileMap: new TerrainTileMap({movementCost: ["1 "]})
@@ -73,16 +78,21 @@ describe('end turn team strategy', () => {
         });
         missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
 
-        const expectedInstruction: SquaddieActionsForThisRound = {
+        const expectedInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "new_static_squaddie",
             battleSquaddieId: "new_dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
-        SquaddieActionsForThisRoundHandler.endTurn(expectedInstruction);
+            decisions: [
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectEndTurnService.new()
+                    ]
+                })
+            ]
+        });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
         expect(state.instruction).toStrictEqual(expectedInstruction);
@@ -104,7 +114,7 @@ describe('end turn team strategy', () => {
         });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
         expect(actualInstruction).toBeUndefined();
     });
 
@@ -115,10 +125,10 @@ describe('end turn team strategy', () => {
             squaddieRepository: squaddieRepository,
         });
 
-        BattleSquaddieHelper.endTurn(playerBattleSquaddie);
+        BattleSquaddieService.endTurn(playerBattleSquaddie);
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: SquaddieActionsForThisRound = strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction: SquaddieDecisionsDuringThisPhase = strategy.DetermineNextInstruction(state, squaddieRepository);
 
         expect(actualInstruction).toBeUndefined();
     });

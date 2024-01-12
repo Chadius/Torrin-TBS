@@ -1,16 +1,12 @@
-import {SquaddieInstructionInProgress} from "./squaddieInstructionInProgress";
+import {CurrentlySelectedSquaddieDecision} from "./currentlySelectedSquaddieDecision";
 import {SquaddieSquaddieResults} from "./squaddieSquaddieResults";
-import {ActionEffect} from "../../squaddie/actionEffect";
 
 export interface BattleEvent {
-    instruction: SquaddieInstructionInProgress;
+    instruction: CurrentlySelectedSquaddieDecision;
     results: SquaddieSquaddieResults;
 }
 
-export const BattleEventHandler = {
-    actions: (data: BattleEvent): ActionEffect[] => {
-        return [...data.instruction.squaddieActionsForThisRound.actions];
-    },
+export const BattleEventService = {
     clone: (original: BattleEvent): BattleEvent => {
         return {
             instruction: {...original.instruction},

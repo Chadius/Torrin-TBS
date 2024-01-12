@@ -1,14 +1,17 @@
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "./action";
-import {ACTION_PERFORM_FAILURE_REASON, SquaddieTurn, SquaddieTurnHandler} from "./turn";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../decision/actionEffectSquaddieTemplate";
+import {ACTION_PERFORM_FAILURE_REASON, SquaddieTurn, SquaddieTurnService} from "./turn";
 import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 
 describe('Squaddie turn and resources', () => {
     describe('actions', () => {
         let turn: SquaddieTurn;
-        let actionSpends2ActionPoints: SquaddieSquaddieAction;
+        let actionSpends2ActionPoints: ActionEffectSquaddieTemplate;
         beforeEach(() => {
-            turn = SquaddieTurnHandler.new();
-            actionSpends2ActionPoints = SquaddieSquaddieActionService.new({
+            turn = SquaddieTurnService.new();
+            actionSpends2ActionPoints = ActionEffectSquaddieTemplateService.new({
                 id: "actionSpends2ActionPoints",
                 name: "Power Attack",
                 actionPointCost: 2,
@@ -20,8 +23,8 @@ describe('Squaddie turn and resources', () => {
             expect(turn.remainingActionPoints).toBe(3);
         });
         it('should spend 1 action by default', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn,
-                SquaddieSquaddieActionService.new({
+            SquaddieTurnService.spendActionPointsOnActionTemplate(turn,
+                ActionEffectSquaddieTemplateService.new({
                     id: "strike",
                     name: "longsword",
                     traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
@@ -30,35 +33,35 @@ describe('Squaddie turn and resources', () => {
             expect(turn.remainingActionPoints).toBe(2);
         });
         it('should spend multiple actions if action uses more', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn, actionSpends2ActionPoints);
+            SquaddieTurnService.spendActionPointsOnActionTemplate(turn, actionSpends2ActionPoints);
             expect(turn.remainingActionPoints).toBe(1);
         });
         it('should report when an action cannot be spent', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn, actionSpends2ActionPoints);
-            const query = SquaddieTurnHandler.canPerformAction(turn, actionSpends2ActionPoints);
+            SquaddieTurnService.spendActionPointsOnActionTemplate(turn, actionSpends2ActionPoints);
+            const query = SquaddieTurnService.canPerformAction(turn, actionSpends2ActionPoints);
             expect(query.canPerform).toBeFalsy();
             expect(query.reason).toBe(ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING);
         });
         it('should give 3 action points upon starting a new round', () => {
-            SquaddieTurnHandler.spendActionPointsOnAction(turn, actionSpends2ActionPoints);
-            SquaddieTurnHandler.beginNewRound(turn);
+            SquaddieTurnService.spendActionPointsOnActionTemplate(turn, actionSpends2ActionPoints);
+            SquaddieTurnService.beginNewRound(turn);
             expect(turn.remainingActionPoints).toBe(3);
         });
         it('can spend arbitrary number of action points', () => {
-            SquaddieTurnHandler.beginNewRound(turn);
-            SquaddieTurnHandler.spendActionPoints(turn, 1);
+            SquaddieTurnService.beginNewRound(turn);
+            SquaddieTurnService.spendActionPoints(turn, 1);
             expect(turn.remainingActionPoints).toBe(2);
         });
         it('knows when it is out of action points', () => {
-            expect(SquaddieTurnHandler.hasActionPointsRemaining(turn)).toBeTruthy();
-            SquaddieTurnHandler.spendActionPoints(turn, 3);
-            expect(SquaddieTurnHandler.hasActionPointsRemaining(turn)).toBeFalsy();
-            SquaddieTurnHandler.beginNewRound(turn);
-            expect(SquaddieTurnHandler.hasActionPointsRemaining(turn)).toBeTruthy();
+            expect(SquaddieTurnService.hasActionPointsRemaining(turn)).toBeTruthy();
+            SquaddieTurnService.spendActionPoints(turn, 3);
+            expect(SquaddieTurnService.hasActionPointsRemaining(turn)).toBeFalsy();
+            SquaddieTurnService.beginNewRound(turn);
+            expect(SquaddieTurnService.hasActionPointsRemaining(turn)).toBeTruthy();
         });
         it('can end its turn', () => {
-            SquaddieTurnHandler.endTurn(turn);
-            expect(SquaddieTurnHandler.hasActionPointsRemaining(turn)).toBeFalsy();
+            SquaddieTurnService.endTurn(turn);
+            expect(SquaddieTurnService.hasActionPointsRemaining(turn)).toBeFalsy();
         });
     });
 });

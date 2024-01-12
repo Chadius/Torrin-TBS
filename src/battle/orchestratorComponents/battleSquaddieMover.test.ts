@@ -1,7 +1,7 @@
-import {ObjectRepository, ObjectRepositoryHelper} from "../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie} from "../battleSquaddie";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddieMover} from "./battleSquaddieMover";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -9,27 +9,35 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
-import {SquaddieActionsForThisRound, SquaddieActionsForThisRoundHandler} from "../history/squaddieActionsForThisRound";
-import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
-    SquaddieInstructionInProgress,
-    SquaddieInstructionInProgressHandler
-} from "../history/squaddieInstructionInProgress";
+    SquaddieActionsForThisRoundService,
+    SquaddieDecisionsDuringThisPhase
+} from "../history/squaddieDecisionsDuringThisPhase";
+import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
+import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {ActionEffectType} from "../../squaddie/actionEffect";
-import {BattleStateHelper} from "../orchestrator/battleState";
+import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
+import {Decision, DecisionService} from "../../decision/decision";
+import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {OrchestratorUtilities} from "./orchestratorUtils";
+import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {ActionEffect} from "../../decision/actionEffect";
+import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
+import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: ObjectRepository;
     let player1Static: SquaddieTemplate;
-    let player1Dynamic: BattleSquaddie;
+    let player1BattleSquaddie: BattleSquaddie;
     let enemy1Static: SquaddieTemplate;
     let enemy1Dynamic: BattleSquaddie;
     let map: MissionMap;
@@ -37,7 +45,7 @@ describe('BattleSquaddieMover', () => {
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
-        squaddieRepo = ObjectRepositoryHelper.new();
+        squaddieRepo = ObjectRepositoryService.new();
         map = new MissionMap({
             terrainTileMap: new TerrainTileMap({
                 movementCost: [
@@ -49,7 +57,7 @@ describe('BattleSquaddieMover', () => {
 
         ({
             squaddieTemplate: player1Static,
-            battleSquaddie: player1Dynamic,
+            battleSquaddie: player1BattleSquaddie,
         } = CreateNewSquaddieAndAddToRepository({
             name: "Player1",
             templateId: "player_1",
@@ -69,7 +77,6 @@ describe('BattleSquaddieMover', () => {
             squaddieRepository: squaddieRepo,
         }));
     });
-
 
     it('is complete once enough time passes and the squaddie finishes moving', () => {
         map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
@@ -95,39 +102,34 @@ describe('BattleSquaddieMover', () => {
 
         const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
-        const moveAction: SquaddieActionsForThisRound = {
+        const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "player_1",
             battleSquaddieId: "player_1",
             startingLocation: {q: 0, r: 0},
-            actions: [],
-        };
-        SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-            type: ActionEffectType.MOVEMENT,
-            destination: {q: 1, r: 1},
-            numberOfActionPointsSpent: 3,
+            decisions: [
+                DecisionService.new({
+                    actionEffects: [
+                        ActionEffectMovementService.new({
+                            destination: {q: 1, r: 1},
+                            numberOfActionPointsSpent: 3,
+                        })
+                    ]
+                })
+            ]
         });
 
-        const squaddieCurrentlyActing: SquaddieInstructionInProgress = {
-            squaddieActionsForThisRound: moveAction,
-            movingBattleSquaddieIds: [],
-            currentlySelectedAction: undefined,
-        };
-        SquaddieInstructionInProgressHandler.markBattleSquaddieIdAsMoving(squaddieCurrentlyActing, "player_1");
-
         const state: GameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 squaddieRepository: squaddieRepo,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
-                    squaddieCurrentlyActing: {
+                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: moveAction,
-                        movingBattleSquaddieIds: [],
-                        currentlySelectedAction: undefined,
-                    },
+                    }),
                 }),
             })
         });
@@ -135,15 +137,12 @@ describe('BattleSquaddieMover', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 1);
         mover.update(state, mockedP5GraphicsContext);
         expect(mover.hasCompleted(state)).toBeFalsy();
-        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, "player_1")).toBeTruthy();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
         mover.update(state, mockedP5GraphicsContext);
         expect(mover.hasCompleted(state)).toBeTruthy();
         mover.reset(state);
         expect(mover.animationStartTime).toBeUndefined();
-        expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
-        expect(SquaddieInstructionInProgressHandler.isBattleSquaddieIdMoving(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, "player_1")).toBeFalsy();
     });
 
     describe('reset actions based on squaddie', () => {
@@ -154,7 +153,7 @@ describe('BattleSquaddieMover', () => {
                                }: {
             battleSquaddieId: string,
             squaddieAffiliation: SquaddieAffiliation,
-            newInstruction: SquaddieActionsForThisRound,
+            newInstruction: SquaddieDecisionsDuringThisPhase,
         }): BattleOrchestratorState => {
             const searchResults: SearchResult = PathfinderHelper.search({
                 searchParameters: SearchParametersHelper.new({
@@ -180,36 +179,43 @@ describe('BattleSquaddieMover', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            return BattleOrchestratorStateHelper.newOrchestratorState({
+            let decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
+                decision: SquaddieActionsForThisRoundService.getMostRecentDecision(newInstruction)
+            });
+
+            return BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 squaddieRepository: squaddieRepo,
-                battleState: BattleStateHelper.newBattleState({
+                battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
-                    squaddieCurrentlyActing: {
+                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: newInstruction,
-                        currentlySelectedAction: undefined,
-                        movingBattleSquaddieIds: [],
-                    },
+                    }),
                 }),
+                decisionActionEffectIterator,
             });
         }
 
         it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = {
+            const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
-                actions: [],
-            };
-            SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-                type: ActionEffectType.MOVEMENT,
-                destination: {q: 1, r: 1},
-                numberOfActionPointsSpent: 3,
+                decisions: [
+                    DecisionService.new({
+                        actionEffects: [
+                            ActionEffectMovementService.new({
+                                destination: {q: 1, r: 1},
+                                numberOfActionPointsSpent: 3,
+                            })
+                        ]
+                    })
+                ]
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({
@@ -219,6 +225,8 @@ describe('BattleSquaddieMover', () => {
                     newInstruction: moveAction,
                 })
             });
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).not.toBeUndefined();
+            player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0;
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             jest.spyOn(Date, 'now').mockImplementation(() => 1);
@@ -226,24 +234,27 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
-
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).toBeUndefined();
         });
 
-        it('should open the HUD if the squaddie turn is incomplete', () => {
+        it('should open the HUD if the squaddie turn has actions remaining', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = {
+            const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
-                actions: [],
-            };
-            SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-                type: ActionEffectType.MOVEMENT,
-                destination: {q: 1, r: 1},
-                numberOfActionPointsSpent: 1,
+                decisions: [
+                    DecisionService.new({
+                        actionEffects: [
+                            ActionEffectMovementService.new({
+                                destination: {q: 1, r: 1},
+                                numberOfActionPointsSpent: 1,
+                            })
+                        ]
+                    })
+                ]
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({
@@ -266,24 +277,26 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
-
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
         });
 
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
             map.addSquaddie("enemy_1", "enemy_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieActionsForThisRound = {
+            const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",
                 startingLocation: {q: 0, r: 0},
-                actions: [],
-            };
-            SquaddieActionsForThisRoundHandler.addAction(moveAction, {
-                type: ActionEffectType.MOVEMENT,
-                destination: {q: 1, r: 1},
-                numberOfActionPointsSpent: 1,
+                decisions: [
+                    DecisionService.new({
+                        actionEffects: [
+                            ActionEffectMovementService.new({
+                                destination: {q: 1, r: 1},
+                                numberOfActionPointsSpent: 1,
+                            })
+                        ]
+                    })
+                ]
             });
 
             const state: GameEngineState = GameEngineStateHelper.new({
@@ -306,9 +319,133 @@ describe('BattleSquaddieMover', () => {
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
-
-            expect(SquaddieInstructionInProgressHandler.isReadyForNewSquaddie(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
+        });
+    });
+
+    describe('will determine the next mode based on the next action effect', () => {
+        let movementActionEffect: ActionEffect;
+        let squaddieActionEffect: ActionEffect;
+        let endTurnActionEffect: ActionEffect;
+
+        beforeEach(() => {
+            movementActionEffect = ActionEffectMovementService.new({
+                destination: {q: 0, r: 2},
+                numberOfActionPointsSpent: 2,
+            });
+
+            squaddieActionEffect = ActionEffectSquaddieService.new({
+                targetLocation: {q: 0, r: 2},
+                numberOfActionPointsSpent: 1,
+                template: ActionEffectSquaddieTemplateService.new({
+                    id: "shout",
+                    name: "shout"
+                })
+            });
+
+            endTurnActionEffect = ActionEffectEndTurnService.new();
+        });
+
+        const setupStateWithDecisions = (decision: Decision, decision1: Decision): GameEngineState => {
+            const moveDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+                squaddieTemplateId: "enemy_1",
+                battleSquaddieId: "enemy_1",
+                startingLocation: {q: 0, r: 0},
+                decisions: [
+                    decision,
+                    decision1,
+                ].filter(x => x)
+            });
+
+            return GameEngineStateHelper.new({
+                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                    resourceHandler: undefined,
+                    battleState: BattleStateService.newBattleState({
+                        missionId: "the mission",
+                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                            squaddieActionsForThisRound: moveDecisions,
+                        })
+                    })
+                }),
+            });
+        }
+
+        it('will suggest the squaddie mover if it has a movement action', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    ActionEffectMovementService.new({
+                        destination: {q: 1, r: 1},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            });
+            const decision1 = DecisionService.new({
+                actionEffects: [
+                    ActionEffectMovementService.new({
+                        destination: {q: 1, r: 2},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            });
+
+            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
+        });
+
+        it('will suggest the squaddie act on squaddie mode if it has a squaddie action', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    movementActionEffect
+                ]
+            });
+            const decision1 = DecisionService.new({
+                actionEffects: [
+                    squaddieActionEffect
+                ]
+            });
+            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
+        });
+
+        it('will suggest the squaddie act on map mode if it has an end turn action', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    movementActionEffect
+                ]
+            });
+            const decision1 = DecisionService.new({
+                actionEffects: [
+                    endTurnActionEffect
+                ]
+            });
+            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
+        });
+
+        it('will not suggest a mode if there are no more decisions to process', () => {
+            const decision = DecisionService.new({
+                actionEffects: [
+                    movementActionEffect
+                ]
+            });
+            const state: GameEngineState = setupStateWithDecisions(decision, undefined);
+            const mover: BattleSquaddieMover = new BattleSquaddieMover();
+            const recommendedChanges = mover.recommendStateChanges(state);
+
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeUndefined();
+            expect(recommendedChanges.nextMode).toBeUndefined();
         });
     });
 });

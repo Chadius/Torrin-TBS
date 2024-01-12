@@ -2,11 +2,11 @@ import {DialogueBox} from "./dialogueBox";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
     BattleOrchestratorState,
-    BattleOrchestratorStateHelper
+    BattleOrchestratorStateService
 } from "../../battle/orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../../battle/orchestratorComponents/battlePhaseTracker";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {BattleStateHelper} from "../../battle/orchestrator/battleState";
+import {BattleStateService} from "../../battle/orchestrator/battleState";
 
 describe('dialogue box', () => {
 
@@ -107,11 +107,11 @@ describe('dialogue box', () => {
             screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
         });
 
-        const battleState: BattleOrchestratorState = BattleOrchestratorStateHelper.newOrchestratorState({
+        const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateHelper.newBattleState({
+            battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 battlePhaseState: {
                     currentAffiliation: BattlePhase.UNKNOWN,

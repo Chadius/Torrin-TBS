@@ -1,5 +1,5 @@
 import {BattleOrchestrator} from "../battle/orchestrator/battleOrchestrator";
-import {BattleOrchestratorState, BattleOrchestratorStateHelper} from "../battle/orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "../battle/orchestratorComponents/battleCutscenePlayer";
 import {BattlePlayerSquaddieSelector} from "../battle/orchestratorComponents/battlePlayerSquaddieSelector";
 import {BattleComputerSquaddieSelector} from "../battle/orchestratorComponents/battleComputerSquaddieSelector";
@@ -43,7 +43,7 @@ export const GameEngineStateHelper = {
     }): GameEngineState => {
         return {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
-            battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateHelper.newOrchestratorState({
+            battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler,
             }),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),

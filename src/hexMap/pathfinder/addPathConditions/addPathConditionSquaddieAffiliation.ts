@@ -2,7 +2,7 @@ import {AddPathCondition, AreValidParametersForAddPathCondition} from "./addPath
 import {SearchPath, SearchPathHelper} from "../searchPath";
 import {SearchParameters} from "../searchParams";
 import {MissionMap} from "../../../missionMap/missionMap";
-import {ObjectRepository, ObjectRepositoryHelper} from "../../../battle/objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../../../battle/objectRepository";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {FriendlyAffiliationsByAffiliation, SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
@@ -48,7 +48,7 @@ export class AddPathConditionSquaddieAffiliation implements AddPathCondition {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(this.repository, battleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(this.repository, battleSquaddieId));
 
         if (!squaddieTemplate) {
             return true;

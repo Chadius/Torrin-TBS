@@ -2,7 +2,7 @@ import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {SquaddieId} from "../squaddie/id";
 import {HexGridMovementCost} from "../hexMap/hexGridMovementCost";
 import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
-import {MissionMap} from "./missionMap";
+import {MissionMap, MissionMapService} from "./missionMap";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "./squaddieLocation";
 
@@ -37,10 +37,21 @@ describe('Mission Map', () => {
 
         missionMap.addSquaddie(torrinSquaddie.templateId, "dynamic_squaddie_0", {q: 0, r: 1});
 
-        const {
+        let {
             mapLocation: squaddieMapCoordinate,
             squaddieTemplateId,
         } = missionMap.getSquaddieByBattleId("dynamic_squaddie_0");
+        expect(squaddieTemplateId).toBe(torrinSquaddie.templateId);
+        expect(squaddieMapCoordinate.q).toBe(0);
+        expect(squaddieMapCoordinate.r).toBe(1);
+
+
+        (
+            {
+                mapLocation: squaddieMapCoordinate,
+                squaddieTemplateId,
+            } = MissionMapService.getByBattleSquaddieId(missionMap, "dynamic_squaddie_0")
+        );
         expect(squaddieTemplateId).toBe(torrinSquaddie.templateId);
         expect(squaddieMapCoordinate.q).toBe(0);
         expect(squaddieMapCoordinate.r).toBe(1);
@@ -203,7 +214,7 @@ describe('Mission Map', () => {
         });
     });
 
-    it('can move a squaddie by updating its position', () => {
+    it('can move a squaddie by updating its position via class method', () => {
         const missionMap = new MissionMap({
             terrainTileMap: map
         })
@@ -215,6 +226,28 @@ describe('Mission Map', () => {
             q: 0,
             r: 0
         })).toStrictEqual({
+            battleSquaddieId: "dynamic_squaddie_0",
+            squaddieTemplateId: torrinSquaddie.templateId,
+            mapLocation: {q: 0, r: 0},
+        });
+        expect(MissionMapSquaddieLocationHandler.isValid(
+            missionMap.getSquaddieAtLocation({q: 0, r: 1})
+        )).toBeFalsy();
+    });
+
+    it('can move a squaddie by updating its position', () => {
+        const missionMap = new MissionMap({
+            terrainTileMap: map
+        })
+
+        MissionMapService.addSquaddie(missionMap, torrinSquaddie.templateId, "dynamic_squaddie_0", {q: 0, r: 1});
+        MissionMapService.updateBattleSquaddieLocation(missionMap, "dynamic_squaddie_0", {q: 0, r: 0})
+        expect(MissionMapService.getBattleSquaddieAtLocation(
+            missionMap,
+            {
+                q: 0,
+                r: 0
+            })).toStrictEqual({
             battleSquaddieId: "dynamic_squaddie_0",
             squaddieTemplateId: torrinSquaddie.templateId,
             mapLocation: {q: 0, r: 0},

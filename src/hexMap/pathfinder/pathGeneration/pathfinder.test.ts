@@ -1,11 +1,11 @@
-import {MissionMap, MissionMapHelper} from "../../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../../missionMap/missionMap";
 import {TerrainTileMapHelper} from "../../terrainTileMap";
 import {SearchParameters, SearchParametersHelper} from "../searchParams";
 import {HexGridMovementCost} from "../../hexGridMovementCost";
 import {SearchPath, SearchPathHelper} from "../searchPath";
 import {SearchResult, SearchResultsHelper} from "../searchResults/searchResult";
 import {PathfinderHelper} from "./pathfinder";
-import {ObjectRepositoryHelper} from "../../../battle/objectRepository";
+import {ObjectRepositoryService} from "../../../battle/objectRepository";
 
 describe("Pathfinder", () => {
     describe("generate shortest paths for every location in a given map", () => {
@@ -14,7 +14,7 @@ describe("Pathfinder", () => {
         let searchResults: SearchResult;
 
         beforeEach(() => {
-            missionMap = MissionMapHelper.new({
+            missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 2 1 2 ",
@@ -32,7 +32,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
         });
 
@@ -66,8 +66,8 @@ describe("Pathfinder", () => {
         const shouldThrowError = () => {
             PathfinderHelper.search({
                 searchParameters: SearchParametersHelper.new({}),
-                missionMap: MissionMapHelper.default(),
-                repository: ObjectRepositoryHelper.new(),
+                missionMap: MissionMapService.default(),
+                repository: ObjectRepositoryService.new(),
             });
         }
 
@@ -78,7 +78,7 @@ describe("Pathfinder", () => {
 
     describe("distance limits and terrain movement costs", () => {
         it("can use movementPerAction and numberOfActions to determine distance", () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 1 1 1 1 1 1 1 1 1 1 1 ",
@@ -97,7 +97,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -111,7 +111,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 7)).toBeFalsy();
         });
         it("can factor terrain movement costs", () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 2 2 2 1 1 1 1 1 1 1 1 1 ",
@@ -130,7 +130,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -140,7 +140,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBeFalsy();
         });
         it("can ignores terrain movement costs if ignoreTerrainCosts is true", () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 2 2 2 1 1 1 1 1 1 1 1 1 ",
@@ -160,7 +160,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -173,7 +173,7 @@ describe("Pathfinder", () => {
 
     describe("wall and sky tiles", () => {
         it("cannot pass wall tiles", () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 x 1 1 1 1 1 1 1 1 1 1 ",
@@ -190,7 +190,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -199,7 +199,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
         });
         it("cannot pass over pit tiles", () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 - 1 1 1 1 1 1 1 1 1 1 ",
@@ -217,7 +217,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -226,7 +226,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeFalsy();
         });
         it("can pass over pit tiles if search parameters is set but still cannot stop on them", () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 - 1 1 1 1 1 1 1 1 1 1 ",
@@ -244,7 +244,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -253,7 +253,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 3)).toBeTruthy();
         });
         it("can pass over wall tiles if search parameters is set but still cannot stop on them", () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 x 1 1 1 1 1 1 1 1 1 1 ",
@@ -271,7 +271,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBeTruthy();
@@ -283,7 +283,7 @@ describe("Pathfinder", () => {
 
     describe('Split movement by number of actions', () => {
         it('will count number of actions based on the movement per action', () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
@@ -301,7 +301,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
@@ -317,7 +317,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 10)).toBe(6);
         });
         it('will count number of actions based on the movement needed up to the number of actions', () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
@@ -336,7 +336,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
@@ -347,7 +347,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 5)).toBe(undefined);
         });
         it('will always assume 1 action needed if movement per action is not specified', () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 2 1 2 1 1 1 1 1 1 1 1 1 ",
@@ -364,7 +364,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.numberOfActionsToReachLocation(searchResults, 0, 0)).toBe(0);
@@ -376,7 +376,7 @@ describe("Pathfinder", () => {
 
     describe('minimum and maximum distances', () => {
         it('will not include anything past the maximum distance', () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "2 2 2 2 2 2 2 2 ",
@@ -394,7 +394,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(true);
@@ -404,7 +404,7 @@ describe("Pathfinder", () => {
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 4)).toBe(false);
         });
         it('will not include any paths less than the minimum distance', () => {
-            const missionMap = MissionMapHelper.new({
+            const missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "2 2 2 2 2 2 2 2 ",
@@ -422,7 +422,7 @@ describe("Pathfinder", () => {
             const searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(SearchResultsHelper.isLocationReachable(searchResults, 0, 0)).toBe(false);
@@ -441,7 +441,7 @@ describe("Pathfinder", () => {
         let searchResults: SearchResult;
 
         beforeEach(() => {
-            missionMap = MissionMapHelper.new({
+            missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 2 1 2 ",
@@ -460,7 +460,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
         });
 
@@ -513,7 +513,7 @@ describe("Pathfinder", () => {
             searchResults = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(searchResults.shortestPathByLocation[0][0]).toBeTruthy();
@@ -534,7 +534,7 @@ describe("Pathfinder", () => {
         let missionMap: MissionMap;
 
         beforeEach(() => {
-            missionMap = MissionMapHelper.new({
+            missionMap = MissionMapService.new({
                 terrainTileMap: TerrainTileMapHelper.new({
                     movementCost: [
                         "1 1 2 1 2 ",
@@ -559,7 +559,7 @@ describe("Pathfinder", () => {
             const searchResults: SearchResult = PathfinderHelper.search({
                 searchParameters,
                 missionMap,
-                repository: ObjectRepositoryHelper.new(),
+                repository: ObjectRepositoryService.new(),
             });
 
             expect(searchResults.stopLocationsReached).toHaveLength(2);

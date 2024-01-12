@@ -1,4 +1,4 @@
-import {ArmyAttributes, ArmyAttributesHelper} from "./armyAttributes";
+import {ArmyAttributes, ArmyAttributesService} from "./armyAttributes";
 
 describe('sanitize', () => {
     it('can be sanitized to fill in missing fields', () => {
@@ -7,8 +7,8 @@ describe('sanitize', () => {
             armorClass: null,
             movement: undefined,
         };
-        ArmyAttributesHelper.sanitize(attributesWithMissingFields);
-        const defaultAttributes = ArmyAttributesHelper.default();
+        ArmyAttributesService.sanitize(attributesWithMissingFields);
+        const defaultAttributes = ArmyAttributesService.default();
 
         expect(attributesWithMissingFields.maxHitPoints).toEqual(defaultAttributes.maxHitPoints);
         expect(attributesWithMissingFields.armorClass).toEqual(defaultAttributes.armorClass);
@@ -20,8 +20,8 @@ describe('sanitize', () => {
             armorClass: null,
             movement: undefined,
         };
-        ArmyAttributesHelper.sanitize(attributesWithNoHitPoints);
-        const defaultAttributes = ArmyAttributesHelper.default();
+        ArmyAttributesService.sanitize(attributesWithNoHitPoints);
+        const defaultAttributes = ArmyAttributesService.default();
 
         expect(attributesWithNoHitPoints.maxHitPoints).toEqual(defaultAttributes.maxHitPoints);
     });

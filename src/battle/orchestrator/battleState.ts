@@ -5,7 +5,7 @@ import {
 } from "./missionObjectivesAndCutscenes";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleSquaddieTeam, BattleSquaddieTeamHelper} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {BattlePhaseState} from "../orchestratorComponents/battlePhaseController";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
@@ -13,7 +13,10 @@ import {BattleCamera} from "../battleCamera";
 import {Recording} from "../history/recording";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
-import {SquaddieInstructionInProgress} from "../history/squaddieInstructionInProgress";
+import {
+    CurrentlySelectedSquaddieDecision,
+    CurrentlySelectedSquaddieDecisionService
+} from "../history/currentlySelectedSquaddieDecision";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective} from "../missionResult/missionObjective";
@@ -43,10 +46,10 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     recording: Recording;
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
-    squaddieCurrentlyActing: SquaddieInstructionInProgress;
+    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision;
 }
 
-export const BattleStateHelper = {
+export const BattleStateService = {
     new: (params: BattleStateConstructorParameters): BattleState => {
         return newBattleState(params);
     },
@@ -79,7 +82,7 @@ export const BattleStateHelper = {
             ConvertBattlePhaseToSquaddieAffiliation(battleState.battlePhaseState.currentAffiliation),
         );
 
-        return teamsOfAffiliation.find(team => BattleSquaddieTeamHelper.hasAnActingSquaddie(team, squaddieRepository));
+        return teamsOfAffiliation.find(team => BattleSquaddieTeamService.hasAnActingSquaddie(team, squaddieRepository));
     },
     clone: (battleState: BattleState): BattleState => {
         return {...battleState};
@@ -136,7 +139,7 @@ interface BattleStateConstructorParameters {
     missionMap?: MissionMap;
     camera?: BattleCamera;
     battlePhaseState?: BattlePhaseState;
-    squaddieCurrentlyActing?: SquaddieInstructionInProgress;
+    squaddieCurrentlyActing?: CurrentlySelectedSquaddieDecision;
     recording?: Recording;
     teams?: BattleSquaddieTeam[];
     teamStrategiesById?: { [key: string]: TeamStrategy[] };
@@ -190,11 +193,10 @@ const newBattleState = ({
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        squaddieCurrentlyActing: squaddieCurrentlyActing || {
-            movingBattleSquaddieIds: [],
-            currentlySelectedAction: undefined,
+        squaddieCurrentlyActing: squaddieCurrentlyActing || CurrentlySelectedSquaddieDecisionService.new({
+
             squaddieActionsForThisRound: undefined,
-        },
+        }),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
     };
 };

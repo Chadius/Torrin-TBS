@@ -9,13 +9,16 @@ import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
 import {SquaddieSprite} from "./squaddieSprite";
-import {ObjectRepository, ObjectRepositoryHelper} from "../../objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaHelper} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {RollResultService} from "../../actionCalculator/rollResult";
-import {SquaddieSquaddieAction, SquaddieSquaddieActionService} from "../../../squaddie/action";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults;
@@ -70,7 +73,7 @@ export class ActorSprite {
         this._battleSquaddieId = actorBattleSquaddieId;
         this.squaddieResult = squaddieResult;
 
-        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryHelper.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
+        const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(this.squaddieRepository, this.battleSquaddieId));
 
         this._sprite = new SquaddieSprite({
             resourceHandler,
@@ -79,10 +82,10 @@ export class ActorSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw({timer, graphicsContext, action,}: {
+    draw({timer, graphicsContext, actionEffectSquaddieTemplate,}: {
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: SquaddieSquaddieAction,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
@@ -90,13 +93,13 @@ export class ActorSprite {
 
         this.sprite.createActorImagesWithLoadedData();
 
-        this.drawActorSprite(timer, graphicsContext, action);
+        this.drawActorSprite(timer, graphicsContext, actionEffectSquaddieTemplate);
     }
 
     getSquaddieImageBasedOnTimer(
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     ) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
@@ -117,16 +120,16 @@ export class ActorSprite {
         timer: ActionTimer,
         battleSquaddieId: string,
         squaddieRepository: ObjectRepository,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                if (SquaddieSquaddieActionService.isHindering(action)) {
+                if (ActionEffectSquaddieTemplateService.isHindering(action)) {
                     return SquaddieEmotion.ATTACK;
-                } else if (SquaddieSquaddieActionService.isHelpful(action)) {
+                } else if (ActionEffectSquaddieTemplateService.isHelpful(action)) {
                     return SquaddieEmotion.ASSISTING;
                 } else {
                     return SquaddieEmotion.NEUTRAL;
@@ -139,7 +142,7 @@ export class ActorSprite {
     private drawActorSprite(
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: SquaddieSquaddieAction,
+        action: ActionEffectSquaddieTemplate,
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(
             timer,

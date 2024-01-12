@@ -7,7 +7,7 @@ export interface ArmyAttributes {
     movement: SquaddieMovement;
 }
 
-export const ArmyAttributesHelper = {
+export const ArmyAttributesService = {
     new: ({movement}: { movement?: SquaddieMovement }): ArmyAttributes => {
         const attributes = {
             ...DefaultArmyAttributes(),
