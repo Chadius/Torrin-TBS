@@ -5,18 +5,12 @@ import {
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
-import {
-    hasMovementAnimationFinished,
-    moveSquaddieAlongPath,
-    TintSquaddieIfTurnIsComplete,
-    updateSquaddieIconLocation
-} from "../animation/drawSquaddie";
+import {DrawSquaddieUtilities, hasMovementAnimationFinished, moveSquaddieAlongPath} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {
     DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
     DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation,
-    OrchestratorUtilities,
-    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
+    OrchestratorUtilities
 } from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -24,6 +18,9 @@ import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySele
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {SquaddieService} from "../../squaddie/squaddieService";
+import {BattleSquaddie} from "../battleSquaddie";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -113,13 +110,41 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
             CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
         ));
-
-        const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
-        if (mapIcon) {
-            updateSquaddieIconLocation(state.squaddieRepository, battleSquaddie, state.battleState.squaddieMovePath.destination, state.battleState.camera);
-            TintSquaddieIfTurnIsComplete(state.squaddieRepository, battleSquaddie, squaddieTemplate);
-            mapIcon.draw(graphicsContext);
-        }
         state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+        updateIconAndMapBasedOnWhetherSquaddieCanAct(state, battleSquaddie, squaddieTemplate, graphicsContext);
     }
 }
+
+const updateIconAndMapBasedOnWhetherSquaddieCanAct = (state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, graphicsContext: GraphicsContext) => {
+    const mapIcon = state.squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
+    if (!mapIcon) {
+        return;
+    }
+    DrawSquaddieUtilities.updateSquaddieIconLocation({
+        repository: state.squaddieRepository,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        destination: state.battleState.squaddieMovePath.destination,
+        camera: state.battleState.camera,
+    });
+
+    let {
+        canAct,
+    } = SquaddieService.canSquaddieActRightNow({
+        squaddieTemplate,
+        battleSquaddie,
+    });
+
+    if (canAct) {
+        DrawSquaddieUtilities.highlightSquaddieRange({
+            missionMap: state.battleState.missionMap,
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            repository: state.squaddieRepository,
+        });
+    } else {
+        DrawSquaddieUtilities.tintSquaddieMapIcon({
+            battleSquaddieId: battleSquaddie.battleSquaddieId,
+            repository: state.squaddieRepository,
+        })
+    }
+    mapIcon.draw(graphicsContext);
+};

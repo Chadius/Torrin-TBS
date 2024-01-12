@@ -24,7 +24,6 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 

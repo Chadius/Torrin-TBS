@@ -61,7 +61,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
     reset(state: GameEngineState): void {
         this.animationCompleteStartTime = undefined;
-        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = undefined;
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {

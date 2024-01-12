@@ -200,7 +200,7 @@ const getClosestSquaddieAndLocationToFollow = ({
             const closestReachableLocationsFromTheCandidate: HexCoordinate[] = SearchResultsHelper.getClosestRoutesToLocationByDistance(routesToAllSquaddies, candidateLocation, distanceFromCandidate);
             const shortestRoutesThatLeadToSquaddieAndInfo = getShortestRoutesThatLeadToSquaddie(closestReachableLocationsFromTheCandidate, candidateToChase, distanceFromActor, candidateLocation);
             if (shortestRoutesThatLeadToSquaddieAndInfo.length > 0) {
-                return shortestRoutesThatLeadToSquaddieAndInfo[0];
+                return shortestRoutesThatLeadToSquaddieAndInfo.find(route => route.shortestRoute.currentNumberOfMoveActions !== 0)
             }
         }
     }

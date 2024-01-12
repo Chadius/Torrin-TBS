@@ -18,14 +18,57 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
+import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
+import {MapHighlightHelper} from "./mapHighlight";
 
 export const DrawSquaddieUtilities = {
+    tintSquaddieMapIcon: ({
+                              repository,
+                              battleSquaddieId,
+                          }: {
+        repository: ObjectRepository,
+        battleSquaddieId: string
+    }) => {
+        const {
+            battleSquaddie,
+            squaddieTemplate
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
+        return tintSquaddieMapIcon(repository, squaddieTemplate, battleSquaddie);
+    },
     tintSquaddieIfTurnIsComplete: (squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) => {
         return TintSquaddieIfTurnIsComplete(squaddieRepository, battleSquaddie, squaddieTemplate);
+    },
+    highlightSquaddieRange: ({missionMap, battleSquaddieId, repository}: {
+        missionMap: MissionMap,
+        battleSquaddieId: string,
+        repository: ObjectRepository
+    }) => {
+        const {mapLocation} = MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId);
+        const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
+            repository: repository,
+            missionMap,
+            battleSquaddieId,
+            startLocation: mapLocation,
+        })
+        missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
+    },
+    updateSquaddieIconLocation: ({
+                                     repository,
+                                     battleSquaddieId,
+                                     destination,
+                                     camera,
+                                 }: {
+        repository: ObjectRepository,
+        battleSquaddieId: string,
+        destination: HexCoordinate,
+        camera: BattleCamera
+    }) => {
+        const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
+        return updateSquaddieIconLocation(repository, battleSquaddie, destination, camera);
     }
 }
 
-export const tintSquaddieMapIconTurnComplete = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
+const tintSquaddieMapIcon = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
     if (mapIcon) {
@@ -112,7 +155,7 @@ export const TintSquaddieIfTurnIsComplete = (squaddieRepository: ObjectRepositor
     });
 
     if (!canAct) {
-        tintSquaddieMapIconTurnComplete(squaddieRepository, squaddieTemplate, battleSquaddie)
+        tintSquaddieMapIcon(squaddieRepository, squaddieTemplate, battleSquaddie)
     }
 }
 
