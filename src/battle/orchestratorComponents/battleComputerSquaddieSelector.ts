@@ -275,7 +275,6 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private reactToComputerSelectedAction(state: GameEngineState, squaddieInstruction: SquaddieDecisionsDuringThisPhase) {
-        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         const {
             squaddieTemplate,
             battleSquaddie,
@@ -292,6 +291,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         }
         populateCurrentlySelectedSquaddie(state, battleSquaddie.battleSquaddieId);
         CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, newDecision);
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 
         let results: SquaddieSquaddieResults;
         newDecision.actionEffects.forEach(actionEffect => {
@@ -336,7 +336,6 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 }
 
-// TODO Move this into convenience function
 const populateCurrentlySelectedSquaddie = (state: GameEngineState, battleSquaddieId: string) => {
     let {
         battleSquaddie,

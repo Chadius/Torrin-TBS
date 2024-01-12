@@ -119,6 +119,8 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
                     state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
                 )
             )
+            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.battleState.missionMap, state.battleOrchestratorState.squaddieRepository);
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.squaddieRepository);
             DrawSquaddieUtilities.tintSquaddieIfTurnIsComplete(
                 state.battleOrchestratorState.squaddieRepository,
                 battleSquaddie,

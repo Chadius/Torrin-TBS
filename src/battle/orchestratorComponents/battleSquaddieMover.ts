@@ -18,7 +18,6 @@ import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySele
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {SquaddieService} from "../../squaddie/squaddieService";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
@@ -126,25 +125,8 @@ const updateIconAndMapBasedOnWhetherSquaddieCanAct = (state: BattleOrchestratorS
         destination: state.battleState.squaddieMovePath.destination,
         camera: state.battleState.camera,
     });
-
-    let {
-        canAct,
-    } = SquaddieService.canSquaddieActRightNow({
-        squaddieTemplate,
-        battleSquaddie,
-    });
-
-    if (canAct) {
-        DrawSquaddieUtilities.highlightSquaddieRange({
-            missionMap: state.battleState.missionMap,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            repository: state.squaddieRepository,
-        });
-    } else {
-        DrawSquaddieUtilities.tintSquaddieMapIcon({
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            repository: state.squaddieRepository,
-        })
-    }
+    DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, state.battleState.missionMap, state.squaddieRepository);
+    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.squaddieRepository);
     mapIcon.draw(graphicsContext);
 };
+

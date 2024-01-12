@@ -4,7 +4,7 @@ import {
     OrchestratorComponentKeyEvent,
     OrchestratorComponentMouseEvent
 } from "../orchestrator/battleOrchestratorComponent";
-import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
+import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -72,7 +72,10 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
                 squaddieTemplate
             } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
 
-            TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
+            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.battleState.missionMap, state.battleOrchestratorState.squaddieRepository);
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.squaddieRepository);
+            DrawSquaddieUtilities.tintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
+
             this.animationCompleteStartTime = Date.now();
         }
     }

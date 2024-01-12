@@ -103,6 +103,19 @@ export const SquaddieService = {
     } => {
         return canSquaddieActRightNow({squaddieTemplate, battleSquaddie});
     },
+    canPlayerControlSquaddieRightNow: ({
+                                           squaddieTemplate,
+                                           battleSquaddie,
+                                       }: {
+        squaddieTemplate: SquaddieTemplate,
+        battleSquaddie: BattleSquaddie,
+    }): {
+        squaddieHasThePlayerControlledAffiliation: boolean,
+        squaddieCanCurrentlyAct: boolean,
+        playerCanControlThisSquaddieRightNow: boolean,
+    } => {
+        return CanPlayerControlSquaddieRightNow({squaddieTemplate, battleSquaddie});
+    }
 }
 
 export const GetNumberOfActionPoints = ({

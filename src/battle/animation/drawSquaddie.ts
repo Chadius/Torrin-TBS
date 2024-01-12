@@ -65,6 +65,12 @@ export const DrawSquaddieUtilities = {
     }) => {
         const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
         return updateSquaddieIconLocation(repository, battleSquaddie, destination, camera);
+    },
+    highlightPlayableSquaddieReachIfTheyCanAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, repository: ObjectRepository) => {
+        return highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, missionMap, repository);
+    },
+    tintSquaddieMapIconIfTheyCannotAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
+        return tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
     }
 }
 
@@ -194,4 +200,47 @@ export const moveSquaddieAlongPath = (squaddieRepository: ObjectRepository, batt
     if (mapIcon) {
         setImageToLocation(mapIcon, squaddieDrawCoordinates);
     }
+}
+
+const highlightPlayableSquaddieReachIfTheyCanAct = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, repository: ObjectRepository) => {
+    let {
+        canAct,
+    } = SquaddieService.canSquaddieActRightNow({
+        squaddieTemplate,
+        battleSquaddie,
+    });
+
+    let {squaddieHasThePlayerControlledAffiliation} =
+        SquaddieService.canPlayerControlSquaddieRightNow({
+            squaddieTemplate,
+            battleSquaddie,
+        });
+
+    if (!canAct || !squaddieHasThePlayerControlledAffiliation) {
+        return;
+    }
+
+    DrawSquaddieUtilities.highlightSquaddieRange({
+        missionMap: missionMap,
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        repository: repository,
+    });
+}
+
+const tintSquaddieMapIconIfTheyCannotAct = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
+    let {
+        canAct,
+    } = SquaddieService.canSquaddieActRightNow({
+        squaddieTemplate,
+        battleSquaddie,
+    });
+
+    if (canAct) {
+        return;
+    }
+
+    DrawSquaddieUtilities.tintSquaddieMapIcon({
+        battleSquaddieId: battleSquaddie.battleSquaddieId,
+        repository,
+    })
 }
