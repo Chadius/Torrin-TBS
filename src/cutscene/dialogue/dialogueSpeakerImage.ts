@@ -1,4 +1,4 @@
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {WINDOW_SPACING2} from "../../ui/constants";
 import {ImageUI} from "../../ui/imageUI";
 import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -31,7 +31,7 @@ export class DialogueSpeakerImage {
 
         this.speakerImage = new ImageUI({
             graphic: this.speakerPortrait,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: dialogueBoxLeft,
                 top: speakerBoxTop - this.speakerPortrait.height,
                 width: this.speakerPortrait.width,

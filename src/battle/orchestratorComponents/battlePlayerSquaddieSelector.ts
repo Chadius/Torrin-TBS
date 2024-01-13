@@ -74,7 +74,10 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                     if (hudUsedMouseClick) {
                         state.battleOrchestratorState.battleSquaddieSelectedHUD.mouseClicked(event.mouseX, event.mouseY, state);
                     }
-                    if (state.battleOrchestratorState.battleSquaddieSelectedHUD.wasAnyActionSelected()) {
+                    if (
+                        state.battleOrchestratorState.battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()
+                        || state.battleOrchestratorState.battleSquaddieSelectedHUD.didPlayerSelectEndTurnAction()
+                    ) {
                         this.reactToPlayerSelectedAction(state.battleOrchestratorState);
                     }
                 }

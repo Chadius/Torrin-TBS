@@ -77,6 +77,13 @@ export const BattleStateService = {
         return missingComponents.length === 0;
     },
     getCurrentTeam: (battleState: BattleState, squaddieRepository: ObjectRepository): BattleSquaddieTeam => {
+        if (
+            !isValidValue(battleState)
+            || !isValidValue(battleState.battlePhaseState)
+        ) {
+            return undefined;
+        }
+
         const teamsOfAffiliation: BattleSquaddieTeam[] = FindTeamsOfAffiliation(
             battleState.teams,
             ConvertBattlePhaseToSquaddieAffiliation(battleState.battlePhaseState.currentAffiliation),

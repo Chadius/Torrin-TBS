@@ -1,4 +1,4 @@
-import {RectAreaHelper} from "../../../ui/rectArea";
+import {RectAreaService} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
 import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
@@ -101,7 +101,7 @@ export class ActorTextWindow {
 
         this._actorLabel = LabelHelper.new({
             padding: WINDOW_SPACING1,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 startColumn: 4,
                 endColumn: 5,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,

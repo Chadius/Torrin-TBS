@@ -6,7 +6,7 @@ import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {WeaponIcon} from "./weaponIcon";
-import {RectArea, RectAreaHelper} from "../../../ui/rectArea";
+import {RectArea, RectAreaService} from "../../../ui/rectArea";
 
 describe('weapon icon', () => {
     let hinderingAction: ActionEffectSquaddieTemplate;
@@ -44,7 +44,7 @@ describe('weapon icon', () => {
 
     it('shows the phrase Attacking! when using a hindering ability', () => {
         const icon: WeaponIcon = new WeaponIcon();
-        const area: RectArea = RectAreaHelper.new({
+        const area: RectArea = RectAreaService.new({
             left: 0,
             top: 0,
             width: 100,
@@ -67,7 +67,7 @@ describe('weapon icon', () => {
 
     it('shows the phrase Helping... when using a helping ability', () => {
         const icon: WeaponIcon = new WeaponIcon();
-        const area: RectArea = RectAreaHelper.new({
+        const area: RectArea = RectAreaService.new({
             left: 0,
             top: 0,
             width: 100,

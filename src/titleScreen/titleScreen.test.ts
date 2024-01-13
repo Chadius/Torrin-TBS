@@ -10,7 +10,7 @@ import {config} from "../configuration/config";
 import {ResourceHandler} from "../resource/resourceHandler";
 import {makeResult} from "../utils/ResultOrError";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
-import {RectAreaHelper} from "../ui/rectArea";
+import {RectAreaService} from "../ui/rectArea";
 import {GameEngineState, GameEngineStateHelper} from "../gameEngine/gameEngine";
 
 
@@ -147,7 +147,7 @@ describe('Title Screen', () => {
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
             const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded");
-            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaHelper.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaHelper.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
+            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy();
             expect(loadGame).toBeCalled();
 
@@ -160,7 +160,7 @@ describe('Title Screen', () => {
         });
         it('should ignore other inputs while loading', () => {
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
-            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaHelper.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaHelper.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
+            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
             expect(titleScreen.newGameSelected).toBeFalsy();
 
             titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT - 1);
@@ -170,7 +170,7 @@ describe('Title Screen', () => {
             jest.spyOn(Date, "now").mockReturnValue(0);
             const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded");
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
-            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaHelper.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaHelper.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
+            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
             gameEngineState.gameSaveFlags.errorDuringLoading = true;
 
             const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
@@ -199,7 +199,7 @@ describe('Title Screen', () => {
         it('should mark as completed and recommend the battle loader', () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
-            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaHelper.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaHelper.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
+            titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy();
             expect(titleScreen.recommendStateChanges(gameEngineState).nextMode).toBe(
                 GameModeEnum.LOADING_BATTLE

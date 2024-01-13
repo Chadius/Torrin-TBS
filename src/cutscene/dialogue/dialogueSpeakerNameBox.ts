@@ -1,5 +1,5 @@
 import {Label, LabelHelper} from "../../ui/label";
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE, WINDOW_SPACING2} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
@@ -37,7 +37,7 @@ export class DialogueSpeakerNameBox {
 
         this.speakerNameLabel = LabelHelper.new({
             padding: [WINDOW_SPACING2, 0, 0, WINDOW_SPACING2 * 0.5],
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: speakerBoxLeft,
                 top: speakerBoxTop,
                 width: this.screenDimensions[0] * 0.3,

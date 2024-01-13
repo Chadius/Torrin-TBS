@@ -1,5 +1,5 @@
 import {Label, LabelHelper} from "../../ui/label";
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {WINDOW_SPACING2, WINDOW_SPACING4} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
@@ -33,7 +33,7 @@ export class DialogueTextBox {
 
         this.speakerTextLabel = LabelHelper.new({
             padding: [WINDOW_SPACING4, WINDOW_SPACING2, 0, WINDOW_SPACING2],
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: dialogueBoxLeft,
                 top: dialogueBoxTop - WINDOW_SPACING2,
                 width: this.screenDimensions[0] - WINDOW_SPACING4,

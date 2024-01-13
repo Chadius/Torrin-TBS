@@ -4,7 +4,7 @@ import {CutsceneAction} from "./cutsceneAction";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
 import {Button, ButtonStatus} from "../ui/button";
 import {LabelHelper} from "../ui/label";
-import {RectAreaHelper} from "../ui/rectArea";
+import {RectAreaService} from "../ui/rectArea";
 import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
@@ -263,7 +263,7 @@ export class Cutscene {
         const buttonDeactivateBackgroundColor: [number, number, number] = [200, 5, 30];
         const buttonTextColor: [number, number, number] = [0, 0, 0];
 
-        const buttonArea = RectAreaHelper.new({
+        const buttonArea = RectAreaService.new({
             left: fastForwardButtonLocation.left,
             top: fastForwardButtonLocation.top,
             width: fastForwardButtonLocation.width,

@@ -12,7 +12,7 @@ import {SquaddieSprite} from "./squaddieSprite";
 import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository";
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
-import {RectAreaHelper} from "../../../ui/rectArea";
+import {RectAreaService} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {RollResultService} from "../../actionCalculator/rollResult";
 import {
@@ -150,7 +150,7 @@ export class ActorSprite {
             action,
         );
         let {horizontalDistance, verticalDistance} = this.getDistanceBasedOnTimer(timer);
-        RectAreaHelper.move(spriteToDraw.area, {
+        RectAreaService.move(spriteToDraw.area, {
             left: this.startingPosition + horizontalDistance,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - spriteToDraw.area.height + verticalDistance,
         });

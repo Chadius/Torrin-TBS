@@ -1,28 +1,24 @@
-import {RectArea, RectAreaHelper} from "../ui/rectArea";
+import {RectArea, RectAreaService} from "../ui/rectArea";
 import {ActionEffectSquaddieTemplate} from "../decision/actionEffectSquaddieTemplate";
 import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
-import {ActionEffectEndTurn} from "../decision/actionEffectEndTurn";
 import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
 
-export class UseActionButton {
+export class MakeDecisionButton {
     buttonArea: RectArea;
-    action: ActionEffectSquaddieTemplate;
-    endTurnAction: ActionEffectEndTurn;
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     hue: number;
 
     constructor(options: {
         buttonArea?: RectArea;
-        action?: ActionEffectSquaddieTemplate;
-        endTurnAction?: ActionEffectEndTurn;
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
         hue?: number;
     }) {
         this.buttonArea = options.buttonArea;
-        this.action = options.action;
-        this.endTurnAction = options.endTurnAction;
+        this.actionEffectSquaddieTemplate = options.actionEffectSquaddieTemplate;
         this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];
     }
 
@@ -59,18 +55,14 @@ export class UseActionButton {
         }
 
         let actionDescription: string;
-        if (this.action != null) {
-            actionDescription = this.action.name;
-        } else {
-            actionDescription = "End Turn";
-        }
+        actionDescription = this.actionEffectSquaddieTemplate.name;
 
         const buttonTextBox: TextBox = TextBoxHelper.new({
-            area: RectAreaHelper.new({
-                left: RectAreaHelper.left(background.area),
-                top: RectAreaHelper.bottom(background.area) + 4,
-                width: RectAreaHelper.width(background.area) * 2,
-                height: RectAreaHelper.height(background.area),
+            area: RectAreaService.new({
+                left: RectAreaService.left(background.area),
+                top: RectAreaService.bottom(background.area) + 4,
+                width: RectAreaService.width(background.area) * 2,
+                height: RectAreaService.height(background.area),
             }),
             fontColor: [0, 0, 192],
             text: actionDescription,

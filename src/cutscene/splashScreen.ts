@@ -1,7 +1,7 @@
 import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
 import {CutsceneAction} from "./cutsceneAction";
 import {ImageUI} from "../ui/imageUI";
-import {RectAreaHelper} from "../ui/rectArea";
+import {RectAreaService} from "../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
@@ -49,7 +49,7 @@ export class SplashScreen implements CutsceneAction {
     setScreenImage(splashImage: GraphicImage) {
         this.screenImage = new ImageUI({
             graphic: splashImage,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: (ScreenDimensions.SCREEN_WIDTH - splashImage.width) / 2,
                 top: (ScreenDimensions.SCREEN_HEIGHT - splashImage.height) / 2,
                 width: splashImage.width,

@@ -1,5 +1,5 @@
 import {TextBox, TextBoxHelper} from "../../../ui/textBox";
-import {RectAreaHelper} from "../../../ui/rectArea";
+import {RectAreaService} from "../../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../../ui/rectangle";
 import {ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME} from "./actionAnimationConstants";
 import {WINDOW_SPACING1} from "../../../ui/constants";
@@ -109,7 +109,7 @@ export class HitPointMeter {
             text: currentHitPoints.toString(),
             textSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: this.left,
                 top: this.top,
                 width: HIT_POINT_TEXT_WIDTH / 2,
@@ -123,7 +123,7 @@ export class HitPointMeter {
             text: `/${this.maxHitPoints}`,
             textSize: HIT_POINT_TEXT_SIZE,
             fontColor: this.getColorsBasedOnHue().textColor,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: this.left + (HIT_POINT_TEXT_WIDTH / 2),
                 top: this.top,
                 width: HIT_POINT_TEXT_WIDTH / 2,
@@ -134,7 +134,7 @@ export class HitPointMeter {
 
     private createMaxHitPointRect() {
         this.maxHitPointsRectangle = RectangleHelper.new({
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING1,
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
@@ -148,7 +148,7 @@ export class HitPointMeter {
 
     private createCurrentHitPointRect(currentHitPoints: number) {
         this.currentHitPointsRectangle = RectangleHelper.new({
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: this.left + HIT_POINT_TEXT_WIDTH + WINDOW_SPACING1,
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
@@ -176,8 +176,8 @@ export class HitPointMeter {
         }
 
         this.changedHitPointsRectangle = RectangleHelper.new({
-            area: RectAreaHelper.new({
-                left: RectAreaHelper.right(this.currentHitPointsRectangle.area),
+            area: RectAreaService.new({
+                left: RectAreaService.right(this.currentHitPointsRectangle.area),
                 top: this.top,
                 height: HIT_POINT_METER_HEIGHT,
                 width: this.changedHitPointsRectangleStartWidth,
@@ -195,7 +195,7 @@ export class HitPointMeter {
         const timeElapsed = Date.now() - this.changedHitPointsTimestamp;
         if (timeElapsed > ACTION_ANIMATION_TARGET_REACTS_TO_ACTION_TIME) {
             this.changedHitPointsRectangle = RectangleHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: this.changedHitPointsRectangle.area.left,
                     top: this.changedHitPointsRectangle.area.top,
                     height: this.changedHitPointsRectangle.area.height,
@@ -217,7 +217,7 @@ export class HitPointMeter {
             + this.changedHitPointsRectangleStartWidth;
 
         this.changedHitPointsRectangle = RectangleHelper.new({
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: this.changedHitPointsRectangle.area.left,
                 top: this.changedHitPointsRectangle.area.top,
                 height: this.changedHitPointsRectangle.area.height,

@@ -12,7 +12,7 @@ import {
     FindTeamsOfAffiliation
 } from "./battlePhaseTracker";
 import {ImageUI} from "../../ui/imageUI";
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {isCoordinateOnScreen, ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -36,6 +36,18 @@ export interface BattlePhaseState {
     currentAffiliation: BattlePhase;
     turnCount: number;
 }
+
+export const BattlePhaseStateService = {
+    new: ({currentAffiliation, turnCount}: {
+        currentAffiliation: BattlePhase;
+        turnCount?: number;
+    }): BattlePhaseState => {
+        return {
+            currentAffiliation,
+            turnCount: isValidValue(turnCount) || turnCount === 0 ? turnCount : 0,
+        }
+    }
+};
 
 export class BattlePhaseController implements BattleOrchestratorComponent {
     bannerImage: GraphicImage;
@@ -161,7 +173,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
         this.bannerImageUI = new ImageUI({
             graphic: this.bannerImage,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: 0,
                 top: (ScreenDimensions.SCREEN_HEIGHT - this.bannerImage.height) / 2,
                 width: this.bannerImage.width,
@@ -171,7 +183,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
 
         this.affiliationImageUI = new ImageUI({
             graphic: this.affiliationImage,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 startColumn: 1,
                 screenWidth: ScreenDimensions.SCREEN_WIDTH,
                 top: (ScreenDimensions.SCREEN_HEIGHT - this.affiliationImage.height) / 2,

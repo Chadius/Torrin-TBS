@@ -21,7 +21,7 @@ import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingService} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {ObjectRepositoryService} from "../objectRepository";
 import {ActionEffectType} from "../../decision/actionEffect";
 
@@ -200,7 +200,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 action: action,
                 result: resultPerTarget[battleId],
                 resourceHandler: state.resourceHandler,
-                startingPosition: RectAreaHelper.right(this.targetTextWindows[index].targetLabel.rectangle.area),
+                startingPosition: RectAreaService.right(this.targetTextWindows[index].targetLabel.rectangle.area),
             });
             return targetSprite;
         });

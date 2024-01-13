@@ -1,5 +1,5 @@
 import {ActionAnimationFontColor} from "./actionAnimationConstants";
-import {RectArea, RectAreaHelper} from "../../../ui/rectArea";
+import {RectArea, RectAreaService} from "../../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {Label, LabelHelper} from "../../../ui/label";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
@@ -41,13 +41,13 @@ export class WeaponIcon {
             this.lazyLoadAttackingTextBox(actionEffectSquaddieTemplate, actorImageArea);
         }
 
-        RectAreaHelper.move(this.attackingLabel.rectangle.area, {
-            left: RectAreaHelper.right(actorImageArea) + WINDOW_SPACING1,
-            top: RectAreaHelper.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
+        RectAreaService.move(this.attackingLabel.rectangle.area, {
+            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,
+            top: RectAreaService.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
         });
-        RectAreaHelper.move(this.attackingLabel.textBox.area, {
-            left: RectAreaHelper.right(actorImageArea) + WINDOW_SPACING1,
-            top: RectAreaHelper.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
+        RectAreaService.move(this.attackingLabel.textBox.area, {
+            left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,
+            top: RectAreaService.centerY(actorImageArea) - (this.attackingLabel.rectangle.area.height / 2),
         });
         LabelHelper.draw(this.attackingLabel, graphicsContext);
     }
@@ -68,9 +68,9 @@ export class WeaponIcon {
 
         this._attackingLabel = LabelHelper.new({
             padding: 0,
-            area: RectAreaHelper.new({
-                left: RectAreaHelper.right(actorImageArea) + WINDOW_SPACING1,
-                top: RectAreaHelper.centerY(actorImageArea),
+            area: RectAreaService.new({
+                left: RectAreaService.right(actorImageArea) + WINDOW_SPACING1,
+                top: RectAreaService.centerY(actorImageArea),
                 height: WINDOW_SPACING2,
                 width: WINDOW_SPACING1 * 15,
             }),

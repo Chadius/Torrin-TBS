@@ -1,5 +1,5 @@
 import {TextBox, TextBoxHelper} from "./textBox";
-import {RectAreaHelper} from "./rectArea";
+import {RectAreaService} from "./rectArea";
 import {MockedP5GraphicsContext} from "../utils/test/mocks";
 
 describe('Pop up text', () => {
@@ -17,7 +17,7 @@ describe('Pop up text', () => {
             text: "A text box",
             textSize: 18,
             fontColor: [0, 0, 0],
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: 0,
                 top: 0,
                 width: 100,
@@ -40,7 +40,7 @@ describe('Pop up text', () => {
             text: "A text box",
             textSize: 18,
             fontColor: [0, 0, 0],
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: 0,
                 top: 0,
                 width: 100,

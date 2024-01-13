@@ -140,7 +140,7 @@ export interface RectArea {
     height: number;
 }
 
-export const RectAreaHelper = {
+export const RectAreaService = {
     new: (params: RectArguments): RectArea => {
         const rectArea = {
             top: 0,

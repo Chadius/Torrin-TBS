@@ -19,7 +19,7 @@ import {ObjectRepository, ObjectRepositoryService} from "../../objectRepository"
 import {getResultOrThrowError} from "../../../utils/ResultOrError";
 import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
-import {RectAreaHelper} from "../../../ui/rectArea";
+import {RectAreaService} from "../../../ui/rectArea";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "../../actionCalculator/degreeOfSuccess";
 
 export class TargetSprite {
@@ -199,7 +199,7 @@ export class TargetSprite {
             }
         }
 
-        RectAreaHelper.move(spriteToDraw.area, {
+        RectAreaService.move(spriteToDraw.area, {
             left: this.startingPosition + horizontalDistance,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.33 - spriteToDraw.area.height + verticalDistance,
         });

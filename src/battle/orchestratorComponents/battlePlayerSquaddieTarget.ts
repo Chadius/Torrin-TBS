@@ -21,7 +21,7 @@ import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FindValidTargets} from "../targeting/targetingService";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {RectArea, RectAreaHelper} from "../../ui/rectArea";
+import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {GetSquaddieAtScreenLocation, OrchestratorUtilities} from "./orchestratorUtils";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -181,7 +181,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     private drawCancelAbilityButton(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.drawButton(
-            RectAreaHelper.new({
+            RectAreaService.new({
                 left: 0,
                 top: BUTTON_TOP,
                 width: ScreenDimensions.SCREEN_WIDTH,
@@ -252,7 +252,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     private drawConfirmWindow(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.drawButton(
-            RectAreaHelper.new({
+            RectAreaService.new({
                 left: 0,
                 top: BUTTON_TOP,
                 width: ScreenDimensions.SCREEN_WIDTH,
@@ -292,7 +292,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         const messageToShow = intentMessages.join("\n");
 
         this.drawButton(
-            RectAreaHelper.new({
+            RectAreaService.new({
                 left: ScreenDimensions.SCREEN_WIDTH / 12,
                 top: ScreenDimensions.SCREEN_HEIGHT / 2,
                 width: BUTTON_MIDDLE_DIVIDER,

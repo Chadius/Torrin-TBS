@@ -12,6 +12,41 @@ import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttribut
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
+export const SquaddieAndObjectRepositoryService = {
+    createNewSquaddieAndAddToRepository: (
+        {
+            name,
+            templateId,
+            battleId,
+            affiliation,
+            squaddieRepository,
+            actions,
+            attributes,
+        }: {
+            name: string,
+            templateId: string,
+            battleId: string,
+            affiliation: SquaddieAffiliation,
+            squaddieRepository: ObjectRepository,
+            actions?: ActionEffectSquaddieTemplate[],
+            attributes?: ArmyAttributes,
+        }
+    ): {
+        squaddieTemplate: SquaddieTemplate
+        battleSquaddie: BattleSquaddie,
+    } => {
+        return CreateNewSquaddieAndAddToRepository({
+            name,
+            templateId,
+            battleId,
+            affiliation,
+            squaddieRepository,
+            actions,
+            attributes,
+        });
+    }
+};
+
 export const NewDummySquaddieID: (id: string, affiliation: SquaddieAffiliation) => SquaddieId = (id: string, affiliation: SquaddieAffiliation): SquaddieId => {
     return {
         templateId: id,

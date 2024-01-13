@@ -1,6 +1,6 @@
 import {Button, ButtonStatus} from "./button";
 import {LabelHelper} from "./label";
-import {RectAreaHelper} from "./rectArea";
+import {RectAreaService} from "./rectArea";
 
 describe('Button UI', () => {
     it('defaults to ready status', () => {
@@ -55,7 +55,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -83,7 +83,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -95,7 +95,7 @@ describe('Button UI', () => {
                 fontColor: [],
             }),
             hoverLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -124,7 +124,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -151,7 +151,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -163,7 +163,7 @@ describe('Button UI', () => {
                 fontColor: [],
             }),
             hoverLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -192,7 +192,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -218,7 +218,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -230,7 +230,7 @@ describe('Button UI', () => {
                 fontColor: [],
             }),
             hoverLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -256,7 +256,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -268,7 +268,7 @@ describe('Button UI', () => {
                 fontColor: [],
             }),
             hoverLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -293,7 +293,7 @@ describe('Button UI', () => {
 
         const button = new Button({
             readyLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,
@@ -305,7 +305,7 @@ describe('Button UI', () => {
                 fontColor: [],
             }),
             hoverLabel: LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 10,
                     top: 25,
                     right: 100,

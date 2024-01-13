@@ -15,6 +15,27 @@ export interface BattleSquaddieTeam {
 }
 
 export const BattleSquaddieTeamService = {
+    new: ({
+              id,
+              name,
+              affiliation,
+              battleSquaddieIds,
+              iconResourceKey,
+          }: {
+        id: string;
+        name: string;
+        affiliation: SquaddieAffiliation;
+        battleSquaddieIds: string[];
+        iconResourceKey?: string,
+    }): BattleSquaddieTeam => {
+        return {
+            id,
+            name,
+            affiliation,
+            battleSquaddieIds,
+            iconResourceKey,
+        };
+    },
     hasSquaddies: (team: BattleSquaddieTeam): boolean => {
         return team.battleSquaddieIds.length > 0;
     },

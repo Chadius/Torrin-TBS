@@ -13,7 +13,7 @@ import {
     WINDOW_SPACING2,
     WINDOW_SPACING4
 } from "../ui/constants";
-import {RectArea, RectAreaHelper} from "../ui/rectArea";
+import {RectArea, RectAreaService} from "../ui/rectArea";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {KeyButtonName, KeyWasPressed} from "../utils/keyboardConfig";
@@ -148,15 +148,15 @@ export class TitleScreen implements GameEngineComponent {
         this.startLoadingResources = false;
 
         if (this.titleBanner === undefined) {
-            this.titleBannerArea = RectAreaHelper.new({left: 0, top: 0, width: 0, height: 0});
+            this.titleBannerArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
         if (this.torrinIcon === undefined) {
-            this.torrinIconArea = RectAreaHelper.new({left: 0, top: 0, width: 0, height: 0});
+            this.torrinIconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
         if (this.sirCamilIcon === undefined) {
-            this.sirCamilIconArea = RectAreaHelper.new({left: 0, top: 0, width: 0, height: 0});
+            this.sirCamilIconArea = RectAreaService.new({left: 0, top: 0, width: 0, height: 0});
         }
 
         this.titleBanner = undefined;
@@ -172,7 +172,7 @@ export class TitleScreen implements GameEngineComponent {
         if (this.titleBanner === undefined) {
 
             this.titleBannerArea =
-                RectAreaHelper.new({
+                RectAreaService.new({
                     left: ScreenDimensions.SCREEN_WIDTH * 0.25,
                     top: 20,
                     width: ScreenDimensions.SCREEN_WIDTH * 0.5,
@@ -187,7 +187,7 @@ export class TitleScreen implements GameEngineComponent {
                 this.resourceHandler.getResource("torrins trial logo")
             );
 
-            this.titleBannerArea = RectAreaHelper.new({
+            this.titleBannerArea = RectAreaService.new({
                 left: (ScreenDimensions.SCREEN_WIDTH - image.width) * 0.5,
                 top: 20,
                 height: ScreenDimensions.SCREEN_HEIGHT * 0.25,
@@ -210,13 +210,13 @@ export class TitleScreen implements GameEngineComponent {
     private lazyLoadTitle() {
         if (this.titleText === undefined) {
             this.titleText = TextBoxHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     startColumn: 1,
                     endColumn: 3,
                     left: 20,
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                    top: RectAreaHelper.bottom(this.titleBannerArea) + WINDOW_SPACING1,
+                    top: RectAreaService.bottom(this.titleBannerArea) + WINDOW_SPACING1,
                     height: WINDOW_SPACING4,
                 }),
                 text: "Torrin's Trial",
@@ -230,12 +230,12 @@ export class TitleScreen implements GameEngineComponent {
     private lazyLoadByLine() {
         if (this.byLine === undefined) {
             this.byLine = TextBoxHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     startColumn: 3,
                     endColumn: 4,
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                    top: RectAreaHelper.bottom(this.titleText.area),
+                    top: RectAreaService.bottom(this.titleText.area),
                     height: WINDOW_SPACING2,
                     margin: WINDOW_SPACING1,
                 }),
@@ -250,12 +250,12 @@ export class TitleScreen implements GameEngineComponent {
     private lazyLoadGameDescription() {
         if (this.gameDescription === undefined) {
             this.gameDescription = TextBoxHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     startColumn: 1,
                     endColumn: 6,
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,
                     screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-                    top: RectAreaHelper.bottom(this.byLine.area),
+                    top: RectAreaService.bottom(this.byLine.area),
                     bottom: ScreenDimensions.SCREEN_HEIGHT * 0.8,
                     margin: [WINDOW_SPACING4, WINDOW_SPACING1, WINDOW_SPACING1, WINDOW_SPACING4],
                 }),
@@ -308,7 +308,7 @@ export class TitleScreen implements GameEngineComponent {
             ? HORIZ_ALIGN_LEFT
             : HORIZ_ALIGN_CENTER;
 
-        const buttonArea = RectAreaHelper.new({
+        const buttonArea = RectAreaService.new({
             left: 0,
             width: ScreenDimensions.SCREEN_WIDTH,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.8,
@@ -382,7 +382,7 @@ export class TitleScreen implements GameEngineComponent {
 
         const playButtonHorizontalAlignment = HORIZ_ALIGN_CENTER;
 
-        const buttonArea = RectAreaHelper.new({
+        const buttonArea = RectAreaService.new({
             left: ScreenDimensions.SCREEN_WIDTH * 3 / 4,
             width: ScreenDimensions.SCREEN_WIDTH / 4,
             top: ScreenDimensions.SCREEN_HEIGHT * 0.7,
@@ -432,7 +432,7 @@ export class TitleScreen implements GameEngineComponent {
         if (this.background === undefined) {
 
             this.background = RectangleHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 0,
                     top: 0,
                     width: ScreenDimensions.SCREEN_WIDTH,
@@ -504,9 +504,9 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setSirCamilIconBasedOnImageAndTorrinImage(image: GraphicImage) {
-        this.sirCamilIconArea = RectAreaHelper.new({
-            left: RectAreaHelper.right(this.sirCamilIconArea) - 110,
-            top: RectAreaHelper.bottom(this.torrinIconArea) + WINDOW_SPACING1,
+        this.sirCamilIconArea = RectAreaService.new({
+            left: RectAreaService.right(this.sirCamilIconArea) - 110,
+            top: RectAreaService.bottom(this.torrinIconArea) + WINDOW_SPACING1,
             height: ScaleImageHeight({
                 imageWidth: image.width,
                 imageHeight: image.height,
@@ -522,7 +522,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private setTorrinIconBasedOnImage(image: GraphicImage) {
-        this.torrinIconArea = RectAreaHelper.new({
+        this.torrinIconArea = RectAreaService.new({
             left: this.torrinIconArea.left,
             top: this.torrinIconArea.top,
             height: ScaleImageHeight({
@@ -540,30 +540,30 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private createSirCamilPlaceholderIconAreaUnderTorrin() {
-        this.sirCamilIconArea = RectAreaHelper.new({
+        this.sirCamilIconArea = RectAreaService.new({
             startColumn: 10,
             endColumn: 11,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-            top: RectAreaHelper.bottom(this.torrinIconArea) + WINDOW_SPACING1,
+            top: RectAreaService.bottom(this.torrinIconArea) + WINDOW_SPACING1,
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         });
     }
 
     private createPlaceholderTorrinIconArea() {
-        this.torrinIconArea = RectAreaHelper.new({
+        this.torrinIconArea = RectAreaService.new({
             startColumn: 7,
             endColumn: 8,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             screenHeight: ScreenDimensions.SCREEN_HEIGHT,
-            top: RectAreaHelper.bottom(this.byLine.area),
+            top: RectAreaService.bottom(this.byLine.area),
             height: ScreenDimensions.SCREEN_HEIGHT * 0.1,
         });
     }
 
     private setSirCamilDescriptionText(sirCamilDescriptionText: string) {
         this.sirCamilDescriptionText = TextBoxHelper.new({
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: this.torrinIconArea.left,
                 top: this.sirCamilIconArea.top,
                 height: this.sirCamilIconArea.height,
@@ -578,11 +578,11 @@ export class TitleScreen implements GameEngineComponent {
 
     private setTorrinDescriptionText(torrinDescriptionText: string) {
         this.torrinDescriptionText = TextBoxHelper.new({
-            area: RectAreaHelper.new({
-                left: RectAreaHelper.right(this.torrinIconArea) + WINDOW_SPACING1,
+            area: RectAreaService.new({
+                left: RectAreaService.right(this.torrinIconArea) + WINDOW_SPACING1,
                 top: this.torrinIconArea.top,
                 height: this.torrinIconArea.height,
-                width: ScreenDimensions.SCREEN_WIDTH - RectAreaHelper.right(this.torrinIconArea) - WINDOW_SPACING2,
+                width: ScreenDimensions.SCREEN_WIDTH - RectAreaService.right(this.torrinIconArea) - WINDOW_SPACING2,
             }),
             text: torrinDescriptionText,
             textSize: WINDOW_SPACING2,

@@ -1,7 +1,7 @@
 import {assertsInteger, assertsNonNegativeNumber} from "../utils/mathAssert";
 import {convertMapCoordinatesToWorldCoordinates} from "../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {RectArea, RectAreaHelper} from "../ui/rectArea";
+import {RectArea, RectAreaService} from "../ui/rectArea";
 
 export type PanningInformation = {
     xStartCoordinate: number,
@@ -108,8 +108,8 @@ export class BattleCamera {
             return;
         }
 
-        if (this.yCoord > RectAreaHelper.bottom(coordinateLimits)) {
-            this.yCoord = RectAreaHelper.bottom(coordinateLimits);
+        if (this.yCoord > RectAreaService.bottom(coordinateLimits)) {
+            this.yCoord = RectAreaService.bottom(coordinateLimits);
             this.setYVelocity(0);
             return;
         }
@@ -138,8 +138,8 @@ export class BattleCamera {
             return;
         }
 
-        if (this.xCoord > RectAreaHelper.right(coordinateLimits)) {
-            this.xCoord = RectAreaHelper.right(coordinateLimits);
+        if (this.xCoord > RectAreaService.right(coordinateLimits)) {
+            this.xCoord = RectAreaService.right(coordinateLimits);
             this.setXVelocity(0);
             return;
         }
@@ -171,15 +171,15 @@ export class BattleCamera {
             if (xDestination < coordinateLimits.left) {
                 xDestination = coordinateLimits.left;
             }
-            if (xDestination > RectAreaHelper.right(coordinateLimits)) {
-                xDestination = RectAreaHelper.right(coordinateLimits);
+            if (xDestination > RectAreaService.right(coordinateLimits)) {
+                xDestination = RectAreaService.right(coordinateLimits);
             }
 
             if (yDestination < coordinateLimits.top) {
                 yDestination = coordinateLimits.top;
             }
-            if (yDestination > RectAreaHelper.bottom(coordinateLimits)) {
-                yDestination = RectAreaHelper.bottom(coordinateLimits);
+            if (yDestination > RectAreaService.bottom(coordinateLimits)) {
+                yDestination = RectAreaService.bottom(coordinateLimits);
             }
         }
 
@@ -254,7 +254,7 @@ export class BattleCamera {
     } {
         if (!this.mapDimensionBoundaries) {
             return {
-                coordinateLimits: RectAreaHelper.new({
+                coordinateLimits: RectAreaService.new({
                     top: 0,
                     left: 0,
                     right: 0,
@@ -272,7 +272,7 @@ export class BattleCamera {
         const worldLocationOfEndOfLastRow: [number, number] = convertMapCoordinatesToWorldCoordinates(this.mapDimensionBoundaries.numberOfRows, this.mapDimensionBoundaries.widthOfWidestRow);
 
         return {
-            coordinateLimits: RectAreaHelper.new({
+            coordinateLimits: RectAreaService.new({
                 left: worldLocationOfStartOfFirstRow[0] + horizontalCameraBuffer,
                 right: worldLocationOfEndOfLastRow[0] - horizontalCameraBuffer,
                 top: worldLocationOfStartOfFirstRow[1] - verticalCameraBuffer + (ScreenDimensions.SCREEN_HEIGHT / 2),

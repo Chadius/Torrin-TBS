@@ -1,7 +1,7 @@
 import {BattleSquaddie} from "../battleSquaddie";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {HEX_TILE_WIDTH, HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
-import {RectArea, RectAreaHelper} from "../../ui/rectArea";
+import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../ui/rectangle";
 import {BattleCamera} from "../battleCamera";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
@@ -110,8 +110,8 @@ const setImageToLocation = (
     mapIcon: ImageUI,
     xyCoords: [number, number]
 ) => {
-    RectAreaHelper.move(mapIcon.area, {left: xyCoords[0], top: xyCoords[1]});
-    RectAreaHelper.align(mapIcon.area, {horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
+    RectAreaService.move(mapIcon.area, {left: xyCoords[0], top: xyCoords[1]});
+    RectAreaService.align(mapIcon.area, {horizAlign: HORIZ_ALIGN_CENTER, vertAlign: VERT_ALIGN_CENTER});
 }
 
 export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, mapLocation: HexCoordinate, camera: BattleCamera) => {
@@ -120,7 +120,7 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTe
 
     const squaddieAffiliationHue: number = HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation];
 
-    const actionDrawingArea: RectArea = RectAreaHelper.new({
+    const actionDrawingArea: RectArea = RectAreaService.new({
         left: xyCoords[0] - (HEX_TILE_WIDTH * 0.40),
         top: xyCoords[1] - (HEX_TILE_WIDTH * 0.25),
         width: HEX_TILE_WIDTH * 0.15,
@@ -137,9 +137,9 @@ export const drawSquaddieActions = (graphicsContext: GraphicsContext, squaddieTe
 
     const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
     const heightFromRemainingActionPoints = actionDrawingArea.height * actionPointsRemaining / 3;
-    const numberOfActionPointsArea: RectArea = RectAreaHelper.new({
-        top: RectAreaHelper.bottom(actionDrawingArea) - heightFromRemainingActionPoints,
-        bottom: RectAreaHelper.bottom(actionDrawingArea),
+    const numberOfActionPointsArea: RectArea = RectAreaService.new({
+        top: RectAreaService.bottom(actionDrawingArea) - heightFromRemainingActionPoints,
+        bottom: RectAreaService.bottom(actionDrawingArea),
         left: actionDrawingArea.left,
         width: actionDrawingArea.width,
     });

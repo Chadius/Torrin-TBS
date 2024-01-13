@@ -222,7 +222,7 @@ describe('BattleSquaddieSelector', () => {
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("enemy_demon_0");
         mockHud.didMouseClickOnHUD = jest.fn().mockReturnValue(false);
-        mockHud.wasAnyActionSelected = jest.fn().mockReturnValue(false);
+        mockHud.didPlayerSelectSquaddieAction = jest.fn().mockReturnValue(false);
         mockHud.selectSquaddieAndDrawWindow = jest.fn();
 
         const state: GameEngineState = GameEngineStateHelper.new({
@@ -814,9 +814,7 @@ describe('BattleSquaddieSelector', () => {
                 targetingShape: TargetingShape.SNAKE,
             });
 
-            mockHud.wasAnyActionSelected = jest.fn().mockImplementationOnce(() => {
-                return false;
-            }).mockReturnValue(true);
+            mockHud.didPlayerSelectSquaddieAction = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
             mockHud.getSelectedAction = jest.fn().mockReturnValue(longswordAction);
             mockHud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);
             mockHud.didMouseClickOnHUD = jest.fn().mockImplementationOnce(() => {

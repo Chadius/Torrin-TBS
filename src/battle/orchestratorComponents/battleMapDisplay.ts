@@ -12,7 +12,7 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
@@ -61,7 +61,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             if (mouseX < state.battleSquaddieSelectedHUD.background.area.left) {
                 state.battleState.camera.setXVelocity(-5);
             }
-            if (mouseX > RectAreaHelper.right(state.battleSquaddieSelectedHUD.background.area)) {
+            if (mouseX > RectAreaService.right(state.battleSquaddieSelectedHUD.background.area)) {
                 state.battleState.camera.setXVelocity(5);
             }
 

@@ -21,7 +21,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GraphicImage} from "../../utils/graphics/graphicsContext";
 import {convertMapCoordinatesToScreenCoordinates} from "../../hexMap/convertCoordinates";
 import {ImageUI} from "../../ui/imageUI";
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {BattleCamera} from "../battleCamera";
 import {Cutscene} from "../../cutscene/cutscene";
@@ -276,7 +276,7 @@ const initializeSquaddieResources = ({
 
             repository.imageUIByBattleSquaddieId[battleSquaddieId] = new ImageUI({
                 graphic: image,
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: xyCoords[0],
                     top: xyCoords[1],
                     width: image.width,

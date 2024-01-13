@@ -1,4 +1,4 @@
-import {RectAreaHelper} from "./rectArea";
+import {RectAreaService} from "./rectArea";
 import {TextBox, TextBoxArguments, TextBoxHelper} from "./textBox";
 import {Rectangle, RectangleArguments, RectangleHelper} from "./rectangle";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
@@ -16,7 +16,7 @@ export const LabelHelper = {
     new: (options: RectangleArguments & TextBoxArguments & Padding): Label => {
         let rectangle = RectangleHelper.new(options);
 
-        const textBoxWithPadding = RectAreaHelper.new({
+        const textBoxWithPadding = RectAreaService.new({
             baseRectangle: options.area,
             margin: options.padding
         });

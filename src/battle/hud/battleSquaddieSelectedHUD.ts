@@ -1,11 +1,11 @@
-import {HorizontalAnchor, RectArea, RectAreaHelper, VerticalAnchor} from "../../ui/rectArea";
+import {HorizontalAnchor, RectArea, RectAreaService, VerticalAnchor} from "../../ui/rectArea";
 import {Rectangle, RectangleHelper} from "../../ui/rectangle";
 import {getResultOrThrowError, isResult} from "../../utils/ResultOrError";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ImageUI} from "../../ui/imageUI";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {UseActionButton} from "../../squaddie/useActionButton";
+import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
 import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
@@ -32,6 +32,8 @@ import {
 } from "./graphicsObject";
 import {isValidValue} from "../../utils/validityCheck";
 import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
+import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
+import {BattleStateService} from "../orchestrator/battleState";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -82,10 +84,11 @@ export class BattleSquaddieSelectedHUD {
         squaddieAction?: ActionEffectSquaddieTemplate,
         endTurnAction?: ActionEffectEndTurn,
     };
-    useActionButtons: UseActionButton[];
+    makeDecisionButtons: MakeDecisionButton[];
     loadGameButton: Label;
     saveGameButton: Label;
     nextSquaddieButton: Label;
+    endTurnButton: Label;
     nextBattleSquaddieIds: string[];
     graphicsObjects: BattleHUDGraphicsObject;
 
@@ -128,6 +131,7 @@ export class BattleSquaddieSelectedHUD {
         );
         this.generateSaveAndLoadGameButton(windowDimensions);
         this.generateNextSquaddieButton(windowDimensions);
+        this.generateEndTurnButton(windowDimensions);
 
         this.generateAffiliateIcon(battleSquaddie, state);
         this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
@@ -138,7 +142,7 @@ export class BattleSquaddieSelectedHUD {
     createWindowPosition(mouseY: number) {
         const windowTop: number = (mouseY < (ScreenDimensions.SCREEN_HEIGHT * 0.8)) ? ScreenDimensions.SCREEN_HEIGHT * 0.8 : 10;
         const windowHeight: number = (ScreenDimensions.SCREEN_HEIGHT * 0.2) - 10;
-        const windowDimensions = RectAreaHelper.new({
+        const windowDimensions = RectAreaService.new({
             left: 10,
             right: ScreenDimensions.SCREEN_WIDTH - 10,
             top: windowTop,
@@ -157,7 +161,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     public didMouseClickOnHUD(mouseX: number, mouseY: number): boolean {
-        return RectAreaHelper.isInside(this._background.area, mouseX, mouseY);
+        return RectAreaService.isInside(this._background.area, mouseX, mouseY);
     }
 
     public shouldDrawTheHUD(): boolean {
@@ -187,19 +191,15 @@ export class BattleSquaddieSelectedHUD {
         if (this.shouldDrawNextButton(state.battleOrchestratorState)) {
             LabelHelper.draw(this.nextSquaddieButton, graphicsContext);
         }
+        this.maybeDrawEndTurnButton(state.battleOrchestratorState, graphicsContext);
         if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)) {
             LabelHelper.draw(this.saveGameButton, graphicsContext);
             LabelHelper.draw(this.loadGameButton, graphicsContext);
         }
     }
 
-    getUseActionButtons(): UseActionButton[] {
-        return this.useActionButtons ? [...this.useActionButtons] : [];
-    }
-
-    wasAnyActionSelected(): boolean {
-        return this.selectedAction.endTurnAction !== undefined
-            || this.selectedAction.squaddieAction !== undefined;
+    getUseActionButtons(): MakeDecisionButton[] {
+        return this.makeDecisionButtons ? [...this.makeDecisionButtons] : [];
     }
 
     didPlayerSelectEndTurnAction(): boolean {
@@ -238,46 +238,40 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        const selectedUseActionButton = this.useActionButtons.find((button) =>
-            RectAreaHelper.isInside(button.buttonArea, mouseX, mouseY)
+        const selectedUseActionButton = this.makeDecisionButtons.find((button) =>
+            RectAreaService.isInside(button.buttonArea, mouseX, mouseY)
         );
 
         if (selectedUseActionButton) {
-            if (selectedUseActionButton.endTurnAction) {
-                if (!this.canPlayerControlThisSquaddie(state.battleOrchestratorState)) {
-                    return;
-                }
-                this.selectedAction.endTurnAction = selectedUseActionButton.endTurnAction;
+            const actionValidityCheck = this.checkIfActionIsValid(
+                selectedUseActionButton.actionEffectSquaddieTemplate,
+                state.battleOrchestratorState,
+            );
+            if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
+                this.selectedAction.squaddieAction = selectedUseActionButton.actionEffectSquaddieTemplate;
                 return;
-            } else {
-                const actionValidityCheck = this.checkIfActionIsValid(
-                    selectedUseActionButton.action,
-                    state.battleOrchestratorState,
-                );
-                if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
-                    this.selectedAction.squaddieAction = selectedUseActionButton.action;
-                    return;
-                }
-                this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.action);
             }
+            this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.actionEffectSquaddieTemplate);
         }
 
-        const clickedOnNextButton: boolean = this.shouldDrawNextButton(state.battleOrchestratorState) && RectAreaHelper.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY);
+        const clickedOnNextButton: boolean = this.shouldDrawNextButton(state.battleOrchestratorState) && RectAreaService.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY);
         if (clickedOnNextButton) {
             this.selectNextSquaddie(state.battleOrchestratorState);
         }
 
-        if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState) && RectAreaHelper.isInside(this.saveGameButton.rectangle.area, mouseX, mouseY)) {
+        this.checkForEndTurnButtonClick(state.battleOrchestratorState, mouseX, mouseY);
+
+        if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState) && RectAreaService.isInside(this.saveGameButton.rectangle.area, mouseX, mouseY)) {
             this.markGameToBeSaved(state);
         }
-        if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState) && RectAreaHelper.isInside(this.loadGameButton.rectangle.area, mouseX, mouseY)) {
+        if (this.shouldDrawSaveAndLoadButton(state.battleOrchestratorState) && RectAreaService.isInside(this.loadGameButton.rectangle.area, mouseX, mouseY)) {
             this.markGameToBeLoaded(state);
         }
     }
 
     mouseMoved(mouseX: number, mouseY: number, state: BattleOrchestratorState) {
-        this.useActionButtons.forEach((button) => {
-            if (RectAreaHelper.isInside(button.buttonArea, mouseX, mouseY)) {
+        this.makeDecisionButtons.forEach((button) => {
+            if (RectAreaService.isInside(button.buttonArea, mouseX, mouseY)) {
                 button.status = ButtonStatus.HOVER;
             } else {
                 button.status = ButtonStatus.READY;
@@ -292,7 +286,7 @@ export class BattleSquaddieSelectedHUD {
             squaddieAction: undefined,
             endTurnAction: undefined,
         };
-        this.useActionButtons = undefined;
+        this.makeDecisionButtons = undefined;
         this.nextBattleSquaddieIds = [];
 
         this.graphicsObjects = BattleHUDGraphicsObjectsHelper.new();
@@ -310,6 +304,14 @@ export class BattleSquaddieSelectedHUD {
         }
 
         return !selectedSquaddieIsPlayerControllableRightNow && numberOfPlayerControllableSquaddiesWhoCanCurrentlyAct > 0;
+    }
+
+    shouldDrawEndTurnButton(state: BattleOrchestratorState): boolean {
+        const currentTeam = BattleStateService.getCurrentTeam(state.battleState, state.squaddieRepository);
+        if (!isValidValue(currentTeam)) {
+            return false;
+        }
+        return BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.squaddieRepository);
     }
 
     shouldDrawSaveAndLoadButton(state: BattleOrchestratorState): boolean {
@@ -345,11 +347,11 @@ export class BattleSquaddieSelectedHUD {
         squaddieAffiliationHue: number,
         windowDimensions: RectArea
     ) {
-        this.useActionButtons = [];
+        this.makeDecisionButtons = [];
         squaddieTemplate.actions.forEach((action: ActionEffectSquaddieTemplate, index: number) => {
-            this.useActionButtons.push(
-                new UseActionButton({
-                    buttonArea: RectAreaHelper.new({
+            this.makeDecisionButtons.push(
+                new MakeDecisionButton({
+                    buttonArea: RectAreaService.new({
                         baseRectangle: windowDimensions,
                         anchorLeft: HorizontalAnchor.LEFT,
                         anchorTop: VerticalAnchor.CENTER,
@@ -358,27 +360,11 @@ export class BattleSquaddieSelectedHUD {
                         width: (windowDimensions.width / 12) - 16,
                         height: this._background.area.height * 0.5,
                     }),
-                    action: action,
+                    actionEffectSquaddieTemplate: action,
                     hue: squaddieAffiliationHue,
                 })
             );
         });
-
-        this.useActionButtons.push(
-            new UseActionButton({
-                hue: squaddieAffiliationHue,
-                buttonArea: RectAreaHelper.new({
-                    baseRectangle: windowDimensions,
-                    anchorLeft: HorizontalAnchor.RIGHT,
-                    anchorTop: VerticalAnchor.CENTER,
-                    left: -1 * ((windowDimensions.width / 11) - 32),
-                    vertAlign: VERT_ALIGN_CENTER,
-                    width: (windowDimensions.width / 12) - 16,
-                    height: this._background.area.height - 32,
-                }),
-                endTurnAction: ActionEffectEndTurnService.new(),
-            })
-        );
     }
 
     private generateAffiliateIcon(battleSquaddie: BattleSquaddie, state: BattleOrchestratorState) {
@@ -387,7 +373,7 @@ export class BattleSquaddieSelectedHUD {
         if (affiliateIconImage) {
             this.affiliateIcon = new ImageUI({
                 graphic: affiliateIconImage,
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: this._background.area.left + 20,
                     top: this._background.area.top + 10,
                     width: 32,
@@ -428,7 +414,7 @@ export class BattleSquaddieSelectedHUD {
 
         DrawBattleHUD.drawHorizontalDividedBar({
             graphicsContext,
-            drawArea: RectAreaHelper.new({
+            drawArea: RectAreaService.new({
                 left: this.background.area.left + ScreenDimensions.SCREEN_WIDTH / 12,
                 height: ActionPointsBarHeight,
                 width: ScreenDimensions.SCREEN_WIDTH / 12,
@@ -462,7 +448,7 @@ export class BattleSquaddieSelectedHUD {
 
         DrawBattleHUD.drawHorizontalDividedBar({
             graphicsContext,
-            drawArea: RectAreaHelper.new({
+            drawArea: RectAreaService.new({
                 left: this.background.area.left + ScreenDimensions.SCREEN_WIDTH / 12,
                 height: HitPointsBarHeight,
                 width: ScreenDimensions.SCREEN_WIDTH / 12,
@@ -476,7 +462,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private drawSquaddieActions(graphicsContext: GraphicsContext) {
-        this.useActionButtons.forEach((button) => {
+        this.makeDecisionButtons.forEach((button) => {
             button.draw(graphicsContext)
         });
     }
@@ -628,7 +614,7 @@ export class BattleSquaddieSelectedHUD {
                         text: differentSquaddieWarningText,
                         textSize: 24,
                         fontColor: [0, 0, 192],
-                        area: RectAreaHelper.new({
+                        area: RectAreaService.new({
                             baseRectangle: this.background.area,
                             anchorLeft: HorizontalAnchor.MIDDLE,
                             margin: [0, 0, 30, 40],
@@ -645,7 +631,7 @@ export class BattleSquaddieSelectedHUD {
                 text: squaddieTemplate.squaddieId.name,
                 textSize: 24,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 10, 192],
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     baseRectangle: this._background.area,
                     anchorLeft: HorizontalAnchor.LEFT,
                     anchorTop: VerticalAnchor.TOP,
@@ -700,7 +686,7 @@ export class BattleSquaddieSelectedHUD {
 
         const textSize = 16;
         const fontColor = [100, 0, 80];
-        const baseRectangle = RectAreaHelper.new({
+        const baseRectangle = RectAreaService.new({
             left: this.background.area.left + 5 * ScreenDimensions.SCREEN_WIDTH / 24,
             top: this.background.area.top,
             width: 100,
@@ -762,7 +748,7 @@ export class BattleSquaddieSelectedHUD {
             text,
             textSize,
             fontColor,
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 baseRectangle,
                 top: topOffset + textTopMargin,
                 left: iconLeftOffset + textLeftMargin,
@@ -775,7 +761,7 @@ export class BattleSquaddieSelectedHUD {
         if (isResult(iconAttempt)) {
             const iconImage = new ImageUI({
                 graphic: getResultOrThrowError(iconAttempt),
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     baseRectangle,
                     top: topOffset,
                     left: iconLeftOffset,
@@ -788,7 +774,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private generateSaveAndLoadGameButton(windowDimensions: RectArea) {
-        const saveButtonArea = RectAreaHelper.new({
+        const saveButtonArea = RectAreaService.new({
             top: windowDimensions.top + WINDOW_SPACING1,
             height: windowDimensions.height / 2 - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
@@ -797,8 +783,8 @@ export class BattleSquaddieSelectedHUD {
             margin: [0, WINDOW_SPACING1, WINDOW_SPACING1, 0],
         });
 
-        const loadButtonArea = RectAreaHelper.new({
-            top: RectAreaHelper.centerY(windowDimensions) + WINDOW_SPACING1,
+        const loadButtonArea = RectAreaService.new({
+            top: RectAreaService.centerY(windowDimensions) + WINDOW_SPACING1,
             height: windowDimensions.height / 2 - WINDOW_SPACING2,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             startColumn: 4,
@@ -830,9 +816,9 @@ export class BattleSquaddieSelectedHUD {
     }
 
     private generateNextSquaddieButton(windowDimensions: RectArea) {
-        const nextButtonArea = RectAreaHelper.new({
+        const nextButtonArea = RectAreaService.new({
             top: windowDimensions.top + WINDOW_SPACING1,
-            bottom: RectAreaHelper.bottom(windowDimensions) - WINDOW_SPACING1,
+            height: RectAreaService.height(windowDimensions) / 3,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             startColumn: 5,
             endColumn: 5,
@@ -914,7 +900,7 @@ export class BattleSquaddieSelectedHUD {
                 text: `Actions: ${actionPointsRemaining}`,
                 textSize: 16,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 96],
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: this.background.area.left + WINDOW_SPACING1,
                     height: ActionPointsBarHeight,
                     width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING1,
@@ -931,12 +917,58 @@ export class BattleSquaddieSelectedHUD {
                 text: `HP: ${currentHitPoints} / ${maxHitPoints}`,
                 textSize: 16,
                 fontColor: [HUE_BY_SQUADDIE_AFFILIATION[squaddieTemplate.squaddieId.affiliation], 7, 128],
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: this.background.area.left + WINDOW_SPACING1,
                     height: HitPointsBarHeight,
                     width: ScreenDimensions.SCREEN_WIDTH / 12 - WINDOW_SPACING1,
                     top: this.background.area.top + HitPointsTopOffset + (HitPointsBarHeight - HitPointsTextHeight),
                 })
             });
+    }
+
+    private maybeDrawEndTurnButton(battleOrchestratorState: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+        if (!this.shouldDrawEndTurnButton(battleOrchestratorState)) {
+            return;
+        }
+
+        LabelHelper.draw(this.endTurnButton, graphicsContext);
+    }
+
+    private generateEndTurnButton(windowDimensions: RectArea) {
+        const endTurnButtonArea = RectAreaService.new({
+            top: 0,
+            height: RectAreaService.height(windowDimensions) / 3,
+            screenWidth: ScreenDimensions.SCREEN_WIDTH,
+            startColumn: 5,
+            endColumn: 5,
+        });
+        RectAreaService.setBottom(endTurnButtonArea, RectAreaService.bottom(windowDimensions) - WINDOW_SPACING1);
+
+        this.endTurnButton = LabelHelper.new({
+            text: "End Turn",
+            textSize: 20,
+            fillColor: [10, 2, 192],
+            fontColor: [20, 5, 16],
+            area: endTurnButtonArea,
+            horizAlign: HORIZ_ALIGN_CENTER,
+            vertAlign: VERT_ALIGN_CENTER,
+            padding: WINDOW_SPACING1,
+        });
+    }
+
+    private checkForEndTurnButtonClick(battleOrchestratorState: BattleOrchestratorState, mouseX: number, mouseY: number) {
+        const clickedOnEndTurnButton: boolean =
+            this.shouldDrawEndTurnButton(battleOrchestratorState)
+            && RectAreaService.isInside(this.endTurnButton.rectangle.area, mouseX, mouseY)
+        ;
+        if (!clickedOnEndTurnButton) {
+            return;
+        }
+
+        if (!this.canPlayerControlThisSquaddie(battleOrchestratorState)) {
+            return;
+        }
+
+        this.selectedAction.endTurnAction = ActionEffectEndTurnService.new();
     }
 }

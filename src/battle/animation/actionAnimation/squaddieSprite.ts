@@ -1,4 +1,4 @@
-import {RectAreaHelper} from "../../../ui/rectArea";
+import {RectAreaService} from "../../../ui/rectArea";
 import {SquaddieEmotion} from "./actionAnimationConstants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ResourceHandler} from "../../../resource/resourceHandler";
@@ -58,7 +58,7 @@ export class SquaddieSprite {
             const image = getResultOrThrowError(this.resourceHandler.getResource(resourceKey));
             this.actionSpritesByEmotion[emotion] = new ImageUI({
                 graphic: image,
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     left: 0,
                     top: 0,
                     width: image.width,
@@ -88,7 +88,7 @@ export class SquaddieSprite {
         emptyImage.loadPixels();
 
         return new ImageUI({
-            area: RectAreaHelper.new({
+            area: RectAreaService.new({
                 left: 0,
                 top: ScreenDimensions.SCREEN_HEIGHT * 0.33,
                 width: emptyImage.width,

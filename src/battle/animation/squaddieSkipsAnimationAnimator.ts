@@ -6,7 +6,7 @@ import {
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {ActionResultTextService} from "./actionResultTextService";
 import {Label, LabelHelper} from "../../ui/label";
-import {RectAreaHelper} from "../../ui/rectArea";
+import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingService} from "../history/recording";
@@ -73,7 +73,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             const textToDraw = this.outputTextStrings.join("\n");
 
             this.outputTextDisplay = LabelHelper.new({
-                area: RectAreaHelper.new({
+                area: RectAreaService.new({
                     startColumn: 4,
                     endColumn: 10,
                     screenWidth: ScreenDimensions.SCREEN_WIDTH,

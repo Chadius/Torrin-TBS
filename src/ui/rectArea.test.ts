@@ -1,4 +1,4 @@
-import {HorizontalAnchor, RectArea, RectAreaHelper, VerticalAnchor} from "./rectArea";
+import {HorizontalAnchor, RectArea, RectAreaService, VerticalAnchor} from "./rectArea";
 import {
     HORIZ_ALIGN_CENTER,
     VERT_ALIGN_CENTER,
@@ -11,7 +11,7 @@ import {
 describe('RectArea', () => {
     describe('RectArea created from Position arguments', () => {
         it('can make a new Rectangle with top, left, width and height', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 top: 0,
                 left: 10,
                 height: 30,
@@ -24,7 +24,7 @@ describe('RectArea', () => {
             expect(rect.width).toBe(20);
         });
         it('can make a new Rectangle with top, left, bottom and right', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 top: 0,
                 left: 10,
                 bottom: 20,
@@ -39,7 +39,7 @@ describe('RectArea', () => {
     });
     describe('RectArea created from Screen Percentage arguments', () => {
         it('can make a new Rectangle with screen percentage top, left, width and height', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 screenWidth: 1000,
                 screenHeight: 500,
                 percentTop: 10,
@@ -55,7 +55,7 @@ describe('RectArea', () => {
         });
 
         it('can make a new Rectangle with screen percentage top, left, bottom and right', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 screenWidth: 1000,
                 screenHeight: 500,
                 percentTop: 10,
@@ -72,7 +72,7 @@ describe('RectArea', () => {
     });
     describe('RectArea created from 12 point column', () => {
         it('can make a new Rectangle with screen dimensions, start column, end column and top and bottom', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 screenWidth: 1200,
                 screenHeight: 500,
                 startColumn: 1,
@@ -88,7 +88,7 @@ describe('RectArea', () => {
         });
 
         it('can make a new Rectangle with screen dimensions, start column, end column and percent top and percent bottom', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 screenWidth: 1200,
                 screenHeight: 500,
                 startColumn: 11,
@@ -104,7 +104,7 @@ describe('RectArea', () => {
         });
 
         it('can make a new Rectangle with screen dimensions, left, end column and top and percent bottom', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 screenWidth: 1200,
                 screenHeight: 500,
                 left: 100,
@@ -120,7 +120,7 @@ describe('RectArea', () => {
         });
 
         it('can apply margins to a rectangle created with columns', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 screenWidth: 1200,
                 screenHeight: 500,
                 startColumn: 1,
@@ -138,14 +138,14 @@ describe('RectArea', () => {
     });
     describe('RectArea anchored to another rect', () => {
         it('can create a rect with the same top and left corner', () => {
-            const baseRect = RectAreaHelper.new({
+            const baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
                 width: 40
             });
 
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 anchorLeft: HorizontalAnchor.LEFT,
                 anchorTop: VerticalAnchor.TOP,
@@ -159,14 +159,14 @@ describe('RectArea', () => {
             expect(rect.width).toBe(50);
         });
         it('can create a rect in the middle and center', () => {
-            const baseRect = RectAreaHelper.new({
+            const baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
                 width: 40
             });
 
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 anchorLeft: HorizontalAnchor.MIDDLE,
                 anchorTop: VerticalAnchor.CENTER,
@@ -180,14 +180,14 @@ describe('RectArea', () => {
             expect(rect.width).toBe(50);
         });
         it('can create a rect with the bottom right corner', () => {
-            const baseRect = RectAreaHelper.new({
+            const baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
                 width: 40
             });
 
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 anchorLeft: HorizontalAnchor.RIGHT,
                 anchorTop: VerticalAnchor.BOTTOM,
@@ -201,14 +201,14 @@ describe('RectArea', () => {
             expect(rect.width).toBe(50);
         });
         it('can create a rect with arbitrary offset', () => {
-            const baseRect = RectAreaHelper.new({
+            const baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
                 width: 40
             });
 
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 left: 30,
                 top: 20,
@@ -223,14 +223,14 @@ describe('RectArea', () => {
     });
     describe('RectArea can combine multiple options', () => {
         it('can combine multiple top options', () => {
-            const baseRect = RectAreaHelper.new({
+            const baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
                 width: 40
             });
 
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 anchorTop: VerticalAnchor.TOP,
                 screenHeight: 500,
@@ -248,14 +248,14 @@ describe('RectArea', () => {
         });
 
         it('can combine multiple left options', () => {
-            const baseRect = RectAreaHelper.new({
+            const baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
                 width: 40
             });
 
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 screenWidth: 1200,
                 percentLeft: 20,
                 startColumn: 2,
@@ -275,30 +275,30 @@ describe('RectArea', () => {
         });
 
         it('can apply base rectangle, anchor and margins', () => {
-            const baseRect = RectAreaHelper.new({
+            const baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
                 width: 40
             });
 
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 anchorLeft: HorizontalAnchor.MIDDLE,
                 anchorTop: VerticalAnchor.CENTER,
                 margin: [60, 0, 0, 30],
             });
 
-            expect(rect.top).toBe(RectAreaHelper.centerY(baseRect) + 60);
-            expect(rect.left).toBe(RectAreaHelper.centerX(baseRect) + 30);
-            expect(rect.width).toBe(RectAreaHelper.width(baseRect) - 30);
-            expect(rect.height).toBe(RectAreaHelper.height(baseRect) - 60);
+            expect(rect.top).toBe(RectAreaService.centerY(baseRect) + 60);
+            expect(rect.left).toBe(RectAreaService.centerX(baseRect) + 30);
+            expect(rect.width).toBe(RectAreaService.width(baseRect) - 30);
+            expect(rect.height).toBe(RectAreaService.height(baseRect) - 60);
         });
     });
     describe('RectArea can apply margins based on another Rect', () => {
         let baseRect: RectArea;
         beforeEach(() => {
-            baseRect = RectAreaHelper.new({
+            baseRect = RectAreaService.new({
                 top: 10,
                 left: 20,
                 height: 30,
@@ -307,7 +307,7 @@ describe('RectArea', () => {
         });
 
         it('Can apply all margins', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 margin: WINDOW_SPACING1
             });
@@ -319,7 +319,7 @@ describe('RectArea', () => {
         });
 
         it('Can apply vertical and horizontal margins', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 margin: [WINDOW_SPACING1, WINDOW_SPACING2]
             });
@@ -331,7 +331,7 @@ describe('RectArea', () => {
         });
 
         it('Can apply top, horizontal, bottom margins', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 margin: [WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4]
             });
@@ -343,7 +343,7 @@ describe('RectArea', () => {
         });
 
         it('Can apply top, right, bottom, left margins', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 margin: [WINDOW_SPACING1, WINDOW_SPACING2, WINDOW_SPACING4, WINDOW_SPACING05]
             });
@@ -355,7 +355,7 @@ describe('RectArea', () => {
         });
 
         it('Can apply zero margins', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 baseRectangle: baseRect,
                 margin: 0
             });
@@ -368,7 +368,7 @@ describe('RectArea', () => {
     });
     describe('RectArea can align width and height', () => {
         it('can make a new Rectangle with top, left, width and height', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 top: 0,
                 left: 10,
                 height: 30,
@@ -377,105 +377,105 @@ describe('RectArea', () => {
                 vertAlign: VERT_ALIGN_CENTER
             });
 
-            expect(RectAreaHelper.top(rect)).toBe(-15);
-            expect(RectAreaHelper.left(rect)).toBe(0);
-            expect(RectAreaHelper.right(rect)).toBe(20);
-            expect(RectAreaHelper.bottom(rect)).toBe(15);
-            expect(RectAreaHelper.height(rect)).toBe(30);
-            expect(RectAreaHelper.width(rect)).toBe(20);
+            expect(RectAreaService.top(rect)).toBe(-15);
+            expect(RectAreaService.left(rect)).toBe(0);
+            expect(RectAreaService.right(rect)).toBe(20);
+            expect(RectAreaService.bottom(rect)).toBe(15);
+            expect(RectAreaService.height(rect)).toBe(30);
+            expect(RectAreaService.width(rect)).toBe(20);
         });
     });
     describe('RectArea getters', () => {
         it('should return parts of the RectArea', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 top: 0,
                 left: 10,
                 height: 30,
                 width: 40
             });
 
-            expect(RectAreaHelper.top(rect)).toBe(0);
-            expect(RectAreaHelper.left(rect)).toBe(10);
-            expect(RectAreaHelper.right(rect)).toBe(50);
-            expect(RectAreaHelper.bottom(rect)).toBe(30);
-            expect(RectAreaHelper.height(rect)).toBe(30);
-            expect(RectAreaHelper.width(rect)).toBe(40);
-            expect(RectAreaHelper.centerY(rect)).toBe(15);
-            expect(RectAreaHelper.centerX(rect)).toBe(30);
+            expect(RectAreaService.top(rect)).toBe(0);
+            expect(RectAreaService.left(rect)).toBe(10);
+            expect(RectAreaService.right(rect)).toBe(50);
+            expect(RectAreaService.bottom(rect)).toBe(30);
+            expect(RectAreaService.height(rect)).toBe(30);
+            expect(RectAreaService.width(rect)).toBe(40);
+            expect(RectAreaService.centerY(rect)).toBe(15);
+            expect(RectAreaService.centerX(rect)).toBe(30);
         });
     });
     describe('RectArea queries', () => {
         it('knows if a given point is inside the rectangle', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 top: 0,
                 left: 10,
                 height: 30,
                 width: 20,
             });
 
-            expect(RectAreaHelper.isInside(rect, 10, 0)).toBeTruthy();
-            expect(RectAreaHelper.isInside(rect, 0, 0)).toBeFalsy();
-            expect(RectAreaHelper.isInside(rect, 10, -10)).toBeFalsy();
-            expect(RectAreaHelper.isInside(rect, 30, 30)).toBeTruthy();
-            expect(RectAreaHelper.isInside(rect, 31, 31)).toBeFalsy();
+            expect(RectAreaService.isInside(rect, 10, 0)).toBeTruthy();
+            expect(RectAreaService.isInside(rect, 0, 0)).toBeFalsy();
+            expect(RectAreaService.isInside(rect, 10, -10)).toBeFalsy();
+            expect(RectAreaService.isInside(rect, 30, 30)).toBeTruthy();
+            expect(RectAreaService.isInside(rect, 31, 31)).toBeFalsy();
         });
     });
     it('can move the rect top left corner', () => {
-        const rect = RectAreaHelper.new({
+        const rect = RectAreaService.new({
             top: 0,
             left: 10,
             height: 30,
             width: 20,
         });
 
-        RectAreaHelper.move(rect, {left: 40, top: 50});
+        RectAreaService.move(rect, {left: 40, top: 50});
         expect(rect.left).toBe(40);
         expect(rect.top).toBe(50);
     });
     describe('RectArea can set width and height based on aspect ratio', () => {
         it('given ratio and width, RectArea calculates the height', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 top: 0,
                 left: 10,
                 width: 20,
                 height: 0,
             });
 
-            RectAreaHelper.changeAspectRatio(rect, 2, "WIDTH");
+            RectAreaService.changeAspectRatio(rect, 2, "WIDTH");
 
             expect(rect.height).toBe(10);
             expect(rect.width).toBe(20);
         });
         it('given ratio and height, RectArea calculates the width', () => {
-            const rect = RectAreaHelper.new({
+            const rect = RectAreaService.new({
                 top: 0,
                 left: 10,
                 height: 20,
                 width: 0,
             });
 
-            RectAreaHelper.changeAspectRatio(rect, 2, "HEIGHT");
+            RectAreaService.changeAspectRatio(rect, 2, "HEIGHT");
 
             expect(rect.height).toBe(20);
             expect(rect.width).toBe(40);
         });
     });
     it('can align a RectArea against a right and bottom side', () => {
-        const rect = RectAreaHelper.new({
+        const rect = RectAreaService.new({
             top: 0,
             left: 0,
             height: 30,
             width: 20,
         });
 
-        RectAreaHelper.setRight(rect, 100);
-        RectAreaHelper.setBottom(rect, 200);
+        RectAreaService.setRight(rect, 100);
+        RectAreaService.setBottom(rect, 200);
 
-        expect(RectAreaHelper.top(rect)).toBe(200 - 30);
-        expect(RectAreaHelper.left(rect)).toBe(100 - 20);
-        expect(RectAreaHelper.right(rect)).toBe(100);
-        expect(RectAreaHelper.bottom(rect)).toBe(200);
-        expect(RectAreaHelper.height(rect)).toBe(30);
-        expect(RectAreaHelper.width(rect)).toBe(20);
+        expect(RectAreaService.top(rect)).toBe(200 - 30);
+        expect(RectAreaService.left(rect)).toBe(100 - 20);
+        expect(RectAreaService.right(rect)).toBe(100);
+        expect(RectAreaService.bottom(rect)).toBe(200);
+        expect(RectAreaService.height(rect)).toBe(30);
+        expect(RectAreaService.width(rect)).toBe(20);
     });
 });
