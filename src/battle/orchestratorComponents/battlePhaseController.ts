@@ -14,7 +14,7 @@ import {
 import {ImageUI} from "../../ui/imageUI";
 import {RectAreaService} from "../../ui/rectArea";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {isCoordinateOnScreen, ScreenDimensions} from "../../utils/graphics/graphicsConfig";
+import {GraphicsConfig, ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -244,7 +244,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
                 mapDatum.mapLocation.r,
                 ...state.battleState.camera.getCoordinates()
             );
-            if (isCoordinateOnScreen(...squaddieScreenLocation)) {
+            if (GraphicsConfig.isCoordinateOnScreen(...squaddieScreenLocation)) {
                 return;
             }
 

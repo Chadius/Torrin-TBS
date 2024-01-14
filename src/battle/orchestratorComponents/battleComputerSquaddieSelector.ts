@@ -20,7 +20,7 @@ import {
     SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
-import {isCoordinateOnScreen} from "../../utils/graphics/graphicsConfig";
+import {GraphicsConfig} from "../../utils/graphics/graphicsConfig";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
@@ -201,11 +201,10 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
             if (squaddieInstruction) {
                 this.reactToComputerSelectedAction(state, squaddieInstruction);
+                this.panToSquaddieIfOffscreen(state);
             } else {
                 this.defaultSquaddieToEndTurn(state, currentTeam);
             }
-
-            this.panToSquaddieIfOffscreen(state);
         }
     }
 
@@ -264,7 +263,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             datum.mapLocation.r,
         )
 
-        if (!isCoordinateOnScreen(squaddieScreenLocation[0], squaddieScreenLocation[1])) {
+        if (!GraphicsConfig.isCoordinateOnScreen(squaddieScreenLocation[0], squaddieScreenLocation[1])) {
             state.battleOrchestratorState.battleState.camera.pan({
                 xDestination: squaddieWorldLocation[0],
                 yDestination: squaddieWorldLocation[1],

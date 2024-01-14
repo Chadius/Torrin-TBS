@@ -5,7 +5,13 @@ export const ScreenDimensions = {
     SCREEN_HEIGHT: config.SCREEN_HEIGHT,
 }
 
-export const isCoordinateOnScreen: (xCoordinate: number, yCoordinate: number) => boolean = (xCoordinate: number, yCoordinate: number) => {
+export const GraphicsConfig = {
+    isCoordinateOnScreen: (xCoordinate: number, yCoordinate: number): boolean => {
+        return isCoordinateOnScreen(xCoordinate, yCoordinate);
+    }
+}
+
+const isCoordinateOnScreen: (xCoordinate: number, yCoordinate: number) => boolean = (xCoordinate: number, yCoordinate: number) => {
     return (
         xCoordinate >= 0
         && xCoordinate < ScreenDimensions.SCREEN_WIDTH

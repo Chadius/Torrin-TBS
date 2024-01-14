@@ -196,6 +196,18 @@ describe('BattleComputerSquaddieSelector', () => {
         });
 
         makeBattlePhaseTrackerWithEnemyTeam(missionMap);
+        const strategySpy = jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(
+            SquaddieActionsForThisRoundService.new({
+                squaddieTemplateId: enemyDemonTemplate.squaddieId.templateId,
+                battleSquaddieId: enemyDemonBattleSquaddie.battleSquaddieId,
+                startingLocation: {q: 0, r: 1},
+                decisions: [
+                    DecisionService.new({
+                        actionEffects: [ActionEffectEndTurnService.new()]
+                    })
+                ]
+            })
+        );
 
         const squaddieLocation: number[] = convertMapCoordinatesToWorldCoordinates(0, 0);
         const camera: BattleCamera = new BattleCamera(
@@ -214,6 +226,14 @@ describe('BattleComputerSquaddieSelector', () => {
                         camera,
                         missionMap,
                         teams,
+                        teamStrategiesById: {
+                            "teamId": [
+                                {
+                                    type: TeamStrategyType.END_TURN,
+                                    options: {}
+                                }
+                            ]
+                        },
                         recording: {history: []},
                     }),
                 })
@@ -224,6 +244,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
         camera.moveCamera();
         selector.update(state, mockedP5GraphicsContext);
+        expect(strategySpy).toHaveBeenCalled();
 
         expect(selector.hasCompleted(state)).toBeFalsy();
         expect(camera.isPanning()).toBeTruthy();
@@ -318,38 +339,55 @@ describe('BattleComputerSquaddieSelector', () => {
             expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(endTurnInstruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0]);
         });
 
-        it('will default to ending its turn if none of the strategies provide instruction', () => {
-            const state: GameEngineState = GameEngineStateHelper.new({
-                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
-                    battleSquaddieSelectedHUD: undefined,
-                    squaddieRepository: squaddieRepo,
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "test mission",
-                        battlePhaseState,
-                        missionMap,
-                        recording: {history: []},
-                        teams,
-                        teamStrategiesById: {
-                            "teamId":
-                                [{
-                                    type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
-                                    options: {},
-                                }],
-                        },
+        describe('default to ending its turn if none of the strategies provide instruction', () => {
+            let state: GameEngineState;
+            let determineNextDecisionSpy: jest.SpyInstance;
+            beforeEach(() => {
+                state = GameEngineStateHelper.new({
+                    battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                        resourceHandler: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        squaddieRepository: squaddieRepo,
+                        battleState: BattleStateService.newBattleState({
+                            missionId: "test mission",
+                            battlePhaseState,
+                            missionMap,
+                            recording: {history: []},
+                            teams,
+                            teamStrategiesById: {
+                                "teamId":
+                                    [{
+                                        type: TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE,
+                                        options: {},
+                                    }],
+                            },
+                        })
                     })
-                })
+                });
+                determineNextDecisionSpy = jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(undefined);
             });
-            jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(undefined);
-            selector.update(state, mockedP5GraphicsContext);
-            expect(selector.hasCompleted(state)).toBeTruthy();
 
-            const endTurnActionInstruction: SquaddieDecisionsDuringThisPhase = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase;
-            const mostRecentDecision = SquaddieActionsForThisRoundService.getMostRecentDecision(endTurnActionInstruction);
-            expect(mostRecentDecision.actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+            it('will default to ending its turn if none of the strategies provide instruction', () => {
+                selector.update(state, mockedP5GraphicsContext);
+                expect(selector.hasCompleted(state)).toBeTruthy();
+                expect(determineNextDecisionSpy).toBeCalled();
 
-            const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
-            expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
+                const endTurnActionInstruction: SquaddieDecisionsDuringThisPhase = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase;
+                const mostRecentDecision = SquaddieActionsForThisRoundService.getMostRecentDecision(endTurnActionInstruction);
+                expect(mostRecentDecision.actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+
+                const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
+                expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
+            });
+
+            it('will not pan the camera to the squaddie', () => {
+                state.battleOrchestratorState.battleState.camera = new BattleCamera(ScreenDimensions.SCREEN_WIDTH * 10, ScreenDimensions.SCREEN_HEIGHT * 10);
+                selector.update(state, mockedP5GraphicsContext);
+                expect(selector.hasCompleted(state)).toBeTruthy();
+                expect(determineNextDecisionSpy).toBeCalled();
+
+                expect(state.battleOrchestratorState.battleState.camera.isPanning()).toBeFalsy();
+            });
         });
     });
 

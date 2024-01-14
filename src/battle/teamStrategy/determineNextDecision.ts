@@ -5,13 +5,14 @@ import {MoveCloserToSquaddie} from "./moveCloserToSquaddie";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
 import {EndTurnTeamStrategy} from "./endTurn";
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
+import {SquaddieDecisionsDuringThisPhase} from "../history/squaddieDecisionsDuringThisPhase";
 
 export const DetermineNextDecision = ({strategy, state, squaddieRepository}:
                                           {
                                               strategy: TeamStrategy,
                                               state: TeamStrategyState,
                                               squaddieRepository: ObjectRepository
-                                          }) => {
+                                          }): SquaddieDecisionsDuringThisPhase => {
     let calculator: TeamStrategyCalculator;
     switch (strategy.type) {
         case TeamStrategyType.MOVE_CLOSER_TO_SQUADDIE:
