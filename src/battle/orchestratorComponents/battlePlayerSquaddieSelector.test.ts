@@ -47,6 +47,7 @@ import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngin
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
+import {BattlePhaseState} from "./battlePhaseController";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -864,5 +865,59 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(mockHud.keyPressed).toHaveBeenCalled();
+    });
+
+    it('will accept commands even after canceling', () => {
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: ["1 1 "]
+            })
+        });
+        const battlePhaseState: BattlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        const currentlySelectedDecision = CurrentlySelectedSquaddieDecisionService.new({
+            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+                squaddieTemplateId: "player_soldier",
+                battleSquaddieId: "player_soldier_0",
+                startingLocation: {q: 0, r: 0},
+                decisions: [],
+            }),
+            currentlySelectedDecision: undefined,
+        });
+
+        const camera: BattleCamera = new BattleCamera();
+
+        const state: GameEngineState = GameEngineStateHelper.new({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                squaddieRepository: squaddieRepo,
+                resourceHandler: mocks.mockResourceHandler(),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionMap,
+                    camera,
+                    battlePhaseState,
+                    teams,
+                    squaddieCurrentlyActing: currentlySelectedDecision,
+                    recording: {history: []},
+                }),
+            })
+        });
+
+        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY
+        });
+
+        ([mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates()));
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY
+        });
+
+        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
+        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0].type).toEqual(ActionEffectType.MOVEMENT);
     });
 });

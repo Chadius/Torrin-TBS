@@ -97,6 +97,30 @@ describe('CurrentlySelectedSquaddieDecision', () => {
         expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(squaddieCurrentlyActing)).toBeTruthy();
     });
 
+    it('will indicate the squaddie has not acted this round if they cancel their first decision', () => {
+        const longswordUsedThisRoundAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            battleSquaddieId: "battleSquaddieId",
+            squaddieTemplateId: "templateId",
+            startingLocation: {q: 1, r: 1},
+        });
+
+        const squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
+            squaddieActionsForThisRound: longswordUsedThisRoundAction,
+            currentlySelectedDecision: DecisionService.new({
+                actionEffects: [
+                    ActionEffectSquaddieService.new({
+                        template: longswordAction,
+                        targetLocation: {q: 0, r: 0},
+                        numberOfActionPointsSpent: 1,
+                    })
+                ]
+            }),
+        });
+
+        CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(squaddieCurrentlyActing);
+        expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(squaddieCurrentlyActing)).toBeFalsy();
+    });
+
     it('knows when the squaddie is considering a decision', () => {
         let currentDecisions = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({

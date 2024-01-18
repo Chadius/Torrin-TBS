@@ -292,6 +292,20 @@ describe("Orchestration Utils", () => {
             expect(squaddieServiceSpy).toBeCalled();
             jest.clearAllMocks();
         });
+
+        it('is not if the squaddie cancels their first decision before confirming it', () => {
+            state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+                    battleSquaddieId: "battle",
+                    squaddieTemplateId: "templateId",
+                    startingLocation: {q: 0, r: 0},
+                    decisions: [],
+                }),
+                currentlySelectedDecision: moveDecision,
+            });
+            CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleState.squaddieCurrentlyActing);
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
+        });
     });
 
     describe('updateSquaddieBasedOnActionEffect', () => {

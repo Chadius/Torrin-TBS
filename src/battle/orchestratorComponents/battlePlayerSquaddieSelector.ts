@@ -342,11 +342,11 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
     }
 
     private isHudInstructingTheCurrentlyActingSquaddie(state: BattleOrchestratorState): boolean {
-        const startOfANewSquaddieTurn = OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
+        const startOfANewSquaddieTurn = !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
         const squaddieShownInHUD = state.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId();
 
         return startOfANewSquaddieTurn
-            || squaddieShownInHUD !== CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing);
+            || squaddieShownInHUD === CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing);
     }
 
     private reactToPlayerSelectedAction(state: BattleOrchestratorState) {
