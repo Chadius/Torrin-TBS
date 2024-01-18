@@ -412,6 +412,51 @@ export class GameEngine {
                     },
                     {
                         type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/map-icon-petra.png",
+                        key: "map icon petra",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-neutral.png",
+                        key: "petra cutscene portrait",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-attacking.png",
+                        key: "combat-petra-attack",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-damaged.png",
+                        key: "combat-petra-damaged",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-dead.png",
+                        key: "combat-petra-dead",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-neutral.png",
+                        key: "combat-petra-neutral",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-targeted.png",
+                        key: "combat-petra-targeted",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-assisting.png",
+                        key: "combat-petra-assisting",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
+                        path: "assets/playerArmy/petra/combat-petra-thankful.png",
+                        key: "combat-petra-thankful",
+                    },
+                    {
+                        type: ResourceType.IMAGE,
                         path: "assets/splash-victory-screen.png",
                         key: "splash victory",
                     },

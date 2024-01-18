@@ -5,6 +5,7 @@ export enum Trait {
     MOVEMENT = "MOVEMENT",
     HUMANOID = "HUMANOID",
     MONSU = "MONSU",
+    TERRAN = "TERRAN",
     DEMON = "DEMON",
     CROSS_OVER_PITS = "CROSS_OVER_PITS",
     PASS_THROUGH_WALLS = "PASS_THROUGH_WALLS",
@@ -59,6 +60,10 @@ const traitInformation: {
     },
     [Trait.MONSU]: {
         description: "Water djinn, able to manipulate primal forces and thirst.",
+        categories: [TraitCategory.CREATURE],
+    },
+    [Trait.TERRAN]: {
+        description: "Earth djinn, creatures of sand and stone. Skilled builders.",
         categories: [TraitCategory.CREATURE],
     },
     [Trait.DEMON]: {

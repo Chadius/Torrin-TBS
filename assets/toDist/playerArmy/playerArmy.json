@@ -115,6 +115,56 @@
           }
         }
       ]
+    },
+    {
+      "squaddieId": {
+        "templateId": "player_petra",
+        "name": "Petra",
+        "resources": {
+          "mapIconResourceKey": "map icon petra",
+          "actionSpritesByEmotion": {
+            "NEUTRAL": "combat-petra-neutral",
+            "ATTACK": "combat-petra-attack",
+            "TARGETED": "combat-petra-targeted",
+            "DAMAGED": "combat-petra-damaged",
+            "DEAD": "combat-petra-dead",
+            "ASSISTING": "combat-petra-assisting",
+            "THANKFUL": "combat-petra-thankful"
+          }
+        },
+        "traits": {
+          "booleanTraits": {
+            "HUMANOID": true,
+            "TERRAN": true
+          }
+        },
+        "affiliation": "PLAYER"
+      },
+      "attributes": {
+        "maxHitPoints": 4,
+        "armorClass": 7,
+        "movement": {
+          "movementPerAction": 3,
+          "passThroughWalls": false,
+          "crossOverPits": false
+        }
+      },
+      "actions": [
+        {
+          "name": "shard stab",
+          "id": "petra-shard-stab",
+          "minimumRange": 0,
+          "maximumRange": 1,
+          "traits": {
+            "booleanTraits": {
+              "ATTACK": true
+            }
+          },
+          "damageDescriptions": {
+            "BODY": 2
+          }
+        }
+      ]
     }
   ]
 }
