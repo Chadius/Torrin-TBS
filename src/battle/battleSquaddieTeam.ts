@@ -1,7 +1,7 @@
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ObjectRepository, ObjectRepositoryService} from "./objectRepository";
 import {getResultOrThrowError} from "../utils/ResultOrError";
-import {TintSquaddieIfTurnIsComplete, unTintSquaddieMapIcon} from "./animation/drawSquaddie";
+import {DrawSquaddieUtilities, unTintSquaddieMapIcon} from "./animation/drawSquaddie";
 import {CanPlayerControlSquaddieRightNow, SquaddieService} from "../squaddie/squaddieService";
 import {BattleSquaddieService} from "./battleSquaddie";
 import {isValidValue} from "../utils/validityCheck";
@@ -113,7 +113,7 @@ export const BattleSquaddieTeamService = {
                 battleSquaddie
             } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, battleSquaddieId));
             BattleSquaddieService.endTurn(battleSquaddie);
-            TintSquaddieIfTurnIsComplete(squaddieRepository, battleSquaddie, squaddieTemplate);
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, squaddieRepository);
         }));
     },
 };

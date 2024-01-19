@@ -8,7 +8,7 @@ import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targeting
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {OrchestratorUtilities, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
-import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
+import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
@@ -129,5 +129,5 @@ export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
         CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-    TintSquaddieIfTurnIsComplete(state.squaddieRepository, actingBattleSquaddie, actingSquaddieTemplate);
+    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(actingBattleSquaddie, actingSquaddieTemplate, state.squaddieRepository);
 }

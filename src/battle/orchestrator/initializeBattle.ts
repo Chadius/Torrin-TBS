@@ -6,7 +6,7 @@ import {
     OrchestratorComponentMouseEvent
 } from "./battleOrchestratorComponent";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {TintSquaddieIfTurnIsComplete} from "../animation/drawSquaddie";
+import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -37,7 +37,7 @@ export class InitializeBattle implements BattleOrchestratorComponent {
                     battleSquaddie,
                     squaddieTemplate,
                 } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleId))
-                TintSquaddieIfTurnIsComplete(state.battleOrchestratorState.squaddieRepository, battleSquaddie, squaddieTemplate);
+                DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.squaddieRepository);
             });
         });
     }

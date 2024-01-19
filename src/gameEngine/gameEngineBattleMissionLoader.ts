@@ -9,7 +9,7 @@ import {MissionObjective} from "../battle/missionResult/missionObjective";
 import {MissionCondition} from "../battle/missionResult/missionCondition";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
 import {SaveFile} from "../utils/fileHandling/saveFile";
-import {TintSquaddieIfTurnIsComplete} from "../battle/animation/drawSquaddie";
+import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattleCameraHelper} from "../battle/battleCamera";
@@ -207,12 +207,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             const {battleSquaddie, battleSquaddieId} = info;
             const {squaddieTemplate} = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(battleOrchestratorState.squaddieRepository, battleSquaddieId));
-
-            TintSquaddieIfTurnIsComplete(
-                battleOrchestratorState.squaddieRepository,
-                battleSquaddie,
-                squaddieTemplate,
-            );
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, battleOrchestratorState.squaddieRepository);
         });
     }
 
