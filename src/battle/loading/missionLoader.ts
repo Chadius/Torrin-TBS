@@ -27,7 +27,7 @@ import {BattleCamera} from "../battleCamera";
 import {Cutscene} from "../../cutscene/cutscene";
 import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {SplashScreen} from "../../cutscene/splashScreen";
+import {SplashScreenPlayer} from "../../cutscene/splashScreenPlayer";
 import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
@@ -359,7 +359,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new SplashScreen({
+                    new SplashScreenPlayer({
                         id: "victory_final",
                         screenImageResourceKey: "splash victory",
                     }),
@@ -385,7 +385,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new SplashScreen({
+                    new SplashScreenPlayer({
                         id: "defeat_final",
                         screenImageResourceKey: "splash defeat",
                     }),

@@ -1,5 +1,5 @@
 import {DialogueBox} from "./dialogue/dialogueBox";
-import {SplashScreen} from "./splashScreen";
+import {SplashScreenPlayer} from "./splashScreenPlayer";
 import {Cutscene} from "./cutscene";
 import {CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
@@ -8,8 +8,8 @@ import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle
 import {BattleStateService} from "../battle/orchestrator/battleState";
 
 describe('Cutscene', () => {
-    const splash1 = new SplashScreen({id: "splash1"})
-    const splash2 = new SplashScreen({id: "splash2"})
+    const splash1 = new SplashScreenPlayer({id: "splash1"})
+    const splash2 = new SplashScreenPlayer({id: "splash2"})
 
     const frontDoorGreeting = new DialogueBox({
         id: "1",
@@ -407,7 +407,7 @@ describe('Cutscene', () => {
     });
 
     it('can load required resources and indicate if it is ready to load', () => {
-        const restaurantEntrance = new SplashScreen({
+        const restaurantEntrance = new SplashScreenPlayer({
             id: "splash1",
             screenImageResourceKey: "restaurant_entrance"
         })

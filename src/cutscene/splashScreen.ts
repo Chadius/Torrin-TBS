@@ -1,91 +1,24 @@
-import {ResourceLocator, ResourceType} from "../resource/resourceHandler";
-import {CutsceneAction} from "./cutsceneAction";
-import {ImageUI} from "../ui/imageUI";
-import {RectAreaService} from "../ui/rectArea";
-import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
-import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
-import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
-
-// TODO extract information into an interface
-// TODO class is built using the interface
-export class SplashScreen implements CutsceneAction {
+export interface SplashScreen {
     id: string;
-    startTime: number;
-    dialogFinished: boolean;
-    animationDuration: number;
     screenImageResourceKey: string;
-    screenImage: ImageUI;
+    animationDuration: number;
+}
 
-    constructor({
-                    id,
-                    animationDuration,
-                    screenImageResourceKey,
-                }: {
+export const SplashScreenService = {
+    new: ({
+              id,
+              screenImageResourceKey,
+              animationDuration,
+          }:{
         id: string;
+        screenImageResourceKey: string;
         animationDuration?: number;
-        screenImageResourceKey?: string;
-    }) {
-        this.id = id;
-        this.screenImageResourceKey = screenImageResourceKey;
-        this.animationDuration = animationDuration || 0;
-        this.dialogFinished = false;
-    }
-
-    getId(): string {
-        return this.id;
-    }
-
-    getResourceLocators(): ResourceLocator[] {
-        return [
-            {
-                type: ResourceType.IMAGE,
-                key: this.screenImageResourceKey
-            }
-        ]
-    }
-
-    setImageResource(image: GraphicImage) {
-        this.setScreenImage(image);
-    }
-
-    setScreenImage(splashImage: GraphicImage) {
-        this.screenImage = new ImageUI({
-            graphic: splashImage,
-            area: RectAreaService.new({
-                left: (ScreenDimensions.SCREEN_WIDTH - splashImage.width) / 2,
-                top: (ScreenDimensions.SCREEN_HEIGHT - splashImage.height) / 2,
-                width: splashImage.width,
-                height: splashImage.height,
-            })
-        });
-    }
-
-    start(context: TextSubstitutionContext): void {
-        this.dialogFinished = false;
-        this.startTime = Date.now();
-    }
-
-    isTimeExpired(): boolean {
-        return Date.now() >= this.startTime + this.animationDuration
-    }
-
-    mouseClicked(mouseX: number, mouseY: number) {
-        if (this.isTimeExpired() && this.isAnimating()) {
-            this.dialogFinished = true;
-        }
-    }
-
-    isAnimating(): boolean {
-        return !this.dialogFinished;
-    }
-
-    isFinished(): boolean {
-        return !this.isAnimating() || this.dialogFinished;
-    }
-
-    draw(graphicsContext: GraphicsContext): void {
-        if (this.screenImage) {
-            this.screenImage.draw(graphicsContext);
+    }): SplashScreen => {
+        // TODO sanitize
+        return {
+            id,
+            screenImageResourceKey,
+            animationDuration: animationDuration || 0,
         }
     }
 }
