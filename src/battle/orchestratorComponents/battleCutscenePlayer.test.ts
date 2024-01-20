@@ -1,7 +1,7 @@
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene} from "../../cutscene/cutscene";
-import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
+import {TODODeleteMeDialogueBoxPlayer} from "../../cutscene/dialogue/dialogueBoxPlayer";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
@@ -10,7 +10,7 @@ describe('BattleCutscenePlayer', () => {
     let dinnerDate: Cutscene;
     let lunchDate: Cutscene;
     beforeEach(() => {
-        const frontDoorGreeting = new DialogueBox({
+        const frontDoorGreeting = new TODODeleteMeDialogueBoxPlayer({
             id: "1",
             name: "Doorman",
             text: "Welcome, come inside",
@@ -23,7 +23,7 @@ describe('BattleCutscenePlayer', () => {
         });
         lunchDate = new Cutscene({
             actions: [
-                new DialogueBox({
+                new TODODeleteMeDialogueBoxPlayer({
                     id: "2",
                     name: "Doorman",
                     text: "Lunch time!",

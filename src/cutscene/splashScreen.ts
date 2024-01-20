@@ -1,4 +1,8 @@
+import {isValidValue} from "../utils/validityCheck";
+import {CutsceneActionPlayerType} from "./cutsceneAction";
+
 export interface SplashScreen {
+    type: CutsceneActionPlayerType.SPLASH_SCREEN,
     id: string;
     screenImageResourceKey: string;
     animationDuration: number;
@@ -14,11 +18,13 @@ export const SplashScreenService = {
         screenImageResourceKey: string;
         animationDuration?: number;
     }): SplashScreen => {
-        // TODO sanitize
         return {
+            type: CutsceneActionPlayerType.SPLASH_SCREEN,
             id,
             screenImageResourceKey,
-            animationDuration: animationDuration || 0,
+            animationDuration: isValidValue(animationDuration) || animationDuration === 0
+                ? animationDuration
+                : 0,
         }
     }
 }

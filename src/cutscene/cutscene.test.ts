@@ -1,5 +1,5 @@
-import {DialogueBox} from "./dialogue/dialogueBox";
-import {SplashScreenPlayer} from "./splashScreenPlayer";
+import {TODODeleteMeDialogueBoxPlayer} from "./dialogue/dialogueBoxPlayer";
+import {TODODeleteMeSplashScreenPlayer} from "./splashScreenPlayer";
 import {Cutscene} from "./cutscene";
 import {CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
@@ -8,16 +8,16 @@ import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle
 import {BattleStateService} from "../battle/orchestrator/battleState";
 
 describe('Cutscene', () => {
-    const splash1 = new SplashScreenPlayer({id: "splash1"})
-    const splash2 = new SplashScreenPlayer({id: "splash2"})
+    const splash1 = new TODODeleteMeSplashScreenPlayer({id: "splash1"})
+    const splash2 = new TODODeleteMeSplashScreenPlayer({id: "splash2"})
 
-    const frontDoorGreeting = new DialogueBox({
+    const frontDoorGreeting = new TODODeleteMeDialogueBoxPlayer({
         id: "1",
         name: "Doorman",
         text: "Welcome, come inside",
         animationDuration: 0
     });
-    const hostGreeting = new DialogueBox({
+    const hostGreeting = new TODODeleteMeDialogueBoxPlayer({
         id: "1",
         name: "Host",
         text: "Someone will lead you to your table shortly.",
@@ -98,19 +98,19 @@ describe('Cutscene', () => {
         it('should use Answer based DecisionTriggers to select a different dialog when it is triggered', () => {
             const purchasePrompt = new Cutscene({
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "buy my stuff",
                         name: "Sales Clerk",
                         text: "Would you like to buy this sword?",
                         answers: ["Yes", "No"],
                         screenDimensions: [1000, 800]
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test failed",
                         name: "No",
                         text: "The cutscene should not have gotten here",
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test passes",
                         name: "Clerk",
                         text: "Thank you for your business",
@@ -135,19 +135,19 @@ describe('Cutscene', () => {
         it('should ignore Answer based DecisionTriggers if a different answer is selected', () => {
             const purchasePrompt = new Cutscene({
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "buy my stuff",
                         name: "Sales Clerk",
                         text: "Would you like to buy this sword?",
                         answers: ["Yes", "No"],
                         screenDimensions: [1000, 800]
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test passed",
                         name: "Clerk",
                         text: "Okay, here you go!",
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test failed",
                         name: "No",
                         text: "Test should not have gone here",
@@ -172,18 +172,18 @@ describe('Cutscene', () => {
         it('should always use a DecisionTrigger if no answer is given', () => {
             const purchasePrompt = new Cutscene({
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "act serious",
                         name: "your brain",
                         text: "Do not embarrass yourself. Easy.",
                         screenDimensions: [1000, 800]
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test failed",
                         name: "Fart",
                         text: "Ack! You farted! The test has failed!",
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test passes",
                         name: "Handshake",
                         text: "An easy handshake to set a professional meeting.",
@@ -207,25 +207,25 @@ describe('Cutscene', () => {
         it('when returning to an older dialogue box, should not persist previous answer upon mouse click', () => {
             const purchasePrompt = new Cutscene({
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "buy my stuff",
                         name: "Sales Clerk",
                         text: "Would you like to buy this sword?",
                         answers: ["Yes", "No"],
                         screenDimensions: [1000, 800]
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "reconsider",
                         name: "Sales Clerk",
                         text: "I implore you to reconsider...",
                         screenDimensions: [1000, 800]
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test failed",
                         name: "No",
                         text: "The cutscene should not have gotten here",
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "test passes",
                         name: "Clerk",
                         text: "Thank you for your business",
@@ -264,26 +264,26 @@ describe('Cutscene', () => {
     });
 
     describe('fast-forward mode', () => {
-        let waiterGreets: DialogueBox;
-        let waiterHandsMenu: DialogueBox;
-        let waiterAsks: DialogueBox;
+        let waiterGreets: TODODeleteMeDialogueBoxPlayer;
+        let waiterHandsMenu: TODODeleteMeDialogueBoxPlayer;
+        let waiterAsks: TODODeleteMeDialogueBoxPlayer;
 
         beforeEach(() => {
-            waiterGreets = new DialogueBox({
+            waiterGreets = new TODODeleteMeDialogueBoxPlayer({
                 id: "waiterGreets",
                 name: "Waiter",
                 text: "Hello, I'm your Waiter for the evening.",
                 animationDuration: 100,
             });
 
-            waiterHandsMenu = new DialogueBox({
+            waiterHandsMenu = new TODODeleteMeDialogueBoxPlayer({
                 id: "waiterHandsMenu",
                 name: "Waiter",
                 text: "Here is your menu.",
                 animationDuration: 100,
             });
 
-            waiterAsks = new DialogueBox({
+            waiterAsks = new TODODeleteMeDialogueBoxPlayer({
                 id: "waiterAsks",
                 name: "Waiter",
                 text: "Would you like some bread?",
@@ -355,7 +355,7 @@ describe('Cutscene', () => {
                     waiterGreets,
                     waiterHandsMenu,
                     waiterAsks,
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "testFailed"
                     })
                 ],
@@ -407,7 +407,7 @@ describe('Cutscene', () => {
     });
 
     it('can load required resources and indicate if it is ready to load', () => {
-        const restaurantEntrance = new SplashScreenPlayer({
+        const restaurantEntrance = new TODODeleteMeSplashScreenPlayer({
             id: "splash1",
             screenImageResourceKey: "restaurant_entrance"
         })

@@ -1,4 +1,4 @@
-import {DialogueBox} from "./dialogue/dialogueBox";
+import {TODODeleteMeDialogueBoxPlayer} from "./dialogue/dialogueBoxPlayer";
 import {CutsceneDecisionTrigger, CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
@@ -238,11 +238,11 @@ export class Cutscene {
             return false;
         }
 
-        if (!(this.currentAction instanceof DialogueBox)) {
+        if (!(this.currentAction instanceof TODODeleteMeDialogueBoxPlayer)) {
             return true;
         }
 
-        return !(this.currentAction instanceof DialogueBox && this.currentAction.asksUserForAnAnswer());
+        return !(this.currentAction instanceof TODODeleteMeDialogueBoxPlayer && this.currentAction.asksUserForAnAnswer());
     }
 
     private collectResourceLocatorsAndKeys() {
@@ -330,7 +330,7 @@ export class Cutscene {
             return undefined;
         }
 
-        const selectedAnswer = this.currentAction instanceof DialogueBox ? this.currentAction.answerSelected : undefined;
+        const selectedAnswer = this.currentAction instanceof TODODeleteMeDialogueBoxPlayer ? this.currentAction.answerSelected : undefined;
 
         return this.decisionTriggers.find((action) =>
                 action.sourceDialogId === this.currentAction.getId()

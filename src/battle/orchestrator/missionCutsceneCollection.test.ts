@@ -1,5 +1,5 @@
 import {Cutscene} from "../../cutscene/cutscene";
-import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
+import {TODODeleteMeDialogueBoxPlayer} from "../../cutscene/dialogue/dialogueBoxPlayer";
 import {
     DEFAULT_VICTORY_CUTSCENE_ID,
     MissionCutsceneCollection,
@@ -9,7 +9,7 @@ import {
 describe('MissionCutsceneCollection', () => {
     let dinnerDate: Cutscene;
     beforeEach(() => {
-        const frontDoorGreeting = new DialogueBox({
+        const frontDoorGreeting = new TODODeleteMeDialogueBoxPlayer({
             id: "1",
             name: "Doorman",
             text: "Welcome, come inside",

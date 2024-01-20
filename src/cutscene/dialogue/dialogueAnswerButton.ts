@@ -18,7 +18,7 @@ export class DialogueAnswerButton {
     constructor(options: Partial<Options>) {
         this.answerText = options.answer;
         this.buttonRect = options.position;
-        this.screenDimensions = options.screenDimensions || [0, 0];
+        this.screenDimensions = options.screenDimensions || [0, 0]; // TODO get rid of this
 
         this.createUIObjects();
     }

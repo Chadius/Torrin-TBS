@@ -15,7 +15,7 @@ export class DialogueSpeakerImage {
 
     constructor(options: Partial<Options>) {
         this.speakerPortrait = options.speakerPortrait;
-        this.screenDimensions = options.screenDimensions || [0, 0];
+        this.screenDimensions = options.screenDimensions || [0, 0]; // TODO get rid of this
 
         this.createUIObjects();
     }

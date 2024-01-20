@@ -25,9 +25,9 @@ import {RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {BattleCamera} from "../battleCamera";
 import {Cutscene} from "../../cutscene/cutscene";
-import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
+import {TODODeleteMeDialogueBoxPlayer} from "../../cutscene/dialogue/dialogueBoxPlayer";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {SplashScreenPlayer} from "../../cutscene/splashScreenPlayer";
+import {TODODeleteMeSplashScreenPlayer} from "../../cutscene/splashScreenPlayer";
 import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
@@ -329,7 +329,7 @@ const loadCutscenes = ({
             [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
                 resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "victory_0",
                         name: "Sir Camil",
                         text: "That's the last of them.",
@@ -337,7 +337,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "victory_1",
                         name: "Torrin",
                         text: "Yay! We did it!",
@@ -345,21 +345,21 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "victory_report_0",
                         name: "Mission Report",
                         text: "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "victory_report_1",
                         name: "Mission Report",
                         text: "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new SplashScreenPlayer({
+                    new TODODeleteMeSplashScreenPlayer({
                         id: "victory_final",
                         screenImageResourceKey: "splash victory",
                     }),
@@ -369,7 +369,7 @@ const loadCutscenes = ({
             [DEFAULT_DEFEAT_CUTSCENE_ID]: new Cutscene({
                 resourceHandler: resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "defeat_0",
                         name: "Torrin",
                         text: "We have to retreat!",
@@ -377,7 +377,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "defeat_1",
                         name: "Sir Camil",
                         text: "Right. When we come back, let me take the lead, and let's take it slow.",
@@ -385,7 +385,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new SplashScreenPlayer({
+                    new TODODeleteMeSplashScreenPlayer({
                         id: "defeat_final",
                         screenImageResourceKey: "splash defeat",
                     }),
@@ -395,7 +395,7 @@ const loadCutscenes = ({
             "introduction": new Cutscene({
                 resourceHandler: resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "how_to_play_0",
                         name: "How to play",
                         text: "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
@@ -403,7 +403,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "how_to_play_1",
                         name: "How to play",
                         text: "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
@@ -411,7 +411,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "how_to_play_2",
                         name: "How to play",
                         text: "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
@@ -419,7 +419,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "how_to_play_3",
                         portraitResourceKey: "young torrin cutscene portrait",
                         name: "Torrin",
@@ -427,7 +427,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "how_to_play_4",
                         name: "Sir Camil",
                         text: "Sir Camil has more health and armor than Torrin.\nHe has a longsword for melee attacks.",
@@ -441,7 +441,7 @@ const loadCutscenes = ({
             "turn1": new Cutscene({
                 resourceHandler: resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn1_0",
                         name: "Torrin",
                         text: "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
@@ -449,7 +449,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn1_1",
                         name: "Sir Camil",
                         text: "I agree. The courtyard must be cleansed.\nI'll take the lead. Stay behind me and heal me if I get hurt.\nIf we fight one at a time we should be alright.",
@@ -463,7 +463,7 @@ const loadCutscenes = ({
             "turn2": new Cutscene({
                 resourceHandler: resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn2_0",
                         name: "Sir Camil",
                         text: "And all of this sand poured in this morning... I can barely move through it.",
@@ -471,7 +471,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn2_1",
                         name: "Torrin",
                         text: "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
@@ -485,7 +485,7 @@ const loadCutscenes = ({
             "turn4": new Cutscene({
                 resourceHandler: resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn4_0",
                         name: "Torrin",
                         text: "I can barely see ahead of us. What's going on down there?",
@@ -493,7 +493,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn4_1",
                         name: "Sir Camil",
                         text: "If you move the pointer to the edges of the screen, we can move the camera a bit.",
@@ -507,7 +507,7 @@ const loadCutscenes = ({
             "turn5": new Cutscene({
                 resourceHandler: resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn5_0",
                         name: "Sir Camil",
                         text: "What are those demons thinking? I don't know how far they can reach.",
@@ -515,7 +515,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn5_1",
                         name: "Torrin",
                         text: "I can... tell where they can move. If you just... er, click on them, I can see where they can move.",
@@ -523,7 +523,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn5_2",
                         name: "Torrin",
                         text: "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
@@ -537,7 +537,7 @@ const loadCutscenes = ({
             "turn7": new Cutscene({
                 resourceHandler: resourceHandler,
                 actions: [
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn7_0",
                         name: "Torrin",
                         text: "Ah! I missed again!",
@@ -545,7 +545,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn7_1",
                         name: "Sir Camil",
                         text: "The multiple attack penalty adds up quickly.\nYour third attack is usually not worth it.",
@@ -553,7 +553,7 @@ const loadCutscenes = ({
                         animationDuration: 0,
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new DialogueBox({
+                    new TODODeleteMeDialogueBoxPlayer({
                         id: "turn7_2",
                         name: "Sir Camil",
                         text: "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
