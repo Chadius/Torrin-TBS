@@ -30,7 +30,9 @@ export const MissionObjectivesAndCutscenesHelper = {
             missionCompletionStatus: missionCompletionStatus,
             cutsceneTriggers: cutsceneTriggers || [],
             battleCompletionStatus: battleCompletionStatus,
-            cutsceneCollection: cutsceneCollection || MissionCutsceneCollectionHelper.new({cutsceneById: {}}),
+            cutsceneCollection: cutsceneCollection || MissionCutsceneCollectionHelper.new({
+                cutsceneById: {}
+            }),
             objectives: objectives && objectives.length > 0 ? objectives : [
                 MissionObjectiveHelper.validateMissionObjective({
                     id: "default",

@@ -20,7 +20,7 @@ import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {MouseButton} from "../../utils/mouseConfig";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {Cutscene} from "../../cutscene/cutscene";
+import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
@@ -234,13 +234,13 @@ describe('Battle Orchestrator', () => {
     it('plays a cutscene at the start of the turn', () => {
         orchestrator = createOrchestrator({});
         const turn0StateCutsceneId = "starting";
-        const mockCutscene = new Cutscene({});
+        const mockCutscene = CutsceneService.new({});
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                 [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
                 [turn0StateCutsceneId]: mockCutscene,
-            }
+            },
         });
 
         const turn0CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger = {
@@ -284,7 +284,7 @@ describe('Battle Orchestrator', () => {
     it('recommends cutscene player if there is a cutscene to play at the start', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new Cutscene({})
+                "starting": CutsceneService.new({})
             },
         });
 
@@ -324,7 +324,7 @@ describe('Battle Orchestrator', () => {
     it('skips the introductory cutscene if the game is loaded', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new Cutscene({})
+                "starting": CutsceneService.new({})
             },
         });
 
@@ -562,12 +562,12 @@ describe('Battle Orchestrator', () => {
         let victoryAndDefeatState: GameEngineState;
 
         beforeEach(() => {
-            mockCutscene = new Cutscene({});
+            mockCutscene = CutsceneService.new({});
             cutsceneCollection = MissionCutsceneCollectionHelper.new({
                 cutsceneById: {
                     [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                     [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
-                }
+                },
             });
             cutscenePlayer = new BattleCutscenePlayer();
 

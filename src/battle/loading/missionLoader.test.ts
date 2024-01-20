@@ -18,6 +18,8 @@ import {TestMissionData} from "../../utils/test/missionData";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {TestArmyPlayerData} from "../../utils/test/army";
+import {CutsceneService} from "../../cutscene/cutscene";
+import {isValidValue} from "../../utils/validityCheck";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -293,33 +295,6 @@ describe('Mission Loader', () => {
                 }
             );
         });
-    });
-
-    describe('can load mission data from hardcoded assets', () => {
-        let initialPendingResourceListLength: number;
-
-        beforeEach(async () => {
-            await MissionLoader.loadMissionFromFile({
-                missionLoaderContext: missionLoaderContext,
-                missionId: "0000",
-                resourceHandler,
-                repository: repository,
-            });
-
-            await MissionLoader.loadPlayerArmyFromFile({
-                missionLoaderContext: missionLoaderContext,
-                resourceHandler,
-                squaddieRepository: repository,
-            });
-
-            initialPendingResourceListLength = missionLoaderContext.resourcesPendingLoading.length;
-
-            MissionLoader.loadMissionFromHardcodedData({
-                missionLoaderContext,
-                squaddieRepository: repository,
-                resourceHandler,
-            });
-        });
 
         it('gets squaddies and queues resources to load based on the squaddie resources', () => {
             expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
@@ -330,8 +305,17 @@ describe('Mission Loader', () => {
         });
 
         it('gets cutscenes', () => {
-            expect("cutsceneCollection" in missionLoaderContext.cutsceneInfo).toBeTruthy();
-            expect("cutsceneTriggers" in missionLoaderContext.cutsceneInfo).toBeTruthy();
+            expect(
+                Object.keys(missionData.cutscene.cutsceneById)
+            ).toEqual(
+                Object.keys(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById)
+            );
+
+            expect(missionLoaderContext.resourcesPendingLoading).toContain("tutorial-map");
+            expect(missionLoaderContext.resourcesPendingLoading).toContain("splash victory");
+            expect(missionLoaderContext.resourcesPendingLoading.every(key => isValidValue(key))).toBeTruthy();
+
+            expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toEqual(missionData.cutscene.cutsceneTriggers);
         });
     });
 
@@ -376,12 +360,6 @@ describe('Mission Loader', () => {
                 repository: repository,
             });
 
-            MissionLoader.loadMissionFromHardcodedData({
-                missionLoaderContext,
-                squaddieRepository: repository,
-                resourceHandler,
-            });
-
             jest.spyOn(resourceHandler, "isResourceLoaded").mockReturnValue(true);
             resourceHandler.loadResources(missionLoaderContext.resourcesPendingLoading);
 
@@ -397,7 +375,12 @@ describe('Mission Loader', () => {
         });
 
         it('initializes cutscenes', () => {
-            expect(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+            expect(
+                CutsceneService.hasLoaded(
+                    missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    resourceHandler,
+                )
+            ).toBeTruthy();
         });
 
         it('has the squaddie templates that were loaded from files', () => {

@@ -6,6 +6,8 @@ import {PlayerArmy, PlayerArmyHelper} from "../campaign/playerArmy";
 import {SquaddieDeployment, SquaddieDeploymentHelper} from "../missionMap/squaddieDeployment";
 import {isValidValue} from "../utils/validityCheck";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
+import {CutsceneTrigger} from "../cutscene/cutsceneTrigger";
+import {Cutscene} from "../cutscene/cutscene";
 
 export interface MapPlacement {
     battleSquaddieId: string,
@@ -37,6 +39,10 @@ export interface MissionFileFormat {
         teams: NpcTeam[],
     },
     phaseBannersByAffiliation: { [affiliation in SquaddieAffiliation]?: string },
+    cutscene: {
+        cutsceneTriggers: CutsceneTrigger[],
+        cutsceneById: { [id: string]: Cutscene },
+    }
 }
 
 export const MissionFileFormatHelper = {
@@ -64,13 +70,17 @@ export const MissionFileFormatHelper = {
         },
         phaseBannersByAffiliation?: { [affiliation in SquaddieAffiliation]?: string },
     }): MissionFileFormat => {
-        const data = {
+        const data: MissionFileFormat = {
             id,
             terrain,
             objectives,
             player,
             enemy,
             phaseBannersByAffiliation,
+            cutscene: {
+                cutsceneTriggers: [],
+                cutsceneById: {},
+            }
         };
         sanitize(data);
         return data;
@@ -100,6 +110,20 @@ const sanitize = (data: MissionFileFormat): MissionFileFormat => {
 
         if (!isValidValue(data.player.deployment)) {
             data.player.deployment = SquaddieDeploymentHelper.default();
+        }
+    }
+
+    if (!isValidValue(data.cutscene)) {
+        data.cutscene = {
+            cutsceneById: {},
+            cutsceneTriggers: [],
+        }
+    } else {
+        if (!isValidValue(data.cutscene.cutsceneById)) {
+            data.cutscene.cutsceneById = {};
+        }
+        if (!isValidValue(data.cutscene.cutsceneTriggers)) {
+            data.cutscene.cutsceneTriggers = [];
         }
     }
 

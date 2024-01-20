@@ -1,4 +1,4 @@
-import {Cutscene} from "../../cutscene/cutscene";
+import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,
@@ -35,7 +35,7 @@ describe('Mission Cutscene Service', () => {
     let turn0CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger;
 
     beforeEach(() => {
-        mockCutscene = new Cutscene({});
+        mockCutscene = CutsceneService.new({});
         cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,

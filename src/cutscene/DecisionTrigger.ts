@@ -1,25 +1,26 @@
-type Options = {
-    sourceDialogAnswer: number;
-}
-
-type RequiredOptions = {
-    sourceDialogId: string;
-    destinationDialogId: string;
-}
-
-export class DecisionTrigger {
+export interface CutsceneDecisionTrigger {
     sourceDialogId: string;
     sourceDialogAnswer: number | undefined;
     destinationDialogId: string;
-
-    constructor(options: RequiredOptions & Partial<Options>) {
-        this.destinationDialogId = options.destinationDialogId;
-        this.sourceDialogId = options.sourceDialogId;
-        this.sourceDialogAnswer = options.sourceDialogAnswer;
-    }
-
-    doesThisRequireAMatchingAnswer(): boolean {
-        return this.sourceDialogAnswer !== undefined;
-    }
 }
 
+export const CutsceneDecisionTriggerService = {
+    new: ({
+              sourceDialogId,
+              destinationDialogId,
+              sourceDialogAnswer,
+          }: {
+        sourceDialogId: string,
+        destinationDialogId: string,
+        sourceDialogAnswer?: number,
+    }): CutsceneDecisionTrigger => {
+        return {
+            sourceDialogId,
+            sourceDialogAnswer,
+            destinationDialogId,
+        }
+    },
+    doesThisRequireAMatchingAnswer: (cutsceneDialogTrigger: CutsceneDecisionTrigger): boolean => {
+        return cutsceneDialogTrigger.sourceDialogAnswer !== undefined;
+    }
+}

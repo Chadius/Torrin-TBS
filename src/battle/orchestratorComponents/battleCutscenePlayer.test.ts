@@ -1,33 +1,34 @@
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
-import {Cutscene} from "../../cutscene/cutscene";
-import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
+import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {DialogueService} from "../../cutscene/dialogue/dialogue";
 
 describe('BattleCutscenePlayer', () => {
     let dinnerDate: Cutscene;
     let lunchDate: Cutscene;
     beforeEach(() => {
-        const frontDoorGreeting = new DialogueBox({
-            id: "1",
-            name: "Doorman",
-            text: "Welcome, come inside",
-            animationDuration: 0
-        });
-        dinnerDate = new Cutscene({
-            actions: [
-                frontDoorGreeting
+        dinnerDate = CutsceneService.new({
+            directions: [
+                DialogueService.new({
+                    id: "1",
+                    speakerName: "Doorman",
+                    speakerText: "Welcome, come inside",
+                    speakerPortraitResourceKey: undefined,
+                    animationDuration: 0
+                }),
             ]
         });
-        lunchDate = new Cutscene({
-            actions: [
-                new DialogueBox({
+        lunchDate = CutsceneService.new({
+            directions: [
+                DialogueService.new({
                     id: "2",
-                    name: "Doorman",
-                    text: "Lunch time!",
-                    animationDuration: 0
+                    speakerName: "Doorman",
+                    speakerText: "Lunch time!",
+                    animationDuration: 0,
+                    speakerPortraitResourceKey: undefined,
                 })
             ]
         })
@@ -71,7 +72,7 @@ describe('BattleCutscenePlayer', () => {
         cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
         expect(cutscenePlayer.currentCutsceneId).toBe("dinner_date");
         expect(cutscenePlayer.currentCutscene).toBe(dinnerDate);
-        expect(dinnerDate.isInProgress()).toBeTruthy();
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
     });
     it('is complete when the cutscene completes', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
@@ -95,7 +96,7 @@ describe('BattleCutscenePlayer', () => {
         cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
         expect(cutscenePlayer.hasCompleted(initialState)).toBeFalsy();
 
-        dinnerDate.stop();
+        CutsceneService.stop(dinnerDate);
         expect(cutscenePlayer.hasCompleted(initialState)).toBeTruthy();
     });
     it('will not change the cutscene if one is playing', () => {
@@ -124,7 +125,7 @@ describe('BattleCutscenePlayer', () => {
         expect(cutscenePlayer.currentCutsceneId).toBe("dinner_date");
         expect(cutscenePlayer.currentCutscene).toBe(dinnerDate);
 
-        dinnerDate.stop();
+        CutsceneService.stop(dinnerDate);
         cutscenePlayer.startCutscene("lunch_date", initialState);
         expect(cutscenePlayer.currentCutsceneId).toBe("lunch_date");
         expect(cutscenePlayer.currentCutscene).toBe(lunchDate);
@@ -176,7 +177,7 @@ describe('BattleCutscenePlayer', () => {
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
 
         cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
-        dinnerDate.stop();
+        CutsceneService.stop(dinnerDate);
         cutscenePlayer.reset(initialState);
         expect(cutscenePlayer.currentCutscene).toBeUndefined();
     });

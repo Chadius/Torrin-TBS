@@ -3,13 +3,8 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {LoadMissionFromFile, LoadPlayerArmyFromFile, MissionFileFormat} from "../../dataLoader/missionLoader";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {
-    DEFAULT_DEFEAT_CUTSCENE_ID,
-    DEFAULT_VICTORY_CUTSCENE_ID,
-    MissionCutsceneCollection,
-    MissionCutsceneCollectionHelper
-} from "../orchestrator/missionCutsceneCollection";
-import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
+import {MissionCutsceneCollection, MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
+import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
@@ -24,10 +19,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {BattleCamera} from "../battleCamera";
-import {Cutscene} from "../../cutscene/cutscene";
-import {DialogueBox} from "../../cutscene/dialogue/dialogueBox";
-import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {SplashScreen} from "../../cutscene/splashScreen";
+import {CutsceneService} from "../../cutscene/cutscene";
 import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
@@ -160,19 +152,9 @@ export const MissionLoader = {
 
         loadPhaseAffiliationBanners(missionLoaderContext, missionData, repository, resourceHandler);
         loadTeamIcons(missionLoaderContext, missionData, repository, resourceHandler);
-    },
-    loadMissionFromHardcodedData: ({
-                                       missionLoaderContext,
-                                       squaddieRepository,
-                                       resourceHandler,
-                                   }: {
-        missionLoaderContext: MissionLoaderContext,
-        squaddieRepository: ObjectRepository,
-        resourceHandler: ResourceHandler,
-    }) => {
-        loadMissionFromHardcodedData({
+        loadCutscenes({
             missionLoaderContext,
-            squaddieRepository,
+            missionData,
             resourceHandler,
         });
     },
@@ -195,7 +177,7 @@ export const MissionLoader = {
         missionLoaderContext: MissionLoaderContext;
         resourceHandler: ResourceHandler
     }) => {
-        initializeCutscenes({missionLoaderContext});
+        initializeCutscenes({missionLoaderContext, resourceHandler});
         initializeSquaddieResources({repository: repository, missionLoaderContext, resourceHandler});
     },
     loadPlayerArmyFromFile: async ({squaddieRepository, resourceHandler, missionLoaderContext}: {
@@ -291,280 +273,34 @@ const initializeSquaddieResources = ({
 
 const initializeCutscenes = ({
                                  missionLoaderContext,
+                                 resourceHandler,
                              }: {
     missionLoaderContext: MissionLoaderContext;
+    resourceHandler: ResourceHandler;
 }) => {
     Object.entries(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById).forEach(([id, cutscene]) => {
-        cutscene.setResources();
+        CutsceneService.setResources(cutscene, resourceHandler);
     });
 }
 
-const loadMissionFromHardcodedData = ({
-                                          missionLoaderContext,
-                                          squaddieRepository,
-                                          resourceHandler,
-                                      }: {
-    missionLoaderContext: MissionLoaderContext,
-    squaddieRepository: ObjectRepository,
-    resourceHandler: ResourceHandler,
-}) => {
-    loadCutscenes({
-        missionLoaderContext,
-        repository: squaddieRepository,
-        resourceHandler,
-    });
-};
-
 const loadCutscenes = ({
                            missionLoaderContext,
-                           repository,
+                           missionData,
                            resourceHandler,
                        }: {
     missionLoaderContext: MissionLoaderContext,
-    repository: ObjectRepository,
     resourceHandler: ResourceHandler,
+    missionData: MissionFileFormat,
 }) => {
+    const cutsceneById = Object.fromEntries(
+        Object.entries(missionData.cutscene.cutsceneById).map(([key, rawCutscene]) => {
+            const cutscene = CutsceneService.new(rawCutscene);
+            return [key, cutscene];
+        })
+    );
+
     const cutsceneCollection = MissionCutsceneCollectionHelper.new({
-        cutsceneById: {
-            [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
-                resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "victory_0",
-                        name: "Sir Camil",
-                        text: "That's the last of them.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "victory_1",
-                        name: "Torrin",
-                        text: "Yay! We did it!",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "victory_report_0",
-                        name: "Mission Report",
-                        text: "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "victory_report_1",
-                        name: "Mission Report",
-                        text: "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new SplashScreen({
-                        id: "victory_final",
-                        screenImageResourceKey: "splash victory",
-                    }),
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-            [DEFAULT_DEFEAT_CUTSCENE_ID]: new Cutscene({
-                resourceHandler: resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "defeat_0",
-                        name: "Torrin",
-                        text: "We have to retreat!",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "defeat_1",
-                        name: "Sir Camil",
-                        text: "Right. When we come back, let me take the lead, and let's take it slow.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new SplashScreen({
-                        id: "defeat_final",
-                        screenImageResourceKey: "splash defeat",
-                    }),
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-            "introduction": new Cutscene({
-                resourceHandler: resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "how_to_play_0",
-                        name: "How to play",
-                        text: "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
-                        portraitResourceKey: "tutorial-map",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "how_to_play_1",
-                        name: "How to play",
-                        text: "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
-                        portraitResourceKey: "tutorial-hud",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "how_to_play_2",
-                        name: "How to play",
-                        text: "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
-                        portraitResourceKey: "tutorial-hud",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "how_to_play_3",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        name: "Torrin",
-                        text: "Torrin can use her Water Cannon to attack from range.\nHealing Touch will heal herself or Sir Camil for 2, but it costs 2 action points.",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "how_to_play_4",
-                        name: "Sir Camil",
-                        text: "Sir Camil has more health and armor than Torrin.\nHe has a longsword for melee attacks.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-            "turn1": new Cutscene({
-                resourceHandler: resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "turn1_0",
-                        name: "Torrin",
-                        text: "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "turn1_1",
-                        name: "Sir Camil",
-                        text: "I agree. The courtyard must be cleansed.\nI'll take the lead. Stay behind me and heal me if I get hurt.\nIf we fight one at a time we should be alright.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-            "turn2": new Cutscene({
-                resourceHandler: resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "turn2_0",
-                        name: "Sir Camil",
-                        text: "And all of this sand poured in this morning... I can barely move through it.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "turn2_1",
-                        name: "Torrin",
-                        text: "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    })
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-            "turn4": new Cutscene({
-                resourceHandler: resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "turn4_0",
-                        name: "Torrin",
-                        text: "I can barely see ahead of us. What's going on down there?",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "turn4_1",
-                        name: "Sir Camil",
-                        text: "If you move the pointer to the edges of the screen, we can move the camera a bit.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    })
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-            "turn5": new Cutscene({
-                resourceHandler: resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "turn5_0",
-                        name: "Sir Camil",
-                        text: "What are those demons thinking? I don't know how far they can reach.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "turn5_1",
-                        name: "Torrin",
-                        text: "I can... tell where they can move. If you just... er, click on them, I can see where they can move.",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "turn5_2",
-                        name: "Torrin",
-                        text: "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    })
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-            "turn7": new Cutscene({
-                resourceHandler: resourceHandler,
-                actions: [
-                    new DialogueBox({
-                        id: "turn7_0",
-                        name: "Torrin",
-                        text: "Ah! I missed again!",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "turn7_1",
-                        name: "Sir Camil",
-                        text: "The multiple attack penalty adds up quickly.\nYour third attack is usually not worth it.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    }),
-                    new DialogueBox({
-                        id: "turn7_2",
-                        name: "Sir Camil",
-                        text: "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
-                        portraitResourceKey: "sir camil cutscene portrait",
-                        animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-                    })
-                ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
-            }),
-        },
+        cutsceneById,
     })
 
     const cutsceneResourceKeys = Object.values(cutsceneCollection.cutsceneById).map((cutscene) => {
@@ -576,54 +312,7 @@ const loadCutscenes = ({
         ...cutsceneResourceKeys
     ];
 
-    const cutsceneTriggers: CutsceneTrigger[] = [
-        {
-            triggeringEvent: TriggeringEvent.MISSION_VICTORY,
-            cutsceneId: DEFAULT_VICTORY_CUTSCENE_ID,
-            systemReactedToTrigger: false,
-        },
-        {
-            triggeringEvent: TriggeringEvent.MISSION_DEFEAT,
-            cutsceneId: DEFAULT_DEFEAT_CUTSCENE_ID,
-            systemReactedToTrigger: false,
-        },
-        {
-            triggeringEvent: TriggeringEvent.START_OF_TURN,
-            systemReactedToTrigger: false,
-            cutsceneId: "introduction",
-            turn: 0,
-        },
-        {
-            triggeringEvent: TriggeringEvent.START_OF_TURN,
-            systemReactedToTrigger: false,
-            cutsceneId: "turn1",
-            turn: 1,
-        },
-        {
-            triggeringEvent: TriggeringEvent.START_OF_TURN,
-            systemReactedToTrigger: false,
-            cutsceneId: "turn2",
-            turn: 2,
-        },
-        {
-            triggeringEvent: TriggeringEvent.START_OF_TURN,
-            systemReactedToTrigger: false,
-            cutsceneId: "turn4",
-            turn: 4,
-        },
-        {
-            triggeringEvent: TriggeringEvent.START_OF_TURN,
-            systemReactedToTrigger: false,
-            cutsceneId: "turn5",
-            turn: 5,
-        },
-        {
-            triggeringEvent: TriggeringEvent.START_OF_TURN,
-            systemReactedToTrigger: false,
-            cutsceneId: "turn7",
-            turn: 7,
-        },
-    ];
+    const cutsceneTriggers: CutsceneTrigger[] = missionData.cutscene.cutsceneTriggers;
 
     missionLoaderContext.cutsceneInfo.cutsceneCollection = cutsceneCollection;
     missionLoaderContext.cutsceneInfo.cutsceneTriggers = cutsceneTriggers;

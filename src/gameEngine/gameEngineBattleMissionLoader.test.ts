@@ -31,6 +31,7 @@ import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {TestMissionData} from "../utils/test/missionData";
 import {TestArmyPlayerData} from "../utils/test/army";
 import {PlayerArmy} from "../campaign/playerArmy";
+import {CutsceneService} from "../cutscene/cutscene";
 
 describe('GameEngineBattleMissionLoader', () => {
     let loader: GameEngineBattleMissionLoader;
@@ -189,7 +190,12 @@ describe('GameEngineBattleMissionLoader', () => {
 
         it('cutscenes', () => {
             expect(state.battleOrchestratorState.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
-            expect(state.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+            expect(
+                CutsceneService.hasLoaded(
+                    state.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    resourceHandler,
+                )
+            ).toBeTruthy();
         });
 
         it('initializes the camera', () => {
@@ -319,7 +325,12 @@ describe('GameEngineBattleMissionLoader', () => {
             await loader.update(currentState);
             expect(loader.missionLoaderContext.resourcesPendingLoading).toHaveLength(0);
             expect(currentState.battleOrchestratorState.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
-            expect(currentState.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+            expect(
+                CutsceneService.hasLoaded(
+                    state.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    resourceHandler,
+                )
+            ).toBeTruthy();
             expect(currentState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(1);
             expect(currentState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
             expect(currentState.battleOrchestratorState.battleState.battlePhaseState).toEqual({
@@ -458,7 +469,12 @@ describe('GameEngineBattleMissionLoader', () => {
             await loader.update(currentState);
             expect(loader.missionLoaderContext.resourcesPendingLoading).toHaveLength(0);
             expect(currentState.battleOrchestratorState.battleState.cutsceneTriggers.length).toBeGreaterThan(0);
-            expect(currentState.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+            expect(
+                CutsceneService.hasLoaded(
+                    state.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    resourceHandler,
+                )
+            ).toBeTruthy();
             expect(currentState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toBe(1);
             expect(currentState.battleOrchestratorState.battleState.battleCompletionStatus).toBe(BattleCompletionStatus.IN_PROGRESS);
             expect(currentState.battleOrchestratorState.battleState.battlePhaseState).toEqual({

@@ -3,22 +3,20 @@ import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 
-type Options = {
-    answer: string;
-    position: RectArea;
-    screenDimensions: [number, number];
-}
-
 export class DialogueAnswerButton {
     answerText: string;
     buttonRect: RectArea;
     answerLabel: Label;
-    screenDimensions: [number, number];
 
-    constructor(options: Partial<Options>) {
-        this.answerText = options.answer;
-        this.buttonRect = options.position;
-        this.screenDimensions = options.screenDimensions || [0, 0];
+    constructor({
+                    answer,
+                    position,
+                }: {
+        answer?: string;
+        position?: RectArea;
+    }) {
+        this.answerText = answer;
+        this.buttonRect = position;
 
         this.createUIObjects();
     }
