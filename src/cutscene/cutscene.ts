@@ -1,6 +1,6 @@
-import {TODODeleteMeDialogueBoxPlayer} from "./dialogue/dialogueBoxPlayer";
+import {DialoguePlayerService, DialoguePlayerState} from "./dialogue/dialogueBoxPlayer";
 import {CutsceneDecisionTrigger, CutsceneDecisionTriggerService} from "./DecisionTrigger";
-import {CutsceneAction} from "./cutsceneAction";
+import {CutsceneAction, CutsceneActionPlayerType} from "./cutsceneAction";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
 import {Button, ButtonStatus} from "../ui/button";
 import {LabelHelper} from "../ui/label";
@@ -9,28 +9,29 @@ import {ResourceHandler, ResourceLocator, ResourceType} from "../resource/resour
 import {isResult, unwrapResultOrError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
+import {Dialogue, DialogueService} from "./dialogue/dialogue";
+import {SplashScreen, SplashScreenService} from "./splashScreen";
+import {SplashScreenPlayerService, SplashScreenPlayerState} from "./splashScreenPlayer";
+import {isValidValue} from "../utils/validityCheck";
+import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
 // TODO extract information into an interface
 // TODO class is built using the interface
-type Options = {
-    actions: CutsceneAction[];
-    decisionTriggers: CutsceneDecisionTrigger[];
-    screenDimensions: [number, number];
-    resourceHandler: ResourceHandler;
-}
+export type CutsceneDirection = Dialogue | SplashScreen;
+export type CutsceneDirectionPlayerState = DialoguePlayerState | SplashScreenPlayerState;
 
 export class Cutscene {
-    dialogueActions: CutsceneAction[];
-    decisionTriggers: CutsceneDecisionTrigger[];
-    screenDimensions: {
-        width: number,
-        height: number
+    directions: CutsceneDirection[];
+    directionIndex: number | undefined;
+    currentDirection: CutsceneDirection | undefined;
+
+    cutscenePlayerStateById: {
+        [t: string]: CutsceneDirectionPlayerState
     };
 
-    dialogueActionIndex: number | undefined;
-    currentAction: CutsceneAction | undefined;
+    decisionTriggers: CutsceneDecisionTrigger[];
 
     fastForwardButton: Button;
     fastForwardPreviousTimeTick: number | undefined;
@@ -39,17 +40,43 @@ export class Cutscene {
     allResourceLocators: ResourceLocator[];
     allResourceKeys: string[];
 
-    constructor(options: Partial<Options>) {
-        this.dialogueActions = options.actions ? [...options.actions] : [];
-        this.decisionTriggers = options.decisionTriggers ? [...options.decisionTriggers] : [];
-        this.screenDimensions = {
-            width: options.screenDimensions ? options.screenDimensions[0] : 0,
-            height: options.screenDimensions ? options.screenDimensions[1] : 0,
-        };
+    constructor({
+                    actions,
+                    decisionTriggers,
+                    resourceHandler,
+                    directions,
+                }: {
+        actions?: CutsceneAction[]; // TODO get rid of this
+        decisionTriggers?: CutsceneDecisionTrigger[];
+        directions?: CutsceneDirection[];
+        resourceHandler?: ResourceHandler;
+    }) {
+        this.directions = isValidValue(directions)
+            ? [...directions]
+            : [];
+        this.directionIndex = undefined;
 
-        this.dialogueActionIndex = undefined;
+        this.decisionTriggers = isValidValue(decisionTriggers)
+            ? [...decisionTriggers]
+            : [];
 
-        this.resourceHandler = options.resourceHandler;
+        this.cutscenePlayerStateById = {};
+        this.directions.forEach(direction => {
+            switch (direction.type) {
+                case CutsceneActionPlayerType.DIALOGUE:
+                    this.cutscenePlayerStateById[direction.id] = DialoguePlayerService.new({
+                        dialogue: direction,
+                    });
+                    break;
+                case CutsceneActionPlayerType.SPLASH_SCREEN:
+                    this.cutscenePlayerStateById[direction.id] = SplashScreenPlayerService.new({
+                        splashScreen: direction,
+                    });
+                    break;
+            }
+        })
+
+        this.resourceHandler = resourceHandler;
         this.collectResourceLocatorsAndKeys();
 
         this.setUpFastForwardButton();
@@ -62,17 +89,35 @@ export class Cutscene {
         return this.resourceHandler.areAllResourcesLoaded(this.allResourceKeys);
     }
 
+    // TODO delete this
+    TODODeleteMeisInProgress(): boolean {
+        return false;
+    }
+
     isInProgress(): boolean {
-        return (this.dialogueActionIndex !== undefined && this.currentAction !== undefined)
+        return (this.directionIndex !== undefined && this.currentDirection !== undefined)
     }
 
     isFinished(): boolean {
-        return (this.dialogueActionIndex !== undefined && this.currentAction === undefined);
+        return (this.directionIndex !== undefined && this.currentDirection === undefined);
     }
 
     draw(graphicsContext: GraphicsContext) {
-        if (this.currentAction !== undefined) {
-            this.currentAction.draw(graphicsContext);
+        if (this.currentDirection !== undefined) {
+            switch (this.currentDirection.type) {
+                case CutsceneActionPlayerType.DIALOGUE:
+                    DialoguePlayerService.draw(
+                        this.cutscenePlayerStateById[this.currentDirection.id] as DialoguePlayerState,
+                        graphicsContext
+                    );
+                    break;
+                case CutsceneActionPlayerType.SPLASH_SCREEN:
+                    SplashScreenPlayerService.draw(
+                        this.cutscenePlayerStateById[this.currentDirection.id] as SplashScreenPlayerState,
+                        graphicsContext
+                    );
+                    break;
+            }
         }
 
         if (this.canFastForward()) {
@@ -91,16 +136,44 @@ export class Cutscene {
             return;
         }
 
-        if (this.currentAction === undefined) {
-            this.gotoNextAction();
-            this.startAction(context);
+        if (this.currentDirection === undefined) {
+            this.gotoNextDirection();
+            this.startDirection(context);
             return;
         }
 
-        this.currentAction.mouseClicked(mouseX, mouseY);
-        if (this.currentAction.isFinished()) {
-            this.gotoNextAction();
-            this.startAction(context);
+        switch (this.currentDirection.type) {
+            case CutsceneActionPlayerType.DIALOGUE:
+                DialoguePlayerService.mouseClicked(
+                    this.cutscenePlayerStateById[this.currentDirection.id] as DialoguePlayerState,
+                    mouseX, mouseY,
+                )
+                break;
+            case CutsceneActionPlayerType.SPLASH_SCREEN:
+                SplashScreenPlayerService.mouseClicked(
+                    this.cutscenePlayerStateById[this.currentDirection.id] as SplashScreenPlayerState,
+                    mouseX, mouseY
+                )
+                break;
+        }
+
+        let directionIsFinished: boolean = false;
+        switch (this.currentDirection.type) {
+            case CutsceneActionPlayerType.DIALOGUE:
+                directionIsFinished = DialoguePlayerService.isFinished(
+                    this.cutscenePlayerStateById[this.currentDirection.id] as DialoguePlayerState,
+                )
+                break;
+            case CutsceneActionPlayerType.SPLASH_SCREEN:
+                directionIsFinished = SplashScreenPlayerService.isFinished(
+                    this.cutscenePlayerStateById[this.currentDirection.id] as SplashScreenPlayerState,
+                )
+                break;
+        }
+
+        if (directionIsFinished) {
+            this.gotoNextDirection();
+            this.startDirection(context);
         }
     }
 
@@ -123,8 +196,23 @@ export class Cutscene {
 
         const cutscene = this;
 
-        this.dialogueActions.forEach(action => {
-            action.getResourceLocators().forEach(locator => {
+        this.directions.forEach(direction => {
+            let resourceLocators: ResourceLocator[] = this.getResourceLocators(direction);
+
+            switch (direction.type) {
+                case CutsceneActionPlayerType.DIALOGUE:
+                    this.cutscenePlayerStateById[direction.id] = DialoguePlayerService.new({
+                        dialogue: direction,
+                    });
+                    break;
+                case CutsceneActionPlayerType.SPLASH_SCREEN:
+                    this.cutscenePlayerStateById[direction.id] = SplashScreenPlayerService.new({
+                        splashScreen: direction,
+                    });
+                    break;
+            }
+
+            resourceLocators.forEach(locator => {
                 if (!locator.key) {
                     return;
                 }
@@ -134,9 +222,21 @@ export class Cutscene {
                     const foundResourceResultOrError = cutscene.resourceHandler.getResource(locator.key);
                     if (isResult(foundResourceResultOrError)) {
                         foundImage = unwrapResultOrError(foundResourceResultOrError);
-                        action.setImageResource(
-                            foundImage
-                        )
+
+                        switch (this.cutscenePlayerStateById[direction.id].type) {
+                            case CutsceneActionPlayerType.DIALOGUE:
+                                DialoguePlayerService.setImageResource(
+                                    this.cutscenePlayerStateById[direction.id] as DialoguePlayerState,
+                                    foundImage,
+                                );
+                                break;
+                            case CutsceneActionPlayerType.SPLASH_SCREEN:
+                                SplashScreenPlayerService.setImageResource(
+                                    this.cutscenePlayerStateById[direction.id] as SplashScreenPlayerState,
+                                    foundImage,
+                                );
+                                break;
+                        }
                     }
                 }
             });
@@ -148,58 +248,69 @@ export class Cutscene {
             return new Error("cutscene has not finished loading");
         }
 
-        this.gotoNextAction();
-        this.startAction(context);
+        this.gotoNextDirection();
+        this.startDirection(context);
         return undefined;
     }
 
-    startAction(context: TextSubstitutionContext): void {
-        if (this.currentAction !== undefined) {
-            this.currentAction.start(context);
+    startDirection(context: TextSubstitutionContext): void {
+        if (this.currentDirection !== undefined) {
+            switch (this.currentDirection.type) {
+                case CutsceneActionPlayerType.DIALOGUE:
+                    return DialoguePlayerService.start(
+                        this.cutscenePlayerStateById[this.currentDirection.id] as DialoguePlayerState,
+                        context,
+                    );
+                case CutsceneActionPlayerType.SPLASH_SCREEN:
+                    return SplashScreenPlayerService.start(
+                        this.cutscenePlayerStateById[this.currentDirection.id] as SplashScreenPlayerState,
+                        context,
+                    );
+            }
         }
     }
 
-    getNextAction(): {
-        nextAction: CutsceneAction,
-        actionIndex: number
+    getNextCutsceneDirection(): {
+        nextDirection: CutsceneDirection,
+        directionIndex: number
     } {
         const trigger: CutsceneDecisionTrigger = this.getTriggeredAction();
-        let nextAction: CutsceneAction;
-        let currentActionIndex: number = this.dialogueActionIndex;
+        let nextDirection: CutsceneDirection;
+        let currentDirectionIndex: number = this.directionIndex;
 
         if (trigger !== undefined) {
-            nextAction = this.findDialogueByID(trigger.destinationDialogId);
             return {
-                nextAction: nextAction,
-                actionIndex: this.findDialogueIndexByID(trigger.destinationDialogId)
+                nextDirection: this.findDirectionByID(trigger.destinationDialogId),
+                directionIndex: this.findDirectionIndexByID(trigger.destinationDialogId)
             };
         }
 
-        currentActionIndex =
-            currentActionIndex === undefined ?
-                0 :
-                currentActionIndex + 1;
+        currentDirectionIndex =
+            currentDirectionIndex === undefined
+                ? 0
+                : currentDirectionIndex + 1;
 
-        nextAction = this.dialogueActions[currentActionIndex];
+        nextDirection = this.directions[currentDirectionIndex];
         return {
-            nextAction: nextAction,
-            actionIndex: currentActionIndex
+            nextDirection: nextDirection,
+            directionIndex: currentDirectionIndex
         };
     }
 
-    gotoNextAction(): void {
-        const nextAction = this.getNextAction();
-        this.currentAction = nextAction.nextAction;
-        this.dialogueActionIndex = nextAction.actionIndex;
+    gotoNextDirection(): void {
+        ({
+            nextDirection: this.currentDirection,
+            directionIndex: this.directionIndex,
+        } = this.getNextCutsceneDirection());
     }
 
-    getCurrentAction(): CutsceneAction {
-        return this.currentAction;
+    getCurrentDirection(): CutsceneDirection {
+        return this.currentDirection;
     }
 
     stop(): void {
-        this.currentAction = undefined;
-        this.dialogueActionIndex = undefined;
+        this.currentDirection = undefined;
+        this.directionIndex = undefined;
     }
 
     isFastForward(): boolean {
@@ -220,9 +331,9 @@ export class Cutscene {
         if (
             Date.now() > this.fastForwardPreviousTimeTick + FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS
         ) {
-            if (this.getNextAction().nextAction !== undefined) {
-                this.gotoNextAction();
-                this.startAction(context);
+            if (this.getNextCutsceneDirection().nextDirection !== undefined) {
+                this.gotoNextDirection();
+                this.startDirection(context);
                 this.activateFastForwardMode();
                 this.fastForwardButton.setStatus(ButtonStatus.ACTIVE);
             } else {
@@ -234,15 +345,15 @@ export class Cutscene {
     }
 
     canFastForward(): boolean {
-        if (this.getNextAction().nextAction === undefined) {
+        if (this.getNextCutsceneDirection().nextDirection === undefined) {
             return false;
         }
 
-        if (!(this.currentAction instanceof TODODeleteMeDialogueBoxPlayer)) {
+        if (this.currentDirection.type !== CutsceneActionPlayerType.DIALOGUE) {
             return true;
         }
 
-        return !(this.currentAction instanceof TODODeleteMeDialogueBoxPlayer && this.currentAction.asksUserForAnAnswer());
+        return !DialogueService.asksUserForAnAnswer(this.currentDirection);
     }
 
     private collectResourceLocatorsAndKeys() {
@@ -250,11 +361,25 @@ export class Cutscene {
             return self.findIndex(res => res.type == value.type && res.key == value.key) === index;
         }
 
-        this.allResourceLocators = this.dialogueActions.map(action => action.getResourceLocators())
+        this.allResourceLocators = this.directions.map(action =>
+            this.getResourceLocators(action)
+        )
             .flat()
             .filter(x => x && x.key)
             .filter(onlyUnique);
+
         this.allResourceKeys = this.allResourceLocators.map(res => res.key)
+    }
+
+    private getResourceLocators(direction: CutsceneDirection): ResourceLocator[] {
+        switch (direction.type) {
+            case CutsceneActionPlayerType.DIALOGUE:
+                return DialogueService.getResourceLocators(direction);
+            case CutsceneActionPlayerType.SPLASH_SCREEN:
+                return SplashScreenService.getResourceLocators(direction);
+            default:
+                return [];
+        }
     }
 
     private setUpFastForwardButton() {
@@ -325,15 +450,19 @@ export class Cutscene {
 
     private getTriggeredAction(): CutsceneDecisionTrigger {
         if (
-            this.currentAction === undefined
+            this.currentDirection === undefined
         ) {
             return undefined;
         }
 
-        const selectedAnswer = this.currentAction instanceof TODODeleteMeDialogueBoxPlayer ? this.currentAction.answerSelected : undefined;
+        let selectedAnswer: number = undefined;
+
+        if (this.cutscenePlayerStateById[this.currentDirection.id].type === CutsceneActionPlayerType.DIALOGUE) {
+            selectedAnswer = (this.cutscenePlayerStateById[this.currentDirection.id] as DialoguePlayerState).answerSelected;
+        }
 
         return this.decisionTriggers.find((action) =>
-                action.sourceDialogId === this.currentAction.getId()
+                action.sourceDialogId === this.currentDirection.id
                 && (
                     !CutsceneDecisionTriggerService.doesThisRequireAMatchingAnswer(action)
                     || action.sourceDialogAnswer === selectedAnswer
@@ -341,24 +470,24 @@ export class Cutscene {
         );
     }
 
-    private findDialogueByID(targetId: string): CutsceneAction | undefined {
-        return this.dialogueActions.find((dialog) =>
-            dialog.getId() === targetId
+    private findDirectionByID(targetId: string): CutsceneDirection | undefined {
+        return this.directions.find((dialog) =>
+            dialog.id === targetId
         );
     }
 
-    private findDialogueIndexByID(targetId: string): number {
-        return this.dialogueActions.findIndex((dialog) =>
-            dialog.getId() === targetId
+    private findDirectionIndexByID(targetId: string): number {
+        return this.directions.findIndex((dialog) =>
+            dialog.id === targetId
         );
     }
 
     private getFastForwardButtonLocation() {
         return {
-            left: this.screenDimensions.width * 0.8,
-            top: this.screenDimensions.height * 0.1,
-            width: this.screenDimensions.width * 0.15,
-            height: this.screenDimensions.height * 0.1
+            left: ScreenDimensions.SCREEN_WIDTH * 0.8,
+            top: ScreenDimensions.SCREEN_HEIGHT * 0.1,
+            width: ScreenDimensions.SCREEN_WIDTH * 0.15,
+            height: ScreenDimensions.SCREEN_HEIGHT * 0.1
         };
     }
 

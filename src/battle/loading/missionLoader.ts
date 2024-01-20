@@ -364,7 +364,6 @@ const loadCutscenes = ({
                         screenImageResourceKey: "splash victory",
                     }),
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
             [DEFAULT_DEFEAT_CUTSCENE_ID]: new Cutscene({
                 resourceHandler: resourceHandler,
@@ -390,7 +389,6 @@ const loadCutscenes = ({
                         screenImageResourceKey: "splash defeat",
                     }),
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
             "introduction": new Cutscene({
                 resourceHandler: resourceHandler,
@@ -436,7 +434,6 @@ const loadCutscenes = ({
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
             "turn1": new Cutscene({
                 resourceHandler: resourceHandler,
@@ -458,7 +455,6 @@ const loadCutscenes = ({
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
             "turn2": new Cutscene({
                 resourceHandler: resourceHandler,
@@ -480,7 +476,6 @@ const loadCutscenes = ({
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
             "turn4": new Cutscene({
                 resourceHandler: resourceHandler,
@@ -502,7 +497,6 @@ const loadCutscenes = ({
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
             "turn5": new Cutscene({
                 resourceHandler: resourceHandler,
@@ -532,7 +526,6 @@ const loadCutscenes = ({
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
             "turn7": new Cutscene({
                 resourceHandler: resourceHandler,
@@ -562,7 +555,6 @@ const loadCutscenes = ({
                         screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
-                screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
             }),
         },
     })

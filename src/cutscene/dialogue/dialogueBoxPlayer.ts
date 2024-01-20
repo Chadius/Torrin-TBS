@@ -8,7 +8,7 @@ import {DialogueAnswerButton} from "./dialogueAnswerButton";
 import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {SubstituteText, TextSubstitutionContext} from "../../textSubstitution/textSubstitution";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {Dialogue} from "./dialogue";
+import {Dialogue, DialogueService} from "./dialogue";
 import {isValidValue} from "../../utils/validityCheck";
 
 export interface DialoguePlayerState {
@@ -67,7 +67,7 @@ export const DialoguePlayerService = {
         createUIObjects(state, context);
     },
     isAnimating: (state: DialoguePlayerState): boolean => {
-        if (isTimeExpired(state) && !asksUserForAnAnswer(state)) {
+        if (isTimeExpired(state) && !DialogueService.asksUserForAnAnswer(state.dialogue)) {
             return false;
         }
 
@@ -77,7 +77,7 @@ export const DialoguePlayerService = {
         return !isAnimating(state) || state.dialogFinished;
     },
     mouseClicked: (state: DialoguePlayerState, mouseX: number, mouseY: number) => {
-        if (asksUserForAnAnswer(state)) {
+        if (DialogueService.asksUserForAnAnswer(state.dialogue)) {
             const answerSelected: number | null = state.answerButtons.findIndex((answerButton) => {
                 return answerButton.buttonWasClicked(mouseX, mouseY);
             });
@@ -89,7 +89,7 @@ export const DialoguePlayerService = {
             return;
         }
 
-        if (isAnimating(state) && !asksUserForAnAnswer(state)) {
+        if (isAnimating(state) && !DialogueService.asksUserForAnAnswer(state.dialogue)) {
             state.dialogFinished = true;
         }
     },
@@ -102,11 +102,19 @@ export const DialoguePlayerService = {
         state.answerButtons.forEach((answer) => answer.draw(graphicsContext));
 
         graphicsContext.pop();
-    }
+    },
+    setImageResource: (state: DialoguePlayerState, image: GraphicImage) => {
+        setPortrait(state, image);
+    },
+}
+
+const setPortrait = (state: DialoguePlayerState, portrait: GraphicImage) => {
+    state.speakerPortrait = portrait;
+    setSpeakerUI(state);
 }
 
 const isAnimating = (state: DialoguePlayerState): boolean => {
-    if (isTimeExpired(state) && !asksUserForAnAnswer(state)) {
+    if (isTimeExpired(state) && !DialogueService.asksUserForAnAnswer(state.dialogue)) {
         return false;
     }
 
@@ -149,7 +157,7 @@ const setSpeakerUI = (state: DialoguePlayerState) => {
 }
 
 const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
-    if (!asksUserForAnAnswer(state)) {
+    if (!DialogueService.asksUserForAnAnswer(state.dialogue)) {
         return [];
     }
 
@@ -190,10 +198,6 @@ const getAnswerButtonPositions = (state: DialoguePlayerState): RectArea[] => {
             height: buttonHeight
         });
     });
-}
-
-const asksUserForAnAnswer = (state: DialoguePlayerState): boolean => {
-    return state.dialogue.answers.length > 0;
 }
 
 // TODO extract information into an interface

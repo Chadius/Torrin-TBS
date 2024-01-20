@@ -32,11 +32,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.MOVED && this.currentCutscene && this.currentCutscene.isInProgress()) {
+        if (event.eventType === OrchestratorComponentMouseEventType.MOVED && this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
             this.currentCutscene.mouseMoved(event.mouseX, event.mouseY);
             return;
         }
-        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED && this.currentCutscene && this.currentCutscene.isInProgress()) {
+        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED && this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
             this.currentCutscene.mouseClicked(event.mouseX, event.mouseY, {battleOrchestratorState: state.battleOrchestratorState});
             return;
         }
@@ -53,11 +53,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
-        if (this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.isInProgress()) {
+        if (this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.TODODeleteMeisInProgress()) {
             this.currentCutscene.setResources();
             this.currentCutscene.start({battleOrchestratorState: state.battleOrchestratorState});
         }
-        if (this.currentCutscene && this.currentCutscene.isInProgress()) {
+        if (this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
             this.currentCutscene.update({battleOrchestratorState: state.battleOrchestratorState});
             this.currentCutscene.draw(graphicsContext);
         }
@@ -79,7 +79,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             throw new Error(`No cutscene with Id ${cutsceneId}`);
         }
 
-        if (this.currentCutscene && this.currentCutscene.isInProgress()) {
+        if (this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
             return;
         }
 

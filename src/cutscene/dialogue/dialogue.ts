@@ -1,5 +1,7 @@
 import {CutsceneActionPlayerType} from "../cutsceneAction";
 import {isValidValue} from "../../utils/validityCheck";
+import {ResourceLocator, ResourceType} from "../../resource/resourceHandler";
+import {DialoguePlayerState} from "./dialogueBoxPlayer";
 
 export interface Dialogue {
     type: CutsceneActionPlayerType.DIALOGUE;
@@ -21,7 +23,7 @@ export const DialogueService = {
         speakerName,
           }: {
         id: string;
-        speakerPortraitResourceKey: string;
+        speakerPortraitResourceKey?: string;
         animationDuration?: number;
         answers?: string[];
         speakerText: string; // TODO make this a string or a list of strings
@@ -40,5 +42,16 @@ export const DialogueService = {
             speakerName: speakerName,
             speakerText: speakerText,
         }
-    }
+    },
+    getResourceLocators: (state: Dialogue): ResourceLocator[] => {
+        return [
+            {
+                type: ResourceType.IMAGE,
+                key: state.speakerPortraitResourceKey
+            }
+        ]
+    },
+    asksUserForAnAnswer: (state: Dialogue): boolean => {
+        return state.answers.length > 0;
+    },
 }

@@ -14,7 +14,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {BattleSquaddieUsesActionOnSquaddie} from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsContext, mockResourceHandler} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
@@ -234,13 +234,15 @@ describe('Battle Orchestrator', () => {
     it('plays a cutscene at the start of the turn', () => {
         orchestrator = createOrchestrator({});
         const turn0StateCutsceneId = "starting";
-        const mockCutscene = new Cutscene({});
+        const mockCutscene = new Cutscene({
+            resourceHandler: mockResourceHandler(),
+        });
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                 [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
                 [turn0StateCutsceneId]: mockCutscene,
-            }
+            },
         });
 
         const turn0CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger = {
@@ -284,7 +286,9 @@ describe('Battle Orchestrator', () => {
     it('recommends cutscene player if there is a cutscene to play at the start', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new Cutscene({})
+                "starting": new Cutscene({
+                    resourceHandler: mockResourceHandler(),
+                })
             },
         });
 
@@ -324,7 +328,9 @@ describe('Battle Orchestrator', () => {
     it('skips the introductory cutscene if the game is loaded', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new Cutscene({})
+                "starting": new Cutscene({
+                    resourceHandler: mockResourceHandler(),
+                })
             },
         });
 
@@ -562,12 +568,14 @@ describe('Battle Orchestrator', () => {
         let victoryAndDefeatState: GameEngineState;
 
         beforeEach(() => {
-            mockCutscene = new Cutscene({});
+            mockCutscene = new Cutscene({
+                resourceHandler: mockResourceHandler(),
+            });
             cutsceneCollection = MissionCutsceneCollectionHelper.new({
                 cutsceneById: {
                     [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
                     [DEFAULT_DEFEAT_CUTSCENE_ID]: mockCutscene,
-                }
+                },
             });
             cutscenePlayer = new BattleCutscenePlayer();
 
