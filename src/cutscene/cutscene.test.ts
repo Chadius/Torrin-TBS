@@ -1,7 +1,7 @@
 import {DialogueBox} from "./dialogue/dialogueBox";
 import {SplashScreen} from "./splashScreen";
 import {Cutscene} from "./cutscene";
-import {DecisionTrigger} from "./DecisionTrigger";
+import {CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../battle/orchestrator/battleOrchestratorState";
@@ -117,7 +117,7 @@ describe('Cutscene', () => {
                     }),
                 ],
                 decisionTriggers: [
-                    new DecisionTrigger({
+                    CutsceneDecisionTriggerService.new({
                         sourceDialogId: "buy my stuff",
                         sourceDialogAnswer: 0,
                         destinationDialogId: "test passes",
@@ -154,7 +154,7 @@ describe('Cutscene', () => {
                     }),
                 ],
                 decisionTriggers: [
-                    new DecisionTrigger({
+                    CutsceneDecisionTriggerService.new({
                         sourceDialogId: "buy my stuff",
                         sourceDialogAnswer: 1,
                         destinationDialogId: "test failed",
@@ -190,7 +190,7 @@ describe('Cutscene', () => {
                     }),
                 ],
                 decisionTriggers: [
-                    new DecisionTrigger({
+                    CutsceneDecisionTriggerService.new({
                         sourceDialogId: "act serious",
                         destinationDialogId: "test passes",
                     })
@@ -232,17 +232,17 @@ describe('Cutscene', () => {
                     }),
                 ],
                 decisionTriggers: [
-                    new DecisionTrigger({
+                    CutsceneDecisionTriggerService.new({
                         sourceDialogId: "buy my stuff",
                         sourceDialogAnswer: 0,
                         destinationDialogId: "test passes",
                     }),
-                    new DecisionTrigger({
+                    CutsceneDecisionTriggerService.new({
                         sourceDialogId: "buy my stuff",
                         sourceDialogAnswer: 1,
                         destinationDialogId: "reconsider",
                     }),
-                    new DecisionTrigger({
+                    CutsceneDecisionTriggerService.new({
                         sourceDialogId: "reconsider",
                         destinationDialogId: "buy my stuff"
                     })
@@ -361,7 +361,7 @@ describe('Cutscene', () => {
                 ],
                 screenDimensions: [1000, 800],
                 decisionTriggers: [
-                    new DecisionTrigger({
+                    CutsceneDecisionTriggerService.new({
                         sourceDialogAnswer: 0,
                         sourceDialogId: "waiterAsks",
                         destinationDialogId: "does not matter"

@@ -1,5 +1,5 @@
 import {DialogueBox} from "./dialogue/dialogueBox";
-import {DecisionTrigger} from "./DecisionTrigger";
+import {CutsceneDecisionTrigger, CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {CutsceneAction} from "./cutsceneAction";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING4} from "../ui/constants";
 import {Button, ButtonStatus} from "../ui/button";
@@ -12,16 +12,18 @@ import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 
 const FAST_FORWARD_ACTION_WAIT_TIME_MILLISECONDS = 100;
 
+// TODO extract information into an interface
+// TODO class is built using the interface
 type Options = {
     actions: CutsceneAction[];
-    decisionTriggers: DecisionTrigger[];
+    decisionTriggers: CutsceneDecisionTrigger[];
     screenDimensions: [number, number];
     resourceHandler: ResourceHandler;
 }
 
 export class Cutscene {
     dialogueActions: CutsceneAction[];
-    decisionTriggers: DecisionTrigger[];
+    decisionTriggers: CutsceneDecisionTrigger[];
     screenDimensions: {
         width: number,
         height: number
@@ -161,7 +163,7 @@ export class Cutscene {
         nextAction: CutsceneAction,
         actionIndex: number
     } {
-        const trigger: DecisionTrigger = this.getTriggeredAction();
+        const trigger: CutsceneDecisionTrigger = this.getTriggeredAction();
         let nextAction: CutsceneAction;
         let currentActionIndex: number = this.dialogueActionIndex;
 
@@ -321,7 +323,7 @@ export class Cutscene {
         return this.allResourceLocators && this.allResourceLocators.length > 0;
     }
 
-    private getTriggeredAction(): DecisionTrigger {
+    private getTriggeredAction(): CutsceneDecisionTrigger {
         if (
             this.currentAction === undefined
         ) {
@@ -333,7 +335,7 @@ export class Cutscene {
         return this.decisionTriggers.find((action) =>
                 action.sourceDialogId === this.currentAction.getId()
                 && (
-                    !action.doesThisRequireAMatchingAnswer()
+                    !CutsceneDecisionTriggerService.doesThisRequireAMatchingAnswer(action)
                     || action.sourceDialogAnswer === selectedAnswer
                 )
         );

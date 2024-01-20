@@ -9,6 +9,8 @@ import {GraphicImage, GraphicsContext} from "../../utils/graphics/graphicsContex
 import {SubstituteText, TextSubstitutionContext} from "../../textSubstitution/textSubstitution";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 
+// TODO extract information into an interface
+// TODO class is built using the interface
 export class DialogueBox implements CutsceneAction {
     id: string;
     screenDimensions: [number, number];

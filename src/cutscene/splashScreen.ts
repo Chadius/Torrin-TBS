@@ -6,6 +6,8 @@ import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ScreenDimensions} from "../utils/graphics/graphicsConfig";
 import {TextSubstitutionContext} from "../textSubstitution/textSubstitution";
 
+// TODO extract information into an interface
+// TODO class is built using the interface
 export class SplashScreen implements CutsceneAction {
     id: string;
     startTime: number;
