@@ -1,4 +1,4 @@
-import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
+import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {
     DEFAULT_VICTORY_CUTSCENE_ID,
     MissionCutsceneCollection,
@@ -7,9 +7,9 @@ import {
 import {DialogueService} from "../../cutscene/dialogue/dialogue";
 
 describe('MissionCutsceneCollection', () => {
-    let dinnerDate: TODODeleteMeCutscene;
+    let dinnerDate: Cutscene;
     beforeEach(() => {
-        dinnerDate = new TODODeleteMeCutscene({
+        dinnerDate = CutsceneService.new({
             directions: [
                 DialogueService.new({
                     id: "1",

@@ -1,4 +1,4 @@
-import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
+import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
     DEFAULT_VICTORY_CUTSCENE_ID,
@@ -21,7 +21,7 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 
 describe('Mission Cutscene Service', () => {
-    let mockCutscene: TODODeleteMeCutscene;
+    let mockCutscene: Cutscene;
     let cutsceneCollection: MissionCutsceneCollection;
 
     let victoryState: BattleOrchestratorState;
@@ -35,7 +35,7 @@ describe('Mission Cutscene Service', () => {
     let turn0CutsceneTrigger: MissionStartOfPhaseCutsceneTrigger;
 
     beforeEach(() => {
-        mockCutscene = new TODODeleteMeCutscene({});
+        mockCutscene = CutsceneService.new({});
         cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,

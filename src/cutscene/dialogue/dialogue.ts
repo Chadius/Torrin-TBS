@@ -1,7 +1,6 @@
 import {CutsceneActionPlayerType} from "../cutsceneAction";
 import {isValidValue} from "../../utils/validityCheck";
 import {ResourceLocator, ResourceType} from "../../resource/resourceHandler";
-import {DialoguePlayerState} from "./dialogueBoxPlayer";
 
 export interface Dialogue {
     type: CutsceneActionPlayerType.DIALOGUE;
@@ -19,8 +18,8 @@ export const DialogueService = {
               speakerPortraitResourceKey,
               animationDuration,
               answers,
-        speakerText,
-        speakerName,
+              speakerText,
+              speakerName,
           }: {
         id: string;
         speakerPortraitResourceKey?: string;

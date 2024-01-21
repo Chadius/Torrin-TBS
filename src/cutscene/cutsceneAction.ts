@@ -6,6 +6,7 @@ export enum CutsceneActionPlayerType {
     SPLASH_SCREEN = "SPLASH_SCREEN",
     DIALOGUE = "DIALOGUE",
 }
+
 // TODO get rid of this
 export interface CutsceneAction {
     getId(): string;

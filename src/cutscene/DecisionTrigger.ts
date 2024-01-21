@@ -9,7 +9,7 @@ export const CutsceneDecisionTriggerService = {
               sourceDialogId,
               destinationDialogId,
               sourceDialogAnswer,
-          }:{
+          }: {
         sourceDialogId: string,
         destinationDialogId: string,
         sourceDialogAnswer?: number,

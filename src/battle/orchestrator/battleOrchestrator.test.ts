@@ -14,13 +14,13 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {BattleSquaddieUsesActionOnSquaddie} from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext, mockResourceHandler} from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {MouseButton} from "../../utils/mouseConfig";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
+import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
@@ -234,9 +234,7 @@ describe('Battle Orchestrator', () => {
     it('plays a cutscene at the start of the turn', () => {
         orchestrator = createOrchestrator({});
         const turn0StateCutsceneId = "starting";
-        const mockCutscene = new TODODeleteMeCutscene({
-            resourceHandler: mockResourceHandler(),
-        });
+        const mockCutscene = CutsceneService.new({});
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
                 [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,
@@ -286,9 +284,7 @@ describe('Battle Orchestrator', () => {
     it('recommends cutscene player if there is a cutscene to play at the start', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new TODODeleteMeCutscene({
-                    resourceHandler: mockResourceHandler(),
-                })
+                "starting": CutsceneService.new({})
             },
         });
 
@@ -328,9 +324,7 @@ describe('Battle Orchestrator', () => {
     it('skips the introductory cutscene if the game is loaded', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new TODODeleteMeCutscene({
-                    resourceHandler: mockResourceHandler(),
-                })
+                "starting": CutsceneService.new({})
             },
         });
 
@@ -558,7 +552,7 @@ describe('Battle Orchestrator', () => {
     });
 
     describe('End of Battle triggers cutscenes and resets', () => {
-        let mockCutscene: TODODeleteMeCutscene;
+        let mockCutscene: Cutscene;
         let cutsceneCollection: MissionCutsceneCollection;
         let cutscenePlayer: BattleCutscenePlayer;
         let missionObjectiveCompleteCheck: jest.SpyInstance;
@@ -568,9 +562,7 @@ describe('Battle Orchestrator', () => {
         let victoryAndDefeatState: GameEngineState;
 
         beforeEach(() => {
-            mockCutscene = new TODODeleteMeCutscene({
-                resourceHandler: mockResourceHandler(),
-            });
+            mockCutscene = CutsceneService.new({});
             cutsceneCollection = MissionCutsceneCollectionHelper.new({
                 cutsceneById: {
                     [DEFAULT_VICTORY_CUTSCENE_ID]: mockCutscene,

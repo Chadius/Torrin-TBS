@@ -18,6 +18,7 @@ import {TestMissionData} from "../../utils/test/missionData";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {TestArmyPlayerData} from "../../utils/test/army";
+import {CutsceneService} from "../../cutscene/cutscene";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -397,7 +398,12 @@ describe('Mission Loader', () => {
         });
 
         it('initializes cutscenes', () => {
-            expect(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID].hasLoaded()).toBeTruthy();
+            expect(
+                CutsceneService.hasLoaded(
+                    missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID],
+                    resourceHandler,
+                )
+            ).toBeTruthy();
         });
 
         it('has the squaddie templates that were loaded from files', () => {

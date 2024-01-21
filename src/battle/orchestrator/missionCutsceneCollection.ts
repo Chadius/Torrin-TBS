@@ -1,12 +1,11 @@
-import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
-import {ResourceHandler} from "../../resource/resourceHandler";
+import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 
 export const DEFAULT_VICTORY_CUTSCENE_ID = "default_victory";
 export const DEFAULT_DEFEAT_CUTSCENE_ID = "default_defeat";
 
 export interface MissionCutsceneCollection {
     cutsceneById: {
-        [id: string]: TODODeleteMeCutscene
+        [id: string]: Cutscene
     }
 }
 
@@ -15,7 +14,7 @@ export const MissionCutsceneCollectionHelper = {
               cutsceneById,
           }: {
               cutsceneById: {
-                  [id: string]: TODODeleteMeCutscene
+                  [id: string]: Cutscene
               },
           }
     ): MissionCutsceneCollection => {
@@ -23,7 +22,7 @@ export const MissionCutsceneCollectionHelper = {
             cutsceneById,
         }
         if (!(DEFAULT_VICTORY_CUTSCENE_ID in newCollection.cutsceneById)) {
-            newCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID] = new TODODeleteMeCutscene({});
+            newCollection.cutsceneById[DEFAULT_VICTORY_CUTSCENE_ID] = CutsceneService.new({});
         }
         return newCollection;
     }

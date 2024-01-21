@@ -24,10 +24,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {BattleCamera} from "../battleCamera";
-import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
-import {TODODeleteMeDialogueBoxPlayer} from "../../cutscene/dialogue/dialogueBoxPlayer";
-import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
-import {TODODeleteMeSplashScreenPlayer} from "../../cutscene/splashScreenPlayer";
+import {CutsceneService} from "../../cutscene/cutscene";
 import {LoadFileIntoFormat} from "../../dataLoader/dataLoader";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
@@ -197,7 +194,7 @@ export const MissionLoader = {
         missionLoaderContext: MissionLoaderContext;
         resourceHandler: ResourceHandler
     }) => {
-        initializeCutscenes({missionLoaderContext});
+        initializeCutscenes({missionLoaderContext, resourceHandler});
         initializeSquaddieResources({repository: repository, missionLoaderContext, resourceHandler});
     },
     loadPlayerArmyFromFile: async ({squaddieRepository, resourceHandler, missionLoaderContext}: {
@@ -293,11 +290,13 @@ const initializeSquaddieResources = ({
 
 const initializeCutscenes = ({
                                  missionLoaderContext,
+                                 resourceHandler,
                              }: {
     missionLoaderContext: MissionLoaderContext;
+    resourceHandler: ResourceHandler;
 }) => {
     Object.entries(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById).forEach(([id, cutscene]) => {
-        cutscene.setResources();
+        CutsceneService.setResources(cutscene, resourceHandler);
     });
 }
 
@@ -328,8 +327,7 @@ const loadCutscenes = ({
 }) => {
     const cutsceneCollection = MissionCutsceneCollectionHelper.new({
         cutsceneById: {
-            [DEFAULT_VICTORY_CUTSCENE_ID]: new TODODeleteMeCutscene({
-                resourceHandler,
+            [DEFAULT_VICTORY_CUTSCENE_ID]: CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "victory_0",
@@ -370,8 +368,7 @@ const loadCutscenes = ({
                     }),
                 ],
             }),
-            [DEFAULT_DEFEAT_CUTSCENE_ID]: new TODODeleteMeCutscene({
-                resourceHandler: resourceHandler,
+            [DEFAULT_DEFEAT_CUTSCENE_ID]: CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "defeat_0",
@@ -393,8 +390,7 @@ const loadCutscenes = ({
                     }),
                 ],
             }),
-            "introduction": new TODODeleteMeCutscene({
-                resourceHandler: resourceHandler,
+            "introduction": CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "how_to_play_0",
@@ -433,8 +429,7 @@ const loadCutscenes = ({
                     }),
                 ],
             }),
-            "turn1": new TODODeleteMeCutscene({
-                resourceHandler: resourceHandler,
+            "turn1": CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "turn1_0",
@@ -452,8 +447,7 @@ const loadCutscenes = ({
                     }),
                 ],
             }),
-            "turn2": new TODODeleteMeCutscene({
-                resourceHandler: resourceHandler,
+            "turn2": CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "turn2_0",
@@ -471,8 +465,7 @@ const loadCutscenes = ({
                     })
                 ],
             }),
-            "turn4": new TODODeleteMeCutscene({
-                resourceHandler: resourceHandler,
+            "turn4": CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "turn4_0",
@@ -490,8 +483,7 @@ const loadCutscenes = ({
                     })
                 ],
             }),
-            "turn5": new TODODeleteMeCutscene({
-                resourceHandler: resourceHandler,
+            "turn5": CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "turn5_0",
@@ -516,8 +508,7 @@ const loadCutscenes = ({
                     })
                 ],
             }),
-            "turn7": new TODODeleteMeCutscene({
-                resourceHandler: resourceHandler,
+            "turn7": CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "turn7_0",

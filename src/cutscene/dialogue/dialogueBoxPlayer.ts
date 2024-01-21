@@ -37,7 +37,7 @@ export const DialoguePlayerService = {
               speakerNameBox,
               speakerPortrait,
               speakerImage,
-          }:{
+          }: {
         dialogue: Dialogue;
         dialogFinished?: boolean;
         startTime?: number;
