@@ -3,13 +3,8 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {LoadMissionFromFile, LoadPlayerArmyFromFile, MissionFileFormat} from "../../dataLoader/missionLoader";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {
-    DEFAULT_DEFEAT_CUTSCENE_ID,
-    DEFAULT_VICTORY_CUTSCENE_ID,
-    MissionCutsceneCollection,
-    MissionCutsceneCollectionHelper
-} from "../orchestrator/missionCutsceneCollection";
-import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
+import {MissionCutsceneCollection, MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
+import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
@@ -30,8 +25,6 @@ import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {isValidValue} from "../../utils/validityCheck";
-import {DialogueService} from "../../cutscene/dialogue/dialogue";
-import {SplashScreenService} from "../../cutscene/splashScreen";
 
 export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
     "map icon move 1 action",
@@ -165,21 +158,6 @@ export const MissionLoader = {
             resourceHandler,
         });
     },
-    loadMissionFromHardcodedData: ({
-                                       missionLoaderContext,
-                                       squaddieRepository,
-                                       resourceHandler,
-                                   }: {
-        missionLoaderContext: MissionLoaderContext,
-        squaddieRepository: ObjectRepository,
-        resourceHandler: ResourceHandler,
-    }) => {
-        loadMissionFromHardcodedData({
-            missionLoaderContext,
-            squaddieRepository,
-            resourceHandler,
-        });
-    },
     checkResourcesPendingLoading: ({missionLoaderContext, resourceHandler}: {
         missionLoaderContext: MissionLoaderContext,
         resourceHandler: ResourceHandler,
@@ -304,22 +282,6 @@ const initializeCutscenes = ({
         CutsceneService.setResources(cutscene, resourceHandler);
     });
 }
-
-const loadMissionFromHardcodedData = ({
-                                          missionLoaderContext,
-                                          squaddieRepository,
-                                          resourceHandler,
-                                      }: {
-    missionLoaderContext: MissionLoaderContext,
-    squaddieRepository: ObjectRepository,
-    resourceHandler: ResourceHandler,
-}) => {
-    // loadCutscenes({
-    //     missionLoaderContext,
-    //     repository: squaddieRepository,
-    //     resourceHandler,
-    // });
-};
 
 const loadCutscenes = ({
                            missionLoaderContext,

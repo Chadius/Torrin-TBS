@@ -69,7 +69,7 @@ export const CutsceneService = {
                 case CutsceneActionPlayerType.SPLASH_SCREEN:
                     return SplashScreenService.new({...rawDirection});
                 default:
-                    throw new Error (`CutsceneService.new: unknown direction type: ${rawDirection}`);
+                    throw new Error(`CutsceneService.new: unknown direction type: ${rawDirection}`);
             }
         });
         cutscene.directions = sanitizedDirections;
@@ -87,7 +87,7 @@ export const CutsceneService = {
                     });
                     break;
                 default:
-                    throw new Error (`CutsceneService.new: unknown direction type: ${direction}`);
+                    throw new Error(`CutsceneService.new: unknown direction type: ${direction}`);
             }
         });
 

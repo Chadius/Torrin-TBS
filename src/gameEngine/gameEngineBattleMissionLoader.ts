@@ -177,12 +177,6 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
                 resourceHandler: battleOrchestratorState.resourceHandler,
                 squaddieRepository: battleOrchestratorState.squaddieRepository,
             });
-        }).then(() => {
-            MissionLoader.loadMissionFromHardcodedData({
-                missionLoaderContext: this.missionLoaderContext,
-                resourceHandler: battleOrchestratorState.resourceHandler,
-                squaddieRepository: battleOrchestratorState.squaddieRepository,
-            });
         });
     }
 

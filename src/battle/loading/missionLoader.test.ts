@@ -19,7 +19,6 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {TestArmyPlayerData} from "../../utils/test/army";
 import {CutsceneService} from "../../cutscene/cutscene";
-import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {isValidValue} from "../../utils/validityCheck";
 
 describe('Mission Loader', () => {
@@ -320,45 +319,6 @@ describe('Mission Loader', () => {
         });
     });
 
-    describe('TODO Delete me can load mission data from hardcoded assets', () => {
-        let initialPendingResourceListLength: number;
-
-        beforeEach(async () => {
-            await MissionLoader.loadMissionFromFile({
-                missionLoaderContext: missionLoaderContext,
-                missionId: "0000",
-                resourceHandler,
-                repository: repository,
-            });
-
-            await MissionLoader.loadPlayerArmyFromFile({
-                missionLoaderContext: missionLoaderContext,
-                resourceHandler,
-                squaddieRepository: repository,
-            });
-
-            initialPendingResourceListLength = missionLoaderContext.resourcesPendingLoading.length;
-
-            MissionLoader.loadMissionFromHardcodedData({
-                missionLoaderContext,
-                squaddieRepository: repository,
-                resourceHandler,
-            });
-        });
-
-        it('gets cutscenes', () => {
-            // TODO genericize these to read off of the mission data
-            expect( "introduction" in missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById).toBeTruthy();
-
-            expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toContainEqual({
-                triggeringEvent: TriggeringEvent.START_OF_TURN,
-                systemReactedToTrigger: false,
-                cutsceneId: "introduction",
-                turn: 0,
-            },)
-        });
-    });
-
     it('can reduce the pending resources', () => {
         missionLoaderContext.resourcesPendingLoading = ["A", "B", "C"];
         resourceHandler.isResourceLoaded = jest.fn().mockImplementation((resourceKey: string) => {
@@ -398,12 +358,6 @@ describe('Mission Loader', () => {
                 missionId: "0000",
                 resourceHandler,
                 repository: repository,
-            });
-
-            MissionLoader.loadMissionFromHardcodedData({
-                missionLoaderContext,
-                squaddieRepository: repository,
-                resourceHandler,
             });
 
             jest.spyOn(resourceHandler, "isResourceLoaded").mockReturnValue(true);

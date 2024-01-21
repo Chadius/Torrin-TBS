@@ -91,8 +91,6 @@ export const MissionFileFormatHelper = {
 };
 
 const sanitize = (data: MissionFileFormat): MissionFileFormat => {
-    // TODO Make sure cutscenes object exists and has non-undefined fields
-
     if (!isValidValue(data.id)) {
         throw new Error('cannot sanitize mission file, missing id');
     }
@@ -112,6 +110,20 @@ const sanitize = (data: MissionFileFormat): MissionFileFormat => {
 
         if (!isValidValue(data.player.deployment)) {
             data.player.deployment = SquaddieDeploymentHelper.default();
+        }
+    }
+
+    if (!isValidValue(data.cutscene)) {
+        data.cutscene = {
+            cutsceneById: {},
+            cutsceneTriggers: [],
+        }
+    } else {
+        if (!isValidValue(data.cutscene.cutsceneById)) {
+            data.cutscene.cutsceneById = {};
+        }
+        if (!isValidValue(data.cutscene.cutsceneTriggers)) {
+            data.cutscene.cutsceneTriggers = [];
         }
     }
 

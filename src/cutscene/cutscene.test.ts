@@ -64,7 +64,7 @@ describe('Cutscene', () => {
 
         CutsceneService.start(dinnerDate, mockResourceHandler(), {});
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
-        expect(dinnerDate.currentDirection).toBe(frontDoorGreeting);
+        expect(dinnerDate.currentDirection).toEqual(frontDoorGreeting);
     });
 
     it('should stop when requested', () => {
@@ -89,9 +89,9 @@ describe('Cutscene', () => {
 
         CutsceneService.start(dinnerDate, mockResourceHandler(), {});
 
-        expect(dinnerDate.currentDirection).toBe(splash1);
+        expect(dinnerDate.currentDirection).toEqual(splash1);
         CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
-        expect(dinnerDate.currentDirection).toBe(splash2);
+        expect(dinnerDate.currentDirection).toEqual(splash2);
     });
 
     it('should be finished when all of the actions are finished', () => {
@@ -105,10 +105,10 @@ describe('Cutscene', () => {
         CutsceneService.start(dinnerDate, mockResourceHandler(), {});
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
 
-        expect(dinnerDate.currentDirection).toBe(frontDoorGreeting);
+        expect(dinnerDate.currentDirection).toEqual(frontDoorGreeting);
         CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
 
-        expect(dinnerDate.currentDirection).toBe(hostGreeting);
+        expect(dinnerDate.currentDirection).toEqual(hostGreeting);
         CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
 
         expect(dinnerDate.currentDirection).toBeUndefined();
@@ -364,11 +364,11 @@ describe('Cutscene', () => {
                 {}
             );
             expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy();
-            expect(dinnerDate.currentDirection).toBe(waiterGreets);
+            expect(dinnerDate.currentDirection).toEqual(waiterGreets);
 
             jest.spyOn(Date, 'now').mockImplementation(() => 101);
             CutsceneService.update(dinnerDate, {});
-            expect(dinnerDate.currentDirection).toBe(waiterHandsMenu);
+            expect(dinnerDate.currentDirection).toEqual(waiterHandsMenu);
         });
 
         it('should stop fast-forward mode if the dialog is on the last action', () => {
@@ -392,7 +392,7 @@ describe('Cutscene', () => {
             CutsceneService.update(dinnerDate, {});
             jest.spyOn(Date, 'now').mockImplementation(() => 202);
             CutsceneService.update(dinnerDate, {});
-            expect(dinnerDate.currentDirection).toBe(waiterHandsMenu);
+            expect(dinnerDate.currentDirection).toEqual(waiterHandsMenu);
             expect(CutsceneService.isFastForward(dinnerDate)).toBeFalsy();
             expect(CutsceneService.canFastForward(dinnerDate)).toBeFalsy();
         });

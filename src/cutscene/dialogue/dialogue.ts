@@ -25,7 +25,7 @@ export const DialogueService = {
         speakerPortraitResourceKey?: string;
         animationDuration?: number;
         answers?: string[];
-        speakerText: string; // TODO make this a string or a list of strings
+        speakerText: string;
         speakerName?: string;
     }): Dialogue => {
         return {
