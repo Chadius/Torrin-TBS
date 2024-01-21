@@ -1,24 +1,23 @@
-import {Cutscene} from "../../cutscene/cutscene";
-import {TODODeleteMeDialogueBoxPlayer} from "../../cutscene/dialogue/dialogueBoxPlayer";
+import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
 import {
     DEFAULT_VICTORY_CUTSCENE_ID,
     MissionCutsceneCollection,
     MissionCutsceneCollectionHelper
 } from "./missionCutsceneCollection";
+import {DialogueService} from "../../cutscene/dialogue/dialogue";
 
 describe('MissionCutsceneCollection', () => {
-    let dinnerDate: Cutscene;
+    let dinnerDate: TODODeleteMeCutscene;
     beforeEach(() => {
-        const frontDoorGreeting = new TODODeleteMeDialogueBoxPlayer({
-            id: "1",
-            name: "Doorman",
-            text: "Welcome, come inside",
-            animationDuration: 0,
-            context: {}
-        });
-        dinnerDate = new Cutscene({
-            actions: [
-                frontDoorGreeting
+        dinnerDate = new TODODeleteMeCutscene({
+            directions: [
+                DialogueService.new({
+                    id: "1",
+                    speakerName: "Doorman",
+                    speakerText: "Welcome, come inside",
+                    speakerPortraitResourceKey: undefined,
+                    animationDuration: 0,
+                }),
             ]
         });
     });

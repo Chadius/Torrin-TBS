@@ -20,7 +20,7 @@ import {UIControlSettings} from "./uiControlSettings";
 import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleComputerSquaddieSelector";
 import {MouseButton} from "../../utils/mouseConfig";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
-import {Cutscene} from "../../cutscene/cutscene";
+import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
 import {
     DEFAULT_DEFEAT_CUTSCENE_ID,
@@ -234,7 +234,7 @@ describe('Battle Orchestrator', () => {
     it('plays a cutscene at the start of the turn', () => {
         orchestrator = createOrchestrator({});
         const turn0StateCutsceneId = "starting";
-        const mockCutscene = new Cutscene({
+        const mockCutscene = new TODODeleteMeCutscene({
             resourceHandler: mockResourceHandler(),
         });
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
@@ -286,7 +286,7 @@ describe('Battle Orchestrator', () => {
     it('recommends cutscene player if there is a cutscene to play at the start', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new Cutscene({
+                "starting": new TODODeleteMeCutscene({
                     resourceHandler: mockResourceHandler(),
                 })
             },
@@ -328,7 +328,7 @@ describe('Battle Orchestrator', () => {
     it('skips the introductory cutscene if the game is loaded', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({
             cutsceneById: {
-                "starting": new Cutscene({
+                "starting": new TODODeleteMeCutscene({
                     resourceHandler: mockResourceHandler(),
                 })
             },
@@ -558,7 +558,7 @@ describe('Battle Orchestrator', () => {
     });
 
     describe('End of Battle triggers cutscenes and resets', () => {
-        let mockCutscene: Cutscene;
+        let mockCutscene: TODODeleteMeCutscene;
         let cutsceneCollection: MissionCutsceneCollection;
         let cutscenePlayer: BattleCutscenePlayer;
         let missionObjectiveCompleteCheck: jest.SpyInstance;
@@ -568,7 +568,7 @@ describe('Battle Orchestrator', () => {
         let victoryAndDefeatState: GameEngineState;
 
         beforeEach(() => {
-            mockCutscene = new Cutscene({
+            mockCutscene = new TODODeleteMeCutscene({
                 resourceHandler: mockResourceHandler(),
             });
             cutsceneCollection = MissionCutsceneCollectionHelper.new({

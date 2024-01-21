@@ -24,7 +24,7 @@ import {ImageUI} from "../../ui/imageUI";
 import {RectAreaService} from "../../ui/rectArea";
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
 import {BattleCamera} from "../battleCamera";
-import {Cutscene} from "../../cutscene/cutscene";
+import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
 import {TODODeleteMeDialogueBoxPlayer} from "../../cutscene/dialogue/dialogueBoxPlayer";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {TODODeleteMeSplashScreenPlayer} from "../../cutscene/splashScreenPlayer";
@@ -33,6 +33,8 @@ import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {isValidValue} from "../../utils/validityCheck";
+import {DialogueService} from "../../cutscene/dialogue/dialogue";
+import {SplashScreenService} from "../../cutscene/splashScreen";
 
 export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
     "map icon move 1 action",
@@ -326,233 +328,217 @@ const loadCutscenes = ({
 }) => {
     const cutsceneCollection = MissionCutsceneCollectionHelper.new({
         cutsceneById: {
-            [DEFAULT_VICTORY_CUTSCENE_ID]: new Cutscene({
+            [DEFAULT_VICTORY_CUTSCENE_ID]: new TODODeleteMeCutscene({
                 resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "victory_0",
-                        name: "Sir Camil",
-                        text: "That's the last of them.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "That's the last of them.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "victory_1",
-                        name: "Torrin",
-                        text: "Yay! We did it!",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "Yay! We did it!",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
+                        id: "victory_1",
+                        speakerName: "Torrin",
+                        speakerText: "Yay! We did it!",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
+                        animationDuration: 0,
+                    }),
+                    DialogueService.new({
                         id: "victory_report_0",
-                        name: "Mission Report",
-                        text: "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
+                        speakerName: "Mission Report",
+                        speakerText: "Turns: $$TURN_COUNT\nTime: $$TIME_ELAPSED",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "victory_report_1",
-                        name: "Mission Report",
-                        text: "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
+                        speakerName: "Mission Report",
+                        speakerText: "Damage Dealt: $$DAMAGE_DEALT_BY_PLAYER_TEAM\nDamage Taken: $$DAMAGE_TAKEN_BY_PLAYER_TEAM\nHealing: $$HEALING_RECEIVED_BY_PLAYER_TEAM",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeSplashScreenPlayer({
+                    SplashScreenService.new({
                         id: "victory_final",
                         screenImageResourceKey: "splash victory",
                     }),
                 ],
             }),
-            [DEFAULT_DEFEAT_CUTSCENE_ID]: new Cutscene({
+            [DEFAULT_DEFEAT_CUTSCENE_ID]: new TODODeleteMeCutscene({
                 resourceHandler: resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "defeat_0",
-                        name: "Torrin",
-                        text: "We have to retreat!",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "We have to retreat!",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "defeat_1",
-                        name: "Sir Camil",
-                        text: "Right. When we come back, let me take the lead, and let's take it slow.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "Right. When we come back, let me take the lead, and let's take it slow.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeSplashScreenPlayer({
+                    SplashScreenService.new({
                         id: "defeat_final",
                         screenImageResourceKey: "splash defeat",
                     }),
                 ],
             }),
-            "introduction": new Cutscene({
+            "introduction": new TODODeleteMeCutscene({
                 resourceHandler: resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "how_to_play_0",
-                        name: "How to play",
-                        text: "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
-                        portraitResourceKey: "tutorial-map",
+                        speakerName: "How to play",
+                        speakerText: "To move, click on Torrin or Sir Camil. Then click to blue boot to move.\nMore boots cost more action points.",
+                        speakerPortraitResourceKey: "tutorial-map",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "how_to_play_1",
-                        name: "How to play",
-                        text: "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
-                        portraitResourceKey: "tutorial-hud",
+                        speakerName: "How to play",
+                        speakerText: "Torrin and Sir Camil get 3 Action Points. You can spend them to move and act.",
+                        speakerPortraitResourceKey: "tutorial-hud",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "how_to_play_2",
-                        name: "How to play",
-                        text: "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
-                        portraitResourceKey: "tutorial-hud",
+                        speakerName: "How to play",
+                        speakerText: "To act, click on the actions on the bottom of the screen and then click on your target.\nClick Confirm and watch the sparks fly.\nYou can always end your turn early by clicking the End Turn action.",
+                        speakerPortraitResourceKey: "tutorial-hud",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "how_to_play_3",
-                        portraitResourceKey: "young torrin cutscene portrait",
-                        name: "Torrin",
-                        text: "Torrin can use her Water Cannon to attack from range.\nHealing Touch will heal herself or Sir Camil for 2, but it costs 2 action points.",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "Torrin can use her Water Cannon to attack from range.\nHealing Touch will heal herself or Sir Camil for 2, but it costs 2 action points.",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "how_to_play_4",
-                        name: "Sir Camil",
-                        text: "Sir Camil has more health and armor than Torrin.\nHe has a longsword for melee attacks.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "Sir Camil has more health and armor than Torrin.\nHe has a longsword for melee attacks.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
                 ],
             }),
-            "turn1": new Cutscene({
+            "turn1": new TODODeleteMeCutscene({
                 resourceHandler: resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "turn1_0",
-                        name: "Torrin",
-                        text: "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "How did they breach us so quickly?\nWithout raising an alarm?\nUgh! Let's get rid of them.",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "turn1_1",
-                        name: "Sir Camil",
-                        text: "I agree. The courtyard must be cleansed.\nI'll take the lead. Stay behind me and heal me if I get hurt.\nIf we fight one at a time we should be alright.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "I agree. The courtyard must be cleansed.\nI'll take the lead. Stay behind me and heal me if I get hurt.\nIf we fight one at a time we should be alright.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
                 ],
             }),
-            "turn2": new Cutscene({
+            "turn2": new TODODeleteMeCutscene({
                 resourceHandler: resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "turn2_0",
-                        name: "Sir Camil",
-                        text: "And all of this sand poured in this morning... I can barely move through it.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "And all of this sand poured in this morning... I can barely move through it.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "turn2_1",
-                        name: "Torrin",
-                        text: "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "Yes, the sand slows everyone down.\nThe demons, too. Let them waste energy coming to us.",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
             }),
-            "turn4": new Cutscene({
+            "turn4": new TODODeleteMeCutscene({
                 resourceHandler: resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "turn4_0",
-                        name: "Torrin",
-                        text: "I can barely see ahead of us. What's going on down there?",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "I can barely see ahead of us. What's going on down there?",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "turn4_1",
-                        name: "Sir Camil",
-                        text: "If you move the pointer to the edges of the screen, we can move the camera a bit.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "If you move the pointer to the edges of the screen, we can move the camera a bit.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
             }),
-            "turn5": new Cutscene({
+            "turn5": new TODODeleteMeCutscene({
                 resourceHandler: resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "turn5_0",
-                        name: "Sir Camil",
-                        text: "What are those demons thinking? I don't know how far they can reach.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "What are those demons thinking? I don't know how far they can reach.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "turn5_1",
-                        name: "Torrin",
-                        text: "I can... tell where they can move. If you just... er, click on them, I can see where they can move.",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "I can... tell where they can move. If you just... er, click on them, I can see where they can move.",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "turn5_2",
-                        name: "Torrin",
-                        text: "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "Red sword tiles are where they can attack but cannot move to.\nBlue boot tiles show where they can travel or attack.",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
             }),
-            "turn7": new Cutscene({
+            "turn7": new TODODeleteMeCutscene({
                 resourceHandler: resourceHandler,
-                actions: [
-                    new TODODeleteMeDialogueBoxPlayer({
+                directions: [
+                    DialogueService.new({
                         id: "turn7_0",
-                        name: "Torrin",
-                        text: "Ah! I missed again!",
-                        portraitResourceKey: "young torrin cutscene portrait",
+                        speakerName: "Torrin",
+                        speakerText: "Ah! I missed again!",
+                        speakerPortraitResourceKey: "young torrin cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "turn7_1",
-                        name: "Sir Camil",
-                        text: "The multiple attack penalty adds up quickly.\nYour third attack is usually not worth it.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "The multiple attack penalty adds up quickly.\nYour third attack is usually not worth it.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     }),
-                    new TODODeleteMeDialogueBoxPlayer({
+                    DialogueService.new({
                         id: "turn7_2",
-                        name: "Sir Camil",
-                        text: "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
-                        portraitResourceKey: "sir camil cutscene portrait",
+                        speakerName: "Sir Camil",
+                        speakerText: "Sometimes it's better to back away or raise your defenses rather than hope for a critical strike.",
+                        speakerPortraitResourceKey: "sir camil cutscene portrait",
                         animationDuration: 0,
-                        screenDimensions: [ScreenDimensions.SCREEN_WIDTH, ScreenDimensions.SCREEN_HEIGHT],
                     })
                 ],
             }),

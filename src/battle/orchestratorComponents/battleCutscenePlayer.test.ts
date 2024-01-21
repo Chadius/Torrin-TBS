@@ -1,33 +1,35 @@
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
-import {Cutscene} from "../../cutscene/cutscene";
+import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
 import {TODODeleteMeDialogueBoxPlayer} from "../../cutscene/dialogue/dialogueBoxPlayer";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {DialogueService} from "../../cutscene/dialogue/dialogue";
 
 describe('BattleCutscenePlayer', () => {
-    let dinnerDate: Cutscene;
-    let lunchDate: Cutscene;
+    let dinnerDate: TODODeleteMeCutscene;
+    let lunchDate: TODODeleteMeCutscene;
     beforeEach(() => {
-        const frontDoorGreeting = new TODODeleteMeDialogueBoxPlayer({
-            id: "1",
-            name: "Doorman",
-            text: "Welcome, come inside",
-            animationDuration: 0
-        });
-        dinnerDate = new Cutscene({
-            actions: [
-                frontDoorGreeting
+        dinnerDate = new TODODeleteMeCutscene({
+            directions: [
+                DialogueService.new({
+                    id: "1",
+                    speakerName: "Doorman",
+                    speakerText: "Welcome, come inside",
+                    speakerPortraitResourceKey: undefined,
+                    animationDuration: 0
+                }),
             ]
         });
-        lunchDate = new Cutscene({
-            actions: [
-                new TODODeleteMeDialogueBoxPlayer({
+        lunchDate = new TODODeleteMeCutscene({
+            directions: [
+                DialogueService.new({
                     id: "2",
-                    name: "Doorman",
-                    text: "Lunch time!",
-                    animationDuration: 0
+                    speakerName: "Doorman",
+                    speakerText: "Lunch time!",
+                    animationDuration: 0,
+                    speakerPortraitResourceKey: undefined,
                 })
             ]
         })

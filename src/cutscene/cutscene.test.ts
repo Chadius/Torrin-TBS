@@ -1,6 +1,6 @@
 import {DialoguePlayerService, DialoguePlayerState} from "./dialogue/dialogueBoxPlayer";
 import {SplashScreenPlayerState} from "./splashScreenPlayer";
-import {Cutscene} from "./cutscene";
+import {Cutscene, CutsceneService} from "./cutscene";
 import {CutsceneDecisionTriggerService} from "./DecisionTrigger";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {StubImmediateLoader} from "../resource/resourceHandlerTestUtils";
@@ -46,78 +46,74 @@ describe('Cutscene', () => {
     });
 
     it('should not start upon construction', () => {
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 frontDoorGreeting
-            ],
-            resourceHandler: mockResourceHandler(),
+            ]
         });
 
-        expect(dinnerDate.isInProgress()).toBeFalsy();
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeFalsy();
     });
 
     it('should start with the first action when started', () => {
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 frontDoorGreeting
-            ],
-            resourceHandler: mockResourceHandler(),
+            ]
         });
 
-        dinnerDate.start({});
-        expect(dinnerDate.isInProgress()).toBeTruthy();
-        expect(dinnerDate.getCurrentDirection()).toBe(frontDoorGreeting);
+        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
+        expect(dinnerDate.currentDirection).toBe(frontDoorGreeting);
     });
 
     it('should stop when requested', () => {
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 frontDoorGreeting
-            ],
-            resourceHandler: mockResourceHandler(),
+            ]
         });
 
-        dinnerDate.start({});
-        dinnerDate.stop();
-        expect(dinnerDate.isInProgress()).toBeFalsy();
+        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        CutsceneService.stop(dinnerDate);
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeFalsy();
     });
 
     it('should move to the next action when the mouse clicks', () => {
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 splash1,
                 splash2
-            ],
-            resourceHandler: mockResourceHandler(),
+            ]
         });
 
-        dinnerDate.start({});
-        expect(dinnerDate.getCurrentDirection()).toBe(splash1);
-        dinnerDate.mouseClicked(100, 100, {});
-        expect(dinnerDate.getCurrentDirection()).toBe(splash2);
+        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+
+        expect(dinnerDate.currentDirection).toBe(splash1);
+        CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
+        expect(dinnerDate.currentDirection).toBe(splash2);
     });
 
     it('should be finished when all of the actions are finished', () => {
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 frontDoorGreeting,
                 hostGreeting
-            ],
-            resourceHandler: mockResourceHandler(),
+            ]
         });
 
-        dinnerDate.start({});
-        expect(dinnerDate.isInProgress()).toBeTruthy();
+        CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
 
-        expect(dinnerDate.getCurrentDirection()).toBe(frontDoorGreeting);
-        dinnerDate.mouseClicked(100, 100, {});
+        expect(dinnerDate.currentDirection).toBe(frontDoorGreeting);
+        CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
 
-        expect(dinnerDate.getCurrentDirection()).toBe(hostGreeting);
-        dinnerDate.mouseClicked(100, 100, {});
+        expect(dinnerDate.currentDirection).toBe(hostGreeting);
+        CutsceneService.mouseClicked(dinnerDate, 100, 100, {});
 
-        expect(dinnerDate.getCurrentDirection()).toBeUndefined();
-        expect(dinnerDate.isInProgress()).toBeFalsy();
-        expect(dinnerDate.isFinished()).toBeTruthy();
+        expect(dinnerDate.currentDirection).toBeUndefined();
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeFalsy();
+        expect(CutsceneService.isFinished(dinnerDate)).toBeTruthy();
     });
 
     describe('DecisionTriggers', () => {
@@ -129,7 +125,7 @@ describe('Cutscene', () => {
                 answers: ["Yes", "No"],
                 speakerPortraitResourceKey: undefined,
             });
-            const purchasePrompt = new Cutscene({
+            const purchasePrompt = CutsceneService.new({
                 directions: [
                     dialoguePrompt,
                     DialogueService.new({
@@ -152,18 +148,18 @@ describe('Cutscene', () => {
                         destinationDialogId: "test passes",
                     })
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            purchasePrompt.start({});
-            expect(purchasePrompt.getCurrentDirection().id).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(
+            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
+            CutsceneService.mouseClicked(
+                purchasePrompt,
                 RectAreaService.centerX((purchasePrompt.cutscenePlayerStateById[dialoguePrompt.id] as DialoguePlayerState).answerButtons[0].buttonRect),
                 RectAreaService.centerY((purchasePrompt.cutscenePlayerStateById[dialoguePrompt.id] as DialoguePlayerState).answerButtons[0].buttonRect),
                 {}
             );
 
-            expect(purchasePrompt.getCurrentDirection().id).toBe("test passes");
+            expect(purchasePrompt.currentDirection.id).toBe("test passes");
         });
 
         it('should ignore Answer based DecisionTriggers if a different answer is selected', () => {
@@ -173,7 +169,7 @@ describe('Cutscene', () => {
                 speakerText: "Would you like to buy this sword?",
                 answers: ["Yes", "No"],
             });
-            const purchasePrompt = new Cutscene({
+            const purchasePrompt = CutsceneService.new({
                 directions: [
                     dialoguePrompt,
                     DialogueService.new({
@@ -194,22 +190,22 @@ describe('Cutscene', () => {
                         destinationDialogId: "test failed",
                     })
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            purchasePrompt.start({});
-            expect(purchasePrompt.getCurrentDirection().id).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(
+            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
+            CutsceneService.mouseClicked(
+                purchasePrompt,
                 RectAreaService.centerX((purchasePrompt.cutscenePlayerStateById[dialoguePrompt.id] as DialoguePlayerState).answerButtons[0].buttonRect),
                 RectAreaService.centerY((purchasePrompt.cutscenePlayerStateById[dialoguePrompt.id] as DialoguePlayerState).answerButtons[0].buttonRect),
                 {}
             );
 
-            expect(purchasePrompt.getCurrentDirection().id).toBe("test passed");
+            expect(purchasePrompt.currentDirection.id).toBe("test passed");
         });
 
         it('should always use a DecisionTrigger if no answer is given', () => {
-            const purchasePrompt = new Cutscene({
+            const purchasePrompt = CutsceneService.new({
                 directions: [
                     DialogueService.new({
                         id: "act serious",
@@ -233,14 +229,13 @@ describe('Cutscene', () => {
                         destinationDialogId: "test passes",
                     })
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            purchasePrompt.start({});
-            expect(purchasePrompt.getCurrentDirection().id).toBe("act serious");
-            purchasePrompt.mouseClicked(100, 100, {});
+            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            expect(purchasePrompt.currentDirection.id).toBe("act serious");
+            CutsceneService.mouseClicked(purchasePrompt, 100, 100, {});
 
-            expect(purchasePrompt.getCurrentDirection().id).toBe("test passes");
+            expect(purchasePrompt.currentDirection.id).toBe("test passes");
         });
 
         it('when returning to an older dialogue box, should not persist previous answer upon mouse click', () => {
@@ -250,7 +245,7 @@ describe('Cutscene', () => {
                 speakerText: "Would you like to buy this sword?",
                 answers: ["Yes", "No"],
             });
-            const purchasePrompt = new Cutscene({
+            const purchasePrompt = CutsceneService.new({
                 directions: [
                     dialoguePrompt,
                     DialogueService.new({
@@ -285,23 +280,23 @@ describe('Cutscene', () => {
                         destinationDialogId: "buy my stuff"
                     })
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            purchasePrompt.start({});
-            expect(purchasePrompt.getCurrentDirection().id).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(
+            CutsceneService.start(purchasePrompt, mockResourceHandler(), {});
+            expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
+            CutsceneService.mouseClicked(
+                purchasePrompt,
                 RectAreaService.centerX((purchasePrompt.cutscenePlayerStateById[dialoguePrompt.id] as DialoguePlayerState).answerButtons[1].buttonRect),
                 RectAreaService.centerY((purchasePrompt.cutscenePlayerStateById[dialoguePrompt.id] as DialoguePlayerState).answerButtons[1].buttonRect),
                 {}
             );
 
-            expect(purchasePrompt.getCurrentDirection().id).toBe("reconsider");
-            purchasePrompt.mouseClicked(0, 0, {});
+            expect(purchasePrompt.currentDirection.id).toBe("reconsider");
+            CutsceneService.mouseClicked(purchasePrompt, 0, 0, {});
 
-            expect(purchasePrompt.getCurrentDirection().id).toBe("buy my stuff");
-            purchasePrompt.mouseClicked(0, 0, {});
-            expect(purchasePrompt.getCurrentDirection().id).toBe("buy my stuff");
+            expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
+            CutsceneService.mouseClicked(purchasePrompt, 0, 0, {});
+            expect(purchasePrompt.currentDirection.id).toBe("buy my stuff");
         });
     });
 
@@ -335,75 +330,75 @@ describe('Cutscene', () => {
         });
 
         it('should enter fast-forward mode when you click on the fast forward button', () => {
-            const dinnerDate = new Cutscene({
+            const dinnerDate = CutsceneService.new({
                 directions: [
                     waiterGreets,
                     waiterHandsMenu
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            dinnerDate.start({});
-            dinnerDate.mouseClicked(
+            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
+            CutsceneService.mouseClicked(
+                dinnerDate,
                 RectAreaService.centerX(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 RectAreaService.centerY(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 {}
             );
-            expect(dinnerDate.isFastForward()).toBeTruthy();
+            expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy();
         });
 
         it('should auto progress dialog messages when in fast-forward mode', () => {
-            const dinnerDate = new Cutscene({
+            const dinnerDate = CutsceneService.new({
                 directions: [
                     waiterGreets,
                     waiterHandsMenu
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            dinnerDate.start({});
+            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
-            dinnerDate.mouseClicked(
+            CutsceneService.mouseClicked(
+                dinnerDate,
                 RectAreaService.centerX(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 RectAreaService.centerY(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 {}
             );
-            expect(dinnerDate.isFastForward()).toBeTruthy();
-            expect(dinnerDate.getCurrentDirection()).toBe(waiterGreets);
+            expect(CutsceneService.isFastForward(dinnerDate)).toBeTruthy();
+            expect(dinnerDate.currentDirection).toBe(waiterGreets);
 
             jest.spyOn(Date, 'now').mockImplementation(() => 101);
-            dinnerDate.update({});
-            expect(dinnerDate.getCurrentDirection()).toBe(waiterHandsMenu);
+            CutsceneService.update(dinnerDate, {});
+            expect(dinnerDate.currentDirection).toBe(waiterHandsMenu);
         });
 
         it('should stop fast-forward mode if the dialog is on the last action', () => {
-            const dinnerDate = new Cutscene({
+            const dinnerDate = CutsceneService.new({
                 directions: [
                     waiterGreets,
                     waiterHandsMenu
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            dinnerDate.start({});
+            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
-            expect(dinnerDate.canFastForward()).toBeTruthy();
-            dinnerDate.mouseClicked(
+            expect(CutsceneService.canFastForward(dinnerDate)).toBeTruthy();
+            CutsceneService.mouseClicked(
+                dinnerDate,
                 RectAreaService.centerX(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 RectAreaService.centerY(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 {}
             );
             jest.spyOn(Date, 'now').mockImplementation(() => 101);
-            dinnerDate.update({});
+            CutsceneService.update(dinnerDate, {});
             jest.spyOn(Date, 'now').mockImplementation(() => 202);
-            dinnerDate.update({});
-            expect(dinnerDate.getCurrentDirection()).toBe(waiterHandsMenu);
-            expect(dinnerDate.isFastForward()).toBeFalsy();
-            expect(dinnerDate.canFastForward()).toBeFalsy();
+            CutsceneService.update(dinnerDate, {});
+            expect(dinnerDate.currentDirection).toBe(waiterHandsMenu);
+            expect(CutsceneService.isFastForward(dinnerDate)).toBeFalsy();
+            expect(CutsceneService.canFastForward(dinnerDate)).toBeFalsy();
         });
 
         it('should stop fast-forward mode if the action requires an answer', () => {
-            const dinnerDate = new Cutscene({
+            const dinnerDate = CutsceneService.new({
                 directions: [
                     waiterGreets,
                     waiterHandsMenu,
@@ -420,49 +415,48 @@ describe('Cutscene', () => {
                         destinationDialogId: "does not matter"
                     })
                 ],
-                resourceHandler: mockResourceHandler(),
             });
 
-            dinnerDate.start({});
+            CutsceneService.start(dinnerDate, mockResourceHandler(), {});
             jest.spyOn(Date, 'now').mockImplementation(() => 0);
-            expect(dinnerDate.getCurrentDirection().id).toBe("waiterGreets");
-            dinnerDate.mouseClicked(
+            expect(dinnerDate.currentDirection.id).toBe("waiterGreets");
+            CutsceneService.mouseClicked(
+                dinnerDate,
                 RectAreaService.centerX(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 RectAreaService.centerY(dinnerDate.fastForwardButton.readyLabel.rectangle.area),
                 {}
             );
 
             jest.spyOn(Date, 'now').mockImplementation(() => 101);
-            dinnerDate.update({});
-            expect(dinnerDate.getCurrentDirection().id).toBe("waiterHandsMenu");
+            CutsceneService.update(dinnerDate, {});
+            expect(dinnerDate.currentDirection.id).toBe("waiterHandsMenu");
 
             jest.spyOn(Date, 'now').mockImplementation(() => 202);
-            dinnerDate.update({});
-            expect(dinnerDate.getCurrentDirection().id).toBe("waiterAsks");
+            CutsceneService.update(dinnerDate, {});
+            expect(dinnerDate.currentDirection.id).toBe("waiterAsks");
 
             jest.spyOn(Date, 'now').mockImplementation(() => 303);
-            dinnerDate.update({});
-            expect(dinnerDate.getCurrentDirection().id).toBe("waiterAsks");
+            CutsceneService.update(dinnerDate, {});
+            expect(dinnerDate.currentDirection.id).toBe("waiterAsks");
 
-            expect(dinnerDate.isFastForward()).toBeFalsy();
-            expect(dinnerDate.canFastForward()).toBeFalsy();
+            expect(CutsceneService.isFastForward(dinnerDate)).toBeFalsy();
+            expect(CutsceneService.canFastForward(dinnerDate)).toBeFalsy();
         });
     });
 
     it('can start after loading if no actions require loading', () => {
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 splash1,
                 frontDoorGreeting
-            ],
-            resourceHandler: mockResourceHandler(),
+            ]
         });
 
-        dinnerDate.loadResources();
-        expect(dinnerDate.hasLoaded()).toBeTruthy();
-        const error = dinnerDate.start({});
+        CutsceneService.loadResources(dinnerDate, mockResourceHandler());
+        expect(CutsceneService.hasLoaded(dinnerDate, mockResourceHandler())).toBeTruthy();
+        const error = CutsceneService.start(dinnerDate, mockResourceHandler(), {});
         expect(error).toBeUndefined();
-        expect(dinnerDate.isInProgress()).toBeTruthy();
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
     });
 
     it('can load required resources and indicate if it is ready to load', () => {
@@ -482,30 +476,28 @@ describe('Cutscene', () => {
             ]
         });
 
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 restaurantEntrance
-            ],
-            resourceHandler: handler,
+            ]
         });
 
-        dinnerDate.loadResources();
+        CutsceneService.loadResources(dinnerDate, handler);
+        CutsceneService.setResources(dinnerDate, handler);
 
-        dinnerDate.setResources();
         expect((dinnerDate.cutscenePlayerStateById[restaurantEntrance.id] as SplashScreenPlayerState).screenImage).toBeTruthy();
 
-        expect(dinnerDate.hasLoaded()).toBeTruthy();
-        const error = dinnerDate.start({});
+        expect(CutsceneService.hasLoaded(dinnerDate, handler)).toBeTruthy();
+        const error = CutsceneService.start(dinnerDate, handler, {});
         expect(error).toBeUndefined();
-        expect(dinnerDate.isInProgress()).toBeTruthy();
+        expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
     });
 
     it('will pass on the TextSubstitution context when starting a cutscene', () => {
-        const dinnerDate = new Cutscene({
+        const dinnerDate: Cutscene = CutsceneService.new({
             directions: [
                 frontDoorGreeting
-            ],
-            resourceHandler: mockResourceHandler(),
+            ]
         });
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             squaddieRepository: undefined,
@@ -519,7 +511,7 @@ describe('Cutscene', () => {
         const frontDoorPlayer = (dinnerDate.cutscenePlayerStateById[frontDoorGreeting.id] as DialoguePlayerState);
 
         const greetingSpy = jest.spyOn(DialoguePlayerService, "start");
-        dinnerDate.start({battleOrchestratorState: battleState});
+        CutsceneService.start(dinnerDate, mockResourceHandler(), {battleOrchestratorState: battleState});
         expect(greetingSpy).toBeCalledWith(
             frontDoorPlayer,
             {

@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {Cutscene} from "../../cutscene/cutscene";
+import {TODODeleteMeCutscene} from "../../cutscene/cutscene";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
@@ -15,9 +15,9 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     constructor() {
     }
 
-    private _currentCutscene: Cutscene;
+    private _currentCutscene: TODODeleteMeCutscene;
 
-    get currentCutscene(): Cutscene {
+    get currentCutscene(): TODODeleteMeCutscene {
         return this._currentCutscene;
     }
 
@@ -32,11 +32,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
-        if (event.eventType === OrchestratorComponentMouseEventType.MOVED && this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
+        if (event.eventType === OrchestratorComponentMouseEventType.MOVED && this.currentCutscene && this.currentCutscene.isInProgress()) {
             this.currentCutscene.mouseMoved(event.mouseX, event.mouseY);
             return;
         }
-        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED && this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
+        if (event.eventType === OrchestratorComponentMouseEventType.CLICKED && this.currentCutscene && this.currentCutscene.isInProgress()) {
             this.currentCutscene.mouseClicked(event.mouseX, event.mouseY, {battleOrchestratorState: state.battleOrchestratorState});
             return;
         }
@@ -53,11 +53,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
-        if (this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.TODODeleteMeisInProgress()) {
+        if (this.currentCutscene && this.currentCutscene.hasLoaded() && !this.currentCutscene.isInProgress()) {
             this.currentCutscene.setResources();
             this.currentCutscene.start({battleOrchestratorState: state.battleOrchestratorState});
         }
-        if (this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
+        if (this.currentCutscene && this.currentCutscene.isInProgress()) {
             this.currentCutscene.update({battleOrchestratorState: state.battleOrchestratorState});
             this.currentCutscene.draw(graphicsContext);
         }
@@ -79,7 +79,7 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
             throw new Error(`No cutscene with Id ${cutsceneId}`);
         }
 
-        if (this.currentCutscene && this.currentCutscene.TODODeleteMeisInProgress()) {
+        if (this.currentCutscene && this.currentCutscene.isInProgress()) {
             return;
         }
 
