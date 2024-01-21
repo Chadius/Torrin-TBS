@@ -6,8 +6,8 @@ export interface Dialogue {
     type: CutsceneActionPlayerType.DIALOGUE;
     id: string;
     animationDuration: number;
-    answers: string[];
-    speakerPortraitResourceKey: string;
+    answers?: string[];
+    speakerPortraitResourceKey?: string;
     speakerText: string;
     speakerName: string;
 }
@@ -43,6 +43,10 @@ export const DialogueService = {
         }
     },
     getResourceLocators: (state: Dialogue): ResourceLocator[] => {
+        if (!isValidValue(state.speakerPortraitResourceKey)) {
+            return []
+        }
+
         return [
             {
                 type: ResourceType.IMAGE,

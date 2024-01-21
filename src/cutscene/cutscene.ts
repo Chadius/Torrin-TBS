@@ -22,20 +22,20 @@ export type CutsceneDirectionPlayerState = DialoguePlayerState | SplashScreenPla
 
 export interface Cutscene {
     directions: CutsceneDirection[];
-    directionIndex: number | undefined;
-    currentDirection: CutsceneDirection | undefined;
+    directionIndex?: number | undefined;
+    currentDirection?: CutsceneDirection | undefined;
 
-    cutscenePlayerStateById: {
+    cutscenePlayerStateById?: {
         [t: string]: CutsceneDirectionPlayerState
     };
 
-    decisionTriggers: CutsceneDecisionTrigger[];
+    decisionTriggers?: CutsceneDecisionTrigger[];
 
-    fastForwardButton: Button;
-    fastForwardPreviousTimeTick: number | undefined;
+    fastForwardButton?: Button;
+    fastForwardPreviousTimeTick?: number | undefined;
 
-    allResourceLocators: ResourceLocator[];
-    allResourceKeys: string[];
+    allResourceLocators?: ResourceLocator[];
+    allResourceKeys?: string[];
 }
 
 export const CutsceneService = {
@@ -62,6 +62,18 @@ export const CutsceneService = {
             currentDirection: undefined,
         }
 
+        const sanitizedDirections: CutsceneDirection[] = cutscene.directions.map(rawDirection => {
+            switch (rawDirection.type) {
+                case CutsceneActionPlayerType.DIALOGUE:
+                    return DialogueService.new({...rawDirection});
+                case CutsceneActionPlayerType.SPLASH_SCREEN:
+                    return SplashScreenService.new({...rawDirection});
+                default:
+                    throw new Error (`CutsceneService.new: unknown direction type: ${rawDirection}`);
+            }
+        });
+        cutscene.directions = sanitizedDirections;
+
         cutscene.directions.forEach(direction => {
             switch (direction.type) {
                 case CutsceneActionPlayerType.DIALOGUE:
@@ -74,8 +86,10 @@ export const CutsceneService = {
                         splashScreen: direction,
                     });
                     break;
+                default:
+                    throw new Error (`CutsceneService.new: unknown direction type: ${direction}`);
             }
-        })
+        });
 
         collectResourceLocatorsAndKeys(cutscene);
         setUpFastForwardButton(cutscene);
@@ -372,6 +386,7 @@ const collectResourceLocatorsAndKeys = (cutscene: Cutscene) => {
 
     cutscene.allResourceKeys = cutscene.allResourceLocators.map(res => res.key)
 }
+
 const getResourceLocators = (cutscene: Cutscene, direction: CutsceneDirection): ResourceLocator[] => {
     switch (direction.type) {
         case CutsceneActionPlayerType.DIALOGUE:
@@ -379,7 +394,7 @@ const getResourceLocators = (cutscene: Cutscene, direction: CutsceneDirection): 
         case CutsceneActionPlayerType.SPLASH_SCREEN:
             return SplashScreenService.getResourceLocators(direction);
         default:
-            return [];
+            throw new Error(`Unknown cutscene direction type ${direction}`);
     }
 }
 const setUpFastForwardButton = (cutscene: Cutscene) => {

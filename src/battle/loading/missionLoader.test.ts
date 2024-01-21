@@ -19,6 +19,8 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {TestArmyPlayerData} from "../../utils/test/army";
 import {CutsceneService} from "../../cutscene/cutscene";
+import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
+import {isValidValue} from "../../utils/validityCheck";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -294,9 +296,31 @@ describe('Mission Loader', () => {
                 }
             );
         });
+
+        it('gets squaddies and queues resources to load based on the squaddie resources', () => {
+            expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
+            expect(missionLoaderContext.squaddieData.teams.length).toBeGreaterThan(0);
+            expect(Object.keys(missionLoaderContext.squaddieData.teamStrategyById).length).toBeGreaterThan(0);
+
+            expect(missionLoaderContext.resourcesPendingLoading.length).toBeGreaterThan(initialPendingResourceListLength);
+        });
+
+        it('gets cutscenes', () => {
+            expect(
+                Object.keys(missionData.cutscene.cutsceneById)
+            ).toEqual(
+                Object.keys(missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById)
+            );
+
+            expect(missionLoaderContext.resourcesPendingLoading).toContain("tutorial-map");
+            expect(missionLoaderContext.resourcesPendingLoading).toContain("splash victory");
+            expect(missionLoaderContext.resourcesPendingLoading.every(key => isValidValue(key))).toBeTruthy();
+
+            expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toEqual(missionData.cutscene.cutsceneTriggers);
+        });
     });
 
-    describe('can load mission data from hardcoded assets', () => {
+    describe('TODO Delete me can load mission data from hardcoded assets', () => {
         let initialPendingResourceListLength: number;
 
         beforeEach(async () => {
@@ -322,17 +346,16 @@ describe('Mission Loader', () => {
             });
         });
 
-        it('gets squaddies and queues resources to load based on the squaddie resources', () => {
-            expect(ObjectRepositoryService.getSquaddieTemplateIterator(repository,).length).toBeGreaterThan(0);
-            expect(missionLoaderContext.squaddieData.teams.length).toBeGreaterThan(0);
-            expect(Object.keys(missionLoaderContext.squaddieData.teamStrategyById).length).toBeGreaterThan(0);
-
-            expect(missionLoaderContext.resourcesPendingLoading.length).toBeGreaterThan(initialPendingResourceListLength);
-        });
-
         it('gets cutscenes', () => {
-            expect("cutsceneCollection" in missionLoaderContext.cutsceneInfo).toBeTruthy();
-            expect("cutsceneTriggers" in missionLoaderContext.cutsceneInfo).toBeTruthy();
+            // TODO genericize these to read off of the mission data
+            expect( "introduction" in missionLoaderContext.cutsceneInfo.cutsceneCollection.cutsceneById).toBeTruthy();
+
+            expect(missionLoaderContext.cutsceneInfo.cutsceneTriggers).toContainEqual({
+                triggeringEvent: TriggeringEvent.START_OF_TURN,
+                systemReactedToTrigger: false,
+                cutsceneId: "introduction",
+                turn: 0,
+            },)
         });
     });
 

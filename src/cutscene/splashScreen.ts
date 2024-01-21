@@ -6,7 +6,7 @@ export interface SplashScreen {
     type: CutsceneActionPlayerType.SPLASH_SCREEN,
     id: string;
     screenImageResourceKey: string;
-    animationDuration: number;
+    animationDuration?: number;
 }
 
 export const SplashScreenService = {
