@@ -14,6 +14,7 @@ import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattleCameraHelper} from "../battle/battleCamera";
 import {ObjectRepositoryService} from "../battle/objectRepository";
+import {Campaign, CampaignService} from "../campaign/campaign";
 
 export class GameEngineBattleMissionLoader implements GameEngineComponent {
     missionLoaderContext: MissionLoaderContext;
@@ -37,7 +38,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             }
 
             this.resetBattleOrchestratorState(state.battleOrchestratorState);
-            await this.loadMissionDataFromFile(state.battleOrchestratorState);
+            await this.loadMissionDataFromFile(state.campaign, state.battleOrchestratorState);
             return;
         }
 
@@ -165,10 +166,10 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         });
     }
 
-    private async loadMissionDataFromFile(battleOrchestratorState: BattleOrchestratorState) {
+    private async loadMissionDataFromFile(campaign: Campaign, battleOrchestratorState: BattleOrchestratorState) {
         await MissionLoader.loadMissionFromFile({
             missionLoaderContext: this.missionLoaderContext,
-            missionId: "0000",
+            missionId: CampaignService.getNextMissionId(campaign),
             resourceHandler: battleOrchestratorState.resourceHandler,
             repository: battleOrchestratorState.squaddieRepository,
         }).then(async () => {

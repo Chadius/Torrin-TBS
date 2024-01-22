@@ -25,6 +25,7 @@ import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {isValidValue} from "../../utils/validityCheck";
+import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
     "map icon move 1 action",
@@ -117,16 +118,15 @@ export const MissionLoader = {
             })
         });
 
-        resourceHandler.loadResources(MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS);
+        const campaignResources: CampaignResources = CampaignResourcesService.default({});
+        resourceHandler.loadResources(Object.values(campaignResources.missionMapMovementIconResourceKeys));
+        resourceHandler.loadResources(Object.values(campaignResources.missionMapAttackIconResourceKeys));
+        resourceHandler.loadResources(Object.values(campaignResources.missionAttributeIconResourceKeys));
         missionLoaderContext.resourcesPendingLoading = [
             ...missionLoaderContext.resourcesPendingLoading,
-            ...MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS,
-        ];
-
-        resourceHandler.loadResources(MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS);
-        missionLoaderContext.resourcesPendingLoading = [
-            ...missionLoaderContext.resourcesPendingLoading,
-            ...MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
+            ...Object.values(campaignResources.missionMapMovementIconResourceKeys),
+            ...Object.values(campaignResources.missionMapAttackIconResourceKeys),
+            ...Object.values(campaignResources.missionAttributeIconResourceKeys),
         ];
 
         missionLoaderContext.objectives = missionData.objectives.map(MissionObjectiveHelper.validateMissionObjective);

@@ -3,7 +3,6 @@ import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {HighlightTileDescription} from "../../hexMap/terrainTileMap";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieService} from "../../squaddie/squaddieService";
-import {MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS} from "../loading/missionLoader";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {MissionMap} from "../../missionMap/missionMap";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
@@ -14,12 +13,14 @@ import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {isValidValue} from "../../utils/validityCheck";
+import {CampaignResources} from "../../campaign/campaignResources";
 
 export const MapHighlightHelper = {
-    convertSearchPathToHighlightLocations: ({searchPath, repository, battleSquaddieId}: {
+    convertSearchPathToHighlightLocations: ({searchPath, repository, battleSquaddieId, campaignResources}: {
         searchPath: SearchPath;
         repository: ObjectRepository;
-        battleSquaddieId: string
+        battleSquaddieId: string;
+        campaignResources: CampaignResources;
     }): HighlightTileDescription[] => {
         const locationsByNumberOfMovementActions = SquaddieService.searchPathLocationsByNumberOfMovementActions({
             repository,
@@ -34,13 +35,13 @@ export const MapHighlightHelper = {
                     imageOverlayName = "";
                     break;
                 case 1:
-                    imageOverlayName = MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0];
+                    imageOverlayName = campaignResources.missionMapMovementIconResourceKeys.MOVE_1_ACTION;
                     break
                 case 2:
-                    imageOverlayName = MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1];
+                    imageOverlayName = campaignResources.missionMapMovementIconResourceKeys.MOVE_2_ACTIONS;
                     break
                 default:
-                    imageOverlayName = MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2];
+                    imageOverlayName = campaignResources.missionMapMovementIconResourceKeys.MOVE_3_ACTIONS;
                     break
             }
             return {
@@ -57,11 +58,13 @@ export const MapHighlightHelper = {
                                                    missionMap,
                                                    repository,
                                                    battleSquaddieId,
+                                                   campaignResources,
                                                }: {
         startLocation: { q: number; r: number };
         missionMap: MissionMap;
         repository: ObjectRepository;
-        battleSquaddieId: string
+        battleSquaddieId: string;
+        campaignResources: CampaignResources;
     }): HighlightTileDescription[] => {
         const {
             squaddieTemplate,
@@ -84,8 +87,22 @@ export const MapHighlightHelper = {
             repository,
         });
 
-        const movementRange = highlightAllLocationsWithinSquaddieMovementRange(repository, battleSquaddieId, startLocation, reachableLocationSearch, missionMap);
-        const attackRange = addAttackRangeOntoMovementRange(repository, battleSquaddieId, reachableLocationSearch, missionMap);
+        const movementRange = highlightAllLocationsWithinSquaddieMovementRange(
+            {
+                startLocation,
+                reachableLocationSearch,
+                campaignResources,
+            }
+        );
+        const attackRange = addAttackRangeOntoMovementRange(
+            {
+                repository,
+                battleSquaddieId,
+                reachableLocationSearch,
+                missionMap,
+                campaignResources,
+            }
+        );
         if (attackRange && attackRange.tiles.length > 0) {
             return [...movementRange, attackRange];
         }
@@ -93,7 +110,17 @@ export const MapHighlightHelper = {
     }
 }
 
-const highlightAllLocationsWithinSquaddieMovementRange = (repository: ObjectRepository, battleSquaddieId: string, startLocation: HexCoordinate, reachableLocationSearch: SearchResult, missionMap: MissionMap) => {
+const highlightAllLocationsWithinSquaddieMovementRange = (
+    {
+        startLocation,
+        reachableLocationSearch,
+        campaignResources,
+    }: {
+        startLocation: HexCoordinate,
+        reachableLocationSearch: SearchResult,
+        campaignResources: CampaignResources,
+    }
+) => {
     const highlightedLocations: HighlightTileDescription[] = [
         {
             tiles: [
@@ -105,17 +132,17 @@ const highlightAllLocationsWithinSquaddieMovementRange = (repository: ObjectRepo
         {
             tiles: [],
             pulseColor: HighlightPulseBlueColor,
-            overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+            overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_1_ACTION,
         },
         {
             tiles: [],
             pulseColor: HighlightPulseBlueColor,
-            overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1],
+            overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_2_ACTIONS,
         },
         {
             tiles: [],
             pulseColor: HighlightPulseBlueColor,
-            overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2],
+            overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_3_ACTIONS,
         },
     ];
     Object.entries(SearchResultsHelper.getLocationsByNumberOfMoveActions(reachableLocationSearch)).forEach(([moveActionsStr, locations]) => {
@@ -128,7 +155,21 @@ const highlightAllLocationsWithinSquaddieMovementRange = (repository: ObjectRepo
     return highlightedLocations.filter(description => description.tiles.length > 0);
 };
 
-const addAttackRangeOntoMovementRange = (repository: ObjectRepository, battleSquaddieId: string, reachableLocationSearch: SearchResult, missionMap: MissionMap): HighlightTileDescription => {
+const addAttackRangeOntoMovementRange = (
+    {
+        repository,
+        battleSquaddieId,
+        reachableLocationSearch,
+        missionMap,
+        campaignResources,
+    }: {
+        repository: ObjectRepository,
+        battleSquaddieId: string,
+        reachableLocationSearch: SearchResult,
+        missionMap: MissionMap,
+        campaignResources: CampaignResources,
+    }
+): HighlightTileDescription => {
     const {
         squaddieTemplate,
         battleSquaddie
@@ -176,6 +217,6 @@ const addAttackRangeOntoMovementRange = (repository: ObjectRepository, battleSqu
     return {
         tiles: attackLocations,
         pulseColor: HighlightPulseRedColor,
-        overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[3],
+        overlayImageResourceName: campaignResources.missionMapAttackIconResourceKeys.ATTACK_1_ACTION,
     };
 };

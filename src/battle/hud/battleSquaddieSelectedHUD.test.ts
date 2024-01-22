@@ -643,7 +643,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                                         turnCount: 0,
                                     },
                                     squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-
                                         squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                                             battleSquaddieId: playerSquaddieDynamic.battleSquaddieId,
                                             squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,

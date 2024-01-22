@@ -20,6 +20,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
 import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {MapHighlightHelper} from "./mapHighlight";
+import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 export const DrawSquaddieUtilities = {
     tintSquaddieMapIcon: ({
@@ -40,12 +41,14 @@ export const DrawSquaddieUtilities = {
         battleSquaddieId: string,
         repository: ObjectRepository
     }) => {
+        const campaignResources: CampaignResources = CampaignResourcesService.default({});
         const {mapLocation} = MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId);
         const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
             repository: repository,
             missionMap,
             battleSquaddieId,
             startLocation: mapLocation,
+            campaignResources,
         })
         missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
     },

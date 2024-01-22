@@ -7,10 +7,6 @@ import {BattleOrchestratorStateService} from "../battle/orchestrator/battleOrche
 import {MissionFileFormat} from "../dataLoader/missionLoader";
 import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
-import {
-    MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
-    MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS
-} from "../battle/loading/missionLoader";
 import {DEFAULT_VICTORY_CUTSCENE_ID} from "../battle/orchestrator/missionCutsceneCollection";
 import {GameModeEnum} from "../utils/startupConfig";
 import {BattleSaveState, DefaultBattleSaveState} from "../battle/history/battleSaveState";
@@ -32,6 +28,8 @@ import {TestMissionData} from "../utils/test/missionData";
 import {TestArmyPlayerData} from "../utils/test/army";
 import {PlayerArmy} from "../campaign/playerArmy";
 import {CutsceneService} from "../cutscene/cutscene";
+import {CampaignResources, CampaignResourcesService} from "../campaign/campaignResources";
+import {CampaignService} from "../campaign/campaign";
 
 describe('GameEngineBattleMissionLoader', () => {
     let loader: GameEngineBattleMissionLoader;
@@ -41,8 +39,11 @@ describe('GameEngineBattleMissionLoader', () => {
     let resourceHandler: ResourceHandler;
     let squaddieRepository: ObjectRepository;
     let playerArmy: PlayerArmy;
+    let campaignResources: CampaignResources;
 
     beforeEach(() => {
+        campaignResources = CampaignResourcesService.default({});
+
         loader = new GameEngineBattleMissionLoader();
 
         resourceHandler = mocks.mockResourceHandler();
@@ -58,7 +59,8 @@ describe('GameEngineBattleMissionLoader', () => {
                 battleState: BattleStateService.newBattleState({
                     missionId: "",
                 }),
-            })
+            }),
+            campaign: CampaignService.default({}),
         });
 
         let enemyDemonSlitherTemplate: SquaddieTemplate;
@@ -123,10 +125,10 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('should load resources into the handler', () => {
-            expect(MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS).toHaveLength(1);
             expect(state.battleOrchestratorState.resourceHandler.areAllResourcesLoaded([
-                ...MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS,
-                ...MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
+                ...Object.values(campaignResources.missionMapMovementIconResourceKeys),
+                ...Object.values(campaignResources.missionMapAttackIconResourceKeys),
+                ...Object.values(campaignResources.missionAttributeIconResourceKeys),
             ])).toBeTruthy();
 
             expect(loader.missionLoaderContext.resourcesPendingLoading).toHaveLength(0);
@@ -288,7 +290,8 @@ describe('GameEngineBattleMissionLoader', () => {
                             ],
                             missionCompletionStatus: {},
                         }),
-                    })
+                    }),
+                campaign: CampaignService.default({}),
             });
             originalState.gameSaveFlags.loadRequested = true;
             currentState = GameEngineStateHelper.clone({original: originalState});
@@ -434,7 +437,8 @@ describe('GameEngineBattleMissionLoader', () => {
                     resourceHandler,
                     squaddieRepository: ObjectRepositoryService.new(),
                 }),
-                titleScreenState: TitleScreenStateHelper.new()
+                titleScreenState: TitleScreenStateHelper.new(),
+                campaign: CampaignService.default({}),
             });
             originalState.gameSaveFlags.loadRequested = true;
             currentState = GameEngineStateHelper.new({
@@ -443,7 +447,8 @@ describe('GameEngineBattleMissionLoader', () => {
                     resourceHandler,
                     squaddieRepository: ObjectRepositoryService.new(),
                 }),
-                titleScreenState: TitleScreenStateHelper.new()
+                titleScreenState: TitleScreenStateHelper.new(),
+                campaign: CampaignService.default({}),
             });
             currentState.gameSaveFlags.loadRequested = true;
         });

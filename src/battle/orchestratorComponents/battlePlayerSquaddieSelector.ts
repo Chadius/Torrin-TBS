@@ -41,6 +41,7 @@ import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleSquaddieService} from "../battleSquaddie";
 import {isValidValue} from "../../utils/validityCheck";
+import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -214,11 +215,13 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
+        const campaignResources: CampaignResources = CampaignResourcesService.default({});
         const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
             repository: state.squaddieRepository,
             missionMap: state.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             startLocation: clickedHexCoordinate,
+            campaignResources,
         })
         state.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
         state.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -273,11 +276,13 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieToHighlightId));
 
         state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+        const campaignResources: CampaignResources = CampaignResourcesService.default({});
         const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
             repository: state.squaddieRepository,
             missionMap: state.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             startLocation: startLocation,
+            campaignResources,
         })
         state.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
     }

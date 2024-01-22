@@ -20,6 +20,8 @@ import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleS
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
+import {Campaign, CampaignService} from "../campaign/campaign";
+import {isValidValue} from "../utils/validityCheck";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
@@ -31,15 +33,17 @@ export interface GameEngineState {
         loadRequested: boolean;
         errorDuringSaving: boolean;
         savingInProgress: boolean;
-    }
+    },
+    campaign: Campaign;
 }
 
 export const GameEngineStateHelper = {
-    new: ({battleOrchestratorState, titleScreenState, resourceHandler, previousMode}: {
+    new: ({battleOrchestratorState, titleScreenState, resourceHandler, previousMode, campaign}: {
         battleOrchestratorState?: BattleOrchestratorState;
         titleScreenState?: TitleScreenState;
         resourceHandler?: ResourceHandler;
         previousMode?: GameModeEnum;
+        campaign?: Campaign;
     }): GameEngineState => {
         return {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
@@ -54,6 +58,7 @@ export const GameEngineStateHelper = {
                 errorDuringSaving: false,
                 savingInProgress: false,
             },
+            campaign,
         }
     },
     clone: ({original}: { original: GameEngineState }): GameEngineState => {
@@ -62,6 +67,7 @@ export const GameEngineStateHelper = {
             titleScreenState: {...original.titleScreenState},
             battleOrchestratorState: original.battleOrchestratorState.clone(),
             gameSaveFlags: {...original.gameSaveFlags},
+            campaign: {...original.campaign},
         }
     }
 }

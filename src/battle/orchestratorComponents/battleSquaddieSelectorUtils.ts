@@ -19,6 +19,7 @@ import {MapHighlightHelper} from "../animation/mapHighlight";
 import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {DecisionService} from "../../decision/decision";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 export function createSearchPath(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -53,10 +54,12 @@ export function createSearchPath(state: BattleOrchestratorState, squaddieTemplat
 
     state.battleState.squaddieMovePath = closestRoute;
 
+    const campaignResources: CampaignResources = CampaignResourcesService.default({});
     const routeTilesByDistance = MapHighlightHelper.convertSearchPathToHighlightLocations({
         searchPath: closestRoute,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository: state.squaddieRepository,
+        campaignResources,
     })
     state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
     state.battleState.missionMap.terrainTileMap.highlightTiles(routeTilesByDistance);

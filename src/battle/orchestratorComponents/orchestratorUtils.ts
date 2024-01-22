@@ -20,6 +20,7 @@ import {SquaddieTurnService} from "../../squaddie/turn";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {Decision} from "../../decision/decision";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: BattleOrchestratorState): boolean => {
@@ -238,12 +239,14 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
     if (playerCanControlThisSquaddieRightNow) {
         state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 
+        const campaignResources: CampaignResources = CampaignResourcesService.default({});
         const {mapLocation: startLocation} = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId)
         const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
             repository: state.squaddieRepository,
             missionMap: state.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             startLocation: startLocation,
+            campaignResources,
         });
 
         state.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
