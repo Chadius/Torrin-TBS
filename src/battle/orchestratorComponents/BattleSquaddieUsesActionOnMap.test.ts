@@ -14,7 +14,7 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
-import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {Decision, DecisionService} from "../../decision/decision";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
@@ -73,10 +73,10 @@ describe('BattleSquaddieUsesActionOnMap', () => {
         const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: GameEngineState = GameEngineStateHelper.new({
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: squaddieRepository,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: squaddieRepository,
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -105,7 +105,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
 
         mapAction.reset(state);
         expect(mapAction.animationCompleteStartTime).toBeUndefined();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
     });
 
     describe('will determine the next mode based on the next action effect', () => {
@@ -142,9 +142,9 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 ].filter(x => x),
             });
 
-            return GameEngineStateHelper.new({
+            return GameEngineStateService.new({
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
                         squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({

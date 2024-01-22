@@ -10,8 +10,6 @@ describe("TextSubstitution", () => {
         expect(battleOrchestratorStateSubstitutionSpy).not.toBeCalled();
 
         const state = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
-            resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",

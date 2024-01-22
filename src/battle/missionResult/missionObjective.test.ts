@@ -1,16 +1,17 @@
 import * as mc from "./missionCondition";
 import {MissionCondition, MissionConditionType} from "./missionCondition";
-import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {MissionRewardType} from "./missionReward";
 import {MissionObjectiveHelper} from "./missionObjective";
 import {BattleStateService} from "../orchestrator/battleState";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 
 describe('Mission Objective', () => {
     const mockMissionConditionChecks = (stubReturnValues: {
         [key: string]: boolean | undefined
     }) => {
         jest.spyOn(mc, "MissionShouldBeComplete").mockImplementation(
-            (missionCondition: MissionCondition, state: BattleOrchestratorState, _: string): boolean => {
+            (missionCondition: MissionCondition, state: GameEngineState, _: string): boolean => {
                 return stubReturnValues[missionCondition.id];
             }
         );
@@ -38,23 +39,25 @@ describe('Mission Objective', () => {
             numberOfRequiredConditionsToComplete: 2,
         });
 
-        const state = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                missionCompletionStatus: {
-                    "test objective": {
-                        isComplete: undefined,
-                        conditions: {
-                            "test0": true,
-                            "test1": undefined,
-                            "test2": undefined,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {
+                                "test0": true,
+                                "test1": undefined,
+                                "test2": undefined,
+                            }
                         }
                     }
-                }
-            }),
+                }),
+            })
         });
 
         mockMissionConditionChecks({
@@ -103,23 +106,25 @@ describe('Mission Objective', () => {
         expect(objective.numberOfRequiredConditionsToComplete).toBe(3);
         expect(MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(objective)).toBeTruthy();
 
-        const state = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                missionCompletionStatus: {
-                    "test objective": {
-                        isComplete: undefined,
-                        conditions: {
-                            "test0": true,
-                            "test1": undefined,
-                            "test2": undefined,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {
+                                "test0": true,
+                                "test1": undefined,
+                                "test2": undefined,
+                            }
                         }
                     }
-                }
-            }),
+                }),
+            })
         });
         expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeFalsy();
 
@@ -169,23 +174,25 @@ describe('Mission Objective', () => {
         expect(objective.numberOfRequiredConditionsToComplete).toBe(3);
         expect(MissionObjectiveHelper.allConditionsAreRequiredToCompleteObjective(objective)).toBeTruthy();
 
-        const state = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                missionCompletionStatus: {
-                    "test objective": {
-                        isComplete: undefined,
-                        conditions: {
-                            "test0": true,
-                            "test1": undefined,
-                            "test2": undefined,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {
+                                "test0": true,
+                                "test1": undefined,
+                                "test2": undefined,
+                            }
                         }
                     }
-                }
-            }),
+                }),
+            })
         });
         expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeFalsy();
 
@@ -219,23 +226,25 @@ describe('Mission Objective', () => {
             ],
             numberOfRequiredConditionsToComplete: "ALL",
         });
-        const state = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                missionCompletionStatus: {
-                    "test objective": {
-                        isComplete: true,
-                        conditions: {
-                            "test0": false,
-                            "test1": false,
-                            "test2": false,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: true,
+                            conditions: {
+                                "test0": false,
+                                "test1": false,
+                                "test2": false,
+                            }
                         }
                     }
-                }
-            }),
+                }),
+            })
         });
         jest.clearAllMocks();
         mockMissionConditionChecks({
@@ -270,19 +279,21 @@ describe('Mission Objective', () => {
         });
         expect(objective.numberOfRequiredConditionsToComplete).toBe(0);
 
-        const state = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             resourceHandler: undefined,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                missionCompletionStatus: {
-                    "test objective": {
-                        isComplete: undefined,
-                        conditions: {}
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionCompletionStatus: {
+                        "test objective": {
+                            isComplete: undefined,
+                            conditions: {}
+                        }
                     }
-                }
-            }),
+                }),
+            })
         });
         expect(MissionObjectiveHelper.shouldBeComplete(objective, state)).toBeTruthy();
     });

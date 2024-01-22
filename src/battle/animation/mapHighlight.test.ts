@@ -13,10 +13,10 @@ import {ArmyAttributesService} from "../../squaddie/armyAttributes";
 import {SquaddieMovementHelper} from "../../squaddie/movement";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
-import {MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS} from "../loading/missionLoader";
 import {MapHighlightHelper} from "./mapHighlight";
 import {MissionMapService} from "../../missionMap/missionMap";
 import {SquaddieTurnService} from "../../squaddie/turn";
+import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 describe('map highlight generator', () => {
     let terrainAllSingleMovement: TerrainTileMap;
@@ -25,8 +25,11 @@ describe('map highlight generator', () => {
     let repository: ObjectRepository;
 
     let rangedAction: ActionEffectSquaddieTemplate;
+    let campaignResources: CampaignResources;
 
     beforeEach(() => {
+        campaignResources = CampaignResourcesService.default({});
+
         repository = ObjectRepositoryService.new();
         terrainAllSingleMovement = TerrainTileMapHelper.new({
             movementCost: ["1 1 1 1 1 1 1 1 1 1 "],
@@ -138,6 +141,7 @@ describe('map highlight generator', () => {
             searchPath: pathToDraw,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             repository,
+            campaignResources,
         });
 
         expect(highlightedTiles).toEqual([
@@ -154,28 +158,28 @@ describe('map highlight generator', () => {
                     {q: 1, r: 1},
                 ],
                 pulseColor: HighlightPulseBlueColor,
-                overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+                overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_1_ACTION,
             },
             {
                 tiles: [
                     {q: 1, r: 2},
                 ],
                 pulseColor: HighlightPulseBlueColor,
-                overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1],
+                overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_2_ACTIONS,
             },
             {
                 tiles: [
                     {q: 1, r: 3},
                 ],
                 pulseColor: HighlightPulseBlueColor,
-                overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2],
+                overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_3_ACTIONS,
             },
             {
                 tiles: [
                     {q: 2, r: 3},
                 ],
                 pulseColor: HighlightPulseBlueColor,
-                overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2],
+                overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_3_ACTIONS,
             },
         ]);
     });
@@ -214,6 +218,7 @@ describe('map highlight generator', () => {
                 startLocation: {q: 0, r: 2},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
+                campaignResources,
             });
 
             expect(highlightedDescription).toEqual([
@@ -230,7 +235,7 @@ describe('map highlight generator', () => {
                         {q: 0, r: 3},
                     ],
                     pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+                    overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_1_ACTION,
                 }
             ])
         });
@@ -242,6 +247,7 @@ describe('map highlight generator', () => {
                 startLocation: {q: 0, r: 2},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
+                campaignResources,
             });
 
             expect(highlightedDescription).toEqual([
@@ -258,7 +264,7 @@ describe('map highlight generator', () => {
                         {q: 0, r: 3},
                     ],
                     pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+                    overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_1_ACTION,
                 },
                 {
                     tiles: [
@@ -266,14 +272,14 @@ describe('map highlight generator', () => {
                         {q: 0, r: 4},
                     ],
                     pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1],
+                    overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_2_ACTIONS,
                 },
                 {
                     tiles: [
                         {q: 0, r: 5},
                     ],
                     pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[2],
+                    overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_3_ACTIONS,
                 },
             ])
         });
@@ -285,6 +291,7 @@ describe('map highlight generator', () => {
                 startLocation: {q: 0, r: 2},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
+                campaignResources,
             });
 
             expect(highlightedDescription).toEqual([
@@ -301,7 +308,7 @@ describe('map highlight generator', () => {
                         {q: 0, r: 3},
                     ],
                     pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[1],
+                    overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_2_ACTIONS,
                 }
             ])
         });
@@ -340,6 +347,7 @@ describe('map highlight generator', () => {
                 startLocation: {q: 0, r: 4},
                 repository,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
+                campaignResources,
             });
 
             expect(highlightedDescription).toEqual([
@@ -356,7 +364,7 @@ describe('map highlight generator', () => {
                         {q: 0, r: 5},
                     ],
                     pulseColor: HighlightPulseBlueColor,
-                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[0],
+                    overlayImageResourceName: campaignResources.missionMapMovementIconResourceKeys.MOVE_1_ACTION,
                 },
                 {
                     tiles: [
@@ -364,9 +372,10 @@ describe('map highlight generator', () => {
                         {q: 0, r: 7},
                     ],
                     pulseColor: HighlightPulseRedColor,
-                    overlayImageResourceName: MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS[3],
+                    overlayImageResourceName: campaignResources.missionMapAttackIconResourceKeys.ATTACK_1_ACTION,
                 }
             ])
         });
     });
-});
+})
+;

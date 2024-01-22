@@ -3,6 +3,7 @@ import {CutsceneTrigger, TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 
 function getMissionObjectivesByRewardType(completedObjectives: MissionObjective[], rewardType: MissionRewardType) {
@@ -37,7 +38,7 @@ function addStartOfTurnTriggers(turnObjectives: CutsceneTrigger[], state: Battle
 
 
 export const GetCutsceneTriggersToActivate = (
-    state: BattleOrchestratorState,
+    state: GameEngineState,
     battleOrchestratorModeThatJustCompleted: BattleOrchestratorMode
 ): CutsceneTrigger[] => {
     const squaddieActionCompleteModes = [
@@ -57,14 +58,17 @@ export const GetCutsceneTriggersToActivate = (
     let cutsceneTrigger: CutsceneTrigger = undefined;
 
     if (squaddieActionCompleteModes.includes(battleOrchestratorModeThatJustCompleted)) {
-        const completedObjectives = state.battleState.objectives.filter((objective: MissionObjective) =>
+        const completedObjectives = state.battleOrchestratorState.battleState.objectives.filter((objective: MissionObjective) =>
             MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
 
         const victoryObjective = getMissionObjectivesByRewardType(completedObjectives, MissionRewardType.VICTORY);
         const defeatObjective = getMissionObjectivesByRewardType(completedObjectives, MissionRewardType.DEFEAT);
 
-        ({cutsceneId, cutsceneTrigger} = findMissionObjectiveCutscenes(defeatObjective, state, victoryObjective));
+        ({
+            cutsceneId,
+            cutsceneTrigger
+        } = findMissionObjectiveCutscenes(defeatObjective, state.battleOrchestratorState, victoryObjective));
     }
 
     if (cutsceneId !== "" && cutsceneTrigger) {
@@ -73,8 +77,8 @@ export const GetCutsceneTriggersToActivate = (
     }
 
     if (startOfPhaseModes.includes(battleOrchestratorModeThatJustCompleted)) {
-        const turnObjectives = state.battleState.cutsceneTriggers.filter((trigger) => trigger.triggeringEvent === TriggeringEvent.START_OF_TURN);
-        addStartOfTurnTriggers(turnObjectives, state, cutsceneTriggersToReactTo);
+        const turnObjectives = state.battleOrchestratorState.battleState.cutsceneTriggers.filter((trigger) => trigger.triggeringEvent === TriggeringEvent.START_OF_TURN);
+        addStartOfTurnTriggers(turnObjectives, state.battleOrchestratorState, cutsceneTriggersToReactTo);
     }
 
     return cutsceneTriggersToReactTo;

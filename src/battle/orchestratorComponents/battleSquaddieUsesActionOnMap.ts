@@ -70,10 +70,16 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
             const {
                 battleSquaddie,
                 squaddieTemplate
-            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieId));
 
-            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.battleState.missionMap, state.battleOrchestratorState.squaddieRepository);
-            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.squaddieRepository);
+            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
+                battleSquaddie,
+                squaddieTemplate,
+                missionMap: state.battleOrchestratorState.battleState.missionMap,
+                repository: state.repository,
+                campaign: state.campaign,
+            });
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
 
             this.animationCompleteStartTime = Date.now();
         }

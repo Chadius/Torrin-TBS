@@ -16,17 +16,17 @@ export type TeamStrategyStateOptionalOptions = {
 export class TeamStrategyState {
     private readonly _missionMap: MissionMap;
     private readonly _team: BattleSquaddieTeam;
-    private readonly _squaddieRepository: ObjectRepository;
+    private readonly _repository: ObjectRepository;
 
     constructor(options: TeamStrategyStateRequiredOptions & Partial<TeamStrategyStateOptionalOptions>) {
         this._instruction = options.instruction;
         this._missionMap = options.missionMap;
         this._team = options.team;
-        this._squaddieRepository = options.squaddieRepository;
+        this._repository = options.squaddieRepository;
     }
 
-    get squaddieRepository(): ObjectRepository {
-        return this._squaddieRepository;
+    get repository(): ObjectRepository {
+        return this._repository;
     }
 
     get team(): BattleSquaddieTeam {

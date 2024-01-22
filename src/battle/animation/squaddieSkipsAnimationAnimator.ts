@@ -1,4 +1,3 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -11,6 +10,7 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingService} from "../history/recording";
 import {ActionEffectType} from "../../decision/actionEffect";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 
@@ -20,27 +20,27 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     private animationCompleteStartTime: number;
     private userCanceledAction: boolean;
 
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         const userWaited: boolean = this.animationCompleteStartTime !== undefined
             && Date.now() - this.animationCompleteStartTime >= ANIMATE_TEXT_WINDOW_WAIT_TIME;
         return userWaited || this.userCanceledAction;
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, mouseEvent: OrchestratorComponentMouseEvent): void {
+    mouseEventHappened(state: GameEngineState, mouseEvent: OrchestratorComponentMouseEvent): void {
         if (mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             this.userCanceledAction = true;
         }
     }
 
-    reset(state: BattleOrchestratorState): void {
+    reset(state: GameEngineState): void {
         this.resetInternalState();
     }
 
-    start(state: BattleOrchestratorState): void {
+    start(state: GameEngineState): void {
         this.maybeInitializeAnimationTimer();
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void {
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         this.maybeInitializeAnimationTimer();
         this.draw(state, graphicsContext);
     }
@@ -57,17 +57,17 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         }
     }
 
-    private drawActionDescription(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
-            let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+            let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
             if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
                 return;
             }
 
             this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
-                squaddieRepository: state.squaddieRepository,
+                squaddieRepository: state.repository,
                 currentActionEffectTemplate: squaddieActionEffect.template,
-                result: RecordingService.mostRecentEvent(state.battleState.recording).results,
+                result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
             });
 
             const textToDraw = this.outputTextStrings.join("\n");
@@ -95,7 +95,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
         LabelHelper.draw(this.outputTextDisplay, graphicsContext);
     }
 
-    private draw(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
         this.drawActionDescription(state, graphicsContext);
     }
 }

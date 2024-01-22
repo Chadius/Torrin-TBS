@@ -24,10 +24,12 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaService} from "../../ui/rectArea";
 import {ObjectRepositoryService} from "../objectRepository";
 import {ActionEffectType} from "../../decision/actionEffect";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
     sawResultAftermath: boolean;
     private startedShowingResults: boolean;
+    private _userRequestedAnimationSkip: boolean;
 
     constructor() {
         this.resetInternalState();
@@ -79,27 +81,21 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         return this._targetHitPointMeters;
     }
 
-    private _userRequestedAnimationSkip: boolean;
-
-    get userRequestedAnimationSkip(): boolean {
-        return this._userRequestedAnimationSkip;
-    }
-
-    hasCompleted(state: BattleOrchestratorState): boolean {
+    hasCompleted(state: GameEngineState): boolean {
         return this.sawResultAftermath === true;
     }
 
-    mouseEventHappened(state: BattleOrchestratorState, mouseEvent: OrchestratorComponentMouseEvent) {
+    mouseEventHappened(state: GameEngineState, mouseEvent: OrchestratorComponentMouseEvent) {
         if (mouseEvent.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             this._userRequestedAnimationSkip = true;
             if (this.startedShowingResults === false) {
-                this.updateHitPointMeters(state);
+                this.updateHitPointMeters(state.battleOrchestratorState);
                 this.startedShowingResults = true;
             }
         }
     }
 
-    start(state: BattleOrchestratorState) {
+    start(state: GameEngineState) {
 
     }
 
@@ -112,7 +108,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this._targetHitPointMeters = {};
     }
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
+    update(state: GameEngineState, graphicsContext: GraphicsContext) {
         if (this.actionAnimationTimer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             this.setupActionAnimation(state);
             this.actionAnimationTimer.start();
@@ -126,42 +122,42 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             case ActionAnimationPhase.INITIALIZED:
             case ActionAnimationPhase.BEFORE_ACTION:
             case ActionAnimationPhase.DURING_ACTION:
-                this.drawActionAnimation(state, graphicsContext);
+                this.drawActionAnimation(state.battleOrchestratorState, graphicsContext);
                 break;
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.TARGET_REACTS:
                 if (this.startedShowingResults === false) {
-                    this.updateHitPointMeters(state);
+                    this.updateHitPointMeters(state.battleOrchestratorState);
                     this.startedShowingResults = true;
                 }
-                this.drawActionAnimation(state, graphicsContext);
+                this.drawActionAnimation(state.battleOrchestratorState, graphicsContext);
                 break;
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                this.drawActionAnimation(state, graphicsContext);
+                this.drawActionAnimation(state.battleOrchestratorState, graphicsContext);
                 this.sawResultAftermath = true;
                 break;
         }
     }
 
-    reset(state: BattleOrchestratorState) {
+    reset(state: GameEngineState) {
         this.resetInternalState();
     }
 
-    private setupActionAnimation(state: BattleOrchestratorState) {
+    private setupActionAnimation(state: GameEngineState) {
         this._actorTextWindow = new ActorTextWindow();
         this._weaponIcon = new WeaponIcon();
         this._actorSprite = new ActorSprite();
 
-        const mostRecentResults = RecordingService.mostRecentEvent(state.battleState.recording);
+        const mostRecentResults = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording);
         const {
             battleSquaddie: actorBattle,
             squaddieTemplate: actorTemplate,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
             mostRecentResults.results.actingBattleSquaddieId
         ));
 
         let actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
-        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+        let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
         if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
             return;
         }
@@ -176,27 +172,27 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
 
         this.actorSprite.start({
             actorBattleSquaddieId: actorBattle.battleSquaddieId,
-            squaddieRepository: state.squaddieRepository,
+            squaddieRepository: state.repository,
             resourceHandler: state.resourceHandler,
             startingPosition: (2 * ScreenDimensions.SCREEN_WIDTH / 12) + WINDOW_SPACING1,
             squaddieResult: mostRecentResults.results,
         });
         this.weaponIcon.start();
 
-        const resultPerTarget = RecordingService.mostRecentEvent(state.battleState.recording).results.resultPerTarget;
+        const resultPerTarget = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results.resultPerTarget;
         this.setupAnimationForTargetTextWindows(state, resultPerTarget);
         this.setupAnimationForTargetSprites(state, actionEffectSquaddieTemplate, resultPerTarget);
         this.setupAnimationForTargetHitPointMeters(state);
     }
 
-    private setupAnimationForTargetSprites(state: BattleOrchestratorState, action: ActionEffectSquaddieTemplate, resultPerTarget: {
+    private setupAnimationForTargetSprites(state: GameEngineState, action: ActionEffectSquaddieTemplate, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
-        this._targetSprites = RecordingService.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
+        this._targetSprites = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
             const targetSprite = new TargetSprite();
             targetSprite.start({
                 targetBattleSquaddieId: battleId,
-                squaddieRepository: state.squaddieRepository,
+                squaddieRepository: state.repository,
                 action: action,
                 result: resultPerTarget[battleId],
                 resourceHandler: state.resourceHandler,
@@ -206,16 +202,16 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         });
     }
 
-    private setupAnimationForTargetTextWindows(state: BattleOrchestratorState, resultPerTarget: {
+    private setupAnimationForTargetTextWindows(state: GameEngineState, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
-        this._targetTextWindows = RecordingService.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string) => {
+        this._targetTextWindows = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string) => {
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
-            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleId));
 
-            let squaddieActionEffect = RecordingService.mostRecentEvent(state.battleState.recording).instruction.currentlySelectedDecision.actionEffects[0];
+            let squaddieActionEffect = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).instruction.currentlySelectedDecision.actionEffects[0];
             if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
                 return undefined;
             }
@@ -231,13 +227,13 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         }).filter(x => x);
     }
 
-    private setupAnimationForTargetHitPointMeters(state: BattleOrchestratorState) {
-        const mostRecentResults = RecordingService.mostRecentEvent(state.battleState.recording).results;
-        RecordingService.mostRecentEvent(state.battleState.recording).results.targetedBattleSquaddieIds.forEach((battleId: string, index: number) => {
+    private setupAnimationForTargetHitPointMeters(state: GameEngineState) {
+        const mostRecentResults = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results;
+        RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results.targetedBattleSquaddieIds.forEach((battleId: string, index: number) => {
             const {
                 battleSquaddie: targetBattle,
                 squaddieTemplate: targetTemplate,
-            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleId));
 
             let {
                 currentHitPoints: displayedHitPointsBeforeChange,

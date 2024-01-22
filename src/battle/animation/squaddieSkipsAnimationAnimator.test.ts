@@ -21,7 +21,7 @@ import {
     SquaddieActionsForThisRoundService,
     SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
-import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -31,6 +31,7 @@ import * as ActionResultTextService from "./actionResultTextService";
 import {BattleStateService} from "../orchestrator/battleState";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {DecisionService} from "../../decision/decision";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -124,15 +125,17 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     });
 
     it('will create a text window with the action results', () => {
-        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: squaddieRepository,
+        const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                squaddieCurrentlyActing: monkMeditatesInstruction,
-                recording: battleEventRecording,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    squaddieCurrentlyActing: monkMeditatesInstruction,
+                    recording: battleEventRecording,
+                }),
             }),
+            repository: squaddieRepository,
         })
 
         const outputResultForTextOnlySpy = jest.spyOn(ActionResultTextService.ActionResultTextService, "outputResultForTextOnly");
@@ -153,16 +156,18 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will complete at the end of the display time', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: squaddieRepository,
+        const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                squaddieCurrentlyActing: monkMeditatesInstruction,
-                recording: battleEventRecording,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    squaddieCurrentlyActing: monkMeditatesInstruction,
+                    recording: battleEventRecording,
+                }),
             }),
-        })
+            repository: squaddieRepository,
+        });
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeFalsy();
@@ -175,16 +180,18 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will skip displaying the results if the user clicks', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: squaddieRepository,
+        const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: mockResourceHandler,
-            battleSquaddieSelectedHUD: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                squaddieCurrentlyActing: monkMeditatesInstruction,
-                recording: battleEventRecording,
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    squaddieCurrentlyActing: monkMeditatesInstruction,
+                    recording: battleEventRecording,
+                }),
             }),
-        })
+            repository: squaddieRepository,
+        });
         animator.reset(state);
         animator.update(state, mockedP5GraphicsContext);
         expect(animator.hasCompleted(state)).toBeFalsy();

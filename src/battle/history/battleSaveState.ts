@@ -92,10 +92,11 @@ export const BattleSaveStateHandler = {
     parseJsonIntoBattleSaveStateData: (dataString: string): BattleSaveState => {
         return parseJsonIntoBattleSaveStateData(dataString);
     },
-    newUsingBattleOrchestratorState: ({missionId, battleOrchestratorState, saveVersion}: {
+    newUsingBattleOrchestratorState: ({missionId, battleOrchestratorState, saveVersion, repository}: {
         battleOrchestratorState: BattleOrchestratorState;
         missionId: string,
         saveVersion: number,
+        repository: ObjectRepository,
     }): BattleSaveState => {
         const cameraCoordinates = battleOrchestratorState.battleState.camera.getCoordinates();
 
@@ -103,7 +104,7 @@ export const BattleSaveStateHandler = {
             [squaddieBattleId: string]:
                 InBattleAttributesAndTurn
         } = {};
-        ObjectRepositoryService.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((battleSquaddieInfo) => {
+        ObjectRepositoryService.getBattleSquaddieIterator(repository).forEach((battleSquaddieInfo) => {
             inBattleAttributesBySquaddieBattleId[battleSquaddieInfo.battleSquaddieId] = {
                 inBattleAttributes: battleSquaddieInfo.battleSquaddie.inBattleAttributes,
                 turn: battleSquaddieInfo.battleSquaddie.squaddieTurn,

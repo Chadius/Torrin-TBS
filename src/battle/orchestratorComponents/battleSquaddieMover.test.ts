@@ -21,7 +21,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
-import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {Decision, DecisionService} from "../../decision/decision";
@@ -118,11 +118,11 @@ describe('BattleSquaddieMover', () => {
             ]
         });
 
-        const state: GameEngineState = GameEngineStateHelper.new({
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: squaddieRepo,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
-                squaddieRepository: squaddieRepo,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: map,
@@ -176,17 +176,12 @@ describe('BattleSquaddieMover', () => {
 
             const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
-            let mockResourceHandler = mocks.mockResourceHandler();
-            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
-
             let decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
                 decision: SquaddieActionsForThisRoundService.getMostRecentDecision(newInstruction)
             });
 
             return BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                squaddieRepository: squaddieRepo,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap: map,
@@ -218,12 +213,17 @@ describe('BattleSquaddieMover', () => {
                 ]
             });
 
-            const state: GameEngineState = GameEngineStateHelper.new({
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
+            const state: GameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: setupSquaddie({
                     battleSquaddieId: "player_1",
                     squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     newInstruction: moveAction,
-                })
+                }),
+                repository: squaddieRepo,
+                resourceHandler: mockResourceHandler,
             });
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).not.toBeUndefined();
             player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0;
@@ -257,18 +257,22 @@ describe('BattleSquaddieMover', () => {
                 ]
             });
 
-            const state: GameEngineState = GameEngineStateHelper.new({
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+            const state: GameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: setupSquaddie({
                     battleSquaddieId: "player_1",
                     squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     newInstruction: moveAction,
-                })
+                }),
+                resourceHandler: mockResourceHandler,
+                repository: squaddieRepo,
             });
 
             state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
                 battleId: "player_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
-                state: state.battleOrchestratorState,
+                state: state,
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -299,18 +303,23 @@ describe('BattleSquaddieMover', () => {
                 ]
             });
 
-            const state: GameEngineState = GameEngineStateHelper.new({
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
+            const state: GameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: setupSquaddie({
                     battleSquaddieId: "enemy_1",
                     squaddieAffiliation: SquaddieAffiliation.ENEMY,
                     newInstruction: moveAction,
-                })
+                }),
+                resourceHandler: mockResourceHandler,
+                repository: squaddieRepo,
             });
 
             state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
                 battleId: "enemy_1",
                 repositionWindow: {mouseX: 0, mouseY: 0},
-                state: state.battleOrchestratorState,
+                state: state,
             });
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -357,9 +366,9 @@ describe('BattleSquaddieMover', () => {
                 ].filter(x => x)
             });
 
-            return GameEngineStateHelper.new({
+            return GameEngineStateService.new({
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
                         squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({

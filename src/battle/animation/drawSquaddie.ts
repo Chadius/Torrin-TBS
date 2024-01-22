@@ -20,6 +20,7 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ImageUI} from "../../ui/imageUI";
 import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {MapHighlightHelper} from "./mapHighlight";
+import {Campaign} from "../../campaign/campaign";
 
 export const DrawSquaddieUtilities = {
     tintSquaddieMapIcon: ({
@@ -35,10 +36,11 @@ export const DrawSquaddieUtilities = {
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
         return tintSquaddieMapIcon(repository, squaddieTemplate, battleSquaddie);
     },
-    highlightSquaddieRange: ({missionMap, battleSquaddieId, repository}: {
+    highlightSquaddieRange: ({missionMap, battleSquaddieId, repository, campaign}: {
         missionMap: MissionMap,
         battleSquaddieId: string,
-        repository: ObjectRepository
+        repository: ObjectRepository,
+        campaign: Campaign,
     }) => {
         const {mapLocation} = MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieId);
         const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
@@ -46,6 +48,7 @@ export const DrawSquaddieUtilities = {
             missionMap,
             battleSquaddieId,
             startLocation: mapLocation,
+            campaignResources: campaign.resources,
         })
         missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
     },
@@ -63,8 +66,26 @@ export const DrawSquaddieUtilities = {
         const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
         return updateSquaddieIconLocation(repository, battleSquaddie, destination, camera);
     },
-    highlightPlayableSquaddieReachIfTheyCanAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, repository: ObjectRepository) => {
-        return highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, missionMap, repository);
+    highlightPlayableSquaddieReachIfTheyCanAct: ({
+                                                     battleSquaddie,
+                                                     squaddieTemplate,
+                                                     missionMap,
+                                                     repository,
+                                                     campaign,
+                                                 }: {
+        battleSquaddie: BattleSquaddie,
+        squaddieTemplate: SquaddieTemplate,
+        missionMap: MissionMap,
+        repository: ObjectRepository,
+        campaign: Campaign,
+    }) => {
+        return highlightPlayableSquaddieReachIfTheyCanAct({
+            battleSquaddie,
+            squaddieTemplate,
+            missionMap,
+            repository,
+            campaign,
+        });
     },
     tintSquaddieMapIconIfTheyCannotAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
         return tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
@@ -189,7 +210,21 @@ export const moveSquaddieAlongPath = (squaddieRepository: ObjectRepository, batt
     }
 }
 
-const highlightPlayableSquaddieReachIfTheyCanAct = (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, missionMap: MissionMap, repository: ObjectRepository) => {
+const highlightPlayableSquaddieReachIfTheyCanAct = (
+    {
+        battleSquaddie,
+        squaddieTemplate,
+        missionMap,
+        repository,
+        campaign,
+    }: {
+        battleSquaddie: BattleSquaddie,
+        squaddieTemplate: SquaddieTemplate,
+        missionMap: MissionMap,
+        repository: ObjectRepository,
+        campaign: Campaign,
+    }
+) => {
     let {
         canAct,
     } = SquaddieService.canSquaddieActRightNow({
@@ -211,6 +246,7 @@ const highlightPlayableSquaddieReachIfTheyCanAct = (battleSquaddie: BattleSquadd
         missionMap: missionMap,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
         repository: repository,
+        campaign,
     });
 }
 

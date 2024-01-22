@@ -26,17 +26,6 @@ import {SquaddieResource} from "../../squaddie/resource";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {isValidValue} from "../../utils/validityCheck";
 
-export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
-    "map icon move 1 action",
-    "map icon move 2 actions",
-    "map icon move 3 actions",
-    "map icon attack 1 action"
-];
-
-export const MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS: string[] = [
-    "armor class icon",
-];
-
 export interface MissionLoaderCompletionProgress {
     started: boolean;
     loadedFileData: boolean;
@@ -117,18 +106,6 @@ export const MissionLoader = {
             })
         });
 
-        resourceHandler.loadResources(MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS);
-        missionLoaderContext.resourcesPendingLoading = [
-            ...missionLoaderContext.resourcesPendingLoading,
-            ...MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS,
-        ];
-
-        resourceHandler.loadResources(MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS);
-        missionLoaderContext.resourcesPendingLoading = [
-            ...missionLoaderContext.resourcesPendingLoading,
-            ...MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
-        ];
-
         missionLoaderContext.objectives = missionData.objectives.map(MissionObjectiveHelper.validateMissionObjective);
 
         missionLoaderContext.completionProgress.loadedFileData = true;
@@ -136,10 +113,14 @@ export const MissionLoader = {
         missionLoaderContext.squaddieData.templates = {};
         missionData.enemy.templateIds.forEach(id => missionLoaderContext.squaddieData.templates[id] = undefined);
 
+        const loaderLock = {
+            locked: false,
+        };
         await loadAndPrepareNPCTemplateData({
             missionLoaderContext: missionLoaderContext,
             resourceHandler,
-            repository: repository
+            repository: repository,
+            loaderLock,
         });
 
         createPlayerSquaddieTeam(missionLoaderContext, missionData);
@@ -337,11 +318,20 @@ const loadAndPrepareNPCTemplateData = async ({
                                                  missionLoaderContext,
                                                  resourceHandler,
                                                  repository,
+                                                 loaderLock,
                                              }: {
     missionLoaderContext: MissionLoaderContext;
     resourceHandler: ResourceHandler
     repository: ObjectRepository;
+    loaderLock: {
+        locked: boolean;
+    };
 }) => {
+    if (loaderLock.locked) {
+        return;
+    }
+    loaderLock.locked = true;
+
     let loadedTemplatesById: { [p: string]: SquaddieTemplate } = {};
     const loadedNPCTemplatesById = await loadNPCTemplatesFromFile(Object.keys(missionLoaderContext.squaddieData.templates));
     loadedTemplatesById = {...loadedNPCTemplatesById};

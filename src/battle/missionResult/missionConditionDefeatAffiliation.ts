@@ -1,14 +1,14 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionCondition, MissionConditionCalculator, MissionConditionType} from "./missionCondition";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SquaddieService} from "../../squaddie/squaddieService";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {ObjectRepositoryService} from "../objectRepository";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class MissionConditionDefeatAffiliation implements MissionConditionCalculator {
-    shouldBeComplete(missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean {
-        const isComplete: boolean = state.battleState.missionCompletionStatus[missionObjectiveId].conditions[missionCondition.id];
+    shouldBeComplete(missionCondition: MissionCondition, state: GameEngineState, missionObjectiveId: string): boolean {
+        const isComplete: boolean = state.battleOrchestratorState.battleState.missionCompletionStatus[missionObjectiveId].conditions[missionCondition.id];
         if (isComplete !== undefined) {
             return isComplete;
         }
@@ -21,11 +21,11 @@ export class MissionConditionDefeatAffiliation implements MissionConditionCalcul
         };
         const affiliationToCheck = affiliationByType[missionCondition.type];
 
-        const livingSquaddie = state.battleState.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
+        const livingSquaddie = state.battleOrchestratorState.battleState.missionMap.getAllSquaddieData().find((livingSquaddieDatum: MissionMapSquaddieLocation) => {
             const {
                 squaddieTemplate,
                 battleSquaddie,
-            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, livingSquaddieDatum.battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, livingSquaddieDatum.battleSquaddieId));
 
             if (squaddieTemplate.squaddieId.affiliation !== affiliationToCheck) {
                 return false;

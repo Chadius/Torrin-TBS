@@ -39,7 +39,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
-import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
@@ -172,7 +172,8 @@ describe('BattleSquaddieTarget', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        state = GameEngineStateHelper.new({
+        state = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateService.newBattleState({
@@ -181,9 +182,8 @@ describe('BattleSquaddieTarget', () => {
                     squaddieCurrentlyActing: currentInstruction,
                     recording: {history: []},
                 }),
-                squaddieRepository: squaddieRepo,
-                resourceHandler: mockResourceHandler,
-            })
+            }),
+            repository: squaddieRepo,
         });
     });
 
@@ -309,7 +309,7 @@ describe('BattleSquaddieTarget', () => {
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeFalsy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
     });
 
     it('should remember the squaddie is still acting if they cancel midway through their turn', () => {
@@ -352,7 +352,7 @@ describe('BattleSquaddieTarget', () => {
 
         targetComponent.mouseEventHappened(state, mouseEvent);
         expect(CurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)).toBeTruthy();
+        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeTruthy();
     });
 
     it('should ignore if the user does not click off of the map', () => {
@@ -425,7 +425,8 @@ describe('BattleSquaddieTarget', () => {
 
             });
 
-            state = GameEngineStateHelper.new({
+            state = GameEngineStateService.new({
+                resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                     battleState: BattleStateService.newBattleState({
@@ -434,9 +435,8 @@ describe('BattleSquaddieTarget', () => {
                         squaddieCurrentlyActing: currentInstruction,
                         recording: {history: []}
                     }),
-                    resourceHandler: mockResourceHandler,
-                    squaddieRepository: squaddieRepo,
-                })
+                }),
+                repository: squaddieRepo,
             });
 
             targetComponent.update(state, mockedP5GraphicsContext);
@@ -626,17 +626,17 @@ describe('BattleSquaddieTarget', () => {
 
             });
 
-            state = GameEngineStateHelper.new({
+            state = GameEngineStateService.new({
+                resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                    resourceHandler: mockResourceHandler,
-                    squaddieRepository: squaddieRepo,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         squaddieCurrentlyActing: currentInstruction,
                         missionMap: battleMap,
                     }),
-                })
+                }),
+                repository: squaddieRepo,
             });
 
             targetComponent.update(state, mockedP5GraphicsContext);

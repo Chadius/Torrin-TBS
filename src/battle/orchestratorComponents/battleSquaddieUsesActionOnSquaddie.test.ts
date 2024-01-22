@@ -41,7 +41,7 @@ import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
-import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {Decision, DecisionService} from "../../decision/decision";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
@@ -219,19 +219,21 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 missionMap,
                 recording: battleEventRecording,
             }),
-            squaddieRepository: squaddieRepository,
-            resourceHandler: mockResourceHandler,
         })
+
+        const gameEngineState = GameEngineStateService.new({
+            battleOrchestratorState,
+            repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
+        });
 
         battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
-            state: battleOrchestratorState,
+            state: gameEngineState,
         });
         SquaddieTurnService.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
-        return GameEngineStateHelper.new({
-            battleOrchestratorState,
-        });
+        return gameEngineState;
     }
 
     function usePowerAttackLongswordAndReturnState({missionMap}: {
@@ -296,19 +298,21 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 squaddieCurrentlyActing: squaddieInstructionInProgress,
                 recording: battleEventRecording,
             }),
-            squaddieRepository: squaddieRepository,
-            resourceHandler: mockResourceHandler,
         })
+
+        const gameEngineState = GameEngineStateService.new({
+            battleOrchestratorState,
+            repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
+        });
 
         battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
             battleId: battleSquaddieBase.battleSquaddieId,
             repositionWindow: {mouseX: 0, mouseY: 0},
-            state: battleOrchestratorState,
+            state: gameEngineState,
         });
         SquaddieTurnService.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
-        return GameEngineStateHelper.new({
-            battleOrchestratorState
-        });
+        return gameEngineState;
     }
 
     it('hides dead squaddies after the action animates', () => {
@@ -449,9 +453,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 ].filter(x => x),
             });
 
-            return GameEngineStateHelper.new({
+            return GameEngineStateService.new({
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
                         squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({

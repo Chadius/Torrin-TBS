@@ -18,12 +18,17 @@ import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
-import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
+import {GameEngineGameLoader} from "./gameEngineGameLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
+import {Campaign} from "../campaign/campaign";
+import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
+import {isValidValue} from "../utils/validityCheck";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
     battleOrchestratorState: BattleOrchestratorState;
+    repository: ObjectRepository;
+    resourceHandler: ResourceHandler;
     titleScreenState: TitleScreenState;
     gameSaveFlags: {
         errorDuringLoading: boolean;
@@ -31,21 +36,30 @@ export interface GameEngineState {
         loadRequested: boolean;
         errorDuringSaving: boolean;
         savingInProgress: boolean;
-    }
+    },
+    campaign: Campaign;
+    campaignIdThatWasLoaded: string;
 }
 
-export const GameEngineStateHelper = {
-    new: ({battleOrchestratorState, titleScreenState, resourceHandler, previousMode}: {
+export const GameEngineStateService = {
+    new: ({
+              battleOrchestratorState,
+              titleScreenState,
+              resourceHandler,
+              previousMode,
+              repository,
+              campaign,
+          }: {
         battleOrchestratorState?: BattleOrchestratorState;
         titleScreenState?: TitleScreenState;
         resourceHandler?: ResourceHandler;
         previousMode?: GameModeEnum;
+        campaign?: Campaign;
+        repository?: ObjectRepository;
     }): GameEngineState => {
         return {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
-            battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler,
-            }),
+            battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
             gameSaveFlags: {
                 errorDuringLoading: false,
@@ -54,6 +68,10 @@ export const GameEngineStateHelper = {
                 errorDuringSaving: false,
                 savingInProgress: false,
             },
+            campaign,
+            campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
+            repository,
+            resourceHandler,
         }
     },
     clone: ({original}: { original: GameEngineState }): GameEngineState => {
@@ -62,13 +80,17 @@ export const GameEngineStateHelper = {
             titleScreenState: {...original.titleScreenState},
             battleOrchestratorState: original.battleOrchestratorState.clone(),
             gameSaveFlags: {...original.gameSaveFlags},
+            campaign: {...original.campaign},
+            campaignIdThatWasLoaded: original.campaignIdThatWasLoaded,
+            repository: original.repository,
+            resourceHandler: original.resourceHandler,
         }
     }
 }
 
 export class GameEngine {
     gameEngineState: GameEngineState;
-    battleMissionLoader: GameEngineBattleMissionLoader;
+    gameEngineGameLoader: GameEngineGameLoader;
     private readonly graphicsContext: GraphicsContext;
 
     constructor({graphicsContext, startupMode}: {
@@ -90,7 +112,7 @@ export class GameEngine {
             case GameModeEnum.TITLE_SCREEN:
                 return this.titleScreen;
             case GameModeEnum.LOADING_BATTLE:
-                return this.battleMissionLoader;
+                return this.gameEngineGameLoader;
             case GameModeEnum.BATTLE:
                 return this.battleOrchestrator;
             default:
@@ -117,7 +139,7 @@ export class GameEngine {
     }
 
     setup({graphicsContext}: {
-        graphicsContext: GraphicsContext
+        graphicsContext: GraphicsContext,
     }) {
         this._battleOrchestrator = new BattleOrchestrator({
             initializeBattle: new InitializeBattle(),
@@ -135,8 +157,12 @@ export class GameEngine {
         this.lazyLoadResourceHandler({graphicsContext});
 
         this._titleScreen = new TitleScreen({resourceHandler: this.resourceHandler});
-        this.battleMissionLoader = new GameEngineBattleMissionLoader();
-        this.resetComponentStates(graphicsContext);
+        this.gameEngineGameLoader = undefined;
+        this.resetComponentStates();
+    }
+
+    setCampaignId(campaignId: string) {
+        this.gameEngineGameLoader = new GameEngineGameLoader(campaignId);
     }
 
     async draw() {
@@ -184,10 +210,13 @@ export class GameEngine {
         }
     }
 
-    private resetComponentStates(graphicsContext: GraphicsContext) {
-        this.gameEngineState = GameEngineStateHelper.new({
-            battleOrchestratorState: this.battleOrchestrator.setup({resourceHandler: this.resourceHandler}),
+    private resetComponentStates() {
+        this.gameEngineState = GameEngineStateService.new({
+            battleOrchestratorState: this.battleOrchestrator.setup({}),
             titleScreenState: this.titleScreen.setup(),
+            repository: ObjectRepositoryService.new(),
+            resourceHandler: this.resourceHandler,
+            campaign: undefined,
         });
     }
 
@@ -477,6 +506,7 @@ export class GameEngine {
             saveVersion: SAVE_VERSION,
             missionId: this.gameEngineState.battleOrchestratorState.battleState.missionId,
             battleOrchestratorState: this.gameEngineState.battleOrchestratorState,
+            repository: this.gameEngineState.repository,
         });
         try {
             BattleSaveStateHandler.SaveToFile(saveData);

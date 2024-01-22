@@ -3,12 +3,7 @@ import * as mocks from "../../utils/test/mocks";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionFileFormat, NpcTeam} from "../../dataLoader/missionLoader";
 import * as DataLoader from "../../dataLoader/dataLoader";
-import {
-    MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS,
-    MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS,
-    MissionLoader,
-    MissionLoaderContext
-} from "./missionLoader";
+import {MissionLoader, MissionLoaderContext} from "./missionLoader";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {DEFAULT_VICTORY_CUTSCENE_ID} from "../orchestrator/missionCutsceneCollection";
@@ -20,6 +15,7 @@ import {PlayerArmy} from "../../campaign/playerArmy";
 import {TestArmyPlayerData} from "../../utils/test/army";
 import {CutsceneService} from "../../cutscene/cutscene";
 import {isValidValue} from "../../utils/validityCheck";
+import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 describe('Mission Loader', () => {
     let resourceHandler: ResourceHandler;
@@ -30,8 +26,11 @@ describe('Mission Loader', () => {
     let enemyDemonSlitherTemplate: SquaddieTemplate;
     let enemyDemonSlitherTemplate2: SquaddieTemplate;
     let playerArmy: PlayerArmy;
+    let campaignResources: CampaignResources;
 
     beforeEach(() => {
+        campaignResources = CampaignResourcesService.default({});
+
         resourceHandler = mocks.mockResourceHandler();
         resourceHandler.loadResources = jest.fn();
         resourceHandler.loadResource = jest.fn();
@@ -123,20 +122,6 @@ describe('Mission Loader', () => {
             )
         });
 
-        it('tries to load movement resources for the map', () => {
-            expect(resourceHandler.loadResources).toBeCalledWith(MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS);
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS)
-            );
-        });
-
-        it('tries to load attribute icons for the map', () => {
-            expect(resourceHandler.loadResources).toBeCalledWith(MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS);
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS)
-            );
-        });
-
         it('can extract and validate objectives', () => {
             const clonedObjectives = missionData.objectives.map(obj => {
                 return {...obj}
@@ -178,7 +163,6 @@ describe('Mission Loader', () => {
                 missionData.enemy.mapPlacements.forEach(placement => {
                     const {
                         battleSquaddie,
-                        squaddieTemplate
                     } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, placement.battleSquaddieId));
                     expect(battleSquaddie.battleSquaddieId).toEqual(placement.battleSquaddieId);
                     expect(battleSquaddie.squaddieTemplateId).toEqual(placement.squaddieTemplateId);
@@ -321,7 +305,7 @@ describe('Mission Loader', () => {
 
     it('can reduce the pending resources', () => {
         missionLoaderContext.resourcesPendingLoading = ["A", "B", "C"];
-        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((resourceKey: string) => {
+        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((_: string) => {
             return false;
         });
         MissionLoader.checkResourcesPendingLoading({
@@ -339,7 +323,7 @@ describe('Mission Loader', () => {
         });
         expect(missionLoaderContext.resourcesPendingLoading).toEqual(["B", "C"]);
 
-        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((resourceKey: string) => {
+        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((_: string) => {
             return true;
         });
         MissionLoader.checkResourcesPendingLoading({

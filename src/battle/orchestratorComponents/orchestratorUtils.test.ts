@@ -24,6 +24,7 @@ import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSq
 import {ActionEffect} from "../../decision/actionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 
 describe("Orchestration Utils", () => {
     let knightSquaddieStatic: SquaddieTemplate;
@@ -160,7 +161,7 @@ describe("Orchestration Utils", () => {
 
     describe('isSquaddieCurrentlyTakingATurn', () => {
         let repository: ObjectRepository;
-        let state: BattleOrchestratorState;
+        let state: GameEngineState;
         let moveDecision: Decision;
 
         beforeEach(() => {
@@ -184,15 +185,17 @@ describe("Orchestration Utils", () => {
                 })
             );
 
-            state = new BattleOrchestratorState({
-                squaddieRepository: repository,
-                battleState: BattleStateService.defaultBattleState({
-                    missionId: "missionId"
+            state = GameEngineStateService.new({
+                battleOrchestratorState: new BattleOrchestratorState({
+                    battleState: BattleStateService.defaultBattleState({
+                        missionId: "missionId"
+                    }),
+                    battleSquaddieSelectedHUD: undefined,
+                    decisionActionEffectIterator: undefined,
+                    numberGenerator: undefined,
                 }),
-                battleSquaddieSelectedHUD: undefined,
-                decisionActionEffectIterator: undefined,
-                numberGenerator: undefined,
-                resourceHandler: undefined
+                resourceHandler: undefined,
+                repository: repository,
             });
 
             moveDecision = DecisionService.new({
@@ -207,28 +210,31 @@ describe("Orchestration Utils", () => {
 
         it('is not if there is no state or battle state', () => {
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(undefined)).toBeFalsy();
-            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(new BattleOrchestratorState({
-                squaddieRepository,
-                battleState: undefined,
-                battleSquaddieSelectedHUD: undefined,
-                decisionActionEffectIterator: undefined,
-                numberGenerator: undefined,
-                resourceHandler: undefined
-            }))).toBeFalsy();
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(
+                GameEngineStateService.new({
+                    battleOrchestratorState: new BattleOrchestratorState({
+                        battleState: undefined,
+                        battleSquaddieSelectedHUD: undefined,
+                        decisionActionEffectIterator: undefined,
+                        numberGenerator: undefined,
+                    }),
+                    resourceHandler: undefined,
+                    repository: squaddieRepository,
+                }))).toBeFalsy();
         });
 
         it('is not if there is no squaddie is currently acting', () => {
-            state.battleState.squaddieCurrentlyActing = undefined;
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = undefined;
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
 
-            state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default()
             });
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
 
         it('is if the squaddie is previewing a decision', () => {
-            state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -241,7 +247,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('is if the squaddie already made a decision that does not end the turn', () => {
-            state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -253,7 +259,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('will agree with the squaddie service after finishing its checks', () => {
-            state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -274,7 +280,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('is not if the squaddie already made a decision that does end the turn', () => {
-            state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -294,7 +300,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('is not if the squaddie cancels their first decision before confirming it', () => {
-            state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -303,7 +309,7 @@ describe("Orchestration Utils", () => {
                 }),
                 currentlySelectedDecision: moveDecision,
             });
-            CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleState.squaddieCurrentlyActing);
+            CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
     });
@@ -364,7 +370,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -393,7 +398,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -429,7 +433,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -471,7 +474,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -510,7 +512,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",

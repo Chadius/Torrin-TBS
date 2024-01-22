@@ -20,7 +20,6 @@ import {BattleComputerSquaddieSelector} from "../orchestratorComponents/battleCo
 import {GameEngineChanges, GameEngineComponent} from "../../gameEngine/gameEngineComponent";
 import {MouseButton} from "../../utils/mouseConfig";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ResourceHandler} from "../../resource/resourceHandler";
 import {MissionObjective, MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {BattleCompletionStatus} from "./missionObjectivesAndCutscenes";
@@ -31,7 +30,6 @@ import {GetCutsceneTriggersToActivate} from "../cutscene/missionCutsceneService"
 import {MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
 import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {InitializeBattle} from "./initializeBattle";
-import {ObjectRepositoryService} from "../objectRepository";
 
 export enum BattleOrchestratorMode {
     UNKNOWN = "UNKNOWN",
@@ -300,27 +298,18 @@ export class BattleOrchestrator implements GameEngineComponent {
             });
 
         this.resetInternalState();
-
-        const squaddieRepo = state.battleOrchestratorState.squaddieRepository;
-        if (squaddieRepo) {
-            ObjectRepositoryService.reset(squaddieRepo);
-        }
     }
 
-    setup({
-              resourceHandler
-          }: {
-        resourceHandler: ResourceHandler
-    }): BattleOrchestratorState {
-        return BattleOrchestratorStateService.newOrchestratorState({resourceHandler});
+    setup({}: {}): BattleOrchestratorState {
+        return BattleOrchestratorStateService.newOrchestratorState({});
     }
 
     private setNextComponentMode(state: GameEngineState, currentComponent: BattleOrchestratorComponent, defaultNextMode: BattleOrchestratorMode) {
         const orchestrationChanges: BattleOrchestratorChanges = currentComponent.recommendStateChanges(state);
-        let cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(state.battleOrchestratorState, this.mode);
+        let cutsceneTriggersToActivate = GetCutsceneTriggersToActivate(state, this.mode);
 
         if (orchestrationChanges.checkMissionObjectives === true) {
-            let completionStatus: BattleCompletionStatus = this.checkMissionCompleteStatus(state.battleOrchestratorState);
+            let completionStatus: BattleCompletionStatus = this.checkMissionCompleteStatus(state);
             if (completionStatus) {
                 state.battleOrchestratorState.battleState.battleCompletionStatus = completionStatus;
             }
@@ -335,7 +324,7 @@ export class BattleOrchestrator implements GameEngineComponent {
 
         if (cutsceneTriggersToActivate.length > 0) {
             const nextCutscene = cutsceneTriggersToActivate[0];
-            this.cutscenePlayer.startCutscene(nextCutscene.cutsceneId, state.battleOrchestratorState);
+            this.cutscenePlayer.startCutscene(nextCutscene.cutsceneId, state);
             nextCutscene.systemReactedToTrigger = true;
             this.mode = BattleOrchestratorMode.CUTSCENE_PLAYER;
             return;
@@ -344,15 +333,15 @@ export class BattleOrchestrator implements GameEngineComponent {
         this.mode = orchestrationChanges.nextMode || defaultNextMode;
     }
 
-    private checkMissionCompleteStatus(state: BattleOrchestratorState): BattleCompletionStatus {
-        const defeatObjectives = state.battleState.objectives.find((objective: MissionObjective) =>
+    private checkMissionCompleteStatus(state: GameEngineState): BattleCompletionStatus {
+        const defeatObjectives = state.battleOrchestratorState.battleState.objectives.find((objective: MissionObjective) =>
             objective.reward.rewardType === MissionRewardType.DEFEAT && MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
         if (defeatObjectives) {
             return BattleCompletionStatus.DEFEAT;
         }
 
-        const victoryObjectives = state.battleState.objectives.find((objective: MissionObjective) =>
+        const victoryObjectives = state.battleOrchestratorState.battleState.objectives.find((objective: MissionObjective) =>
             objective.reward.rewardType === MissionRewardType.VICTORY && MissionObjectiveHelper.shouldBeComplete(objective, state) && !objective.hasGivenReward
         );
         if (victoryObjectives) {

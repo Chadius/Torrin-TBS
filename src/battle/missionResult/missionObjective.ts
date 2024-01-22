@@ -1,7 +1,7 @@
 import {MissionReward} from "./missionReward";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {MissionCondition, MissionShouldBeComplete} from "./missionCondition";
 import {MissionCompletionStatus} from "./missionCompletionStatus";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export interface MissionObjective {
     reward: MissionReward;
@@ -27,8 +27,8 @@ export const MissionObjectiveHelper = {
     allConditionsAreRequiredToCompleteObjective: (objective: MissionObjective): boolean => {
         return objective.numberOfRequiredConditionsToComplete === objective.conditions.length;
     },
-    shouldBeComplete: (objective: MissionObjective, state: BattleOrchestratorState): boolean => {
-        const missionCompletionStatus: MissionCompletionStatus = state.battleState.missionCompletionStatus;
+    shouldBeComplete: (objective: MissionObjective, state: GameEngineState): boolean => {
+        const missionCompletionStatus: MissionCompletionStatus = state.battleOrchestratorState.battleState.missionCompletionStatus;
 
         if (missionCompletionStatus[objective.id].isComplete !== undefined) {
             return missionCompletionStatus[objective.id].isComplete;

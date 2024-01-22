@@ -1,5 +1,5 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {MissionConditionDefeatAffiliation} from "./missionConditionDefeatAffiliation";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export enum MissionConditionType {
     DEFEAT_ALL_ENEMIES = "DEFEAT_ALL_ENEMIES",
@@ -14,10 +14,10 @@ export interface MissionCondition {
 }
 
 export interface MissionConditionCalculator {
-    shouldBeComplete(missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean
+    shouldBeComplete(missionCondition: MissionCondition, state: GameEngineState, missionObjectiveId: string): boolean
 }
 
-export const MissionShouldBeComplete = (missionCondition: MissionCondition, state: BattleOrchestratorState, missionObjectiveId: string): boolean => {
+export const MissionShouldBeComplete = (missionCondition: MissionCondition, state: GameEngineState, missionObjectiveId: string): boolean => {
     let calculator: MissionConditionCalculator;
     if (
         [

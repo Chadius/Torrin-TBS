@@ -13,21 +13,33 @@ import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattleCameraHelper} from "../battle/battleCamera";
-import {ObjectRepositoryService} from "../battle/objectRepository";
+import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
+import {Campaign, CampaignService} from "../campaign/campaign";
+import {isValidValue} from "../utils/validityCheck";
+import {CampaignLoaderContext, CampaignLoaderService} from "../dataLoader/campaignLoader";
+import {CampaignResources} from "../campaign/campaignResources";
 
-export class GameEngineBattleMissionLoader implements GameEngineComponent {
+export class GameEngineGameLoader implements GameEngineComponent {
+    campaignLoaderContext: CampaignLoaderContext;
     missionLoaderContext: MissionLoaderContext;
     appliedResources: boolean;
     backupBattleOrchestratorState: BattleOrchestratorState;
     loadedBattleSaveState: BattleSaveState;
     errorFoundWhileLoading: boolean;
+    startedLoading: boolean;
+    finishedLoading: boolean;
 
-    constructor() {
+    constructor(campaignId: string) {
         this.resetInternalFields();
+        this.campaignLoaderContext.campaignIdToLoad = campaignId;
     }
 
     async update(state: GameEngineState) {
-        if (this.missionLoaderContext.completionProgress.started !== true) {
+        if (
+            this.startedLoading === false
+            && this.finishedLoading === false
+        ) {
+            this.startedLoading = true;
             this.backupBattleOrchestratorState = state.battleOrchestratorState.clone();
 
             try {
@@ -36,14 +48,25 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
                 return;
             }
 
-            this.resetBattleOrchestratorState(state.battleOrchestratorState);
-            await this.loadMissionDataFromFile(state.battleOrchestratorState);
+            if (isValidValue(state.repository)) {
+                ObjectRepositoryService.reset(state.repository);
+            }
+
+            if (this.campaignLoaderContext && isValidValue(this.campaignLoaderContext.campaignIdToLoad)) {
+                this.resetBattleOrchestratorState(state.battleOrchestratorState);
+                await this.loadCampaignDataFromFile(this.campaignLoaderContext.campaignIdToLoad, state).then(
+                    async () => {
+                        await this.loadMissionDataFromFile(state.campaign, state, state.repository).then(() => {
+                            this.finishedLoading = true;
+                        });
+                    });
+            }
             return;
         }
 
         MissionLoader.checkResourcesPendingLoading({
             missionLoaderContext: this.missionLoaderContext,
-            resourceHandler: state.battleOrchestratorState.resourceHandler,
+            resourceHandler: state.resourceHandler,
         });
         if (
             this.missionLoaderContext.resourcesPendingLoading.length > 0
@@ -53,8 +76,8 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         } else {
             MissionLoader.assignResourceHandlerResources({
                 missionLoaderContext: this.missionLoaderContext,
-                resourceHandler: state.battleOrchestratorState.resourceHandler,
-                repository: state.battleOrchestratorState.squaddieRepository,
+                resourceHandler: state.resourceHandler,
+                repository: state.repository,
             });
             this.applyMissionLoaderContextToBattleOrchestratorState(state.battleOrchestratorState);
             this.applySaveStateToBattleOrchestratorState(state);
@@ -75,8 +98,12 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             return true;
         }
 
-        return this.missionLoaderContext.completionProgress.started
-            && this.missionLoaderContext.completionProgress.loadedFileData
+        const campaignHasFinishedLoading: boolean = isValidValue(this.campaignLoaderContext.campaignIdToLoad) && isValidValue(state.campaign);
+        const missionHasFinishedLoading: boolean = this.missionLoaderContext.completionProgress.started
+            && this.missionLoaderContext.completionProgress.loadedFileData;
+
+        return campaignHasFinishedLoading
+            && missionHasFinishedLoading
             && this.appliedResources;
     }
 
@@ -110,12 +137,12 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             BattleSaveStateHandler.applySaveStateToOrchestratorState({
                 battleSaveState: this.loadedBattleSaveState,
                 battleOrchestratorState: battleOrchestratorState,
-                squaddieRepository: battleOrchestratorState.squaddieRepository,
+                squaddieRepository: gameEngineState.repository,
             });
 
             if (battleOrchestratorState.isValid) {
                 this.backupBattleOrchestratorState = undefined;
-                this.addMidTurnEffects(battleOrchestratorState);
+                this.addMidTurnEffects(gameEngineState.repository);
             } else {
                 console.error("Save file is incompatible. Reverting.");
                 battleOrchestratorState.copyOtherOrchestratorState(this.backupBattleOrchestratorState);
@@ -165,43 +192,66 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         });
     }
 
-    private async loadMissionDataFromFile(battleOrchestratorState: BattleOrchestratorState) {
+    private async loadMissionDataFromFile(campaign: Campaign, state: GameEngineState, repository: ObjectRepository) {
         await MissionLoader.loadMissionFromFile({
             missionLoaderContext: this.missionLoaderContext,
-            missionId: "0000",
-            resourceHandler: battleOrchestratorState.resourceHandler,
-            repository: battleOrchestratorState.squaddieRepository,
+            missionId: CampaignService.getNextMissionId(campaign),
+            resourceHandler: state.resourceHandler,
+            repository: repository,
         }).then(async () => {
             await MissionLoader.loadPlayerArmyFromFile({
                 missionLoaderContext: this.missionLoaderContext,
-                resourceHandler: battleOrchestratorState.resourceHandler,
-                squaddieRepository: battleOrchestratorState.squaddieRepository,
+                resourceHandler: state.resourceHandler,
+                squaddieRepository: repository,
             });
         });
     }
 
+    private async loadCampaignDataFromFile(campaignId: string, state: GameEngineState) {
+        if (state.campaignIdThatWasLoaded === campaignId) {
+            return;
+        }
+
+        const campaignData = await CampaignLoaderService.loadCampaignFromFile(campaignId);
+        const campaignResources: CampaignResources = campaignData.resources;
+        state.resourceHandler.loadResources(Object.values(campaignResources.missionMapMovementIconResourceKeys));
+        state.resourceHandler.loadResources(Object.values(campaignResources.missionMapAttackIconResourceKeys));
+        state.resourceHandler.loadResources(Object.values(campaignResources.missionAttributeIconResourceKeys));
+        this.campaignLoaderContext.resourcesPendingLoading = [
+            ...this.campaignLoaderContext.resourcesPendingLoading,
+            ...Object.values(campaignResources.missionMapMovementIconResourceKeys),
+            ...Object.values(campaignResources.missionMapAttackIconResourceKeys),
+            ...Object.values(campaignResources.missionAttributeIconResourceKeys),
+        ];
+        state.campaignIdThatWasLoaded = campaignData.id;
+        state.campaign = campaignData;
+    }
+
     private resetBattleOrchestratorState(state: BattleOrchestratorState) {
         state.copyOtherOrchestratorState(
-            BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: (state as BattleOrchestratorState).resourceHandler,
-            })
+            BattleOrchestratorStateService.newOrchestratorState({})
         );
     }
 
     private resetInternalFields() {
+        this.startedLoading = false;
+        this.finishedLoading = false;
         this.missionLoaderContext = MissionLoader.newEmptyMissionLoaderContext();
+        this.campaignLoaderContext = isValidValue(this.campaignLoaderContext)
+            ? this.campaignLoaderContext
+            : CampaignLoaderService.newLoaderContext();
         this.appliedResources = false;
         this.backupBattleOrchestratorState = undefined;
         this.loadedBattleSaveState = undefined;
         this.errorFoundWhileLoading = false;
     }
 
-    private addMidTurnEffects(battleOrchestratorState: BattleOrchestratorState) {
-        ObjectRepositoryService.getBattleSquaddieIterator(battleOrchestratorState.squaddieRepository).forEach((info) => {
+    private addMidTurnEffects(repository: ObjectRepository) {
+        ObjectRepositoryService.getBattleSquaddieIterator(repository).forEach((info) => {
             const {battleSquaddie, battleSquaddieId} = info;
             const {squaddieTemplate} = getResultOrThrowError(
-                ObjectRepositoryService.getSquaddieByBattleId(battleOrchestratorState.squaddieRepository, battleSquaddieId));
-            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, battleOrchestratorState.squaddieRepository);
+                ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieId));
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
         });
     }
 
