@@ -118,6 +118,7 @@ export const MissionLoader = {
             })
         });
 
+        // TODO move this into a campaign loading file
         const campaignResources: CampaignResources = CampaignResourcesService.default({});
         resourceHandler.loadResources(Object.values(campaignResources.missionMapMovementIconResourceKeys));
         resourceHandler.loadResources(Object.values(campaignResources.missionMapAttackIconResourceKeys));

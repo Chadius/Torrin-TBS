@@ -101,7 +101,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         this._squaddieActionAnimator = undefined;
         this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
-        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
+        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
         MaybeEndSquaddieTurn(state.battleOrchestratorState);
     }
 
@@ -119,7 +119,13 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
                     state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
                 )
             )
-            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.battleState.missionMap, state.battleOrchestratorState.squaddieRepository);
+            DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
+                battleSquaddie,
+                squaddieTemplate,
+                missionMap: state.battleOrchestratorState.battleState.missionMap,
+                repository: state.battleOrchestratorState.squaddieRepository,
+                campaign: state.campaign,
+            });
             DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.squaddieRepository);
 
             CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);

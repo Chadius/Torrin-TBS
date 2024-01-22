@@ -305,7 +305,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
             switch (actionEffect.type) {
                 case ActionEffectType.MOVEMENT:
-                    createSearchPath(state.battleOrchestratorState, squaddieTemplate, battleSquaddie, actionEffect.destination);
+                    createSearchPath(state, squaddieTemplate, battleSquaddie, actionEffect.destination);
                     OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
                         missionMap: state.battleOrchestratorState.battleState.missionMap,

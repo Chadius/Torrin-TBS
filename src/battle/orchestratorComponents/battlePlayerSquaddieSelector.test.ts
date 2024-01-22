@@ -49,6 +49,7 @@ import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattlePhaseState} from "./battlePhaseController";
 import SpyInstance = jest.SpyInstance;
+import {CampaignService} from "../../campaign/campaign";
 
 describe('BattleSquaddieSelector', () => {
     let selector: BattlePlayerSquaddieSelector = new BattlePlayerSquaddieSelector();
@@ -239,6 +240,7 @@ describe('BattleSquaddieSelector', () => {
                 battleSquaddieSelectedHUD: mockHud,
                 squaddieRepository: squaddieRepo,
             }),
+            campaign: CampaignService.default({}),
         });
 
         const enemyLocation = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates())
@@ -314,7 +316,8 @@ describe('BattleSquaddieSelector', () => {
                     teams,
                     recording: {history: []},
                 }),
-            })
+            }),
+            campaign: CampaignService.default({}),
         });
 
         let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
@@ -417,7 +420,8 @@ describe('BattleSquaddieSelector', () => {
                         squaddieCurrentlyActing,
                         recording: {history: []},
                     }),
-                })
+                }),
+                campaign: CampaignService.default({}),
             });
 
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
@@ -742,7 +746,8 @@ describe('BattleSquaddieSelector', () => {
                         recording: {history: []},
                         squaddieCurrentlyActing: soldierCurrentlyActing,
                     }),
-                })
+                }),
+                campaign: CampaignService.default({}),
             });
 
             const [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
@@ -900,7 +905,8 @@ describe('BattleSquaddieSelector', () => {
                     squaddieCurrentlyActing: currentlySelectedDecision,
                     recording: {history: []},
                 }),
-            })
+            }),
+            campaign: CampaignService.default({}),
         });
 
         let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());

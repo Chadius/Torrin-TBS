@@ -21,6 +21,7 @@ import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterato
 import {Decision} from "../../decision/decision";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: BattleOrchestratorState): boolean => {
@@ -86,7 +87,7 @@ export const OrchestratorUtilities = {
     resetCurrentlyActingSquaddieIfTheSquaddieCannotAct: (state: BattleOrchestratorState) => {
         return ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     },
-    drawSquaddieReachBasedOnSquaddieTurnAndAffiliation: (state: BattleOrchestratorState) => {
+    drawSquaddieReachBasedOnSquaddieTurnAndAffiliation: (state: GameEngineState) => {
         return DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
     }
 }
@@ -213,22 +214,22 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: BattleOrc
     }
 }
 
-export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: BattleOrchestratorState) => {
+export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: GameEngineState) => {
     if (
-        !state.battleState.squaddieCurrentlyActing
-        || isSquaddieCurrentlyTakingATurn(state)
+        !state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        || isSquaddieCurrentlyTakingATurn(state.battleOrchestratorState)
     ) {
         return;
     }
 
-    const currentlyActingBattleSquaddieId = CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+    const currentlyActingBattleSquaddieId = CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
     if (!isValidValue(currentlyActingBattleSquaddieId) || currentlyActingBattleSquaddieId === "") {
         return;
     }
 
     const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
-            CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+        ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository,
+            CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
         )
     );
 
@@ -237,19 +238,18 @@ export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: Battle
         battleSquaddie
     })
     if (playerCanControlThisSquaddieRightNow) {
-        state.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 
-        const campaignResources: CampaignResources = CampaignResourcesService.default({});
-        const {mapLocation: startLocation} = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId)
+        const {mapLocation: startLocation} = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId)
         const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
-            repository: state.squaddieRepository,
-            missionMap: state.battleState.missionMap,
+            repository: state.battleOrchestratorState.squaddieRepository,
+            missionMap: state.battleOrchestratorState.battleState.missionMap,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             startLocation: startLocation,
-            campaignResources,
+            campaignResources: state.campaign.resources,
         });
 
-        state.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
+        state.battleOrchestratorState.battleState.missionMap.terrainTileMap.highlightTiles(squaddieReachHighlightedOnMap);
     }
 }
 

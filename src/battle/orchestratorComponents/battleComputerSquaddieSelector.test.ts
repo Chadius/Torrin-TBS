@@ -54,6 +54,7 @@ import {ActionEffectMovement, ActionEffectMovementService} from "../../decision/
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
+import {CampaignService} from "../../campaign/campaign";
 
 describe('BattleComputerSquaddieSelector', () => {
     let selector: BattleComputerSquaddieSelector = new BattleComputerSquaddieSelector();
@@ -520,7 +521,8 @@ describe('BattleComputerSquaddieSelector', () => {
                                 }],
                         },
                     })
-                })
+                }),
+                campaign: CampaignService.default({}),
             });
 
             jest.spyOn(determineNextInstruction, "DetermineNextDecision").mockReturnValue(moveAction);
