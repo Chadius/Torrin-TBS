@@ -7,7 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {drawHexMap} from "../../hexMap/hexDrawingUtils";
-import {drawSquaddieMapIconAtMapLocation} from "../animation/drawSquaddie";
+import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -17,6 +17,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {ActionEffectType} from "../../decision/actionEffect";
+import {isValidValue} from "../../utils/validityCheck";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: GameEngineState, graphicsContext: GraphicsContext): void {
@@ -26,7 +27,8 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             drawHexMap(graphicsContext, state.battleOrchestratorState.battleState.missionMap.terrainTileMap, ...state.battleOrchestratorState.battleState.camera.getCoordinates());
         }
 
-        this.drawSquaddieMapIcons(state.battleOrchestratorState, graphicsContext);
+        let battleSquaddieIdsToOmit = getCurrentlyMovingBattleSquaddieIds(state);
+        this.drawSquaddieMapIcons(state.battleOrchestratorState, graphicsContext, battleSquaddieIdsToOmit);
         state.battleOrchestratorState.battleState.camera.moveCamera();
 
         state.battleOrchestratorState.battleSquaddieSelectedHUD.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, graphicsContext);
@@ -130,17 +132,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     reset(state: GameEngineState) {
     }
 
-    private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
-        const noSquaddieIsCurrentlyActing: boolean = state.battleState.squaddieCurrentlyActing === undefined;
-        let currentlyMovingSquaddieId: string = undefined;
-        if (
-            !noSquaddieIsCurrentlyActing
-            && DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator)
-            && DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator).type === ActionEffectType.MOVEMENT
-        ) {
-            currentlyMovingSquaddieId = state.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;
-        }
-
+    private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext, battleSquaddieIdsToOmit: string[]) {
         ObjectRepositoryService.getBattleSquaddieIterator(state.squaddieRepository)
             .filter((info) =>
                 info.battleSquaddieId in state.squaddieRepository.imageUIByBattleSquaddieId
@@ -148,16 +140,33 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
             .forEach((info) => {
                 const {battleSquaddie, battleSquaddieId} = info;
 
-                if (noSquaddieIsCurrentlyActing
-                    || battleSquaddieId !== currentlyMovingSquaddieId) {
+                if (!battleSquaddieIdsToOmit.includes(battleSquaddieId)) {
                     const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
                     const squaddieIsOnTheMap: boolean = MissionMapSquaddieLocationHandler.isValid(datum) && state.battleState.missionMap.areCoordinatesOnMap(datum.mapLocation);
                     const squaddieIsHidden: boolean = state.battleState.missionMap.isSquaddieHiddenFromDrawing(battleSquaddieId);
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
-                        drawSquaddieMapIconAtMapLocation(graphicsContext, state.squaddieRepository, battleSquaddie, battleSquaddieId, datum.mapLocation, state.battleState.camera);
+                        DrawSquaddieUtilities.drawSquaddieMapIconAtMapLocation(graphicsContext, state.squaddieRepository, battleSquaddie, battleSquaddieId, datum.mapLocation, state.battleState.camera);
                     }
                 }
             });
     }
 }
+
+const getCurrentlyMovingBattleSquaddieIds = (state: GameEngineState) => {
+    if (state.battleOrchestratorState.battleState.squaddieCurrentlyActing === undefined) {
+        return [];
+    }
+
+    const nextActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
+    if (!isValidValue(nextActionEffect)) {
+        return [];
+    }
+
+    let battleSquaddieIdsToOmit: string[] = [];
+    if (nextActionEffect.type === ActionEffectType.MOVEMENT) {
+        battleSquaddieIdsToOmit.push(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId);
+    }
+
+    return battleSquaddieIdsToOmit;
+};

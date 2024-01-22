@@ -47,10 +47,10 @@ import {OrchestratorUtilities} from "./orchestratorUtils";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {MissionMapService} from "../../missionMap/missionMap";
 import {isValidValue} from "../../utils/validityCheck";
+import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
-
 
 export class BattleComputerSquaddieSelector implements BattleOrchestratorComponent {
     mostRecentDecision: Decision;
@@ -97,6 +97,13 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             && BattleSquaddieTeamService.hasAnActingSquaddie(currentTeam, state.battleOrchestratorState.squaddieRepository)
             && !BattleSquaddieTeamService.canPlayerControlAnySquaddieOnThisTeamRightNow(currentTeam, state.battleOrchestratorState.squaddieRepository)) {
             this.askComputerControlSquaddie(state);
+        }
+
+        if (
+            state.battleOrchestratorState.battleState.camera.isPanning()
+            && this.mostRecentDecision !== undefined
+        ) {
+            drawSquaddieAtInitialPositionAsCameraPans(state, graphicsContext);
         }
     }
 
@@ -356,4 +363,22 @@ const populateCurrentlySelectedSquaddie = (state: GameEngineState, battleSquaddi
             }),
         });
     }
+};
+
+const drawSquaddieAtInitialPositionAsCameraPans = (state: GameEngineState, graphicsContext: GraphicsContext) => {
+    const startLocation = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.startingLocation;
+    const battleSquaddieId = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;
+    const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(
+        state.battleOrchestratorState.squaddieRepository,
+        battleSquaddieId
+    ));
+
+    DrawSquaddieUtilities.drawSquaddieMapIconAtMapLocation(
+        graphicsContext,
+        state.battleOrchestratorState.squaddieRepository,
+        battleSquaddie,
+        battleSquaddieId,
+        startLocation,
+        state.battleOrchestratorState.battleState.camera
+    );
 };

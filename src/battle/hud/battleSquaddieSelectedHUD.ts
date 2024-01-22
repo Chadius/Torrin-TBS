@@ -785,7 +785,7 @@ export class BattleSquaddieSelectedHUD {
 
         const loadButtonArea = RectAreaService.new({
             top: RectAreaService.centerY(windowDimensions) + WINDOW_SPACING1,
-            height: windowDimensions.height / 2 - WINDOW_SPACING2,
+            height: windowDimensions.height / 2 - WINDOW_SPACING1,
             screenWidth: ScreenDimensions.SCREEN_WIDTH,
             startColumn: 4,
             endColumn: 4,

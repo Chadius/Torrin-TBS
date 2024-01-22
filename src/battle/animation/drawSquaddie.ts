@@ -68,7 +68,10 @@ export const DrawSquaddieUtilities = {
     },
     tintSquaddieMapIconIfTheyCannotAct: (battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, repository: ObjectRepository) => {
         return tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, repository);
-    }
+    },
+    drawSquaddieMapIconAtMapLocation: (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
+        return drawSquaddieMapIconAtMapLocation(graphicsContext, squaddieRepository, battleSquaddie, battleSquaddieId, mapLocation, camera);
+    },
 }
 
 const tintSquaddieMapIcon = (squaddieRepository: ObjectRepository, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie) => {
@@ -86,7 +89,7 @@ export const unTintSquaddieMapIcon = (squaddieRepository: ObjectRepository, batt
     }
 }
 
-export const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
+const drawSquaddieMapIconAtMapLocation = (graphicsContext: GraphicsContext, squaddieRepository: ObjectRepository, battleSquaddie: BattleSquaddie, battleSquaddieId: string, mapLocation: HexCoordinate, camera: BattleCamera) => {
     const xyCoords: [number, number] = convertMapCoordinatesToScreenCoordinates(
         mapLocation.q, mapLocation.r, ...camera.getCoordinates())
     const mapIcon = squaddieRepository.imageUIByBattleSquaddieId[battleSquaddie.battleSquaddieId];
