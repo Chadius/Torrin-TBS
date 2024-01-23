@@ -1,16 +1,16 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {OrchestratorComponentMouseEvent} from "../orchestrator/battleOrchestratorComponent";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
+import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export interface SquaddieActionAnimator {
-    hasCompleted(state: BattleOrchestratorState): boolean;
+    hasCompleted(state: GameEngineState): boolean;
 
-    mouseEventHappened(state: BattleOrchestratorState, mouseEvent: OrchestratorComponentMouseEvent): void;
+    mouseEventHappened(state: GameEngineState, mouseEvent: OrchestratorComponentMouseEvent): void;
 
-    start(state: BattleOrchestratorState): void;
+    start(state: GameEngineState): void;
 
-    update(state: BattleOrchestratorState, graphicsContext: GraphicsContext): void;
+    update(state: GameEngineState, graphicsContext: GraphicsContext): void;
 
-    reset(state: BattleOrchestratorState): void;
+    reset(state: GameEngineState): void;
 }
 

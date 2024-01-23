@@ -27,17 +27,6 @@ import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {isValidValue} from "../../utils/validityCheck";
 import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
-export const MISSION_MAP_MOVEMENT_ICON_RESOURCE_KEYS: string[] = [
-    "map icon move 1 action",
-    "map icon move 2 actions",
-    "map icon move 3 actions",
-    "map icon attack 1 action"
-];
-
-export const MISSION_ATTRIBUTE_ICON_RESOURCE_KEYS: string[] = [
-    "armor class icon",
-];
-
 export interface MissionLoaderCompletionProgress {
     started: boolean;
     loadedFileData: boolean;

@@ -60,7 +60,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, actingBattleSquaddieId));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, actingBattleSquaddieId));
 
         const validActions = squaddieTemplate.actions.filter((action) => {
             return SquaddieTurnService.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
@@ -93,7 +93,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
         if (this.desiredAffiliation !== SquaddieAffiliation.UNKNOWN) {
             const squaddiesOfDesiredAffiliation = targetingResults.battleSquaddieIdsInRange.filter((battleId) => {
-                const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleId))
+                const {squaddieTemplate: targetSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleId))
                 return targetSquaddieTemplate.squaddieId.affiliation === this.desiredAffiliation;
             });
 
@@ -136,7 +136,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 action: action,
                 actingSquaddieTemplate: squaddieTemplate,
                 actingBattleSquaddie: battleSquaddie,
-                squaddieRepository: state.squaddieRepository,
+                squaddieRepository: state.repository,
             });
 
             if (results.battleSquaddieIdsInRange.length > 0) {

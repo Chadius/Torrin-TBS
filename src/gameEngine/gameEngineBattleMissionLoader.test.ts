@@ -22,7 +22,7 @@ import {BattleSquaddieSelectedHUD} from "../battle/hud/battleSquaddieSelectedHUD
 import {BattleCompletionStatus} from "../battle/orchestrator/missionObjectivesAndCutscenes";
 import {BattlePhase} from "../battle/orchestratorComponents/battlePhaseTracker";
 import {TitleScreenStateHelper} from "../titleScreen/titleScreenState";
-import {GameEngineState, GameEngineStateHelper} from "./gameEngine";
+import {GameEngineState, GameEngineStateService} from "./gameEngine";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {TestMissionData} from "../utils/test/missionData";
 import {TestArmyPlayerData} from "../utils/test/army";
@@ -51,10 +51,10 @@ describe('GameEngineBattleMissionLoader', () => {
         resourceHandler.isResourceLoaded = jest.fn().mockReturnValue(true);
         squaddieRepository = ObjectRepositoryService.new();
 
-        state = GameEngineStateHelper.new({
+        state = GameEngineStateService.new({
+            repository: squaddieRepository,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler,
-                squaddieRepository,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "",
@@ -120,7 +120,7 @@ describe('GameEngineBattleMissionLoader', () => {
 
         beforeEach(async () => {
             await loader.update(state);
-            squaddieRepositorySize = ObjectRepositoryService.getBattleSquaddieIterator(state.battleOrchestratorState.squaddieRepository).length;
+            squaddieRepositorySize = ObjectRepositoryService.getBattleSquaddieIterator(state.repository).length;
             await loader.update(state);
         });
 
@@ -173,7 +173,7 @@ describe('GameEngineBattleMissionLoader', () => {
         });
 
         it('squaddies', () => {
-            expect(ObjectRepositoryService.getSquaddieTemplateIterator(state.battleOrchestratorState.squaddieRepository).length).toBeGreaterThan(0);
+            expect(ObjectRepositoryService.getSquaddieTemplateIterator(state.repository).length).toBeGreaterThan(0);
             expect(state.battleOrchestratorState.battleState.teams.length).toBeGreaterThan(0);
 
             expect(state.battleOrchestratorState.battleState.teams.some(
@@ -187,7 +187,7 @@ describe('GameEngineBattleMissionLoader', () => {
                 missionData.enemy.teams[0].strategies
             );
 
-            expect(Object.keys(state.battleOrchestratorState.squaddieRepository.imageUIByBattleSquaddieId)).toHaveLength(squaddieRepositorySize);
+            expect(Object.keys(state.repository.imageUIByBattleSquaddieId)).toHaveLength(squaddieRepositorySize);
         });
 
         it('cutscenes', () => {
@@ -250,11 +250,11 @@ describe('GameEngineBattleMissionLoader', () => {
                 loadedBattleSaveState
             );
 
-            originalState = GameEngineStateHelper.new({
+            originalState = GameEngineStateService.new({
+                repository: squaddieRepository,
                 previousMode: GameModeEnum.BATTLE,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        squaddieRepository,
                         resourceHandler,
                         battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                         battleState: BattleStateService.newBattleState({
@@ -294,7 +294,7 @@ describe('GameEngineBattleMissionLoader', () => {
                 campaign: CampaignService.default({}),
             });
             originalState.gameSaveFlags.loadRequested = true;
-            currentState = GameEngineStateHelper.clone({original: originalState});
+            currentState = GameEngineStateService.clone({original: originalState});
         });
 
         it('will backup the battle orchestrator state', async () => {
@@ -432,20 +432,20 @@ describe('GameEngineBattleMissionLoader', () => {
                 loadedBattleSaveState
             );
 
-            originalState = GameEngineStateHelper.new({
+            originalState = GameEngineStateService.new({
+                repository: ObjectRepositoryService.new(),
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler,
-                    squaddieRepository: ObjectRepositoryService.new(),
                 }),
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default({}),
             });
             originalState.gameSaveFlags.loadRequested = true;
-            currentState = GameEngineStateHelper.new({
+            currentState = GameEngineStateService.new({
+                repository: ObjectRepositoryService.new(),
                 previousMode: GameModeEnum.TITLE_SCREEN,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     resourceHandler,
-                    squaddieRepository: ObjectRepositoryService.new(),
                 }),
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default({}),

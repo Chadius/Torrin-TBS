@@ -36,8 +36,8 @@ export class InitializeBattle implements BattleOrchestratorComponent {
                 const {
                     battleSquaddie,
                     squaddieTemplate,
-                } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.battleOrchestratorState.squaddieRepository, battleId))
-                DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.squaddieRepository);
+                } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleId))
+                DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
             });
         });
     }

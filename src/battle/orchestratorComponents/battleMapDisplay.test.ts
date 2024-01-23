@@ -12,7 +12,7 @@ import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleStateService} from "../orchestrator/battleState";
-import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 
 describe('battleMapDisplay', () => {
     let battleMapDisplay: BattleMapDisplay;
@@ -36,9 +36,9 @@ describe('battleMapDisplay', () => {
         camera.setXVelocity = jest.fn();
         camera.setYVelocity = jest.fn();
 
-        const state: GameEngineState = GameEngineStateHelper.new({
+        const state: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: undefined,
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateService.newBattleState({
@@ -65,10 +65,10 @@ describe('battleMapDisplay', () => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
 
-            state = GameEngineStateHelper.new({
+            state = GameEngineStateService.new({
+                repository: undefined,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        squaddieRepository: squaddieRepo,
                         battleSquaddieSelectedHUD,
                         resourceHandler: undefined,
                         battleState: BattleStateService.newBattleState({
@@ -130,7 +130,6 @@ describe('battleMapDisplay', () => {
             battleSquaddieSelectedHUD.shouldDrawTheHUD = jest.fn().mockReturnValue(false);
 
             state = BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: squaddieRepo,
                 battleSquaddieSelectedHUD,
                 resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
@@ -193,16 +192,6 @@ describe('battleMapDisplay', () => {
         beforeEach(() => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
-
-            state = BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: squaddieRepo,
-                battleSquaddieSelectedHUD,
-                resourceHandler: undefined,
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    camera,
-                })
-            });
         });
 
         type CameraTest = {
@@ -235,7 +224,6 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,
             battleState: BattleStateService.newBattleState({
@@ -254,23 +242,12 @@ describe('battleMapDisplay', () => {
     });
 
     describe('will horizontally scroll the camera if the HUD is open but only at the extreme edge', () => {
-        let state: BattleOrchestratorState;
         let camera: BattleCamera;
         let initialCameraCoordinates: number[];
 
         beforeEach(() => {
             initialCameraCoordinates = [0, -ScreenDimensions.SCREEN_HEIGHT];
             camera = new BattleCamera(...initialCameraCoordinates)
-
-            state = BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: squaddieRepo,
-                battleSquaddieSelectedHUD,
-                resourceHandler: undefined,
-                battleState: BattleStateService.newBattleState({
-                    missionId: "test mission",
-                    camera,
-                })
-            });
         });
 
         type CameraTest = {
@@ -316,7 +293,6 @@ describe('battleMapDisplay', () => {
         );
 
         const stateWithOpenedHUD = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: squaddieRepo,
             battleSquaddieSelectedHUD: hudIsOpen,
             resourceHandler: undefined,
             battleState: BattleStateService.newBattleState({

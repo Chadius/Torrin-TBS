@@ -10,6 +10,7 @@ import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleS
 import {MissionObjectiveHelper} from "../battle/missionResult/missionObjective";
 import {MissionRewardType} from "../battle/missionResult/missionReward";
 import {MissionConditionType} from "../battle/missionResult/missionCondition";
+import {ObjectRepositoryService} from "../battle/objectRepository";
 
 describe('Game Engine', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -125,6 +126,7 @@ describe('Game Engine', () => {
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionMap = NullMissionMap();
             newGameEngine.gameEngineState.gameSaveFlags.savingInProgress = true;
             newGameEngine.gameEngineState.battleOrchestratorState.battleState.missionId = "save with this mission id";
+            newGameEngine.gameEngineState.repository = ObjectRepositoryService.new();
             const saveSpy = jest.spyOn(BattleSaveStateHandler, "SaveToFile").mockReturnValue(null);
 
             await newGameEngine.update({graphicsContext: mockedP5GraphicsContext});

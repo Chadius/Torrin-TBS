@@ -8,7 +8,6 @@ describe("BattleOrchestratorStateSubstitution", () => {
     it('can substitute the same token multiple times in the same input', () => {
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: undefined,
-            squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
@@ -33,7 +32,6 @@ describe("BattleOrchestratorStateSubstitution", () => {
             }),
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: undefined,
         });
 
         const newText = SubstituteTextUsingBattleOrchestraState(
@@ -54,7 +52,6 @@ describe("BattleOrchestratorStateSubstitution", () => {
             }),
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: undefined,
         });
 
         const newText = SubstituteTextUsingBattleOrchestraState(
@@ -78,7 +75,6 @@ describe("BattleOrchestratorStateSubstitution", () => {
             battleState = BattleOrchestratorStateService.newOrchestratorState({
                 resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
-                squaddieRepository: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionStatistics: {
@@ -110,7 +106,6 @@ describe("BattleOrchestratorStateSubstitution", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: undefined,
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {
@@ -130,7 +125,6 @@ describe("BattleOrchestratorStateSubstitution", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: undefined,
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {
@@ -150,7 +144,6 @@ describe("BattleOrchestratorStateSubstitution", () => {
         const battleState = BattleOrchestratorStateService.newOrchestratorState({
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
-            squaddieRepository: undefined,
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
                 missionStatistics: {

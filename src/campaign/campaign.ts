@@ -10,7 +10,7 @@ export interface Campaign {
 export const CampaignService = {
     new: ({
               missionIds
-    }: {
+          }: {
         missionIds?: string[],
     }): Campaign => {
         return {

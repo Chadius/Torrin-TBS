@@ -1,4 +1,3 @@
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetNumberOfActionPoints, SquaddieService} from "../../squaddie/squaddieService";
@@ -19,7 +18,6 @@ import {MapHighlightHelper} from "../animation/mapHighlight";
 import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {DecisionService} from "../../decision/decision";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
-import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export function createSearchPath(state: GameEngineState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
@@ -43,7 +41,7 @@ export function createSearchPath(state: GameEngineState, squaddieTemplate: Squad
             numberOfActions: actionPointsRemaining,
         }),
         missionMap: state.battleOrchestratorState.battleState.missionMap,
-        repository: state.battleOrchestratorState.squaddieRepository,
+        repository: state.repository,
     });
 
     const closestRoute: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, clickedHexCoordinate.q, clickedHexCoordinate.r);
@@ -58,7 +56,7 @@ export function createSearchPath(state: GameEngineState, squaddieTemplate: Squad
     const routeTilesByDistance = MapHighlightHelper.convertSearchPathToHighlightLocations({
         searchPath: closestRoute,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
-        repository: state.battleOrchestratorState.squaddieRepository,
+        repository: state.repository,
         campaignResources: state.campaign.resources,
     });
     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
@@ -67,15 +65,15 @@ export function createSearchPath(state: GameEngineState, squaddieTemplate: Squad
     state.battleOrchestratorState.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
 }
 
-export function AddMovementInstruction(state: BattleOrchestratorState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinate) {
+export function AddMovementInstruction(state: GameEngineState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, destinationHexCoordinate: HexCoordinate) {
     MaybeCreateSquaddieInstruction(state, battleSquaddie, squaddieTemplate);
 
     const locationsByMoveActions: {
         [movementActions: number]: LocationTraveled[]
     } = SquaddieService.searchPathLocationsByNumberOfMovementActions({
-        searchPath: state.battleState.squaddieMovePath,
+        searchPath: state.battleOrchestratorState.battleState.squaddieMovePath,
         battleSquaddieId: battleSquaddie.battleSquaddieId,
-        repository: state.squaddieRepository,
+        repository: state.repository,
     });
     const numberOfActionPointsSpentMoving: number = Math.max(...Object.keys(locationsByMoveActions).map(str => Number(str))) || 1;
 
@@ -89,21 +87,21 @@ export function AddMovementInstruction(state: BattleOrchestratorState, squaddieT
             moveAction
         ]
     });
-    CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleState.squaddieCurrentlyActing, decision)
+    CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision)
 
-    RecordingService.addEvent(state.battleState.recording, {
-        instruction: state.battleState.squaddieCurrentlyActing,
+    RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, {
+        instruction: state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
         results: undefined,
     });
     return moveAction;
 }
 
-export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) {
+export function MaybeCreateSquaddieInstruction(state: GameEngineState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate) {
     if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
-        const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
+        const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
-        state.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId,
@@ -116,21 +114,21 @@ export function MaybeCreateSquaddieInstruction(state: BattleOrchestratorState, b
     }
 }
 
-export function MaybeEndSquaddieTurn(state: BattleOrchestratorState) {
-    if (!state.battleState.squaddieCurrentlyActing) {
+export function MaybeEndSquaddieTurn(state: GameEngineState) {
+    if (!state.battleOrchestratorState.battleState.squaddieCurrentlyActing) {
         return;
     }
 
-    if (!CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)) {
+    if (!CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
         return;
     }
 
     const {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
-    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository,
-        CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleState.squaddieCurrentlyActing)
+    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
+        CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(actingBattleSquaddie, actingSquaddieTemplate, state.squaddieRepository);
+    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(actingBattleSquaddie, actingSquaddieTemplate, state.repository);
 }

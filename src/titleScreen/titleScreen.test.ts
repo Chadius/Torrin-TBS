@@ -11,7 +11,7 @@ import {ResourceHandler} from "../resource/resourceHandler";
 import {makeResult} from "../utils/ResultOrError";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 import {RectAreaService} from "../ui/rectArea";
-import {GameEngineState, GameEngineStateHelper} from "../gameEngine/gameEngine";
+import {GameEngineState, GameEngineStateService} from "../gameEngine/gameEngine";
 
 
 describe('Title Screen', () => {
@@ -31,7 +31,7 @@ describe('Title Screen', () => {
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
         titleScreen = new TitleScreen({resourceHandler: mockResourceHandler});
         titleScreenState = titleScreen.setup();
-        gameEngineState = GameEngineStateHelper.new({
+        gameEngineState = GameEngineStateService.new({
             titleScreenState,
             resourceHandler: mockResourceHandler,
         })

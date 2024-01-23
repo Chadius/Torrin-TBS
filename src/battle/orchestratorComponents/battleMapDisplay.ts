@@ -28,7 +28,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         }
 
         let battleSquaddieIdsToOmit = getCurrentlyMovingBattleSquaddieIds(state);
-        this.drawSquaddieMapIcons(state.battleOrchestratorState, graphicsContext, battleSquaddieIdsToOmit);
+        this.drawSquaddieMapIcons(state, graphicsContext, battleSquaddieIdsToOmit);
         state.battleOrchestratorState.battleState.camera.moveCamera();
 
         state.battleOrchestratorState.battleSquaddieSelectedHUD.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, graphicsContext);
@@ -132,21 +132,21 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
     reset(state: GameEngineState) {
     }
 
-    private drawSquaddieMapIcons(state: BattleOrchestratorState, graphicsContext: GraphicsContext, battleSquaddieIdsToOmit: string[]) {
-        ObjectRepositoryService.getBattleSquaddieIterator(state.squaddieRepository)
+    private drawSquaddieMapIcons(state: GameEngineState, graphicsContext: GraphicsContext, battleSquaddieIdsToOmit: string[]) {
+        ObjectRepositoryService.getBattleSquaddieIterator(state.repository)
             .filter((info) =>
-                info.battleSquaddieId in state.squaddieRepository.imageUIByBattleSquaddieId
+                info.battleSquaddieId in state.repository.imageUIByBattleSquaddieId
             )
             .forEach((info) => {
                 const {battleSquaddie, battleSquaddieId} = info;
 
                 if (!battleSquaddieIdsToOmit.includes(battleSquaddieId)) {
-                    const datum = state.battleState.missionMap.getSquaddieByBattleId(battleSquaddieId);
+                    const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
-                    const squaddieIsOnTheMap: boolean = MissionMapSquaddieLocationHandler.isValid(datum) && state.battleState.missionMap.areCoordinatesOnMap(datum.mapLocation);
-                    const squaddieIsHidden: boolean = state.battleState.missionMap.isSquaddieHiddenFromDrawing(battleSquaddieId);
+                    const squaddieIsOnTheMap: boolean = MissionMapSquaddieLocationHandler.isValid(datum) && state.battleOrchestratorState.battleState.missionMap.areCoordinatesOnMap(datum.mapLocation);
+                    const squaddieIsHidden: boolean = state.battleOrchestratorState.battleState.missionMap.isSquaddieHiddenFromDrawing(battleSquaddieId);
                     if (squaddieIsOnTheMap && !squaddieIsHidden) {
-                        DrawSquaddieUtilities.drawSquaddieMapIconAtMapLocation(graphicsContext, state.squaddieRepository, battleSquaddie, battleSquaddieId, datum.mapLocation, state.battleState.camera);
+                        DrawSquaddieUtilities.drawSquaddieMapIconAtMapLocation(graphicsContext, state.repository, battleSquaddie, battleSquaddieId, datum.mapLocation, state.battleOrchestratorState.battleState.camera);
                     }
                 }
             });

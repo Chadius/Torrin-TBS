@@ -13,9 +13,9 @@ export enum MissionAttributeIconKey {
 }
 
 export interface CampaignResources {
-    missionMapMovementIconResourceKeys: {[movementIcon in MissionMapMovementIconKey]: string}
-    missionMapAttackIconResourceKeys: {[attackIcon in MissionMapAttackIconKey]: string}
-    missionAttributeIconResourceKeys:  {[attributeIconKey in MissionAttributeIconKey]: string}
+    missionMapMovementIconResourceKeys: { [movementIcon in MissionMapMovementIconKey]: string }
+    missionMapAttackIconResourceKeys: { [attackIcon in MissionMapAttackIconKey]: string }
+    missionAttributeIconResourceKeys: { [attributeIconKey in MissionAttributeIconKey]: string }
 }
 
 export const CampaignResourcesService = {
@@ -27,7 +27,7 @@ export const CampaignResourcesService = {
                 [MissionMapMovementIconKey.MOVE_3_ACTIONS]: "map icon move 3 actions",
             },
             missionMapAttackIconResourceKeys: {
-                [MissionMapAttackIconKey.ATTACK_1_ACTION] : "map icon attack 1 action"
+                [MissionMapAttackIconKey.ATTACK_1_ACTION]: "map icon attack 1 action"
             },
             missionAttributeIconResourceKeys: {
                 [MissionAttributeIconKey.ARMOR_CLASS]: "armor class icon",
@@ -42,7 +42,7 @@ export const CampaignResourcesService = {
                 [MissionMapMovementIconKey.MOVE_3_ACTIONS]: "map icon move 3 actions",
             },
             missionMapAttackIconResourceKeys: {
-                [MissionMapAttackIconKey.ATTACK_1_ACTION] : "map icon attack 1 action"
+                [MissionMapAttackIconKey.ATTACK_1_ACTION]: "map icon attack 1 action"
             },
             missionAttributeIconResourceKeys: {
                 [MissionAttributeIconKey.ARMOR_CLASS]: "armor class icon",

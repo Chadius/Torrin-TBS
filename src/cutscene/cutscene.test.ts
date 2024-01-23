@@ -500,7 +500,6 @@ describe('Cutscene', () => {
             ]
         });
         const battleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             battleState: BattleStateService.newBattleState({

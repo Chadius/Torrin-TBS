@@ -3,7 +3,7 @@ import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
 import {BattleStateService} from "../orchestrator/battleState";
-import {GameEngineState, GameEngineStateHelper} from "../../gameEngine/gameEngine";
+import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {DialogueService} from "../../cutscene/dialogue/dialogue";
 
 describe('BattleCutscenePlayer', () => {
@@ -36,9 +36,9 @@ describe('BattleCutscenePlayer', () => {
 
     it('is complete when there is no cutscene to play', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
-        const initialState: GameEngineState = GameEngineStateHelper.new({
+        const initialState: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
@@ -56,9 +56,9 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: GameEngineState = GameEngineStateHelper.new({
+        const initialState: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
@@ -80,9 +80,9 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: GameEngineState = GameEngineStateHelper.new({
+        const initialState: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
@@ -107,7 +107,6 @@ describe('BattleCutscenePlayer', () => {
             }
         });
         const initialState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateService.newBattleState({
@@ -137,7 +136,6 @@ describe('BattleCutscenePlayer', () => {
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
         const initialState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: undefined,
             battleSquaddieSelectedHUD: undefined,
             resourceHandler: undefined,
             battleState: BattleStateService.newBattleState({
@@ -163,9 +161,9 @@ describe('BattleCutscenePlayer', () => {
                 "dinner_date": dinnerDate,
             }
         });
-        const initialState: GameEngineState = GameEngineStateHelper.new({
+        const initialState: GameEngineState = GameEngineStateService.new({
+            repository: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                squaddieRepository: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({

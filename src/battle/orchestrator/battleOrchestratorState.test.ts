@@ -6,7 +6,6 @@ import {
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {ResourceHandler} from "../../resource/resourceHandler";
-import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
@@ -68,7 +67,6 @@ describe('orchestratorState', () => {
             BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
             BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
             BattleOrchestratorStateValidityReason.MISSING_RESOURCE_HANDLER,
-            BattleOrchestratorStateValidityReason.MISSING_SQUADDIE_REPOSITORY,
             BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
@@ -79,18 +77,6 @@ describe('orchestratorState', () => {
                 imageLoader: new StubImmediateLoader(),
                 allResources: []
             }),
-        }
-        validityCheck(args, false, [
-            BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
-            BattleOrchestratorStateValidityReason.MISSING_SQUADDIE_REPOSITORY,
-            BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
-            BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
-        ]);
-
-        const squaddieRepository: ObjectRepository = ObjectRepositoryService.new();
-        args = {
-            ...args,
-            squaddieRepository,
         }
         validityCheck(args, false, [
             BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
@@ -124,7 +110,6 @@ describe('orchestratorState', () => {
 
     it('can clone existing objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: ObjectRepositoryService.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
                 allResources: []
@@ -147,7 +132,6 @@ describe('orchestratorState', () => {
 
     it('can change itself to match other objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            squaddieRepository: ObjectRepositoryService.new(),
             resourceHandler: new ResourceHandler({
                 imageLoader: new StubImmediateLoader(),
                 allResources: []
@@ -164,7 +148,6 @@ describe('orchestratorState', () => {
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
-            squaddieRepository: undefined,
             resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             numberGenerator: undefined,
@@ -178,22 +161,17 @@ describe('orchestratorState', () => {
     it('can make a new object using creator function', () => {
         const numberGenerator = new RandomNumberGenerator();
         const battleSquaddieSelectedHUD = new BattleSquaddieSelectedHUD();
-        const squaddieRepository = ObjectRepositoryService.new();
 
         const newBattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleState: validBattleState,
             numberGenerator,
             battleSquaddieSelectedHUD,
-            squaddieRepository,
             resourceHandler: undefined,
         });
 
         expect(newBattleOrchestratorState.resourceHandler).toBeUndefined();
         expect(newBattleOrchestratorState.battleState).toEqual(validBattleState);
-
         expect(newBattleOrchestratorState.numberGenerator).toEqual(numberGenerator);
-
-        expect(newBattleOrchestratorState.squaddieRepository).toEqual(squaddieRepository);
         expect(newBattleOrchestratorState.battleSquaddieSelectedHUD).toEqual(battleSquaddieSelectedHUD);
     });
 });

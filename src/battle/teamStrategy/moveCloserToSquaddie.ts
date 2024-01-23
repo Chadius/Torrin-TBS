@@ -46,7 +46,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, squaddieToAct));
         const {mapLocation} = state.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
         const movementPerActionThisRound = squaddieTemplate.attributes.movement.movementPerAction;
@@ -64,7 +64,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
                 numberOfActions: actionPointsRemaining,
             }),
             missionMap: state.missionMap,
-            repository: state.squaddieRepository,
+            repository: state.repository,
         })
 
         const closestSquaddieInfo = getClosestSquaddieAndLocationToFollow({
@@ -72,7 +72,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             routesToAllSquaddies: routesToAllSquaddies,
             desiredBattleSquaddieId: this.desiredBattleSquaddieId,
             desiredAffiliation: this.desiredAffiliation,
-            repository: state.squaddieRepository,
+            repository: state.repository,
             actingSquaddieBattleId: squaddieToAct,
             numberOfActions: actionPointsRemaining,
             movementPerAction: movementPerActionThisRound,

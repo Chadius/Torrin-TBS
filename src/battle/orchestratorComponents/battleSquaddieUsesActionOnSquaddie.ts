@@ -62,7 +62,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     mouseEventHappened(state: GameEngineState, event: OrchestratorComponentMouseEvent): void {
         if (event.eventType === OrchestratorComponentMouseEventType.CLICKED) {
             this.setSquaddieActionAnimatorBasedOnAction(state.battleOrchestratorState);
-            this.squaddieActionAnimator.mouseEventHappened(state.battleOrchestratorState, event);
+            this.squaddieActionAnimator.mouseEventHappened(state, event);
         }
     }
 
@@ -97,25 +97,25 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     reset(state: GameEngineState): void {
-        this.squaddieActionAnimator.reset(state.battleOrchestratorState);
+        this.squaddieActionAnimator.reset(state);
         this._squaddieActionAnimator = undefined;
         this.resetInternalState();
-        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state.battleOrchestratorState);
+        DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
-        MaybeEndSquaddieTurn(state.battleOrchestratorState);
+        MaybeEndSquaddieTurn(state);
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (this.squaddieActionAnimator instanceof DefaultSquaddieActionAnimator) {
             this.setSquaddieActionAnimatorBasedOnAction(state.battleOrchestratorState);
         }
-        this.squaddieActionAnimator.update(state.battleOrchestratorState, graphicsContext);
-        if (this.squaddieActionAnimator.hasCompleted(state.battleOrchestratorState)) {
-            this.hideDeadSquaddies(state.battleOrchestratorState);
+        this.squaddieActionAnimator.update(state, graphicsContext);
+        if (this.squaddieActionAnimator.hasCompleted(state)) {
+            this.hideDeadSquaddies(state);
 
             const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
-                    state.battleOrchestratorState.squaddieRepository,
+                    state.repository,
                     state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
                 )
             )
@@ -123,13 +123,13 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
                 battleSquaddie,
                 squaddieTemplate,
                 missionMap: state.battleOrchestratorState.battleState.missionMap,
-                repository: state.battleOrchestratorState.squaddieRepository,
+                repository: state.repository,
                 campaign: state.campaign,
             });
-            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.battleOrchestratorState.squaddieRepository);
+            DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
 
             CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
-            OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state.battleOrchestratorState);
+            OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
             this.sawResultAftermath = true;
         }
     }
@@ -138,16 +138,16 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         this.sawResultAftermath = false;
     }
 
-    private hideDeadSquaddies(state: BattleOrchestratorState) {
-        const mostRecentResults = RecordingService.mostRecentEvent(state.battleState.recording).results;
+    private hideDeadSquaddies(state: GameEngineState) {
+        const mostRecentResults = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results;
         mostRecentResults.targetedBattleSquaddieIds.forEach((battleSquaddieId) => {
             const {
                 battleSquaddie,
                 squaddieTemplate
-            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, battleSquaddieId));
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieId));
             if (!IsSquaddieAlive({battleSquaddie, squaddieTemplate})) {
-                state.battleState.missionMap.hideSquaddieFromDrawing(battleSquaddieId);
-                state.battleState.missionMap.updateSquaddieLocation(battleSquaddieId, undefined);
+                state.battleOrchestratorState.battleState.missionMap.hideSquaddieFromDrawing(battleSquaddieId);
+                state.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(battleSquaddieId, undefined);
             }
         });
     }

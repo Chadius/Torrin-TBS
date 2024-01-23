@@ -25,7 +25,7 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
         const {
             squaddieTemplate,
             battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.squaddieRepository, squaddieToAct));
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, squaddieToAct));
 
         const datum = state.missionMap.getSquaddieByBattleId(squaddieToAct);
         const endTurnAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
