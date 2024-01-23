@@ -20,7 +20,7 @@ import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleS
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
-import {Campaign} from "../campaign/campaign";
+import {Campaign, CampaignService} from "../campaign/campaign";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 
 export interface GameEngineState {
@@ -209,6 +209,7 @@ export class GameEngine {
             titleScreenState: this.titleScreen.setup(),
             repository: ObjectRepositoryService.new(),
             resourceHandler: this.resourceHandler,
+            campaign: CampaignService.default({}),
         });
     }
 

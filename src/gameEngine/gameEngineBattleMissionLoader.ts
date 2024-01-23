@@ -38,6 +38,9 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
                 return;
             }
 
+            if (isValidValue(state.repository)) {
+                ObjectRepositoryService.reset(state.repository);
+            }
             this.resetBattleOrchestratorState(state.battleOrchestratorState);
             await this.loadMissionDataFromFile(state.campaign, state, state.repository);
             return;
@@ -95,9 +98,6 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     reset(state: GameEngineState) {
         this.resetInternalFields();
-        if (isValidValue(state.repository)) {
-            ObjectRepositoryService.reset(state.repository);
-        }
     }
 
     keyPressed(state: GameEngineState, keyCode: number): void {
