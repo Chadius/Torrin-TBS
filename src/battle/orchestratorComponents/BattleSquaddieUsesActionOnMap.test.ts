@@ -75,8 +75,8 @@ describe('BattleSquaddieUsesActionOnMap', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -143,8 +143,8 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             });
 
             return GameEngineStateService.new({
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
                         squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({

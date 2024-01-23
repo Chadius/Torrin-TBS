@@ -120,8 +120,8 @@ describe('BattleSquaddieMover', () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -176,15 +176,11 @@ describe('BattleSquaddieMover', () => {
 
             const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
-            let mockResourceHandler = mocks.mockResourceHandler();
-            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
-
             let decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
                 decision: SquaddieActionsForThisRoundService.getMostRecentDecision(newInstruction)
             });
 
             return BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -217,6 +213,9 @@ describe('BattleSquaddieMover', () => {
                 ]
             });
 
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
             const state: GameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: setupSquaddie({
                     battleSquaddieId: "player_1",
@@ -224,6 +223,7 @@ describe('BattleSquaddieMover', () => {
                     newInstruction: moveAction,
                 }),
                 repository: squaddieRepo,
+                resourceHandler: mockResourceHandler,
             });
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).not.toBeUndefined();
             player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0;
@@ -257,12 +257,15 @@ describe('BattleSquaddieMover', () => {
                 ]
             });
 
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
             const state: GameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: setupSquaddie({
                     battleSquaddieId: "player_1",
                     squaddieAffiliation: SquaddieAffiliation.PLAYER,
                     newInstruction: moveAction,
                 }),
+                resourceHandler: mockResourceHandler,
                 repository: squaddieRepo,
             });
 
@@ -300,12 +303,16 @@ describe('BattleSquaddieMover', () => {
                 ]
             });
 
+            let mockResourceHandler = mocks.mockResourceHandler();
+            mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
+
             const state: GameEngineState = GameEngineStateService.new({
                 battleOrchestratorState: setupSquaddie({
                     battleSquaddieId: "enemy_1",
                     squaddieAffiliation: SquaddieAffiliation.ENEMY,
                     newInstruction: moveAction,
                 }),
+                resourceHandler: mockResourceHandler,
                 repository: squaddieRepo,
             });
 
@@ -360,8 +367,8 @@ describe('BattleSquaddieMover', () => {
             });
 
             return GameEngineStateService.new({
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
                         squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({

@@ -27,6 +27,7 @@ export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
     battleOrchestratorState: BattleOrchestratorState;
     repository: ObjectRepository;
+    resourceHandler: ResourceHandler;
     titleScreenState: TitleScreenState;
     gameSaveFlags: {
         errorDuringLoading: boolean;
@@ -56,9 +57,7 @@ export const GameEngineStateService = {
     }): GameEngineState => {
         return {
             modeThatInitiatedLoading: previousMode ?? GameModeEnum.UNKNOWN,
-            battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler,
-            }),
+            battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
             gameSaveFlags: {
                 errorDuringLoading: false,
@@ -69,6 +68,7 @@ export const GameEngineStateService = {
             },
             campaign,
             repository,
+            resourceHandler,
         }
     },
     clone: ({original}: { original: GameEngineState }): GameEngineState => {
@@ -79,6 +79,7 @@ export const GameEngineStateService = {
             gameSaveFlags: {...original.gameSaveFlags},
             campaign: {...original.campaign},
             repository: original.repository,
+            resourceHandler: original.resourceHandler,
         }
     }
 }
@@ -204,9 +205,10 @@ export class GameEngine {
 
     private resetComponentStates(graphicsContext: GraphicsContext) {
         this.gameEngineState = GameEngineStateService.new({
-            battleOrchestratorState: this.battleOrchestrator.setup({resourceHandler: this.resourceHandler}),
+            battleOrchestratorState: this.battleOrchestrator.setup({}),
             titleScreenState: this.titleScreen.setup(),
             repository: ObjectRepositoryService.new(),
+            resourceHandler: this.resourceHandler,
         });
     }
 

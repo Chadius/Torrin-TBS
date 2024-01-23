@@ -66,21 +66,6 @@ describe('orchestratorState', () => {
         validityCheck(args, false, [
             BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
             BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
-            BattleOrchestratorStateValidityReason.MISSING_RESOURCE_HANDLER,
-            BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
-        ]);
-
-
-        args = {
-            ...args,
-            resourceHandler: new ResourceHandler({
-                imageLoader: new StubImmediateLoader(),
-                allResources: []
-            }),
-        }
-        validityCheck(args, false, [
-            BattleOrchestratorStateValidityReason.MISSING_NUMBER_GENERATOR,
-            BattleOrchestratorStateValidityReason.MISSING_BATTLE_SQUADDIE_SELECTED_HUD,
             BattleOrchestratorStateValidityReason.INVALID_BATTLE_STATE,
         ]);
 
@@ -110,10 +95,6 @@ describe('orchestratorState', () => {
 
     it('can clone existing objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            resourceHandler: new ResourceHandler({
-                imageLoader: new StubImmediateLoader(),
-                allResources: []
-            }),
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: {
                 ...validBattleState,
@@ -132,10 +113,6 @@ describe('orchestratorState', () => {
 
     it('can change itself to match other objects', () => {
         let originalBattleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            resourceHandler: new ResourceHandler({
-                imageLoader: new StubImmediateLoader(),
-                allResources: []
-            }),
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: {
                 ...validBattleState,
@@ -148,7 +125,6 @@ describe('orchestratorState', () => {
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
             }),
-            resourceHandler: undefined,
             battleSquaddieSelectedHUD: undefined,
             numberGenerator: undefined,
         });
@@ -166,10 +142,8 @@ describe('orchestratorState', () => {
             battleState: validBattleState,
             numberGenerator,
             battleSquaddieSelectedHUD,
-            resourceHandler: undefined,
         });
 
-        expect(newBattleOrchestratorState.resourceHandler).toBeUndefined();
         expect(newBattleOrchestratorState.battleState).toEqual(validBattleState);
         expect(newBattleOrchestratorState.numberGenerator).toEqual(numberGenerator);
         expect(newBattleOrchestratorState.battleSquaddieSelectedHUD).toEqual(battleSquaddieSelectedHUD);

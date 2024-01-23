@@ -62,10 +62,10 @@ const HitPointsBarColors = {
     backgroundFillColor: {color: "#1f1f1f"},
 };
 
-export const GetSquaddieTeamIconImage = (state: BattleOrchestratorState, battleSquaddie: BattleSquaddie): GraphicImage => {
+const getSquaddieTeamIconImage = (state: GameEngineState, battleSquaddie: BattleSquaddie): GraphicImage => {
     let affiliateIconImage: GraphicImage = null;
 
-    const team = state.battleState.teams
+    const team = state.battleOrchestratorState.battleState.teams
         .find(team => team.battleSquaddieIds.includes(battleSquaddie.battleSquaddieId));
     if (
         isValidValue(team)
@@ -133,7 +133,7 @@ export class BattleSquaddieSelectedHUD {
         this.generateNextSquaddieButton(windowDimensions);
         this.generateEndTurnButton(windowDimensions);
 
-        this.generateAffiliateIcon(battleSquaddie, state.battleOrchestratorState);
+        this.generateAffiliateIcon(battleSquaddie, state);
         this.generateUseActionButtons(squaddieTemplate, battleSquaddie, squaddieAffiliationHue, windowDimensions);
 
         this.generateSquaddieSpecificUITextBoxes(squaddieTemplate, battleSquaddie);
@@ -367,8 +367,8 @@ export class BattleSquaddieSelectedHUD {
         });
     }
 
-    private generateAffiliateIcon(battleSquaddie: BattleSquaddie, state: BattleOrchestratorState) {
-        let affiliateIconImage = GetSquaddieTeamIconImage(state, battleSquaddie);
+    private generateAffiliateIcon(battleSquaddie: BattleSquaddie, state: GameEngineState) {
+        let affiliateIconImage = getSquaddieTeamIconImage(state, battleSquaddie);
 
         if (affiliateIconImage) {
             this.affiliateIcon = new ImageUI({
@@ -711,7 +711,7 @@ export class BattleSquaddieSelectedHUD {
             textSize,
             textTopMargin: attributeTextTopMargin,
             topOffset: 0,
-            state: state.battleOrchestratorState,
+            state,
             graphicsContext,
         });
     }
@@ -740,7 +740,7 @@ export class BattleSquaddieSelectedHUD {
                                 fontColor: number[],
                                 text: string,
                                 baseRectangle: RectArea,
-                                state: BattleOrchestratorState,
+                                state: GameEngineState,
                                 graphicsContext: GraphicsContext,
                             }
     ) {

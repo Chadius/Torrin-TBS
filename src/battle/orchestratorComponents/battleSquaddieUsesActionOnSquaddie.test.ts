@@ -219,12 +219,12 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 missionMap,
                 recording: battleEventRecording,
             }),
-            resourceHandler: mockResourceHandler,
         })
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
             repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
         });
 
         battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -298,12 +298,12 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 squaddieCurrentlyActing: squaddieInstructionInProgress,
                 recording: battleEventRecording,
             }),
-            resourceHandler: mockResourceHandler,
         })
 
         const gameEngineState = GameEngineStateService.new({
             battleOrchestratorState,
             repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
         });
 
         battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -454,8 +454,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             });
 
             return GameEngineStateService.new({
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
                         squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({

@@ -228,8 +228,8 @@ describe('BattleSquaddieSelector', () => {
         mockHud.selectSquaddieAndDrawWindow = jest.fn();
 
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState,
@@ -271,8 +271,8 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera(...convertMapCoordinatesToWorldCoordinates(0, 0));
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -304,9 +304,9 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
 
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mocks.mockResourceHandler(),
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                resourceHandler: mocks.mockResourceHandler(),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,
@@ -407,9 +407,9 @@ describe('BattleSquaddieSelector', () => {
             });
 
             state = GameEngineStateService.new({
+                resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                    resourceHandler: mockResourceHandler,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         missionMap,
@@ -506,8 +506,8 @@ describe('BattleSquaddieSelector', () => {
         mockHud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(true);
 
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: mockHud,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -546,8 +546,8 @@ describe('BattleSquaddieSelector', () => {
         mockHud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(true);
 
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: mockHud,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -621,8 +621,8 @@ describe('BattleSquaddieSelector', () => {
         mockHud.getSquaddieSquaddieAction = jest.fn().mockReturnValue(longswordAction);
 
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: mockHud,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -733,8 +733,8 @@ describe('BattleSquaddieSelector', () => {
             selectSquaddieAndDrawWindowSpy = jest.spyOn(mockHud, "selectSquaddieAndDrawWindow");
 
             state = GameEngineStateService.new({
+                resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: mockResourceHandler,
                     battleSquaddieSelectedHUD: mockHud,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -850,8 +850,8 @@ describe('BattleSquaddieSelector', () => {
         mockHud.keyPressed = jest.fn();
 
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: mockHud,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -892,9 +892,9 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
 
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mocks.mockResourceHandler(),
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                resourceHandler: mocks.mockResourceHandler(),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     missionMap,

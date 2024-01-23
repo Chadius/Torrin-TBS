@@ -1,4 +1,4 @@
-import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleCutscenePlayer} from "./battleCutscenePlayer";
 import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {MissionCutsceneCollectionHelper} from "../orchestrator/missionCutsceneCollection";
@@ -38,9 +38,9 @@ describe('BattleCutscenePlayer', () => {
         const cutsceneCollection = MissionCutsceneCollectionHelper.new({cutsceneById: {}});
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -58,9 +58,9 @@ describe('BattleCutscenePlayer', () => {
         });
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -69,7 +69,7 @@ describe('BattleCutscenePlayer', () => {
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
+        cutscenePlayer.startCutscene("dinner_date", initialState);
         expect(cutscenePlayer.currentCutsceneId).toBe("dinner_date");
         expect(cutscenePlayer.currentCutscene).toBe(dinnerDate);
         expect(CutsceneService.isInProgress(dinnerDate)).toBeTruthy();
@@ -82,9 +82,9 @@ describe('BattleCutscenePlayer', () => {
         });
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -93,7 +93,7 @@ describe('BattleCutscenePlayer', () => {
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
+        cutscenePlayer.startCutscene("dinner_date", initialState);
         expect(cutscenePlayer.hasCompleted(initialState)).toBeFalsy();
 
         CutsceneService.stop(dinnerDate);
@@ -106,13 +106,15 @@ describe('BattleCutscenePlayer', () => {
                 "lunch_date": lunchDate,
             }
         });
-        const initialState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+        const initialState: GameEngineState = GameEngineStateService.new({
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    cutsceneCollection
+                })
+            }),
             resourceHandler: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection
-            })
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
@@ -135,12 +137,14 @@ describe('BattleCutscenePlayer', () => {
         });
 
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
-        const initialState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: undefined,
+        const initialState: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                cutsceneCollection
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: undefined,
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    cutsceneCollection
+                })
             })
         });
 
@@ -163,9 +167,9 @@ describe('BattleCutscenePlayer', () => {
         });
         const initialState: GameEngineState = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     cutsceneCollection
@@ -174,7 +178,7 @@ describe('BattleCutscenePlayer', () => {
         });
         const cutscenePlayer: BattleCutscenePlayer = new BattleCutscenePlayer();
 
-        cutscenePlayer.startCutscene("dinner_date", initialState.battleOrchestratorState);
+        cutscenePlayer.startCutscene("dinner_date", initialState);
         CutsceneService.stop(dinnerDate);
         cutscenePlayer.reset(initialState);
         expect(cutscenePlayer.currentCutscene).toBeUndefined();

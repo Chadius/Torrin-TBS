@@ -152,9 +152,9 @@ describe('calculator', () => {
 
         return ActionCalculator.calculateResults({
                 state: GameEngineStateService.new({
+                    resourceHandler: undefined,
                     repository: squaddieRepository,
                     battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                        resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         numberGenerator,
                         battleState: BattleStateService.newBattleState({
@@ -266,8 +266,8 @@ describe('calculator', () => {
 
             const results = ActionCalculator.calculateResults({
                     state: GameEngineStateService.new({
+                        resourceHandler: undefined,
                         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                            resourceHandler: undefined,
                             battleSquaddieSelectedHUD: undefined,
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
@@ -310,8 +310,8 @@ describe('calculator', () => {
 
             ActionCalculator.calculateResults({
                     state: GameEngineStateService.new({
+                        resourceHandler: undefined,
                         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                            resourceHandler: undefined,
                             battleSquaddieSelectedHUD: undefined,
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",
@@ -431,8 +431,8 @@ describe('calculator', () => {
             const results = ActionCalculator.calculateResults({
                     state: GameEngineStateService.new({
                         repository: squaddieRepository,
+                        resourceHandler: undefined,
                         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                            resourceHandler: undefined,
                             battleSquaddieSelectedHUD: undefined,
                             numberGenerator,
                             battleState: BattleStateService.newBattleState({

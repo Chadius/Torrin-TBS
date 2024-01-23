@@ -173,6 +173,7 @@ describe('BattleSquaddieTarget', () => {
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         state = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateService.newBattleState({
@@ -181,7 +182,6 @@ describe('BattleSquaddieTarget', () => {
                     squaddieCurrentlyActing: currentInstruction,
                     recording: {history: []},
                 }),
-                resourceHandler: mockResourceHandler,
             }),
             repository: squaddieRepo,
         });
@@ -426,6 +426,7 @@ describe('BattleSquaddieTarget', () => {
             });
 
             state = GameEngineStateService.new({
+                resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                     battleState: BattleStateService.newBattleState({
@@ -434,7 +435,6 @@ describe('BattleSquaddieTarget', () => {
                         squaddieCurrentlyActing: currentInstruction,
                         recording: {history: []}
                     }),
-                    resourceHandler: mockResourceHandler,
                 }),
                 repository: squaddieRepo,
             });
@@ -627,9 +627,9 @@ describe('BattleSquaddieTarget', () => {
             });
 
             state = GameEngineStateService.new({
+                resourceHandler: mockResourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-                    resourceHandler: mockResourceHandler,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
                         squaddieCurrentlyActing: currentInstruction,

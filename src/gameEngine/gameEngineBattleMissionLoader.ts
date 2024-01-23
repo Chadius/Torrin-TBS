@@ -39,13 +39,13 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             }
 
             this.resetBattleOrchestratorState(state.battleOrchestratorState);
-            await this.loadMissionDataFromFile(state.campaign, state.battleOrchestratorState, state.repository);
+            await this.loadMissionDataFromFile(state.campaign, state, state.repository);
             return;
         }
 
         MissionLoader.checkResourcesPendingLoading({
             missionLoaderContext: this.missionLoaderContext,
-            resourceHandler: state.battleOrchestratorState.resourceHandler,
+            resourceHandler: state.resourceHandler,
         });
         if (
             this.missionLoaderContext.resourcesPendingLoading.length > 0
@@ -55,7 +55,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         } else {
             MissionLoader.assignResourceHandlerResources({
                 missionLoaderContext: this.missionLoaderContext,
-                resourceHandler: state.battleOrchestratorState.resourceHandler,
+                resourceHandler: state.resourceHandler,
                 repository: state.repository,
             });
             this.applyMissionLoaderContextToBattleOrchestratorState(state.battleOrchestratorState);
@@ -170,16 +170,16 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         });
     }
 
-    private async loadMissionDataFromFile(campaign: Campaign, battleOrchestratorState: BattleOrchestratorState, repository: ObjectRepository) {
+    private async loadMissionDataFromFile(campaign: Campaign, state: GameEngineState, repository: ObjectRepository) {
         await MissionLoader.loadMissionFromFile({
             missionLoaderContext: this.missionLoaderContext,
             missionId: CampaignService.getNextMissionId(campaign),
-            resourceHandler: battleOrchestratorState.resourceHandler,
+            resourceHandler: state.resourceHandler,
             repository: repository,
         }).then(async () => {
             await MissionLoader.loadPlayerArmyFromFile({
                 missionLoaderContext: this.missionLoaderContext,
-                resourceHandler: battleOrchestratorState.resourceHandler,
+                resourceHandler: state.resourceHandler,
                 squaddieRepository: repository,
             });
         });
@@ -187,9 +187,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     private resetBattleOrchestratorState(state: BattleOrchestratorState) {
         state.copyOtherOrchestratorState(
-            BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: (state as BattleOrchestratorState).resourceHandler,
-            })
+            BattleOrchestratorStateService.newOrchestratorState({})
         );
     }
 

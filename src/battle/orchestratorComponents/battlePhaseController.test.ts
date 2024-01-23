@@ -113,8 +113,8 @@ describe('BattlePhaseController', () => {
 
         state = GameEngineStateService.new({
             repository: squaddieRepo,
+            resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -153,8 +153,8 @@ describe('BattlePhaseController', () => {
     it('starts showing the player phase banner by default', () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
+            resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -191,9 +191,9 @@ describe('BattlePhaseController', () => {
     it('stops the camera when it displays the banner if it is not the player phase', () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
+            resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
@@ -242,7 +242,6 @@ describe('BattlePhaseController', () => {
             missionMap.addSquaddie(squaddieTemplateIdToAdd, battleSquaddieIdToAdd, {q: 0, r: 0});
             const state: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
@@ -260,6 +259,7 @@ describe('BattlePhaseController', () => {
             return GameEngineStateService.new({
                 battleOrchestratorState: state,
                 repository: squaddieRepo,
+                resourceHandler,
             });
         }
 
@@ -332,9 +332,9 @@ describe('BattlePhaseController', () => {
     it('only draws the banner while the timer is going', () => {
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
+            resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     teams,
@@ -377,9 +377,9 @@ describe('BattlePhaseController', () => {
         battlePhaseController.reset(
             GameEngineStateService.new({
                 repository: undefined,
+                resourceHandler: undefined,
                 battleOrchestratorState:
                     BattleOrchestratorStateService.newOrchestratorState({
-                        resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
@@ -401,9 +401,9 @@ describe('BattlePhaseController', () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
+            resourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                 battleSquaddieSelectedHUD: undefined,
-                resourceHandler,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
                     battlePhaseState: phase,
@@ -461,8 +461,8 @@ describe('BattlePhaseController', () => {
 
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
+                resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -498,8 +498,8 @@ describe('BattlePhaseController', () => {
 
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
+                resourceHandler,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler,
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",

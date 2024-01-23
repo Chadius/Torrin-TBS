@@ -193,8 +193,8 @@ describe("Orchestration Utils", () => {
                     battleSquaddieSelectedHUD: undefined,
                     decisionActionEffectIterator: undefined,
                     numberGenerator: undefined,
-                    resourceHandler: undefined
                 }),
+                resourceHandler: undefined,
                 repository: repository,
             });
 
@@ -217,8 +217,8 @@ describe("Orchestration Utils", () => {
                         battleSquaddieSelectedHUD: undefined,
                         decisionActionEffectIterator: undefined,
                         numberGenerator: undefined,
-                        resourceHandler: undefined
                     }),
+                    resourceHandler: undefined,
                     repository: squaddieRepository,
                 }))).toBeFalsy();
         });
@@ -370,7 +370,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -399,7 +398,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -435,7 +433,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -477,7 +474,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
@@ -516,7 +512,6 @@ describe("Orchestration Utils", () => {
             });
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleState: BattleStateService.defaultBattleState({
                     squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",

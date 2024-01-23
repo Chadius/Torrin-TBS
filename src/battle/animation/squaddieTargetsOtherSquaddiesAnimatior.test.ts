@@ -172,8 +172,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -198,8 +198,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -232,8 +232,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         mockActionTimerPhase(animator.actionAnimationTimer, ActionAnimationPhase.INITIALIZED);
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepository,
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

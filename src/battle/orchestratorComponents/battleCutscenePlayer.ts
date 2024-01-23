@@ -5,7 +5,6 @@ import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {Cutscene, CutsceneService} from "../../cutscene/cutscene";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
@@ -59,13 +58,13 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         }
 
         if (
-            CutsceneService.hasLoaded(this.currentCutscene, state.battleOrchestratorState.resourceHandler)
+            CutsceneService.hasLoaded(this.currentCutscene, state.resourceHandler)
             && !CutsceneService.isInProgress(this.currentCutscene)
         ) {
-            CutsceneService.setResources(this.currentCutscene, state.battleOrchestratorState.resourceHandler);
+            CutsceneService.setResources(this.currentCutscene, state.resourceHandler);
             CutsceneService.start(
                 this.currentCutscene,
-                state.battleOrchestratorState.resourceHandler,
+                state.resourceHandler,
                 {battleOrchestratorState: state.battleOrchestratorState},
             );
         }
@@ -87,8 +86,8 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         this._currentCutscene = undefined;
     }
 
-    startCutscene(cutsceneId: string, state: BattleOrchestratorState) {
-        if (!state.battleState.cutsceneCollection.cutsceneById[cutsceneId]) {
+    startCutscene(cutsceneId: string, state: GameEngineState) {
+        if (!state.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[cutsceneId]) {
             throw new Error(`No cutscene with Id ${cutsceneId}`);
         }
 
@@ -97,11 +96,11 @@ export class BattleCutscenePlayer implements BattleOrchestratorComponent {
         }
 
         this._currentCutsceneId = cutsceneId;
-        this._currentCutscene = state.battleState.cutsceneCollection.cutsceneById[cutsceneId];
+        this._currentCutscene = state.battleOrchestratorState.battleState.cutsceneCollection.cutsceneById[cutsceneId];
         CutsceneService.start(
             this.currentCutscene,
             state.resourceHandler,
-            {battleOrchestratorState: state}
+            {battleOrchestratorState: state.battleOrchestratorState}
         );
     }
 }

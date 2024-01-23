@@ -173,7 +173,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.actorSprite.start({
             actorBattleSquaddieId: actorBattle.battleSquaddieId,
             squaddieRepository: state.repository,
-            resourceHandler: state.battleOrchestratorState.resourceHandler,
+            resourceHandler: state.resourceHandler,
             startingPosition: (2 * ScreenDimensions.SCREEN_WIDTH / 12) + WINDOW_SPACING1,
             squaddieResult: mostRecentResults.results,
         });
@@ -195,7 +195,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 squaddieRepository: state.repository,
                 action: action,
                 result: resultPerTarget[battleId],
-                resourceHandler: state.battleOrchestratorState.resourceHandler,
+                resourceHandler: state.resourceHandler,
                 startingPosition: RectAreaService.right(this.targetTextWindows[index].targetLabel.rectangle.area),
             });
             return targetSprite;

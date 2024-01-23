@@ -52,8 +52,8 @@ describe('Mission Cutscene Service', () => {
         };
         victoryState = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -92,8 +92,8 @@ describe('Mission Cutscene Service', () => {
         };
         defeatState = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -125,8 +125,8 @@ describe('Mission Cutscene Service', () => {
 
         victoryAndDefeatState = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -175,8 +175,8 @@ describe('Mission Cutscene Service', () => {
 
         turn0State = GameEngineStateService.new({
             repository: undefined,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",

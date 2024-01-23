@@ -150,11 +150,10 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             ConvertBattlePhaseToSquaddieAffiliation(currentSquaddieAffiliation),
         );
 
-        // TODO resourceHandler needs to be pulled into the GameState
         if (teams.length > 0) {
             const teamIconResourceKey = teams[0].iconResourceKey;
             if (isValidValue(teamIconResourceKey) && teamIconResourceKey !== "") {
-                this.affiliationImage = getResultOrThrowError(state.battleOrchestratorState.resourceHandler.getResource(teamIconResourceKey));
+                this.affiliationImage = getResultOrThrowError(state.resourceHandler.getResource(teamIconResourceKey));
             }
         }
 
@@ -162,7 +161,7 @@ export class BattlePhaseController implements BattleOrchestratorComponent {
             isValidValue(state.repository.uiElements.phaseBannersByAffiliation[currentSquaddieAffiliation])
             && state.repository.uiElements.phaseBannersByAffiliation[currentSquaddieAffiliation] !== ""
         ) {
-            this.bannerImage = getResultOrThrowError(state.battleOrchestratorState.resourceHandler.getResource(
+            this.bannerImage = getResultOrThrowError(state.resourceHandler.getResource(
                 state.repository.uiElements.phaseBannersByAffiliation[currentSquaddieAffiliation]
             ));
         }

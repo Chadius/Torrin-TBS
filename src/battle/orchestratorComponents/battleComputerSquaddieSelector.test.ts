@@ -219,8 +219,8 @@ describe('BattleComputerSquaddieSelector', () => {
         const state: GameEngineState = GameEngineStateService.new(
             {
                 repository: squaddieRepo,
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -281,8 +281,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleSquaddieSelectedHUD: undefined,
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -349,8 +349,8 @@ describe('BattleComputerSquaddieSelector', () => {
             beforeEach(() => {
                 state = GameEngineStateService.new({
                     repository: squaddieRepo,
+                    resourceHandler: undefined,
                     battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                        resourceHandler: undefined,
                         battleSquaddieSelectedHUD: undefined,
                         battleState: BattleStateService.newBattleState({
                             missionId: "test mission",
@@ -418,8 +418,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
         const state: GameEngineState = GameEngineStateService.new({
             repository: squaddieRepo,
+            resourceHandler: undefined,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: undefined,
                 battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -503,8 +503,8 @@ describe('BattleComputerSquaddieSelector', () => {
 
             const state: GameEngineState = GameEngineStateService.new({
                 repository: squaddieRepo,
+                resourceHandler: undefined,
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    resourceHandler: undefined,
                     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
                     battleState: BattleStateService.newBattleState({
                         missionId: "test mission",
@@ -563,9 +563,9 @@ describe('BattleComputerSquaddieSelector', () => {
 
                 state = GameEngineStateService.new({
                     repository: squaddieRepo,
+                    resourceHandler: undefined,
                     battleOrchestratorState:
                         BattleOrchestratorStateService.newOrchestratorState({
-                            resourceHandler: undefined,
                             battleSquaddieSelectedHUD: undefined,
                             battleState: BattleStateService.newBattleState({
                                 missionId: "test mission",

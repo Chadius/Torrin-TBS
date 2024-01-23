@@ -126,8 +126,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
     it('will create a text window with the action results', () => {
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -157,8 +157,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     it('will complete at the end of the display time', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
@@ -181,8 +181,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     it('will skip displaying the results if the user clicks', () => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
         const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mockResourceHandler,
             battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                resourceHandler: mockResourceHandler,
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
