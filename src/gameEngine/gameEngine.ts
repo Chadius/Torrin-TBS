@@ -38,7 +38,7 @@ export interface GameEngineState {
         savingInProgress: boolean;
     },
     campaign: Campaign;
-    campaignWasLoaded: boolean;
+    campaignIdThatWasLoaded: string;
 }
 
 export const GameEngineStateService = {
@@ -69,7 +69,7 @@ export const GameEngineStateService = {
                 savingInProgress: false,
             },
             campaign,
-            campaignWasLoaded: false,
+            campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
             repository,
             resourceHandler,
         }
@@ -81,7 +81,7 @@ export const GameEngineStateService = {
             battleOrchestratorState: original.battleOrchestratorState.clone(),
             gameSaveFlags: {...original.gameSaveFlags},
             campaign: {...original.campaign},
-            campaignWasLoaded: original.campaignWasLoaded,
+            campaignIdThatWasLoaded: original.campaignIdThatWasLoaded,
             repository: original.repository,
             resourceHandler: original.resourceHandler,
         }

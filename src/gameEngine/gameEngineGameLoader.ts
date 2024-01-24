@@ -191,7 +191,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
     }
 
     private async loadCampaignDataFromFile(campaign: Campaign, state: GameEngineState) {
-        if (state.campaignWasLoaded) {
+        if (state.campaignIdThatWasLoaded === campaign.id) {
             return;
         }
 
@@ -206,7 +206,7 @@ export class GameEngineGameLoader implements GameEngineComponent {
             ...Object.values(campaignResources.missionMapAttackIconResourceKeys),
             ...Object.values(campaignResources.missionAttributeIconResourceKeys),
         ];
-        state.campaignWasLoaded = true;
+        state.campaignIdThatWasLoaded = campaign.id;
     }
 
     private resetBattleOrchestratorState(state: BattleOrchestratorState) {
