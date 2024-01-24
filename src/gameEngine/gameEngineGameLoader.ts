@@ -16,8 +16,11 @@ import {BattleCameraHelper} from "../battle/battleCamera";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 import {Campaign, CampaignService} from "../campaign/campaign";
 import {isValidValue} from "../utils/validityCheck";
+import {CampaignLoaderContext, CampaignLoaderService} from "../dataLoader/campaignLoader";
+import {CampaignResources} from "../campaign/campaignResources";
 
-export class GameEngineBattleMissionLoader implements GameEngineComponent {
+export class GameEngineGameLoader implements GameEngineComponent {
+    campaignLoaderContext: CampaignLoaderContext;
     missionLoaderContext: MissionLoaderContext;
     appliedResources: boolean;
     backupBattleOrchestratorState: BattleOrchestratorState;
@@ -41,7 +44,9 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
             if (isValidValue(state.repository)) {
                 ObjectRepositoryService.reset(state.repository);
             }
+
             this.resetBattleOrchestratorState(state.battleOrchestratorState);
+            await this.loadCampaignDataFromFile(state.campaign, state);
             await this.loadMissionDataFromFile(state.campaign, state, state.repository);
             return;
         }
@@ -185,6 +190,25 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
         });
     }
 
+    private async loadCampaignDataFromFile(campaign: Campaign, state: GameEngineState) {
+        if (state.campaignWasLoaded) {
+            return;
+        }
+
+        const campaignData = await CampaignLoaderService.loadCampaignFromFile(campaign.id);
+        const campaignResources: CampaignResources = campaignData.resources;
+        state.resourceHandler.loadResources(Object.values(campaignResources.missionMapMovementIconResourceKeys));
+        state.resourceHandler.loadResources(Object.values(campaignResources.missionMapAttackIconResourceKeys));
+        state.resourceHandler.loadResources(Object.values(campaignResources.missionAttributeIconResourceKeys));
+        this.campaignLoaderContext.resourcesPendingLoading = [
+            ...this.campaignLoaderContext.resourcesPendingLoading,
+            ...Object.values(campaignResources.missionMapMovementIconResourceKeys),
+            ...Object.values(campaignResources.missionMapAttackIconResourceKeys),
+            ...Object.values(campaignResources.missionAttributeIconResourceKeys),
+        ];
+        state.campaignWasLoaded = true;
+    }
+
     private resetBattleOrchestratorState(state: BattleOrchestratorState) {
         state.copyOtherOrchestratorState(
             BattleOrchestratorStateService.newOrchestratorState({})
@@ -193,6 +217,7 @@ export class GameEngineBattleMissionLoader implements GameEngineComponent {
 
     private resetInternalFields() {
         this.missionLoaderContext = MissionLoader.newEmptyMissionLoaderContext();
+        this.campaignLoaderContext = CampaignLoaderService.newLoaderContext();
         this.appliedResources = false;
         this.backupBattleOrchestratorState = undefined;
         this.loadedBattleSaveState = undefined;

@@ -5,8 +5,6 @@ import {
 } from "./battleOrchestratorState";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
-import {ResourceHandler} from "../../resource/resourceHandler";
-import {StubImmediateLoader} from "../../resource/resourceHandlerTestUtils";
 import {MissionObjectiveHelper} from "../missionResult/missionObjective";
 import {MissionRewardType} from "../missionResult/missionReward";
 import {MissionConditionType} from "../missionResult/missionCondition";

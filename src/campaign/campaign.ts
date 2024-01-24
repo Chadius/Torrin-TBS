@@ -9,13 +9,21 @@ export interface Campaign {
 
 export const CampaignService = {
     new: ({
+              id,
+              resources,
               missionIds
           }: {
+        id?: string,
+        resources?: CampaignResources,
         missionIds?: string[],
     }): Campaign => {
         return {
-            id: "default",
-            resources: CampaignResourcesService.default({}),
+            id: isValidValue(id)
+                ? id
+                : undefined,
+            resources: isValidValue(resources)
+                ? resources
+                : CampaignResourcesService.default({}),
             missionIds: isValidValue(missionIds)
                 ? missionIds
                 : ["0000"],

@@ -5,6 +5,7 @@ import {StartupMode} from "./utils/startupConfig";
 import {P5GraphicsContext} from "./utils/graphics/P5GraphicsContext";
 
 let gameEngine: GameEngine;
+const CAMPAIGN_ID: string = "templeDefense";
 
 export const sketch = (p: p5) => {
     p.setup = () => {
@@ -14,6 +15,7 @@ export const sketch = (p: p5) => {
         const p5GraphicsContext = new P5GraphicsContext({p});
         gameEngine = new GameEngine({graphicsContext: p5GraphicsContext, startupMode: StartupMode});
         gameEngine.setup({graphicsContext: p5GraphicsContext});
+        gameEngine.setCampaignId(CAMPAIGN_ID);
     }
 
     p.draw = () => {

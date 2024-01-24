@@ -18,10 +18,11 @@ import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
-import {GameEngineBattleMissionLoader} from "./gameEngineBattleMissionLoader";
+import {GameEngineGameLoader} from "./gameEngineGameLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
 import {Campaign, CampaignService} from "../campaign/campaign";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
+import {isValidValue} from "../utils/validityCheck";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
@@ -37,6 +38,7 @@ export interface GameEngineState {
         savingInProgress: boolean;
     },
     campaign: Campaign;
+    campaignWasLoaded: boolean;
 }
 
 export const GameEngineStateService = {
@@ -67,6 +69,7 @@ export const GameEngineStateService = {
                 savingInProgress: false,
             },
             campaign,
+            campaignWasLoaded: false,
             repository,
             resourceHandler,
         }
@@ -78,6 +81,7 @@ export const GameEngineStateService = {
             battleOrchestratorState: original.battleOrchestratorState.clone(),
             gameSaveFlags: {...original.gameSaveFlags},
             campaign: {...original.campaign},
+            campaignWasLoaded: original.campaignWasLoaded,
             repository: original.repository,
             resourceHandler: original.resourceHandler,
         }
@@ -86,8 +90,7 @@ export const GameEngineStateService = {
 
 export class GameEngine {
     gameEngineState: GameEngineState;
-    battleMissionLoader: GameEngineBattleMissionLoader;
-    // TODO add Campaign Loader
+    gameEngineGameLoader: GameEngineGameLoader;
     private readonly graphicsContext: GraphicsContext;
 
     constructor({graphicsContext, startupMode}: {
@@ -109,7 +112,7 @@ export class GameEngine {
             case GameModeEnum.TITLE_SCREEN:
                 return this.titleScreen;
             case GameModeEnum.LOADING_BATTLE:
-                return this.battleMissionLoader;
+                return this.gameEngineGameLoader;
             case GameModeEnum.BATTLE:
                 return this.battleOrchestrator;
             default:
@@ -136,7 +139,7 @@ export class GameEngine {
     }
 
     setup({graphicsContext}: {
-        graphicsContext: GraphicsContext
+        graphicsContext: GraphicsContext,
     }) {
         this._battleOrchestrator = new BattleOrchestrator({
             initializeBattle: new InitializeBattle(),
@@ -154,8 +157,12 @@ export class GameEngine {
         this.lazyLoadResourceHandler({graphicsContext});
 
         this._titleScreen = new TitleScreen({resourceHandler: this.resourceHandler});
-        this.battleMissionLoader = new GameEngineBattleMissionLoader();
-        this.resetComponentStates(graphicsContext);
+        this.gameEngineGameLoader = new GameEngineGameLoader();
+        this.resetComponentStates();
+    }
+
+    setCampaignId(campaignId: string) {
+        this.gameEngineState.campaign = CampaignService.new({id: campaignId});
     }
 
     async draw() {
@@ -203,13 +210,13 @@ export class GameEngine {
         }
     }
 
-    private resetComponentStates(graphicsContext: GraphicsContext) {
+    private resetComponentStates() {
         this.gameEngineState = GameEngineStateService.new({
             battleOrchestratorState: this.battleOrchestrator.setup({}),
             titleScreenState: this.titleScreen.setup(),
             repository: ObjectRepositoryService.new(),
             resourceHandler: this.resourceHandler,
-            campaign: CampaignService.default({}),
+            campaign: undefined,
         });
     }
 

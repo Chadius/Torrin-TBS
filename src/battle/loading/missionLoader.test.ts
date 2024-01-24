@@ -122,33 +122,6 @@ describe('Mission Loader', () => {
             )
         });
 
-        it('tries to load movement resources for the map', () => {
-            const movementResourceKeys: string[] = Object.values(campaignResources.missionMapMovementIconResourceKeys);
-
-            expect(resourceHandler.loadResources).toBeCalledWith(movementResourceKeys);
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(movementResourceKeys)
-            );
-        });
-
-        it('tries to load attack icon resources for the map', () => {
-            const attackResourceKeys: string[] = Object.values(campaignResources.missionMapAttackIconResourceKeys);
-
-            expect(resourceHandler.loadResources).toBeCalledWith(attackResourceKeys);
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(attackResourceKeys)
-            );
-        });
-
-        it('tries to load attribute icons for the map', () => {
-            const attributeIconResourceKeys: string[] = Object.values(campaignResources.missionAttributeIconResourceKeys);
-
-            expect(resourceHandler.loadResources).toBeCalledWith(attributeIconResourceKeys);
-            expect(missionLoaderContext.resourcesPendingLoading).toEqual(
-                expect.arrayContaining(attributeIconResourceKeys)
-            );
-        });
-
         it('can extract and validate objectives', () => {
             const clonedObjectives = missionData.objectives.map(obj => {
                 return {...obj}
@@ -190,7 +163,6 @@ describe('Mission Loader', () => {
                 missionData.enemy.mapPlacements.forEach(placement => {
                     const {
                         battleSquaddie,
-                        squaddieTemplate
                     } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, placement.battleSquaddieId));
                     expect(battleSquaddie.battleSquaddieId).toEqual(placement.battleSquaddieId);
                     expect(battleSquaddie.squaddieTemplateId).toEqual(placement.squaddieTemplateId);
@@ -333,7 +305,7 @@ describe('Mission Loader', () => {
 
     it('can reduce the pending resources', () => {
         missionLoaderContext.resourcesPendingLoading = ["A", "B", "C"];
-        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((resourceKey: string) => {
+        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((_: string) => {
             return false;
         });
         MissionLoader.checkResourcesPendingLoading({
@@ -351,7 +323,7 @@ describe('Mission Loader', () => {
         });
         expect(missionLoaderContext.resourcesPendingLoading).toEqual(["B", "C"]);
 
-        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((resourceKey: string) => {
+        resourceHandler.isResourceLoaded = jest.fn().mockImplementation((_: string) => {
             return true;
         });
         MissionLoader.checkResourcesPendingLoading({

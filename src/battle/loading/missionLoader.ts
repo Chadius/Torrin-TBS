@@ -25,7 +25,6 @@ import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieResource} from "../../squaddie/resource";
 import {InBattleAttributesHandler} from "../stats/inBattleAttributes";
 import {isValidValue} from "../../utils/validityCheck";
-import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
 
 export interface MissionLoaderCompletionProgress {
     started: boolean;
@@ -106,18 +105,6 @@ export const MissionLoader = {
                 resourceHandler,
             })
         });
-
-        // TODO move this into a campaign loading file
-        const campaignResources: CampaignResources = CampaignResourcesService.default({});
-        resourceHandler.loadResources(Object.values(campaignResources.missionMapMovementIconResourceKeys));
-        resourceHandler.loadResources(Object.values(campaignResources.missionMapAttackIconResourceKeys));
-        resourceHandler.loadResources(Object.values(campaignResources.missionAttributeIconResourceKeys));
-        missionLoaderContext.resourcesPendingLoading = [
-            ...missionLoaderContext.resourcesPendingLoading,
-            ...Object.values(campaignResources.missionMapMovementIconResourceKeys),
-            ...Object.values(campaignResources.missionMapAttackIconResourceKeys),
-            ...Object.values(campaignResources.missionAttributeIconResourceKeys),
-        ];
 
         missionLoaderContext.objectives = missionData.objectives.map(MissionObjectiveHelper.validateMissionObjective);
 
