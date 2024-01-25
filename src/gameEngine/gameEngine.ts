@@ -16,13 +16,14 @@ import {TitleScreen} from "../titleScreen/titleScreen";
 import {TitleScreenState, TitleScreenStateHelper} from "../titleScreen/titleScreenState";
 import {ResourceHandler, ResourceType} from "../resource/resourceHandler";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
-import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
+import {BattleSaveState, BattleSaveStateService} from "../battle/history/battleSaveState";
 import {SAVE_VERSION} from "../utils/fileHandling/saveFile";
 import {GameEngineGameLoader} from "./gameEngineGameLoader";
 import {InitializeBattle} from "../battle/orchestrator/initializeBattle";
 import {Campaign} from "../campaign/campaign";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 import {isValidValue} from "../utils/validityCheck";
+import {LoadSaveState, LoadSaveStateService} from "../dataLoader/loadSaveState";
 
 export interface GameEngineState {
     modeThatInitiatedLoading: GameModeEnum;
@@ -31,14 +32,12 @@ export interface GameEngineState {
     resourceHandler: ResourceHandler;
     titleScreenState: TitleScreenState;
     gameSaveFlags: {
-        errorDuringLoading: boolean;
-        loadingInProgress: boolean;
-        loadRequested: boolean;
         errorDuringSaving: boolean;
         savingInProgress: boolean;
     },
     campaign: Campaign;
     campaignIdThatWasLoaded: string;
+    loadSaveState: LoadSaveState;
 }
 
 export const GameEngineStateService = {
@@ -62,9 +61,6 @@ export const GameEngineStateService = {
             battleOrchestratorState: battleOrchestratorState ?? BattleOrchestratorStateService.newOrchestratorState({}),
             titleScreenState: titleScreenState ?? TitleScreenStateHelper.new(),
             gameSaveFlags: {
-                errorDuringLoading: false,
-                loadingInProgress: false,
-                loadRequested: false,
                 errorDuringSaving: false,
                 savingInProgress: false,
             },
@@ -72,6 +68,7 @@ export const GameEngineStateService = {
             campaignIdThatWasLoaded: isValidValue(campaign) ? campaign.id : undefined,
             repository,
             resourceHandler,
+            loadSaveState: LoadSaveStateService.new({}),
         }
     },
     clone: ({original}: { original: GameEngineState }): GameEngineState => {
@@ -84,6 +81,7 @@ export const GameEngineStateService = {
             campaignIdThatWasLoaded: original.campaignIdThatWasLoaded,
             repository: original.repository,
             resourceHandler: original.resourceHandler,
+            loadSaveState: {...original.loadSaveState},
         }
     }
 }
@@ -502,14 +500,14 @@ export class GameEngine {
     }
 
     private saveGameAndDownloadFile() {
-        const saveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveData: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             saveVersion: SAVE_VERSION,
             missionId: this.gameEngineState.battleOrchestratorState.battleState.missionId,
             battleOrchestratorState: this.gameEngineState.battleOrchestratorState,
             repository: this.gameEngineState.repository,
         });
         try {
-            BattleSaveStateHandler.SaveToFile(saveData);
+            BattleSaveStateService.SaveToFile(saveData);
         } catch (error) {
             console.log(`Save game failed: ${error}`);
             this.gameEngineState.gameSaveFlags.errorDuringSaving = true;

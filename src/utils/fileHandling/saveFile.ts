@@ -1,4 +1,4 @@
-import {BattleSaveState, BattleSaveStateHandler} from "../../battle/history/battleSaveState";
+import {BattleSaveState, BattleSaveStateService} from "../../battle/history/battleSaveState";
 
 export const SAVE_VERSION: number = 1;
 export const SAVE_FILENAME: string = "torrins-trial-save.json";
@@ -33,7 +33,7 @@ async function OpenFileDialogToSelectAFile() {
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const dataString: string = event.target.result;
-                const saveState: BattleSaveState = BattleSaveStateHandler.parseJsonIntoBattleSaveStateData(dataString);
+                const saveState: BattleSaveState = BattleSaveStateService.parseJsonIntoBattleSaveStateData(dataString);
                 resolve(saveState);
             };
             reader.readAsText(file, 'UTF-8');

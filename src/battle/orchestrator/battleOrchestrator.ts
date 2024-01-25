@@ -115,7 +115,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     recommendStateChanges(state: GameEngineState): GameEngineChanges {
-        if (state.gameSaveFlags.loadRequested) {
+        if (state.loadSaveState.userRequestedLoad) {
             return {
                 nextMode: GameModeEnum.LOADING_BATTLE
             };
@@ -156,7 +156,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     public update(state: GameEngineState, graphicsContext: GraphicsContext) {
-        if (state.gameSaveFlags.loadRequested) {
+        if (state.loadSaveState.userRequestedLoad) {
             return;
         }
 
@@ -278,7 +278,7 @@ export class BattleOrchestrator implements GameEngineComponent {
     }
 
     hasCompleted(state: GameEngineState): boolean {
-        return this.battleComplete || state.gameSaveFlags.loadRequested;
+        return this.battleComplete || state.loadSaveState.userRequestedLoad;
     }
 
     reset(state: GameEngineState): void {
@@ -315,7 +315,7 @@ export class BattleOrchestrator implements GameEngineComponent {
             }
         }
 
-        if (state.gameSaveFlags.loadingInProgress === true && state.battleOrchestratorState.battleState.battlePhaseState.turnCount === 0) {
+        if (state.loadSaveState.applicationStartedLoad === true && state.battleOrchestratorState.battleState.battlePhaseState.turnCount === 0) {
             cutsceneTriggersToActivate = cutsceneTriggersToActivate.filter((cutsceneTrigger) =>
                 cutsceneTrigger.triggeringEvent !== TriggeringEvent.START_OF_TURN
                 || cutsceneTrigger.turn !== 0

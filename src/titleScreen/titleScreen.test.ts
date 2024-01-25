@@ -12,6 +12,7 @@ import {makeResult} from "../utils/ResultOrError";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
 import {RectAreaService} from "../ui/rectArea";
 import {GameEngineState, GameEngineStateService} from "../gameEngine/gameEngine";
+import {LoadSaveState} from "../dataLoader/loadSaveState";
 
 
 describe('Title Screen', () => {
@@ -151,7 +152,7 @@ describe('Title Screen', () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeTruthy();
             expect(loadGame).toBeCalled();
 
-            expect(gameEngineState.gameSaveFlags.loadRequested).toBeTruthy();
+            expect(gameEngineState.loadSaveState.userRequestedLoad).toBeTruthy();
 
             let textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -166,12 +167,74 @@ describe('Title Screen', () => {
             titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, ScreenDimensions.SCREEN_WIDTH / 2, ScreenDimensions.SCREEN_HEIGHT - 1);
             expect(titleScreen.newGameSelected).toBeFalsy();
         });
+        describe('should show an error message when nothing is loaded', () => {
+            const tests = [
+                {
+                    name: "application errors",
+                    loadSaveStateChange: (loadSaveState: LoadSaveState): void => {
+                        loadSaveState.applicationErroredWhileLoading = true;
+                    },
+                    expectedSaveStateField: (loadSaveState: LoadSaveState): boolean => {
+                        return loadSaveState.applicationErroredWhileLoading;
+                    },
+                    expectedErrorMessage: `Loading failed. Check logs.`,
+                },
+                {
+                    name: "user cancels",
+                    loadSaveStateChange: (loadSaveState: LoadSaveState): void => {
+                        loadSaveState.userCanceledLoad = true;
+                    },
+                    expectedSaveStateField: (loadSaveState: LoadSaveState): boolean => {
+                        return loadSaveState.userCanceledLoad;
+                    },
+                    expectedErrorMessage: `Canceled loading.`,
+                },
+            ]
+            it.each(tests)(`$name`, ({
+                                         name,
+                                         loadSaveStateChange,
+                                         expectedSaveStateField,
+                                         expectedErrorMessage,
+                                     }) => {
+                jest.spyOn(Date, "now").mockReturnValue(0);
+                const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded");
+                titleScreen.update(gameEngineState, mockedP5GraphicsContext);
+                titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
+                loadSaveStateChange(gameEngineState.loadSaveState);
+
+                const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+                titleScreen.update(gameEngineState, mockedP5GraphicsContext);
+
+                expect(loadGame).toBeCalled();
+                expect(textSpy).toBeCalled();
+                expect(textSpy).toBeCalledWith(expect.stringMatching(expectedErrorMessage),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+                expect(expectedSaveStateField(gameEngineState.loadSaveState)).toBeTruthy();
+
+                jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
+                textSpy.mockClear();
+                titleScreen.update(gameEngineState, mockedP5GraphicsContext);
+                expect(textSpy).not.toBeCalledWith(expect.stringMatching(expectedErrorMessage),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything(),
+                    expect.anything()
+                );
+
+                expect(expectedSaveStateField(gameEngineState.loadSaveState)).toBeFalsy();
+            });
+        });
+
         it('should show a failure message if the load failed', () => {
             jest.spyOn(Date, "now").mockReturnValue(0);
             const loadGame = jest.spyOn(titleScreen, "markGameToBeLoaded");
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
             titleScreen.mouseClicked(gameEngineState, MouseButton.LEFT, RectAreaService.centerX(titleScreen.continueGameButton.readyLabel.textBox.area), RectAreaService.centerY(titleScreen.continueGameButton.readyLabel.textBox.area));
-            gameEngineState.gameSaveFlags.errorDuringLoading = true;
+            gameEngineState.loadSaveState.applicationErroredWhileLoading = true;
 
             const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
             titleScreen.update(gameEngineState, mockedP5GraphicsContext);
@@ -184,7 +247,7 @@ describe('Title Screen', () => {
                 expect.anything(),
                 expect.anything()
             );
-            expect(gameEngineState.gameSaveFlags.errorDuringLoading).toBeFalsy();
+            expect(gameEngineState.loadSaveState.applicationErroredWhileLoading).toBeTruthy();
 
             jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
             textSpy.mockClear();
@@ -195,6 +258,8 @@ describe('Title Screen', () => {
                 expect.anything(),
                 expect.anything()
             );
+
+            expect(gameEngineState.loadSaveState.applicationErroredWhileLoading).toBeFalsy();
         });
         it('should mark as completed and recommend the battle loader', () => {
             expect(titleScreen.hasCompleted(gameEngineState)).toBeFalsy();

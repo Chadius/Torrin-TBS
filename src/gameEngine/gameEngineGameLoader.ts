@@ -7,7 +7,7 @@ import {UIControlSettings} from "../battle/orchestrator/uiControlSettings";
 import {GameModeEnum} from "../utils/startupConfig";
 import {MissionObjective} from "../battle/missionResult/missionObjective";
 import {MissionCondition} from "../battle/missionResult/missionCondition";
-import {BattleSaveState, BattleSaveStateHandler} from "../battle/history/battleSaveState";
+import {BattleSaveState, BattleSaveStateService} from "../battle/history/battleSaveState";
 import {SaveFile} from "../utils/fileHandling/saveFile";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {getResultOrThrowError} from "../utils/ResultOrError";
@@ -18,6 +18,7 @@ import {Campaign, CampaignService} from "../campaign/campaign";
 import {isValidValue} from "../utils/validityCheck";
 import {CampaignLoaderContext, CampaignLoaderService} from "../dataLoader/campaignLoader";
 import {CampaignResources} from "../campaign/campaignResources";
+import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 
 export class GameEngineGameLoader implements GameEngineComponent {
     campaignLoaderContext: CampaignLoaderContext;
@@ -45,6 +46,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
             try {
                 await this.loadBattleSaveStateFromFile(state);
             } catch {
+                return;
+            }
+
+            if (this.errorFoundWhileLoading) {
                 return;
             }
 
@@ -132,25 +137,26 @@ export class GameEngineGameLoader implements GameEngineComponent {
     }
 
     private applySaveStateToBattleOrchestratorState(gameEngineState: GameEngineState) {
-        let battleOrchestratorState = gameEngineState.battleOrchestratorState;
-        if (gameEngineState.gameSaveFlags.loadRequested) {
-            BattleSaveStateHandler.applySaveStateToOrchestratorState({
-                battleSaveState: this.loadedBattleSaveState,
-                battleOrchestratorState: battleOrchestratorState,
-                squaddieRepository: gameEngineState.repository,
-            });
-
-            if (battleOrchestratorState.isValid) {
-                this.backupBattleOrchestratorState = undefined;
-                this.addMidTurnEffects(gameEngineState.repository);
-            } else {
-                console.error("Save file is incompatible. Reverting.");
-                battleOrchestratorState.copyOtherOrchestratorState(this.backupBattleOrchestratorState);
-                this.errorFoundWhileLoading = true;
-            }
-            gameEngineState.gameSaveFlags.loadingInProgress = false;
-            gameEngineState.gameSaveFlags.loadRequested = false;
+        if (!gameEngineState.loadSaveState.applicationCompletedLoad) {
+            return;
         }
+
+        let battleOrchestratorState = gameEngineState.battleOrchestratorState;
+        BattleSaveStateService.applySaveStateToOrchestratorState({
+            battleSaveState: this.loadedBattleSaveState,
+            battleOrchestratorState: battleOrchestratorState,
+            squaddieRepository: gameEngineState.repository,
+        });
+
+        if (battleOrchestratorState.isValid) {
+            this.backupBattleOrchestratorState = undefined;
+            this.addMidTurnEffects(gameEngineState.repository);
+        } else {
+            console.error("Save file is incompatible. Reverting.");
+            battleOrchestratorState.copyOtherOrchestratorState(this.backupBattleOrchestratorState);
+            this.errorFoundWhileLoading = true;
+        }
+        LoadSaveStateService.reset(gameEngineState.loadSaveState);
     }
 
     private applyMissionLoaderContextToBattleOrchestratorState(battleOrchestratorState: BattleOrchestratorState) {
@@ -255,22 +261,29 @@ export class GameEngineGameLoader implements GameEngineComponent {
         });
     }
 
-    private async loadBattleSaveStateFromFile(gameEngineState: GameEngineState): Promise<Error> {
-        if (!gameEngineState.gameSaveFlags.loadRequested) {
+    private async loadBattleSaveStateFromFile(gameEngineState: GameEngineState): Promise<void> {
+        if (!gameEngineState.loadSaveState.userRequestedLoad) {
             return;
         }
 
-        try {
-            this.loadedBattleSaveState = await SaveFile.RetrieveFileContent();
-        } catch (e) {
-            gameEngineState.gameSaveFlags.loadingInProgress = false;
-            gameEngineState.gameSaveFlags.loadRequested = false;
-            this.errorFoundWhileLoading = true;
-            console.error("Failed to load progress file from storage.");
-            console.error(e);
-            return e;
+        if (gameEngineState.loadSaveState.applicationStartedLoad) {
+            return;
         }
 
-        return undefined;
+        LoadSaveStateService.applicationStartsLoad(gameEngineState.loadSaveState);
+        await SaveFile.RetrieveFileContent()
+            .then((saveState: BattleSaveState) => {
+                this.loadedBattleSaveState = saveState;
+                LoadSaveStateService.applicationCompletesLoad(gameEngineState.loadSaveState, this.loadedBattleSaveState);
+            }).catch((reason) => {
+                if (reason === "user canceled") {
+                    LoadSaveStateService.userCancelsLoad(gameEngineState.loadSaveState);
+                } else {
+                    LoadSaveStateService.applicationErrorsWhileLoading(gameEngineState.loadSaveState);
+                }
+                this.errorFoundWhileLoading = true;
+                console.error("Failed to load progress file from storage.");
+                console.error(reason);
+            });
     }
 }

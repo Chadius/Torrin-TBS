@@ -1,6 +1,6 @@
 import {
     BattleSaveState,
-    BattleSaveStateHandler,
+    BattleSaveStateService,
     DefaultBattleSaveState,
     InBattleAttributesAndTurn
 } from "./battleSaveState";
@@ -235,7 +235,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -256,7 +256,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -280,7 +280,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -299,7 +299,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -359,7 +359,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -378,7 +378,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -411,7 +411,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -437,7 +437,7 @@ describe("BattleSaveState", () => {
         newBattleState.battleState.missionMap.addSquaddie("template 0", "battle 0", {q: 0, r: 2});
         newBattleState.battleState.missionMap.addSquaddie("template 1", "battle 1", {q: 0, r: 3});
 
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -477,7 +477,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -498,7 +498,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -519,7 +519,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -538,7 +538,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -568,7 +568,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -587,7 +587,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -637,7 +637,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -656,7 +656,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -690,7 +690,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const battleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const battleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             battleOrchestratorState: originalOrchestratorState,
             repository: originalSquaddieRepository,
             missionId: "test mission",
@@ -706,7 +706,7 @@ describe("BattleSaveState", () => {
                 missionMap: NullMissionMap(),
             }),
         })
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleOrchestratorState: newOrchestratorState,
             squaddieRepository: originalSquaddieRepository,
             battleSaveState,
@@ -742,7 +742,7 @@ describe("BattleSaveState", () => {
             }),
         });
 
-        const saveState: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
             missionId: "test",
             saveVersion: SAVE_VERSION,
             battleOrchestratorState: battleState,
@@ -761,7 +761,7 @@ describe("BattleSaveState", () => {
                 },
             }),
         });
-        BattleSaveStateHandler.applySaveStateToOrchestratorState({
+        BattleSaveStateService.applySaveStateToOrchestratorState({
             battleSaveState: saveState,
             battleOrchestratorState: newBattleState,
             squaddieRepository: newSquaddieRepository
@@ -900,7 +900,7 @@ describe("BattleSaveState", () => {
                     },
                 }),
             });
-            BattleSaveStateHandler.applySaveStateToOrchestratorState({
+            BattleSaveStateService.applySaveStateToOrchestratorState({
                 battleSaveState: saveData,
                 battleOrchestratorState: newBattleState,
                 squaddieRepository: newSquaddieRepository,
@@ -908,8 +908,8 @@ describe("BattleSaveState", () => {
         });
 
         it('can export data to and from JSON', () => {
-            const dataString = BattleSaveStateHandler.stringifyBattleSaveStateData(saveData);
-            const newSaveData: BattleSaveState = BattleSaveStateHandler.parseJsonIntoBattleSaveStateData(dataString);
+            const dataString = BattleSaveStateService.stringifyBattleSaveStateData(saveData);
+            const newSaveData: BattleSaveState = BattleSaveStateService.parseJsonIntoBattleSaveStateData(dataString);
             expect(newSaveData).toEqual(saveData);
         });
 
@@ -993,7 +993,7 @@ describe("BattleSaveState", () => {
             });
 
 
-            const newSaveData: BattleSaveState = BattleSaveStateHandler.newUsingBattleOrchestratorState({
+            const newSaveData: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
                 saveVersion: 9001,
                 missionId: "This mission",
                 battleOrchestratorState,

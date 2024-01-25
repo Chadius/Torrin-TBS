@@ -43,6 +43,7 @@ import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngi
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
 
 describe('Battle Orchestrator', () => {
     type OrchestratorTestOptions = {
@@ -367,7 +368,7 @@ describe('Battle Orchestrator', () => {
                 }),
             repository: ObjectRepositoryService.new(),
         });
-        stateWithCutscene.gameSaveFlags.loadingInProgress = true;
+        LoadSaveStateService.applicationStartsLoad(stateWithCutscene.loadSaveState);
 
         orchestrator.update(stateWithCutscene, mockedP5GraphicsContext);
         expect(orchestrator.cutscenePlayer.currentCutsceneId).toBeUndefined();
@@ -990,7 +991,7 @@ describe('Battle Orchestrator', () => {
             }),
             repository: undefined,
         });
-        state.gameSaveFlags.loadRequested = true;
+        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
 
         orchestrator.update(state, mockedP5GraphicsContext);
         expect(orchestrator.hasCompleted(state)).toBeTruthy();

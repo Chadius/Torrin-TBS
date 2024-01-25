@@ -23,6 +23,8 @@ import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
+import {LoadSaveStateService} from "../dataLoader/loadSaveState";
+import {isValidValue} from "../utils/validityCheck";
 
 enum TitleScreenMenuSelection {
     NONE = "NONE",
@@ -128,7 +130,8 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     markGameToBeLoaded(state: GameEngineState): void {
-        state.gameSaveFlags.loadRequested = true;
+        LoadSaveStateService.reset(state.loadSaveState);
+        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
     }
 
     private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
@@ -354,25 +357,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     private updateContinueGameButton(state: GameEngineState, graphicsContext: GraphicsContext) {
-        let newButtonLabel: string;
-        newButtonLabel = "Continue";
-        if (state.gameSaveFlags.loadRequested) {
-            newButtonLabel = "Now loading...";
-        }
-
-        if (
-            state.gameSaveFlags.errorDuringLoading
-        ) {
-            newButtonLabel = 'Loading failed. Check logs.';
-            this.continueGameButton.buttonStatus = ButtonStatus.READY;
-            state.gameSaveFlags.errorDuringLoading = false;
-            this.errorDuringLoadingDisplayStartTimestamp = Date.now();
-        } else if (
-            this.errorDuringLoadingDisplayStartTimestamp !== undefined
-            && Date.now() - this.errorDuringLoadingDisplayStartTimestamp < FILE_MESSAGE_DISPLAY_DURATION
-        ) {
-            newButtonLabel = 'Loading failed. Check logs.';
-        }
+        const newButtonLabel = this.getNewButtonLabel(state);
 
         let changePlayButtonLabel: boolean = (newButtonLabel !== this.continueGameButtonLabel);
         if (changePlayButtonLabel) {
@@ -426,6 +411,74 @@ export class TitleScreen implements GameEngineComponent {
         }
 
         return this.continueGameButton;
+    }
+
+    private getNewButtonLabel(state: GameEngineState): string {
+        const defaultMessage: string = "Continue";
+
+        const userRequestedLoad: boolean = state.loadSaveState.userRequestedLoad === true;
+
+        const loadingFailedDueToError: boolean = state.loadSaveState.applicationErroredWhileLoading
+        const userCanceledLoad: boolean = state.loadSaveState.userCanceledLoad;
+        const loadingFailed: boolean = loadingFailedDueToError || userCanceledLoad;
+
+        if (
+            !(userRequestedLoad || loadingFailed)
+        ) {
+            return defaultMessage;
+        }
+
+        const loadingMessage: string = "Now loading...";
+        if (
+            userRequestedLoad
+            && !loadingFailed
+        ) {
+            return loadingMessage;
+        }
+
+        const errorMessageTimeoutIsReached: boolean = this.errorDuringLoadingDisplayStartTimestamp !== undefined
+            && Date.now() - this.errorDuringLoadingDisplayStartTimestamp >= FILE_MESSAGE_DISPLAY_DURATION;
+
+        const applicationErrorMessage: string = 'Loading failed. Check logs.';
+        const currentlyShowingApplicationErrorMessage: boolean = isValidValue(this.continueGameButton)
+            && this.continueGameButton.readyLabel.textBox.text === applicationErrorMessage;
+
+        if (loadingFailedDueToError) {
+            if (!currentlyShowingApplicationErrorMessage) {
+                if (this.continueGameButton) {
+                    this.continueGameButton.buttonStatus = ButtonStatus.READY;
+                }
+                this.errorDuringLoadingDisplayStartTimestamp = Date.now();
+                return applicationErrorMessage;
+            }
+
+            if (!errorMessageTimeoutIsReached) {
+                return applicationErrorMessage;
+            }
+
+            LoadSaveStateService.reset(state.loadSaveState);
+            this.errorDuringLoadingDisplayStartTimestamp = undefined;
+            return defaultMessage;
+        }
+
+        const userCancelMessage: string = `Canceled loading.`;
+        const currentlyShowingUserCancelMessage: boolean = isValidValue(this.continueGameButton)
+            && this.continueGameButton.readyLabel.textBox.text === userCancelMessage;
+        if (!currentlyShowingUserCancelMessage) {
+            if (this.continueGameButton) {
+                this.continueGameButton.buttonStatus = ButtonStatus.READY;
+            }
+            this.errorDuringLoadingDisplayStartTimestamp = Date.now();
+            return userCancelMessage;
+        }
+
+        if (!errorMessageTimeoutIsReached) {
+            return userCancelMessage;
+        }
+
+        LoadSaveStateService.reset(state.loadSaveState);
+        this.errorDuringLoadingDisplayStartTimestamp = undefined;
+        return defaultMessage;
     }
 
     private lazyLoadBackground() {

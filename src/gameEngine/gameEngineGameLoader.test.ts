@@ -31,6 +31,7 @@ import {CutsceneService} from "../cutscene/cutscene";
 import {CampaignService} from "../campaign/campaign";
 import {CampaignFileFormat} from "../campaign/campaignFileFormat";
 import {TestCampaignData} from "../utils/test/campaignData";
+import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 
 describe('GameEngineGameLoader', () => {
     let loader: GameEngineGameLoader;
@@ -325,7 +326,7 @@ describe('GameEngineGameLoader', () => {
                     }),
                 campaign: CampaignService.default({}),
             });
-            originalState.gameSaveFlags.loadRequested = true;
+            LoadSaveStateService.userRequestsLoad(originalState.loadSaveState);
             currentState = GameEngineStateService.clone({original: originalState});
         });
 
@@ -381,8 +382,8 @@ describe('GameEngineGameLoader', () => {
             await loader.update(currentState);
             await loader.update(currentState);
 
-            expect(currentState.gameSaveFlags.loadRequested).toBeFalsy();
-            expect(currentState.gameSaveFlags.loadingInProgress).toBeFalsy();
+            expect(currentState.loadSaveState.userRequestedLoad).toBeFalsy();
+            expect(currentState.loadSaveState.applicationStartedLoad).toBeFalsy();
             expect(loader.hasCompleted(currentState)).toBeTruthy();
         });
 
@@ -401,8 +402,8 @@ describe('GameEngineGameLoader', () => {
             await loader.update(currentState);
             expect(loader.backupBattleOrchestratorState).toEqual(originalState.battleOrchestratorState);
             await loader.update(currentState);
-            expect(currentState.gameSaveFlags.loadingInProgress).toBeFalsy();
-            expect(currentState.gameSaveFlags.loadRequested).toBeFalsy();
+            expect(currentState.loadSaveState.userRequestedLoad).toBeFalsy();
+            expect(currentState.loadSaveState.applicationStartedLoad).toBeFalsy();
             expect(loader.errorFoundWhileLoading).toBeTruthy();
 
             expect(currentState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toEqual(originalState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds);
@@ -471,7 +472,7 @@ describe('GameEngineGameLoader', () => {
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default({}),
             });
-            originalState.gameSaveFlags.loadRequested = true;
+            LoadSaveStateService.userRequestsLoad(originalState.loadSaveState);
             currentState = GameEngineStateService.new({
                 repository: ObjectRepositoryService.new(),
                 previousMode: GameModeEnum.TITLE_SCREEN,
@@ -480,7 +481,7 @@ describe('GameEngineGameLoader', () => {
                 titleScreenState: TitleScreenStateHelper.new(),
                 campaign: CampaignService.default({}),
             });
-            currentState.gameSaveFlags.loadRequested = true;
+            LoadSaveStateService.userRequestsLoad(currentState.loadSaveState);
         });
 
         it('will try to begin retrieving file content', async () => {
@@ -530,8 +531,8 @@ describe('GameEngineGameLoader', () => {
             await loader.update(currentState);
             await loader.update(currentState);
 
-            expect(currentState.gameSaveFlags.loadRequested).toBeFalsy();
-            expect(currentState.gameSaveFlags.loadingInProgress).toBeFalsy();
+            expect(currentState.loadSaveState.applicationStartedLoad).toBeFalsy();
+            expect(currentState.loadSaveState.userRequestedLoad).toBeFalsy();
             expect(loader.hasCompleted(currentState)).toBeTruthy();
         });
 
@@ -551,8 +552,8 @@ describe('GameEngineGameLoader', () => {
             await loader.update(currentState);
             await loader.update(currentState);
             await loader.update(currentState);
-            expect(currentState.gameSaveFlags.loadingInProgress).toBeFalsy();
-            expect(currentState.gameSaveFlags.loadRequested).toBeFalsy();
+            expect(currentState.loadSaveState.applicationStartedLoad).toBeFalsy();
+            expect(currentState.loadSaveState.userRequestedLoad).toBeFalsy();
             expect(loader.errorFoundWhileLoading).toBeTruthy();
 
             expect(currentState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds).toEqual(originalState.battleOrchestratorState.battleState.missionStatistics.timeElapsedInMilliseconds);

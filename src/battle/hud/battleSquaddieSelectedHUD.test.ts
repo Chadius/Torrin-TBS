@@ -38,6 +38,7 @@ import {SquaddieTurnService} from "../../squaddie/turn";
 import {isValidValue} from "../../utils/validityCheck";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattlePhaseStateService} from "../orchestratorComponents/battlePhaseController";
+import {LoadSaveState} from "../../dataLoader/loadSaveState";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -795,7 +796,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state);
             expect(loadGame).toBeCalled();
 
-            expect(state.gameSaveFlags.loadRequested).toBeTruthy();
+            expect(state.loadSaveState.userRequestedLoad).toBeTruthy();
         });
         describe('user clicks the load button', () => {
             let state: GameEngineState;
@@ -863,40 +864,71 @@ describe('BattleSquaddieSelectedHUD', () => {
                 );
                 expect(loadGame).toBeCalled();
             });
-            it('should show a failure message if the load failed', () => {
-                jest.spyOn(Date, "now").mockReturnValue(0);
-                const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
-                hud.selectSquaddieAndDrawWindow({
-                    battleId: playerSquaddieDynamic.battleSquaddieId,
-                    repositionWindow: {mouseX: 0, mouseY: 0},
-                    state: state,
+            describe('should show an error message when nothing is loaded', () => {
+                const tests = [
+                    {
+                        name: "application errors",
+                        loadSaveStateChange: (loadSaveState: LoadSaveState): void => {
+                            loadSaveState.applicationErroredWhileLoading = true;
+                        },
+                        expectedSaveStateField: (loadSaveState: LoadSaveState): boolean => {
+                            return loadSaveState.applicationErroredWhileLoading;
+                        },
+                        expectedErrorMessage: `Loading failed. Check logs.`,
+                    },
+                    {
+                        name: "user cancels",
+                        loadSaveStateChange: (loadSaveState: LoadSaveState): void => {
+                            loadSaveState.userCanceledLoad = true;
+                        },
+                        expectedSaveStateField: (loadSaveState: LoadSaveState): boolean => {
+                            return loadSaveState.userCanceledLoad;
+                        },
+                        expectedErrorMessage: `Canceled loading.`,
+                    },
+                ]
+
+                it.each(tests)(`$name`, ({
+                                             name,
+                                             loadSaveStateChange,
+                                             expectedSaveStateField,
+                                             expectedErrorMessage,
+                                         }) => {
+                    jest.spyOn(Date, "now").mockReturnValue(0);
+                    const loadGame = jest.spyOn(hud, "markGameToBeLoaded");
+                    hud.selectSquaddieAndDrawWindow({
+                        battleId: playerSquaddieDynamic.battleSquaddieId,
+                        repositionWindow: {mouseX: 0, mouseY: 0},
+                        state: state,
+                    });
+
+                    hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state,);
+                    loadSaveStateChange(state.loadSaveState);
+
+                    const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
+                    hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+
+                    expect(textSpy).toBeCalled();
+                    expect(textSpy).toBeCalledWith(expect.stringMatching(expectedErrorMessage),
+                        expect.anything(),
+                        expect.anything(),
+                        expect.anything(),
+                        expect.anything()
+                    );
+                    expect(loadGame).toBeCalled();
+                    expect(expectedSaveStateField(state.loadSaveState)).toBeTruthy();
+
+                    jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
+                    textSpy.mockClear();
+                    hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                    expect(textSpy).not.toBeCalledWith(expect.stringMatching(expectedErrorMessage),
+                        expect.anything(),
+                        expect.anything(),
+                        expect.anything(),
+                        expect.anything()
+                    );
+                    expect(expectedSaveStateField(state.loadSaveState)).toBeFalsy();
                 });
-
-                hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state,);
-                state.gameSaveFlags.errorDuringLoading = true;
-
-                const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
-
-                expect(textSpy).toBeCalled();
-                expect(textSpy).toBeCalledWith(expect.stringMatching(`Loading failed. Check logs.`),
-                    expect.anything(),
-                    expect.anything(),
-                    expect.anything(),
-                    expect.anything()
-                );
-                expect(loadGame).toBeCalled();
-                expect(state.gameSaveFlags.errorDuringLoading).toBeFalsy();
-
-                jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
-                textSpy.mockClear();
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
-                expect(textSpy).not.toBeCalledWith(expect.stringMatching(`Loading failed. Check logs.`),
-                    expect.anything(),
-                    expect.anything(),
-                    expect.anything(),
-                    expect.anything()
-                );
             });
         });
     });
