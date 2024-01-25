@@ -8,32 +8,31 @@ export interface LoadSaveState {
     userRequestedLoad: boolean;
     userCanceledLoad: boolean;
     applicationErroredWhileLoading: boolean;
-    locks: {};
 }
 
 export const LoadSaveStateService = {
     new: ({
               saveState,
-              processStartedLoad,
-              processErroredWhileLoading,
-              processCompletedLoad,
+              applicationStartedLoad,
+              applicationErroredWhileLoading,
+              applicationCompletedLoad,
               userLoadRequested,
               userCanceledLoad
           }: {
         saveState?: BattleSaveState;
-        processStartedLoad?: boolean;
-        processErroredWhileLoading?: boolean;
-        processCompletedLoad?: boolean;
+        applicationStartedLoad?: boolean;
+        applicationErroredWhileLoading?: boolean;
+        applicationCompletedLoad?: boolean;
         userLoadRequested?: boolean;
         userCanceledLoad?: boolean
     }): LoadSaveState => {
         return newLoadSaveState({
             saveState: isValidValue(saveState) ? saveState : undefined,
-            processStartedLoad: isValidValue(processStartedLoad) ? processStartedLoad : false,
-            processErroredWhileLoading: isValidValue(processErroredWhileLoading) ? processStartedLoad : false,
-            processCompletedLoad: isValidValue(processCompletedLoad) ? processStartedLoad : false,
-            userLoadRequested: isValidValue(userLoadRequested) ? processStartedLoad : false,
-            userCanceledLoad: isValidValue(userCanceledLoad) ? processStartedLoad : false,
+            applicationStartedLoad: isValidValue(applicationStartedLoad) ? applicationStartedLoad : false,
+            applicationErroredWhileLoading: isValidValue(applicationErroredWhileLoading) ? applicationStartedLoad : false,
+            applicationCompletedLoad: isValidValue(applicationCompletedLoad) ? applicationStartedLoad : false,
+            userLoadRequested: isValidValue(userLoadRequested) ? applicationStartedLoad : false,
+            userCanceledLoad: isValidValue(userCanceledLoad) ? applicationStartedLoad : false,
         });
     },
     userRequestsLoad: (loadSaveState: LoadSaveState): void => {
@@ -44,14 +43,18 @@ export const LoadSaveStateService = {
     },
     applicationCompletesLoad: (loadSaveState: LoadSaveState, saveSate: BattleSaveState): void => {
         loadSaveState.applicationCompletedLoad = true;
+        loadSaveState.applicationStartedLoad = false;
         loadSaveState.saveState = saveSate;
     },
     applicationErrorsWhileLoading: (loadSaveState: LoadSaveState): void => {
         loadSaveState.applicationErroredWhileLoading = true;
+        loadSaveState.applicationStartedLoad = false;
         loadSaveState.saveState = undefined;
     },
     userCancelsLoad: (loadSaveState: LoadSaveState): void => {
+        loadSaveState.applicationStartedLoad = false;
         loadSaveState.userCanceledLoad = true;
+        loadSaveState.userRequestedLoad = false;
         loadSaveState.saveState = undefined;
     },
     reset: (loadSaveState: LoadSaveState): void => {
@@ -59,9 +62,9 @@ export const LoadSaveStateService = {
             loadSaveState,
             newLoadSaveState({
                 saveState: undefined,
-                processStartedLoad: false,
-                processErroredWhileLoading: false,
-                processCompletedLoad: false,
+                applicationStartedLoad: false,
+                applicationErroredWhileLoading: false,
+                applicationCompletedLoad: false,
                 userLoadRequested: false,
                 userCanceledLoad: false,
             })
@@ -71,26 +74,25 @@ export const LoadSaveStateService = {
 
 const newLoadSaveState = ({
                               saveState,
-                              processStartedLoad,
-                              processErroredWhileLoading,
-                              processCompletedLoad,
+                              applicationStartedLoad,
+                              applicationErroredWhileLoading,
+                              applicationCompletedLoad,
                               userLoadRequested,
                               userCanceledLoad
                           }: {
     saveState: BattleSaveState;
-    processStartedLoad: boolean;
-    processErroredWhileLoading: boolean;
-    processCompletedLoad: boolean;
+    applicationStartedLoad: boolean;
+    applicationErroredWhileLoading: boolean;
+    applicationCompletedLoad: boolean;
     userLoadRequested: boolean;
     userCanceledLoad: boolean
 }): LoadSaveState => {
     return {
         saveState,
-        applicationStartedLoad: processStartedLoad,
-        applicationErroredWhileLoading: processErroredWhileLoading,
-        applicationCompletedLoad: processCompletedLoad,
+        applicationStartedLoad: applicationStartedLoad,
+        applicationErroredWhileLoading: applicationErroredWhileLoading,
+        applicationCompletedLoad: applicationCompletedLoad,
         userRequestedLoad: userLoadRequested,
         userCanceledLoad,
-        locks: {},
     }
 }

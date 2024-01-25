@@ -40,7 +40,6 @@ describe('Load Save State Process', () => {
         expect(loadFlags.applicationErroredWhileLoading).toBeFalsy();
         expect(loadFlags.applicationCompletedLoad).toBeFalsy();
         expect(loadFlags.saveState).toBeUndefined();
-        expect(loadFlags.locks).toEqual({});
     });
 
     it('knows when the user has requested a loaded file', () => {
@@ -55,10 +54,13 @@ describe('Load Save State Process', () => {
         expect(loadFlags.applicationStartedLoad).toBeTruthy();
     });
 
-    it('knows when the user has selected a file and process completed loading savestate', () => {
-        const loadFlags = LoadSaveStateService.new({});
+    it('knows when the user has selected a file and process completed loading save state', () => {
+        const loadFlags = LoadSaveStateService.new({
+            applicationStartedLoad: true
+        });
         LoadSaveStateService.applicationCompletesLoad(loadFlags, saveState);
         expect(loadFlags.applicationCompletedLoad).toBeTruthy();
+        expect(loadFlags.applicationStartedLoad).toBeFalsy();
         expect(loadFlags.saveState).toEqual(saveState);
     });
 
@@ -66,6 +68,8 @@ describe('Load Save State Process', () => {
         const loadFlags = LoadSaveStateService.new({});
         LoadSaveStateService.userCancelsLoad(loadFlags);
         expect(loadFlags.userCanceledLoad).toBeTruthy();
+        expect(loadFlags.userRequestedLoad).toBeFalsy();
+        expect(loadFlags.applicationStartedLoad).toBeFalsy();
         expect(loadFlags.saveState).toBeUndefined();
     });
 
@@ -73,16 +77,18 @@ describe('Load Save State Process', () => {
         const loadFlags = LoadSaveStateService.new({});
         LoadSaveStateService.applicationErrorsWhileLoading(loadFlags);
         expect(loadFlags.applicationErroredWhileLoading).toBeTruthy();
+        expect(loadFlags.applicationStartedLoad).toBeFalsy();
+        expect(loadFlags.userRequestedLoad).toBeFalsy();
         expect(loadFlags.saveState).toBeUndefined();
     });
 
     it('can be reset', () => {
         const loadFlags = LoadSaveStateService.new({
             userLoadRequested: true,
-            processErroredWhileLoading: true,
-            processStartedLoad: true,
+            applicationErroredWhileLoading: true,
+            applicationStartedLoad: true,
             userCanceledLoad: true,
-            processCompletedLoad: true,
+            applicationCompletedLoad: true,
             saveState: saveState,
         });
 
@@ -94,6 +100,5 @@ describe('Load Save State Process', () => {
         expect(loadFlags.applicationErroredWhileLoading).toBeFalsy();
         expect(loadFlags.applicationCompletedLoad).toBeFalsy();
         expect(loadFlags.saveState).toBeUndefined();
-        expect(loadFlags.locks).toEqual({});
     });
 })

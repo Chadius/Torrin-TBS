@@ -92,6 +92,7 @@ export class BattleSquaddieSelectedHUD {
     endTurnButton: Label;
     nextBattleSquaddieIds: string[];
     graphicsObjects: BattleHUDGraphicsObject;
+    errorDuringLoadingDisplayStartTimestamp: number;
 
     constructor() {
         this.reset();
@@ -291,6 +292,7 @@ export class BattleSquaddieSelectedHUD {
         this.nextBattleSquaddieIds = [];
 
         this.graphicsObjects = BattleHUDGraphicsObjectsHelper.new();
+        this.errorDuringLoadingDisplayStartTimestamp = undefined;
     }
 
     shouldDrawNextButton(state: GameEngineState): boolean {
@@ -528,14 +530,21 @@ export class BattleSquaddieSelectedHUD {
 
     private drawFileAccessWarning(state: GameEngineState) {
         const WARNING_LOAD_FILE_FAILED = "Loading failed. Check logs.";
+        const userRequestedLoad: boolean = state.loadSaveState.userRequestedLoad === true;
+        const errorMessageTimeoutIsReached: boolean = this.errorDuringLoadingDisplayStartTimestamp !== undefined
+            && Date.now() - this.errorDuringLoadingDisplayStartTimestamp >= FILE_MESSAGE_DISPLAY_DURATION;
+
+        const loadingFailed: boolean = state.loadSaveState.applicationErroredWhileLoading
+            || state.loadSaveState.userCanceledLoad;
         if (
-            state.loadSaveState.applicationErroredWhileLoading
+            loadingFailed
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
                 || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_LOAD_FILE_FAILED
             )
         ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
+            this.errorDuringLoadingDisplayStartTimestamp = Date.now();
             return;
         }
 
@@ -566,10 +575,7 @@ export class BattleSquaddieSelectedHUD {
 
         const WARNING_LOAD_FILE = "Loading...";
         if (
-            (
-                state.loadSaveState.userRequestedLoad
-                || state.loadSaveState.applicationStartedLoad
-            )
+            userRequestedLoad
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
                 || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_LOAD_FILE
@@ -577,6 +583,12 @@ export class BattleSquaddieSelectedHUD {
         ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE, FILE_MESSAGE_DISPLAY_DURATION);
             return;
+        }
+
+        if (loadingFailed && errorMessageTimeoutIsReached) {
+            this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX = undefined;
+            LoadSaveStateService.reset(state.loadSaveState);
+            this.errorDuringLoadingDisplayStartTimestamp = undefined;
         }
     }
 

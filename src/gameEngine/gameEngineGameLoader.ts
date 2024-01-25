@@ -49,6 +49,10 @@ export class GameEngineGameLoader implements GameEngineComponent {
                 return;
             }
 
+            if (this.errorFoundWhileLoading) {
+                return;
+            }
+
             if (isValidValue(state.repository)) {
                 ObjectRepositoryService.reset(state.repository);
             }
