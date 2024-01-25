@@ -795,7 +795,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state);
             expect(loadGame).toBeCalled();
 
-            expect(state.gameSaveFlags.loadRequested).toBeTruthy();
+            expect(state.loadSaveState.userRequestedLoad).toBeTruthy();
         });
         describe('user clicks the load button', () => {
             let state: GameEngineState;
@@ -873,7 +873,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 });
 
                 hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state,);
-                state.gameSaveFlags.errorDuringLoading = true;
+                state.loadSaveState.applicationErroredWhileLoading = true;
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
                 hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
@@ -886,7 +886,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     expect.anything()
                 );
                 expect(loadGame).toBeCalled();
-                expect(state.gameSaveFlags.errorDuringLoading).toBeFalsy();
+                expect(state.loadSaveState.applicationErroredWhileLoading).toBeFalsy();
 
                 jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                 textSpy.mockClear();

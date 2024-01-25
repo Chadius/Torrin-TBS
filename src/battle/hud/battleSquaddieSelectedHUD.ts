@@ -34,6 +34,7 @@ import {isValidValue} from "../../utils/validityCheck";
 import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleStateService} from "../orchestrator/battleState";
+import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -232,8 +233,8 @@ export class BattleSquaddieSelectedHUD {
     mouseClicked(mouseX: number, mouseY: number, state: GameEngineState) {
         if (
             state.gameSaveFlags.savingInProgress
-            || state.gameSaveFlags.loadingInProgress
-            || state.gameSaveFlags.loadRequested
+            || state.loadSaveState.userRequestedLoad
+            || state.loadSaveState.applicationStartedLoad
         ) {
             return;
         }
@@ -338,7 +339,7 @@ export class BattleSquaddieSelectedHUD {
     }
 
     markGameToBeLoaded(state: GameEngineState): void {
-        state.gameSaveFlags.loadRequested = true;
+        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
     }
 
     private generateUseActionButtons(
@@ -528,14 +529,13 @@ export class BattleSquaddieSelectedHUD {
     private drawFileAccessWarning(state: GameEngineState) {
         const WARNING_LOAD_FILE_FAILED = "Loading failed. Check logs.";
         if (
-            state.gameSaveFlags.errorDuringLoading
+            state.loadSaveState.applicationErroredWhileLoading
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined
                 || this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX.text !== WARNING_LOAD_FILE_FAILED
             )
         ) {
             this.maybeCreateInvalidCommandWarningTextBox(WARNING_LOAD_FILE_FAILED, FILE_MESSAGE_DISPLAY_DURATION);
-            state.gameSaveFlags.errorDuringLoading = false;
             return;
         }
 
@@ -567,8 +567,8 @@ export class BattleSquaddieSelectedHUD {
         const WARNING_LOAD_FILE = "Loading...";
         if (
             (
-                state.gameSaveFlags.loadingInProgress
-                || state.gameSaveFlags.loadRequested
+                state.loadSaveState.userRequestedLoad
+                || state.loadSaveState.applicationStartedLoad
             )
             && (
                 this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX === undefined

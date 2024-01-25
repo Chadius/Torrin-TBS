@@ -23,6 +23,7 @@ import {ImageUI, ScaleImageHeight, ScaleImageWidth} from "../ui/imageUI";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {GraphicImage, GraphicsContext} from "../utils/graphics/graphicsContext";
 import {FILE_MESSAGE_DISPLAY_DURATION} from "../battle/hud/battleSquaddieSelectedHUD";
+import {LoadSaveStateService} from "../dataLoader/loadSaveState";
 
 enum TitleScreenMenuSelection {
     NONE = "NONE",
@@ -128,7 +129,7 @@ export class TitleScreen implements GameEngineComponent {
     }
 
     markGameToBeLoaded(state: GameEngineState): void {
-        state.gameSaveFlags.loadRequested = true;
+        LoadSaveStateService.userRequestsLoad(state.loadSaveState);
     }
 
     private draw(state: GameEngineState, graphicsContext: GraphicsContext) {
@@ -356,16 +357,15 @@ export class TitleScreen implements GameEngineComponent {
     private updateContinueGameButton(state: GameEngineState, graphicsContext: GraphicsContext) {
         let newButtonLabel: string;
         newButtonLabel = "Continue";
-        if (state.gameSaveFlags.loadRequested) {
+        if (state.loadSaveState.userRequestedLoad) {
             newButtonLabel = "Now loading...";
         }
 
         if (
-            state.gameSaveFlags.errorDuringLoading
+            state.loadSaveState.applicationErroredWhileLoading
         ) {
             newButtonLabel = 'Loading failed. Check logs.';
             this.continueGameButton.buttonStatus = ButtonStatus.READY;
-            state.gameSaveFlags.errorDuringLoading = false;
             this.errorDuringLoadingDisplayStartTimestamp = Date.now();
         } else if (
             this.errorDuringLoadingDisplayStartTimestamp !== undefined

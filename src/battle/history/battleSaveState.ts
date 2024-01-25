@@ -43,7 +43,7 @@ export interface BattleSaveState {
     cutsceneTriggerCompletion: CutsceneTrigger[];
 }
 
-export const BattleSaveStateHandler = {
+export const BattleSaveStateService = {
     applySaveStateToOrchestratorState: ({
                                             battleSaveState,
                                             battleOrchestratorState,
