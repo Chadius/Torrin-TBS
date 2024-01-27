@@ -1045,4 +1045,48 @@ describe("BattleSaveState", () => {
             expect(newSaveData.battlePhaseState.currentPhase).toBe(battleOrchestratorState.battleState.battlePhaseState.currentAffiliation);
         });
     });
+
+    it('throws an error if you try to apply an invalid save state', () => {
+        const shouldThrowErrorNoSaveStateFound = () => {
+            BattleSaveStateService.applySaveStateToOrchestratorState({
+                battleOrchestratorState: undefined,
+                squaddieRepository: ObjectRepositoryService.new(),
+                battleSaveState: undefined,
+            });
+        }
+
+        expect(() => {
+            shouldThrowErrorNoSaveStateFound()
+        }).toThrow('no save state found');
+    });
+
+    it('throws an error if you try to apply an invalid orchestrator state', () => {
+        const shouldThrowErrorNoOrchestratorStateFound = () => {
+            BattleSaveStateService.applySaveStateToOrchestratorState({
+                battleOrchestratorState: undefined,
+                squaddieRepository: ObjectRepositoryService.new(),
+                battleSaveState: BattleSaveStateService.newUsingBattleOrchestratorState({
+                    missionId: "missionId",
+                    saveVersion: 0,
+                    repository: ObjectRepositoryService.new(),
+                    battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                        battleSquaddieSelectedHUD: undefined,
+                        battleState: BattleStateService.newBattleState({
+                            missionId: "test mission",
+                            camera: new BattleCamera(100, 200),
+                            missionMap: NullMissionMap(),
+                            battlePhaseState: {
+                                turnCount: 0,
+                                currentAffiliation: BattlePhase.UNKNOWN,
+                            },
+                        }),
+                    }),
+                }),
+            });
+        }
+
+        expect(() => {
+            shouldThrowErrorNoOrchestratorStateFound()
+        }).toThrow('no battle orchestrator state found');
+    });
 });

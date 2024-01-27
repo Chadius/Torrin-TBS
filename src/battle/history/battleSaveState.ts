@@ -13,6 +13,7 @@ import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
+import {isValidValue} from "../../utils/validityCheck";
 
 export type InBattleAttributesAndTurn = {
     inBattleAttributes: InBattleAttributes,
@@ -53,6 +54,14 @@ export const BattleSaveStateService = {
         battleOrchestratorState: BattleOrchestratorState,
         squaddieRepository: ObjectRepository,
     }): void => {
+        if (!isValidValue(battleSaveState)) {
+            throw new Error('applySaveStateToOrchestratorState: no save state found')
+        }
+
+        if (!isValidValue(battleOrchestratorState)) {
+            throw new Error('applySaveStateToOrchestratorState: no battle orchestrator state found')
+        }
+
         battleOrchestratorState.battleState.camera = new BattleCamera(battleSaveState.camera.xCoordinate, battleSaveState.camera.yCoordinate);
         battleOrchestratorState.battleState.camera.setMapDimensionBoundaries(
             battleOrchestratorState.battleState.missionMap.terrainTileMap.getDimensions().widthOfWidestRow,
