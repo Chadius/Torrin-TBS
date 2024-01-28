@@ -72,10 +72,10 @@ describe('BattleSquaddieSelectedHUD', () => {
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
         longswordAction = ActionEffectSquaddieTemplateService.new({
-            name: "longsword",
-            id: "longsword",
+            TODODELETEMEname: "longsword",
+            TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
-            actionPointCost: 1,
+            TODODELETEMEactionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
             targetingShape: TargetingShape.SNAKE,
@@ -158,7 +158,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(actionButtons).toBeTruthy();
 
         expect(actionButtons.find((button) => {
-            return button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.name === longswordAction.name;
+            return button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordAction.TODODELETEMEname;
         })).toBeTruthy();
     });
 
@@ -186,7 +186,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
             button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.name === longswordAction.name
+            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordAction.TODODELETEMEname
         );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
@@ -225,7 +225,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
             button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.name === longswordAction.name
+            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordAction.TODODELETEMEname
         );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state.battleOrchestratorState);
 
@@ -355,10 +355,10 @@ describe('BattleSquaddieSelectedHUD', () => {
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
         let notEnoughActionPointsAction: ActionEffectSquaddieTemplate;
         notEnoughActionPointsAction = ActionEffectSquaddieTemplateService.new({
-                name: "not enough actions",
-                id: "not enough actions",
+                TODODELETEMEname: "not enough actions",
+                TODODELETEMEid: "not enough actions",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
-                actionPointCost: 9001,
+                TODODELETEMEactionPointCost: 9001,
                 minimumRange: 0,
                 maximumRange: 1,
                 targetingShape: TargetingShape.SNAKE,
@@ -391,7 +391,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.name === "not enough actions"
+            button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.TODODELETEMEname === "not enough actions"
         );
 
         hud.mouseClicked(
@@ -421,8 +421,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                                 actionEffects: [
                                     ActionEffectSquaddieService.new({
                                         template: ActionEffectSquaddieTemplateService.new({
-                                            name: "purifying stream",
-                                            id: "purifying_stream",
+                                            TODODELETEMEname: "purifying stream",
+                                            TODODELETEMEid: "purifying_stream",
                                             traits: TraitStatusStorageHelper.newUsingTraitValues(),
                                         }),
                                         targetLocation: {q: 0, r: 0},

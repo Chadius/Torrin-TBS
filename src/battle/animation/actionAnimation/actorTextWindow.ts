@@ -63,7 +63,7 @@ export class ActorTextWindow {
         this.results = results;
 
         const actorName: string = actorTemplate.squaddieId.name;
-        const actionName: string = actionEffectSquaddieTemplate.name;
+        const actionName: string = actionEffectSquaddieTemplate.TODODELETEMEname;
 
         this._actorUsesActionDescriptionText = `${actorName} uses\n${actionName}`;
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[actorTemplate.squaddieId.affiliation];

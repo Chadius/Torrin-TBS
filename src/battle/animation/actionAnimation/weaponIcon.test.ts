@@ -17,8 +17,8 @@ describe('weapon icon', () => {
 
     beforeEach(() => {
         hinderingAction = ActionEffectSquaddieTemplateService.new({
-            id: "hindering",
-            name: "hindering",
+            TODODELETEMEid: "hindering",
+            TODODELETEMEname: "hindering",
             damageDescriptions: {
                 [DamageType.BODY]: 1,
             },
@@ -28,8 +28,8 @@ describe('weapon icon', () => {
         });
 
         helpingAction = ActionEffectSquaddieTemplateService.new({
-            id: "helping",
-            name: "helping",
+            TODODELETEMEid: "helping",
+            TODODELETEMEname: "helping",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },

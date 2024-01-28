@@ -93,8 +93,8 @@ describe('BattleComputerSquaddieSelector', () => {
             };
 
         demonBiteAction = ActionEffectSquaddieTemplateService.new({
-            name: "demon bite",
-            id: "demon_bite",
+            TODODELETEMEname: "demon bite",
+            TODODELETEMEid: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
@@ -103,15 +103,15 @@ describe('BattleComputerSquaddieSelector', () => {
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 2,
+            TODODELETEMEactionPointCost: 2,
             damageDescriptions: {
                 [DamageType.BODY]: 2,
             },
         });
 
         entireTurnDemonBiteAction = ActionEffectSquaddieTemplateService.new({
-            name: "demon bite",
-            id: "demon_bite",
+            TODODELETEMEname: "demon bite",
+            TODODELETEMEid: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
                 {
                     [Trait.ATTACK]: true,
@@ -120,7 +120,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 3,
+            TODODELETEMEactionPointCost: 3,
             damageDescriptions: {
                 [DamageType.BODY]: 20,
             },
@@ -643,7 +643,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     squaddieTemplate: enemyDemonTemplate,
                     battleSquaddie: enemyDemonBattleSquaddie,
                 });
-                expect(actionPointsRemaining).toBe(3 - demonBiteAction.actionPointCost);
+                expect(actionPointsRemaining).toBe(3 - demonBiteAction.TODODELETEMEactionPointCost);
             });
 
             it('should add the results to the history', () => {
@@ -652,7 +652,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 expect(mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
                 expect((
                     mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as ActionEffectSquaddie
-                ).template.id).toBe(demonBiteAction.id);
+                ).template.TODODELETEMEid).toBe(demonBiteAction.TODODELETEMEid);
                 const results = mostRecentEvent.results;
                 expect(results.actingBattleSquaddieId).toBe(enemyDemonBattleSquaddie.battleSquaddieId);
                 expect(results.targetedBattleSquaddieIds).toHaveLength(1);

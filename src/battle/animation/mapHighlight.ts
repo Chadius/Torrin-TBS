@@ -184,7 +184,7 @@ const addAttackRangeOntoMovementRange = (
         allLocationsSquaddieCanMoveTo.forEach(coordinate => {
             const path: SearchPath = reachableLocationSearch.shortestPathByLocation[coordinate.q][coordinate.r];
             const numberOfMoveActionsToReachEndOfPath: number = isValidValue(path) ? path.currentNumberOfMoveActions : 0;
-            if (numberOfMoveActionsToReachEndOfPath + action.actionPointCost > actionPointsRemaining) {
+            if (numberOfMoveActionsToReachEndOfPath + action.TODODELETEMEactionPointCost > actionPointsRemaining) {
                 return;
             }
 

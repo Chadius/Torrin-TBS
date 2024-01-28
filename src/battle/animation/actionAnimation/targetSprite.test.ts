@@ -78,8 +78,8 @@ describe('Target Sprite', () => {
         });
 
         hinderingAction = ActionEffectSquaddieTemplateService.new({
-            id: "hindering",
-            name: "hindering",
+            TODODELETEMEid: "hindering",
+            TODODELETEMEname: "hindering",
             damageDescriptions: {
                 [DamageType.BODY]: 1,
             },
@@ -89,8 +89,8 @@ describe('Target Sprite', () => {
         });
 
         helpfulAction = ActionEffectSquaddieTemplateService.new({
-            id: "helping",
-            name: "helping",
+            TODODELETEMEid: "helping",
+            TODODELETEMEname: "helping",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },
@@ -123,8 +123,8 @@ describe('Target Sprite', () => {
         });
 
         sprite.draw(timer, mockedP5GraphicsContext, ActionEffectSquaddieTemplateService.new({
-            id: "attack",
-            name: "attack",
+            TODODELETEMEid: "attack",
+            TODODELETEMEname: "attack",
             minimumRange: 0,
             maximumRange: 1,
         }), resultTookDamage);

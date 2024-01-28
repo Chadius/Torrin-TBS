@@ -70,8 +70,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         }));
 
         longswordAction = ActionEffectSquaddieTemplateService.new({
-            name: "longsword",
-            id: "longsword",
+            TODODELETEMEname: "longsword",
+            TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
                 {
                     [Trait.ATTACK]: true,
@@ -79,7 +79,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                 }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 1,
+            TODODELETEMEactionPointCost: 1,
             damageDescriptions: {
                 [DamageType.BODY]: 2,
             },

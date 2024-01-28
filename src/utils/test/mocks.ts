@@ -69,8 +69,8 @@ export const battleSquaddieSelectedHUD = () => {
     const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
     hud.draw = jest.fn();
     hud.getSelectedAction = jest.fn().mockReturnValue(ActionEffectSquaddieTemplateService.new({
-        id: "do nothing",
-        name: "do nothing",
+        TODODELETEMEid: "do nothing",
+        TODODELETEMEname: "do nothing",
     }));
     hud.didPlayerSelectEndTurnAction = jest.fn().mockReturnValue(false);
     hud.shouldDrawTheHUD = jest.fn().mockReturnValue(true);

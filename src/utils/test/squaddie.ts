@@ -151,8 +151,8 @@ export const CreateNewThiefSquaddie: (
 ) => {
 
     const defaultAttackAction = ActionEffectSquaddieTemplateService.new({
-        name: "knife",
-        id: "knife",
+        TODODELETEMEname: "knife",
+        TODODELETEMEid: "knife",
         traits: TraitStatusStorageHelper.newUsingTraitValues({
             [Trait.ATTACK]: true,
             [Trait.TARGET_ARMOR]: true,
@@ -160,7 +160,7 @@ export const CreateNewThiefSquaddie: (
         }),
         minimumRange: 1,
         maximumRange: 1,
-        actionPointCost: 1,
+        TODODELETEMEactionPointCost: 1,
         damageDescriptions: {
             [DamageType.BODY]: 1,
         },
@@ -218,8 +218,8 @@ export const CreateNewKnightSquaddie: (
 ) => {
 
     const defaultAttackAction = ActionEffectSquaddieTemplateService.new({
-        name: "longsword",
-        id: "longsword",
+        TODODELETEMEname: "longsword",
+        TODODELETEMEid: "longsword",
         traits: TraitStatusStorageHelper.newUsingTraitValues({
             [Trait.ATTACK]: true,
             [Trait.TARGET_ARMOR]: true,
@@ -227,15 +227,15 @@ export const CreateNewKnightSquaddie: (
         }),
         minimumRange: 1,
         maximumRange: 1,
-        actionPointCost: 1,
+        TODODELETEMEactionPointCost: 1,
         damageDescriptions: {
             [DamageType.BODY]: 2,
         },
     });
 
     const powerAttackLongswordAction = ActionEffectSquaddieTemplateService.new({
-        name: "power attack longsword",
-        id: "powerAttackLongsword",
+        TODODELETEMEname: "power attack longsword",
+        TODODELETEMEid: "powerAttackLongsword",
         traits: TraitStatusStorageHelper.newUsingTraitValues({
             [Trait.ATTACK]: true,
             [Trait.TARGET_ARMOR]: true,
@@ -243,7 +243,7 @@ export const CreateNewKnightSquaddie: (
         }),
         minimumRange: 1,
         maximumRange: 1,
-        actionPointCost: 3,
+        TODODELETEMEactionPointCost: 3,
         damageDescriptions: {
             [DamageType.BODY]: 9001,
         },

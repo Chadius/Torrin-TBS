@@ -707,7 +707,7 @@ export class BattleSquaddieSelectedHUD {
 
     private warnUserNotEnoughActionPointsToPerformAction(action: ActionEffectSquaddieTemplate): void {
         let warningText: string = '';
-        warningText = `Need ${action.actionPointCost} action points`
+        warningText = `Need ${action.TODODELETEMEactionPointCost} action points`
 
         this.maybeCreateInvalidCommandWarningTextBox(
             warningText,
@@ -736,7 +736,7 @@ export class BattleSquaddieSelectedHUD {
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, this.selectedBattleSquaddieId));
 
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-        if (actionPointsRemaining < action.actionPointCost) {
+        if (actionPointsRemaining < action.TODODELETEMEactionPointCost) {
             return ActionValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS;
         }
 

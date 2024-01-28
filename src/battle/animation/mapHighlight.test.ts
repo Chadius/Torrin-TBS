@@ -44,8 +44,8 @@ describe('map highlight generator', () => {
         });
 
         rangedAction = ActionEffectSquaddieTemplateService.new({
-            id: "meleeAndRanged",
-            name: "melee and ranged",
+            TODODELETEMEid: "meleeAndRanged",
+            TODODELETEMEname: "melee and ranged",
             minimumRange: 0,
             maximumRange: 2,
             traits: TraitStatusStorageHelper.newUsingTraitValues({

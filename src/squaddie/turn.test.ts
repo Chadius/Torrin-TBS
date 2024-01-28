@@ -12,9 +12,9 @@ describe('Squaddie turn and resources', () => {
         beforeEach(() => {
             turn = SquaddieTurnService.new();
             actionSpends2ActionPoints = ActionEffectSquaddieTemplateService.new({
-                id: "actionSpends2ActionPoints",
-                name: "Power Attack",
-                actionPointCost: 2,
+                TODODELETEMEid: "actionSpends2ActionPoints",
+                TODODELETEMEname: "Power Attack",
+                TODODELETEMEactionPointCost: 2,
                 traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
             })
         })
@@ -25,8 +25,8 @@ describe('Squaddie turn and resources', () => {
         it('should spend 1 action by default', () => {
             SquaddieTurnService.spendActionPointsOnActionTemplate(turn,
                 ActionEffectSquaddieTemplateService.new({
-                    id: "strike",
-                    name: "longsword",
+                    TODODELETEMEid: "strike",
+                    TODODELETEMEname: "longsword",
                     traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
                 })
             );

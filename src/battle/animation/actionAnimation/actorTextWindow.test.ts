@@ -4,7 +4,10 @@ import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {TargetingShape} from "../../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../decision/actionEffectSquaddieTemplate";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
@@ -32,20 +35,19 @@ describe('ActorTextWindow', () => {
             attributes: DefaultArmyAttributes(),
             actions: [],
         };
-        attackThatUsesAttackRoll = {
-            id: "action Id",
-            name: "Action",
+        attackThatUsesAttackRoll = ActionEffectSquaddieTemplateService.new({
+            TODODELETEMEid: "action Id",
+            TODODELETEMEname: "Action",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             }),
             damageDescriptions: {},
             healingDescriptions: {},
             targetingShape: TargetingShape.SNAKE,
-            actionPointCost: 1,
+            TODODELETEMEactionPointCost: 1,
             minimumRange: 1,
             maximumRange: 1,
-        };
-
+        });
     });
 
     it('initially shows the actor and their action', () => {

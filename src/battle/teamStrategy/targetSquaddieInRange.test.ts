@@ -38,15 +38,15 @@ describe('target a squaddie within reach of actions', () => {
         squaddieRepository = ObjectRepositoryService.new();
 
         shortBowAction = ActionEffectSquaddieTemplateService.new({
-            name: "short bow",
-            id: "short_bow",
+            TODODELETEMEname: "short bow",
+            TODODELETEMEid: "short_bow",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
             minimumRange: 1,
             maximumRange: 2,
-            actionPointCost: 2,
+            TODODELETEMEactionPointCost: 2,
         });
 
         ({
@@ -248,7 +248,7 @@ describe('target a squaddie within reach of actions', () => {
             q: 0,
             r: 2
         });
-        SquaddieTurnService.spendActionPoints(enemyBanditDynamic.squaddieTurn, 4 - shortBowAction.actionPointCost);
+        SquaddieTurnService.spendActionPoints(enemyBanditDynamic.squaddieTurn, 4 - shortBowAction.TODODELETEMEactionPointCost);
 
         const state = new TeamStrategyState({
             missionMap: missionMap,
@@ -329,15 +329,15 @@ describe('target a squaddie within reach of actions', () => {
 
     it('will not change the currently acting squaddie', () => {
         const longBowAction = ActionEffectSquaddieTemplateService.new({
-            name: "long bow",
-            id: "long_bow",
+            TODODELETEMEname: "long bow",
+            TODODELETEMEid: "long_bow",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
             minimumRange: 1,
             maximumRange: 2,
-            actionPointCost: 2,
+            TODODELETEMEactionPointCost: 2,
         });
 
         const {

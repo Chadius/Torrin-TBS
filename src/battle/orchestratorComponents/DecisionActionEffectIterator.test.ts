@@ -19,8 +19,8 @@ describe('DecisionAnimationState', () => {
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 1, r: 0},
                     template: ActionEffectSquaddieTemplateService.new({
-                        id: "lance",
-                        name: "lance charge",
+                        TODODELETEMEid: "lance",
+                        TODODELETEMEname: "lance charge",
                     })
                 }),
                 ActionEffectEndTurnService.new(),

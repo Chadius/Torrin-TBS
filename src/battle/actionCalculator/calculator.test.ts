@@ -99,8 +99,8 @@ describe('calculator', () => {
         );
 
         actionAlwaysHitsAndDealsBodyDamage = ActionEffectSquaddieTemplateService.new({
-            id: "deal body damage auto hit",
-            name: "deal body damage (Auto Hit)",
+            TODODELETEMEid: "deal body damage auto hit",
+            TODODELETEMEname: "deal body damage (Auto Hit)",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                     [Trait.ATTACK]: true,
                     [Trait.ALWAYS_SUCCEEDS]: true,
@@ -111,8 +111,8 @@ describe('calculator', () => {
             damageDescriptions: {[DamageType.BODY]: 2}
         });
         actionNeedsAnAttackRollToDealBodyDamage = ActionEffectSquaddieTemplateService.new({
-            id: "deal body damage",
-            name: "deal body damage",
+            TODODELETEMEid: "deal body damage",
+            TODODELETEMEname: "deal body damage",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                     [Trait.ATTACK]: true,
                 }
@@ -232,8 +232,8 @@ describe('calculator', () => {
             missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {q: 0, r: 2});
 
             healsLostHitPoints = ActionEffectSquaddieTemplateService.new({
-                id: "heals lost hit points",
-                name: "heals lost hit points",
+                TODODELETEMEid: "heals lost hit points",
+                TODODELETEMEname: "heals lost hit points",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(
                     {
                         [Trait.HEALING]: true,

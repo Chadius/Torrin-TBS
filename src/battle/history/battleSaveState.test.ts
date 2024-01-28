@@ -53,8 +53,8 @@ describe("BattleSaveState", () => {
 
     beforeEach(() => {
         const action: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
-                id: "att",
-                name: "attack",
+                TODODELETEMEid: "att",
+                TODODELETEMEname: "attack",
                 traits: {
                     booleanTraits: {
                         [Trait.ATTACK]: true,

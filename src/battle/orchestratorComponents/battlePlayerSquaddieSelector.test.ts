@@ -86,15 +86,15 @@ describe('BattleSquaddieSelector', () => {
         ;
 
         demonBiteAction = ActionEffectSquaddieTemplateService.new({
-            name: "demon bite",
-            id: "demon_bite",
+            TODODELETEMEname: "demon bite",
+            TODODELETEMEid: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 2,
+            TODODELETEMEactionPointCost: 2,
         });
 
         ({
@@ -190,15 +190,15 @@ describe('BattleSquaddieSelector', () => {
         ;
 
         demonBiteAction = ActionEffectSquaddieTemplateService.new({
-            name: "demon bite",
-            id: "demon_bite",
+            TODODELETEMEname: "demon bite",
+            TODODELETEMEid: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 2,
+            TODODELETEMEactionPointCost: 2,
         });
 
         ({
@@ -604,10 +604,10 @@ describe('BattleSquaddieSelector', () => {
         const camera: BattleCamera = new BattleCamera();
 
         const longswordAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
-            name: "longsword",
-            id: "longsword",
+            TODODELETEMEname: "longsword",
+            TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
-            actionPointCost: 1,
+            TODODELETEMEactionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
             targetingShape: TargetingShape.SNAKE,
@@ -811,10 +811,10 @@ describe('BattleSquaddieSelector', () => {
 
         it('ignores action commands issued to other squaddies', () => {
             const longswordAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
-                name: "longsword",
-                id: "longsword",
+                TODODELETEMEname: "longsword",
+                TODODELETEMEid: "longsword",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
-                actionPointCost: 1,
+                TODODELETEMEactionPointCost: 1,
                 minimumRange: 0,
                 maximumRange: 1,
                 targetingShape: TargetingShape.SNAKE,

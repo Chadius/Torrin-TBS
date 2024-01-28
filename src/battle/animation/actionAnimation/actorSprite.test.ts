@@ -45,8 +45,8 @@ describe('Actor Sprite', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
 
         hinderingAction = ActionEffectSquaddieTemplateService.new({
-            id: "hindering",
-            name: "hindering",
+            TODODELETEMEid: "hindering",
+            TODODELETEMEname: "hindering",
             damageDescriptions: {
                 [DamageType.BODY]: 1,
             },
@@ -56,8 +56,8 @@ describe('Actor Sprite', () => {
         });
 
         helpfulAction = ActionEffectSquaddieTemplateService.new({
-            id: "helping",
-            name: "helping",
+            TODODELETEMEid: "helping",
+            TODODELETEMEname: "helping",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },

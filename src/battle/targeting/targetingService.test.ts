@@ -23,8 +23,8 @@ describe('Targeting Service', () => {
 
     beforeEach(() => {
         longswordAction = ActionEffectSquaddieTemplateService.new({
-            name: "longsword",
-            id: "longsword",
+            TODODELETEMEname: "longsword",
+            TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
@@ -118,8 +118,8 @@ describe('Targeting Service', () => {
         });
 
         let longbowAction = ActionEffectSquaddieTemplateService.new({
-            name: "longbow",
-            id: "longbow",
+            TODODELETEMEname: "longbow",
+            TODODELETEMEid: "longbow",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
@@ -244,8 +244,8 @@ describe('Targeting Service', () => {
 
     it('will ignore terrain costs when targeting', () => {
         let longbowAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
-            name: "longbow",
-            id: "longbow",
+            TODODELETEMEname: "longbow",
+            TODODELETEMEid: "longbow",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,

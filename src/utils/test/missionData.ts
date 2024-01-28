@@ -13,6 +13,7 @@ import {
 } from "../../battle/orchestrator/missionCutsceneCollection";
 import {TriggeringEvent} from "../../cutscene/cutsceneTrigger";
 import {CutsceneActionPlayerType} from "../../cutscene/cutsceneAction";
+import {ActionEffectType} from "../../decision/actionEffect";
 
 export const TestMissionData = () => {
     const missionData: MissionFileFormat = {
@@ -491,8 +492,9 @@ export const TestMissionData = () => {
         },
         "actions": [
             {
-                "name": "Bite",
-                "id": "demon_slither_bite",
+                "type": ActionEffectType.SQUADDIE,
+                "TODODELETEMEname": "Bite",
+                "TODODELETEMEid": "demon_slither_bite",
                 "minimumRange": 0,
                 "maximumRange": 1,
                 "traits": {
@@ -504,7 +506,7 @@ export const TestMissionData = () => {
                     [DamageType.BODY]: 1,
                 },
                 "healingDescriptions": {},
-                "actionPointCost": 1,
+                "TODODELETEMEactionPointCost": 1,
                 "targetingShape": TargetingShape.SNAKE,
             }
         ]

@@ -53,8 +53,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
         monkKoanAction = ActionEffectSquaddieTemplateService.new({
-            id: "koan",
-            name: "koan",
+            TODODELETEMEid: "koan",
+            TODODELETEMEname: "koan",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
                 {
                     [Trait.SKIP_ANIMATION]: true

@@ -32,8 +32,8 @@ describe('TargetTextWindow', () => {
 
     beforeEach(() => {
         attackAction = ActionEffectSquaddieTemplateService.new({
-            id: "attack",
-            name: "attack action",
+            TODODELETEMEid: "attack",
+            TODODELETEMEname: "attack action",
             damageDescriptions: {
                 [DamageType.BODY]: 2,
             },
@@ -44,8 +44,8 @@ describe('TargetTextWindow', () => {
         });
 
         healingAction = ActionEffectSquaddieTemplateService.new({
-            id: "heal",
-            name: "healing action",
+            TODODELETEMEid: "heal",
+            TODODELETEMEname: "healing action",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 3,
             },

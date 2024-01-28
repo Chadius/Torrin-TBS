@@ -111,23 +111,23 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         }));
 
         powerAttackLongswordAction = ActionEffectSquaddieTemplateService.new({
-            name: "power attack longsword",
-            id: "powerAttackLongsword",
+            TODODELETEMEname: "power attack longsword",
+            TODODELETEMEid: "powerAttackLongsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 3,
+            TODODELETEMEactionPointCost: 3,
             damageDescriptions: {
                 [DamageType.BODY]: 9001,
             },
         });
 
         monkKoanAction = ActionEffectSquaddieTemplateService.new({
-            id: "koan",
-            name: "koan",
+            TODODELETEMEid: "koan",
+            TODODELETEMEname: "koan",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.SKIP_ANIMATION]: true
             }),
@@ -434,8 +434,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 targetLocation: {q: 0, r: 2},
                 numberOfActionPointsSpent: 1,
                 template: ActionEffectSquaddieTemplateService.new({
-                    id: "shout",
-                    name: "shout"
+                    TODODELETEMEid: "shout",
+                    TODODELETEMEname: "shout"
                 })
             });
 

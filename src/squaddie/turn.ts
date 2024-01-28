@@ -16,7 +16,7 @@ export const SquaddieTurnService = {
         return {remainingActionPoints: DEFAULT_ACTION_POINTS_PER_TURN};
     },
     spendActionPointsOnActionTemplate: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate) => {
-        data.remainingActionPoints = (data.remainingActionPoints - action.actionPointCost);
+        data.remainingActionPoints = (data.remainingActionPoints - action.TODODELETEMEactionPointCost);
     },
     spendActionPoints: (data: SquaddieTurn, number: number) => {
         data.remainingActionPoints = (data.remainingActionPoints - number);
@@ -25,7 +25,7 @@ export const SquaddieTurnService = {
         canPerform: boolean,
         reason: ACTION_PERFORM_FAILURE_REASON
     } => {
-        if (data.remainingActionPoints < action.actionPointCost) {
+        if (data.remainingActionPoints < action.TODODELETEMEactionPointCost) {
             return {
                 canPerform: false,
                 reason: ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING

@@ -55,7 +55,7 @@ export class MakeDecisionButton {
         }
 
         let actionDescription: string;
-        actionDescription = this.actionEffectSquaddieTemplate.name;
+        actionDescription = this.actionEffectSquaddieTemplate.TODODELETEMEname;
 
         const buttonTextBox: TextBox = TextBoxHelper.new({
             area: RectAreaService.new({

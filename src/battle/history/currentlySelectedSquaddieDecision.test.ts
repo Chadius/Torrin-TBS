@@ -12,8 +12,8 @@ import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 
 const longswordAction = ActionEffectSquaddieTemplateService.new({
-    name: "longsword",
-    id: "longsword",
+    TODODELETEMEname: "longsword",
+    TODODELETEMEid: "longsword",
     traits: TraitStatusStorageHelper.newUsingTraitValues({
         [Trait.ATTACK]: true,
         [Trait.TARGET_ARMOR]: true,
@@ -21,7 +21,7 @@ const longswordAction = ActionEffectSquaddieTemplateService.new({
     }),
     minimumRange: 1,
     maximumRange: 1,
-    actionPointCost: 1,
+    TODODELETEMEactionPointCost: 1,
     damageDescriptions: {
         [DamageType.BODY]: 2,
     },
@@ -48,8 +48,8 @@ describe('CurrentlySelectedSquaddieDecision', () => {
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 1, r: 0},
                     template: ActionEffectSquaddieTemplateService.new({
-                        id: "healing herb",
-                        name: "healing herb",
+                        TODODELETEMEid: "healing herb",
+                        TODODELETEMEname: "healing herb",
                     })
                 }),
             ]

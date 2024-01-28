@@ -41,8 +41,8 @@ export const TestArmyPlayerData = () => {
                 },
                 "actions": [
                     ActionEffectSquaddieTemplateService.new({
-                        name: "water cannon",
-                        id: "torrin_water_cannon",
+                        TODODELETEMEname: "water cannon",
+                        TODODELETEMEid: "torrin_water_cannon",
                         minimumRange: 0,
                         maximumRange: 2,
                         traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -53,8 +53,8 @@ export const TestArmyPlayerData = () => {
                         }
                     }),
                     ActionEffectSquaddieTemplateService.new({
-                        name: "healing touch",
-                        id: "young_torrin_healing_touch",
+                        TODODELETEMEname: "healing touch",
+                        TODODELETEMEid: "young_torrin_healing_touch",
                         minimumRange: 0,
                         maximumRange: 1,
                         traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -63,7 +63,7 @@ export const TestArmyPlayerData = () => {
                             [Trait.TARGETS_ALLIES]: true,
                             [Trait.HEALING]: true,
                         }),
-                        actionPointCost: 2,
+                        TODODELETEMEactionPointCost: 2,
                         healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2}
                     })
                 ],
@@ -99,8 +99,8 @@ export const TestArmyPlayerData = () => {
                 },
                 actions: [
                     ActionEffectSquaddieTemplateService.new({
-                        name: "longsword",
-                        id: "sir_camil_longsword",
+                        TODODELETEMEname: "longsword",
+                        TODODELETEMEid: "sir_camil_longsword",
                         minimumRange: 0,
                         maximumRange: 1,
                         traits: TraitStatusStorageHelper.newUsingTraitValues({

@@ -24,8 +24,8 @@ describe('Current Squaddie Instruction', () => {
         });
 
         purifyingBlast = ActionEffectSquaddieTemplateService.new({
-            name: "purifying stream",
-            id: "purifying_stream",
+            TODODELETEMEname: "purifying stream",
+            TODODELETEMEid: "purifying_stream",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
         });
 

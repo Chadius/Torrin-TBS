@@ -76,8 +76,8 @@ describe('decision', () => {
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 1, r: 0},
                     template: ActionEffectSquaddieTemplateService.new({
-                        id: "attack",
-                        name: "attack",
+                        TODODELETEMEid: "attack",
+                        TODODELETEMEname: "attack",
                         traits: TraitStatusStorageHelper.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         })

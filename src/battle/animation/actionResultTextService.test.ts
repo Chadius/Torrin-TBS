@@ -42,20 +42,20 @@ describe('Action Result Text Writer', () => {
         });
 
         longswordSweepAction = ActionEffectSquaddieTemplateService.new({
-            name: "Longsword Sweep",
-            id: "longsword",
+            TODODELETEMEname: "Longsword Sweep",
+            TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 1,
+            TODODELETEMEactionPointCost: 1,
         });
 
         bandageWoundsAction = ActionEffectSquaddieTemplateService.new({
-            name: "Bandage Wounds",
-            id: "Bandages",
+            TODODELETEMEname: "Bandage Wounds",
+            TODODELETEMEid: "Bandages",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.HEALING]: true,
                 [Trait.TARGETS_ALLIES]: true,
@@ -63,7 +63,7 @@ describe('Action Result Text Writer', () => {
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 2,
+            TODODELETEMEactionPointCost: 2,
         });
 
         ({

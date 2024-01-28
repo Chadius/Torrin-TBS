@@ -123,8 +123,8 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 targetLocation: {q: 0, r: 2},
                 numberOfActionPointsSpent: 1,
                 template: ActionEffectSquaddieTemplateService.new({
-                    id: "shout",
-                    name: "shout"
+                    TODODELETEMEid: "shout",
+                    TODODELETEMEname: "shout"
                 })
             });
 

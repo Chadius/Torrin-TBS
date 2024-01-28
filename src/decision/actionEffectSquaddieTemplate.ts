@@ -4,16 +4,18 @@ import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType, HealingType} from "../squaddie/squaddieService";
 import {ActionRange} from "../squaddie/actionRange";
 import {isValidValue} from "../utils/validityCheck";
+import {ActionEffectType} from "./actionEffect";
 
 export interface ActionEffectSquaddieTemplate {
+    type: ActionEffectType.SQUADDIE;
     damageDescriptions: { [t in DamageType]?: number };
     healingDescriptions: { [t in HealingType]?: number };
-    name: string;
-    id: string;
+    TODODELETEMEname: string;
+    TODODELETEMEid: string;
     traits: {
         booleanTraits: { [key in Trait]?: boolean };
     };
-    actionPointCost: number;
+    TODODELETEMEactionPointCost: number;
     minimumRange: number;
     maximumRange: number;
     targetingShape: TargetingShape;
@@ -21,22 +23,22 @@ export interface ActionEffectSquaddieTemplate {
 
 export const ActionEffectSquaddieTemplateService = {
     new: ({
-              actionPointCost,
+              TODODELETEMEactionPointCost,
               damageDescriptions,
               healingDescriptions,
-              id,
+              TODODELETEMEid,
               maximumRange,
               minimumRange,
-              name,
+              TODODELETEMEname,
               traits,
               targetingShape,
           }: {
-        name: string;
-        id: string;
+        TODODELETEMEname: string;
+        TODODELETEMEid: string;
         traits?: {
             booleanTraits: { [key in Trait]?: boolean };
         };
-        actionPointCost?: number;
+        TODODELETEMEactionPointCost?: number;
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
         targetingShape?: TargetingShape,
@@ -47,19 +49,20 @@ export const ActionEffectSquaddieTemplateService = {
         if (maximumRange !== undefined) {
             assertsInteger(maximumRange);
         }
-        if (actionPointCost !== undefined) {
-            assertsInteger(actionPointCost);
+        if (TODODELETEMEactionPointCost !== undefined) {
+            assertsInteger(TODODELETEMEactionPointCost);
         }
-        if (actionPointCost) {
-            assertsInteger(actionPointCost);
+        if (TODODELETEMEactionPointCost) {
+            assertsInteger(TODODELETEMEactionPointCost);
         }
 
-        const data = {
-            name: name,
-            id: id,
+        const data: ActionEffectSquaddieTemplate = {
+            type: ActionEffectType.SQUADDIE,
+            TODODELETEMEname: TODODELETEMEname,
+            TODODELETEMEid: TODODELETEMEid,
             minimumRange: minimumRange ? minimumRange : 0,
             maximumRange: maximumRange ? maximumRange : 0,
-            actionPointCost: actionPointCost,
+            TODODELETEMEactionPointCost: TODODELETEMEactionPointCost,
             traits: traits,
             damageDescriptions: damageDescriptions,
             healingDescriptions: healingDescriptions,
@@ -81,10 +84,10 @@ export const ActionEffectSquaddieTemplateService = {
 };
 
 const sanitize = (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTemplate => {
-    if (!data.id || !isValidValue(data.id)) {
+    if (!data.TODODELETEMEid || !isValidValue(data.TODODELETEMEid)) {
         throw new Error('SquaddieAction cannot sanitize, missing id');
     }
-    if (!data.name || !isValidValue(data.name)) {
+    if (!data.TODODELETEMEname || !isValidValue(data.TODODELETEMEname)) {
         throw new Error('SquaddieAction cannot sanitize, missing name');
     }
     if (!isValidValue(data.minimumRange) || data.minimumRange < 0) {
@@ -98,7 +101,7 @@ const sanitize = (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTempl
     }
 
     data.targetingShape = (isValidValue(data.targetingShape) && data.targetingShape !== TargetingShape.UNKNOWN) ? data.targetingShape : TargetingShape.SNAKE;
-    data.actionPointCost = isValidValue(data.actionPointCost) ? data.actionPointCost : 1;
+    data.TODODELETEMEactionPointCost = isValidValue(data.TODODELETEMEactionPointCost) ? data.TODODELETEMEactionPointCost : 1;
     data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageHelper.newUsingTraitValues({});
     data.damageDescriptions = isValidValue(data.damageDescriptions) ? {...(data.damageDescriptions)} : {};
     data.healingDescriptions = isValidValue(data.healingDescriptions) ? {...(data.healingDescriptions)} : {};

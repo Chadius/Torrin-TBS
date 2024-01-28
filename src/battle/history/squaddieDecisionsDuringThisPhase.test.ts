@@ -19,22 +19,22 @@ describe('squaddie decisions for this phase', () => {
 
     beforeEach(() => {
         attackActionEffectTemplate = ActionEffectSquaddieTemplateService.new({
-            id: "attackAction",
-            name: "Attack Action",
+            TODODELETEMEid: "attackAction",
+            TODODELETEMEname: "Attack Action",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             })
         });
         notAnAttackActionEffectTemplate = ActionEffectSquaddieTemplateService.new({
-            id: "notAnAttackAction",
-            name: "Not An Attack Action",
+            TODODELETEMEid: "notAnAttackAction",
+            TODODELETEMEname: "Not An Attack Action",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: false,
             })
         });
         attackActionEffectTemplateWithoutMAP = ActionEffectSquaddieTemplateService.new({
-            id: "attackActionWithoutMAP",
-            name: "Attack Action without MAP",
+            TODODELETEMEid: "attackActionWithoutMAP",
+            TODODELETEMEname: "Attack Action without MAP",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
@@ -43,17 +43,17 @@ describe('squaddie decisions for this phase', () => {
     });
 
     it('can create new object from squaddie data', () => {
-        const squaddieActionData: ActionEffectSquaddieTemplate = {
-            id: "attackId",
-            name: "cool attack",
+        const squaddieActionData: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+            TODODELETEMEid: "attackId",
+            TODODELETEMEname: "cool attack",
             minimumRange: 0,
             maximumRange: 1,
             targetingShape: TargetingShape.SNAKE,
             damageDescriptions: {[DamageType.MIND]: 1},
             healingDescriptions: {},
             traits: {booleanTraits: {[Trait.ATTACK]: true}},
-            actionPointCost: 1,
-        };
+            TODODELETEMEactionPointCost: 1,
+        });
 
         const actionsForThisRound: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "template id",

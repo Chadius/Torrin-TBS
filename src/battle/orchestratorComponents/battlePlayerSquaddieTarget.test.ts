@@ -77,8 +77,8 @@ describe('BattleSquaddieTarget', () => {
         });
 
         longswordAction = ActionEffectSquaddieTemplateService.new({
-            name: "longsword",
-            id: longswordActionId,
+            TODODELETEMEname: "longsword",
+            TODODELETEMEid: longswordActionId,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
@@ -87,22 +87,22 @@ describe('BattleSquaddieTarget', () => {
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 1,
+            TODODELETEMEactionPointCost: 1,
             damageDescriptions: {
                 [DamageType.BODY]: 2,
             },
         });
 
         bandageWoundsAction = ActionEffectSquaddieTemplateService.new({
-            name: "Bandage Wounds",
-            id: bandageWoundsActionId,
+            TODODELETEMEname: "Bandage Wounds",
+            TODODELETEMEid: bandageWoundsActionId,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.HEALING]: true,
                 [Trait.TARGETS_ALLIES]: true,
             }),
             minimumRange: 1,
             maximumRange: 1,
-            actionPointCost: 2,
+            TODODELETEMEactionPointCost: 2,
         });
 
         ({
@@ -550,7 +550,7 @@ describe('BattleSquaddieTarget', () => {
                 squaddieTemplate: knightStatic,
                 battleSquaddie: knightDynamic
             });
-            expect(actionPointsRemaining).toBe(3 - longswordAction.actionPointCost);
+            expect(actionPointsRemaining).toBe(3 - longswordAction.TODODELETEMEactionPointCost);
         });
 
         it('should add the results to the history', () => {
@@ -559,7 +559,7 @@ describe('BattleSquaddieTarget', () => {
             expect(mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
             expect((
                 mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as ActionEffectSquaddie
-            ).template.id).toBe(longswordAction.id);
+            ).template.TODODELETEMEid).toBe(longswordAction.TODODELETEMEid);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);
             expect(results.targetedBattleSquaddieIds).toHaveLength(1);
@@ -602,8 +602,8 @@ describe('BattleSquaddieTarget', () => {
                 actionTraits.map(e => [e, true])
             );
             const action = ActionEffectSquaddieTemplateService.new({
-                id: name,
-                name,
+                TODODELETEMEid: name,
+                TODODELETEMEname: name,
                 traits: TraitStatusStorageHelper.newUsingTraitValues(traits),
                 minimumRange: 0,
                 maximumRange: 9001,

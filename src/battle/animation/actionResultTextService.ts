@@ -51,7 +51,7 @@ export const ActionResultTextService = {
         action: ActionEffectSquaddieTemplate,
         newline: boolean
     }): string => {
-        return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${action.name}`;
+        return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${action.TODODELETEMEname}`;
     },
     getRollsDescriptionString: ({rolls, addSpacing}: { rolls: number[], addSpacing: boolean }): string => {
         return `${addSpacing ? '   ' : ''}rolls (${rolls[0]}, ${rolls[1]})`;
@@ -269,7 +269,7 @@ const outputIntentForTextOnly = ({
     const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, actingBattleSquaddieId))
 
     let output: string[] = [];
-    output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentActionEffectSquaddieTemplate.name}`);
+    output.push(`${actingSquaddieTemplate.squaddieId.name} uses ${currentActionEffectSquaddieTemplate.TODODELETEMEname}`);
     if (
         TraitStatusStorageHelper.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ATTACK) === true
         && TraitStatusStorageHelper.getStatus(currentActionEffectSquaddieTemplate.traits, Trait.ALWAYS_SUCCEEDS) !== true

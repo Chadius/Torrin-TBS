@@ -31,7 +31,7 @@ export const ActionEffectSquaddieService = {
 
 const sanitize = (actionEffectSquaddie: ActionEffectSquaddie): ActionEffectSquaddie => {
     if (!isValidValue(actionEffectSquaddie.numberOfActionPointsSpent) && actionEffectSquaddie.numberOfActionPointsSpent !== 0) {
-        actionEffectSquaddie.numberOfActionPointsSpent = actionEffectSquaddie.template.actionPointCost;
+        actionEffectSquaddie.numberOfActionPointsSpent = actionEffectSquaddie.template.TODODELETEMEactionPointCost;
     }
 
     return actionEffectSquaddie;
