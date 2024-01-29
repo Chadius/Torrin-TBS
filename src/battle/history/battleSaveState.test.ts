@@ -20,7 +20,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {NullMissionMap} from "../../utils/test/battleOrchestratorState";
 import {MissionStatistics} from "../missionStatistics/missionStatistics";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieTurnService} from "../../squaddie/turn";
@@ -132,7 +132,7 @@ describe("BattleSaveState", () => {
             healingReceivedByPlayerTeam: 314,
         };
 
-        const player0SquaddieTemplate: SquaddieTemplate = {
+        const player0SquaddieTemplate: SquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 affiliation: SquaddieAffiliation.PLAYER,
                 name: "player 0",
@@ -141,8 +141,8 @@ describe("BattleSaveState", () => {
                 resources: {mapIconResourceKey: "", actionSpritesByEmotion: {}},
             },
             attributes: DefaultArmyAttributes(),
-            TODODELETEMEactions: [],
-        };
+            actionTemplates: [],
+        });
 
         player0BattleSquaddie = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "player battle 0",
@@ -158,7 +158,7 @@ describe("BattleSaveState", () => {
             iconResourceKey: "icon_player_team",
         }
 
-        const enemy0SquaddieTemplate: SquaddieTemplate = {
+        const enemy0SquaddieTemplate: SquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 affiliation: SquaddieAffiliation.ENEMY,
                 name: "enemy 0",
@@ -170,8 +170,8 @@ describe("BattleSaveState", () => {
                 ...DefaultArmyAttributes(),
                 maxHitPoints: 5
             },
-            TODODELETEMEactions: [],
-        };
+            actionTemplates: [],
+        });
 
         const finishedTurn = SquaddieTurnService.new();
         SquaddieTurnService.endTurn(finishedTurn);

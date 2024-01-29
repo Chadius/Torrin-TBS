@@ -5,11 +5,13 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
+import {ActionTemplateService} from "../../decision/actionTemplate";
+import {SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
         "squaddieTemplates": [
-            {
+            SquaddieTemplateService.new({
                 "squaddieId": {
                     "templateId": "player_young_torrin",
                     "name": "Torrin",
@@ -39,36 +41,59 @@ export const TestArmyPlayerData = () => {
                         "traits": TraitStatusStorageHelper.newUsingTraitValues(),
                     }),
                 },
-                "TODODELETEMEactions": [
-                    ActionEffectSquaddieTemplateService.new({
-                        TODODELETEMEname: "water cannon",
-                        TODODELETEMEid: "torrin_water_cannon",
-                        minimumRange: 0,
-                        maximumRange: 2,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                "actionTemplates": [
+                    {
+                        "id": "torrin_water_cannon",
+                        "name": "water cannon",
+                        "actionPointCost": 1,
+                        "traits": TraitStatusStorageHelper.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         }),
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2
-                        }
-                    }),
-                    ActionEffectSquaddieTemplateService.new({
-                        TODODELETEMEname: "healing touch",
-                        TODODELETEMEid: "young_torrin_healing_touch",
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        "actionEffectTemplates": [
+                            {
+                                TODODELETEMEname: "water cannon",
+                                TODODELETEMEid: "torrin_water_cannon",
+                                minimumRange: 0,
+                                maximumRange: 2,
+                                traits: TraitStatusStorageHelper.newUsingTraitValues({
+                                    [Trait.ATTACK]: true,
+                                }),
+                                damageDescriptions: {
+                                    [DamageType.BODY]: 2
+                                }
+                            },
+                        ]
+                    },
+                    {
+                        "id": "young_torrin_healing_touch",
+                        "name": "healing touch",
+                        "actionPointCost": 2,
+                        "traits": TraitStatusStorageHelper.newUsingTraitValues({
                             [Trait.SKIP_ANIMATION]: true,
                             [Trait.ALWAYS_SUCCEEDS]: true,
                             [Trait.TARGETS_ALLIES]: true,
                             [Trait.HEALING]: true,
                         }),
-                        TODODELETEMEactionPointCost: 2,
-                        healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2}
-                    })
+                        "actionEffectTemplates": [
+                            {
+                                TODODELETEMEname: "healing touch",
+                                TODODELETEMEid: "young_torrin_healing_touch",
+                                minimumRange: 0,
+                                maximumRange: 1,
+                                traits: TraitStatusStorageHelper.newUsingTraitValues({
+                                    [Trait.SKIP_ANIMATION]: true,
+                                    [Trait.ALWAYS_SUCCEEDS]: true,
+                                    [Trait.TARGETS_ALLIES]: true,
+                                    [Trait.HEALING]: true,
+                                }),
+                                TODODELETEMEactionPointCost: 2,
+                                healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2}
+                            },
+                        ]
+                    },
                 ],
-            },
-            {
+            }),
+            SquaddieTemplateService.new({
                 attributes: {
                     maxHitPoints: 5,
                     armorClass: 8,
@@ -97,21 +122,30 @@ export const TestArmyPlayerData = () => {
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                TODODELETEMEactions: [
-                    ActionEffectSquaddieTemplateService.new({
-                        TODODELETEMEname: "longsword",
-                        TODODELETEMEid: "sir_camil_longsword",
-                        minimumRange: 0,
-                        maximumRange: 1,
+                actionTemplates: [
+                    ActionTemplateService.new({
+                        id: "sir_camil_longsword",
+                        name: "longsword",
                         traits: TraitStatusStorageHelper.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         }),
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2
-                        }
-                    })
+                        actionEffectTemplates: [
+                            ActionEffectSquaddieTemplateService.new({
+                                TODODELETEMEname: "longsword",
+                                TODODELETEMEid: "sir_camil_longsword",
+                                minimumRange: 0,
+                                maximumRange: 1,
+                                traits: TraitStatusStorageHelper.newUsingTraitValues({
+                                    [Trait.ATTACK]: true,
+                                }),
+                                damageDescriptions: {
+                                    [DamageType.BODY]: 2
+                                }
+                            })
+                        ]
+                    }),
                 ],
-            },
+            }),
         ]
     };
 

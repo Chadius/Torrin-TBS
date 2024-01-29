@@ -2,7 +2,7 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ObjectRepository, ObjectRepositoryService} from "./objectRepository";
 import {BattleSquaddie, BattleSquaddieService} from "./battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "./BattleSquaddieTeam";
-import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../campaign/squaddieTemplate";
 import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../squaddie/armyAttributes";
 
@@ -27,7 +27,7 @@ describe('Battle Squaddie Team', () => {
             battleSquaddieIds: [],
             iconResourceKey: "",
         };
-        playerSquaddieTemplateBase = {
+        playerSquaddieTemplateBase = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "player_young_torrin",
                 name: "Torrin",
@@ -39,8 +39,8 @@ describe('Battle Squaddie Team', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
-            TODODELETEMEactions: [],
-        };
+            actionTemplates: [],
+        });
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepository,
             playerSquaddieTemplateBase
@@ -74,7 +74,7 @@ describe('Battle Squaddie Team', () => {
             battleSquaddieIds: [],
             iconResourceKey: "",
         };
-        enemySquaddieTemplateBase = {
+        enemySquaddieTemplateBase = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "enemy_slither_demon",
                 name: "Slither",
@@ -85,9 +85,9 @@ describe('Battle Squaddie Team', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.ENEMY,
             },
-            TODODELETEMEactions: [],
             attributes: DefaultArmyAttributes(),
-        };
+            actionTemplates: [],
+        });
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepository,
             enemySquaddieTemplateBase

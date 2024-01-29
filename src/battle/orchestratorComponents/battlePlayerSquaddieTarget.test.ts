@@ -43,6 +43,7 @@ import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngi
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
+import {ActionTemplateService} from "../../decision/actionTemplate";
 
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
@@ -54,9 +55,9 @@ describe('BattleSquaddieTarget', () => {
     let thiefStatic: SquaddieTemplate;
     let thiefDynamic: BattleSquaddie;
     let battleMap: MissionMap;
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     let longswordActionId: string = "longsword";
-    let bandageWoundsAction: ActionEffectSquaddieTemplate;
+    let bandageWoundsActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     let bandageWoundsActionId: string = "bandage wounds";
     let state: GameEngineState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -76,7 +77,7 @@ describe('BattleSquaddieTarget', () => {
             })
         });
 
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "longsword",
             TODODELETEMEid: longswordActionId,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -93,7 +94,7 @@ describe('BattleSquaddieTarget', () => {
             },
         });
 
-        bandageWoundsAction = ActionEffectSquaddieTemplateService.new({
+        bandageWoundsActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "Bandage Wounds",
             TODODELETEMEid: bandageWoundsActionId,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -105,6 +106,18 @@ describe('BattleSquaddieTarget', () => {
             TODODELETEMEactionPointCost: 2,
         });
 
+        // TODO use this as an example
+        // demonBiteActionTemplate = ActionTemplateService.new({
+        //     id: "demon_bite",
+        //     name: "demon bite",
+        //     traits: TraitStatusStorageHelper.newUsingTraitValues({
+        //         [Trait.ATTACK]: true,
+        //         [Trait.TARGET_ARMOR]: true,
+        //     }),
+        //     actionPointCost: 2,
+        //     actionEffectTemplates: [demonBiteActionEffectSquaddieTemplate],
+        // });
+
         ({
             squaddieTemplate: knightStatic,
             battleSquaddie: knightDynamic,
@@ -114,7 +127,30 @@ describe('BattleSquaddieTarget', () => {
             battleId: "Knight 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
-            actions: [longswordAction, bandageWoundsAction],
+            TODODELETEMEactions: [longswordActionEffectSquaddieTemplate, bandageWoundsActionEffectSquaddieTemplate],
+            actionTemplates: [
+                ActionTemplateService.new({
+                    id: longswordActionId,
+                    name: "longsword",
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.ALWAYS_SUCCEEDS]: true,
+                        [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
+                    }),
+                    actionEffectTemplates: [longswordActionEffectSquaddieTemplate],
+                }),
+                ActionTemplateService.new({
+                    name: "Bandage Wounds",
+                    id: bandageWoundsActionId,
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.HEALING]: true,
+                        [Trait.TARGETS_ALLIES]: true,
+                    }),
+                    actionPointCost: 2,
+                    actionEffectTemplates: [bandageWoundsActionEffectSquaddieTemplate],
+                })
+            ],
         }));
         battleMap.addSquaddie(knightStatic.squaddieId.templateId, knightDynamic.battleSquaddieId, {q: 1, r: 1});
 
@@ -127,7 +163,7 @@ describe('BattleSquaddieTarget', () => {
             battleId: "Citizen 0",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository: squaddieRepo,
-            actions: [],
+            actionTemplates: [],
         }));
         battleMap.addSquaddie(citizenStatic.squaddieId.templateId, citizenDynamic.battleSquaddieId, {
             q: 0,
@@ -143,7 +179,20 @@ describe('BattleSquaddieTarget', () => {
             battleId: "Thief 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepo,
-            actions: [longswordAction],
+            TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
+            actionTemplates: [
+                ActionTemplateService.new({
+                    id: longswordActionId,
+                    name: "longsword",
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                        [Trait.ALWAYS_SUCCEEDS]: true,
+                        [Trait.CANNOT_CRITICALLY_SUCCEED]: true,
+                    }),
+                    actionEffectTemplates: [longswordActionEffectSquaddieTemplate],
+                }),
+            ],
             attributes: {
                 maxHitPoints: 5,
                 movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
@@ -161,7 +210,7 @@ describe('BattleSquaddieTarget', () => {
             currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        template: longswordAction,
+                        template: longswordActionEffectSquaddieTemplate,
                         targetLocation: undefined,
                         numberOfActionPointsSpent: 1,
                     })
@@ -299,7 +348,7 @@ describe('BattleSquaddieTarget', () => {
         const decision = DecisionService.new({
             actionEffects: [
                 ActionEffectSquaddieService.new({
-                    template: longswordAction,
+                    template: longswordActionEffectSquaddieTemplate,
                     targetLocation: {q: 0, r: 0},
                     numberOfActionPointsSpent: 1,
                 })
@@ -342,7 +391,7 @@ describe('BattleSquaddieTarget', () => {
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        template: longswordAction,
+                        template: longswordActionEffectSquaddieTemplate,
                         targetLocation: {q: 0, r: 0},
                         numberOfActionPointsSpent: 1,
                     })
@@ -416,7 +465,7 @@ describe('BattleSquaddieTarget', () => {
                 currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
-                            template: bandageWoundsAction,
+                            template: bandageWoundsActionEffectSquaddieTemplate,
                             targetLocation: {q: 0, r: 0},
                             numberOfActionPointsSpent: 1,
                         })
@@ -461,7 +510,7 @@ describe('BattleSquaddieTarget', () => {
                 actionEffects: [
                     ActionEffectSquaddieService.new({
                         targetLocation: {q: 1, r: 2},
-                        template: longswordAction,
+                        template: longswordActionEffectSquaddieTemplate,
                         numberOfActionPointsSpent: 1,
                     })
                 ]
@@ -509,7 +558,7 @@ describe('BattleSquaddieTarget', () => {
                 currentlySelectedDecision: DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
-                            template: longswordAction,
+                            template: longswordActionEffectSquaddieTemplate,
                             targetLocation: {q: 0, r: 0},
                             numberOfActionPointsSpent: 1,
                         })
@@ -534,7 +583,7 @@ describe('BattleSquaddieTarget', () => {
                         actionEffects: [
                             ActionEffectSquaddieService.new({
                                 targetLocation: {q: 1, r: 2},
-                                template: longswordAction,
+                                template: longswordActionEffectSquaddieTemplate,
                                 numberOfActionPointsSpent: 1,
                             })
                         ]
@@ -550,7 +599,7 @@ describe('BattleSquaddieTarget', () => {
                 squaddieTemplate: knightStatic,
                 battleSquaddie: knightDynamic
             });
-            expect(actionPointsRemaining).toBe(3 - longswordAction.TODODELETEMEactionPointCost);
+            expect(actionPointsRemaining).toBe(3 - longswordActionEffectSquaddieTemplate.TODODELETEMEactionPointCost);
         });
 
         it('should add the results to the history', () => {
@@ -559,7 +608,7 @@ describe('BattleSquaddieTarget', () => {
             expect(mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
             expect((
                 mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as ActionEffectSquaddie
-            ).template.TODODELETEMEid).toBe(longswordAction.TODODELETEMEid);
+            ).template.TODODELETEMEid).toBe(longswordActionEffectSquaddieTemplate.TODODELETEMEid);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);
             expect(results.targetedBattleSquaddieIds).toHaveLength(1);
@@ -570,13 +619,13 @@ describe('BattleSquaddieTarget', () => {
         it('should store the calculated results', () => {
             const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
             const knightUsesLongswordOnThiefResults = mostRecentEvent.results.resultPerTarget[thiefDynamic.battleSquaddieId];
-            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordAction.damageDescriptions[DamageType.BODY]);
+            expect(knightUsesLongswordOnThiefResults.damageTaken).toBe(longswordActionEffectSquaddieTemplate.damageDescriptions[DamageType.BODY]);
 
             const {maxHitPoints, currentHitPoints} = GetHitPoints({
                 squaddieTemplate: thiefStatic,
                 battleSquaddie: thiefDynamic
             });
-            expect(currentHitPoints).toBe(maxHitPoints - longswordAction.damageDescriptions[DamageType.BODY]);
+            expect(currentHitPoints).toBe(maxHitPoints - longswordActionEffectSquaddieTemplate.damageDescriptions[DamageType.BODY]);
         });
     });
 

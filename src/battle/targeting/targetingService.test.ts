@@ -14,6 +14,7 @@ import {FindValidTargets, TargetingResults} from "./targetingService";
 import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {ActionTemplateService} from "../../decision/actionTemplate";
 
 describe('Targeting Service', () => {
     let longswordAction: ActionEffectSquaddieTemplate;
@@ -117,7 +118,7 @@ describe('Targeting Service', () => {
             })
         });
 
-        let longbowAction = ActionEffectSquaddieTemplateService.new({
+        let longbowActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "longbow",
             TODODELETEMEid: "longbow",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -137,7 +138,18 @@ describe('Targeting Service', () => {
             templateId: "archer",
             battleId: "Archer 0",
             affiliation: SquaddieAffiliation.PLAYER,
-            actions: [longbowAction],
+            TODODELETEMEactions: [longbowActionEffectSquaddieTemplate],
+            actionTemplates: [
+                ActionTemplateService.new({
+                    name: "longbow",
+                    id: "longbow",
+                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                    }),
+                    actionEffectTemplates: [longbowActionEffectSquaddieTemplate],
+                }),
+            ],
             squaddieRepository: squaddieRepo,
         });
 
@@ -149,7 +161,7 @@ describe('Targeting Service', () => {
 
         const results: TargetingResults = FindValidTargets({
             map: battleMap,
-            action: longbowAction,
+            action: longbowActionEffectSquaddieTemplate,
             actingSquaddieTemplate: archerSquaddieTemplate,
             actingBattleSquaddie: archerBattleSquaddie,
             squaddieRepository: squaddieRepo,

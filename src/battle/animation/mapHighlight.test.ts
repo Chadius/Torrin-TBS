@@ -17,6 +17,8 @@ import {MapHighlightHelper} from "./mapHighlight";
 import {MissionMapService} from "../../missionMap/missionMap";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {CampaignResources, CampaignResourcesService} from "../../campaign/campaignResources";
+import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
+import {DamageType} from "../../squaddie/squaddieService";
 
 describe('map highlight generator', () => {
     let terrainAllSingleMovement: TerrainTileMap;
@@ -24,7 +26,8 @@ describe('map highlight generator', () => {
     let terrainAlternatingPits: TerrainTileMap;
     let repository: ObjectRepository;
 
-    let rangedAction: ActionEffectSquaddieTemplate;
+    let rangedActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
+    let rangedAction: ActionTemplate;
     let campaignResources: CampaignResources;
 
     beforeEach(() => {
@@ -43,14 +46,26 @@ describe('map highlight generator', () => {
             movementCost: ["1 1 - 1 1 1 - 1 1 1 "],
         });
 
-        rangedAction = ActionEffectSquaddieTemplateService.new({
-            TODODELETEMEid: "meleeAndRanged",
-            TODODELETEMEname: "melee and ranged",
+        rangedActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+            TODODELETEMEid: "delete",
+            TODODELETEMEname: "name",
+            TODODELETEMEactionPointCost: 0,
             minimumRange: 0,
             maximumRange: 2,
             traits: TraitStatusStorageHelper.newUsingTraitValues({
                 [Trait.ATTACK]: true,
-            })
+            }),
+            damageDescriptions: {
+                [DamageType.BODY]: 2
+            },
+        })
+        rangedAction = ActionTemplateService.new({
+            id: "meleeAndRanged",
+            name: "melee and ranged",
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+            }),
+            actionEffectTemplates: [rangedActionEffectSquaddieTemplate],
         });
     });
 
@@ -331,6 +346,7 @@ describe('map highlight generator', () => {
                     })
                 }),
                 actionTemplates: [rangedAction],
+                TODODELETEMEactions: [rangedActionEffectSquaddieTemplate],
             });
             ObjectRepositoryService.addSquaddieTemplate(repository, squaddieWithNoMovement);
 

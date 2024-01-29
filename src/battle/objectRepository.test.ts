@@ -5,7 +5,7 @@ import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 import {SquaddieTurn, SquaddieTurnService} from "../squaddie/turn";
 import {ObjectRepository, ObjectRepositoryService} from "./objectRepository";
 import {getResultOrThrowError, isError, unwrapResultOrError} from "../utils/ResultOrError";
-import {SquaddieTemplate} from "../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../campaign/squaddieTemplate";
 
 describe('BattleSquaddieRepository', () => {
     let squaddieRepo: ObjectRepository;
@@ -14,7 +14,7 @@ describe('BattleSquaddieRepository', () => {
 
     beforeEach(() => {
         squaddieRepo = ObjectRepositoryService.new();
-        squaddieTemplateBase = {
+        squaddieTemplateBase = SquaddieTemplateService.new({
             attributes: {
                 maxHitPoints: 1,
                 armorClass: 0,
@@ -37,8 +37,8 @@ describe('BattleSquaddieRepository', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
-            TODODELETEMEactions: [],
-        };
+            actionTemplates: [],
+        });
         battleSquaddieBase = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "player_young_torrin_0",
             squaddieTemplateId: "player_young_torrin",

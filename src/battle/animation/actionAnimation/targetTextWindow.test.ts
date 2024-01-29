@@ -1,5 +1,5 @@
 import {TargetTextWindow} from "./targetTextWindow";
-import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
@@ -56,7 +56,7 @@ describe('TargetTextWindow', () => {
             }),
         })
 
-        targetSquaddie = {
+        targetSquaddie = SquaddieTemplateService.new({
             squaddieId: {
                 name: "Target",
                 affiliation: SquaddieAffiliation.UNKNOWN,
@@ -67,9 +67,9 @@ describe('TargetTextWindow', () => {
                 templateId: "targetTemplateId",
                 traits: TraitStatusStorageHelper.newUsingTraitValues({}),
             },
-            TODODELETEMEactions: [],
             attributes: DefaultArmyAttributes(),
-        };
+            actionTemplates: [],
+        });
 
         targetBattle = {
             squaddieTemplateId: targetSquaddie.squaddieId.templateId,

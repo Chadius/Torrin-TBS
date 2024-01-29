@@ -3,7 +3,7 @@ import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {TargetingShape} from "../../targeting/targetingShapeGenerator";
-import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
 import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
@@ -24,7 +24,7 @@ describe('ActorTextWindow', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         mockedActionTimer = new ActionTimer();
 
-        actorTemplate = {
+        actorTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "actor id",
                 name: "Actor",
@@ -33,8 +33,8 @@ describe('ActorTextWindow', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
-            TODODELETEMEactions: [],
-        };
+            actionTemplates: [],
+        });
         attackThatUsesAttackRoll = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEid: "action Id",
             TODODELETEMEname: "Action",

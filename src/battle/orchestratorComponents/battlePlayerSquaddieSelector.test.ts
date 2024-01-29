@@ -49,6 +49,7 @@ import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattlePhaseState} from "./battlePhaseController";
 import {CampaignService} from "../../campaign/campaign";
+import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -57,7 +58,8 @@ describe('BattleSquaddieSelector', () => {
     let missionMap: MissionMap;
     let enemyDemonStatic: SquaddieTemplate;
     let enemyDemonDynamic: BattleSquaddie;
-    let demonBiteAction: ActionEffectSquaddieTemplate;
+    let demonBiteActionTemplate: ActionTemplate;
+    let demonBiteActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let teams: BattleSquaddieTeam[];
     let playerSoldierBattleSquaddie: BattleSquaddie;
@@ -85,7 +87,7 @@ describe('BattleSquaddieSelector', () => {
             }
         ;
 
-        demonBiteAction = ActionEffectSquaddieTemplateService.new({
+        demonBiteActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "demon bite",
             TODODELETEMEid: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -97,6 +99,17 @@ describe('BattleSquaddieSelector', () => {
             TODODELETEMEactionPointCost: 2,
         });
 
+        demonBiteActionTemplate = ActionTemplateService.new({
+            id: "demon_bite",
+            name: "demon bite",
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
+            actionPointCost: 2,
+            actionEffectTemplates: [demonBiteActionEffectSquaddieTemplate],
+        });
+
         ({
             battleSquaddie: enemyDemonDynamic,
             squaddieTemplate: enemyDemonStatic,
@@ -106,7 +119,8 @@ describe('BattleSquaddieSelector', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
-            actions: [demonBiteAction],
+            TODODELETEMEactions: [demonBiteActionEffectSquaddieTemplate],
+            actionTemplates: [demonBiteActionTemplate],
         }));
 
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
@@ -189,7 +203,7 @@ describe('BattleSquaddieSelector', () => {
             }
         ;
 
-        demonBiteAction = ActionEffectSquaddieTemplateService.new({
+        demonBiteActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "demon bite",
             TODODELETEMEid: "demon_bite",
             traits: TraitStatusStorageHelper.newUsingTraitValues({
@@ -201,6 +215,17 @@ describe('BattleSquaddieSelector', () => {
             TODODELETEMEactionPointCost: 2,
         });
 
+        demonBiteActionTemplate = ActionTemplateService.new({
+            id: "demon_bite",
+            name: "demon bite",
+            traits: TraitStatusStorageHelper.newUsingTraitValues({
+                [Trait.ATTACK]: true,
+                [Trait.TARGET_ARMOR]: true,
+            }),
+            actionPointCost: 2,
+            actionEffectTemplates: [demonBiteActionEffectSquaddieTemplate],
+        });
+
         ({
             battleSquaddie: enemyDemonDynamic,
             squaddieTemplate: enemyDemonStatic,
@@ -210,7 +235,8 @@ describe('BattleSquaddieSelector', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
-            actions: [demonBiteAction],
+            TODODELETEMEactions: [demonBiteActionEffectSquaddieTemplate],
+            actionTemplates: [demonBiteActionTemplate],
         }));
         BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0"]);
         teams.push(enemyTeam);

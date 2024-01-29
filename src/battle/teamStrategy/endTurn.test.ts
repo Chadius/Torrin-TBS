@@ -12,7 +12,7 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
@@ -26,7 +26,7 @@ describe('end turn team strategy', () => {
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new();
-        playerSquaddieTemplate = {
+        playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "new_static_squaddie",
                 name: "Torrin",
@@ -37,9 +37,9 @@ describe('end turn team strategy', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
-            TODODELETEMEactions: [],
+            actionTemplates: [],
             attributes: DefaultArmyAttributes(),
-        };
+        });
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepository,
             playerSquaddieTemplate

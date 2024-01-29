@@ -39,6 +39,7 @@ import {isValidValue} from "../../utils/validityCheck";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattlePhaseStateService} from "../orchestratorComponents/battlePhaseController";
 import {LoadSaveState} from "../../dataLoader/loadSaveState";
+import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -54,7 +55,8 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieDynamicId: string = "player_squaddie_2";
     let player2SquaddieStatic: SquaddieTemplate;
     let player2SquaddieDynamic: BattleSquaddie;
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordActionTemplate: ActionTemplate;
+    let longswordActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -71,7 +73,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "longsword",
             TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -79,6 +81,15 @@ describe('BattleSquaddieSelectedHUD', () => {
             minimumRange: 0,
             maximumRange: 1,
             targetingShape: TargetingShape.SNAKE,
+        });
+
+        longswordActionTemplate = ActionTemplateService.new({
+            id: "longsword",
+            name: "longsword",
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            actionEffectTemplates: [
+                longswordActionEffectSquaddieTemplate
+            ]
         });
 
         ({
@@ -91,9 +102,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleId: playerSquaddieDynamicID,
                     squaddieRepository,
-                    actions: [
-                        longswordAction
-                    ],
+                    TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
+                    actionTemplates: [longswordActionTemplate],
                 })
         );
 
@@ -107,9 +117,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleId: player2SquaddieDynamicId,
                     squaddieRepository,
-                    actions: [
-                        longswordAction
-                    ],
+                    TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
+                    actionTemplates: [longswordActionTemplate],
                 })
         );
 
@@ -123,9 +132,8 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleId: enemySquaddieDynamicID,
                     squaddieRepository,
-                    actions: [
-                        longswordAction
-                    ],
+                    TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
+                    actionTemplates: [longswordActionTemplate],
                 })
         );
 
@@ -158,7 +166,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(actionButtons).toBeTruthy();
 
         expect(actionButtons.find((button) => {
-            return button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordAction.TODODELETEMEname;
+            return button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordActionEffectSquaddieTemplate.TODODELETEMEname;
         })).toBeTruthy();
     });
 
@@ -186,13 +194,13 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
             button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordAction.TODODELETEMEname
+            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordActionEffectSquaddieTemplate.TODODELETEMEname
         );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeTruthy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBe(longswordAction);
+        expect(hud.getSelectedAction()).toBe(longswordActionEffectSquaddieTemplate);
 
         hud.reset();
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
@@ -225,7 +233,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
             button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordAction.TODODELETEMEname
+            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordActionEffectSquaddieTemplate.TODODELETEMEname
         );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state.battleOrchestratorState);
 
@@ -353,8 +361,8 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
-        let notEnoughActionPointsAction: ActionEffectSquaddieTemplate;
-        notEnoughActionPointsAction = ActionEffectSquaddieTemplateService.new({
+        let notEnoughActionPointsActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
+        notEnoughActionPointsActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
                 TODODELETEMEname: "not enough actions",
                 TODODELETEMEid: "not enough actions",
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -365,8 +373,18 @@ describe('BattleSquaddieSelectedHUD', () => {
             }
         );
 
+        let notEnoughActionPointsActionTemplate = ActionTemplateService.new({
+                name: "not enough actions",
+                id: "not enough actions",
+                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                actionPointCost: 9001,
+                actionEffectTemplates: [notEnoughActionPointsActionEffectSquaddieTemplate],
+            }
+        );
+
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, playerSquaddieDynamicID));
-        squaddieTemplate.TODODELETEMEactions.push(notEnoughActionPointsAction);
+        squaddieTemplate.TODODELETEMEactions.push(notEnoughActionPointsActionEffectSquaddieTemplate);
+        squaddieTemplate.actionTemplates.push(notEnoughActionPointsActionTemplate);
 
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: resourceHandler,

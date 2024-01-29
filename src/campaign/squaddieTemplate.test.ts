@@ -8,7 +8,7 @@ describe('Squaddie Template', () => {
         it('will give static squaddie defaults', () => {
             const squaddieWithoutAttributes: SquaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: NewDummySquaddieID("id", SquaddieAffiliation.PLAYER),
-                TODODELETEMEactions: [],
+                actionTemplates: [],
                 attributes: DefaultArmyAttributes(),
             });
 
@@ -28,12 +28,11 @@ describe('Squaddie Template', () => {
                 affiliation: undefined,
             },
             attributes: null,
-            TODODELETEMEactions: undefined,
         });
 
         SquaddieTemplateService.sanitize(templateWithInvalidFields);
 
-        expect(templateWithInvalidFields.TODODELETEMEactions).toHaveLength(0);
+        expect(templateWithInvalidFields.actionTemplates).toHaveLength(0);
         expect(templateWithInvalidFields.attributes).toEqual(DefaultArmyAttributes());
         expect(templateWithInvalidFields.squaddieId.resources).not.toBeUndefined();
         expect(templateWithInvalidFields.squaddieId.affiliation).not.toBeUndefined();
@@ -44,8 +43,7 @@ describe('Squaddie Template', () => {
             SquaddieTemplateService.new({
                 squaddieId: undefined,
                 attributes: null,
-                TODODELETEMEactions: undefined,
-                actions: undefined,
+                actionTemplates: undefined,
             });
         };
 

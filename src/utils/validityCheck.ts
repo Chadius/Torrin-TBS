@@ -8,5 +8,5 @@ export const getValidValueOrDefault = <T>(value: T, defaultValue: T) => {
     return isValidValue(value)
         ? value
         : defaultValue
-    ;
+        ;
 }

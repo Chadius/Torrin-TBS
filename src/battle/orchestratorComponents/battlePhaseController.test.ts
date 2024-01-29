@@ -11,7 +11,7 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {BattleCamera} from "../battleCamera";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoordinates";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -38,7 +38,7 @@ describe('BattlePhaseController', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
         squaddieRepo = ObjectRepositoryService.new();
 
-        playerSquaddieTemplate = {
+        playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "player_squaddie",
                 name: "Player",
@@ -49,9 +49,9 @@ describe('BattlePhaseController', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
-            TODODELETEMEactions: [],
+            actionTemplates: [],
             attributes: DefaultArmyAttributes(),
-        };
+        });
         playerBattleSquaddie = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "player_squaddie_0",
             squaddieTemplateId: "player_squaddie",
@@ -66,7 +66,7 @@ describe('BattlePhaseController', () => {
         );
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
-            {
+            SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
@@ -77,9 +77,9 @@ describe('BattlePhaseController', () => {
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
-                TODODELETEMEactions: [],
+                actionTemplates: [],
                 attributes: DefaultArmyAttributes(),
-            }
+            })
         );
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
             BattleSquaddieService.newBattleSquaddie({

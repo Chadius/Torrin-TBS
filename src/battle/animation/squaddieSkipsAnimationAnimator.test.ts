@@ -32,6 +32,8 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {DecisionService} from "../../decision/decision";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
+import {ActionEffectTemplate} from "../../decision/actionEffectTemplate";
+import {ActionTemplateService} from "../../decision/actionTemplate";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -39,7 +41,8 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let squaddieRepository: ObjectRepository;
     let monkStaticId = "monk static";
     let monkDynamicId = "monk dynamic";
-    let monkKoanAction: ActionEffectSquaddieTemplate;
+    let monkKoanActionActionTemplate: ActionEffectTemplate;
+    let monkKoanActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: CurrentlySelectedSquaddieDecision;
 
@@ -52,7 +55,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        monkKoanAction = ActionEffectSquaddieTemplateService.new({
+        monkKoanActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEid: "koan",
             TODODELETEMEname: "koan",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -64,9 +67,21 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             minimumRange: 0,
         });
 
+        monkKoanActionActionTemplate = ActionTemplateService.new({
+            id: "koan",
+            name: "koan",
+            traits: TraitStatusStorageHelper.newUsingTraitValues(
+                {
+                    [Trait.SKIP_ANIMATION]: true
+                }
+            ),
+            actionEffectTemplates: [monkKoanActionEffectSquaddieTemplate],
+        });
+
         squaddieRepository = ObjectRepositoryService.new();
         CreateNewSquaddieAndAddToRepository({
-            actions: [monkKoanAction],
+            actionTemplates: [monkKoanActionActionTemplate],
+            TODODELETEMEactions: [monkKoanActionEffectSquaddieTemplate],
             affiliation: SquaddieAffiliation.PLAYER,
             battleId: monkDynamicId,
             name: "Monk",
@@ -84,7 +99,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
-                            template: monkKoanAction,
+                            template: monkKoanActionEffectSquaddieTemplate,
                             targetLocation: {q: 0, r: 0},
                         })
                     ]
@@ -97,7 +112,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             currentlySelectedDecision: DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        template: monkKoanAction,
+                        template: monkKoanActionEffectSquaddieTemplate,
                         targetLocation: {q: 0, r: 0},
                         numberOfActionPointsSpent: 1,
                     })
@@ -147,7 +162,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         expect(animator.outputTextDisplay).not.toBeUndefined();
         expect(outputResultForTextOnlySpy).toBeCalled();
         expect(outputResultForTextOnlySpy).toBeCalledWith({
-            currentActionEffectTemplate: monkKoanAction,
+            currentActionEffectTemplate: monkKoanActionEffectSquaddieTemplate,
             result: monkMeditatesEvent.results,
             squaddieRepository,
         });

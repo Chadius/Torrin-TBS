@@ -35,6 +35,7 @@ import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {DecisionService} from "../../decision/decision";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
+import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
@@ -45,7 +46,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordActionTemplate: ActionTemplate;
+    let longswordActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
     let powerAttackLongswordAction: ActionEffectSquaddieTemplate;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
     let oneActionInstruction: SquaddieDecisionsDuringThisPhase;
@@ -64,12 +66,13 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         ({
             thiefBattleSquaddie,
         } = CreateNewThiefSquaddie({
+            actionTemplates: [],
             squaddieRepository,
             templateId: thiefStaticId,
-            battleId: thiefDynamicId,
+            battleId: thiefDynamicId
         }));
 
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "longsword",
             TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(
@@ -85,13 +88,26 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             },
         });
 
+        longswordActionTemplate = ActionTemplateService.new({
+            name: "longsword",
+            id: "longsword",
+            traits: TraitStatusStorageHelper.newUsingTraitValues(
+                {
+                    [Trait.ATTACK]: true,
+                    [Trait.TARGET_ARMOR]: true,
+                }),
+            actionPointCost: 1,
+            actionEffectTemplates: [longswordActionEffectSquaddieTemplate],
+        });
+
         ({
             knightBattleSquaddie,
         } = CreateNewKnightSquaddie({
             squaddieRepository,
             templateId: knightTemplateId,
             battleId: knightDynamicId,
-            actions: [longswordAction],
+            TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
+            actionTemplates: [longswordActionTemplate],
         }));
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
@@ -106,7 +122,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                     actionEffects: [
                         ActionEffectSquaddieService.new({
                             numberOfActionPointsSpent: 1,
-                            template: longswordAction,
+                            template: longswordActionEffectSquaddieTemplate,
                             targetLocation: {q: 0, r: 0},
                         })
                     ]
@@ -132,7 +148,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         const decision = DecisionService.new({
             actionEffects: [
                 ActionEffectSquaddieService.new({
-                    template: longswordAction,
+                    template: longswordActionEffectSquaddieTemplate,
                     targetLocation: {q: 0, r: 0},
                     numberOfActionPointsSpent: 1,
                 })
