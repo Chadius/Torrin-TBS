@@ -20,6 +20,8 @@ import {CampaignResources, CampaignResourcesService} from "../../campaign/campai
 import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 import {DamageType} from "../../squaddie/squaddieService";
 
+// TODODELETEME is done
+
 describe('map highlight generator', () => {
     let terrainAllSingleMovement: TerrainTileMap;
     let terrainAllDoubleMovement: TerrainTileMap;
@@ -346,7 +348,6 @@ describe('map highlight generator', () => {
                     })
                 }),
                 actionTemplates: [rangedAction],
-                TODODELETEMEactions: [rangedActionEffectSquaddieTemplate],
             });
             ObjectRepositoryService.addSquaddieTemplate(repository, squaddieWithNoMovement);
 

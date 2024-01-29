@@ -33,7 +33,7 @@ import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent} from "../history/battleEvent";
 import {DecisionService} from "../../decision/decision";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -271,7 +271,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] = multipleAttackPenalty;
         }
 
-        let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+        let squaddieActionEffect: ActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
         if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
             return;
         }
@@ -280,6 +280,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             currentActionEffectTemplate: squaddieActionEffect.template,
             actingBattleSquaddieId: CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
             squaddieRepository: state.repository,
+            actionTemplate: state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionTemplate,
             actingSquaddieModifiers,
         });
 

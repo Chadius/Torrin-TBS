@@ -399,9 +399,9 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
                 DecisionService.new({
                     actionEffects: [
                         ActionEffectSquaddieService.new({
-                            template: newAction,
+                            template: newAction.actionEffectTemplates[0], // TODO
                             targetLocation: undefined,
-                            numberOfActionPointsSpent: newAction.TODODELETEMEactionPointCost,
+                            numberOfActionPointsSpent: newAction.actionPointCost,
                         })
                     ]
                 })

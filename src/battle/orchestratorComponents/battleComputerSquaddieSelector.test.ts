@@ -164,7 +164,6 @@ describe('BattleComputerSquaddieSelector', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
-            TODODELETEMEactions: [demonBiteActionEffectSquaddieTemplate],
             actionTemplates: [demonBiteActionTemplate],
             attributes: {
                 maxHitPoints: 5,
@@ -673,13 +672,14 @@ describe('BattleComputerSquaddieSelector', () => {
                     squaddieTemplate: enemyDemonTemplate,
                     battleSquaddie: enemyDemonBattleSquaddie,
                 });
-                expect(actionPointsRemaining).toBe(3 - demonBiteActionEffectSquaddieTemplate.TODODELETEMEactionPointCost);
+                expect(actionPointsRemaining).toBe(3 - demonBiteActionTemplate.actionPointCost);
             });
 
             it('should add the results to the history', () => {
                 expect(state.battleOrchestratorState.battleState.recording.history).toHaveLength(1);
                 const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
                 expect(mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
+                // TODO Decision needs to store the ActionTemplate
                 expect((
                     mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as ActionEffectSquaddie
                 ).template.TODODELETEMEid).toBe(demonBiteActionEffectSquaddieTemplate.TODODELETEMEid);

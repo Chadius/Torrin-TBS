@@ -37,6 +37,8 @@ import {DecisionService} from "../../decision/decision";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 
+// TODO TODODELETEME can be deleted
+
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
     let knightBattleSquaddie: BattleSquaddie;
@@ -106,7 +108,6 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             squaddieRepository,
             templateId: knightTemplateId,
             battleId: knightDynamicId,
-            TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
             actionTemplates: [longswordActionTemplate],
         }));
 

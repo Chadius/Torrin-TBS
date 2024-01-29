@@ -1,5 +1,5 @@
-import {ActionTemplate} from "./actionEffectSquaddieTemplate";
+import {ActionEffectSquaddieTemplate} from "./actionEffectSquaddieTemplate";
 
-export type ActionEffectTemplate = ActionTemplate;
+export type ActionEffectTemplate = ActionEffectSquaddieTemplate;
 
 

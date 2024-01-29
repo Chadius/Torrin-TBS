@@ -52,6 +52,8 @@ import {CampaignService} from "../../campaign/campaign";
 import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 import SpyInstance = jest.SpyInstance;
 
+// TODO TODODELETEME is done
+
 describe('BattleSquaddieSelector', () => {
     let selector: BattlePlayerSquaddieSelector = new BattlePlayerSquaddieSelector();
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
@@ -119,7 +121,6 @@ describe('BattleSquaddieSelector', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
-            TODODELETEMEactions: [demonBiteActionEffectSquaddieTemplate],
             actionTemplates: [demonBiteActionTemplate],
         }));
 
@@ -235,7 +236,6 @@ describe('BattleSquaddieSelector', () => {
             affiliation: SquaddieAffiliation.ENEMY,
             battleId: "enemy_demon_0",
             squaddieRepository: squaddieRepo,
-            TODODELETEMEactions: [demonBiteActionEffectSquaddieTemplate],
             actionTemplates: [demonBiteActionTemplate],
         }));
         BattleSquaddieTeamService.addBattleSquaddieIds(enemyTeam, ["enemy_demon_0"]);
@@ -629,7 +629,7 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const longswordAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+        const longswordActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "longsword",
             TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -639,12 +639,20 @@ describe('BattleSquaddieSelector', () => {
             targetingShape: TargetingShape.SNAKE,
         });
 
+        const longswordActionTemplate = ActionTemplateService.new({
+            id: "longsword",
+            name: "longsword",
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            actionPointCost: 1,
+            actionEffectTemplates: [longswordActionEffectSquaddieTemplate],
+        });
+
         let mockHud = mocks.battleSquaddieSelectedHUD();
-        mockHud.getSelectedAction = jest.fn().mockReturnValue(longswordAction);
+        mockHud.getSelectedAction = jest.fn().mockReturnValue(longswordActionTemplate);
         mockHud.mouseClicked = jest.fn();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
         mockHud.didPlayerSelectSquaddieAction = jest.fn().mockReturnValue(true);
-        mockHud.getSquaddieSquaddieAction = jest.fn().mockReturnValue(longswordAction);
+        mockHud.getSquaddieSquaddieAction = jest.fn().mockReturnValue(longswordActionTemplate);
 
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: undefined,
@@ -678,7 +686,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
-        expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0] as ActionEffectSquaddie).template).toStrictEqual(longswordAction);
+        expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0] as ActionEffectSquaddie).template).toStrictEqual(longswordActionEffectSquaddieTemplate);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);

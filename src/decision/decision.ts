@@ -2,15 +2,21 @@ import {ActionEffect, ActionEffectType} from "./actionEffect";
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
 import {isValidValue} from "../utils/validityCheck";
 import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {ActionTemplate} from "./actionTemplate";
 
 export interface Decision {
+    actionTemplate: ActionTemplate;
     actionEffects: ActionEffect[];
 }
 
 export const DecisionService = {
-    new: ({actionEffects}: { actionEffects?: ActionEffect[] }): Decision => {
+    new: ({actionEffects, actionTemplate}: {
+        actionEffects?: ActionEffect[],
+        actionTemplate?: ActionTemplate
+    }): Decision => {
         return sanitize({
-            actionEffects
+            actionEffects,
+            actionTemplate
         });
     },
     sanitize: (decision: Decision): Decision => {

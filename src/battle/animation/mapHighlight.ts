@@ -180,37 +180,40 @@ const addAttackRangeOntoMovementRange = (
     const allLocationsSquaddieCanMoveTo: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(reachableLocationSearch);
 
     const attackLocations: HexCoordinate[] = [];
-    squaddieTemplate.TODODELETEMEactions.forEach(action => {
-        allLocationsSquaddieCanMoveTo.forEach(coordinate => {
-            const path: SearchPath = reachableLocationSearch.shortestPathByLocation[coordinate.q][coordinate.r];
-            const numberOfMoveActionsToReachEndOfPath: number = isValidValue(path) ? path.currentNumberOfMoveActions : 0;
-            if (numberOfMoveActionsToReachEndOfPath + action.TODODELETEMEactionPointCost > actionPointsRemaining) {
-                return;
-            }
+    squaddieTemplate.actionTemplates.forEach(actionTemplate => {
+        actionTemplate.actionEffectTemplates.forEach(action => {
+            allLocationsSquaddieCanMoveTo.forEach(coordinate => {
+                const path: SearchPath = reachableLocationSearch.shortestPathByLocation[coordinate.q][coordinate.r];
+                const numberOfMoveActionsToReachEndOfPath: number = isValidValue(path) ? path.currentNumberOfMoveActions : 0;
+                if (numberOfMoveActionsToReachEndOfPath + action.TODODELETEMEactionPointCost > actionPointsRemaining) {
+                    return;
+                }
 
-            const actionRangeResults = PathfinderHelper.search({
-                searchParameters: SearchParametersHelper.new({
-                    startLocations: [coordinate],
-                    canStopOnSquaddies: true,
-                    canPassOverPits: true,
-                    canPassThroughWalls: TraitStatusStorageHelper.getStatus(action.traits, Trait.PASS_THROUGH_WALLS),
-                    minimumDistanceMoved: action.minimumRange,
-                    maximumDistanceMoved: action.maximumRange,
-                    squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
-                    ignoreTerrainCost: true,
-                    shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(action.targetingShape)),
-                }),
-                missionMap,
-                repository,
+                const actionRangeResults = PathfinderHelper.search({
+                    searchParameters: SearchParametersHelper.new({
+                        startLocations: [coordinate],
+                        canStopOnSquaddies: true,
+                        canPassOverPits: true,
+                        canPassThroughWalls: TraitStatusStorageHelper.getStatus(action.traits, Trait.PASS_THROUGH_WALLS),
+                        minimumDistanceMoved: action.minimumRange,
+                        maximumDistanceMoved: action.maximumRange,
+                        squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
+                        ignoreTerrainCost: true,
+                        shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(action.targetingShape)),
+                    }),
+                    missionMap,
+                    repository,
+                })
+
+                const hexCoordinateDoesNotAlreadyExist = (locationToTest: HexCoordinate, locations: HexCoordinate[]) => {
+                    return !locations.some(loc => locationToTest.r === loc.r && locationToTest.q == loc.q);
+                }
+
+                const uniqueLocations = SearchResultsHelper.getStoppableLocations(actionRangeResults)
+                    .filter(location => hexCoordinateDoesNotAlreadyExist(location, attackLocations))
+                    .filter(location => hexCoordinateDoesNotAlreadyExist(location, allLocationsSquaddieCanMoveTo));
+                attackLocations.push(...uniqueLocations);
             })
-
-
-            const uniqueLocations = SearchResultsHelper.getStoppableLocations(actionRangeResults).filter(location =>
-                !attackLocations.some(attackLoc => attackLoc.q === location.q && attackLoc.r === location.r)
-            ).filter(location =>
-                !allLocationsSquaddieCanMoveTo.some(moveLoc => moveLoc.q === location.q && moveLoc.r === location.r)
-            );
-            attackLocations.push(...uniqueLocations);
         })
     });
 

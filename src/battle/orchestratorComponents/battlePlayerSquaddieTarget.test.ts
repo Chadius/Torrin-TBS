@@ -45,6 +45,8 @@ import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {ActionTemplateService} from "../../decision/actionTemplate";
 
+// TODO TODODELETEME is done
+
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
     let targetComponent: BattlePlayerSquaddieTarget;
@@ -106,18 +108,6 @@ describe('BattleSquaddieTarget', () => {
             TODODELETEMEactionPointCost: 2,
         });
 
-        // TODO use this as an example
-        // demonBiteActionTemplate = ActionTemplateService.new({
-        //     id: "demon_bite",
-        //     name: "demon bite",
-        //     traits: TraitStatusStorageHelper.newUsingTraitValues({
-        //         [Trait.ATTACK]: true,
-        //         [Trait.TARGET_ARMOR]: true,
-        //     }),
-        //     actionPointCost: 2,
-        //     actionEffectTemplates: [demonBiteActionEffectSquaddieTemplate],
-        // });
-
         ({
             squaddieTemplate: knightStatic,
             battleSquaddie: knightDynamic,
@@ -127,7 +117,6 @@ describe('BattleSquaddieTarget', () => {
             battleId: "Knight 0",
             affiliation: SquaddieAffiliation.PLAYER,
             squaddieRepository: squaddieRepo,
-            TODODELETEMEactions: [longswordActionEffectSquaddieTemplate, bandageWoundsActionEffectSquaddieTemplate],
             actionTemplates: [
                 ActionTemplateService.new({
                     id: longswordActionId,
@@ -179,7 +168,6 @@ describe('BattleSquaddieTarget', () => {
             battleId: "Thief 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepo,
-            TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
             actionTemplates: [
                 ActionTemplateService.new({
                     id: longswordActionId,

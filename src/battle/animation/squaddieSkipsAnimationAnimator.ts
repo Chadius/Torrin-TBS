@@ -67,6 +67,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
             this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
                 squaddieRepository: state.repository,
                 currentActionEffectTemplate: squaddieActionEffect.template,
+                actionTemplate: state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionTemplate,
                 result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
             });
 

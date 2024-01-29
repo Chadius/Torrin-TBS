@@ -41,6 +41,7 @@ import {BattlePhaseStateService} from "../orchestratorComponents/battlePhaseCont
 import {LoadSaveState} from "../../dataLoader/loadSaveState";
 import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 
+// TODODELETEME done
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
     let squaddieRepository: ObjectRepository;
@@ -102,7 +103,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleId: playerSquaddieDynamicID,
                     squaddieRepository,
-                    TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
                     actionTemplates: [longswordActionTemplate],
                 })
         );
@@ -117,7 +117,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.PLAYER,
                     battleId: player2SquaddieDynamicId,
                     squaddieRepository,
-                    TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
                     actionTemplates: [longswordActionTemplate],
                 })
         );
@@ -132,7 +131,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                     affiliation: SquaddieAffiliation.ENEMY,
                     battleId: enemySquaddieDynamicID,
                     squaddieRepository,
-                    TODODELETEMEactions: [longswordActionEffectSquaddieTemplate],
                     actionTemplates: [longswordActionTemplate],
                 })
         );
@@ -166,7 +164,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(actionButtons).toBeTruthy();
 
         expect(actionButtons.find((button) => {
-            return button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordActionEffectSquaddieTemplate.TODODELETEMEname;
+            return button.actionTemplate && button.actionTemplate.name === longswordActionTemplate.name;
         })).toBeTruthy();
     });
 
@@ -193,14 +191,14 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordActionEffectSquaddieTemplate.TODODELETEMEname
+            button.actionTemplate
+            && button.actionTemplate.name === longswordActionTemplate.name
         );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeTruthy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
-        expect(hud.getSelectedAction()).toBe(longswordActionEffectSquaddieTemplate);
+        expect(hud.getSelectedAction()).toBe(longswordActionTemplate);
 
         hud.reset();
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
@@ -232,8 +230,8 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.TODODELETEMEname === longswordActionEffectSquaddieTemplate.TODODELETEMEname
+            button.actionTemplate
+            && button.actionTemplate.name === longswordActionTemplate.name
         );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state.battleOrchestratorState);
 
@@ -383,7 +381,6 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
 
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, playerSquaddieDynamicID));
-        squaddieTemplate.TODODELETEMEactions.push(notEnoughActionPointsActionEffectSquaddieTemplate);
         squaddieTemplate.actionTemplates.push(notEnoughActionPointsActionTemplate);
 
         const state: GameEngineState = GameEngineStateService.new({
@@ -409,7 +406,8 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.getSelectedAction()).toBeUndefined();
 
         const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.TODODELETEMEname === "not enough actions"
+            button.actionTemplate
+            && button.actionTemplate.name === "not enough actions"
         );
 
         hud.mouseClicked(

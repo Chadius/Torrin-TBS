@@ -38,7 +38,7 @@ describe('Squaddie turn and resources', () => {
         });
         it('should report when an action cannot be spent', () => {
             SquaddieTurnService.spendActionPointsOnActionTemplate(turn, actionSpends2ActionPoints);
-            const query = SquaddieTurnService.canPerformAction(turn, actionSpends2ActionPoints);
+            const query = SquaddieTurnService.TODODELETEMEcanPerformAction(turn, actionSpends2ActionPoints);
             expect(query.canPerform).toBeFalsy();
             expect(query.reason).toBe(ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING);
         });

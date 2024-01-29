@@ -521,26 +521,6 @@ export const TestMissionData = () => {
                     }
                 ]
             }
-        ],
-        "TODODELETEMEactions": [
-            {
-                "type": ActionEffectType.SQUADDIE,
-                "TODODELETEMEname": "Bite",
-                "TODODELETEMEid": "demon_slither_bite",
-                "minimumRange": 0,
-                "maximumRange": 1,
-                "traits": {
-                    "booleanTraits": {
-                        [Trait.ATTACK]: true
-                    }
-                },
-                "damageDescriptions": {
-                    [DamageType.BODY]: 1,
-                },
-                "healingDescriptions": {},
-                "TODODELETEMEactionPointCost": 1,
-                "targetingShape": TargetingShape.SNAKE,
-            }
         ]
     };
     const enemyDemonSlitherTemplate2: SquaddieTemplate = {

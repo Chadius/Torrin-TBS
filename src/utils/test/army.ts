@@ -7,6 +7,8 @@ import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSq
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {ActionTemplateService} from "../../decision/actionTemplate";
 import {SquaddieTemplateService} from "../../campaign/squaddieTemplate";
+import {ActionEffectType} from "../../decision/actionEffect";
+import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
@@ -51,6 +53,10 @@ export const TestArmyPlayerData = () => {
                         }),
                         "actionEffectTemplates": [
                             {
+                                type: ActionEffectType.SQUADDIE,
+                                TODODELETEMEactionPointCost: 1,
+                                targetingShape: TargetingShape.SNAKE,
+                                healingDescriptions: {},
                                 TODODELETEMEname: "water cannon",
                                 TODODELETEMEid: "torrin_water_cannon",
                                 minimumRange: 0,
@@ -76,6 +82,9 @@ export const TestArmyPlayerData = () => {
                         }),
                         "actionEffectTemplates": [
                             {
+                                type: ActionEffectType.SQUADDIE,
+                                damageDescriptions: {},
+                                targetingShape: TargetingShape.SNAKE,
                                 TODODELETEMEname: "healing touch",
                                 TODODELETEMEid: "young_torrin_healing_touch",
                                 minimumRange: 0,

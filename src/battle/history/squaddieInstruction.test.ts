@@ -9,6 +9,7 @@ import {ActionEffectType} from "../../decision/actionEffect";
 import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {ActionTemplate, ActionTemplateService} from "../../decision/actionTemplate";
 
 describe('SquaddieInstruction', () => {
     it('can add a squaddie and location', () => {
@@ -28,7 +29,7 @@ describe('SquaddieInstruction', () => {
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
         });
-        const longswordAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+        const longswordActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEname: "longsword",
             TODODELETEMEid: "longsword",
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
@@ -37,12 +38,19 @@ describe('SquaddieInstruction', () => {
             maximumRange: 1,
             targetingShape: TargetingShape.SNAKE,
         });
+        const longswordActionTemplate: ActionTemplate = ActionTemplateService.new({
+            id: "longsword",
+            name: "longsword",
+            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            actionPointCost: 1,
+            actionEffectTemplates: [longswordActionEffectSquaddieTemplate],
+        });
 
         SquaddieActionsForThisRoundService.addDecision(instruction,
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        template: longswordAction,
+                        template: longswordActionEffectSquaddieTemplate,
                         targetLocation: {
                             q: 1,
                             r: 0,
@@ -59,13 +67,13 @@ describe('SquaddieInstruction', () => {
         expect(actionsUsedAfterUsingOneAction[0].actionEffects[0].type).toBe(ActionEffectType.SQUADDIE);
         const actionUsed: ActionEffectSquaddie = actionsUsedAfterUsingOneAction[0].actionEffects[0] as ActionEffectSquaddie;
         expect(actionUsed.targetLocation).toStrictEqual({q: 1, r: 0});
-        expect(actionUsed.numberOfActionPointsSpent).toBe(longswordAction.TODODELETEMEactionPointCost);
+        expect(actionUsed.numberOfActionPointsSpent).toBe(longswordActionTemplate.actionPointCost);
 
         SquaddieActionsForThisRoundService.addDecision(instruction,
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
-                        template: longswordAction,
+                        template: longswordActionEffectSquaddieTemplate,
                         targetLocation: {
                             q: 1,
                             r: 0,

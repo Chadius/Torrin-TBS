@@ -18,6 +18,8 @@ import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {DecisionService} from "../../decision/decision";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {ActionTemplate} from "../../decision/actionTemplate";
+import {ActionEffectType} from "../../decision/actionEffect";
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -62,12 +64,12 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             battleSquaddie
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, actingBattleSquaddieId));
 
-        const validActions = squaddieTemplate.TODODELETEMEactions.filter((action) => {
+        const validActions = squaddieTemplate.actionTemplates.filter((action) => {
             return SquaddieTurnService.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
         });
 
         const targetingResultsInfo = this.getTargetingResultsOfActionWithTargets({
-            actions: validActions,
+            actionTemplates: validActions,
             battleSquaddie,
             state,
             squaddieTemplate,
@@ -84,7 +86,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 squaddieToTarget: this.desiredBattleSquaddieId,
                 actingBattleSquaddie: battleSquaddie,
                 actingSquaddieTemplate: squaddieTemplate,
-                action: targetingResultsInfo.action,
+                action: targetingResultsInfo.actionTemplate.actionEffectTemplates[0],
             });
             if (modifiedInstruction !== undefined) {
                 return modifiedInstruction;
@@ -106,7 +108,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                 squaddieToTarget: squaddiesOfDesiredAffiliation[0],
                 actingBattleSquaddie: battleSquaddie,
                 actingSquaddieTemplate: squaddieTemplate,
-                action: targetingResultsInfo.action,
+                action: targetingResultsInfo.actionTemplate.actionEffectTemplates[0],
             });
             if (modifiedInstruction !== undefined) {
                 return modifiedInstruction;
@@ -120,35 +122,69 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                                                        state,
                                                        squaddieTemplate,
                                                        battleSquaddie,
-                                                       actions,
+                                                       actionTemplates,
                                                    }: {
         state: TeamStrategyState,
         squaddieTemplate: SquaddieTemplate,
         battleSquaddie: BattleSquaddie
-        actions: ActionEffectSquaddieTemplate[]
+        actionTemplates: ActionTemplate[]
     }): {
-        action: ActionEffectSquaddieTemplate,
+        actionTemplate: ActionTemplate,
         targetingResults: TargetingResults,
-    } | undefined {
-        let actionsWithTargets = actions.map((action) => {
+    } {
+        const getTargetsInRangeOfActionEffectSquaddieTemplate = (actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate): string[] => {
+            if (actionEffectSquaddieTemplate.type !== ActionEffectType.SQUADDIE) {
+                return [];
+            }
+
             const results: TargetingResults = FindValidTargets({
                 map: state.missionMap,
-                action: action,
+                action: actionEffectSquaddieTemplate,
                 actingSquaddieTemplate: squaddieTemplate,
                 actingBattleSquaddie: battleSquaddie,
                 squaddieRepository: state.repository,
             });
+            return results.battleSquaddieIdsInRange;
+        }
 
-            if (results.battleSquaddieIdsInRange.length > 0) {
-                return {
-                    action: action,
-                    targetingResults: results,
-                };
-            }
+        const doesActionTemplateHaveAViableTarget = (actionTemplate: ActionTemplate) => {
+            return actionTemplate.actionEffectTemplates.some(actionEffectSquaddieTemplate => {
+                return getTargetsInRangeOfActionEffectSquaddieTemplate(actionEffectSquaddieTemplate).length > 0;
+            })
+        }
+
+        const actionTemplatesThatHaveTargets = actionTemplates.filter(doesActionTemplateHaveAViableTarget);
+        if (actionTemplatesThatHaveTargets.length === 0) {
             return undefined;
-        }).filter(x => x !== undefined);
+        }
 
-        return actionsWithTargets[0];
+        const selectedActionTemplate = actionTemplatesThatHaveTargets[0];
+
+        const targetsPerActionEffectTemplate: TargetingResults[] = selectedActionTemplate.actionEffectTemplates.map(
+            actionEffectTemplate => {
+                if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+                    return undefined;
+                }
+
+                return FindValidTargets({
+                    map: state.missionMap,
+                    action: actionEffectTemplate,
+                    actingSquaddieTemplate: squaddieTemplate,
+                    actingBattleSquaddie: battleSquaddie,
+                    squaddieRepository: state.repository,
+                });
+            }
+        );
+
+        const targetingResults = targetsPerActionEffectTemplate.find(targets => targets !== undefined);
+        if (targetingResults === undefined) {
+            return undefined;
+        }
+
+        return {
+            actionTemplate: selectedActionTemplate,
+            targetingResults: targetingResults,
+        }
     }
 
     private createNewInstruction({

@@ -16,6 +16,8 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {ActionTemplateService} from "../../decision/actionTemplate";
 
+// TODO TODODELETEME is done
+
 describe('Targeting Service', () => {
     let longswordAction: ActionEffectSquaddieTemplate;
     let sirCamilSquaddieTemplate: SquaddieTemplate;
@@ -138,7 +140,6 @@ describe('Targeting Service', () => {
             templateId: "archer",
             battleId: "Archer 0",
             affiliation: SquaddieAffiliation.PLAYER,
-            TODODELETEMEactions: [longbowActionEffectSquaddieTemplate],
             actionTemplates: [
                 ActionTemplateService.new({
                     name: "longbow",

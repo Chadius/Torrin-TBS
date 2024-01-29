@@ -11,6 +11,7 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextService} from "../actionResultTextService";
+import {ActionTemplateService} from "../../../decision/actionTemplate";
 
 export class ActorTextWindow {
     results: SquaddieSquaddieResults;
@@ -82,10 +83,19 @@ export class ActorTextWindow {
     }
 
     private updateActorLabel({timer}: { timer?: ActionTimer }) {
+        // TODO Add the action template this effect belongs to.
+        const TODODELETEMEtempActionTemplate = ActionTemplateService.new({
+            id: this.action.TODODELETEMEid,
+            name: this.action.TODODELETEMEname,
+            actionEffectTemplates: [this.action],
+            traits: this.action.traits,
+        });
+
         const actorUsesActionDescriptionText = ActionResultTextService.calculateActorUsesActionDescriptionText({
             timer,
             action: this.action,
             actorTemplate: this.actorTemplate,
+            actionTemplate: TODODELETEMEtempActionTemplate,
             results: this.results,
         });
         if (this.actorLabel && this.actorUsesActionDescriptionText === actorUsesActionDescriptionText) {

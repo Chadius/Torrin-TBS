@@ -39,6 +39,7 @@ import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
 import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
 import {CurrentlySelectedSquaddieDecisionService} from "./currentlySelectedSquaddieDecision";
+import {DecisionService} from "../../decision/decision";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -72,15 +73,15 @@ describe("BattleSaveState", () => {
                 battleSquaddieId: "actor 1",
                 startingLocation: {q: 1, r: -2},
                 decisions: [
-                    {
+                    DecisionService.new({
                         actionEffects: [
                             ActionEffectMovementService.new({
                                 destination: {q: 2, r: -5},
                                 numberOfActionPointsSpent: 1,
                             })
                         ]
-                    },
-                    {
+                    }),
+                    DecisionService.new({
                         actionEffects: [
                             ActionEffectSquaddieService.new({
                                 numberOfActionPointsSpent: 1,
@@ -88,7 +89,7 @@ describe("BattleSaveState", () => {
                                 targetLocation: {q: 3, r: 4},
                             })
                         ]
-                    }
+                    })
                 ],
             });
 
@@ -315,14 +316,14 @@ describe("BattleSaveState", () => {
                 battleSquaddieId: "actor 2",
                 startingLocation: {q: 0, r: 4},
                 decisions: [
-                    {
+                    DecisionService.new({
                         actionEffects: [
                             ActionEffectMovementService.new({
                                 destination: {q: 1, r: 6},
                                 numberOfActionPointsSpent: 3,
                             })
                         ]
-                    },
+                    }),
                 ],
             });
 

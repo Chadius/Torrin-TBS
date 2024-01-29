@@ -7,7 +7,6 @@ import {ImageUI} from "../../ui/imageUI";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {BattleSquaddie} from "../battleSquaddie";
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
 import {ActionEffectEndTurn, ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
 import {CurrentlySelectedSquaddieDecision} from "../history/currentlySelectedSquaddieDecision";
 import {TextBoxHelper} from "../../ui/textBox";
@@ -35,6 +34,7 @@ import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleStateService} from "../orchestrator/battleState";
 import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
+import {ActionTemplate} from "../../decision/actionTemplate";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -82,7 +82,7 @@ export class BattleSquaddieSelectedHUD {
     selectedBattleSquaddieId: string;
     affiliateIcon?: ImageUI;
     selectedAction: {
-        squaddieAction?: ActionEffectSquaddieTemplate,
+        squaddieAction?: ActionTemplate,
         endTurnAction?: ActionEffectEndTurn,
     };
     makeDecisionButtons: MakeDecisionButton[];
@@ -212,12 +212,14 @@ export class BattleSquaddieSelectedHUD {
         return !!this.selectedAction.squaddieAction;
     }
 
-    getSquaddieSquaddieAction(): ActionEffectSquaddieTemplate {
+    getSquaddieSquaddieAction(): ActionTemplate {
         return this.selectedAction.squaddieAction;
     }
 
-    getSelectedAction(): ActionEffectSquaddieTemplate | ActionEffectEndTurn {
-        return this.selectedAction.squaddieAction ? this.selectedAction.squaddieAction : this.selectedAction.endTurnAction;
+    getSelectedAction(): ActionTemplate | ActionEffectEndTurn {
+        return this.selectedAction.squaddieAction
+            ? this.selectedAction.squaddieAction
+            : this.selectedAction.endTurnAction;
     }
 
     keyPressed(keyCode: number, state: GameEngineState) {
@@ -246,14 +248,15 @@ export class BattleSquaddieSelectedHUD {
 
         if (selectedUseActionButton) {
             const actionValidityCheck = this.checkIfActionIsValid(
-                selectedUseActionButton.actionEffectSquaddieTemplate,
+                selectedUseActionButton.actionTemplate,
                 state,
             );
+
             if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
-                this.selectedAction.squaddieAction = selectedUseActionButton.actionEffectSquaddieTemplate;
+                this.selectedAction.squaddieAction = selectedUseActionButton.actionTemplate;
                 return;
             }
-            this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.actionEffectSquaddieTemplate);
+            this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.actionTemplate);
         }
 
         const clickedOnNextButton: boolean = this.shouldDrawNextButton(state) && RectAreaService.isInside(this.nextSquaddieButton.rectangle.area, mouseX, mouseY);
@@ -351,7 +354,7 @@ export class BattleSquaddieSelectedHUD {
         windowDimensions: RectArea
     ) {
         this.makeDecisionButtons = [];
-        squaddieTemplate.TODODELETEMEactions.forEach((action: ActionEffectSquaddieTemplate, index: number) => {
+        squaddieTemplate.actionTemplates.forEach((actionTemplate: ActionTemplate, index: number) => {
             this.makeDecisionButtons.push(
                 new MakeDecisionButton({
                     buttonArea: RectAreaService.new({
@@ -363,7 +366,7 @@ export class BattleSquaddieSelectedHUD {
                         width: (windowDimensions.width / 12) - 16,
                         height: this._background.area.height * 0.5,
                     }),
-                    actionEffectSquaddieTemplate: action,
+                    actionTemplate: actionTemplate,
                     hue: squaddieAffiliationHue,
                 })
             );
@@ -705,9 +708,9 @@ export class BattleSquaddieSelectedHUD {
             });
     }
 
-    private warnUserNotEnoughActionPointsToPerformAction(action: ActionEffectSquaddieTemplate): void {
+    private warnUserNotEnoughActionPointsToPerformAction(actionTemplate: ActionTemplate): void {
         let warningText: string = '';
-        warningText = `Need ${action.TODODELETEMEactionPointCost} action points`
+        warningText = `Need ${actionTemplate.actionPointCost} action points`
 
         this.maybeCreateInvalidCommandWarningTextBox(
             warningText,
@@ -725,7 +728,7 @@ export class BattleSquaddieSelectedHUD {
         return canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow;
     }
 
-    private checkIfActionIsValid(action: ActionEffectSquaddieTemplate, state: GameEngineState): ActionValidityCheck {
+    private checkIfActionIsValid(actionTemplate: ActionTemplate, state: GameEngineState): ActionValidityCheck {
         if (!this.canPlayerControlThisSquaddie(state)) {
             return ActionValidityCheck.PLAYER_CANNOT_CONTROL_SQUADDIE;
         }
@@ -736,7 +739,7 @@ export class BattleSquaddieSelectedHUD {
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, this.selectedBattleSquaddieId));
 
         const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie})
-        if (actionPointsRemaining < action.TODODELETEMEactionPointCost) {
+        if (actionPointsRemaining < actionTemplate.actionPointCost) {
             return ActionValidityCheck.SQUADDIE_DOES_NOT_HAVE_ENOUGH_ACTION_POINTS;
         }
 
