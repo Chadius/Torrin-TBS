@@ -6,11 +6,11 @@ import {NewDummySquaddieID} from "../utils/test/squaddie";
 describe('Squaddie Template', () => {
     describe('attributes', () => {
         it('will give static squaddie defaults', () => {
-            const squaddieWithoutAttributes: SquaddieTemplate = {
+            const squaddieWithoutAttributes: SquaddieTemplate = SquaddieTemplateService.new({
                 squaddieId: NewDummySquaddieID("id", SquaddieAffiliation.PLAYER),
-                actions: [],
+                TODODELETEMEactions: [],
                 attributes: DefaultArmyAttributes(),
-            };
+            });
 
             const defaultAttributes: ArmyAttributes = DefaultArmyAttributes();
 
@@ -19,7 +19,7 @@ describe('Squaddie Template', () => {
     });
 
     it('will sanitize the template with empty fields', () => {
-        const templateWithInvalidFields: SquaddieTemplate = {
+        const templateWithInvalidFields: SquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "templateId",
                 name: "name",
@@ -28,26 +28,25 @@ describe('Squaddie Template', () => {
                 affiliation: undefined,
             },
             attributes: null,
-            actions: undefined,
-        }
+            TODODELETEMEactions: undefined,
+        });
 
         SquaddieTemplateService.sanitize(templateWithInvalidFields);
 
-        expect(templateWithInvalidFields.actions).toHaveLength(0);
+        expect(templateWithInvalidFields.TODODELETEMEactions).toHaveLength(0);
         expect(templateWithInvalidFields.attributes).toEqual(DefaultArmyAttributes());
         expect(templateWithInvalidFields.squaddieId.resources).not.toBeUndefined();
         expect(templateWithInvalidFields.squaddieId.affiliation).not.toBeUndefined();
         expect(templateWithInvalidFields.squaddieId.traits).not.toBeNull();
     });
     it('will throw an error if there is no squaddie id', () => {
-        const templateWithoutASquaddieId: SquaddieTemplate = {
-            squaddieId: undefined,
-            attributes: null,
-            actions: undefined,
-        }
-
         const throwErrorBecauseOfNoSquaddieId = () => {
-            SquaddieTemplateService.sanitize(templateWithoutASquaddieId);
+            SquaddieTemplateService.new({
+                squaddieId: undefined,
+                attributes: null,
+                TODODELETEMEactions: undefined,
+                actions: undefined,
+            });
         };
 
         expect(throwErrorBecauseOfNoSquaddieId).toThrowError('cannot sanitize');

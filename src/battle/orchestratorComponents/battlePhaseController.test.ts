@@ -49,7 +49,7 @@ describe('BattlePhaseController', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
-            actions: [],
+            TODODELETEMEactions: [],
             attributes: DefaultArmyAttributes(),
         };
         playerBattleSquaddie = BattleSquaddieService.newBattleSquaddie({
@@ -77,7 +77,7 @@ describe('BattlePhaseController', () => {
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
-                actions: [],
+                TODODELETEMEactions: [],
                 attributes: DefaultArmyAttributes(),
             }
         );

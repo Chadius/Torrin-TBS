@@ -366,7 +366,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         );
 
         const {squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, playerSquaddieDynamicID));
-        squaddieTemplate.actions.push(notEnoughActionPointsAction);
+        squaddieTemplate.TODODELETEMEactions.push(notEnoughActionPointsAction);
 
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: resourceHandler,

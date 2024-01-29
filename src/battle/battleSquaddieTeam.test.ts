@@ -39,7 +39,7 @@ describe('Battle Squaddie Team', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
-            actions: [],
+            TODODELETEMEactions: [],
         };
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepository,
@@ -85,7 +85,7 @@ describe('Battle Squaddie Team', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.ENEMY,
             },
-            actions: [],
+            TODODELETEMEactions: [],
             attributes: DefaultArmyAttributes(),
         };
 

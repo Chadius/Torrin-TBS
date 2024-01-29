@@ -33,7 +33,7 @@ describe('ActorTextWindow', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
-            actions: [],
+            TODODELETEMEactions: [],
         };
         attackThatUsesAttackRoll = ActionEffectSquaddieTemplateService.new({
             TODODELETEMEid: "action Id",

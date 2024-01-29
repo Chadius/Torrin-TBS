@@ -330,7 +330,7 @@ describe('map highlight generator', () => {
                         movementPerAction: 1,
                     })
                 }),
-                actions: [rangedAction],
+                actionTemplates: [rangedAction],
             });
             ObjectRepositoryService.addSquaddieTemplate(repository, squaddieWithNoMovement);
 

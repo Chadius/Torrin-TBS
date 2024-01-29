@@ -351,7 +351,7 @@ export class BattleSquaddieSelectedHUD {
         windowDimensions: RectArea
     ) {
         this.makeDecisionButtons = [];
-        squaddieTemplate.actions.forEach((action: ActionEffectSquaddieTemplate, index: number) => {
+        squaddieTemplate.TODODELETEMEactions.forEach((action: ActionEffectSquaddieTemplate, index: number) => {
             this.makeDecisionButtons.push(
                 new MakeDecisionButton({
                     buttonArea: RectAreaService.new({

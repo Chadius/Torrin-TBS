@@ -10,7 +10,7 @@ import {
 } from "../../decision/actionEffectSquaddieTemplate";
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
-import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 
 export const SquaddieAndObjectRepositoryService = {
     createNewSquaddieAndAddToRepository: (
@@ -91,7 +91,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          attributes?: ArmyAttributes,
      }
 ) => {
-    const squaddieTemplate: SquaddieTemplate = {
+    const squaddieTemplate: SquaddieTemplate = SquaddieTemplateService.new({
         squaddieId: {
             templateId,
             name,
@@ -102,9 +102,9 @@ export const CreateNewSquaddieAndAddToRepository: (
             traits: TraitStatusStorageHelper.newUsingTraitValues(),
             affiliation
         },
-        actions: actions || [],
+        TODODELETEMEactions: actions || [],
         attributes: attributes || DefaultArmyAttributes(),
-    };
+    });
     const battleSquaddie = BattleSquaddieService.newBattleSquaddie({
         squaddieTemplateId: templateId,
         battleSquaddieId: battleId,

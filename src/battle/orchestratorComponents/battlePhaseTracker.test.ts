@@ -30,7 +30,7 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                actions: [],
+                TODODELETEMEactions: [],
                 attributes: DefaultArmyAttributes(),
             }
         );
@@ -61,7 +61,7 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
-                actions: [],
+                TODODELETEMEactions: [],
                 attributes: DefaultArmyAttributes(),
             }
         );
@@ -85,7 +85,7 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ALLY,
                 },
-                actions: [],
+                TODODELETEMEactions: [],
                 attributes: DefaultArmyAttributes(),
             }
         );
@@ -109,7 +109,7 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageHelper.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.NONE,
                 },
-                actions: [],
+                TODODELETEMEactions: [],
                 attributes: DefaultArmyAttributes(),
             }
         );

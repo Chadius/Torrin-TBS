@@ -37,7 +37,7 @@ describe('end turn team strategy', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
-            actions: [],
+            TODODELETEMEactions: [],
             attributes: DefaultArmyAttributes(),
         };
 

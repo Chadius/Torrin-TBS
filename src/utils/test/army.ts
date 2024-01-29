@@ -39,7 +39,7 @@ export const TestArmyPlayerData = () => {
                         "traits": TraitStatusStorageHelper.newUsingTraitValues(),
                     }),
                 },
-                "actions": [
+                "TODODELETEMEactions": [
                     ActionEffectSquaddieTemplateService.new({
                         TODODELETEMEname: "water cannon",
                         TODODELETEMEid: "torrin_water_cannon",
@@ -97,7 +97,7 @@ export const TestArmyPlayerData = () => {
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                actions: [
+                TODODELETEMEactions: [
                     ActionEffectSquaddieTemplateService.new({
                         TODODELETEMEname: "longsword",
                         TODODELETEMEid: "sir_camil_longsword",

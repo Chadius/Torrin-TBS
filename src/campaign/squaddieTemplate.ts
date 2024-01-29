@@ -4,23 +4,27 @@ import {
     ActionEffectSquaddieTemplate,
     ActionEffectSquaddieTemplateService
 } from "../decision/actionEffectSquaddieTemplate";
-import {isValidValue} from "../utils/validityCheck";
+import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
+import {ActionTemplate} from "../decision/actionTemplate";
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId;
     attributes: ArmyAttributes;
-    actions: ActionEffectSquaddieTemplate[];
+    TODODELETEMEactions: ActionEffectSquaddieTemplate[];
+    actionTemplates: ActionTemplate[];
 }
 
 export const SquaddieTemplateService = {
-    new: ({squaddieId, attributes, actions}: {
+    new: ({squaddieId, attributes, TODODELETEMEactions, actions}: {
         squaddieId: SquaddieId,
         attributes?: ArmyAttributes,
-        actions?: ActionEffectSquaddieTemplate[],
+        TODODELETEMEactions?: ActionEffectSquaddieTemplate[],
+        actions?: ActionTemplate[],
     }) => {
         const data: SquaddieTemplate = {
             squaddieId,
-            actions: isValidValue(actions) ? actions : [],
+            actionTemplates: getValidValueOrDefault(actions, []),
+            TODODELETEMEactions: isValidValue(TODODELETEMEactions) ? TODODELETEMEactions : [],
             attributes: isValidValue(attributes) ? attributes : ArmyAttributesService.default(),
         };
         SquaddieTemplateService.sanitize(data);
@@ -37,8 +41,8 @@ const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
     }
     SquaddieIdService.sanitize(data.squaddieId);
 
-    data.actions = isValidValue(data.actions) ? data.actions : [];
-    data.actions.forEach(ActionEffectSquaddieTemplateService.sanitize);
+    data.TODODELETEMEactions = isValidValue(data.TODODELETEMEactions) ? data.TODODELETEMEactions : [];
+    data.TODODELETEMEactions.forEach(ActionEffectSquaddieTemplateService.sanitize);
 
     data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
     return data;

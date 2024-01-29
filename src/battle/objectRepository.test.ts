@@ -37,7 +37,7 @@ describe('BattleSquaddieRepository', () => {
                 traits: TraitStatusStorageHelper.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
-            actions: [],
+            TODODELETEMEactions: [],
         };
         battleSquaddieBase = BattleSquaddieService.newBattleSquaddie({
             battleSquaddieId: "player_young_torrin_0",
