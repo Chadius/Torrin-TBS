@@ -9,15 +9,15 @@ export interface ActionTemplate {
 
 export const ActionTemplateService = {
     new: ({
-        id,
-        name,
-        actionEffectTemplates,
+              id,
+              name,
+              actionEffectTemplates,
           }: {
         id?: string,
         name: string,
         actionEffectTemplates?: ActionEffectTemplate[],
     }): ActionTemplate => {
-        return sanitize ({
+        return sanitize({
             id,
             name,
             actionEffectTemplates,

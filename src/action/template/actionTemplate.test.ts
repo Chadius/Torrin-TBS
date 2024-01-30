@@ -4,7 +4,7 @@ import {DamageType} from "../../squaddie/squaddieService";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
-describe ('ActionTemplate', () => {
+describe('ActionTemplate', () => {
     it('can create a template with default values without an id', () => {
         const justMovement = ActionTemplateService.new({
             name: "Move",
