@@ -17,20 +17,20 @@ import {
     SquaddieActionsForThisRoundService,
     SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {
     CurrentlySelectedSquaddieDecision,
@@ -38,14 +38,14 @@ import {
 } from "../history/currentlySelectedSquaddieDecision";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {TODODELETEMEactionEffectSquaddie} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattlePhaseState} from "./battlePhaseController";
 import {CampaignService} from "../../campaign/campaign";
@@ -57,7 +57,7 @@ describe('BattleSquaddieSelector', () => {
     let missionMap: MissionMap;
     let enemyDemonStatic: SquaddieTemplate;
     let enemyDemonDynamic: BattleSquaddie;
-    let demonBiteAction: ActionEffectSquaddieTemplate;
+    let demonBiteAction: TODODELETEMEActionEffectSquaddieTemplate;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let teams: BattleSquaddieTeam[];
     let playerSoldierBattleSquaddie: BattleSquaddie;
@@ -85,10 +85,10 @@ describe('BattleSquaddieSelector', () => {
             }
         ;
 
-        demonBiteAction = ActionEffectSquaddieTemplateService.new({
+        demonBiteAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
@@ -189,10 +189,10 @@ describe('BattleSquaddieSelector', () => {
             }
         ;
 
-        demonBiteAction = ActionEffectSquaddieTemplateService.new({
+        demonBiteAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
@@ -473,7 +473,7 @@ describe('BattleSquaddieSelector', () => {
                     mapLocation: {q: 0, r: 2},
                 });
             expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1);
-            expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(ActionEffectType.MOVEMENT);
+            expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(TODODELETEMEActionEffectType.MOVEMENT);
         });
     });
 
@@ -530,9 +530,9 @@ describe('BattleSquaddieSelector', () => {
         selector.update(state, mockedP5GraphicsContext);
         expect(selector.hasCompleted(state)).toBeTruthy();
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(2);
-        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1].actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1].actionEffects[0].type).toBe(TODODELETEMEActionEffectType.END_TURN);
         expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toEqual(
-            ActionEffectType.END_TURN
+            TODODELETEMEActionEffectType.END_TURN
         );
     });
 
@@ -583,7 +583,7 @@ describe('BattleSquaddieSelector', () => {
             }),
         });
 
-        expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+        expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(TODODELETEMEActionEffectType.END_TURN);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
@@ -595,7 +595,7 @@ describe('BattleSquaddieSelector', () => {
             results: undefined,
         });
         expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(0);
-        expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(ActionEffectType.END_TURN);
+        expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(TODODELETEMEActionEffectType.END_TURN);
     });
 
     it('will recommend squaddie target if a SquaddieAction is selected that requires a target', () => {
@@ -603,10 +603,10 @@ describe('BattleSquaddieSelector', () => {
 
         const camera: BattleCamera = new BattleCamera();
 
-        const longswordAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+        const longswordAction: TODODELETEMEActionEffectSquaddieTemplate = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            traits: TraitStatusStorageService.newUsingTraitValues(),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -652,7 +652,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
-        expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0] as ActionEffectSquaddie).template).toStrictEqual(longswordAction);
+        expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0] as TODODELETEMEactionEffectSquaddie).template).toStrictEqual(longswordAction);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
@@ -661,7 +661,7 @@ describe('BattleSquaddieSelector', () => {
         expect(history).toHaveLength(0);
 
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0].type).toEqual(
-            ActionEffectType.SQUADDIE
+            TODODELETEMEActionEffectType.SQUADDIE
         );
     });
 
@@ -810,10 +810,10 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores action commands issued to other squaddies', () => {
-            const longswordAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+            const longswordAction: TODODELETEMEActionEffectSquaddieTemplate = TODODELETEMEActionEffectSquaddieTemplateService.new({
                 name: "longsword",
                 id: "longsword",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 actionPointCost: 1,
                 minimumRange: 0,
                 maximumRange: 1,
@@ -924,6 +924,6 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
-        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0].type).toEqual(ActionEffectType.MOVEMENT);
+        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0].type).toEqual(TODODELETEMEActionEffectType.MOVEMENT);
     });
 });

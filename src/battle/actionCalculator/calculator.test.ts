@@ -2,12 +2,12 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -28,8 +28,8 @@ import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDu
 
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess} from "./degreeOfSuccess";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {GameEngineStateService} from "../../gameEngine/gameEngine";
 
 describe('calculator', () => {
@@ -44,8 +44,8 @@ describe('calculator', () => {
     let ally1DynamicId = "ally 1";
     let ally1StaticId = "ally 1";
     let ally1BattleSquaddie: BattleSquaddie;
-    let actionAlwaysHitsAndDealsBodyDamage: ActionEffectSquaddieTemplate;
-    let actionNeedsAnAttackRollToDealBodyDamage: ActionEffectSquaddieTemplate;
+    let actionAlwaysHitsAndDealsBodyDamage: TODODELETEMEActionEffectSquaddieTemplate;
+    let actionNeedsAnAttackRollToDealBodyDamage: TODODELETEMEActionEffectSquaddieTemplate;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new();
@@ -98,10 +98,10 @@ describe('calculator', () => {
                 })
         );
 
-        actionAlwaysHitsAndDealsBodyDamage = ActionEffectSquaddieTemplateService.new({
+        actionAlwaysHitsAndDealsBodyDamage = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "deal body damage auto hit",
             name: "deal body damage (Auto Hit)",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                     [Trait.ATTACK]: true,
                     [Trait.ALWAYS_SUCCEEDS]: true,
                 }
@@ -110,10 +110,10 @@ describe('calculator', () => {
             maximumRange: 9001,
             damageDescriptions: {[DamageType.BODY]: 2}
         });
-        actionNeedsAnAttackRollToDealBodyDamage = ActionEffectSquaddieTemplateService.new({
+        actionNeedsAnAttackRollToDealBodyDamage = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "deal body damage",
             name: "deal body damage",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                     [Trait.ATTACK]: true,
                 }
             ),
@@ -130,7 +130,7 @@ describe('calculator', () => {
                                 currentlySelectedAction,
                                 numberGenerator,
                             }: {
-        currentlySelectedAction?: ActionEffectSquaddieTemplate,
+        currentlySelectedAction?: TODODELETEMEActionEffectSquaddieTemplate,
         actingBattleSquaddie?: BattleSquaddie,
         validTargetLocation?: HexCoordinate,
         missionStatistics?: MissionStatistics,
@@ -225,16 +225,16 @@ describe('calculator', () => {
     });
 
     describe('healing abilities', () => {
-        let healsLostHitPoints: ActionEffectSquaddieTemplate;
+        let healsLostHitPoints: TODODELETEMEActionEffectSquaddieTemplate;
 
         beforeEach(() => {
             missionMap.addSquaddie(player1StaticId, player1DynamicId, {q: 0, r: 0});
             missionMap.addSquaddie(ally1StaticId, ally1DynamicId, {q: 0, r: 2});
 
-            healsLostHitPoints = ActionEffectSquaddieTemplateService.new({
+            healsLostHitPoints = TODODELETEMEActionEffectSquaddieTemplateService.new({
                 id: "heals lost hit points",
                 name: "heals lost hit points",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(
+                traits: TraitStatusStorageService.newUsingTraitValues(
                     {
                         [Trait.HEALING]: true,
                         [Trait.ALWAYS_SUCCEEDS]: true,
@@ -496,7 +496,7 @@ describe('calculator', () => {
             const expectedRolls: number[] = [6, 6];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            TraitStatusStorageHelper.setStatus(actionAlwaysHitsAndDealsBodyDamage.traits, Trait.CANNOT_CRITICALLY_SUCCEED, true);
+            TraitStatusStorageService.setStatus(actionAlwaysHitsAndDealsBodyDamage.traits, Trait.CANNOT_CRITICALLY_SUCCEED, true);
             const results = dealBodyDamage({
                 currentlySelectedAction: actionAlwaysHitsAndDealsBodyDamage,
                 numberGenerator,
@@ -543,7 +543,7 @@ describe('calculator', () => {
             const expectedRolls: number[] = [2, 2];
             const numberGenerator: StreamNumberGenerator = new StreamNumberGenerator({results: expectedRolls});
 
-            TraitStatusStorageHelper.setStatus(actionNeedsAnAttackRollToDealBodyDamage.traits, Trait.CANNOT_CRITICALLY_FAIL, true);
+            TraitStatusStorageService.setStatus(actionNeedsAnAttackRollToDealBodyDamage.traits, Trait.CANNOT_CRITICALLY_FAIL, true);
             const results = dealBodyDamage({
                 currentlySelectedAction: actionNeedsAnAttackRollToDealBodyDamage,
                 numberGenerator,

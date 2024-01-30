@@ -3,10 +3,10 @@ import {BattlePlayerSquaddieTarget} from "./battlePlayerSquaddieTarget";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {MissionMap} from "../../missionMap/missionMap";
 import {HexCoordinateToKey} from "../../hexMap/hexCoordinate/hexCoordinate";
@@ -23,7 +23,7 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {ActionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {TODODELETEMEactionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {
     CurrentlySelectedSquaddieDecision,
     CurrentlySelectedSquaddieDecisionService
@@ -40,8 +40,8 @@ import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 
 describe('BattleSquaddieTarget', () => {
@@ -54,9 +54,9 @@ describe('BattleSquaddieTarget', () => {
     let thiefStatic: SquaddieTemplate;
     let thiefDynamic: BattleSquaddie;
     let battleMap: MissionMap;
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordAction: TODODELETEMEActionEffectSquaddieTemplate;
     let longswordActionId: string = "longsword";
-    let bandageWoundsAction: ActionEffectSquaddieTemplate;
+    let bandageWoundsAction: TODODELETEMEActionEffectSquaddieTemplate;
     let bandageWoundsActionId: string = "bandage wounds";
     let state: GameEngineState;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -76,10 +76,10 @@ describe('BattleSquaddieTarget', () => {
             })
         });
 
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: longswordActionId,
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
                 [Trait.ALWAYS_SUCCEEDS]: true,
@@ -93,10 +93,10 @@ describe('BattleSquaddieTarget', () => {
             },
         });
 
-        bandageWoundsAction = ActionEffectSquaddieTemplateService.new({
+        bandageWoundsAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "Bandage Wounds",
             id: bandageWoundsActionId,
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
                 [Trait.TARGETS_ALLIES]: true,
             }),
@@ -558,7 +558,7 @@ describe('BattleSquaddieTarget', () => {
             const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
             expect(mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
             expect((
-                mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as ActionEffectSquaddie
+                mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as TODODELETEMEactionEffectSquaddie
             ).template.id).toBe(longswordAction.id);
             const results = mostRecentEvent.results;
             expect(results.actingBattleSquaddieId).toBe(knightDynamic.battleSquaddieId);
@@ -601,10 +601,10 @@ describe('BattleSquaddieTarget', () => {
             const traits: { [key in Trait]?: boolean } = Object.fromEntries(
                 actionTraits.map(e => [e, true])
             );
-            const action = ActionEffectSquaddieTemplateService.new({
+            const action = TODODELETEMEActionEffectSquaddieTemplateService.new({
                 id: name,
                 name,
-                traits: TraitStatusStorageHelper.newUsingTraitValues(traits),
+                traits: TraitStatusStorageService.newUsingTraitValues(traits),
                 minimumRange: 0,
                 maximumRange: 9001,
             });

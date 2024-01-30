@@ -1,8 +1,8 @@
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
-import {ActionEffectType} from "./actionEffect";
+import {TODODELETEMEActionEffectType} from "./TODODELETEMEactionEffect";
 
-export interface ActionEffectMovement {
-    type: ActionEffectType.MOVEMENT;
+export interface TODODELETEMEactionEffectMovement {
+    type: TODODELETEMEActionEffectType.MOVEMENT;
     destination: HexCoordinate;
     numberOfActionPointsSpent: number;
 }
@@ -14,9 +14,9 @@ export const ActionEffectMovementService = {
           }: {
         destination: HexCoordinate;
         numberOfActionPointsSpent: number;
-    }): ActionEffectMovement => {
+    }): TODODELETEMEactionEffectMovement => {
         return {
-            type: ActionEffectType.MOVEMENT,
+            type: TODODELETEMEActionEffectType.MOVEMENT,
             destination,
             numberOfActionPointsSpent,
         }

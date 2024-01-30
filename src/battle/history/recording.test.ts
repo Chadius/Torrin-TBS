@@ -5,9 +5,9 @@ import {
     CurrentlySelectedSquaddieDecision,
     CurrentlySelectedSquaddieDecisionService
 } from "./currentlySelectedSquaddieDecision";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {DecisionService} from "../../decision/decision";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
 
 describe('Recording', () => {
     it('can add an event and retrieve it', () => {

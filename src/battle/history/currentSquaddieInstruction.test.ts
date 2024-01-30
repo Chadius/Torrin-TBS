@@ -4,17 +4,17 @@ import {
 } from "./currentlySelectedSquaddieDecision";
 import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
-import {ActionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {DecisionService} from "../../decision/decision";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {TODODELETEMEactionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
 
 describe('Current Squaddie Instruction', () => {
     let torrinInstruction: SquaddieDecisionsDuringThisPhase;
-    let purifyingBlast: ActionEffectSquaddieTemplate;
-    let purifyingBlastAction: ActionEffectSquaddie;
+    let purifyingBlast: TODODELETEMEActionEffectSquaddieTemplate;
+    let purifyingBlastAction: TODODELETEMEactionEffectSquaddie;
 
     beforeEach(() => {
         torrinInstruction = SquaddieActionsForThisRoundService.new({
@@ -23,10 +23,10 @@ describe('Current Squaddie Instruction', () => {
             startingLocation: {q: 0, r: 0},
         });
 
-        purifyingBlast = ActionEffectSquaddieTemplateService.new({
+        purifyingBlast = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "purifying stream",
             id: "purifying_stream",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            traits: TraitStatusStorageService.newUsingTraitValues(),
         });
 
         purifyingBlastAction = ActionEffectSquaddieService.new({

@@ -1,14 +1,14 @@
 import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
-import {ActionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {ActionEffectType} from "../../decision/actionEffect";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {TODODELETEMEactionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 
 describe('SquaddieInstruction', () => {
     it('can add a squaddie and location', () => {
@@ -28,10 +28,10 @@ describe('SquaddieInstruction', () => {
             battleSquaddieId: "new dynamic squaddie",
             startingLocation: {q: 0, r: 0},
         });
-        const longswordAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+        const longswordAction: TODODELETEMEActionEffectSquaddieTemplate = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            traits: TraitStatusStorageService.newUsingTraitValues(),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -56,8 +56,8 @@ describe('SquaddieInstruction', () => {
         const actionsUsedAfterUsingOneAction = instruction.decisions;
         expect(actionsUsedAfterUsingOneAction).toHaveLength(1);
 
-        expect(actionsUsedAfterUsingOneAction[0].actionEffects[0].type).toBe(ActionEffectType.SQUADDIE);
-        const actionUsed: ActionEffectSquaddie = actionsUsedAfterUsingOneAction[0].actionEffects[0] as ActionEffectSquaddie;
+        expect(actionsUsedAfterUsingOneAction[0].actionEffects[0].type).toBe(TODODELETEMEActionEffectType.SQUADDIE);
+        const actionUsed: TODODELETEMEactionEffectSquaddie = actionsUsedAfterUsingOneAction[0].actionEffects[0] as TODODELETEMEactionEffectSquaddie;
         expect(actionUsed.targetLocation).toStrictEqual({q: 1, r: 0});
         expect(actionUsed.numberOfActionPointsSpent).toBe(longswordAction.actionPointCost);
 
@@ -96,6 +96,6 @@ describe('SquaddieInstruction', () => {
         const actionsUsedThisRound = instruction.decisions;
         expect(actionsUsedThisRound).toHaveLength(1);
 
-        expect(actionsUsedThisRound[0].actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+        expect(actionsUsedThisRound[0].actionEffects[0].type).toBe(TODODELETEMEActionEffectType.END_TURN);
     });
 });

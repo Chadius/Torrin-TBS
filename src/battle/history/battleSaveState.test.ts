@@ -10,9 +10,9 @@ import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orches
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent} from "./battleEvent";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {Trait} from "../../trait/traitStatusStorage";
 import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -36,8 +36,8 @@ import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {BattleStateService} from "../orchestrator/battleState";
 
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {CurrentlySelectedSquaddieDecisionService} from "./currentlySelectedSquaddieDecision";
 
 describe("BattleSaveState", () => {
@@ -52,7 +52,7 @@ describe("BattleSaveState", () => {
     let enemyTeam: BattleSquaddieTeam;
 
     beforeEach(() => {
-        const action: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+        const action: TODODELETEMEActionEffectSquaddieTemplate = TODODELETEMEActionEffectSquaddieTemplateService.new({
                 id: "att",
                 name: "attack",
                 traits: {

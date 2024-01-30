@@ -1,7 +1,7 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -16,8 +16,8 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {DamageType, SquaddieService} from "../../squaddie/squaddieService";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 
 describe('move towards closest squaddie in range', () => {
     let squaddieRepository: ObjectRepository;
@@ -69,7 +69,7 @@ describe('move towards closest squaddie in range', () => {
                     ...{
                         movement: CreateNewSquaddieMovementWithTraits({
                             movementPerAction: 1,
-                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                            traits: TraitStatusStorageService.newUsingTraitValues(),
                         })
                     }
                 }
@@ -153,7 +153,7 @@ describe('move towards closest squaddie in range', () => {
                 ...{
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 10,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
                     })
                 }
             }
@@ -364,7 +364,7 @@ describe('move towards closest squaddie in range', () => {
                 ...{
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 1,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
                     })
                 }
             }

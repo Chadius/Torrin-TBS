@@ -16,9 +16,9 @@ import {RectAreaService} from "../../../ui/rectArea";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {RollResultService} from "../../actionCalculator/rollResult";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults;
@@ -85,7 +85,7 @@ export class ActorSprite {
     draw({timer, graphicsContext, actionEffectSquaddieTemplate,}: {
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate,
     }) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
@@ -99,7 +99,7 @@ export class ActorSprite {
     getSquaddieImageBasedOnTimer(
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: ActionEffectSquaddieTemplate,
+        action: TODODELETEMEActionEffectSquaddieTemplate,
     ) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
@@ -120,16 +120,16 @@ export class ActorSprite {
         timer: ActionTimer,
         battleSquaddieId: string,
         squaddieRepository: ObjectRepository,
-        action: ActionEffectSquaddieTemplate,
+        action: TODODELETEMEActionEffectSquaddieTemplate,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
             case ActionAnimationPhase.TARGET_REACTS:
             case ActionAnimationPhase.SHOWING_RESULTS:
             case ActionAnimationPhase.FINISHED_SHOWING_RESULTS:
-                if (ActionEffectSquaddieTemplateService.isHindering(action)) {
+                if (TODODELETEMEActionEffectSquaddieTemplateService.isHindering(action)) {
                     return SquaddieEmotion.ATTACK;
-                } else if (ActionEffectSquaddieTemplateService.isHelpful(action)) {
+                } else if (TODODELETEMEActionEffectSquaddieTemplateService.isHelpful(action)) {
                     return SquaddieEmotion.ASSISTING;
                 } else {
                     return SquaddieEmotion.NEUTRAL;
@@ -142,7 +142,7 @@ export class ActorSprite {
     private drawActorSprite(
         timer: ActionTimer,
         graphicsContext: GraphicsContext,
-        action: ActionEffectSquaddieTemplate,
+        action: TODODELETEMEActionEffectSquaddieTemplate,
     ) {
         let spriteToDraw = this.getSquaddieImageBasedOnTimer(
             timer,

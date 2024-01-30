@@ -16,14 +16,14 @@ import {GetHitPoints} from "../../squaddie/squaddieService";
 import {WINDOW_SPACING1} from "../../ui/constants";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../../graphicsConstants";
 import {ActionResultPerSquaddie} from "../history/actionResultPerSquaddie";
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingService} from "../history/recording";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {RectAreaService} from "../../ui/rectArea";
 import {ObjectRepositoryService} from "../objectRepository";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnimator {
@@ -156,9 +156,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             mostRecentResults.results.actingBattleSquaddieId
         ));
 
-        let actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
+        let actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate;
         let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
         actionEffectSquaddieTemplate = squaddieActionEffect.template;
@@ -185,7 +185,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.setupAnimationForTargetHitPointMeters(state);
     }
 
-    private setupAnimationForTargetSprites(state: GameEngineState, action: ActionEffectSquaddieTemplate, resultPerTarget: {
+    private setupAnimationForTargetSprites(state: GameEngineState, action: TODODELETEMEActionEffectSquaddieTemplate, resultPerTarget: {
         [p: string]: ActionResultPerSquaddie
     }) {
         this._targetSprites = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results.targetedBattleSquaddieIds.map((battleId: string, index: number) => {
@@ -212,7 +212,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleId));
 
             let squaddieActionEffect = RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).instruction.currentlySelectedDecision.actionEffects[0];
-            if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
                 return undefined;
             }
 
@@ -260,11 +260,11 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
 
         let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
 
-        const actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate = squaddieActionEffect.template;
+        const actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate = squaddieActionEffect.template;
         this.actorSprite.draw({
             timer: this.actionAnimationTimer,
             graphicsContext,

@@ -1,10 +1,10 @@
 import {ActorTextWindow} from "./actorTextWindow";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
-import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {TargetingShape} from "../../targeting/targetingShapeGenerator";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
@@ -15,7 +15,7 @@ describe('ActorTextWindow', () => {
     let mockedActionTimer: ActionTimer;
 
     let actorTemplate: SquaddieTemplate;
-    let attackThatUsesAttackRoll: ActionEffectSquaddieTemplate;
+    let attackThatUsesAttackRoll: TODODELETEMEActionEffectSquaddieTemplate;
 
     beforeEach(() => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -26,7 +26,7 @@ describe('ActorTextWindow', () => {
                 templateId: "actor id",
                 name: "Actor",
                 resources: undefined,
-                traits: TraitStatusStorageHelper.newUsingTraitValues({}),
+                traits: TraitStatusStorageService.newUsingTraitValues({}),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
@@ -35,7 +35,7 @@ describe('ActorTextWindow', () => {
         attackThatUsesAttackRoll = {
             id: "action Id",
             name: "Action",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             }),
             damageDescriptions: {},

@@ -1,13 +1,13 @@
-import {ActionEffectSquaddie, ActionEffectSquaddieService} from "./actionEffectSquaddie";
+import {TODODELETEMEactionEffectSquaddie, ActionEffectSquaddieService} from "./TODODELETEMEactionEffectSquaddie";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType} from "../squaddie/squaddieService";
 import {Trait} from "../trait/traitStatusStorage";
-import {ActionEffectType} from "./actionEffect";
+import {TODODELETEMEActionEffectType} from "./TODODELETEMEactionEffect";
 
 describe('action effect squaddie', () => {
     it('can make a new action effect based on data', () => {
-        const data: ActionEffectSquaddie = {
-            type: ActionEffectType.SQUADDIE,
+        const data: TODODELETEMEactionEffectSquaddie = {
+            type: TODODELETEMEActionEffectType.SQUADDIE,
             targetLocation: {q: 0, r: 0},
             numberOfActionPointsSpent: 1,
             template: {
@@ -23,7 +23,7 @@ describe('action effect squaddie', () => {
             }
         };
 
-        const coolAttackAgainstOrigin: ActionEffectSquaddie = ActionEffectSquaddieService.new({
+        const coolAttackAgainstOrigin: TODODELETEMEactionEffectSquaddie = ActionEffectSquaddieService.new({
             ...data
         });
         expect(coolAttackAgainstOrigin.targetLocation).toStrictEqual(data.targetLocation);
@@ -32,7 +32,7 @@ describe('action effect squaddie', () => {
             .toStrictEqual(coolAttackAgainstOrigin.template);
     });
     it('will use the action effect cost for the overall action point cost if it is not given', () => {
-        const coolAttackAgainstOrigin: ActionEffectSquaddie = ActionEffectSquaddieService.new({
+        const coolAttackAgainstOrigin: TODODELETEMEactionEffectSquaddie = ActionEffectSquaddieService.new({
             targetLocation: {q: 0, r: 0},
             template: {
                 id: "attackId",

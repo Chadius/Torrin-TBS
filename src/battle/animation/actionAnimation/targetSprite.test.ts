@@ -10,11 +10,11 @@ import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
-import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
 
 describe('Target Sprite', () => {
@@ -24,8 +24,8 @@ describe('Target Sprite', () => {
     let resultDealsNoDamage: ActionResultPerSquaddie;
     let resultHealsSquaddie: ActionResultPerSquaddie;
 
-    let hinderingAction: ActionEffectSquaddieTemplate;
-    let helpfulAction: ActionEffectSquaddieTemplate;
+    let hinderingAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let helpfulAction: TODODELETEMEActionEffectSquaddieTemplate;
 
     let squaddieRepository: ObjectRepository;
     let timer: ActionTimer;
@@ -77,24 +77,24 @@ describe('Target Sprite', () => {
             actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
         });
 
-        hinderingAction = ActionEffectSquaddieTemplateService.new({
+        hinderingAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "hindering",
             name: "hindering",
             damageDescriptions: {
                 [DamageType.BODY]: 1,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 ATTACK: true
             }),
         });
 
-        helpfulAction = ActionEffectSquaddieTemplateService.new({
+        helpfulAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "helping",
             name: "helping",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 HEALING: true
             }),
         });
@@ -122,7 +122,7 @@ describe('Target Sprite', () => {
             startingPosition: 0,
         });
 
-        sprite.draw(timer, mockedP5GraphicsContext, ActionEffectSquaddieTemplateService.new({
+        sprite.draw(timer, mockedP5GraphicsContext, TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "attack",
             name: "attack",
             minimumRange: 0,
@@ -258,7 +258,7 @@ describe('Target Sprite', () => {
         let mapping: {
             [name: string]: {
                 result: ActionResultPerSquaddie,
-                action: ActionEffectSquaddieTemplate
+                action: TODODELETEMEActionEffectSquaddieTemplate
             }
         };
 

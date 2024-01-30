@@ -1,22 +1,22 @@
 import {SquaddieId, SquaddieIdService} from "../squaddie/id";
 import {ArmyAttributes, ArmyAttributesService, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {isValidValue} from "../utils/validityCheck";
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId;
     attributes: ArmyAttributes;
-    actions: ActionEffectSquaddieTemplate[];
+    actions: TODODELETEMEActionEffectSquaddieTemplate[];
 }
 
 export const SquaddieTemplateService = {
     new: ({squaddieId, attributes, actions}: {
         squaddieId: SquaddieId,
         attributes?: ArmyAttributes,
-        actions?: ActionEffectSquaddieTemplate[],
+        actions?: TODODELETEMEActionEffectSquaddieTemplate[],
     }) => {
         const data: SquaddieTemplate = {
             squaddieId,
@@ -38,7 +38,7 @@ const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
     SquaddieIdService.sanitize(data.squaddieId);
 
     data.actions = isValidValue(data.actions) ? data.actions : [];
-    data.actions.forEach(ActionEffectSquaddieTemplateService.sanitize);
+    data.actions.forEach(TODODELETEMEActionEffectSquaddieTemplateService.sanitize);
 
     data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
     return data;

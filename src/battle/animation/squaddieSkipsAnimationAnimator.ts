@@ -9,7 +9,7 @@ import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {RecordingService} from "../history/recording";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
@@ -60,7 +60,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
     private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
             let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-            if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+            if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
                 return;
             }
 

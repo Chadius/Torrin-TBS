@@ -1,9 +1,9 @@
 import {PlayerArmy} from "../../campaign/playerArmy";
 import {SquaddieEmotion} from "../../battle/animation/actionAnimation/actionAnimationConstants";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
 
 export const TestArmyPlayerData = () => {
@@ -25,7 +25,7 @@ export const TestArmyPlayerData = () => {
                             [SquaddieEmotion.THANKFUL]: "combat-young-torrin-thankful",
                         },
                     },
-                    "traits": TraitStatusStorageHelper.newUsingTraitValues({
+                    "traits": TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HUMANOID]: true,
                         [Trait.MONSU]: true
                     }),
@@ -36,28 +36,28 @@ export const TestArmyPlayerData = () => {
                     "armorClass": 6,
                     "movement": CreateNewSquaddieMovementWithTraits({
                         "movementPerAction": 2,
-                        "traits": TraitStatusStorageHelper.newUsingTraitValues(),
+                        "traits": TraitStatusStorageService.newUsingTraitValues(),
                     }),
                 },
                 "actions": [
-                    ActionEffectSquaddieTemplateService.new({
+                    TODODELETEMEActionEffectSquaddieTemplateService.new({
                         name: "water cannon",
                         id: "torrin_water_cannon",
                         minimumRange: 0,
                         maximumRange: 2,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         }),
                         damageDescriptions: {
                             [DamageType.BODY]: 2
                         }
                     }),
-                    ActionEffectSquaddieTemplateService.new({
+                    TODODELETEMEActionEffectSquaddieTemplateService.new({
                         name: "healing touch",
                         id: "young_torrin_healing_touch",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.SKIP_ANIMATION]: true,
                             [Trait.ALWAYS_SUCCEEDS]: true,
                             [Trait.TARGETS_ALLIES]: true,
@@ -74,7 +74,7 @@ export const TestArmyPlayerData = () => {
                     armorClass: 8,
                     movement: CreateNewSquaddieMovementWithTraits({
                         movementPerAction: 2,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                        traits: TraitStatusStorageService.newUsingTraitValues(),
                     }),
                 },
                 squaddieId: {
@@ -92,18 +92,18 @@ export const TestArmyPlayerData = () => {
                             [SquaddieEmotion.THANKFUL]: "combat-sir-camil-thankful",
                         },
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.HUMANOID]: true,
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
                 actions: [
-                    ActionEffectSquaddieTemplateService.new({
+                    TODODELETEMEActionEffectSquaddieTemplateService.new({
                         name: "longsword",
                         id: "sir_camil_longsword",
                         minimumRange: 0,
                         maximumRange: 1,
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         }),
                         damageDescriptions: {

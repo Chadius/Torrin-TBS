@@ -1,5 +1,5 @@
 import {BattleSquaddie, BattleSquaddieService} from "./battleSquaddie";
-import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../squaddie/movement";
 import {SquaddieTurn, SquaddieTurnService} from "../squaddie/turn";
@@ -34,7 +34,7 @@ describe('BattleSquaddieRepository', () => {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
                 },
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             actions: [],

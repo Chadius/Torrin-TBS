@@ -11,11 +11,11 @@ import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTe
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {EndTurnTeamStrategy} from "./endTurn";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 
 describe('end turn team strategy', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
@@ -34,7 +34,7 @@ describe('end turn team strategy', () => {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
                 },
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             actions: [],

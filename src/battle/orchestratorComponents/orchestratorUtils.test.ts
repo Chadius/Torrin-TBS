@@ -13,15 +13,15 @@ import {SquaddieIdService} from "../../squaddie/id";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleStateService} from "../orchestrator/battleState";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
-import {Decision, DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {SquaddieService} from "../../squaddie/squaddieService";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {DEFAULT_ACTION_POINTS_PER_TURN} from "../../squaddie/turn";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
-import {ActionEffect} from "../../decision/actionEffect";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
@@ -32,9 +32,9 @@ describe("Orchestration Utils", () => {
     let squaddieRepository: ObjectRepository;
     let map: MissionMap;
     let camera: BattleCamera;
-    let movementActionEffect: ActionEffect;
-    let squaddieActionEffect: ActionEffect;
-    let endTurnActionEffect: ActionEffect;
+    let movementActionEffect: TODODELETEMEactionEffect;
+    let squaddieActionEffect: TODODELETEMEactionEffect;
+    let endTurnActionEffect: TODODELETEMEactionEffect;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new();
@@ -73,7 +73,7 @@ describe("Orchestration Utils", () => {
         squaddieActionEffect = ActionEffectSquaddieService.new({
             targetLocation: {q: 0, r: 2},
             numberOfActionPointsSpent: 1,
-            template: ActionEffectSquaddieTemplateService.new({
+            template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                 id: "shout",
                 name: "shout"
             })
@@ -162,7 +162,7 @@ describe("Orchestration Utils", () => {
     describe('isSquaddieCurrentlyTakingATurn', () => {
         let repository: ObjectRepository;
         let state: GameEngineState;
-        let moveDecision: Decision;
+        let moveDecision: TODODELETEMEdecision;
 
         beforeEach(() => {
             repository = ObjectRepositoryService.new();
@@ -335,7 +335,7 @@ describe("Orchestration Utils", () => {
                 actionEffect: ActionEffectSquaddieService.new({
                     targetLocation: {q: 0, r: 2},
                     numberOfActionPointsSpent: 1,
-                    template: ActionEffectSquaddieTemplateService.new({
+                    template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                         id: "shout",
                         name: "shout"
                     })

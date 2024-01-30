@@ -8,7 +8,7 @@ import {
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FindValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddie} from "../battleSquaddie";
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
@@ -16,8 +16,8 @@ import {SquaddieTurnService} from "../../squaddie/turn";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -125,9 +125,9 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         state: TeamStrategyState,
         squaddieTemplate: SquaddieTemplate,
         battleSquaddie: BattleSquaddie
-        actions: ActionEffectSquaddieTemplate[]
+        actions: TODODELETEMEActionEffectSquaddieTemplate[]
     }): {
-        action: ActionEffectSquaddieTemplate,
+        action: TODODELETEMEActionEffectSquaddieTemplate,
         targetingResults: TargetingResults,
     } | undefined {
         let actionsWithTargets = actions.map((action) => {
@@ -161,7 +161,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         actingSquaddieTemplate: SquaddieTemplate,
         actingBattleSquaddie: BattleSquaddie,
         actingSquaddieMapLocation: HexCoordinate | undefined,
-        actingSquaddieAction: ActionEffectSquaddieTemplate,
+        actingSquaddieAction: TODODELETEMEActionEffectSquaddieTemplate,
         targetLocation: HexCoordinate,
     }) {
         const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
@@ -172,7 +172,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         return this.addSquaddieActionTemplateDecisionToInstruction(instruction, actingSquaddieAction, targetLocation)
     }
 
-    private addSquaddieActionTemplateDecisionToInstruction(instruction: SquaddieDecisionsDuringThisPhase, action: ActionEffectSquaddieTemplate, targetLocation: HexCoordinate) {
+    private addSquaddieActionTemplateDecisionToInstruction(instruction: SquaddieDecisionsDuringThisPhase, action: TODODELETEMEActionEffectSquaddieTemplate, targetLocation: HexCoordinate) {
         SquaddieActionsForThisRoundService.addDecision(instruction,
             DecisionService.new({
                 actionEffects: [
@@ -199,7 +199,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         squaddieToTarget: string,
         actingBattleSquaddie: BattleSquaddie,
         actingSquaddieTemplate: SquaddieTemplate
-        action: ActionEffectSquaddieTemplate
+        action: TODODELETEMEActionEffectSquaddieTemplate
     }): SquaddieDecisionsDuringThisPhase | undefined {
         const targetingSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId);
         const desiredSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(squaddieToTarget);

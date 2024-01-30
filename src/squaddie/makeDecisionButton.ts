@@ -1,5 +1,5 @@
 import {RectArea, RectAreaService} from "../ui/rectArea";
-import {ActionEffectSquaddieTemplate} from "../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {RectangleHelper} from "../ui/rectangle";
 import {HUE_BY_SQUADDIE_AFFILIATION} from "../graphicsConstants";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
@@ -9,12 +9,12 @@ import {ButtonStatus} from "../ui/button";
 
 export class MakeDecisionButton {
     buttonArea: RectArea;
-    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
+    actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate;
     hue: number;
 
     constructor(options: {
         buttonArea?: RectArea;
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate;
+        actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate;
         hue?: number;
     }) {
         this.buttonArea = options.buttonArea;

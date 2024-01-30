@@ -21,7 +21,7 @@ import {RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
@@ -169,8 +169,8 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             })
         }
 
-        let squaddieActionEffect: ActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator);
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        let squaddieActionEffect: TODODELETEMEactionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator);
+        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
 

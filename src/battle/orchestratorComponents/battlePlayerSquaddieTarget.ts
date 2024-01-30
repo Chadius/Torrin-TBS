@@ -25,15 +25,15 @@ import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {GetSquaddieAtScreenLocation, OrchestratorUtilities} from "./orchestratorUtils";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {Trait} from "../../trait/traitStatusStorage";
 import {ActionResultTextService} from "../animation/actionResultTextService";
 import {LabelHelper} from "../../ui/label";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent} from "../history/battleEvent";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -147,7 +147,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
     private highlightTargetRange(state: GameEngineState) {
         let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
         const action = squaddieActionEffect.template;
@@ -232,10 +232,10 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
         let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
-        const actionConsidered: ActionEffectSquaddieTemplate = squaddieActionEffect.template;
+        const actionConsidered: TODODELETEMEActionEffectSquaddieTemplate = squaddieActionEffect.template;
 
         if (actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
             return;
@@ -272,7 +272,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
 
@@ -345,7 +345,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== ActionEffectType.SQUADDIE) {
+        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
 

@@ -15,10 +15,10 @@ import {
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {MapHighlightHelper} from "../animation/mapHighlight";
 import {isValidValue} from "../../utils/validityCheck";
-import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
-import {Decision} from "../../decision/decision";
+import {TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
@@ -29,7 +29,7 @@ export const OrchestratorUtilities = {
     updateSquaddieBasedOnActionEffect: ({battleSquaddieId, repository, actionEffect, missionMap}: {
         battleSquaddieId: string,
         repository: ObjectRepository,
-        actionEffect: ActionEffect;
+        actionEffect: TODODELETEMEactionEffect;
         missionMap: MissionMap
     }) => {
         const {
@@ -41,22 +41,22 @@ export const OrchestratorUtilities = {
         }
 
         switch (actionEffect.type) {
-            case ActionEffectType.MOVEMENT:
+            case TODODELETEMEActionEffectType.MOVEMENT:
                 missionMap.updateSquaddieLocation(battleSquaddieId, actionEffect.destination);
                 SquaddieTurnService.spendActionPoints(battleSquaddie.squaddieTurn, actionEffect.numberOfActionPointsSpent);
                 break;
-            case ActionEffectType.SQUADDIE:
+            case TODODELETEMEActionEffectType.SQUADDIE:
                 SquaddieTurnService.spendActionPoints(battleSquaddie.squaddieTurn, actionEffect.numberOfActionPointsSpent);
                 break;
-            case ActionEffectType.END_TURN:
+            case TODODELETEMEActionEffectType.END_TURN:
                 SquaddieTurnService.endTurn(battleSquaddie.squaddieTurn);
                 break;
         }
     },
-    peekActionEffect: (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: CurrentlySelectedSquaddieDecision): ActionEffect => {
+    peekActionEffect: (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: CurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {
         return peekActionEffect(state, currentlySelectedSquaddieDecision);
     },
-    nextActionEffect: (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: CurrentlySelectedSquaddieDecision): ActionEffect => {
+    nextActionEffect: (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: CurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {
         const peekedActionEffect = peekActionEffect(state, currentlySelectedSquaddieDecision);
         const decision = CurrentlySelectedSquaddieDecisionService.peekDecision(currentlySelectedSquaddieDecision);
 
@@ -67,17 +67,17 @@ export const OrchestratorUtilities = {
         DecisionActionEffectIteratorService.nextActionEffect(state.decisionActionEffectIterator);
         return peekedActionEffect;
     },
-    getNextModeBasedOnActionEffect: (actionEffect: ActionEffect): BattleOrchestratorMode => {
+    getNextModeBasedOnActionEffect: (actionEffect: TODODELETEMEactionEffect): BattleOrchestratorMode => {
         if (!isValidValue(actionEffect)) {
             return undefined;
         }
 
         switch (actionEffect.type) {
-            case ActionEffectType.SQUADDIE:
+            case TODODELETEMEActionEffectType.SQUADDIE:
                 return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE;
-            case ActionEffectType.MOVEMENT:
+            case TODODELETEMEActionEffectType.MOVEMENT:
                 return BattleOrchestratorMode.SQUADDIE_MOVER;
-            case ActionEffectType.END_TURN:
+            case TODODELETEMEActionEffectType.END_TURN:
                 return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
             default:
                 return undefined;
@@ -129,7 +129,7 @@ const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
     });
 }
 
-const peekActionEffect = (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: CurrentlySelectedSquaddieDecision): ActionEffect => {
+const peekActionEffect = (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: CurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {
     let decision = CurrentlySelectedSquaddieDecisionService.peekDecision(currentlySelectedSquaddieDecision);
     if (!isValidValue(decision)) {
         return undefined;
@@ -152,11 +152,11 @@ const peekActionEffect = (state: BattleOrchestratorState, currentlySelectedSquad
     return DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator);
 };
 
-const isDecisionAfterEffectIteratorStale = (state: BattleOrchestratorState, decision: Decision): boolean =>
+const isDecisionAfterEffectIteratorStale = (state: BattleOrchestratorState, decision: TODODELETEMEdecision): boolean =>
     !isValidValue(state.decisionActionEffectIterator)
     || state.decisionActionEffectIterator.decision !== decision;
 
-const maybeCreateDecisionActionEffectIterator = (state: BattleOrchestratorState, decision: Decision) => {
+const maybeCreateDecisionActionEffectIterator = (state: BattleOrchestratorState, decision: TODODELETEMEdecision) => {
     if (!isValidValue(decision)) {
         state.decisionActionEffectIterator = undefined;
         return;

@@ -4,10 +4,10 @@ import {BattleSquaddie} from "../battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {TeamStrategyState} from "./teamStrategyState";
@@ -16,11 +16,11 @@ import {
     SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
 import {TargetSquaddieInRange} from "./targetSquaddieInRange";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SquaddieTurnService} from "../../squaddie/turn";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 
 describe('target a squaddie within reach of actions', () => {
     let squaddieRepository: ObjectRepository;
@@ -31,16 +31,16 @@ describe('target a squaddie within reach of actions', () => {
     let playerKnightDynamic: BattleSquaddie;
     let allyClericStatic: SquaddieTemplate;
     let allyClericDynamic: BattleSquaddie;
-    let shortBowAction: ActionEffectSquaddieTemplate;
+    let shortBowAction: TODODELETEMEActionEffectSquaddieTemplate;
     let enemyTeam: BattleSquaddieTeam;
     let expectedInstruction: SquaddieDecisionsDuringThisPhase;
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new();
 
-        shortBowAction = ActionEffectSquaddieTemplateService.new({
+        shortBowAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "short bow",
             id: "short_bow",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
@@ -328,10 +328,10 @@ describe('target a squaddie within reach of actions', () => {
     });
 
     it('will not change the currently acting squaddie', () => {
-        const longBowAction = ActionEffectSquaddieTemplateService.new({
+        const longBowAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "long bow",
             id: "long_bow",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),

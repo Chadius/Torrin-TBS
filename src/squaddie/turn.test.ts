@@ -1,21 +1,21 @@
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ACTION_PERFORM_FAILURE_REASON, SquaddieTurn, SquaddieTurnService} from "./turn";
-import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 
 describe('Squaddie turn and resources', () => {
     describe('actions', () => {
         let turn: SquaddieTurn;
-        let actionSpends2ActionPoints: ActionEffectSquaddieTemplate;
+        let actionSpends2ActionPoints: TODODELETEMEActionEffectSquaddieTemplate;
         beforeEach(() => {
             turn = SquaddieTurnService.new();
-            actionSpends2ActionPoints = ActionEffectSquaddieTemplateService.new({
+            actionSpends2ActionPoints = TODODELETEMEActionEffectSquaddieTemplateService.new({
                 id: "actionSpends2ActionPoints",
                 name: "Power Attack",
                 actionPointCost: 2,
-                traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
+                traits: TraitStatusStorageService.newUsingTraitValues({[Trait.ATTACK]: true}),
             })
         })
 
@@ -24,10 +24,10 @@ describe('Squaddie turn and resources', () => {
         });
         it('should spend 1 action by default', () => {
             SquaddieTurnService.spendActionPointsOnActionTemplate(turn,
-                ActionEffectSquaddieTemplateService.new({
+                TODODELETEMEActionEffectSquaddieTemplateService.new({
                     id: "strike",
                     name: "longsword",
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({[Trait.ATTACK]: true}),
+                    traits: TraitStatusStorageService.newUsingTraitValues({[Trait.ATTACK]: true}),
                 })
             );
             expect(turn.remainingActionPoints).toBe(2);

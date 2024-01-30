@@ -4,9 +4,9 @@ import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER, WINDOW_SPACING1, WINDOW_SPACING2}
 import {Label, LabelHelper} from "../../../ui/label";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 
 export class WeaponIcon {
     constructor() {
@@ -32,7 +32,7 @@ export class WeaponIcon {
              actorImageArea,
          }:
              {
-                 actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+                 actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate,
                  graphicsContext: GraphicsContext,
                  actorImageArea: RectArea,
              }
@@ -52,7 +52,7 @@ export class WeaponIcon {
         LabelHelper.draw(this.attackingLabel, graphicsContext);
     }
 
-    private lazyLoadAttackingTextBox(action: ActionEffectSquaddieTemplate, actorImageArea: RectArea) {
+    private lazyLoadAttackingTextBox(action: TODODELETEMEActionEffectSquaddieTemplate, actorImageArea: RectArea) {
         const labelBackgroundColor = [
             0,
             10,
@@ -60,9 +60,9 @@ export class WeaponIcon {
         ];
 
         let labelText: string = "(Using)";
-        if (ActionEffectSquaddieTemplateService.isHindering(action)) {
+        if (TODODELETEMEActionEffectSquaddieTemplateService.isHindering(action)) {
             labelText = "Attacking!";
-        } else if (ActionEffectSquaddieTemplateService.isHelpful(action)) {
+        } else if (TODODELETEMEActionEffectSquaddieTemplateService.isHelpful(action)) {
             labelText = "Helping...";
         }
 

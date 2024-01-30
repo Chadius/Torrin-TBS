@@ -1,11 +1,11 @@
-import {ActionEffectSquaddieTemplate, ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {TODODELETEMEActionEffectSquaddieTemplate, TODODELETEMEActionEffectSquaddieTemplateService} from "./TODODELETEMEActionEffectSquaddieTemplate";
+import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {DamageType} from "../squaddie/squaddieService";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 
 describe('SquaddieAction', () => {
     it('can be constructed using data object', () => {
-        const data: ActionEffectSquaddieTemplate = {
+        const data: TODODELETEMEActionEffectSquaddieTemplate = {
             id: "action123",
             name: "buster wolf",
             actionPointCost: 1,
@@ -17,7 +17,7 @@ describe('SquaddieAction', () => {
             traits: {booleanTraits: {[Trait.ATTACK]: true}},
         };
 
-        const newAction: ActionEffectSquaddieTemplate = data;
+        const newAction: TODODELETEMEActionEffectSquaddieTemplate = data;
 
         expect(newAction.id).toBe(data.id);
         expect(newAction.name).toBe(data.name);
@@ -32,13 +32,13 @@ describe('SquaddieAction', () => {
 
     it('throws an error if non integer turns are used', () => {
         const shouldThrowError = () => {
-            ActionEffectSquaddieTemplateService.new({
+            TODODELETEMEActionEffectSquaddieTemplateService.new({
                 actionPointCost: 0.1,
                 id: "non integer action cost",
                 maximumRange: 2,
                 minimumRange: 3,
                 name: "non integer action cost",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
             })
         }
 
@@ -52,13 +52,13 @@ describe('SquaddieAction', () => {
 
     it('throws an error if non integer minimum range is used', () => {
         const shouldThrowError = () => {
-            ActionEffectSquaddieTemplateService.new({
+            TODODELETEMEActionEffectSquaddieTemplateService.new({
                 actionPointCost: 1,
                 id: "non integer minimum range to spend",
                 minimumRange: 0.2,
                 maximumRange: 3,
                 name: "non integer minimum range to spend",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
             })
         }
 
@@ -72,13 +72,13 @@ describe('SquaddieAction', () => {
 
     it('throws an error if non integer maximum range is used', () => {
         const shouldThrowError = () => {
-            ActionEffectSquaddieTemplateService.new({
+            TODODELETEMEActionEffectSquaddieTemplateService.new({
                 actionPointCost: 1,
                 id: "non integer maximum range to spend",
                 minimumRange: 2,
                 maximumRange: 0.3,
                 name: "non integer maximum range to spend",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
             })
         }
 
@@ -91,31 +91,31 @@ describe('SquaddieAction', () => {
     });
 
     it('uses the traits to determine if it is Harmful', () => {
-        const harmfulAttack = ActionEffectSquaddieTemplateService.new({
+        const harmfulAttack = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             }),
         });
-        expect(ActionEffectSquaddieTemplateService.isHelpful(harmfulAttack)).toBeFalsy();
-        expect(ActionEffectSquaddieTemplateService.isHindering(harmfulAttack)).toBeTruthy();
+        expect(TODODELETEMEActionEffectSquaddieTemplateService.isHelpful(harmfulAttack)).toBeFalsy();
+        expect(TODODELETEMEActionEffectSquaddieTemplateService.isHindering(harmfulAttack)).toBeTruthy();
     });
 
     it('uses the traits to determine if it is Helpful', () => {
-        const helpfulAttack = ActionEffectSquaddieTemplateService.new({
+        const helpfulAttack = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "healing word",
             id: "healing",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
             }),
         });
-        expect(ActionEffectSquaddieTemplateService.isHelpful(helpfulAttack)).toBeTruthy();
-        expect(ActionEffectSquaddieTemplateService.isHindering(helpfulAttack)).toBeFalsy();
+        expect(TODODELETEMEActionEffectSquaddieTemplateService.isHelpful(helpfulAttack)).toBeTruthy();
+        expect(TODODELETEMEActionEffectSquaddieTemplateService.isHindering(helpfulAttack)).toBeFalsy();
     });
 
     it('can be sanitized to fill in missing fields', () => {
-        const actionWithMissingFields: ActionEffectSquaddieTemplate = {
+        const actionWithMissingFields: TODODELETEMEActionEffectSquaddieTemplate = {
             name: "missing stuff",
             id: "id",
             minimumRange: 0,
@@ -127,17 +127,17 @@ describe('SquaddieAction', () => {
             damageDescriptions: undefined,
         };
 
-        ActionEffectSquaddieTemplateService.sanitize(actionWithMissingFields);
+        TODODELETEMEActionEffectSquaddieTemplateService.sanitize(actionWithMissingFields);
 
         expect(actionWithMissingFields.targetingShape).toEqual(TargetingShape.SNAKE);
         expect(actionWithMissingFields.actionPointCost).toEqual(1);
-        expect(actionWithMissingFields.traits).toEqual(TraitStatusStorageHelper.newUsingTraitValues({}));
+        expect(actionWithMissingFields.traits).toEqual(TraitStatusStorageService.newUsingTraitValues({}));
         expect(actionWithMissingFields.damageDescriptions).toEqual({});
         expect(actionWithMissingFields.healingDescriptions).toEqual({});
     });
 
     describe('sanitization', () => {
-        let invalidActionBase: ActionEffectSquaddieTemplate;
+        let invalidActionBase: TODODELETEMEActionEffectSquaddieTemplate;
 
         beforeEach(() => {
             invalidActionBase = {
@@ -221,21 +221,21 @@ describe('SquaddieAction', () => {
                 [field]: value,
             }
             const throwErrorBecauseOfNoIdNameOrRange = () => {
-                ActionEffectSquaddieTemplateService.sanitize(invalidAction);
+                TODODELETEMEActionEffectSquaddieTemplateService.sanitize(invalidAction);
             };
 
             expect(throwErrorBecauseOfNoIdNameOrRange).toThrowError('cannot sanitize');
         });
 
         it('will throw an error during sanitization if minimum range is more than maximum range', () => {
-            const invalidAction: ActionEffectSquaddieTemplate = {
+            const invalidAction: TODODELETEMEActionEffectSquaddieTemplate = {
                 ...invalidActionBase,
                 minimumRange: 2,
                 maximumRange: 1,
             };
 
             const throwErrorBecauseOfNoIdNameOrRange = () => {
-                ActionEffectSquaddieTemplateService.sanitize(invalidAction);
+                TODODELETEMEActionEffectSquaddieTemplateService.sanitize(invalidAction);
             };
 
             expect(throwErrorBecauseOfNoIdNameOrRange).toThrowError('cannot sanitize');

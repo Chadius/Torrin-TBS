@@ -1,17 +1,17 @@
-import {Decision, DecisionService} from "./decision";
-import {ActionEffectType} from "./actionEffect";
-import {ActionEffectSquaddieService} from "./actionEffectSquaddie";
-import {ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
-import {ActionEffectEndTurnService} from "./actionEffectEndTurn";
-import {ActionEffectMovementService} from "./actionEffectMovement";
-import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {TODODELETEMEdecision, DecisionService} from "./TODODELETEMEdecision";
+import {TODODELETEMEActionEffectType} from "./TODODELETEMEactionEffect";
+import {ActionEffectSquaddieService} from "./TODODELETEMEactionEffectSquaddie";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "./TODODELETEMEActionEffectSquaddieTemplate";
+import {ActionEffectEndTurnService} from "./TODODELETEMEactionEffectEndTurn";
+import {ActionEffectMovementService} from "./TODODELETEMEactionEffectMovement";
+import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 
 describe('decision', () => {
     it('can create a decision using many action effects', () => {
-        const decision: Decision = DecisionService.new({
+        const decision: TODODELETEMEdecision = DecisionService.new({
             actionEffects: [
                 {
-                    type: ActionEffectType.MOVEMENT,
+                    type: TODODELETEMEActionEffectType.MOVEMENT,
                     destination: {q: 0, r: 3},
                     numberOfActionPointsSpent: 1,
                 }
@@ -22,14 +22,14 @@ describe('decision', () => {
     });
 
     it('can add movement action and its results', () => {
-        const decision: Decision = DecisionService.new({});
+        const decision: TODODELETEMEdecision = DecisionService.new({});
         DecisionService.addActionEffect(decision, {
-            type: ActionEffectType.MOVEMENT,
+            type: TODODELETEMEActionEffectType.MOVEMENT,
             destination: {q: 0, r: 1},
             numberOfActionPointsSpent: 0
         });
         DecisionService.addActionEffect(decision, {
-            type: ActionEffectType.MOVEMENT,
+            type: TODODELETEMEActionEffectType.MOVEMENT,
             destination: {q: 0, r: 3},
             numberOfActionPointsSpent: 1
         });
@@ -38,7 +38,7 @@ describe('decision', () => {
     });
 
     it('knows if the turn was ended', () => {
-        const decision: Decision = DecisionService.new({
+        const decision: TODODELETEMEdecision = DecisionService.new({
             actionEffects: [
                 ActionEffectMovementService.new({
                     destination: {q: 0, r: 1},
@@ -52,7 +52,7 @@ describe('decision', () => {
     });
 
     it('knows if any of the action effects contribute to the multiple attack penalty', () => {
-        const decisionToMoveOnly: Decision = DecisionService.new({
+        const decisionToMoveOnly: TODODELETEMEdecision = DecisionService.new({
             actionEffects: [
                 ActionEffectMovementService.new({
                     destination: {q: 0, r: 1},
@@ -66,7 +66,7 @@ describe('decision', () => {
         });
         expect(DecisionService.multipleAttackPenaltyMultiplier(decisionToMoveOnly)).toBe(0);
 
-        const decisionToAttack: Decision = DecisionService.new({
+        const decisionToAttack: TODODELETEMEdecision = DecisionService.new({
             actionEffects: [
                 ActionEffectMovementService.new({
                     destination: {q: 0, r: 1},
@@ -75,10 +75,10 @@ describe('decision', () => {
                 ActionEffectSquaddieService.new({
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 1, r: 0},
-                    template: ActionEffectSquaddieTemplateService.new({
+                    template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                         id: "attack",
                         name: "attack",
-                        traits: TraitStatusStorageHelper.newUsingTraitValues({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
                             [Trait.ATTACK]: true,
                         })
                     })
@@ -90,7 +90,7 @@ describe('decision', () => {
 
     describe('sanitize', () => {
         it('can create a decision without effects', () => {
-            const decision: Decision = DecisionService.new({});
+            const decision: TODODELETEMEdecision = DecisionService.new({});
             DecisionService.sanitize(decision);
             expect(decision.actionEffects).toHaveLength(0);
         });

@@ -3,18 +3,18 @@ import {
     CurrentlySelectedSquaddieDecisionService
 } from "./currentlySelectedSquaddieDecision";
 import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {DamageType} from "../../squaddie/squaddieService";
-import {Decision, DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 
-const longswordAction = ActionEffectSquaddieTemplateService.new({
+const longswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
     name: "longsword",
     id: "longsword",
-    traits: TraitStatusStorageHelper.newUsingTraitValues({
+    traits: TraitStatusStorageService.newUsingTraitValues({
         [Trait.ATTACK]: true,
         [Trait.TARGET_ARMOR]: true,
         [Trait.TARGETS_FOE]: true,
@@ -28,9 +28,9 @@ const longswordAction = ActionEffectSquaddieTemplateService.new({
 });
 
 describe('CurrentlySelectedSquaddieDecision', () => {
-    let moveDecision: Decision;
-    let healDecision: Decision;
-    let endTurnDecision: Decision;
+    let moveDecision: TODODELETEMEdecision;
+    let healDecision: TODODELETEMEdecision;
+    let endTurnDecision: TODODELETEMEdecision;
 
     beforeEach(() => {
         moveDecision = DecisionService.new({
@@ -47,7 +47,7 @@ describe('CurrentlySelectedSquaddieDecision', () => {
                 ActionEffectSquaddieService.new({
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 1, r: 0},
-                    template: ActionEffectSquaddieTemplateService.new({
+                    template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                         id: "healing herb",
                         name: "healing herb",
                     })

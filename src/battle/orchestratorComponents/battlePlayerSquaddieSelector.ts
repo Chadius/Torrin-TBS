@@ -13,7 +13,7 @@ import {
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetSquaddieAtMapLocation, OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
@@ -23,7 +23,7 @@ import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../s
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {ActionEffect, ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
 import {RecordingService} from "../history/recording";
@@ -35,8 +35,8 @@ import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchR
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {MapHighlightHelper} from "../animation/mapHighlight";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleSquaddieService} from "../battleSquaddie";
 import {isValidValue} from "../../utils/validityCheck";
@@ -140,12 +140,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         let nextMode: BattleOrchestratorMode = undefined;
 
         if (this.gaveCompleteInstruction) {
-            let newAction: ActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
+            let newAction: TODODELETEMEactionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
             if (isValidValue(newAction)) {
-                const typeToMode: { [t in ActionEffectType]: BattleOrchestratorMode } = {
-                    [ActionEffectType.MOVEMENT]: BattleOrchestratorMode.SQUADDIE_MOVER,
-                    [ActionEffectType.SQUADDIE]: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
-                    [ActionEffectType.END_TURN]: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
+                const typeToMode: { [t in TODODELETEMEActionEffectType]: BattleOrchestratorMode } = {
+                    [TODODELETEMEActionEffectType.MOVEMENT]: BattleOrchestratorMode.SQUADDIE_MOVER,
+                    [TODODELETEMEActionEffectType.SQUADDIE]: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE,
+                    [TODODELETEMEActionEffectType.END_TURN]: BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP,
                 };
                 nextMode = typeToMode[newAction.type];
             }

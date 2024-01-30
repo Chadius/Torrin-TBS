@@ -1,39 +1,39 @@
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
-import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {WeaponIcon} from "./weaponIcon";
 import {RectArea, RectAreaService} from "../../../ui/rectArea";
 
 describe('weapon icon', () => {
-    let hinderingAction: ActionEffectSquaddieTemplate;
-    let helpingAction: ActionEffectSquaddieTemplate;
+    let hinderingAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let helpingAction: TODODELETEMEActionEffectSquaddieTemplate;
 
     let textSpy: jest.SpyInstance;
     let mockedGraphicsContext: MockedP5GraphicsContext;
 
     beforeEach(() => {
-        hinderingAction = ActionEffectSquaddieTemplateService.new({
+        hinderingAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "hindering",
             name: "hindering",
             damageDescriptions: {
                 [DamageType.BODY]: 1,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 ATTACK: true
             }),
         });
 
-        helpingAction = ActionEffectSquaddieTemplateService.new({
+        helpingAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "helping",
             name: "helping",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 HEALING: true
             }),
         });

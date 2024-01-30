@@ -8,8 +8,8 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {TeamStrategyOptions} from "./teamStrategy";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     constructor(options: TeamStrategyOptions) {

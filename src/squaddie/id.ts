@@ -1,5 +1,5 @@
 import {SquaddieResource, SquaddieResourceHelper} from "./resource";
-import {TraitStatusStorage, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {TraitStatusStorage, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {isValidValue} from "../utils/validityCheck";
 
@@ -49,7 +49,7 @@ const sanitize = (data: SquaddieId): SquaddieId => {
     }
 
     data.affiliation = isValidValue(data.affiliation) ? data.affiliation : SquaddieAffiliation.UNKNOWN;
-    data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageHelper.newUsingTraitValues({});
+    data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageService.newUsingTraitValues({});
     data.resources = isValidValue(data.resources) ? data.resources : SquaddieResourceHelper.new();
     SquaddieResourceHelper.sanitize(data.resources);
     return data;

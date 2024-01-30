@@ -1,7 +1,7 @@
 import {TargetTextWindow} from "./targetTextWindow";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
-import {Trait, TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
 import {BattleSquaddie} from "../../battleSquaddie";
 import {SquaddieTurnService} from "../../../squaddie/turn";
@@ -11,9 +11,9 @@ import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
 
@@ -27,29 +27,29 @@ describe('TargetTextWindow', () => {
     let targetResultTakenDamage: ActionResultPerSquaddie;
     let targetResultHealingReceived: ActionResultPerSquaddie;
 
-    let attackAction: ActionEffectSquaddieTemplate;
-    let healingAction: ActionEffectSquaddieTemplate;
+    let attackAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let healingAction: TODODELETEMEActionEffectSquaddieTemplate;
 
     beforeEach(() => {
-        attackAction = ActionEffectSquaddieTemplateService.new({
+        attackAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "attack",
             name: "attack action",
             damageDescriptions: {
                 [DamageType.BODY]: 2,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGETS_FOE]: true,
             })
         });
 
-        healingAction = ActionEffectSquaddieTemplateService.new({
+        healingAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "heal",
             name: "healing action",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 3,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ALWAYS_SUCCEEDS]: true,
                 [Trait.TARGETS_SELF]: true,
                 [Trait.TARGETS_ALLIES]: true,
@@ -65,7 +65,7 @@ describe('TargetTextWindow', () => {
                     mapIconResourceKey: ""
                 },
                 templateId: "targetTemplateId",
-                traits: TraitStatusStorageHelper.newUsingTraitValues({}),
+                traits: TraitStatusStorageService.newUsingTraitValues({}),
             },
             actions: [],
             attributes: DefaultArmyAttributes(),

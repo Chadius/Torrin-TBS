@@ -1,13 +1,13 @@
 import {MissionMap} from "../../missionMap/missionMap";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {FindValidTargets, TargetingResults} from "./targetingService";
 
@@ -16,16 +16,16 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 describe('Targeting Service', () => {
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordAction: TODODELETEMEActionEffectSquaddieTemplate;
     let sirCamilSquaddieTemplate: SquaddieTemplate;
     let sirCamilBattleSquaddie: BattleSquaddie;
     let squaddieRepo: ObjectRepository;
 
     beforeEach(() => {
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
@@ -117,10 +117,10 @@ describe('Targeting Service', () => {
             })
         });
 
-        let longbowAction = ActionEffectSquaddieTemplateService.new({
+        let longbowAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longbow",
             id: "longbow",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
@@ -243,10 +243,10 @@ describe('Targeting Service', () => {
     });
 
     it('will ignore terrain costs when targeting', () => {
-        let longbowAction: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
+        let longbowAction: TODODELETEMEActionEffectSquaddieTemplate = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longbow",
             id: "longbow",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),

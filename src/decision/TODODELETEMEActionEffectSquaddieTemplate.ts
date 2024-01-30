@@ -1,11 +1,11 @@
 import {assertsInteger} from "../utils/mathAssert";
-import {Trait, TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";
 import {DamageType, HealingType} from "../squaddie/squaddieService";
 import {ActionRange} from "../squaddie/actionRange";
 import {isValidValue} from "../utils/validityCheck";
 
-export interface ActionEffectSquaddieTemplate {
+export interface TODODELETEMEActionEffectSquaddieTemplate {
     damageDescriptions: { [t in DamageType]?: number };
     healingDescriptions: { [t in HealingType]?: number };
     name: string;
@@ -19,7 +19,7 @@ export interface ActionEffectSquaddieTemplate {
     targetingShape: TargetingShape;
 }
 
-export const ActionEffectSquaddieTemplateService = {
+export const TODODELETEMEActionEffectSquaddieTemplateService = {
     new: ({
               actionPointCost,
               damageDescriptions,
@@ -40,7 +40,7 @@ export const ActionEffectSquaddieTemplateService = {
         damageDescriptions?: { [t in DamageType]?: number },
         healingDescriptions?: { [t in HealingType]?: number },
         targetingShape?: TargetingShape,
-    } & Partial<ActionRange>): ActionEffectSquaddieTemplate => {
+    } & Partial<ActionRange>): TODODELETEMEActionEffectSquaddieTemplate => {
         if (minimumRange !== undefined) {
             assertsInteger(minimumRange);
         }
@@ -69,18 +69,18 @@ export const ActionEffectSquaddieTemplateService = {
         sanitize(data);
         return data;
     },
-    isHelpful: (data: ActionEffectSquaddieTemplate): boolean => {
-        return TraitStatusStorageHelper.getStatus(data.traits, Trait.HEALING);
+    isHelpful: (data: TODODELETEMEActionEffectSquaddieTemplate): boolean => {
+        return TraitStatusStorageService.getStatus(data.traits, Trait.HEALING);
     },
-    isHindering: (data: ActionEffectSquaddieTemplate): boolean => {
-        return TraitStatusStorageHelper.getStatus(data.traits, Trait.ATTACK);
+    isHindering: (data: TODODELETEMEActionEffectSquaddieTemplate): boolean => {
+        return TraitStatusStorageService.getStatus(data.traits, Trait.ATTACK);
     },
-    sanitize: (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTemplate => {
+    sanitize: (data: TODODELETEMEActionEffectSquaddieTemplate): TODODELETEMEActionEffectSquaddieTemplate => {
         return sanitize(data);
     },
 };
 
-const sanitize = (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTemplate => {
+const sanitize = (data: TODODELETEMEActionEffectSquaddieTemplate): TODODELETEMEActionEffectSquaddieTemplate => {
     if (!data.id || !isValidValue(data.id)) {
         throw new Error('SquaddieAction cannot sanitize, missing id');
     }
@@ -99,7 +99,7 @@ const sanitize = (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTempl
 
     data.targetingShape = (isValidValue(data.targetingShape) && data.targetingShape !== TargetingShape.UNKNOWN) ? data.targetingShape : TargetingShape.SNAKE;
     data.actionPointCost = isValidValue(data.actionPointCost) ? data.actionPointCost : 1;
-    data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageHelper.newUsingTraitValues({});
+    data.traits = isValidValue(data.traits) ? data.traits : TraitStatusStorageService.newUsingTraitValues({});
     data.damageDescriptions = isValidValue(data.damageDescriptions) ? {...(data.damageDescriptions)} : {};
     data.healingDescriptions = isValidValue(data.healingDescriptions) ? {...(data.healingDescriptions)} : {};
     return data;

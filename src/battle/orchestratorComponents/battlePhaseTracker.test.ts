@@ -4,7 +4,7 @@ import {BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {BattlePhaseState} from "./battlePhaseController";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 
@@ -27,7 +27,7 @@ describe('battlePhaseTracker', () => {
                         mapIconResourceKey: "",
                         actionSpritesByEmotion: {},
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
                 actions: [],
@@ -58,7 +58,7 @@ describe('battlePhaseTracker', () => {
                         mapIconResourceKey: "",
                         actionSpritesByEmotion: {},
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
                 actions: [],
@@ -82,7 +82,7 @@ describe('battlePhaseTracker', () => {
                         mapIconResourceKey: "",
                         actionSpritesByEmotion: {},
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ALLY,
                 },
                 actions: [],
@@ -106,7 +106,7 @@ describe('battlePhaseTracker', () => {
                         mapIconResourceKey: "",
                         actionSpritesByEmotion: {},
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.NONE,
                 },
                 actions: [],

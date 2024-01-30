@@ -19,8 +19,8 @@ import {MissionMap} from "../../missionMap/missionMap";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattleSquaddie} from "../battleSquaddie";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;

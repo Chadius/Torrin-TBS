@@ -24,14 +24,14 @@ import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
-import {Decision, DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
-import {ActionEffect} from "../../decision/actionEffect";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 describe('BattleSquaddieMover', () => {
@@ -333,9 +333,9 @@ describe('BattleSquaddieMover', () => {
     });
 
     describe('will determine the next mode based on the next action effect', () => {
-        let movementActionEffect: ActionEffect;
-        let squaddieActionEffect: ActionEffect;
-        let endTurnActionEffect: ActionEffect;
+        let movementActionEffect: TODODELETEMEactionEffect;
+        let squaddieActionEffect: TODODELETEMEactionEffect;
+        let endTurnActionEffect: TODODELETEMEactionEffect;
 
         beforeEach(() => {
             movementActionEffect = ActionEffectMovementService.new({
@@ -346,7 +346,7 @@ describe('BattleSquaddieMover', () => {
             squaddieActionEffect = ActionEffectSquaddieService.new({
                 targetLocation: {q: 0, r: 2},
                 numberOfActionPointsSpent: 1,
-                template: ActionEffectSquaddieTemplateService.new({
+                template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                     id: "shout",
                     name: "shout"
                 })
@@ -355,7 +355,7 @@ describe('BattleSquaddieMover', () => {
             endTurnActionEffect = ActionEffectEndTurnService.new();
         });
 
-        const setupStateWithDecisions = (decision: Decision, decision1: Decision): GameEngineState => {
+        const setupStateWithDecisions = (decision: TODODELETEMEdecision, decision1: TODODELETEMEdecision): GameEngineState => {
             const moveDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",

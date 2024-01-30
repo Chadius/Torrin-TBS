@@ -5,7 +5,7 @@ import {
 } from "../history/squaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {
@@ -14,9 +14,9 @@ import {
 } from "../history/currentlySelectedSquaddieDecision";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -43,11 +43,11 @@ import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
-import {Decision, DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {ActionEffect} from "../../decision/actionEffect";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
@@ -56,8 +56,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let battleSquaddieBase: BattleSquaddie;
     let targetStatic: SquaddieTemplate;
     let targetDynamic: BattleSquaddie;
-    let powerAttackLongswordAction: ActionEffectSquaddieTemplate;
-    let monkKoanAction: ActionEffectSquaddieTemplate;
+    let powerAttackLongswordAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let monkKoanAction: TODODELETEMEActionEffectSquaddieTemplate;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: CurrentlySelectedSquaddieDecision;
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
@@ -80,7 +80,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.PASS_THROUGH_WALLS]: true,
                     }),
                 }),
@@ -101,7 +101,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             attributes: {
                 movement: CreateNewSquaddieMovementWithTraits({
                     movementPerAction: 2,
-                    traits: TraitStatusStorageHelper.newUsingTraitValues({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
                         [Trait.PASS_THROUGH_WALLS]: true,
                     }),
                 }),
@@ -110,10 +110,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             },
         }));
 
-        powerAttackLongswordAction = ActionEffectSquaddieTemplateService.new({
+        powerAttackLongswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "power attack longsword",
             id: "powerAttackLongsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
@@ -125,10 +125,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             },
         });
 
-        monkKoanAction = ActionEffectSquaddieTemplateService.new({
+        monkKoanAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "koan",
             name: "koan",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.SKIP_ANIMATION]: true
             }),
             maximumRange: 0,
@@ -420,9 +420,9 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     });
 
     describe('will determine the next mode based on the next action effect', () => {
-        let movementActionEffect: ActionEffect;
-        let squaddieActionEffect: ActionEffect;
-        let endTurnActionEffect: ActionEffect;
+        let movementActionEffect: TODODELETEMEactionEffect;
+        let squaddieActionEffect: TODODELETEMEactionEffect;
+        let endTurnActionEffect: TODODELETEMEactionEffect;
 
         beforeEach(() => {
             movementActionEffect = ActionEffectMovementService.new({
@@ -433,7 +433,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             squaddieActionEffect = ActionEffectSquaddieService.new({
                 targetLocation: {q: 0, r: 2},
                 numberOfActionPointsSpent: 1,
-                template: ActionEffectSquaddieTemplateService.new({
+                template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                     id: "shout",
                     name: "shout"
                 })
@@ -442,7 +442,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             endTurnActionEffect = ActionEffectEndTurnService.new();
         });
 
-        const setupStateWithDecisions = (decision: Decision, decision1: Decision): GameEngineState => {
+        const setupStateWithDecisions = (decision: TODODELETEMEdecision, decision1: TODODELETEMEdecision): GameEngineState => {
             const moveDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",

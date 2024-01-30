@@ -1,4 +1,4 @@
-import {ActionEffectSquaddieTemplate} from "../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../decision/TODODELETEMEActionEffectSquaddieTemplate";
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3;
 
@@ -15,13 +15,13 @@ export const SquaddieTurnService = {
     new: (): SquaddieTurn => {
         return {remainingActionPoints: DEFAULT_ACTION_POINTS_PER_TURN};
     },
-    spendActionPointsOnActionTemplate: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate) => {
+    spendActionPointsOnActionTemplate: (data: SquaddieTurn, action: TODODELETEMEActionEffectSquaddieTemplate) => {
         data.remainingActionPoints = (data.remainingActionPoints - action.actionPointCost);
     },
     spendActionPoints: (data: SquaddieTurn, number: number) => {
         data.remainingActionPoints = (data.remainingActionPoints - number);
     },
-    canPerformAction: (data: SquaddieTurn, action: ActionEffectSquaddieTemplate): {
+    canPerformAction: (data: SquaddieTurn, action: TODODELETEMEActionEffectSquaddieTemplate): {
         canPerform: boolean,
         reason: ACTION_PERFORM_FAILURE_REASON
     } => {

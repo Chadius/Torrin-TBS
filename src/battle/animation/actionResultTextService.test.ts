@@ -2,11 +2,11 @@ import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {MissionMap} from "../../missionMap/missionMap";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -26,8 +26,8 @@ describe('Action Result Text Writer', () => {
     let rogueStatic: SquaddieTemplate;
     let rogueDynamic: BattleSquaddie;
     let battleMap: MissionMap;
-    let longswordSweepAction: ActionEffectSquaddieTemplate;
-    let bandageWoundsAction: ActionEffectSquaddieTemplate;
+    let longswordSweepAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let bandageWoundsAction: TODODELETEMEActionEffectSquaddieTemplate;
 
     beforeEach(() => {
         squaddieRepository = ObjectRepositoryService.new();
@@ -41,10 +41,10 @@ describe('Action Result Text Writer', () => {
             })
         });
 
-        longswordSweepAction = ActionEffectSquaddieTemplateService.new({
+        longswordSweepAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "Longsword Sweep",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
             }),
@@ -53,10 +53,10 @@ describe('Action Result Text Writer', () => {
             actionPointCost: 1,
         });
 
-        bandageWoundsAction = ActionEffectSquaddieTemplateService.new({
+        bandageWoundsAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "Bandage Wounds",
             id: "Bandages",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.HEALING]: true,
                 [Trait.TARGETS_ALLIES]: true,
                 [Trait.ALWAYS_SUCCEEDS]: true,

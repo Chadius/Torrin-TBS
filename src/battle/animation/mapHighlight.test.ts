@@ -1,10 +1,10 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {HighlightTileDescription, TerrainTileMap, TerrainTileMapHelper} from "../../hexMap/terrainTileMap";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SearchPath, SearchPathHelper} from "../../hexMap/pathfinder/searchPath";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {SquaddieIdService} from "../../squaddie/id";
@@ -24,7 +24,7 @@ describe('map highlight generator', () => {
     let terrainAlternatingPits: TerrainTileMap;
     let repository: ObjectRepository;
 
-    let rangedAction: ActionEffectSquaddieTemplate;
+    let rangedAction: TODODELETEMEActionEffectSquaddieTemplate;
     let campaignResources: CampaignResources;
 
     beforeEach(() => {
@@ -43,12 +43,12 @@ describe('map highlight generator', () => {
             movementCost: ["1 1 - 1 1 1 - 1 1 1 "],
         });
 
-        rangedAction = ActionEffectSquaddieTemplateService.new({
+        rangedAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "meleeAndRanged",
             name: "melee and ranged",
             minimumRange: 0,
             maximumRange: 2,
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             })
         });

@@ -1,7 +1,7 @@
 import {RectAreaService} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {ActionEffectSquaddieTemplate} from "../../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelHelper} from "../../../ui/label";
@@ -16,7 +16,7 @@ export class ActorTextWindow {
     results: SquaddieSquaddieResults;
     actorTemplate: SquaddieTemplate;
     actorBattle: BattleSquaddie;
-    action: ActionEffectSquaddieTemplate;
+    action: TODODELETEMEActionEffectSquaddieTemplate;
 
     constructor() {
 
@@ -52,7 +52,7 @@ export class ActorTextWindow {
     start({actorTemplate, actorBattle, actionEffectSquaddieTemplate, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
-        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate,
         results: SquaddieSquaddieResults,
     }) {
         this.reset();

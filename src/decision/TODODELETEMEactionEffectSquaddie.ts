@@ -1,11 +1,11 @@
 import {HexCoordinate} from "../hexMap/hexCoordinate/hexCoordinate";
-import {ActionEffectSquaddieTemplate} from "./actionEffectSquaddieTemplate";
-import {ActionEffectType} from "./actionEffect";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "./TODODELETEMEActionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectType} from "./TODODELETEMEactionEffect";
 import {isValidValue} from "../utils/validityCheck";
 
-export interface ActionEffectSquaddie {
-    type: ActionEffectType.SQUADDIE;
-    template: ActionEffectSquaddieTemplate;
+export interface TODODELETEMEactionEffectSquaddie {
+    type: TODODELETEMEActionEffectType.SQUADDIE;
+    template: TODODELETEMEActionEffectSquaddieTemplate;
     numberOfActionPointsSpent: number;
     targetLocation: HexCoordinate;
 }
@@ -18,10 +18,10 @@ export const ActionEffectSquaddieService = {
           }: {
         targetLocation: HexCoordinate;
         numberOfActionPointsSpent?: number;
-        template: ActionEffectSquaddieTemplate;
-    }): ActionEffectSquaddie => {
+        template: TODODELETEMEActionEffectSquaddieTemplate;
+    }): TODODELETEMEactionEffectSquaddie => {
         return sanitize({
-            type: ActionEffectType.SQUADDIE,
+            type: TODODELETEMEActionEffectType.SQUADDIE,
             targetLocation,
             numberOfActionPointsSpent,
             template: template,
@@ -29,7 +29,7 @@ export const ActionEffectSquaddieService = {
     }
 };
 
-const sanitize = (actionEffectSquaddie: ActionEffectSquaddie): ActionEffectSquaddie => {
+const sanitize = (actionEffectSquaddie: TODODELETEMEactionEffectSquaddie): TODODELETEMEactionEffectSquaddie => {
     if (!isValidValue(actionEffectSquaddie.numberOfActionPointsSpent) && actionEffectSquaddie.numberOfActionPointsSpent !== 0) {
         actionEffectSquaddie.numberOfActionPointsSpent = actionEffectSquaddie.template.actionPointCost;
     }

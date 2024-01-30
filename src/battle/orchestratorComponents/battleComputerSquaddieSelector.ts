@@ -18,14 +18,14 @@ import {
     SquaddieActionsForThisRoundService,
     SquaddieDecisionsDuringThisPhase
 } from "../history/squaddieDecisionsDuringThisPhase";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {GraphicsConfig} from "../../utils/graphics/graphicsConfig";
 import {TeamStrategyState} from "../teamStrategy/teamStrategyState";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {ActionEffectSquaddie} from "../../decision/actionEffectSquaddie";
+import {TODODELETEMEactionEffectSquaddie} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {createSearchPath} from "./battleSquaddieSelectorUtils";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
@@ -40,7 +40,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
-import {Decision, DecisionService} from "../../decision/decision";
+import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
@@ -52,7 +52,7 @@ export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
 
 export class BattleComputerSquaddieSelector implements BattleOrchestratorComponent {
-    mostRecentDecision: Decision;
+    mostRecentDecision: TODODELETEMEdecision;
     private showSelectedActionWaitTime?: number;
     private clickedToSkipActionDescription: boolean;
 
@@ -143,7 +143,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             return false;
         }
 
-        return this.mostRecentDecision.actionEffects.some(actionEffect => actionEffect.type === ActionEffectType.SQUADDIE);
+        return this.mostRecentDecision.actionEffects.some(actionEffect => actionEffect.type === TODODELETEMEActionEffectType.SQUADDIE);
     }
 
     private pauseToShowSquaddieSelectionCompleted(state: GameEngineState) {
@@ -152,7 +152,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
 
     private highlightTargetRange(
         state: GameEngineState,
-        actionEffectSquaddie: ActionEffectSquaddie,
+        actionEffectSquaddie: TODODELETEMEactionEffectSquaddie,
     ) {
         const actionEffectSquaddieTemplate = actionEffectSquaddie.template;
 
@@ -303,7 +303,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, newDecision)
 
             switch (actionEffect.type) {
-                case ActionEffectType.MOVEMENT:
+                case TODODELETEMEActionEffectType.MOVEMENT:
                     createSearchPath(state, squaddieTemplate, battleSquaddie, actionEffect.destination);
                     OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -312,7 +312,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                         actionEffect: actionEffect
                     });
                     break;
-                case ActionEffectType.SQUADDIE:
+                case TODODELETEMEActionEffectType.SQUADDIE:
                     results = ActionCalculator.calculateResults({
                         state: state,
                         actingBattleSquaddie: battleSquaddie,
@@ -327,7 +327,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                         actionEffect: actionEffect
                     });
                     break;
-                case ActionEffectType.END_TURN:
+                case TODODELETEMEActionEffectType.END_TURN:
                     BattleSquaddieService.endTurn(battleSquaddie);
                     break;
             }

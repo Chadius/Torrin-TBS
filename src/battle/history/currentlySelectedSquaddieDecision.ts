@@ -1,10 +1,10 @@
 import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
-import {Decision} from "../../decision/decision";
+import {TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {isValidValue} from "../../utils/validityCheck";
 
 export interface CurrentlySelectedSquaddieDecision {
     squaddieDecisionsDuringThisPhase: SquaddieDecisionsDuringThisPhase;
-    currentlySelectedDecision: Decision;
+    currentlySelectedDecision: TODODELETEMEdecision;
     decisionIndex: number;
 }
 
@@ -15,7 +15,7 @@ export const CurrentlySelectedSquaddieDecisionService = {
               decisionIndex,
           }: {
         squaddieActionsForThisRound: SquaddieDecisionsDuringThisPhase;
-        currentlySelectedDecision?: Decision;
+        currentlySelectedDecision?: TODODELETEMEdecision;
         decisionIndex?: number;
     }): CurrentlySelectedSquaddieDecision => {
         return sanitize({
@@ -39,7 +39,7 @@ export const CurrentlySelectedSquaddieDecisionService = {
         }
         return "";
     },
-    addConfirmedDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, decision: Decision) => {
+    addConfirmedDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, decision: TODODELETEMEdecision) => {
         if (
             !instructionInProgress.squaddieDecisionsDuringThisPhase
             || instructionInProgress.squaddieDecisionsDuringThisPhase.battleSquaddieId == ""
@@ -50,7 +50,7 @@ export const CurrentlySelectedSquaddieDecisionService = {
 
         SquaddieActionsForThisRoundService.addDecision(instructionInProgress.squaddieDecisionsDuringThisPhase, decision);
     },
-    selectCurrentDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, currentDecision: Decision) => {
+    selectCurrentDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, currentDecision: TODODELETEMEdecision) => {
         instructionInProgress.currentlySelectedDecision = currentDecision;
     },
     cancelSelectedCurrentDecision: (data: CurrentlySelectedSquaddieDecision) => {
@@ -59,14 +59,14 @@ export const CurrentlySelectedSquaddieDecisionService = {
     hasFinishedIteratingThoughDecisions: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
         return decisionIndexIsOutOfBounds(currentDecision);
     },
-    peekDecision: (currentDecision: CurrentlySelectedSquaddieDecision): Decision => {
+    peekDecision: (currentDecision: CurrentlySelectedSquaddieDecision): TODODELETEMEdecision => {
         if (decisionIndexIsOutOfBounds(currentDecision)) {
             return undefined;
         }
 
         return currentDecision.squaddieDecisionsDuringThisPhase.decisions[currentDecision.decisionIndex];
     },
-    nextDecision: (currentDecision: CurrentlySelectedSquaddieDecision): Decision => {
+    nextDecision: (currentDecision: CurrentlySelectedSquaddieDecision): TODODELETEMEdecision => {
         if (decisionIndexIsOutOfBounds(currentDecision)) {
             return undefined;
         }

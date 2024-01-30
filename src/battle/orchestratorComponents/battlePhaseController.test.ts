@@ -16,7 +16,7 @@ import {convertMapCoordinatesToWorldCoordinates} from "../../hexMap/convertCoord
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
@@ -46,7 +46,7 @@ describe('BattlePhaseController', () => {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
                 },
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             actions: [],
@@ -74,7 +74,7 @@ describe('BattlePhaseController', () => {
                         mapIconResourceKey: "",
                         actionSpritesByEmotion: {},
                     },
-                    traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                    traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
                 actions: [],

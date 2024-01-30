@@ -5,15 +5,15 @@ import {
 } from "../history/squaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {
     CurrentlySelectedSquaddieDecision,
     CurrentlySelectedSquaddieDecisionService
 } from "../history/currentlySelectedSquaddieDecision";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -32,8 +32,8 @@ import {ActionTimer} from "./actionAnimation/actionTimer";
 import {BattleStateService} from "../orchestrator/battleState";
 
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {DecisionService} from "../../decision/decision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
@@ -45,8 +45,8 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
-    let longswordAction: ActionEffectSquaddieTemplate;
-    let powerAttackLongswordAction: ActionEffectSquaddieTemplate;
+    let longswordAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let powerAttackLongswordAction: TODODELETEMEActionEffectSquaddieTemplate;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
     let oneActionInstruction: SquaddieDecisionsDuringThisPhase;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -69,10 +69,10 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleId: thiefDynamicId,
         }));
 
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(
+            traits: TraitStatusStorageService.newUsingTraitValues(
                 {
                     [Trait.ATTACK]: true,
                     [Trait.TARGET_ARMOR]: true,

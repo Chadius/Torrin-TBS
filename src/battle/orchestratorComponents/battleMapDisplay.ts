@@ -16,7 +16,7 @@ import {RectAreaService} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
-import {ActionEffectType} from "../../decision/actionEffect";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {isValidValue} from "../../utils/validityCheck";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
@@ -164,7 +164,7 @@ const getCurrentlyMovingBattleSquaddieIds = (state: GameEngineState) => {
     }
 
     let battleSquaddieIdsToOmit: string[] = [];
-    if (nextActionEffect.type === ActionEffectType.MOVEMENT) {
+    if (nextActionEffect.type === TODODELETEMEActionEffectType.MOVEMENT) {
         battleSquaddieIdsToOmit.push(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId);
     }
 

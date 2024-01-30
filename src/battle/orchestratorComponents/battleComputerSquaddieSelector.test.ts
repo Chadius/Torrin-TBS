@@ -23,17 +23,17 @@ import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {BattleEvent} from "../history/battleEvent";
 import * as determineNextInstruction from "../teamStrategy/determineNextDecision";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {
     CurrentlySelectedSquaddieDecision,
     CurrentlySelectedSquaddieDecisionService
 } from "../history/currentlySelectedSquaddieDecision";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
-import {ActionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {TODODELETEMEactionEffectSquaddie, ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {
     BattleComputerSquaddieSelector,
     SHOW_SELECTED_ACTION_TIME,
@@ -42,15 +42,15 @@ import {
 import {DamageType, GetHitPoints, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {BattlePhaseState} from "./battlePhaseController";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {ActionEffectType} from "../../decision/actionEffect";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TeamStrategyType} from "../teamStrategy/teamStrategy";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovement, ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {TODODELETEMEactionEffectMovement, ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
@@ -63,12 +63,12 @@ describe('BattleComputerSquaddieSelector', () => {
     let enemyDemonTemplate: SquaddieTemplate;
     let enemyDemonBattleSquaddie: BattleSquaddie;
     let enemyDemonBattleSquaddie2: BattleSquaddie;
-    let demonBiteAction: ActionEffectSquaddieTemplate;
-    let entireTurnDemonBiteAction: ActionEffectSquaddieTemplate;
+    let demonBiteAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let entireTurnDemonBiteAction: TODODELETEMEActionEffectSquaddieTemplate;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     let battlePhaseState: BattlePhaseState;
     let teams: BattleSquaddieTeam[];
-    let actionEffectMovement: ActionEffectMovement;
+    let actionEffectMovement: TODODELETEMEactionEffectMovement;
 
     beforeEach(() => {
         selector = new BattleComputerSquaddieSelector();
@@ -92,10 +92,10 @@ describe('BattleComputerSquaddieSelector', () => {
                 iconResourceKey: "icon_enemy_team",
             };
 
-        demonBiteAction = ActionEffectSquaddieTemplateService.new({
+        demonBiteAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.TARGET_ARMOR]: true,
                 [Trait.ALWAYS_SUCCEEDS]: true,
@@ -109,10 +109,10 @@ describe('BattleComputerSquaddieSelector', () => {
             },
         });
 
-        entireTurnDemonBiteAction = ActionEffectSquaddieTemplateService.new({
+        entireTurnDemonBiteAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "demon bite",
             id: "demon_bite",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(
+            traits: TraitStatusStorageService.newUsingTraitValues(
                 {
                     [Trait.ATTACK]: true,
                     [Trait.TARGET_ARMOR]: true,
@@ -322,7 +322,7 @@ describe('BattleComputerSquaddieSelector', () => {
                     currentlySelectedDecision: undefined,
                 });
 
-            expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+            expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(TODODELETEMEActionEffectType.END_TURN);
 
             const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
             expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
@@ -378,7 +378,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
                 const endTurnActionInstruction: SquaddieDecisionsDuringThisPhase = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase;
                 const mostRecentDecision = SquaddieActionsForThisRoundService.getMostRecentDecision(endTurnActionInstruction);
-                expect(mostRecentDecision.actionEffects[0].type).toBe(ActionEffectType.END_TURN);
+                expect(mostRecentDecision.actionEffects[0].type).toBe(TODODELETEMEActionEffectType.END_TURN);
 
                 const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
                 expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
@@ -534,7 +534,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
             expect(CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe("enemy_demon_0");
             expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
-            expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(ActionEffectType.MOVEMENT);
+            expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(TODODELETEMEActionEffectType.MOVEMENT);
 
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeTruthy();
             expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(actionEffectMovement);
@@ -544,7 +544,7 @@ describe('BattleComputerSquaddieSelector', () => {
 
         describe('computer controlled squaddie acts', () => {
             let state: GameEngineState;
-            let squaddieActionEffect: ActionEffectSquaddie;
+            let squaddieActionEffect: TODODELETEMEactionEffectSquaddie;
 
             beforeEach(() => {
                 squaddieActionEffect = ActionEffectSquaddieService.new({
@@ -593,7 +593,7 @@ describe('BattleComputerSquaddieSelector', () => {
             it('will indicate the next action', () => {
                 expect(CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(enemyDemonBattleSquaddie.battleSquaddieId);
                 expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
-                expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(ActionEffectType.SQUADDIE);
+                expect(SquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(TODODELETEMEActionEffectType.SQUADDIE);
             });
 
             it('highlight the map target and its spread', () => {
@@ -651,7 +651,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 const mostRecentEvent: BattleEvent = state.battleOrchestratorState.battleState.recording.history[0];
                 expect(mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
                 expect((
-                    mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as ActionEffectSquaddie
+                    mostRecentEvent.instruction.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0] as TODODELETEMEactionEffectSquaddie
                 ).template.id).toBe(demonBiteAction.id);
                 const results = mostRecentEvent.results;
                 expect(results.actingBattleSquaddieId).toBe(enemyDemonBattleSquaddie.battleSquaddieId);

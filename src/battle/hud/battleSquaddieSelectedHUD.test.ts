@@ -7,9 +7,9 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
@@ -25,15 +25,15 @@ import {ButtonStatus} from "../../ui/button";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {ActionEffectType} from "../../decision/actionEffect";
-import {TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {isValidValue} from "../../utils/validityCheck";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
@@ -54,7 +54,7 @@ describe('BattleSquaddieSelectedHUD', () => {
     let player2SquaddieDynamicId: string = "player_squaddie_2";
     let player2SquaddieStatic: SquaddieTemplate;
     let player2SquaddieDynamic: BattleSquaddie;
-    let longswordAction: ActionEffectSquaddieTemplate;
+    let longswordAction: TODODELETEMEActionEffectSquaddieTemplate;
     let warnUserNotEnoughActionPointsToPerformActionSpy: jest.SpyInstance;
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
 
@@ -71,10 +71,10 @@ describe('BattleSquaddieSelectedHUD', () => {
         resourceHandler.areAllResourcesLoaded = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
         resourceHandler.getResource = jest.fn().mockReturnValue(makeResult({width: 1, height: 1}));
 
-        longswordAction = ActionEffectSquaddieTemplateService.new({
+        longswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             name: "longsword",
             id: "longsword",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+            traits: TraitStatusStorageService.newUsingTraitValues(),
             actionPointCost: 1,
             minimumRange: 0,
             maximumRange: 1,
@@ -312,7 +312,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeTruthy();
         expect(hud.getSelectedAction()).toEqual({
-            type: ActionEffectType.END_TURN,
+            type: TODODELETEMEActionEffectType.END_TURN,
         });
 
         hud.reset();
@@ -353,11 +353,11 @@ describe('BattleSquaddieSelectedHUD', () => {
     });
 
     it('will warn the user if the squaddie does not have enough actions to perform the action', () => {
-        let notEnoughActionPointsAction: ActionEffectSquaddieTemplate;
-        notEnoughActionPointsAction = ActionEffectSquaddieTemplateService.new({
+        let notEnoughActionPointsAction: TODODELETEMEActionEffectSquaddieTemplate;
+        notEnoughActionPointsAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
                 name: "not enough actions",
                 id: "not enough actions",
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 actionPointCost: 9001,
                 minimumRange: 0,
                 maximumRange: 1,
@@ -420,10 +420,10 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentlySelectedDecision: DecisionService.new({
                                 actionEffects: [
                                     ActionEffectSquaddieService.new({
-                                        template: ActionEffectSquaddieTemplateService.new({
+                                        template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                                             name: "purifying stream",
                                             id: "purifying_stream",
-                                            traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                                            traits: TraitStatusStorageService.newUsingTraitValues(),
                                         }),
                                         targetLocation: {q: 0, r: 0},
                                         numberOfActionPointsSpent: 1,

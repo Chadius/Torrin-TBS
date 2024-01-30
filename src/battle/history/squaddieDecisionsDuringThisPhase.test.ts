@@ -1,41 +1,41 @@
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
 import {DamageType} from "../../squaddie/squaddieService";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
-import {ActionEffectType} from "../../decision/actionEffect";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
-import {ActionEffectMovement, ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {DecisionService} from "../../decision/decision";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {TODODELETEMEactionEffectMovement, ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 
 describe('squaddie decisions for this phase', () => {
-    let attackActionEffectTemplate: ActionEffectSquaddieTemplate;
-    let notAnAttackActionEffectTemplate: ActionEffectSquaddieTemplate;
-    let attackActionEffectTemplateWithoutMAP: ActionEffectSquaddieTemplate;
+    let attackActionEffectTemplate: TODODELETEMEActionEffectSquaddieTemplate;
+    let notAnAttackActionEffectTemplate: TODODELETEMEActionEffectSquaddieTemplate;
+    let attackActionEffectTemplateWithoutMAP: TODODELETEMEActionEffectSquaddieTemplate;
 
     beforeEach(() => {
-        attackActionEffectTemplate = ActionEffectSquaddieTemplateService.new({
+        attackActionEffectTemplate = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "attackAction",
             name: "Attack Action",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
             })
         });
-        notAnAttackActionEffectTemplate = ActionEffectSquaddieTemplateService.new({
+        notAnAttackActionEffectTemplate = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "notAnAttackAction",
             name: "Not An Attack Action",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: false,
             })
         });
-        attackActionEffectTemplateWithoutMAP = ActionEffectSquaddieTemplateService.new({
+        attackActionEffectTemplateWithoutMAP = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "attackActionWithoutMAP",
             name: "Attack Action without MAP",
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 [Trait.ATTACK]: true,
                 [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
             })
@@ -43,7 +43,7 @@ describe('squaddie decisions for this phase', () => {
     });
 
     it('can create new object from squaddie data', () => {
-        const squaddieActionData: ActionEffectSquaddieTemplate = {
+        const squaddieActionData: TODODELETEMEActionEffectSquaddieTemplate = {
             id: "attackId",
             name: "cool attack",
             minimumRange: 0,
@@ -145,8 +145,8 @@ describe('squaddie decisions for this phase', () => {
         const actionsAfterOneMovement = instruction.decisions;
         expect(actionsAfterOneMovement).toHaveLength(1);
 
-        expect(actionsAfterOneMovement[0].actionEffects[0].type).toBe(ActionEffectType.MOVEMENT);
-        const moveAction: ActionEffectMovement = actionsAfterOneMovement[0].actionEffects[0] as ActionEffectMovement;
+        expect(actionsAfterOneMovement[0].actionEffects[0].type).toBe(TODODELETEMEActionEffectType.MOVEMENT);
+        const moveAction: TODODELETEMEactionEffectMovement = actionsAfterOneMovement[0].actionEffects[0] as TODODELETEMEactionEffectMovement;
         expect(moveAction.destination).toStrictEqual({q: 1, r: 2});
         expect(moveAction.numberOfActionPointsSpent).toBe(2);
 

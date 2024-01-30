@@ -1,13 +1,13 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {MULTIPLE_ATTACK_PENALTY} from "../modifierConstants";
 import {isValidValue} from "../../utils/validityCheck";
-import {Decision, DecisionService} from "../../decision/decision";
+import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
 
 export interface SquaddieDecisionsDuringThisPhase {
     squaddieTemplateId: string;
     battleSquaddieId: string;
     startingLocation: HexCoordinate;
-    decisions: Decision[];
+    decisions: TODODELETEMEdecision[];
 }
 
 export const SquaddieActionsForThisRoundService = {
@@ -20,7 +20,7 @@ export const SquaddieActionsForThisRoundService = {
         squaddieTemplateId: string,
         battleSquaddieId: string,
         startingLocation: HexCoordinate,
-        decisions?: Decision[],
+        decisions?: TODODELETEMEdecision[],
     }): SquaddieDecisionsDuringThisPhase => {
         return sanitize({
             squaddieTemplateId,
@@ -43,11 +43,11 @@ export const SquaddieActionsForThisRoundService = {
             return sanitize(data);
         },
     addDecision:
-        (data: SquaddieDecisionsDuringThisPhase, decision: Decision) => {
+        (data: SquaddieDecisionsDuringThisPhase, decision: TODODELETEMEdecision) => {
             data.decisions.push(decision);
         },
     getMostRecentDecision:
-        (data: SquaddieDecisionsDuringThisPhase): Decision => {
+        (data: SquaddieDecisionsDuringThisPhase): TODODELETEMEdecision => {
             if (data.decisions.length === 0) {
                 return undefined;
             }
@@ -70,7 +70,7 @@ export const SquaddieActionsForThisRoundService = {
             return calculateMultipleAttackPenalty(actionsForThisRound, undefined);
         },
     previewMultipleAttackPenalty:
-        (actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: Decision): {
+        (actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: TODODELETEMEdecision): {
             penaltyMultiplier: number,
             multipleAttackPenalty: number,
         } => {
@@ -82,10 +82,10 @@ export const SquaddieActionsForThisRoundService = {
     }
 }
 
-function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: Decision) {
+function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: TODODELETEMEdecision) {
     let multipleAttackPenaltyMultiplier =
         actionsForThisRound.decisions.reduce(
-            (accumulator: number, decision: Decision): number => {
+            (accumulator: number, decision: TODODELETEMEdecision): number => {
                 return accumulator + DecisionService.multipleAttackPenaltyMultiplier(decision)
             },
             0

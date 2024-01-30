@@ -8,11 +8,11 @@ import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {SquaddieSprite} from "./squaddieSprite";
 import {CreateNewSquaddieMovementWithTraits} from "../../../squaddie/movement";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
-import {TraitStatusStorageHelper} from "../../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 
 describe('Actor Sprite', () => {
     let squaddieRepository: ObjectRepository;
@@ -20,8 +20,8 @@ describe('Actor Sprite', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
     const battleSquaddieId = "actor0";
 
-    let hinderingAction: ActionEffectSquaddieTemplate;
-    let helpfulAction: ActionEffectSquaddieTemplate;
+    let hinderingAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let helpfulAction: TODODELETEMEActionEffectSquaddieTemplate;
 
     beforeEach(() => {
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
@@ -44,24 +44,24 @@ describe('Actor Sprite', () => {
         timer.start();
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
 
-        hinderingAction = ActionEffectSquaddieTemplateService.new({
+        hinderingAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "hindering",
             name: "hindering",
             damageDescriptions: {
                 [DamageType.BODY]: 1,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 ATTACK: true
             }),
         });
 
-        helpfulAction = ActionEffectSquaddieTemplateService.new({
+        helpfulAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "helping",
             name: "helping",
             healingDescriptions: {
                 [HealingType.LOST_HIT_POINTS]: 1,
             },
-            traits: TraitStatusStorageHelper.newUsingTraitValues({
+            traits: TraitStatusStorageService.newUsingTraitValues({
                 HEALING: true
             }),
         });
@@ -149,7 +149,7 @@ describe('Actor Sprite', () => {
     describe('should keep the same emotion in DURING_ACTION, TARGET_REACTS, SHOWING_RESULTS and FINISHED_SHOWING_RESULTS', () => {
         let mapping: {
             [name: string]: {
-                action: ActionEffectSquaddieTemplate
+                action: TODODELETEMEActionEffectSquaddieTemplate
             }
         };
 

@@ -1,13 +1,13 @@
-import {Trait, TraitCategory, TraitStatusStorage, TraitStatusStorageHelper} from "./traitStatusStorage";
+import {Trait, TraitCategory, TraitStatusStorage, TraitStatusStorageService} from "./traitStatusStorage";
 
 describe('Trait Status Storage', () => {
     let storage: TraitStatusStorage;
     beforeEach(() => {
-        storage = TraitStatusStorageHelper.newUsingTraitValues();
+        storage = TraitStatusStorageService.newUsingTraitValues();
     })
     it('should be able to create and store a value', () => {
-        TraitStatusStorageHelper.setStatus(storage, Trait.ATTACK, true);
-        expect(TraitStatusStorageHelper.getStatus(storage, Trait.ATTACK)).toBe(true);
+        TraitStatusStorageService.setStatus(storage, Trait.ATTACK, true);
+        expect(TraitStatusStorageService.getStatus(storage, Trait.ATTACK)).toBe(true);
     })
     it('can be created using data objects', () => {
         const data: TraitStatusStorage = {
@@ -16,19 +16,19 @@ describe('Trait Status Storage', () => {
                 [Trait.SKIP_ANIMATION]: false,
             }
         };
-        const traitStorageFromData: TraitStatusStorage = TraitStatusStorageHelper.clone(data);
-        expect(TraitStatusStorageHelper.getStatus(traitStorageFromData, Trait.ATTACK)).toBe(true);
-        expect(TraitStatusStorageHelper.getStatus(traitStorageFromData, Trait.HUMANOID)).toBeUndefined();
-        expect(TraitStatusStorageHelper.getStatus(traitStorageFromData, Trait.SKIP_ANIMATION)).toBe(false);
+        const traitStorageFromData: TraitStatusStorage = TraitStatusStorageService.clone(data);
+        expect(TraitStatusStorageService.getStatus(traitStorageFromData, Trait.ATTACK)).toBe(true);
+        expect(TraitStatusStorageService.getStatus(traitStorageFromData, Trait.HUMANOID)).toBeUndefined();
+        expect(TraitStatusStorageService.getStatus(traitStorageFromData, Trait.SKIP_ANIMATION)).toBe(false);
     });
     it('can filter traits by type', () => {
-        const constructedStorage: TraitStatusStorage = TraitStatusStorageHelper.newUsingTraitValues({
+        const constructedStorage: TraitStatusStorage = TraitStatusStorageService.newUsingTraitValues({
             [Trait.ATTACK]: true,
             [Trait.HUMANOID]: true,
         });
-        const storageWithCreatureTraits: TraitStatusStorage = TraitStatusStorageHelper.filterCategory(constructedStorage, TraitCategory.CREATURE);
+        const storageWithCreatureTraits: TraitStatusStorage = TraitStatusStorageService.filterCategory(constructedStorage, TraitCategory.CREATURE);
 
-        expect(TraitStatusStorageHelper.getStatus(storageWithCreatureTraits, Trait.ATTACK)).toBeUndefined();
-        expect(TraitStatusStorageHelper.getStatus(storageWithCreatureTraits, Trait.HUMANOID)).toBe(true);
+        expect(TraitStatusStorageService.getStatus(storageWithCreatureTraits, Trait.ATTACK)).toBeUndefined();
+        expect(TraitStatusStorageService.getStatus(storageWithCreatureTraits, Trait.HUMANOID)).toBe(true);
     });
 });

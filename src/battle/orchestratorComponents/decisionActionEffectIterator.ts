@@ -1,15 +1,15 @@
-import {Decision} from "../../decision/decision";
-import {ActionEffect} from "../../decision/actionEffect";
+import {TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
+import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
 import {isValidValue} from "../../utils/validityCheck";
 
 export interface DecisionActionEffectIterator {
-    decision: Decision;
+    decision: TODODELETEMEdecision;
     actionEffectIndex: number;
 }
 
 export const DecisionActionEffectIteratorService = {
     new: ({decision, actionEffectIndex}: {
-        decision: Decision,
+        decision: TODODELETEMEdecision,
         actionEffectIndex?: number
     }): DecisionActionEffectIterator => {
         return sanitize({
@@ -20,7 +20,7 @@ export const DecisionActionEffectIteratorService = {
     sanitize: (state: DecisionActionEffectIterator): DecisionActionEffectIterator => {
         return sanitize(state);
     },
-    nextActionEffect: (state: DecisionActionEffectIterator): ActionEffect | undefined => {
+    nextActionEffect: (state: DecisionActionEffectIterator): TODODELETEMEactionEffect | undefined => {
         if (
             actionEffectIndexIsOutOfBounds(state)
         ) {
@@ -32,7 +32,7 @@ export const DecisionActionEffectIteratorService = {
         state.actionEffectIndex += 1;
         return nextActionEffect;
     },
-    peekActionEffect: (state: DecisionActionEffectIterator): ActionEffect | undefined => {
+    peekActionEffect: (state: DecisionActionEffectIterator): TODODELETEMEactionEffect | undefined => {
         if (actionEffectIndexIsOutOfBounds(state)) {
             return undefined;
         }

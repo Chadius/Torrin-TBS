@@ -9,7 +9,7 @@ import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchR
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {isValidValue} from "../../utils/validityCheck";
@@ -193,7 +193,7 @@ const addAttackRangeOntoMovementRange = (
                     startLocations: [coordinate],
                     canStopOnSquaddies: true,
                     canPassOverPits: true,
-                    canPassThroughWalls: TraitStatusStorageHelper.getStatus(action.traits, Trait.PASS_THROUGH_WALLS),
+                    canPassThroughWalls: TraitStatusStorageService.getStatus(action.traits, Trait.PASS_THROUGH_WALLS),
                     minimumDistanceMoved: action.minimumRange,
                     maximumDistanceMoved: action.maximumRange,
                     squaddieAffiliation: SquaddieAffiliation.UNKNOWN,

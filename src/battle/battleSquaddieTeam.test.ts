@@ -3,7 +3,7 @@ import {ObjectRepository, ObjectRepositoryService} from "./objectRepository";
 import {BattleSquaddie, BattleSquaddieService} from "./battleSquaddie";
 import {BattleSquaddieTeam, BattleSquaddieTeamService} from "./BattleSquaddieTeam";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
-import {TraitStatusStorageHelper} from "../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../squaddie/armyAttributes";
 
 describe('Battle Squaddie Team', () => {
@@ -35,7 +35,7 @@ describe('Battle Squaddie Team', () => {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
                 },
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
@@ -82,7 +82,7 @@ describe('Battle Squaddie Team', () => {
                     mapIconResourceKey: "",
                     actionSpritesByEmotion: {},
                 },
-                traits: TraitStatusStorageHelper.newUsingTraitValues(),
+                traits: TraitStatusStorageService.newUsingTraitValues(),
                 affiliation: SquaddieAffiliation.ENEMY,
             },
             actions: [],

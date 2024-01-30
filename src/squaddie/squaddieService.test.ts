@@ -17,8 +17,8 @@ import {
 import {DefaultArmyAttributes} from "./armyAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {SquaddieTurnService} from "./turn";
-import {Decision, DecisionService} from "../decision/decision";
-import {ActionEffectMovementService} from "../decision/actionEffectMovement";
+import {TODODELETEMEdecision, DecisionService} from "../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../decision/TODODELETEMEactionEffectMovement";
 import {CurrentlySelectedSquaddieDecisionService} from "../battle/history/currentlySelectedSquaddieDecision";
 import {SquaddieActionsForThisRoundService} from "../battle/history/squaddieDecisionsDuringThisPhase";
 
@@ -321,7 +321,7 @@ describe('Squaddie Service', () => {
     });
 
     describe('Is the Squaddies taking their turn', () => {
-        let moveDecision: Decision;
+        let moveDecision: TODODELETEMEdecision;
 
         beforeEach(() => {
             moveDecision = DecisionService.new({

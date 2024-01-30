@@ -1,15 +1,15 @@
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../../decision/actionEffectSquaddieTemplate";
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Recording, RecordingService} from "../history/recording";
 import {ANIMATE_TEXT_WINDOW_WAIT_TIME, SquaddieSkipsAnimationAnimator} from "./squaddieSkipsAnimationAnimator";
-import {Trait, TraitStatusStorageHelper} from "../../trait/traitStatusStorage";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleEvent} from "../history/battleEvent";
@@ -29,8 +29,8 @@ import {
 import {LabelHelper} from "../../ui/label";
 import * as ActionResultTextService from "./actionResultTextService";
 import {BattleStateService} from "../orchestrator/battleState";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {DecisionService} from "../../decision/decision";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
@@ -39,7 +39,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
     let squaddieRepository: ObjectRepository;
     let monkStaticId = "monk static";
     let monkDynamicId = "monk dynamic";
-    let monkKoanAction: ActionEffectSquaddieTemplate;
+    let monkKoanAction: TODODELETEMEActionEffectSquaddieTemplate;
     let monkMeditatesEvent: BattleEvent;
     let monkMeditatesInstruction: CurrentlySelectedSquaddieDecision;
 
@@ -52,10 +52,10 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         mockResourceHandler = mocks.mockResourceHandler();
         mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-        monkKoanAction = ActionEffectSquaddieTemplateService.new({
+        monkKoanAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
             id: "koan",
             name: "koan",
-            traits: TraitStatusStorageHelper.newUsingTraitValues(
+            traits: TraitStatusStorageService.newUsingTraitValues(
                 {
                     [Trait.SKIP_ANIMATION]: true
                 }

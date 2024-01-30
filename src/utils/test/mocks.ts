@@ -6,7 +6,7 @@ import {BattleSquaddieSelectedHUD} from "../../battle/hud/battleSquaddieSelected
 import {RectAreaService} from "../../ui/rectArea";
 import {GraphicImage, GraphicsContext} from "../graphics/graphicsContext";
 import {makeResult} from "../ResultOrError";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 
 jest.mock('p5', () => () => {
     return {
@@ -68,7 +68,7 @@ export const mockResourceHandler = () => {
 export const battleSquaddieSelectedHUD = () => {
     const hud = new (<new (options: any) => BattleSquaddieSelectedHUD>BattleSquaddieSelectedHUD)({}) as jest.Mocked<BattleSquaddieSelectedHUD>;
     hud.draw = jest.fn();
-    hud.getSelectedAction = jest.fn().mockReturnValue(ActionEffectSquaddieTemplateService.new({
+    hud.getSelectedAction = jest.fn().mockReturnValue(TODODELETEMEActionEffectSquaddieTemplateService.new({
         id: "do nothing",
         name: "do nothing",
     }));

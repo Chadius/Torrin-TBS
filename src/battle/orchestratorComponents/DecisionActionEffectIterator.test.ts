@@ -1,12 +1,12 @@
-import {Decision, DecisionService} from "../../decision/decision";
-import {ActionEffectMovementService} from "../../decision/actionEffectMovement";
-import {ActionEffectSquaddieService} from "../../decision/actionEffectSquaddie";
-import {ActionEffectSquaddieTemplateService} from "../../decision/actionEffectSquaddieTemplate";
-import {ActionEffectEndTurnService} from "../../decision/actionEffectEndTurn";
+import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {DecisionActionEffectIterator, DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 
 describe('DecisionAnimationState', () => {
-    let chargeDecision: Decision;
+    let chargeDecision: TODODELETEMEdecision;
 
     beforeEach(() => {
         chargeDecision = DecisionService.new({
@@ -18,7 +18,7 @@ describe('DecisionAnimationState', () => {
                 ActionEffectSquaddieService.new({
                     numberOfActionPointsSpent: 1,
                     targetLocation: {q: 1, r: 0},
-                    template: ActionEffectSquaddieTemplateService.new({
+                    template: TODODELETEMEActionEffectSquaddieTemplateService.new({
                         id: "lance",
                         name: "lance charge",
                     })

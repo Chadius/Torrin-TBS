@@ -1,4 +1,4 @@
-import {ActionEffectSquaddieTemplate} from "../../decision/actionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
@@ -48,7 +48,7 @@ export const FindValidTargets = ({
                                      sourceTiles,
                                  }: {
     map: MissionMap,
-    action: ActionEffectSquaddieTemplate,
+    action: TODODELETEMEActionEffectSquaddieTemplate,
     actingSquaddieTemplate: SquaddieTemplate,
     actingBattleSquaddie: BattleSquaddie,
     squaddieRepository: ObjectRepository,
