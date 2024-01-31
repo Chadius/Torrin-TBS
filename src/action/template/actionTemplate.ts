@@ -1,5 +1,6 @@
-import {ActionEffectTemplate} from "./actionEffectTemplate";
+import {ActionEffectTemplate, ActionEffectType} from "./actionEffectTemplate";
 import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 
 export interface ActionTemplate {
     id: string;
@@ -22,6 +23,25 @@ export const ActionTemplateService = {
             name,
             actionEffectTemplates,
         })
+    },
+    multipleAttackPenaltyMultiplier: (actionTemplate: ActionTemplate): number => {
+        const getMAPFromActionEffectTemplate = (accumulator: number, actionEffect: ActionEffectTemplate): number => {
+            if (actionEffect.type !== ActionEffectType.SQUADDIE) {
+                return accumulator;
+            }
+
+            if (TraitStatusStorageService.getStatus(actionEffect.traits, Trait.ATTACK) !== true) {
+                return accumulator;
+            }
+
+            const map = TraitStatusStorageService.getStatus(actionEffect.traits, Trait.NO_MULTIPLE_ATTACK_PENALTY) ? 0 : 1;
+            return accumulator + map;
+        }
+
+        return actionTemplate.actionEffectTemplates.reduce(
+            getMAPFromActionEffectTemplate,
+            0
+        );
     }
 }
 

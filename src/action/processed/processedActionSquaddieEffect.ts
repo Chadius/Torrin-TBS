@@ -1,5 +1,5 @@
 import {ActionEffectType} from "../template/actionEffectTemplate";
-import {DecidedActionSquaddieEffect} from "../decided/decidedActionSquaddieEffect";
+import {DecidedActionSquaddieEffect, DecidedActionSquaddieEffectService} from "../decided/decidedActionSquaddieEffect";
 import {ActionResultPerSquaddie} from "../../battle/history/actionResultPerSquaddie";
 
 export interface ProcessedActionSquaddieEffect {
@@ -18,6 +18,9 @@ export const ProcessedActionSquaddieEffectService = {
             decidedActionEffect,
             results
         });
+    },
+    getMultipleAttackPenalty: (actionSquaddieEffect: ProcessedActionSquaddieEffect): number => {
+        return DecidedActionSquaddieEffectService.getMultipleAttackPenalty(actionSquaddieEffect.decidedActionEffect);
     }
 }
 

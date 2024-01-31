@@ -4,6 +4,8 @@ import {DecidedActionSquaddieEffectService} from "./decidedActionSquaddieEffect"
 import {ActionEffectType} from "../template/actionEffectTemplate";
 import {DecidedActionMovementEffectService} from "./decidedActionMovementEffect";
 import {DecidedActionEndTurnEffectService} from "./decidedActionEndTurnEffect";
+import {ProcessedActionEffect} from "../processed/processedActionEffect";
+import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 
 export interface DecidedAction {
     actionPointCost: number;
@@ -45,6 +47,20 @@ export const DecidedActionService = {
             case ActionEffectType.END_TURN:
                 return DecidedActionEndTurnEffectService.areDecisionsRequired(mostRecentDecidedActionEffect);
         }
+    },
+    getMultipleAttackPenalty: (decidedAction: DecidedAction): number => {
+        const getMAPFromDecidedActionEffect = (accumulator: number, decidedActionEffect: DecidedActionEffect): number => {
+            if (decidedActionEffect.type !== ActionEffectType.SQUADDIE) {
+                return accumulator;
+            }
+
+            return accumulator + DecidedActionSquaddieEffectService.getMultipleAttackPenalty(decidedActionEffect);
+        }
+
+        return decidedAction.actionEffects.reduce(
+            getMAPFromDecidedActionEffect,
+            0
+        );
     }
 }
 

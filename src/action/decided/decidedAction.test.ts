@@ -5,6 +5,7 @@ import {DecidedActionMovementEffectService} from "./decidedActionMovementEffect"
 import {ActionEffectMovementTemplateService} from "../template/actionEffectMovementTemplate";
 import {DecidedActionSquaddieEffectService} from "./decidedActionSquaddieEffect";
 import {ActionEffectSquaddieTemplateService} from "../template/actionEffectSquaddieTemplate";
+import {Trait} from "../../trait/traitStatusStorage";
 
 describe('DecidedAction', () => {
     it('can be constructed using given values', () => {
@@ -132,4 +133,73 @@ describe('DecidedAction', () => {
             expect(DecidedActionService.areDecisionsRequired(decidedAction)).toBeTruthy();
         });
     })
+    describe('multiple attack penalty', () => {
+        it('does contribute by default if it has an attack', () => {
+            const attack = DecidedActionService.new({
+                battleSquaddieId: "soldier",
+                actionTemplateName: "Sword",
+                actionEffects: [
+                    DecidedActionMovementEffectService.new({
+                        template: ActionEffectMovementTemplateService.new({}),
+                        destination: {q: 0, r: 0},
+                    }),
+                    DecidedActionSquaddieEffectService.new({
+                        template: ActionEffectSquaddieTemplateService.new({
+                            traits: {booleanTraits: {[Trait.ATTACK]: true}},
+                        })
+                    }),
+                    DecidedActionEndTurnEffectService.new({
+                        template: ActionEffectEndTurnTemplateService.new({}),
+                    }),
+                ]
+            });
+
+            expect(DecidedActionService.getMultipleAttackPenalty(attack)).toEqual(1);
+        });
+        it('does not contribute if is not an attack', () => {
+            const heal = DecidedActionService.new({
+                battleSquaddieId: "soldier",
+                actionTemplateName: "Sword",
+                actionEffects: [
+                    DecidedActionMovementEffectService.new({
+                        template: ActionEffectMovementTemplateService.new({}),
+                        destination: {q: 0, r: 0},
+                    }),
+                    DecidedActionSquaddieEffectService.new({
+                        template: ActionEffectSquaddieTemplateService.new({})
+                    }),
+                    DecidedActionEndTurnEffectService.new({
+                        template: ActionEffectEndTurnTemplateService.new({}),
+                    }),
+                ]
+            });
+            expect(DecidedActionService.getMultipleAttackPenalty(heal)).toEqual(0);
+        });
+        it('does not contribute if the trait says it does not', () => {
+            const quickAttack = DecidedActionService.new({
+                battleSquaddieId: "soldier",
+                actionTemplateName: "Sword",
+                actionEffects: [
+                    DecidedActionMovementEffectService.new({
+                        template: ActionEffectMovementTemplateService.new({}),
+                        destination: {q: 0, r: 0},
+                    }),
+                    DecidedActionSquaddieEffectService.new({
+                        template: ActionEffectSquaddieTemplateService.new({
+                            traits: {
+                                booleanTraits: {
+                                    [Trait.ATTACK]: true,
+                                    [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
+                                }
+                            },
+                        })
+                    }),
+                    DecidedActionEndTurnEffectService.new({
+                        template: ActionEffectEndTurnTemplateService.new({}),
+                    }),
+                ]
+            });
+            expect(DecidedActionService.getMultipleAttackPenalty(quickAttack)).toEqual(0);
+        });
+    });
 });

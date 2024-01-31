@@ -1,5 +1,8 @@
 import {ActionEffectType} from "../template/actionEffectTemplate";
-import {ActionEffectSquaddieTemplate} from "../template/actionEffectSquaddieTemplate";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../template/actionEffectSquaddieTemplate";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {isValidValue} from "../../utils/validityCheck";
 
@@ -25,5 +28,8 @@ export const DecidedActionSquaddieEffectService = {
     },
     areDecisionsRequired: (actionEffect: DecidedActionSquaddieEffect): boolean => {
         return !isValidValue(actionEffect.target);
+    },
+    getMultipleAttackPenalty: (decidedActionSquaddieEffect: DecidedActionSquaddieEffect): number => {
+        return ActionEffectSquaddieTemplateService.getMultipleAttackPenalty(decidedActionSquaddieEffect.template);
     }
 }

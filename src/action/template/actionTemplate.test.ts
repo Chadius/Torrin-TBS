@@ -3,6 +3,12 @@ import {ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplat
 import {DamageType} from "../../squaddie/squaddieService";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
+import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
+import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
+import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {ActionEffectMovementTemplateService} from "./actionEffectMovementTemplate";
 
 describe('ActionTemplate', () => {
     it('can create a template with default values without an id', () => {
@@ -44,4 +50,42 @@ describe('ActionTemplate', () => {
 
         expect(throwErrorBecauseOfNoName).toThrowError('cannot sanitize');
     })
+
+    describe('MultipleAttackPenalty', () => {
+        it('cannot contribute if it has no effects', () => {
+            const justMovement = ActionTemplateService.new({
+                name: "Move",
+            });
+            expect(ActionTemplateService.multipleAttackPenaltyMultiplier(justMovement)).toEqual(0);
+        });
+        it('knows if none of its effect templates contribute', () => {
+            const noMAP = ActionTemplateService.new({
+                name: "quick slap",
+                actionEffectTemplates: [
+                    ActionEffectMovementTemplateService.new({}),
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
+                            [Trait.ATTACK]: true,
+                        }),
+                    }),
+                ],
+            });
+            expect(ActionTemplateService.multipleAttackPenaltyMultiplier(noMAP)).toEqual(0);
+        });
+        it('knows if at least one of its effect templates contributes', () => {
+            const withMap = ActionTemplateService.new({
+                name: "sword strike",
+                actionEffectTemplates: [
+                    ActionEffectMovementTemplateService.new({}),
+                    ActionEffectSquaddieTemplateService.new({
+                        traits: TraitStatusStorageService.newUsingTraitValues({
+                            [Trait.ATTACK]: true,
+                        }),
+                    }),
+                ],
+            });
+            expect(ActionTemplateService.multipleAttackPenaltyMultiplier(withMap)).toEqual(1);
+        });
+    });
 });

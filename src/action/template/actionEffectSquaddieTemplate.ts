@@ -56,6 +56,15 @@ export const ActionEffectSquaddieTemplateService = {
     isHindering: (data: ActionEffectSquaddieTemplate): boolean => {
         return TraitStatusStorageService.getStatus(data.traits, Trait.ATTACK);
     },
+    getMultipleAttackPenalty: (template: ActionEffectSquaddieTemplate): number => {
+        if (TraitStatusStorageService.getStatus(template.traits, Trait.ATTACK) !== true) {
+            return 0;
+        }
+
+        return TraitStatusStorageService.getStatus(template.traits, Trait.NO_MULTIPLE_ATTACK_PENALTY)
+            ? 0
+            : 1;
+    }
 }
 
 const sanitize = (data: ActionEffectSquaddieTemplate): ActionEffectSquaddieTemplate => {
