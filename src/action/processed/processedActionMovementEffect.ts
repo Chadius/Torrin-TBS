@@ -4,7 +4,7 @@ import {ActionResultPerSquaddie} from "../../battle/history/actionResultPerSquad
 import {DecidedActionMovementEffect} from "../decided/decidedActionMovementEffect";
 
 export interface ProcessedActionMovementEffect {
-    type: ActionEffectType.SQUADDIE;
+    type: ActionEffectType.MOVEMENT;
     decidedActionEffect: DecidedActionMovementEffect;
 }
 
@@ -13,7 +13,7 @@ export const ProcessedActionMovementEffectService = {
         decidedActionEffect: DecidedActionMovementEffect,
     }): ProcessedActionMovementEffect => {
         return sanitize({
-            type: ActionEffectType.SQUADDIE,
+            type: ActionEffectType.MOVEMENT,
             decidedActionEffect,
         });
     }

@@ -2,9 +2,9 @@ import {DecidedAction} from "../decided/decidedAction";
 import {ProcessedActionEffect} from "./processedActionEffect";
 import {getValidValueOrDefault} from "../../utils/validityCheck";
 import {ActionEffectType} from "../template/actionEffectTemplate";
-import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
-import {ActionEffectSquaddieTemplateService} from "../template/actionEffectSquaddieTemplate";
 import {DecidedActionSquaddieEffectService} from "../decided/decidedActionSquaddieEffect";
+import {MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../../battle/modifierConstants";
+import {ProcessedActionSquaddieEffectService} from "./processedActionSquaddieEffect";
 
 export interface ProcessedAction {
     decidedAction: DecidedAction;
@@ -15,7 +15,7 @@ export const ProcessedActionService = {
     new: ({
               decidedAction,
               processedActionEffects,
-          }:{
+          }: {
         decidedAction: DecidedAction,
         processedActionEffects?: ProcessedActionEffect[]
     }): ProcessedAction => {
@@ -34,12 +34,15 @@ export const ProcessedActionService = {
                 return accumulator;
             }
 
-            return accumulator + DecidedActionSquaddieEffectService.getMultipleAttackPenalty(processedActionEffect.decidedActionEffect);
+            return accumulator + ProcessedActionSquaddieEffectService.getMultipleAttackPenalty(processedActionEffect);
         }
 
-        return processedAction.processedActionEffects.reduce(
-            getMAPFromProcessedActionEffect,
-            0
+        return Math.min(
+            processedAction.processedActionEffects.reduce(
+                getMAPFromProcessedActionEffect,
+                0
+            ),
+            MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX
         );
     }
 }

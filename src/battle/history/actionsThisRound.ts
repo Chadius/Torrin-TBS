@@ -1,8 +1,7 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {ProcessedAction} from "../../action/processed/processedAction";
+import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
 import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
-import {DecisionService} from "../../decision/TODODELETEMEdecision";
-import {ActionTemplateService} from "../../action/template/actionTemplate";
+import {MULTIPLE_ATTACK_PENALTY, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../modifierConstants";
 
 export interface ActionsThisRound {
     battleSquaddieId: string;
@@ -57,35 +56,28 @@ const getMultipleAttackPenaltyForProcessedActions = (actionsForThisRound: Action
     penaltyMultiplier: number,
     multipleAttackPenalty: number,
 } => {
+    let penaltyMultiplier = actionsForThisRound.processedActions.reduce(
+        (accumulator: number, processedAction: ProcessedAction) => {
+            return accumulator + ProcessedActionService.multipleAttackPenaltyMultiplier(processedAction)
+        },
+        0
+    )
+
+    return convertRawPenaltyMultiplier(penaltyMultiplier);
+}
+
+const convertRawPenaltyMultiplier = (penaltyMultiplier: number): {
+    penaltyMultiplier: number,
+    multipleAttackPenalty: number,
+} => {
+    penaltyMultiplier = Math.min(penaltyMultiplier, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX);
+
+    const multipleAttackPenalty = penaltyMultiplier * MULTIPLE_ATTACK_PENALTY === -0
+        ? 0
+        : penaltyMultiplier * MULTIPLE_ATTACK_PENALTY;
+
     return {
-        penaltyMultiplier: 0,
-        multipleAttackPenalty: 0,
+        penaltyMultiplier,
+        multipleAttackPenalty,
     }
-
-    // let multipleAttackPenaltyMultiplier =
-    //     actionsForThisRound.processedActions.reduce(
-    //         (accumulator: number, processedAction: ProcessedAction): number => {
-    //             return accumulator + ActionTemplateService.multipleAttackPenaltyMultiplier()
-    //         },
-    //         0
-    //     );
-
-    // if (isValidValue(decisionToPreview)) {
-    //     multipleAttackPenaltyMultiplier += DecisionService.multipleAttackPenaltyMultiplier(decisionToPreview)
-    // }
-    //
-    // const boundedMultipleAttackPenaltyMultiplier: number = Math.max(
-    //     0,
-    //     Math.min(
-    //         multipleAttackPenaltyMultiplier - 1,
-    //         2
-    //     )
-    // );
-    //
-    // return {
-    //     penaltyMultiplier: boundedMultipleAttackPenaltyMultiplier,
-    //     multipleAttackPenalty: boundedMultipleAttackPenaltyMultiplier === 0
-    //         ? 0
-    //         : boundedMultipleAttackPenaltyMultiplier * MULTIPLE_ATTACK_PENALTY
-    // }
 }
