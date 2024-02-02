@@ -1,28 +1,28 @@
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
+    TODODELETEMESquaddieActionsForThisRoundService,
+    TODODELETEMESquaddieDecisionsDuringThisPhase
+} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
 import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
-import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
-import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
@@ -57,7 +57,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
     });
 
     it('can wait half a second before ending turn', () => {
-        const endTurnInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const endTurnInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "static_squaddie",
             battleSquaddieId: "dynamic_squaddie",
             startingLocation: {q: 0, r: 0},
@@ -80,7 +80,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 battleSquaddieSelectedHUD: undefined,
                 battleState: BattleStateService.newBattleState({
                     missionId: "test mission",
-                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                    squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: endTurnInstruction,
 
                     }),
@@ -119,20 +119,20 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 numberOfActionPointsSpent: 2,
             });
 
-            squaddieActionEffect = ActionEffectSquaddieService.new({
-                targetLocation: {q: 0, r: 2},
-                numberOfActionPointsSpent: 1,
-                template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-                    id: "shout",
-                    name: "shout"
-                })
-            });
+            // squaddieActionEffect = ActionEffectSquaddieService.new({
+            //     targetLocation: {q: 0, r: 2},
+            //     numberOfActionPointsSpent: 1,
+            //     template: TODODELETEMEActionEffectSquaddieTemplateService.new({
+            //         id: "shout",
+            //         name: "shout"
+            //     })
+            // });
 
             endTurnActionEffect = ActionEffectEndTurnService.new();
         });
 
         const setupStateWithDecisions = (decision: TODODELETEMEdecision, decision1: TODODELETEMEdecision): GameEngineState => {
-            const moveDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const moveDecisions: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",
                 startingLocation: {q: 0, r: 0},
@@ -147,7 +147,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
-                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                        squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                             squaddieActionsForThisRound: moveDecisions,
                         })
                     }),

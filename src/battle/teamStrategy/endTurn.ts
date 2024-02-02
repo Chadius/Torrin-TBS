@@ -1,21 +1,22 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
 import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
+    TODODELETEMESquaddieActionsForThisRoundService,
+    TODODELETEMESquaddieDecisionsDuringThisPhase
+} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
+import {DecidedAction} from "../../action/decided/decidedAction";
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     constructor(options: TeamStrategyOptions) {
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): DecidedAction | undefined {
         const squaddiesWhoCanAct: string[] = BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(state.team, repository);
         if (squaddiesWhoCanAct.length === 0) {
             return undefined;
@@ -28,7 +29,7 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, squaddieToAct));
 
         const datum = state.missionMap.getSquaddieByBattleId(squaddieToAct);
-        const endTurnAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const endTurnAction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: datum.mapLocation,
@@ -43,6 +44,7 @@ export class EndTurnTeamStrategy implements TeamStrategyCalculator {
 
         state.setInstruction(endTurnAction);
 
-        return endTurnAction;
+        //return endTurnAction;
+        return undefined; // TODO
     }
 }

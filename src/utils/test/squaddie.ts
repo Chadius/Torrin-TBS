@@ -11,6 +11,8 @@ import {
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {ActionTemplate} from "../../action/template/actionTemplate";
+import {getValidValueOrDefault} from "../validityCheck";
 
 export const SquaddieAndObjectRepositoryService = {
     createNewSquaddieAndAddToRepository: (
@@ -69,6 +71,7 @@ export const CreateNewSquaddieAndAddToRepository: (
         squaddieRepository: ObjectRepository,
         actions?: TODODELETEMEActionEffectSquaddieTemplate[],
         attributes?: ArmyAttributes,
+        actionTemplates?: ActionTemplate[],
     }
 ) => {
     squaddieTemplate: SquaddieTemplate
@@ -81,6 +84,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          squaddieRepository,
          actions,
          attributes,
+                                                           actionTemplates,
      }: {
          name: string,
          templateId: string,
@@ -89,6 +93,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          squaddieRepository: ObjectRepository,
          actions?: TODODELETEMEActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
+    actionTemplates?: ActionTemplate[],
      }
 ) => {
     const squaddieTemplate: SquaddieTemplate = {
@@ -103,6 +108,7 @@ export const CreateNewSquaddieAndAddToRepository: (
             affiliation
         },
         actions: actions || [],
+        actionTemplates: getValidValueOrDefault(actionTemplates, []),
         attributes: attributes || DefaultArmyAttributes(),
     };
     const battleSquaddie = BattleSquaddieService.newBattleSquaddie({
@@ -192,7 +198,7 @@ export const CreateNewKnightSquaddie: (
         templateId?: string,
         battleId?: string,
         affiliation?: SquaddieAffiliation,
-        actions?: TODODELETEMEActionEffectSquaddieTemplate[],
+        actionTemplates?: ActionTemplate[],
         attributes?: ArmyAttributes,
     }
 ) => {

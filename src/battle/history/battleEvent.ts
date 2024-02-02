@@ -1,8 +1,8 @@
-import {CurrentlySelectedSquaddieDecision} from "./currentlySelectedSquaddieDecision";
+import {TODODELETEMECurrentlySelectedSquaddieDecision} from "./TODODELETEMECurrentlySelectedSquaddieDecision";
 import {SquaddieSquaddieResults} from "./squaddieSquaddieResults";
 
 export interface BattleEvent {
-    instruction: CurrentlySelectedSquaddieDecision;
+    instruction: TODODELETEMECurrentlySelectedSquaddieDecision;
     results: SquaddieSquaddieResults;
 }
 

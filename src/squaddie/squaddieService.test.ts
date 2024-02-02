@@ -19,8 +19,8 @@ import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {SquaddieTurnService} from "./turn";
 import {TODODELETEMEdecision, DecisionService} from "../decision/TODODELETEMEdecision";
 import {ActionEffectMovementService} from "../decision/TODODELETEMEactionEffectMovement";
-import {CurrentlySelectedSquaddieDecisionService} from "../battle/history/currentlySelectedSquaddieDecision";
-import {SquaddieActionsForThisRoundService} from "../battle/history/squaddieDecisionsDuringThisPhase";
+import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../battle/history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {TODODELETEMESquaddieActionsForThisRoundService} from "../battle/history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 
 describe('Squaddie Service', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
@@ -335,8 +335,8 @@ describe('Squaddie Service', () => {
         });
 
         it('when squaddie is previewing an action, it is their turn', () => {
-            let currentDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            let currentDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
                     battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
@@ -352,8 +352,8 @@ describe('Squaddie Service', () => {
         });
 
         it('when squaddie still has made a decision and has actions remaining, they are taking their turn', () => {
-            let currentDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            let currentDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
                     battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},
@@ -376,8 +376,8 @@ describe('Squaddie Service', () => {
         });
 
         it('when squaddie does not have actions remaining, they are not taking their turn', () => {
-            let currentDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            let currentDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
                     battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                     startingLocation: {q: 0, r: 0},

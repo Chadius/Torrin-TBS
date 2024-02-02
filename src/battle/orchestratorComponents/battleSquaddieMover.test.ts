@@ -10,11 +10,13 @@ import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
 import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
+    TODODELETEMESquaddieActionsForThisRoundService,
+    TODODELETEMESquaddieDecisionsDuringThisPhase
+} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -24,13 +26,11 @@ import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
-import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
-import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
-import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 
@@ -102,7 +102,7 @@ describe('BattleSquaddieMover', () => {
 
         const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
-        const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const moveAction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
             squaddieTemplateId: "player_1",
             battleSquaddieId: "player_1",
             startingLocation: {q: 0, r: 0},
@@ -127,7 +127,7 @@ describe('BattleSquaddieMover', () => {
                     missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
-                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                    squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: moveAction,
                     }),
                 }),
@@ -153,7 +153,7 @@ describe('BattleSquaddieMover', () => {
                                }: {
             battleSquaddieId: string,
             squaddieAffiliation: SquaddieAffiliation,
-            newInstruction: SquaddieDecisionsDuringThisPhase,
+            newInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase,
         }): BattleOrchestratorState => {
             const searchResults: SearchResult = PathfinderHelper.search({
                 searchParameters: SearchParametersHelper.new({
@@ -177,7 +177,7 @@ describe('BattleSquaddieMover', () => {
             const movePath: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, 1, 1);
 
             let decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
-                decision: SquaddieActionsForThisRoundService.getMostRecentDecision(newInstruction)
+                decision: TODODELETEMESquaddieActionsForThisRoundService.getMostRecentDecision(newInstruction)
             });
 
             return BattleOrchestratorStateService.newOrchestratorState({
@@ -186,7 +186,7 @@ describe('BattleSquaddieMover', () => {
                     missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
-                    squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                    squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: newInstruction,
                     }),
                 }),
@@ -197,7 +197,7 @@ describe('BattleSquaddieMover', () => {
         it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const moveAction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
@@ -241,7 +241,7 @@ describe('BattleSquaddieMover', () => {
         it('should open the HUD if the squaddie turn has actions remaining', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const moveAction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "player_1",
                 battleSquaddieId: "player_1",
                 startingLocation: {q: 0, r: 0},
@@ -287,7 +287,7 @@ describe('BattleSquaddieMover', () => {
         it('should not open the HUD if the squaddie turn is incomplete and is not controllable by the player', () => {
             map.addSquaddie("enemy_1", "enemy_1", {q: 0, r: 0});
 
-            const moveAction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const moveAction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",
                 startingLocation: {q: 0, r: 0},
@@ -343,20 +343,20 @@ describe('BattleSquaddieMover', () => {
                 numberOfActionPointsSpent: 2,
             });
 
-            squaddieActionEffect = ActionEffectSquaddieService.new({
-                targetLocation: {q: 0, r: 2},
-                numberOfActionPointsSpent: 1,
-                template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-                    id: "shout",
-                    name: "shout"
-                })
-            });
+            // squaddieActionEffect = ActionEffectSquaddieService.new({
+            //     targetLocation: {q: 0, r: 2},
+            //     numberOfActionPointsSpent: 1,
+            //     template: TODODELETEMEActionEffectSquaddieTemplateService.new({
+            //         id: "shout",
+            //         name: "shout"
+            //     })
+            // });
 
             endTurnActionEffect = ActionEffectEndTurnService.new();
         });
 
         const setupStateWithDecisions = (decision: TODODELETEMEdecision, decision1: TODODELETEMEdecision): GameEngineState => {
-            const moveDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const moveDecisions: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",
                 startingLocation: {q: 0, r: 0},
@@ -371,7 +371,7 @@ describe('BattleSquaddieMover', () => {
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
-                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                        squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                             squaddieActionsForThisRound: moveDecisions,
                         })
                     })

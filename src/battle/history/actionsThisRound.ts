@@ -7,7 +7,7 @@ export interface ActionsThisRound {
     battleSquaddieId: string;
     startingLocation: HexCoordinate;
     processedActions: ProcessedAction[];
-    currentActionTemplateId: string;
+    previewedActionTemplateId: string;
 }
 
 export const ActionsThisRoundService = {
@@ -15,18 +15,18 @@ export const ActionsThisRoundService = {
               battleSquaddieId,
               startingLocation,
               processedActions,
-              currentActionTemplateId,
+              previewedActionTemplateId,
           }: {
         battleSquaddieId: string,
         startingLocation: HexCoordinate,
         processedActions?: ProcessedAction[],
-        currentActionTemplateId?: string,
+        previewedActionTemplateId?: string,
     }): ActionsThisRound => {
         return sanitize({
             battleSquaddieId,
             startingLocation,
             processedActions,
-            currentActionTemplateId,
+            previewedActionTemplateId: previewedActionTemplateId,
         })
     },
     getMultipleAttackPenaltyForProcessedActions:

@@ -1,9 +1,9 @@
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {TODODELETEMESquaddieActionsForThisRoundService} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
@@ -65,7 +65,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
-                    CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+                    TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
                     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
                     return;
                 } else {
@@ -75,7 +75,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
             if (!this.hasConfirmedAction) {
                 if (event.mouseY > BUTTON_TOP) {
-                    CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+                    TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
                     return this.cancelTargetSelection(state.battleOrchestratorState);
                 }
 
@@ -156,7 +156,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             squaddieTemplate: actingSquaddieTemplate,
             battleSquaddie: actingBattleSquaddie,
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
         ));
         const targetingResults = FindValidTargets({
             map: state.battleOrchestratorState.battleState.missionMap,
@@ -226,7 +226,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-                CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+                TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
             )
         );
 
@@ -263,7 +263,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
-        let {multipleAttackPenalty} = SquaddieActionsForThisRoundService.previewMultipleAttackPenalty(
+        let {multipleAttackPenalty} = TODODELETEMESquaddieActionsForThisRoundService.previewMultipleAttackPenalty(
             state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase,
             state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision,
         );
@@ -278,7 +278,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         const intentMessages = ActionResultTextService.outputIntentForTextOnly({
             currentActionEffectTemplate: squaddieActionEffect.template,
-            actingBattleSquaddieId: CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
+            actingBattleSquaddieId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
             squaddieRepository: state.repository,
             actingSquaddieModifiers,
         });
@@ -328,15 +328,15 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     private confirmTargetSelection(state: GameEngineState) {
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
             ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-                CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+                TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
             )
         );
         const actingSquaddieInfo = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId);
 
         if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
             state.battleOrchestratorState.battleState.squaddieCurrentlyActing =
-                CurrentlySelectedSquaddieDecisionService.new({
-                    squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+                TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                    squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                         battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
                         squaddieTemplateId: actingSquaddieTemplate.squaddieId.templateId,
                         startingLocation: actingSquaddieInfo.mapLocation,
@@ -359,11 +359,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 )
             ]
         });
-        CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
+        TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
         state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision = decision;
 
         OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
-            battleSquaddieId: CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
+            battleSquaddieId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
             missionMap: state.battleOrchestratorState.battleState.missionMap,
             repository: state.repository,
             actionEffect: squaddieActionEffect,

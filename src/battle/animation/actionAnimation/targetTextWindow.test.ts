@@ -1,21 +1,22 @@
 import {TargetTextWindow} from "./targetTextWindow";
-import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../../campaign/squaddieTemplate";
 import {SquaddieAffiliation} from "../../../squaddie/squaddieAffiliation";
 import {Trait, TraitStatusStorageService} from "../../../trait/traitStatusStorage";
 import {DefaultArmyAttributes} from "../../../squaddie/armyAttributes";
-import {BattleSquaddie} from "../../battleSquaddie";
+import {BattleSquaddie, BattleSquaddieService} from "../../battleSquaddie";
 import {SquaddieTurnService} from "../../../squaddie/turn";
 import {InBattleAttributesHandler} from "../../stats/inBattleAttributes";
 import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionAnimationPhase} from "./actionAnimationConstants";
 import {MockedP5GraphicsContext} from "../../../utils/test/mocks";
 import {ActionTimer} from "./actionTimer";
-import {
-    TODODELETEMEActionEffectSquaddieTemplate,
-    TODODELETEMEActionEffectSquaddieTemplateService
-} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../../squaddie/squaddieService";
 import {DegreeOfSuccess} from "../../actionCalculator/degreeOfSuccess";
+import {ActionTemplate, ActionTemplateService} from "../../../action/template/actionTemplate";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../action/template/actionEffectSquaddieTemplate";
 
 describe('TargetTextWindow', () => {
     let mockedP5GraphicsContext: MockedP5GraphicsContext;
@@ -27,36 +28,44 @@ describe('TargetTextWindow', () => {
     let targetResultTakenDamage: ActionResultPerSquaddie;
     let targetResultHealingReceived: ActionResultPerSquaddie;
 
-    let attackAction: TODODELETEMEActionEffectSquaddieTemplate;
-    let healingAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let attackAction: ActionTemplate;
+    let healingAction: ActionTemplate;
 
     beforeEach(() => {
-        attackAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
+        attackAction = ActionTemplateService.new({
             id: "attack",
             name: "attack action",
-            damageDescriptions: {
-                [DamageType.BODY]: 2,
-            },
-            traits: TraitStatusStorageService.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-                [Trait.TARGETS_FOE]: true,
-            })
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    damageDescriptions: {
+                        [DamageType.BODY]: 2,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGETS_FOE]: true,
+                    })
+                })
+            ]
         });
 
-        healingAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
+        healingAction = ActionTemplateService.new({
             id: "heal",
             name: "healing action",
-            healingDescriptions: {
-                [HealingType.LOST_HIT_POINTS]: 3,
-            },
-            traits: TraitStatusStorageService.newUsingTraitValues({
-                [Trait.ALWAYS_SUCCEEDS]: true,
-                [Trait.TARGETS_SELF]: true,
-                [Trait.TARGETS_ALLIES]: true,
-            }),
-        })
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    healingDescriptions: {
+                        [HealingType.LOST_HIT_POINTS]: 3,
+                    },
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ALWAYS_SUCCEEDS]: true,
+                        [Trait.TARGETS_SELF]: true,
+                        [Trait.TARGETS_ALLIES]: true,
+                    }),
+                })
+            ]
+        });
 
-        targetSquaddie = {
+        targetSquaddie = SquaddieTemplateService.new({
             squaddieId: {
                 name: "Target",
                 affiliation: SquaddieAffiliation.UNKNOWN,
@@ -69,14 +78,14 @@ describe('TargetTextWindow', () => {
             },
             actions: [],
             attributes: DefaultArmyAttributes(),
-        };
+        });
 
-        targetBattle = {
+        targetBattle = BattleSquaddieService.new({
             squaddieTemplateId: targetSquaddie.squaddieId.templateId,
             squaddieTurn: SquaddieTurnService.new(),
             battleSquaddieId: "targetBattleId",
             inBattleAttributes: InBattleAttributesHandler.new(),
-        }
+        })
 
         targetResultTakenDamage = {
             healingReceived: 0,
@@ -95,7 +104,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         expect(targetWindow.targetLabel.textBox.text).toContain(targetSquaddie.squaddieId.name);
@@ -106,7 +115,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         expect(targetWindow.targetLabel.textBox.text).toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
@@ -117,7 +126,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
-            actionEffectSquaddieTemplate: healingAction,
+            actionEffectSquaddieTemplate: healingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         expect(targetWindow.targetLabel.textBox.text).not.toContain(`AC ${targetBattle.inBattleAttributes.armyAttributes.armorClass}`);
@@ -128,7 +137,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultTakenDamage,
-            actionEffectSquaddieTemplate: attackAction,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
@@ -146,7 +155,7 @@ describe('TargetTextWindow', () => {
                 ...targetResultTakenDamage,
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_SUCCESS,
             },
-            actionEffectSquaddieTemplate: attackAction,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
@@ -166,7 +175,7 @@ describe('TargetTextWindow', () => {
                 damageTaken: 0,
                 actorDegreeOfSuccess: DegreeOfSuccess.CRITICAL_FAILURE,
             },
-            actionEffectSquaddieTemplate: attackAction,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);
@@ -180,7 +189,7 @@ describe('TargetTextWindow', () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
-            actionEffectSquaddieTemplate: attackAction,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.FAILURE,
                 damageTaken: 0,
@@ -199,7 +208,7 @@ describe('TargetTextWindow', () => {
         targetWindow.start({
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
-            actionEffectSquaddieTemplate: attackAction,
+            actionEffectSquaddieTemplate: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: {
                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
                 damageTaken: 0,
@@ -225,7 +234,7 @@ describe('TargetTextWindow', () => {
             targetTemplate: targetSquaddie,
             targetBattle: targetBattle,
             result: targetResultHealingReceived,
-            actionEffectSquaddieTemplate: healingAction,
+            actionEffectSquaddieTemplate: healingAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
         });
 
         const timerSpy = jest.spyOn(mockedActionTimer, "currentPhase", "get").mockReturnValue(ActionAnimationPhase.TARGET_REACTS);

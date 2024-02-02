@@ -11,12 +11,14 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextService} from "../actionResultTextService";
+import {ActionEffectSquaddieTemplate} from "../../../action/template/actionEffectSquaddieTemplate";
+import {ActionTemplate} from "../../../action/template/actionTemplate";
 
 export class ActorTextWindow {
     results: SquaddieSquaddieResults;
     actorTemplate: SquaddieTemplate;
     actorBattle: BattleSquaddie;
-    action: TODODELETEMEActionEffectSquaddieTemplate;
+    actionTemplate: ActionTemplate;
 
     constructor() {
 
@@ -43,27 +45,27 @@ export class ActorTextWindow {
     reset() {
         this.actorTemplate = undefined;
         this.actorBattle = undefined;
-        this.action = undefined;
+        this.actionTemplate = undefined;
         this.results = undefined;
         this._actorLabel = undefined;
         this._actorUsesActionDescriptionText = "";
     }
 
-    start({actorTemplate, actorBattle, actionEffectSquaddieTemplate, results}: {
+    start({actorTemplate, actorBattle, actionTemplate, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
-        actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate,
+        actionTemplate: ActionTemplate,
         results: SquaddieSquaddieResults,
     }) {
         this.reset();
 
         this.actorTemplate = actorTemplate;
         this.actorBattle = actorBattle;
-        this.action = actionEffectSquaddieTemplate;
+        this.actionTemplate = actionTemplate;
         this.results = results;
 
         const actorName: string = actorTemplate.squaddieId.name;
-        const actionName: string = actionEffectSquaddieTemplate.name;
+        const actionName: string = actionTemplate.name;
 
         this._actorUsesActionDescriptionText = `${actorName} uses\n${actionName}`;
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[actorTemplate.squaddieId.affiliation];
@@ -84,7 +86,7 @@ export class ActorTextWindow {
     private updateActorLabel({timer}: { timer?: ActionTimer }) {
         const actorUsesActionDescriptionText = ActionResultTextService.calculateActorUsesActionDescriptionText({
             timer,
-            action: this.action,
+            actionTemplate: this.actionTemplate,
             actorTemplate: this.actorTemplate,
             results: this.results,
         });

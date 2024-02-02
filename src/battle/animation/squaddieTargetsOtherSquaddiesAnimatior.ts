@@ -193,7 +193,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             targetSprite.start({
                 targetBattleSquaddieId: battleId,
                 squaddieRepository: state.repository,
-                action: action,
+                actionEffectSquaddieTemplateService: action,
                 result: resultPerTarget[battleId],
                 resourceHandler: state.resourceHandler,
                 startingPosition: RectAreaService.right(this.targetTextWindows[index].targetLabel.rectangle.area),

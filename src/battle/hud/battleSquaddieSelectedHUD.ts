@@ -9,7 +9,7 @@ import {MakeDecisionButton} from "../../squaddie/makeDecisionButton";
 import {BattleSquaddie} from "../battleSquaddie";
 import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {TODODELETEMEactionEffectEndTurn, ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
-import {CurrentlySelectedSquaddieDecision} from "../history/currentlySelectedSquaddieDecision";
+import {TODODELETEMECurrentlySelectedSquaddieDecision} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {TextBoxHelper} from "../../ui/textBox";
 import {CanPlayerControlSquaddieRightNow, GetArmorClass, SquaddieService} from "../../squaddie/squaddieService";
 import {Label, LabelHelper} from "../../ui/label";
@@ -35,6 +35,7 @@ import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils
 import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {BattleStateService} from "../orchestrator/battleState";
 import {LoadSaveStateService} from "../../dataLoader/loadSaveState";
+import {ActionTemplate} from "../../action/template/actionTemplate";
 
 export const FILE_MESSAGE_DISPLAY_DURATION = 2000;
 
@@ -81,7 +82,7 @@ const getSquaddieTeamIconImage = (state: GameEngineState, battleSquaddie: Battle
 export class BattleSquaddieSelectedHUD {
     selectedBattleSquaddieId: string;
     affiliateIcon?: ImageUI;
-    selectedAction: {
+    TODODELETEMEselectedAction: {
         squaddieAction?: TODODELETEMEActionEffectSquaddieTemplate,
         endTurnAction?: TODODELETEMEactionEffectEndTurn,
     };
@@ -93,6 +94,7 @@ export class BattleSquaddieSelectedHUD {
     nextBattleSquaddieIds: string[];
     graphicsObjects: BattleHUDGraphicsObject;
     errorDuringLoadingDisplayStartTimestamp: number;
+    selectedActionTemplate: ActionTemplate;
 
     constructor() {
         this.reset();
@@ -174,7 +176,7 @@ export class BattleSquaddieSelectedHUD {
         return this.selectedBattleSquaddieId;
     }
 
-    draw(squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision, state: GameEngineState, graphicsContext: GraphicsContext) {
+    draw(squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision, state: GameEngineState, graphicsContext: GraphicsContext) {
         if (!this.shouldDrawTheHUD()) {
             return;
         }
@@ -205,19 +207,23 @@ export class BattleSquaddieSelectedHUD {
     }
 
     didPlayerSelectEndTurnAction(): boolean {
-        return !!this.selectedAction.endTurnAction;
+        return !!this.TODODELETEMEselectedAction.endTurnAction;
     }
 
     didPlayerSelectSquaddieAction(): boolean {
-        return !!this.selectedAction.squaddieAction;
+        return !!this.TODODELETEMEselectedAction.squaddieAction;
     }
 
     getSquaddieSquaddieAction(): TODODELETEMEActionEffectSquaddieTemplate {
-        return this.selectedAction.squaddieAction;
+        return this.TODODELETEMEselectedAction.squaddieAction;
     }
 
-    getSelectedAction(): TODODELETEMEActionEffectSquaddieTemplate | TODODELETEMEactionEffectEndTurn {
-        return this.selectedAction.squaddieAction ? this.selectedAction.squaddieAction : this.selectedAction.endTurnAction;
+    TODODELETEMEgetSelectedAction(): TODODELETEMEActionEffectSquaddieTemplate | TODODELETEMEactionEffectEndTurn {
+        return this.TODODELETEMEselectedAction.squaddieAction ? this.TODODELETEMEselectedAction.squaddieAction : this.TODODELETEMEselectedAction.endTurnAction;
+    }
+
+    getSelectedActionTemplate(): ActionTemplate {
+        return this.selectedActionTemplate;
     }
 
     keyPressed(keyCode: number, state: GameEngineState) {
@@ -250,7 +256,7 @@ export class BattleSquaddieSelectedHUD {
                 state,
             );
             if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
-                this.selectedAction.squaddieAction = selectedUseActionButton.actionEffectSquaddieTemplate;
+                this.TODODELETEMEselectedAction.squaddieAction = selectedUseActionButton.actionEffectSquaddieTemplate;
                 return;
             }
             this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.actionEffectSquaddieTemplate);
@@ -284,7 +290,7 @@ export class BattleSquaddieSelectedHUD {
     reset() {
         this.selectedBattleSquaddieId = "";
         this.affiliateIcon = undefined;
-        this.selectedAction = {
+        this.TODODELETEMEselectedAction = {
             squaddieAction: undefined,
             endTurnAction: undefined,
         };
@@ -645,7 +651,7 @@ export class BattleSquaddieSelectedHUD {
         };
     }
 
-    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision, state: GameEngineState) {
+    private drawDifferentSquaddieWarning(squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision, state: GameEngineState) {
         if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
             return;
         }
@@ -1034,6 +1040,6 @@ export class BattleSquaddieSelectedHUD {
             return;
         }
 
-        this.selectedAction.endTurnAction = ActionEffectEndTurnService.new();
+        this.TODODELETEMEselectedAction.endTurnAction = ActionEffectEndTurnService.new();
     }
 }

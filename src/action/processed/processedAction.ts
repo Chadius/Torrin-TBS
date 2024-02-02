@@ -2,7 +2,6 @@ import {DecidedAction} from "../decided/decidedAction";
 import {ProcessedActionEffect} from "./processedActionEffect";
 import {getValidValueOrDefault} from "../../utils/validityCheck";
 import {ActionEffectType} from "../template/actionEffectTemplate";
-import {DecidedActionSquaddieEffectService} from "../decided/decidedActionSquaddieEffect";
 import {MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../../battle/modifierConstants";
 import {ProcessedActionSquaddieEffectService} from "./processedActionSquaddieEffect";
 

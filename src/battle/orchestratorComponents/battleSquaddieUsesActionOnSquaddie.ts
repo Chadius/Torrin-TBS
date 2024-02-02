@@ -24,7 +24,7 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
@@ -128,7 +128,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             });
             DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
 
-            CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
             OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
             this.sawResultAftermath = true;
         }

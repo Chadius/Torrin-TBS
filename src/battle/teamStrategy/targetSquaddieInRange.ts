@@ -2,9 +2,9 @@ import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TeamStrategyState} from "./teamStrategyState";
 import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
+    TODODELETEMESquaddieActionsForThisRoundService,
+    TODODELETEMESquaddieDecisionsDuringThisPhase
+} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {FindValidTargets, TargetingResults} from "../targeting/targetingService";
 import {BattleSquaddie} from "../battleSquaddie";
@@ -18,6 +18,7 @@ import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {DecidedAction} from "../../action/decided/decidedAction";
 
 export class TargetSquaddieInRange implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -28,7 +29,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): DecidedAction | undefined {
         if (!this.desiredBattleSquaddieId && (!this.desiredAffiliation || this.desiredAffiliation === SquaddieAffiliation.UNKNOWN)) {
             throw new Error("Target Squaddie In Range strategy has no target");
         }
@@ -42,7 +43,8 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
 
         const squaddieInstruction = this.askSquaddieToSelectNewAction(state, actingSquaddie);
         if (squaddieInstruction !== undefined) {
-            return squaddieInstruction;
+            //return squaddieInstruction;
+            return undefined; // TODO
         }
 
         return undefined;
@@ -56,7 +58,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         return actingSquaddie;
     }
 
-    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingBattleSquaddieId: string): SquaddieDecisionsDuringThisPhase | undefined {
+    private askSquaddieToSelectNewAction(state: TeamStrategyState, actingBattleSquaddieId: string): TODODELETEMESquaddieDecisionsDuringThisPhase | undefined {
         const {
             squaddieTemplate,
             battleSquaddie
@@ -164,7 +166,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         actingSquaddieAction: TODODELETEMEActionEffectSquaddieTemplate,
         targetLocation: HexCoordinate,
     }) {
-        const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const instruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
             battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
             squaddieTemplateId: actingSquaddieTemplate.squaddieId.templateId,
             startingLocation: actingSquaddieMapLocation,
@@ -172,8 +174,8 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         return this.addSquaddieActionTemplateDecisionToInstruction(instruction, actingSquaddieAction, targetLocation)
     }
 
-    private addSquaddieActionTemplateDecisionToInstruction(instruction: SquaddieDecisionsDuringThisPhase, action: TODODELETEMEActionEffectSquaddieTemplate, targetLocation: HexCoordinate) {
-        SquaddieActionsForThisRoundService.addDecision(instruction,
+    private addSquaddieActionTemplateDecisionToInstruction(instruction: TODODELETEMESquaddieDecisionsDuringThisPhase, action: TODODELETEMEActionEffectSquaddieTemplate, targetLocation: HexCoordinate) {
+        TODODELETEMESquaddieActionsForThisRoundService.addDecision(instruction,
             DecisionService.new({
                 actionEffects: [
                     ActionEffectSquaddieService.new({
@@ -200,7 +202,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         actingBattleSquaddie: BattleSquaddie,
         actingSquaddieTemplate: SquaddieTemplate
         action: TODODELETEMEActionEffectSquaddieTemplate
-    }): SquaddieDecisionsDuringThisPhase | undefined {
+    }): TODODELETEMESquaddieDecisionsDuringThisPhase | undefined {
         const targetingSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId);
         const desiredSquaddieMapDatum = state.missionMap.getSquaddieByBattleId(squaddieToTarget);
         if (MissionMapSquaddieLocationHandler.isValid(desiredSquaddieMapDatum)) {
@@ -218,7 +220,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
                     return instruction;
                 }
             } else {
-                SquaddieActionsForThisRoundService.addDecision(state.instruction,
+                TODODELETEMESquaddieActionsForThisRoundService.addDecision(state.instruction,
                     DecisionService.new({
                         actionEffects: [
                             ActionEffectSquaddieService.new({

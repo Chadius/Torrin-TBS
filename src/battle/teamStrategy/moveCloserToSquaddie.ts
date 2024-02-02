@@ -1,9 +1,9 @@
 import {TeamStrategyCalculator} from "./teamStrategyCalculator";
 import {TeamStrategyState} from "./teamStrategyState";
 import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
+    TODODELETEMESquaddieActionsForThisRoundService,
+    TODODELETEMESquaddieDecisionsDuringThisPhase
+} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -21,6 +21,7 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattleSquaddie} from "../battleSquaddie";
 import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
+import {DecidedAction} from "../../action/decided/decidedAction";
 
 export class MoveCloserToSquaddie implements TeamStrategyCalculator {
     desiredBattleSquaddieId: string;
@@ -31,7 +32,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         this.desiredAffiliation = options.desiredAffiliation;
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): SquaddieDecisionsDuringThisPhase | undefined {
+    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): DecidedAction | undefined {
         if (!this.desiredBattleSquaddieId && !this.desiredAffiliation) {
             throw new Error("Move Closer to Squaddie strategy has no target");
         }
@@ -87,7 +88,7 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             return undefined;
         }
 
-        const moveTowardsLocation: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+        const moveTowardsLocation: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
             squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
             battleSquaddieId: squaddieToAct,
             startingLocation: mapLocation,
@@ -103,7 +104,8 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             ]
         });
         state.setInstruction(moveTowardsLocation);
-        return moveTowardsLocation;
+        //return moveTowardsLocation;
+        return undefined; // TODO
     }
 
     private getActingSquaddie(state: TeamStrategyState, squaddiesWhoCanAct: string[]) {

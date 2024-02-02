@@ -5,6 +5,7 @@ import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 export interface ActionTemplate {
     id: string;
     name: string;
+    actionPoints: number;
     actionEffectTemplates: ActionEffectTemplate[];
 }
 
@@ -13,15 +14,18 @@ export const ActionTemplateService = {
               id,
               name,
               actionEffectTemplates,
+              actionPoints,
           }: {
         id?: string,
         name: string,
         actionEffectTemplates?: ActionEffectTemplate[],
+        actionPoints?: number;
     }): ActionTemplate => {
         return sanitize({
             id,
             name,
             actionEffectTemplates,
+            actionPoints,
         })
     },
     multipleAttackPenaltyMultiplier: (actionTemplate: ActionTemplate): number => {
@@ -50,6 +54,7 @@ const sanitize = (template: ActionTemplate): ActionTemplate => {
         throw new Error("ActionTemplate cannot sanitize, no name found");
     }
 
+    template.actionPoints = getValidValueOrDefault(template.actionPoints, 1);
     template.actionEffectTemplates = getValidValueOrDefault(template.actionEffectTemplates, []);
     return template;
 }

@@ -7,9 +7,9 @@ import {LocationTraveled} from "../hexMap/pathfinder/locationTraveled";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
 import {
-    CurrentlySelectedSquaddieDecision,
-    CurrentlySelectedSquaddieDecisionService
-} from "../battle/history/currentlySelectedSquaddieDecision";
+    TODODELETEMECurrentlySelectedSquaddieDecision,
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../battle/history/TODODELETEMECurrentlySelectedSquaddieDecision";
 
 export const SquaddieService = {
     dealDamageToTheSquaddie: ({
@@ -72,7 +72,7 @@ export const SquaddieService = {
     isSquaddieCurrentlyTakingATurn: ({squaddieTemplate, battleSquaddie, currentlySelectedSquaddieDecision}: {
         squaddieTemplate: SquaddieTemplate;
         battleSquaddie: BattleSquaddie;
-        currentlySelectedSquaddieDecision?: CurrentlySelectedSquaddieDecision
+        currentlySelectedSquaddieDecision?: TODODELETEMECurrentlySelectedSquaddieDecision
     }): boolean => {
         let {
             canAct,
@@ -87,8 +87,8 @@ export const SquaddieService = {
             return false;
         }
 
-        return CurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentlySelectedSquaddieDecision)
-            || CurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentlySelectedSquaddieDecision);
+        return TODODELETEMECurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentlySelectedSquaddieDecision)
+            || TODODELETEMECurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentlySelectedSquaddieDecision);
     },
     canSquaddieActRightNow: ({
                                  squaddieTemplate,

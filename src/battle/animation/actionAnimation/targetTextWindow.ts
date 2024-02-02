@@ -11,6 +11,7 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {TODODELETEMEActionEffectSquaddieTemplate} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ActionResultTextService} from "../actionResultTextService";
+import {ActionEffectSquaddieTemplate} from "../../../action/template/actionEffectSquaddieTemplate";
 
 export class TargetTextWindow {
     constructor() {
@@ -57,7 +58,7 @@ export class TargetTextWindow {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
-        actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     }) {
         this.reset();
 
@@ -84,7 +85,7 @@ export class TargetTextWindow {
         targetTemplate: SquaddieTemplate,
         targetBattle: BattleSquaddie,
         result: ActionResultPerSquaddie,
-        actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     }) {
         this._targetBeforeActionText = ActionResultTextService.getBeforeActionText({
             targetTemplate,

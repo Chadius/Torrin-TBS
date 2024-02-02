@@ -3,11 +3,6 @@ import {ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplat
 import {DamageType} from "../../squaddie/squaddieService";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
-import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
-import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
-import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
-import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
-import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ActionEffectMovementTemplateService} from "./actionEffectMovementTemplate";
 
 describe('ActionTemplate', () => {
@@ -19,6 +14,7 @@ describe('ActionTemplate', () => {
         expect(justMovement.name).toEqual("Move");
         expect(justMovement.id).toBeUndefined();
         expect(justMovement.actionEffectTemplates).toHaveLength(0);
+        expect(justMovement.actionPoints).toEqual(1);
     });
 
     it('can create a template with new action effects', () => {

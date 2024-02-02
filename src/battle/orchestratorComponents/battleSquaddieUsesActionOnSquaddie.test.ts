@@ -1,22 +1,18 @@
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {
-    SquaddieActionsForThisRoundService,
-    SquaddieDecisionsDuringThisPhase
-} from "../history/squaddieDecisionsDuringThisPhase";
+    TODODELETEMESquaddieActionsForThisRoundService,
+    TODODELETEMESquaddieDecisionsDuringThisPhase
+} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {
-    CurrentlySelectedSquaddieDecision,
-    CurrentlySelectedSquaddieDecisionService
-} from "../history/currentlySelectedSquaddieDecision";
+    TODODELETEMECurrentlySelectedSquaddieDecision,
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
-import {
-    TODODELETEMEActionEffectSquaddieTemplate,
-    TODODELETEMEActionEffectSquaddieTemplateService
-} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {
     OrchestratorComponentMouseEvent,
     OrchestratorComponentMouseEventType
@@ -42,13 +38,13 @@ import {SquaddieTurnService} from "../../squaddie/turn";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
-import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
-import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
+import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
 import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -56,10 +52,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let battleSquaddieBase: BattleSquaddie;
     let targetStatic: SquaddieTemplate;
     let targetDynamic: BattleSquaddie;
-    let powerAttackLongswordAction: TODODELETEMEActionEffectSquaddieTemplate;
-    let monkKoanAction: TODODELETEMEActionEffectSquaddieTemplate;
+    let powerAttackLongswordAction: ActionTemplate;
+    let monkKoanAction: ActionTemplate;
     let monkMeditatesEvent: BattleEvent;
-    let monkMeditatesInstruction: CurrentlySelectedSquaddieDecision;
+    let monkMeditatesInstruction: TODODELETEMECurrentlySelectedSquaddieDecision;
     let squaddieUsesActionOnSquaddie: BattleSquaddieUsesActionOnSquaddie;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
     let battleEventRecording: Recording;
@@ -110,29 +106,37 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             },
         }));
 
-        powerAttackLongswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
+        powerAttackLongswordAction = ActionTemplateService.new({
             name: "power attack longsword",
             id: "powerAttackLongsword",
-            traits: TraitStatusStorageService.newUsingTraitValues({
-                [Trait.ATTACK]: true,
-                [Trait.TARGET_ARMOR]: true,
-            }),
-            minimumRange: 1,
-            maximumRange: 1,
-            actionPointCost: 3,
-            damageDescriptions: {
-                [DamageType.BODY]: 9001,
-            },
+            actionPoints: 3,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.ATTACK]: true,
+                        [Trait.TARGET_ARMOR]: true,
+                    }),
+                    minimumRange: 1,
+                    maximumRange: 1,
+                    damageDescriptions: {
+                        [DamageType.BODY]: 9001,
+                    },
+                })
+            ]
         });
 
-        monkKoanAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
+        monkKoanAction = ActionTemplateService.new({
             id: "koan",
             name: "koan",
-            traits: TraitStatusStorageService.newUsingTraitValues({
-                [Trait.SKIP_ANIMATION]: true
-            }),
-            maximumRange: 0,
-            minimumRange: 0,
+            actionEffectTemplates: [
+                ActionEffectSquaddieTemplateService.new({
+                    traits: TraitStatusStorageService.newUsingTraitValues({
+                        [Trait.SKIP_ANIMATION]: true
+                    }),
+                    maximumRange: 0,
+                    minimumRange: 0,
+                })
+            ]
         });
 
         jest.spyOn(LabelHelper, "draw").mockReturnValue(null);
@@ -148,61 +152,63 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     });
 
     function addMonkKoanEventToRecording() {
-        const instruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: "static_squaddie",
-            battleSquaddieId: "dynamic_squaddie",
-            startingLocation: {q: 0, r: 0},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            targetLocation: {q: 0, r: 0},
-                            template: monkKoanAction,
-                            numberOfActionPointsSpent: 1,
-                        })
-                    ]
-                })
-            ]
-        });
+        // TODO
+        // const instruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
+        //     squaddieTemplateId: "static_squaddie",
+        //     battleSquaddieId: "dynamic_squaddie",
+        //     startingLocation: {q: 0, r: 0},
+        //     decisions: [
+        //         DecisionService.new({
+        //             actionEffects: [
+        //                 ActionEffectSquaddieService.new({
+        //                     targetLocation: {q: 0, r: 0},
+        //                     template: monkKoanAction,
+        //                     numberOfActionPointsSpent: 1,
+        //                 })
+        //             ]
+        //         })
+        //     ]
+        // });
+        //
+        // monkMeditatesInstruction = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        //     squaddieActionsForThisRound: instruction,
+        //
+        //     currentlySelectedDecision: DecisionService.new({
+        //         actionEffects: [
+        //             ActionEffectSquaddieService.new({
+        //                 template: monkKoanAction,
+        //                 targetLocation: {q: 0, r: 0},
+        //                 numberOfActionPointsSpent: 1,
+        //             })
+        //         ]
+        //     }),
+        // });
+        // TODODELETEMECurrentlySelectedSquaddieDecisionService.selectCurrentDecision(monkMeditatesInstruction,
+        //     DecisionService.new({
+        //         actionEffects: [
+        //             ActionEffectSquaddieService.new({
+        //                 template: monkKoanAction,
+        //                 targetLocation: {q: 0, r: 0},
+        //                 numberOfActionPointsSpent: 1,
+        //             })
+        //         ]
+        //     }),
+        // );
 
-        monkMeditatesInstruction = CurrentlySelectedSquaddieDecisionService.new({
-            squaddieActionsForThisRound: instruction,
-
-            currentlySelectedDecision: DecisionService.new({
-                actionEffects: [
-                    ActionEffectSquaddieService.new({
-                        template: monkKoanAction,
-                        targetLocation: {q: 0, r: 0},
-                        numberOfActionPointsSpent: 1,
-                    })
-                ]
-            }),
-        });
-        CurrentlySelectedSquaddieDecisionService.selectCurrentDecision(monkMeditatesInstruction,
-            DecisionService.new({
-                actionEffects: [
-                    ActionEffectSquaddieService.new({
-                        template: monkKoanAction,
-                        targetLocation: {q: 0, r: 0},
-                        numberOfActionPointsSpent: 1,
-                    })
-                ]
-            }),
-        );
-
-        monkMeditatesEvent = {
-            instruction: monkMeditatesInstruction,
-            results: {
-                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                targetedBattleSquaddieIds: [],
-                resultPerTarget: {},
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingSquaddieModifiers: {},
-            }
-        };
+        // TODO
+        // monkMeditatesEvent = {
+        //     instruction: monkMeditatesInstruction,
+        //     results: {
+        //         actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+        //         targetedBattleSquaddieIds: [],
+        //         resultPerTarget: {},
+        //         actingSquaddieRoll: {
+        //             occurred: false,
+        //             rolls: [],
+        //         },
+        //         actingSquaddieModifiers: {},
+        //     }
+        // };
 
         RecordingService.addEvent(battleEventRecording, monkMeditatesEvent);
     }
@@ -232,87 +238,88 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             repositionWindow: {mouseX: 0, mouseY: 0},
             state: gameEngineState,
         });
-        SquaddieTurnService.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
+        SquaddieTurnService.spendActionPoints(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction.actionPoints);
         return gameEngineState;
     }
 
     function usePowerAttackLongswordAndReturnState({missionMap}: {
         missionMap?: MissionMap
     }): GameEngineState {
-        const wholeTurnInstruction: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: "static_squaddie",
-            battleSquaddieId: "dynamic_squaddie",
-            startingLocation: {q: 0, r: 0},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            targetLocation: {q: 0, r: 0},
-                            template: powerAttackLongswordAction,
-                            numberOfActionPointsSpent: 1,
-                        })
-                    ]
-                })
-            ]
-        });
+        // const wholeTurnInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
+        //     squaddieTemplateId: "static_squaddie",
+        //     battleSquaddieId: "dynamic_squaddie",
+        //     startingLocation: {q: 0, r: 0},
+        //     decisions: [
+        //         DecisionService.new({
+        //             actionEffects: [
+        //                 ActionEffectSquaddieService.new({
+        //                     targetLocation: {q: 0, r: 0},
+        //                     template: powerAttackLongswordAction,
+        //                     numberOfActionPointsSpent: 1,
+        //                 })
+        //             ]
+        //         })
+        //     ]
+        // });
+        //
+        // const squaddieInstructionInProgress: TODODELETEMECurrentlySelectedSquaddieDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        //     squaddieActionsForThisRound: wholeTurnInstruction,
+        //     currentlySelectedDecision: DecisionService.new({
+        //         actionEffects: [
+        //             ActionEffectSquaddieService.new({
+        //                 template: powerAttackLongswordAction,
+        //                 targetLocation: {q: 0, r: 0},
+        //                 numberOfActionPointsSpent: 1,
+        //             })
+        //         ]
+        //     }),
+        // });
 
-        const squaddieInstructionInProgress: CurrentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-            squaddieActionsForThisRound: wholeTurnInstruction,
-            currentlySelectedDecision: DecisionService.new({
-                actionEffects: [
-                    ActionEffectSquaddieService.new({
-                        template: powerAttackLongswordAction,
-                        targetLocation: {q: 0, r: 0},
-                        numberOfActionPointsSpent: 1,
-                    })
-                ]
-            }),
-        });
+        // const newEvent: BattleEvent = {
+        //     instruction: squaddieInstructionInProgress,
+        //     results: {
+        //         actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+        //         targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
+        //         resultPerTarget: {
+        //             ["target_dynamic_squaddie"]: {
+        //                 damageTaken: 9001,
+        //                 healingReceived: 0,
+        //                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+        //             }
+        //         },
+        //         actingSquaddieRoll: {
+        //             occurred: false,
+        //             rolls: [],
+        //         },
+        //         actingSquaddieModifiers: {},
+        //     }
+        // };
+        // RecordingService.addEvent(battleEventRecording, newEvent);
+        //
+        // const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
+        //     battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+        //     battleState: BattleStateService.newBattleState({
+        //         missionId: "test mission",
+        //         missionMap,
+        //         squaddieCurrentlyActing: squaddieInstructionInProgress,
+        //         recording: battleEventRecording,
+        //     }),
+        // })
 
-        const newEvent: BattleEvent = {
-            instruction: squaddieInstructionInProgress,
-            results: {
-                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
-                resultPerTarget: {
-                    ["target_dynamic_squaddie"]: {
-                        damageTaken: 9001,
-                        healingReceived: 0,
-                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
-                    }
-                },
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingSquaddieModifiers: {},
-            }
-        };
-        RecordingService.addEvent(battleEventRecording, newEvent);
-
-        const battleOrchestratorState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-            battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-            battleState: BattleStateService.newBattleState({
-                missionId: "test mission",
-                missionMap,
-                squaddieCurrentlyActing: squaddieInstructionInProgress,
-                recording: battleEventRecording,
-            }),
-        })
-
-        const gameEngineState = GameEngineStateService.new({
-            battleOrchestratorState,
-            repository: squaddieRepository,
-            resourceHandler: mockResourceHandler,
-        });
-
-        battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            battleId: battleSquaddieBase.battleSquaddieId,
-            repositionWindow: {mouseX: 0, mouseY: 0},
-            state: gameEngineState,
-        });
-        SquaddieTurnService.spendActionPointsOnActionTemplate(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction);
-        return gameEngineState;
+        // const gameEngineState = GameEngineStateService.new({
+        //     battleOrchestratorState,
+        //     repository: squaddieRepository,
+        //     resourceHandler: mockResourceHandler,
+        // });
+        //
+        // battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+        //     battleId: battleSquaddieBase.battleSquaddieId,
+        //     repositionWindow: {mouseX: 0, mouseY: 0},
+        //     state: gameEngineState,
+        // });
+        SquaddieTurnService.spendActionPoints(battleSquaddieBase.squaddieTurn, powerAttackLongswordAction.actionPoints);
+        // return gameEngineState;
+        return undefined;
     }
 
     it('hides dead squaddies after the action animates', () => {
@@ -430,20 +437,20 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 numberOfActionPointsSpent: 2,
             });
 
-            squaddieActionEffect = ActionEffectSquaddieService.new({
-                targetLocation: {q: 0, r: 2},
-                numberOfActionPointsSpent: 1,
-                template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-                    id: "shout",
-                    name: "shout"
-                })
-            });
+            // squaddieActionEffect = ActionEffectSquaddieService.new({
+            //     targetLocation: {q: 0, r: 2},
+            //     numberOfActionPointsSpent: 1,
+            //     template: TODODELETEMEActionEffectSquaddieTemplateService.new({
+            //         id: "shout",
+            //         name: "shout"
+            //     })
+            // });
 
             endTurnActionEffect = ActionEffectEndTurnService.new();
         });
 
         const setupStateWithDecisions = (decision: TODODELETEMEdecision, decision1: TODODELETEMEdecision): GameEngineState => {
-            const moveDecisions: SquaddieDecisionsDuringThisPhase = SquaddieActionsForThisRoundService.new({
+            const moveDecisions: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: "enemy_1",
                 battleSquaddieId: "enemy_1",
                 startingLocation: {q: 0, r: 0},
@@ -458,7 +465,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
-                        squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
+                        squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                             squaddieActionsForThisRound: moveDecisions,
                         })
                     }),

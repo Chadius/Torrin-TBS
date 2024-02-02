@@ -3,14 +3,14 @@ import {MULTIPLE_ATTACK_PENALTY} from "../modifierConstants";
 import {isValidValue} from "../../utils/validityCheck";
 import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
 
-export interface SquaddieDecisionsDuringThisPhase {
+export interface TODODELETEMESquaddieDecisionsDuringThisPhase {
     squaddieTemplateId: string;
     battleSquaddieId: string;
     startingLocation: HexCoordinate;
     decisions: TODODELETEMEdecision[];
 }
 
-export const SquaddieActionsForThisRoundService = {
+export const TODODELETEMESquaddieActionsForThisRoundService = {
     new: ({
               squaddieTemplateId,
               battleSquaddieId,
@@ -21,7 +21,7 @@ export const SquaddieActionsForThisRoundService = {
         battleSquaddieId: string,
         startingLocation: HexCoordinate,
         decisions?: TODODELETEMEdecision[],
-    }): SquaddieDecisionsDuringThisPhase => {
+    }): TODODELETEMESquaddieDecisionsDuringThisPhase => {
         return sanitize({
             squaddieTemplateId,
             battleSquaddieId,
@@ -30,7 +30,7 @@ export const SquaddieActionsForThisRoundService = {
         });
     },
     default:
-        (): SquaddieDecisionsDuringThisPhase => {
+        (): TODODELETEMESquaddieDecisionsDuringThisPhase => {
             return sanitize({
                 squaddieTemplateId: "",
                 battleSquaddieId: "",
@@ -39,15 +39,15 @@ export const SquaddieActionsForThisRoundService = {
             });
         },
     sanitize:
-        (data: SquaddieDecisionsDuringThisPhase): SquaddieDecisionsDuringThisPhase => {
+        (data: TODODELETEMESquaddieDecisionsDuringThisPhase): TODODELETEMESquaddieDecisionsDuringThisPhase => {
             return sanitize(data);
         },
     addDecision:
-        (data: SquaddieDecisionsDuringThisPhase, decision: TODODELETEMEdecision) => {
+        (data: TODODELETEMESquaddieDecisionsDuringThisPhase, decision: TODODELETEMEdecision) => {
             data.decisions.push(decision);
         },
     getMostRecentDecision:
-        (data: SquaddieDecisionsDuringThisPhase): TODODELETEMEdecision => {
+        (data: TODODELETEMESquaddieDecisionsDuringThisPhase): TODODELETEMEdecision => {
             if (data.decisions.length === 0) {
                 return undefined;
             }
@@ -56,33 +56,33 @@ export const SquaddieActionsForThisRoundService = {
                 ];
         },
     addStartingLocation:
-        (data: SquaddieDecisionsDuringThisPhase, startingLocation: HexCoordinate) => {
+        (data: TODODELETEMESquaddieDecisionsDuringThisPhase, startingLocation: HexCoordinate) => {
             if (data.startingLocation !== undefined) {
                 throw new Error(`already has starting location (${startingLocation.q}, ${startingLocation.r}), cannot add another`)
             }
             data.startingLocation = startingLocation;
         },
     currentMultipleAttackPenalty:
-        (actionsForThisRound: SquaddieDecisionsDuringThisPhase): {
+        (actionsForThisRound: TODODELETEMESquaddieDecisionsDuringThisPhase): {
             penaltyMultiplier: number,
             multipleAttackPenalty: number,
         } => {
             return calculateMultipleAttackPenalty(actionsForThisRound, undefined);
         },
     previewMultipleAttackPenalty:
-        (actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: TODODELETEMEdecision): {
+        (actionsForThisRound: TODODELETEMESquaddieDecisionsDuringThisPhase, decisionToPreview: TODODELETEMEdecision): {
             penaltyMultiplier: number,
             multipleAttackPenalty: number,
         } => {
             return calculateMultipleAttackPenalty(actionsForThisRound, decisionToPreview);
         },
-    willAnyDecisionEndTurn: (decisionsThisPhase: SquaddieDecisionsDuringThisPhase): boolean => {
+    willAnyDecisionEndTurn: (decisionsThisPhase: TODODELETEMESquaddieDecisionsDuringThisPhase): boolean => {
         return decisionsThisPhase.decisions.length > 0
             && decisionsThisPhase.decisions.some(decision => DecisionService.willDecisionEndTurn);
     }
 }
 
-function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieDecisionsDuringThisPhase, decisionToPreview: TODODELETEMEdecision) {
+function calculateMultipleAttackPenalty(actionsForThisRound: TODODELETEMESquaddieDecisionsDuringThisPhase, decisionToPreview: TODODELETEMEdecision) {
     let multipleAttackPenaltyMultiplier =
         actionsForThisRound.decisions.reduce(
             (accumulator: number, decision: TODODELETEMEdecision): number => {
@@ -111,7 +111,7 @@ function calculateMultipleAttackPenalty(actionsForThisRound: SquaddieDecisionsDu
     }
 }
 
-const sanitize = (data: SquaddieDecisionsDuringThisPhase): SquaddieDecisionsDuringThisPhase => {
+const sanitize = (data: TODODELETEMESquaddieDecisionsDuringThisPhase): TODODELETEMESquaddieDecisionsDuringThisPhase => {
     if (isValidValue(data.decisions) !== true) {
         data.decisions = [];
     }

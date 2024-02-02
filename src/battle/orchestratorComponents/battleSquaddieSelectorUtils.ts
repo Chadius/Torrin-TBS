@@ -9,7 +9,7 @@ import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffe
 import {OrchestratorUtilities, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
+import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
 import {ObjectRepositoryService} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
@@ -17,7 +17,7 @@ import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinde
 import {MapHighlightHelper} from "../animation/mapHighlight";
 import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {DecisionService} from "../../decision/TODODELETEMEdecision";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {TODODELETEMESquaddieActionsForThisRoundService} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 
 export function createSearchPath(state: GameEngineState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
@@ -87,7 +87,7 @@ export function AddMovementInstruction(state: GameEngineState, squaddieTemplate:
             moveAction
         ]
     });
-    CurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision)
+    TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision)
 
     RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, {
         instruction: state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
@@ -101,8 +101,8 @@ export function MaybeCreateSquaddieInstruction(state: GameEngineState, battleSqu
         const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-            squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+            squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId,
                 startingLocation: {
@@ -119,7 +119,7 @@ export function MaybeEndSquaddieTurn(state: GameEngineState) {
         return;
     }
 
-    if (!CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
+    if (!TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
         return;
     }
 
@@ -127,7 +127,7 @@ export function MaybeEndSquaddieTurn(state: GameEngineState) {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
     } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-        CurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+        TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(actingBattleSquaddie, actingSquaddieTemplate, state.repository);

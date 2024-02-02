@@ -6,10 +6,7 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {
-    TODODELETEMEActionEffectSquaddieTemplate,
-    TODODELETEMEActionEffectSquaddieTemplateService
-} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
+import {TODODELETEMEActionEffectSquaddieTemplate} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
@@ -21,6 +18,10 @@ import {IsSquaddieAlive} from "../../../squaddie/squaddieService";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {RectAreaService} from "../../../ui/rectArea";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "../../actionCalculator/degreeOfSuccess";
+import {
+    ActionEffectSquaddieTemplate,
+    ActionEffectSquaddieTemplateService
+} from "../../../action/template/actionEffectSquaddieTemplate";
 
 export class TargetSprite {
     constructor() {
@@ -64,10 +65,10 @@ export class TargetSprite {
         this._actionResult = undefined;
     }
 
-    start({targetBattleSquaddieId, squaddieRepository, action, result, startingPosition, resourceHandler}: {
+    start({targetBattleSquaddieId, squaddieRepository, actionEffectSquaddieTemplateService, result, startingPosition, resourceHandler}: {
         targetBattleSquaddieId: string,
         squaddieRepository: ObjectRepository,
-        action: TODODELETEMEActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate,
         result: ActionResultPerSquaddie,
         startingPosition: number,
         resourceHandler: ResourceHandler,
@@ -88,7 +89,7 @@ export class TargetSprite {
         this.sprite.beginLoadingActorImages();
     }
 
-    draw(timer: ActionTimer, graphicsContext: GraphicsContext, action: TODODELETEMEActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
+    draw(timer: ActionTimer, graphicsContext: GraphicsContext, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
         if (timer.currentPhase === ActionAnimationPhase.INITIALIZED) {
             return;
         }
@@ -98,7 +99,7 @@ export class TargetSprite {
             this._startingPosition -= this.sprite.getSpriteBasedOnEmotion(SquaddieEmotion.NEUTRAL, graphicsContext).area.width;
         }
 
-        this.drawActorSprite(timer, graphicsContext, action, result);
+        this.drawActorSprite(timer, graphicsContext, actionEffectSquaddieTemplate, result);
     }
 
     public getSquaddieEmotion({
@@ -106,17 +107,17 @@ export class TargetSprite {
                                   battleSquaddieId,
                                   squaddieRepository,
                                   result,
-                                  action,
+                                  actionEffectSquaddieTemplateService,
                               }: {
         timer: ActionTimer,
         battleSquaddieId: string,
         squaddieRepository: ObjectRepository,
         result: ActionResultPerSquaddie,
-        action: TODODELETEMEActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate,
     }): SquaddieEmotion {
         switch (timer.currentPhase) {
             case ActionAnimationPhase.DURING_ACTION:
-                if (TODODELETEMEActionEffectSquaddieTemplateService.isHindering(action)) {
+                if (ActionEffectSquaddieTemplateService.isHindering(actionEffectSquaddieTemplateService)) {
                     return SquaddieEmotion.TARGETED;
                 }
                 return SquaddieEmotion.NEUTRAL;
@@ -151,19 +152,19 @@ export class TargetSprite {
         }
     }
 
-    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext, action: TODODELETEMEActionEffectSquaddieTemplate) {
+    getSquaddieImageBasedOnTimer(timer: ActionTimer, graphicsContext: GraphicsContext, actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate) {
         let emotion: SquaddieEmotion = this.getSquaddieEmotion({
             timer,
             result: this.actionResult,
             battleSquaddieId: this.battleSquaddieId,
             squaddieRepository: this.squaddieRepository,
-            action,
+            actionEffectSquaddieTemplateService: actionEffectSquaddieTemplate,
         });
         return this.sprite.getSpriteBasedOnEmotion(emotion, graphicsContext);
     }
 
-    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext, action: TODODELETEMEActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
-        let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext, action);
+    private drawActorSprite(timer: ActionTimer, graphicsContext: GraphicsContext, actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate, result: ActionResultPerSquaddie) {
+        let spriteToDraw = this.getSquaddieImageBasedOnTimer(timer, graphicsContext, actionEffectSquaddieTemplateService);
         let horizontalDistance: number = 0;
         let verticalDistance: number = 0;
 
@@ -172,7 +173,7 @@ export class TargetSprite {
             battleSquaddieId: this.battleSquaddieId,
             squaddieRepository: this.squaddieRepository,
             result,
-            action,
+            actionEffectSquaddieTemplateService: actionEffectSquaddieTemplateService,
         });
 
         if ([ActionAnimationPhase.BEFORE_ACTION,
@@ -182,7 +183,7 @@ export class TargetSprite {
                 horizontalDistance,
                 verticalDistance
             } = this.getSpritePositionBeforeActionAndDuringAction(timer, emotion));
-        } else if (TODODELETEMEActionEffectSquaddieTemplateService.isHindering(action)) {
+        } else if (ActionEffectSquaddieTemplateService.isHindering(actionEffectSquaddieTemplateService)) {
             if (DegreeOfSuccessService.atLeastSuccessful(result.actorDegreeOfSuccess) && result.damageTaken > 0) {
                 ({
                     horizontalDistance,

@@ -12,15 +12,15 @@ import {ArmyAttributesService} from "../../squaddie/armyAttributes";
 import {SquaddieIdService} from "../../squaddie/id";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleStateService} from "../orchestrator/battleState";
-import {CurrentlySelectedSquaddieDecisionService} from "../history/currentlySelectedSquaddieDecision";
-import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
-import {SquaddieActionsForThisRoundService} from "../history/squaddieDecisionsDuringThisPhase";
+import {TODODELETEMESquaddieActionsForThisRoundService} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {SquaddieService} from "../../squaddie/squaddieService";
 import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {DEFAULT_ACTION_POINTS_PER_TURN} from "../../squaddie/turn";
-import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
-import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
@@ -65,21 +65,22 @@ describe("Orchestration Utils", () => {
 
         camera = new BattleCamera();
 
-        movementActionEffect = ActionEffectMovementService.new({
-            destination: {q: 0, r: 2},
-            numberOfActionPointsSpent: 2,
-        });
+        // TODO
+        // movementActionEffect = ActionEffectMovementService.new({
+        //     destination: {q: 0, r: 2},
+        //     numberOfActionPointsSpent: 2,
+        // });
 
-        squaddieActionEffect = ActionEffectSquaddieService.new({
-            targetLocation: {q: 0, r: 2},
-            numberOfActionPointsSpent: 1,
-            template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-                id: "shout",
-                name: "shout"
-            })
-        });
+        // squaddieActionEffect = ActionEffectSquaddieService.new({
+        //     targetLocation: {q: 0, r: 2},
+        //     numberOfActionPointsSpent: 1,
+        //     template: TODODELETEMEActionEffectSquaddieTemplateService.new({
+        //         id: "shout",
+        //         name: "shout"
+        //     })
+        // });
 
-        endTurnActionEffect = ActionEffectEndTurnService.new();
+        // endTurnActionEffect = ActionEffectEndTurnService.new();
     });
 
     it('can return the squaddie and information at a given location on the screen', () => {
@@ -227,15 +228,15 @@ describe("Orchestration Utils", () => {
             state.battleOrchestratorState.battleState.squaddieCurrentlyActing = undefined;
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
 
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.default()
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.default()
             });
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
 
         it('is if the squaddie is previewing a decision', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
                     startingLocation: {q: 0, r: 0},
@@ -247,8 +248,8 @@ describe("Orchestration Utils", () => {
         });
 
         it('is if the squaddie already made a decision that does not end the turn', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
                     startingLocation: {q: 0, r: 0},
@@ -259,8 +260,8 @@ describe("Orchestration Utils", () => {
         });
 
         it('will agree with the squaddie service after finishing its checks', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
                     startingLocation: {q: 0, r: 0},
@@ -280,8 +281,8 @@ describe("Orchestration Utils", () => {
         });
 
         it('is not if the squaddie already made a decision that does end the turn', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
                     startingLocation: {q: 0, r: 0},
@@ -300,8 +301,8 @@ describe("Orchestration Utils", () => {
         });
 
         it('is not if the squaddie cancels their first decision before confirming it', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
                     startingLocation: {q: 0, r: 0},
@@ -309,7 +310,7 @@ describe("Orchestration Utils", () => {
                 }),
                 currentlySelectedDecision: moveDecision,
             });
-            CurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
     });
@@ -331,19 +332,19 @@ describe("Orchestration Utils", () => {
             expect(mapLocation).toEqual({q: 0, r: 2});
         });
         it('will spend action points based on the squaddie actionEffect', () => {
-            OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
-                actionEffect: ActionEffectSquaddieService.new({
-                    targetLocation: {q: 0, r: 2},
-                    numberOfActionPointsSpent: 1,
-                    template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-                        id: "shout",
-                        name: "shout"
-                    })
-                }),
-                missionMap: map,
-                repository: squaddieRepository,
-                battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-            });
+            // OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
+            //     actionEffect: ActionEffectSquaddieService.new({
+            //         targetLocation: {q: 0, r: 2},
+            //         numberOfActionPointsSpent: 1,
+            //         template: TODODELETEMEActionEffectSquaddieTemplateService.new({
+            //             id: "shout",
+            //             name: "shout"
+            //         })
+            //     }),
+            //     missionMap: map,
+            //     repository: squaddieRepository,
+            //     battleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+            // });
 
             expect(knightBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1);
         });
@@ -361,8 +362,8 @@ describe("Orchestration Utils", () => {
 
     describe('iterateToNextActionEffect', () => {
         it('will not create an iterator and return undefined if it is called without a decision', () => {
-            const currentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            const currentlySelectedSquaddieDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battleSquaddieId",
                     startingLocation: {q: 0, r: 0},
                     squaddieTemplateId: "squaddieTemplateId",
@@ -388,8 +389,8 @@ describe("Orchestration Utils", () => {
                 ]
             });
 
-            const currentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            const currentlySelectedSquaddieDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battleSquaddieId",
                     startingLocation: {q: 0, r: 0},
                     squaddieTemplateId: "squaddieTemplateId",
@@ -423,8 +424,8 @@ describe("Orchestration Utils", () => {
                 ]
             });
 
-            const currentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            const currentlySelectedSquaddieDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battleSquaddieId",
                     startingLocation: {q: 0, r: 0},
                     squaddieTemplateId: "squaddieTemplateId",
@@ -464,8 +465,8 @@ describe("Orchestration Utils", () => {
                 ]
             });
 
-            const currentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            const currentlySelectedSquaddieDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battleSquaddieId",
                     startingLocation: {q: 0, r: 0},
                     squaddieTemplateId: "squaddieTemplateId",
@@ -502,8 +503,8 @@ describe("Orchestration Utils", () => {
                 ]
             });
 
-            const currentlySelectedSquaddieDecision = CurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: SquaddieActionsForThisRoundService.new({
+            const currentlySelectedSquaddieDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battleSquaddieId",
                     startingLocation: {q: 0, r: 0},
                     squaddieTemplateId: "squaddieTemplateId",

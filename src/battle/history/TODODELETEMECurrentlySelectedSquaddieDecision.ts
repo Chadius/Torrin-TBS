@@ -1,36 +1,36 @@
-import {SquaddieActionsForThisRoundService, SquaddieDecisionsDuringThisPhase} from "./squaddieDecisionsDuringThisPhase";
+import {TODODELETEMESquaddieActionsForThisRoundService, TODODELETEMESquaddieDecisionsDuringThisPhase} from "./TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {isValidValue} from "../../utils/validityCheck";
 
-export interface CurrentlySelectedSquaddieDecision {
-    squaddieDecisionsDuringThisPhase: SquaddieDecisionsDuringThisPhase;
+export interface TODODELETEMECurrentlySelectedSquaddieDecision {
+    squaddieDecisionsDuringThisPhase: TODODELETEMESquaddieDecisionsDuringThisPhase;
     currentlySelectedDecision: TODODELETEMEdecision;
     decisionIndex: number;
 }
 
-export const CurrentlySelectedSquaddieDecisionService = {
+export const TODODELETEMECurrentlySelectedSquaddieDecisionService = {
     new: ({
               squaddieActionsForThisRound,
               currentlySelectedDecision,
               decisionIndex,
           }: {
-        squaddieActionsForThisRound: SquaddieDecisionsDuringThisPhase;
+        squaddieActionsForThisRound: TODODELETEMESquaddieDecisionsDuringThisPhase;
         currentlySelectedDecision?: TODODELETEMEdecision;
         decisionIndex?: number;
-    }): CurrentlySelectedSquaddieDecision => {
+    }): TODODELETEMECurrentlySelectedSquaddieDecision => {
         return sanitize({
             squaddieDecisionsDuringThisPhase: squaddieActionsForThisRound,
             currentlySelectedDecision: currentlySelectedDecision,
             decisionIndex,
         });
     },
-    sanitize: (data: CurrentlySelectedSquaddieDecision): CurrentlySelectedSquaddieDecision => {
+    sanitize: (data: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMECurrentlySelectedSquaddieDecision => {
         return sanitize(data);
     },
-    squaddieHasActedThisTurn: (data: CurrentlySelectedSquaddieDecision): boolean => {
+    squaddieHasActedThisTurn: (data: TODODELETEMECurrentlySelectedSquaddieDecision): boolean => {
         return squaddieHasMadeADecision(data);
     },
-    battleSquaddieId: (data: CurrentlySelectedSquaddieDecision): string => {
+    battleSquaddieId: (data: TODODELETEMECurrentlySelectedSquaddieDecision): string => {
         if (
             isValidValue(data)
             && isValidValue(data.squaddieDecisionsDuringThisPhase)
@@ -39,7 +39,7 @@ export const CurrentlySelectedSquaddieDecisionService = {
         }
         return "";
     },
-    addConfirmedDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, decision: TODODELETEMEdecision) => {
+    addConfirmedDecision: (instructionInProgress: TODODELETEMECurrentlySelectedSquaddieDecision, decision: TODODELETEMEdecision) => {
         if (
             !instructionInProgress.squaddieDecisionsDuringThisPhase
             || instructionInProgress.squaddieDecisionsDuringThisPhase.battleSquaddieId == ""
@@ -48,25 +48,25 @@ export const CurrentlySelectedSquaddieDecisionService = {
             throw new Error("no squaddie found, cannot add action");
         }
 
-        SquaddieActionsForThisRoundService.addDecision(instructionInProgress.squaddieDecisionsDuringThisPhase, decision);
+        TODODELETEMESquaddieActionsForThisRoundService.addDecision(instructionInProgress.squaddieDecisionsDuringThisPhase, decision);
     },
-    selectCurrentDecision: (instructionInProgress: CurrentlySelectedSquaddieDecision, currentDecision: TODODELETEMEdecision) => {
+    selectCurrentDecision: (instructionInProgress: TODODELETEMECurrentlySelectedSquaddieDecision, currentDecision: TODODELETEMEdecision) => {
         instructionInProgress.currentlySelectedDecision = currentDecision;
     },
-    cancelSelectedCurrentDecision: (data: CurrentlySelectedSquaddieDecision) => {
+    cancelSelectedCurrentDecision: (data: TODODELETEMECurrentlySelectedSquaddieDecision) => {
         data.currentlySelectedDecision = undefined;
     },
-    hasFinishedIteratingThoughDecisions: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
+    hasFinishedIteratingThoughDecisions: (currentDecision: TODODELETEMECurrentlySelectedSquaddieDecision): boolean => {
         return decisionIndexIsOutOfBounds(currentDecision);
     },
-    peekDecision: (currentDecision: CurrentlySelectedSquaddieDecision): TODODELETEMEdecision => {
+    peekDecision: (currentDecision: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMEdecision => {
         if (decisionIndexIsOutOfBounds(currentDecision)) {
             return undefined;
         }
 
         return currentDecision.squaddieDecisionsDuringThisPhase.decisions[currentDecision.decisionIndex];
     },
-    nextDecision: (currentDecision: CurrentlySelectedSquaddieDecision): TODODELETEMEdecision => {
+    nextDecision: (currentDecision: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMEdecision => {
         if (decisionIndexIsOutOfBounds(currentDecision)) {
             return undefined;
         }
@@ -76,40 +76,40 @@ export const CurrentlySelectedSquaddieDecisionService = {
         currentDecision.decisionIndex += 1;
         return nextActionEffect;
     },
-    hasACurrentDecision: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
+    hasACurrentDecision: (currentDecision: TODODELETEMECurrentlySelectedSquaddieDecision): boolean => {
         if (!isValidValue(currentDecision)) {
             return false;
         }
 
         return currentDecision.currentlySelectedDecision !== undefined;
     },
-    hasSquaddieMadeADecision: (currentDecision: CurrentlySelectedSquaddieDecision): boolean => {
+    hasSquaddieMadeADecision: (currentDecision: TODODELETEMECurrentlySelectedSquaddieDecision): boolean => {
         if (!isValidValue(currentDecision)) {
             return false;
         }
 
         return currentDecision.squaddieDecisionsDuringThisPhase.decisions.length > 0;
     },
-    addCurrentDecisionToDecisionsMadeThisRound: (currentDecision: CurrentlySelectedSquaddieDecision) => {
+    addCurrentDecisionToDecisionsMadeThisRound: (currentDecision: TODODELETEMECurrentlySelectedSquaddieDecision) => {
         if (!isValidValue(currentDecision)) {
             return;
         }
 
-        SquaddieActionsForThisRoundService.addDecision(currentDecision.squaddieDecisionsDuringThisPhase, currentDecision.currentlySelectedDecision);
+        TODODELETEMESquaddieActionsForThisRoundService.addDecision(currentDecision.squaddieDecisionsDuringThisPhase, currentDecision.currentlySelectedDecision);
         currentDecision.currentlySelectedDecision = undefined;
         return;
     },
-    isDefault: (squaddieCurrentlyActing: CurrentlySelectedSquaddieDecision): boolean => {
-        const defaultSquaddieActions = SquaddieActionsForThisRoundService.default();
+    isDefault: (squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision): boolean => {
+        const defaultSquaddieActions = TODODELETEMESquaddieActionsForThisRoundService.default();
         return squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.squaddieTemplateId === defaultSquaddieActions.squaddieTemplateId
             && squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId === defaultSquaddieActions.battleSquaddieId;
     }
 }
 
-const sanitize = (data: CurrentlySelectedSquaddieDecision): CurrentlySelectedSquaddieDecision => {
+const sanitize = (data: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMECurrentlySelectedSquaddieDecision => {
     if (data.squaddieDecisionsDuringThisPhase === undefined) {
         data.squaddieDecisionsDuringThisPhase = {
-            ...SquaddieActionsForThisRoundService.default(),
+            ...TODODELETEMESquaddieActionsForThisRoundService.default(),
         };
     }
 
@@ -121,16 +121,16 @@ const sanitize = (data: CurrentlySelectedSquaddieDecision): CurrentlySelectedSqu
         data.decisionIndex = 0;
     }
 
-    SquaddieActionsForThisRoundService.sanitize(data.squaddieDecisionsDuringThisPhase);
+    TODODELETEMESquaddieActionsForThisRoundService.sanitize(data.squaddieDecisionsDuringThisPhase);
     return data;
 };
 
-const decisionIndexIsOutOfBounds = (state: CurrentlySelectedSquaddieDecision) =>
+const decisionIndexIsOutOfBounds = (state: TODODELETEMECurrentlySelectedSquaddieDecision) =>
     !isValidValue(state)
     || state.decisionIndex === undefined
     || state.decisionIndex >= state.squaddieDecisionsDuringThisPhase.decisions.length;
 
-const squaddieHasMadeADecision = (data: CurrentlySelectedSquaddieDecision) => {
+const squaddieHasMadeADecision = (data: TODODELETEMECurrentlySelectedSquaddieDecision) => {
     if (data === undefined) {
         return false;
     }

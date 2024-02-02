@@ -22,7 +22,7 @@ describe('Actions This Round', () => {
         expect(actionsThisRound.battleSquaddieId).toEqual("soldier");
         expect(actionsThisRound.startingLocation).toEqual({q: 0, r: 0});
         expect(actionsThisRound.processedActions).toHaveLength(0);
-        expect(actionsThisRound.currentActionTemplateId).toBeUndefined();
+        expect(actionsThisRound.previewedActionTemplateId).toBeUndefined();
     });
 
     describe('sanitize', () => {
