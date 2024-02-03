@@ -166,7 +166,8 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.actorTextWindow.start({
             actorTemplate: actorTemplate,
             actorBattle: actorBattle,
-            actionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
+            //actionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
+            actionTemplate: undefined, // TODO
             results: mostRecentResults.results,
         });
 
@@ -193,7 +194,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
             targetSprite.start({
                 targetBattleSquaddieId: battleId,
                 squaddieRepository: state.repository,
-                actionEffectSquaddieTemplateService: action,
+                actionEffectSquaddieTemplateService: undefined,
+                // TODO
+                // actionEffectSquaddieTemplateService: action,
                 result: resultPerTarget[battleId],
                 resourceHandler: state.resourceHandler,
                 startingPosition: RectAreaService.right(this.targetTextWindows[index].targetLabel.rectangle.area),
@@ -221,7 +224,9 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
                 targetTemplate: targetTemplate,
                 targetBattle: targetBattle,
                 result: resultPerTarget[battleId],
-                actionEffectSquaddieTemplate: squaddieActionEffect.template,
+                actionEffectSquaddieTemplate: undefined,
+                // TODO
+                //actionEffectSquaddieTemplate: squaddieActionEffect.template,
             });
             return targetTextWindow;
         }).filter(x => x);
@@ -268,22 +273,28 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         this.actorSprite.draw({
             timer: this.actionAnimationTimer,
             graphicsContext,
-            actionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
+            actionEffectSquaddieTemplate: undefined,
+            // TODO
+            //actionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
         });
         this.weaponIcon.draw({
                 graphicsContext,
                 actorImageArea: this.actorSprite.getSquaddieImageBasedOnTimer(
                     this.actionAnimationTimer,
                     graphicsContext,
-                    actionEffectSquaddieTemplate
+                    undefined, // TODO
                 ).area,
-                actionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
+                actionEffectSquaddieTemplate: undefined,
+                // TODO
+                //actionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
             }
         );
         this.targetTextWindows.forEach((t) => t.draw(graphicsContext, this.actionAnimationTimer));
         const mostRecentResults = RecordingService.mostRecentEvent(state.battleState.recording).results;
         this.targetSprites.forEach((t) => {
-            t.draw(this.actionAnimationTimer, graphicsContext, actionEffectSquaddieTemplate, mostRecentResults.resultPerTarget[t.battleSquaddieId])
+            // TODO
+            //t.draw(this.actionAnimationTimer, graphicsContext, actionEffectSquaddieTemplate, mostRecentResults.resultPerTarget[t.battleSquaddieId])
+            t.draw(this.actionAnimationTimer, graphicsContext, undefined, mostRecentResults.resultPerTarget[t.battleSquaddieId])
         });
         Object.values(this.targetHitPointMeters).forEach((t) => t.draw(graphicsContext));
     }

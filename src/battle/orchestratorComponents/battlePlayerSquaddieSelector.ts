@@ -24,7 +24,9 @@ import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
 import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
-import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {TODODELETEMESquaddieActionsForThisRoundService} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {RecordingService} from "../history/recording";
 import {MissionMapSquaddieLocation, MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocation";
@@ -40,6 +42,7 @@ import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffe
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleSquaddieService} from "../battleSquaddie";
 import {isValidValue} from "../../utils/validityCheck";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -212,6 +215,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             state.battleOrchestratorState.battleSquaddieSelectedHUD.mouseClickedNoSquaddieSelected();
             return;
         }
+        this.maybeCreateNewActionsThisRound(state, battleSquaddie.battleSquaddieId, clickedHexCoordinate);
 
         const squaddieReachHighlightedOnMap = MapHighlightHelper.highlightAllLocationsWithinSquaddieRange({
             repository: state.repository,
@@ -230,6 +234,18 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             state,
         });
         this.selectedBattleSquaddieId = battleSquaddie.battleSquaddieId;
+    }
+
+    private maybeCreateNewActionsThisRound(state: GameEngineState, battleSquaddieId: string, clickedHexCoordinate: HexCoordinate) {
+        if (OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
+            return;
+        }
+
+        this.selectedBattleSquaddieId = battleSquaddieId;
+        state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: battleSquaddieId,
+            startingLocation: clickedHexCoordinate,
+        });
     }
 
     private updateBattleSquaddieUISelectedSquaddie(state: GameEngineState, clickedHexCoordinate: HexCoordinate, mouseX: number, mouseY: number) {
@@ -257,16 +273,13 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             return;
         }
 
-        const startOfANewSquaddieTurn = !OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state);
-        const battleSquaddieToHighlightId: string = startOfANewSquaddieTurn
-            ? squaddieClickedOnInfoAndMapLocation.battleSquaddieId
-            : TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
-
+        const battleSquaddieToHighlightId: string = OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
+            ? state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId
+            : squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
         const {mapLocation: startLocation} = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddieToHighlightId)
 
-        if (startOfANewSquaddieTurn) {
-            this.selectedBattleSquaddieId = squaddieClickedOnInfoAndMapLocation.battleSquaddieId;
-        }
+        this.maybeCreateNewActionsThisRound(state, battleSquaddieToHighlightId, startLocation);
+
         const {
             battleSquaddie,
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieToHighlightId));

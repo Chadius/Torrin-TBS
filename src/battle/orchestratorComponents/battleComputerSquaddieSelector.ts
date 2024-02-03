@@ -47,6 +47,7 @@ import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {MissionMapService} from "../../missionMap/missionMap";
 import {isValidValue} from "../../utils/validityCheck";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
+import {DecidedAction} from "../../action/decided/decidedAction";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -241,7 +242,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             squaddieRepository: state.repository,
         })
 
-        let decisionsDuringThisPhase: TODODELETEMESquaddieDecisionsDuringThisPhase = DetermineNextDecision({
+        let decisionsDuringThisPhase: DecidedAction = DetermineNextDecision({
             strategy: currentTeamStrategy,
             state: teamStrategyState,
             squaddieRepository: state.repository,
@@ -251,7 +252,9 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             return;
         }
 
-        return decisionsDuringThisPhase;
+        // TODO
+        // return decisionsDuringThisPhase;
+        return undefined;
     }
 
     private panToSquaddieIfOffscreen(state: GameEngineState) {

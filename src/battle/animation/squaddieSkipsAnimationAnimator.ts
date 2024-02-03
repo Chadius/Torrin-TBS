@@ -64,11 +64,13 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
                 return;
             }
 
-            this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
-                squaddieRepository: state.repository,
-                currentActionEffectTemplate: squaddieActionEffect.template,
-                result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
-            });
+            this.outputTextStrings = [];
+            // TODO
+            // this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
+            //     squaddieRepository: state.repository,
+            //     currentActionEffectTemplate: squaddieActionEffect.template,
+            //     result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
+            // });
 
             const textToDraw = this.outputTextStrings.join("\n");
 

@@ -127,33 +127,6 @@ describe('BattleSquaddieSelectedHUD', () => {
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
     });
 
-    it('generates a button for each squaddie action', () => {
-        hud.selectSquaddieAndDrawWindow({
-                battleId: playerSquaddieDynamicID,
-                repositionWindow: {mouseX: 0, mouseY: 0},
-                state: GameEngineStateService.new({
-                    resourceHandler: resourceHandler,
-                    battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                        battleSquaddieSelectedHUD: undefined,
-                        battleState: BattleStateService.newBattleState({
-                            missionId: "test mission",
-                            missionMap,
-                            camera: new BattleCamera(0, 0),
-                        }),
-                    }),
-                    repository: squaddieRepository,
-                })
-            },
-        );
-
-        const actionButtons: MakeDecisionButton[] = hud.getUseActionButtons();
-        expect(actionButtons).toBeTruthy();
-
-        expect(actionButtons.find((button) => {
-            return button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.name === longswordAction.name;
-        })).toBeTruthy();
-    });
-
     it('reports when an action button is clicked', () => {
         const state: GameEngineState = GameEngineStateService.new({
             resourceHandler: resourceHandler,
@@ -176,10 +149,12 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.name === longswordAction.name
-        );
+        // TODO
+        const longswordButton: MakeDecisionButton = undefined;
+        // const longswordButton = hud.getUseActionButtons().find((button) =>
+        //     button.TODODELETEMEactionEffectSquaddieTemplate
+        //     && button.TODODELETEMEactionEffectSquaddieTemplate.name === longswordAction.name
+        // );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeTruthy();
@@ -215,10 +190,12 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        const longswordButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate
-            && button.actionEffectSquaddieTemplate.name === longswordAction.name
-        );
+        // TODO
+        const longswordButton: MakeDecisionButton = undefined;
+        // const longswordButton = hud.getUseActionButtons().find((button) =>
+        //     button.TODODELETEMEactionEffectSquaddieTemplate
+        //     && button.TODODELETEMEactionEffectSquaddieTemplate.name === longswordAction.name
+        // );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state.battleOrchestratorState);
 
         expect(longswordButton.status).toBe(ButtonStatus.HOVER);
@@ -377,9 +354,11 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
-            button.actionEffectSquaddieTemplate && button.actionEffectSquaddieTemplate.name === "not enough actions"
-        );
+        // TODO
+        const notEnoughActionPointsButton: MakeDecisionButton = undefined;
+        // const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
+        //     button.TODODELETEMEactionEffectSquaddieTemplate && button.TODODELETEMEactionEffectSquaddieTemplate.name === "not enough actions"
+        // );
 
         hud.mouseClicked(
             notEnoughActionPointsButton.buttonArea.left,

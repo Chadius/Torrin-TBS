@@ -6,20 +6,30 @@ import {SquaddieAffiliation} from "./squaddieAffiliation";
 import {TextBox, TextBoxHelper} from "../ui/textBox";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
 import {ButtonStatus} from "../ui/button";
+import {ActionTemplate} from "../action/template/actionTemplate";
+import {getValidValueOrDefault} from "../utils/validityCheck";
 
 export class MakeDecisionButton {
     buttonArea: RectArea;
-    actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate;
+    actionTemplate: ActionTemplate;
     hue: number;
+    name: string;
 
-    constructor(options: {
+    constructor({
+        buttonArea,
+        actionTemplate,
+        hue,
+                }: {
         buttonArea?: RectArea;
-        actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate;
+        actionTemplate: ActionTemplate;
         hue?: number;
     }) {
-        this.buttonArea = options.buttonArea;
-        this.actionEffectSquaddieTemplate = options.actionEffectSquaddieTemplate;
-        this.hue = options.hue !== undefined ? options.hue : HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN];
+        this.buttonArea = buttonArea;
+        this.actionTemplate = actionTemplate;
+        this.hue = getValidValueOrDefault(
+            hue,
+            HUE_BY_SQUADDIE_AFFILIATION[SquaddieAffiliation.UNKNOWN]
+        );
     }
 
     private _status: ButtonStatus;
@@ -54,8 +64,7 @@ export class MakeDecisionButton {
             RectangleHelper.draw(hoverOutline, graphicsContext);
         }
 
-        let actionDescription: string;
-        actionDescription = this.actionEffectSquaddieTemplate.name;
+        let actionDescription = this.actionTemplate.name;
 
         const buttonTextBox: TextBox = TextBoxHelper.new({
             area: RectAreaService.new({

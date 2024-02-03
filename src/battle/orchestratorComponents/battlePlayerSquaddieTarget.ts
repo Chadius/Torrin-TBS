@@ -276,12 +276,13 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return;
         }
 
-        const intentMessages = ActionResultTextService.outputIntentForTextOnly({
-            currentActionEffectTemplate: squaddieActionEffect.template,
-            actingBattleSquaddieId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
-            squaddieRepository: state.repository,
-            actingSquaddieModifiers,
-        });
+        const intentMessages: string[] = [];
+        // const intentMessages = ActionResultTextService.outputIntentForTextOnly({
+        //     currentActionEffectSquaddieTemplate: undefined, // TODO
+        //     actingBattleSquaddieId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
+        //     squaddieRepository: state.repository,
+        //     actingSquaddieModifiers,
+        // });
 
         intentMessages.push(...[
             "",

@@ -104,23 +104,42 @@ const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
         return false;
     }
 
-    if (!state.battleOrchestratorState.battleState.squaddieCurrentlyActing) {
+    // TODO test this logic out
+    const actionsThisRound = state.battleOrchestratorState.battleState.actionsThisRound;
+    if (!isValidValue(actionsThisRound)) {
         return false;
     }
 
-    if (TODODELETEMECurrentlySelectedSquaddieDecisionService.isDefault(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
+    if (!isValidValue(actionsThisRound.battleSquaddieId) || actionsThisRound.battleSquaddieId === "") {
         return false;
     }
 
-    if (TODODELETEMECurrentlySelectedSquaddieDecisionService.hasACurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
+    if (actionsThisRound.processedActions.length > 0) {
         return true;
     }
 
     const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
-        )
+        ObjectRepositoryService.getSquaddieByBattleId(state.repository, actionsThisRound.battleSquaddieId)
     );
+
+    // TODO
+    // if (!state.battleOrchestratorState.battleState.squaddieCurrentlyActing) {
+    //     return false;
+    // }
+    //
+    // if (TODODELETEMECurrentlySelectedSquaddieDecisionService.isDefault(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
+    //     return false;
+    // }
+    //
+    // if (TODODELETEMECurrentlySelectedSquaddieDecisionService.hasACurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
+    //     return true;
+    // }
+    //
+    // const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
+    //     ObjectRepositoryService.getSquaddieByBattleId(state.repository,
+    //         TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+    //     )
+    // );
 
     return SquaddieService.isSquaddieCurrentlyTakingATurn({
         squaddieTemplate,
