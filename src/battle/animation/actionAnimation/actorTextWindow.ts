@@ -1,7 +1,6 @@
 import {RectAreaService} from "../../../ui/rectArea";
 import {ActionAnimationFontColor, ActionAnimationPhase} from "./actionAnimationConstants";
 import {BattleSquaddie} from "../../battleSquaddie";
-import {TODODELETEMEActionEffectSquaddieTemplate} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {WINDOW_SPACING1, WINDOW_SPACING2} from "../../../ui/constants";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {Label, LabelHelper} from "../../../ui/label";
@@ -11,7 +10,6 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextService} from "../actionResultTextService";
-import {ActionEffectSquaddieTemplate} from "../../../action/template/actionEffectSquaddieTemplate";
 import {ActionTemplate} from "../../../action/template/actionTemplate";
 
 export class ActorTextWindow {

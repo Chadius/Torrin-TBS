@@ -1,4 +1,4 @@
-import {TODODELETEMEdecision, DecisionService} from "./TODODELETEMEdecision";
+import {DecisionService, TODODELETEMEdecision} from "./TODODELETEMEdecision";
 import {TODODELETEMEActionEffectType} from "./TODODELETEMEactionEffect";
 import {ActionEffectSquaddieService} from "./TODODELETEMEactionEffectSquaddie";
 import {TODODELETEMEActionEffectSquaddieTemplateService} from "./TODODELETEMEActionEffectSquaddieTemplate";

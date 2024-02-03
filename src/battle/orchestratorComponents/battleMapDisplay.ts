@@ -31,7 +31,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
         this.drawSquaddieMapIcons(state, graphicsContext, battleSquaddieIdsToOmit);
         state.battleOrchestratorState.battleState.camera.moveCamera();
 
-        state.battleOrchestratorState.battleSquaddieSelectedHUD.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, graphicsContext);
+        state.battleOrchestratorState.battleSquaddieSelectedHUD.draw(state, graphicsContext);
     }
 
     hasCompleted(state: GameEngineState): boolean {

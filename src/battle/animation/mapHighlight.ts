@@ -180,7 +180,7 @@ const addAttackRangeOntoMovementRange = (
     const allLocationsSquaddieCanMoveTo: HexCoordinate[] = SearchResultsHelper.getStoppableLocations(reachableLocationSearch);
 
     const attackLocations: HexCoordinate[] = [];
-    squaddieTemplate.actions.forEach(action => {
+    squaddieTemplate.TODODELETEMEactions.forEach(action => {
         allLocationsSquaddieCanMoveTo.forEach(coordinate => {
             const path: SearchPath = reachableLocationSearch.shortestPathByLocation[coordinate.q][coordinate.r];
             const numberOfMoveActionsToReachEndOfPath: number = isValidValue(path) ? path.currentNumberOfMoveActions : 0;

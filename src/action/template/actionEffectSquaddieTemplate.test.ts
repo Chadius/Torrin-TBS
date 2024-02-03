@@ -2,7 +2,6 @@ import {DamageType} from "../../squaddie/squaddieService";
 import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {ActionEffectSquaddieTemplate, ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
-import {ActionTemplateService} from "./actionTemplate";
 
 describe('ActionEffectSquaddieTemplate', () => {
     it('can be constructed using data object', () => {
@@ -119,10 +118,12 @@ describe('ActionEffectSquaddieTemplate', () => {
         });
         it('does not contribute if the trait says it does not', () => {
             const quickAttack: ActionEffectSquaddieTemplate = ActionEffectSquaddieTemplateService.new({
-                traits: {booleanTraits: {
-                    [Trait.ATTACK]: true,
-                    [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
-                }},
+                traits: {
+                    booleanTraits: {
+                        [Trait.ATTACK]: true,
+                        [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
+                    }
+                },
             });
             expect(ActionEffectSquaddieTemplateService.getMultipleAttackPenalty(quickAttack)).toEqual(0);
         });

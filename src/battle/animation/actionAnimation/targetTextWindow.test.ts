@@ -76,7 +76,6 @@ describe('TargetTextWindow', () => {
                 templateId: "targetTemplateId",
                 traits: TraitStatusStorageService.newUsingTraitValues({}),
             },
-            actions: [],
             attributes: DefaultArmyAttributes(),
         });
 

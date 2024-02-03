@@ -1,4 +1,7 @@
-import {TODODELETEMESquaddieActionsForThisRoundService, TODODELETEMESquaddieDecisionsDuringThisPhase} from "./TODODELETEMESquaddieDecisionsDuringThisPhase";
+import {
+    TODODELETEMESquaddieActionsForThisRoundService,
+    TODODELETEMESquaddieDecisionsDuringThisPhase
+} from "./TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {isValidValue} from "../../utils/validityCheck";
 

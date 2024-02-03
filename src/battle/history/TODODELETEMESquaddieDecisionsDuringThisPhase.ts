@@ -1,7 +1,7 @@
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {MULTIPLE_ATTACK_PENALTY} from "../modifierConstants";
 import {isValidValue} from "../../utils/validityCheck";
-import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 
 export interface TODODELETEMESquaddieDecisionsDuringThisPhase {
     squaddieTemplateId: string;

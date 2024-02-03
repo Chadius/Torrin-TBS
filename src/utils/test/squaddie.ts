@@ -84,7 +84,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          squaddieRepository,
          actions,
          attributes,
-                                                           actionTemplates,
+         actionTemplates,
      }: {
          name: string,
          templateId: string,
@@ -93,7 +93,7 @@ export const CreateNewSquaddieAndAddToRepository: (
          squaddieRepository: ObjectRepository,
          actions?: TODODELETEMEActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
-    actionTemplates?: ActionTemplate[],
+         actionTemplates?: ActionTemplate[],
      }
 ) => {
     const squaddieTemplate: SquaddieTemplate = {
@@ -107,7 +107,7 @@ export const CreateNewSquaddieAndAddToRepository: (
             traits: TraitStatusStorageService.newUsingTraitValues(),
             affiliation
         },
-        actions: actions || [],
+        TODODELETEMEactions: actions || [],
         actionTemplates: getValidValueOrDefault(actionTemplates, []),
         attributes: attributes || DefaultArmyAttributes(),
     };

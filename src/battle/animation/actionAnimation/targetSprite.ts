@@ -6,7 +6,6 @@ import {
     SquaddieEmotion,
     TimeElapsedSinceAnimationStarted
 } from "./actionAnimationConstants";
-import {TODODELETEMEActionEffectSquaddieTemplate} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ScreenDimensions} from "../../../utils/graphics/graphicsConfig";
 import {ActionTimer} from "./actionTimer";
 import {ResourceHandler} from "../../../resource/resourceHandler";
@@ -65,7 +64,14 @@ export class TargetSprite {
         this._actionResult = undefined;
     }
 
-    start({targetBattleSquaddieId, squaddieRepository, actionEffectSquaddieTemplateService, result, startingPosition, resourceHandler}: {
+    start({
+              targetBattleSquaddieId,
+              squaddieRepository,
+              actionEffectSquaddieTemplateService,
+              result,
+              startingPosition,
+              resourceHandler
+          }: {
         targetBattleSquaddieId: string,
         squaddieRepository: ObjectRepository,
         actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate,

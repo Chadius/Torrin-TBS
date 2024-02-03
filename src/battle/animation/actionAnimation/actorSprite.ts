@@ -23,7 +23,8 @@ import {
 export class ActorSprite {
     squaddieResult: SquaddieSquaddieResults;
 
-    constructor() {}
+    constructor() {
+    }
 
     private _squaddieRepository: ObjectRepository;
 

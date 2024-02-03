@@ -31,7 +31,6 @@ describe('ActorTextWindow', () => {
                 affiliation: SquaddieAffiliation.PLAYER,
             },
             attributes: DefaultArmyAttributes(),
-            actions: [],
         });
         attackThatUsesAttackRoll = ActionTemplateService.new({
             id: "action Id",

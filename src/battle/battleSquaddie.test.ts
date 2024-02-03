@@ -54,7 +54,6 @@ describe('BattleSquaddie', () => {
                     armorClass: 2,
                     movement: CreateNewSquaddieMovementWithTraits({movementPerAction: 2}),
                 },
-                actions: [],
             });
         });
 

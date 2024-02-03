@@ -1,5 +1,7 @@
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
@@ -27,7 +29,6 @@ import {GetSquaddieAtScreenLocation, OrchestratorUtilities} from "./orchestrator
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
 import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {Trait} from "../../trait/traitStatusStorage";
-import {ActionResultTextService} from "../animation/actionResultTextService";
 import {LabelHelper} from "../../ui/label";
 import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {ActionCalculator} from "../actionCalculator/calculator";

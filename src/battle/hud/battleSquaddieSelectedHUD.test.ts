@@ -33,7 +33,7 @@ import {ActionTemplate, ActionTemplateService} from "../../action/template/actio
 import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedActionService} from "../../action/processed/processedAction";
-import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
+import {DecidedActionService} from "../../action/decided/decidedAction";
 
 describe('BattleSquaddieSelectedHUD', () => {
     let hud: BattleSquaddieSelectedHUD;
@@ -149,12 +149,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        // TODO
-        const longswordButton: MakeDecisionButton = undefined;
-        // const longswordButton = hud.getUseActionButtons().find((button) =>
-        //     button.TODODELETEMEactionEffectSquaddieTemplate
-        //     && button.TODODELETEMEactionEffectSquaddieTemplate.name === longswordAction.name
-        // );
+        const longswordButton = hud.getUseActionButtons().find((button) =>
+            button.actionTemplate.id === longswordAction.id
+        );
         hud.mouseClicked(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state);
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeTruthy();
@@ -190,12 +187,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        // TODO
-        const longswordButton: MakeDecisionButton = undefined;
-        // const longswordButton = hud.getUseActionButtons().find((button) =>
-        //     button.TODODELETEMEactionEffectSquaddieTemplate
-        //     && button.TODODELETEMEactionEffectSquaddieTemplate.name === longswordAction.name
-        // );
+        const longswordButton = hud.getUseActionButtons().find((button) =>
+            button.actionTemplate.id === longswordAction.id
+        );
         hud.mouseMoved(longswordButton.buttonArea.left, longswordButton.buttonArea.top, state.battleOrchestratorState);
 
         expect(longswordButton.status).toBe(ButtonStatus.HOVER);
@@ -280,9 +274,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeTruthy();
-        expect(hud.getSelectedActionTemplate().actionEffectTemplates).toContainEqual(
-            ActionEffectEndTurnTemplateService.new({})
-        );
+        expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
         hud.reset();
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
@@ -354,11 +346,9 @@ describe('BattleSquaddieSelectedHUD', () => {
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
         expect(hud.getSelectedActionTemplate()).toBeUndefined();
 
-        // TODO
-        const notEnoughActionPointsButton: MakeDecisionButton = undefined;
-        // const notEnoughActionPointsButton = hud.getUseActionButtons().find((button) =>
-        //     button.TODODELETEMEactionEffectSquaddieTemplate && button.TODODELETEMEactionEffectSquaddieTemplate.name === "not enough actions"
-        // );
+        const notEnoughActionPointsButton: MakeDecisionButton = hud.getUseActionButtons().find((button) =>
+            button.actionTemplate.id === "not enough actions"
+        );
 
         hud.mouseClicked(
             notEnoughActionPointsButton.buttonArea.left,
@@ -385,28 +375,14 @@ describe('BattleSquaddieSelectedHUD', () => {
                             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                             startingLocation: {q: 0, r: 0},
                             previewedActionTemplateId: "purifying_stream",
+                            processedActions: [
+                                ProcessedActionService.new({
+                                    decidedAction: DecidedActionService.new({
+                                        battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                                    })
+                                })
+                            ]
                         }),
-                        // TODO DELETE ME
-                        // squaddieCurrentlyActing: CurrentlySelectedSquaddieDecisionService.new({
-                        //     currentlySelectedDecision: DecisionService.new({
-                        //         actionEffects: [
-                        //             ActionEffectSquaddieService.new({
-                        //                 template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-                        //                     name: "purifying stream",
-                        //                     id: "purifying_stream",
-                        //                     traits: TraitStatusStorageService.newUsingTraitValues(),
-                        //                 }),
-                        //                 targetLocation: {q: 0, r: 0},
-                        //                 numberOfActionPointsSpent: 1,
-                        //             })
-                        //         ]
-                        //     }),
-                        //     squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                        //         battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                        //         squaddieTemplateId: playerSquaddieStatic.squaddieId.templateId,
-                        //         startingLocation: {q: 0, r: 0},
-                        //     }),
-                        // }),
                     }),
                 }),
                 repository: squaddieRepository,
@@ -420,7 +396,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-        hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+        hud.draw(state, mockedP5GraphicsContext);
 
         expect(textSpy).toBeCalled();
         expect(textSpy).toBeCalledWith(expect.stringMatching(`wait for ${playerSquaddieStatic.squaddieId.name}`),
@@ -452,7 +428,7 @@ describe('BattleSquaddieSelectedHUD', () => {
         });
 
         const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-        hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+        hud.draw(state, mockedP5GraphicsContext);
 
         expect(textSpy).toBeCalled();
         expect(textSpy).toBeCalledWith(expect.stringMatching(`cannot control ${enemySquaddieStatic.squaddieId.name}`),
@@ -483,7 +459,7 @@ describe('BattleSquaddieSelectedHUD', () => {
             state: state,
         });
 
-        hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+        hud.draw(state, mockedP5GraphicsContext);
 
         expect(hud.didPlayerSelectSquaddieAction()).toBeFalsy();
         expect(hud.didPlayerSelectEndTurnAction()).toBeFalsy();
@@ -531,7 +507,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 state,
             });
 
-            expect(hud.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)).toBeTruthy();
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeTruthy();
         });
         it('should not show the button during other phases', () => {
             const state: GameEngineState = GameEngineStateService.new({
@@ -559,7 +535,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 state,
             });
 
-            expect(hud.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)).toBeFalsy();
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
         })
         ;
         it('should not show the button if the player controlled squaddie is mid way through their turn', () => {
@@ -598,7 +574,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 state,
             });
 
-            expect(hud.shouldDrawSaveAndLoadButton(state.battleOrchestratorState)).toBeFalsy();
+            expect(hud.shouldDrawSaveAndLoadButton(state)).toBeFalsy();
         });
         describe('user clicks the save button', () => {
             let state: GameEngineState;
@@ -666,7 +642,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 hud.mouseClicked(RectAreaService.centerX(hud.saveGameButton.rectangle.area), RectAreaService.centerY(hud.saveGameButton.rectangle.area), state,);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Saving...`),
@@ -691,7 +667,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     .errorDuringSaving = true;
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Saving failed. Check logs.`),
@@ -705,7 +681,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                 jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                 textSpy.mockClear();
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
                 expect(textSpy).not.toBeCalledWith(expect.stringMatching(`Saving failed. Check logs.`),
                     expect.anything(),
                     expect.anything(),
@@ -805,7 +781,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                 hud.mouseClicked(RectAreaService.centerX(hud.loadGameButton.rectangle.area), RectAreaService.centerY(hud.loadGameButton.rectangle.area), state,);
 
                 const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                hud.draw(state, mockedP5GraphicsContext);
 
                 expect(textSpy).toBeCalled();
                 expect(textSpy).toBeCalledWith(expect.stringMatching(`Loading...`),
@@ -858,7 +834,7 @@ describe('BattleSquaddieSelectedHUD', () => {
                     loadSaveStateChange(state.loadSaveState);
 
                     const textSpy = jest.spyOn(mockedP5GraphicsContext.mockedP5, "text");
-                    hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                    hud.draw(state, mockedP5GraphicsContext);
 
                     expect(textSpy).toBeCalled();
                     expect(textSpy).toBeCalledWith(expect.stringMatching(expectedErrorMessage),
@@ -872,7 +848,7 @@ describe('BattleSquaddieSelectedHUD', () => {
 
                     jest.spyOn(Date, "now").mockReturnValue(FILE_MESSAGE_DISPLAY_DURATION);
                     textSpy.mockClear();
-                    hud.draw(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, state, mockedP5GraphicsContext);
+                    hud.draw(state, mockedP5GraphicsContext);
                     expect(textSpy).not.toBeCalledWith(expect.stringMatching(expectedErrorMessage),
                         expect.anything(),
                         expect.anything(),

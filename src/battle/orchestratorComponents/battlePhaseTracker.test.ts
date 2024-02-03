@@ -7,6 +7,7 @@ import {AdvanceToNextPhase, BattlePhase} from "./battlePhaseTracker";
 import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {BattlePhaseState} from "./battlePhaseController";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
+import {SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 
 describe('battlePhaseTracker', () => {
     let playerSquaddieTeam: BattleSquaddieTeam;
@@ -19,7 +20,7 @@ describe('battlePhaseTracker', () => {
         squaddieRepo = ObjectRepositoryService.new();
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
-            {
+            SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "player_squaddie",
                     name: "Player",
@@ -30,9 +31,8 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
-                actions: [],
                 attributes: DefaultArmyAttributes(),
-            }
+            })
         );
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
             BattleSquaddieService.newBattleSquaddie({
@@ -50,7 +50,7 @@ describe('battlePhaseTracker', () => {
         );
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
-            {
+            SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "enemy_squaddie",
                     name: "Enemy",
@@ -61,9 +61,8 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ENEMY,
                 },
-                actions: [],
                 attributes: DefaultArmyAttributes(),
-            }
+            })
         );
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
             BattleSquaddieService.newBattleSquaddie({
@@ -74,7 +73,7 @@ describe('battlePhaseTracker', () => {
         );
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
-            {
+            SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "ally_squaddie",
                     name: "Ally",
@@ -85,9 +84,8 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.ALLY,
                 },
-                actions: [],
                 attributes: DefaultArmyAttributes(),
-            }
+            })
         );
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
             BattleSquaddieService.newBattleSquaddie({
@@ -98,7 +96,7 @@ describe('battlePhaseTracker', () => {
         );
 
         ObjectRepositoryService.addSquaddieTemplate(squaddieRepo,
-            {
+            SquaddieTemplateService.new({
                 squaddieId: {
                     templateId: "none_squaddie",
                     name: "None",
@@ -109,9 +107,8 @@ describe('battlePhaseTracker', () => {
                     traits: TraitStatusStorageService.newUsingTraitValues(),
                     affiliation: SquaddieAffiliation.NONE,
                 },
-                actions: [],
                 attributes: DefaultArmyAttributes(),
-            }
+            })
         );
         ObjectRepositoryService.addBattleSquaddie(squaddieRepo,
             BattleSquaddieService.newBattleSquaddie({

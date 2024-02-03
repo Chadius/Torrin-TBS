@@ -138,7 +138,6 @@ describe("BattleSaveState", () => {
                 resources: {mapIconResourceKey: "", actionSpritesByEmotion: {}},
             },
             attributes: DefaultArmyAttributes(),
-            actions: [],
         });
 
         player0BattleSquaddie = BattleSquaddieService.newBattleSquaddie({
@@ -167,7 +166,6 @@ describe("BattleSaveState", () => {
                 ...DefaultArmyAttributes(),
                 maxHitPoints: 5
             },
-            actions: [],
         });
 
         const finishedTurn = SquaddieTurnService.new();

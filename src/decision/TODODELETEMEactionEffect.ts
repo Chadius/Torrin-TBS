@@ -2,7 +2,10 @@ import {TODODELETEMEactionEffectMovement} from "./TODODELETEMEactionEffectMoveme
 import {TODODELETEMEactionEffectEndTurn} from "./TODODELETEMEactionEffectEndTurn";
 import {TODODELETEMEactionEffectSquaddie} from "./TODODELETEMEactionEffectSquaddie";
 
-export type TODODELETEMEactionEffect = TODODELETEMEactionEffectSquaddie | TODODELETEMEactionEffectMovement | TODODELETEMEactionEffectEndTurn;
+export type TODODELETEMEactionEffect =
+    TODODELETEMEactionEffectSquaddie
+    | TODODELETEMEactionEffectMovement
+    | TODODELETEMEactionEffectEndTurn;
 
 export enum TODODELETEMEActionEffectType {
     END_TURN = "END_TURN",

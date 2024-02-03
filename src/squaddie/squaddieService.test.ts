@@ -17,10 +17,14 @@ import {
 import {DefaultArmyAttributes} from "./armyAttributes";
 import {SquaddieTemplate} from "../campaign/squaddieTemplate";
 import {SquaddieTurnService} from "./turn";
-import {TODODELETEMEdecision, DecisionService} from "../decision/TODODELETEMEdecision";
+import {DecisionService, TODODELETEMEdecision} from "../decision/TODODELETEMEdecision";
 import {ActionEffectMovementService} from "../decision/TODODELETEMEactionEffectMovement";
-import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../battle/history/TODODELETEMECurrentlySelectedSquaddieDecision";
-import {TODODELETEMESquaddieActionsForThisRoundService} from "../battle/history/TODODELETEMESquaddieDecisionsDuringThisPhase";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../battle/history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {
+    TODODELETEMESquaddieActionsForThisRoundService
+} from "../battle/history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 
 describe('Squaddie Service', () => {
     let playerSquaddieTemplate: SquaddieTemplate;

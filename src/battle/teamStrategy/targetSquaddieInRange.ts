@@ -64,7 +64,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
             battleSquaddie
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, actingBattleSquaddieId));
 
-        const validActions = squaddieTemplate.actions.filter((action) => {
+        const validActions = squaddieTemplate.TODODELETEMEactions.filter((action) => {
             return SquaddieTurnService.canPerformAction(battleSquaddie.squaddieTurn, action).canPerform === true;
         });
 

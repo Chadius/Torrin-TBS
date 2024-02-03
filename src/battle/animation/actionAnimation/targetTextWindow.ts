@@ -9,7 +9,6 @@ import {ActionResultPerSquaddie} from "../../history/actionResultPerSquaddie";
 import {ActionTimer} from "./actionTimer";
 import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
-import {TODODELETEMEActionEffectSquaddieTemplate} from "../../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ActionResultTextService} from "../actionResultTextService";
 import {ActionEffectSquaddieTemplate} from "../../../action/template/actionEffectSquaddieTemplate";
 

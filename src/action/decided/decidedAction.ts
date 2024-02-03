@@ -4,8 +4,6 @@ import {DecidedActionSquaddieEffectService} from "./decidedActionSquaddieEffect"
 import {ActionEffectType} from "../template/actionEffectTemplate";
 import {DecidedActionMovementEffectService} from "./decidedActionMovementEffect";
 import {DecidedActionEndTurnEffectService} from "./decidedActionEndTurnEffect";
-import {ProcessedActionEffect} from "../processed/processedActionEffect";
-import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 
 export interface DecidedAction {
     actionPointCost: number;

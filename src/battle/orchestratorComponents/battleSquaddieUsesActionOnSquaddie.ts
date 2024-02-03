@@ -24,7 +24,9 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {

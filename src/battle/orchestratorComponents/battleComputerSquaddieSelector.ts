@@ -30,7 +30,9 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {GetTargetingShapeGenerator} from "../targeting/targetingShapeGenerator";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
 import {TeamStrategy} from "../teamStrategy/teamStrategy";
 import {DetermineNextDecision} from "../teamStrategy/determineNextDecision";
@@ -40,7 +42,7 @@ import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
-import {TODODELETEMEdecision, DecisionService} from "../../decision/TODODELETEMEdecision";
+import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";

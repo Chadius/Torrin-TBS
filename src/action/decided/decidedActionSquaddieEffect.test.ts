@@ -1,8 +1,5 @@
 import {DecidedActionSquaddieEffectService} from "./decidedActionSquaddieEffect";
-import {
-    ActionEffectSquaddieTemplate,
-    ActionEffectSquaddieTemplateService
-} from "../template/actionEffectSquaddieTemplate";
+import {ActionEffectSquaddieTemplateService} from "../template/actionEffectSquaddieTemplate";
 import {Trait} from "../../trait/traitStatusStorage";
 
 describe('DecidedActionSquaddieEffect', () => {
@@ -42,10 +39,12 @@ describe('DecidedActionSquaddieEffect', () => {
         it('does not contribute if the trait says it does not', () => {
             const quickAttack = DecidedActionSquaddieEffectService.new({
                 template: ActionEffectSquaddieTemplateService.new({
-                    traits: {booleanTraits: {
+                    traits: {
+                        booleanTraits: {
                             [Trait.ATTACK]: true,
                             [Trait.NO_MULTIPLE_ATTACK_PENALTY]: true,
-                        }},
+                        }
+                    },
                 })
             })
             expect(DecidedActionSquaddieEffectService.getMultipleAttackPenalty(quickAttack)).toEqual(0);

@@ -1,4 +1,7 @@
-import {TODODELETEMEActionEffectSquaddieTemplate, TODODELETEMEActionEffectSquaddieTemplateService} from "./TODODELETEMEActionEffectSquaddieTemplate";
+import {
+    TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEActionEffectSquaddieTemplateService
+} from "./TODODELETEMEActionEffectSquaddieTemplate";
 import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {DamageType} from "../squaddie/squaddieService";
 import {TargetingShape} from "../battle/targeting/targetingShapeGenerator";

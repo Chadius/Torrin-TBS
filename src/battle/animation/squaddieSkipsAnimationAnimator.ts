@@ -3,12 +3,10 @@ import {
     OrchestratorComponentMouseEventType
 } from "../orchestrator/battleOrchestratorComponent";
 import {SquaddieActionAnimator} from "./squaddieActionAnimator";
-import {ActionResultTextService} from "./actionResultTextService";
 import {Label, LabelHelper} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {RecordingService} from "../history/recording";
 import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 

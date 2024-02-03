@@ -13,7 +13,9 @@ import {
 } from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";

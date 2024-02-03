@@ -30,9 +30,6 @@ import {ActionsThisRound, ActionsThisRoundService} from "../battle/history/actio
 import {ProcessedActionService} from "../action/processed/processedAction";
 import {DecidedActionService} from "../action/decided/decidedAction";
 
-// TODO Move this test to an initialization function, this should be part of a json parsing feature.
-//it('Squaddie has ActionTemplates', () => {});
-
 describe('User clicks on a squaddie', () => {
     let repository: ObjectRepository;
 
@@ -135,7 +132,6 @@ describe('User clicks on a squaddie', () => {
             return button.actionTemplate.id === attackAction2.id;
         })).toBeTruthy();
     });
-
 
 
     describe('BattlePlayerSquaddieSelector clicks on a squaddie to start their turn', () => {

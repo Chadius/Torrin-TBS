@@ -5,13 +5,13 @@ import {ActionResultPerSquaddie} from "../../battle/history/actionResultPerSquad
 export interface ProcessedActionSquaddieEffect {
     type: ActionEffectType.SQUADDIE;
     decidedActionEffect: DecidedActionSquaddieEffect;
-    results: {[battleSquaddieId: string]: ActionResultPerSquaddie};
+    results: { [battleSquaddieId: string]: ActionResultPerSquaddie };
 }
 
 export const ProcessedActionSquaddieEffectService = {
-    new: ({decidedActionEffect, results}:{
+    new: ({decidedActionEffect, results}: {
         decidedActionEffect: DecidedActionSquaddieEffect,
-        results?: {[_: string]: ActionResultPerSquaddie},
+        results?: { [_: string]: ActionResultPerSquaddie },
     }): ProcessedActionSquaddieEffect => {
         return sanitize({
             type: ActionEffectType.SQUADDIE,

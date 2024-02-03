@@ -1,6 +1,5 @@
 import {ProcessedAction, ProcessedActionService} from "./processedAction";
 import {DecidedActionService} from "../decided/decidedAction";
-import {ActionTemplateService} from "../template/actionTemplate";
 import {ActionEffectMovementTemplateService} from "../template/actionEffectMovementTemplate";
 import {ActionEffectSquaddieTemplateService} from "../template/actionEffectSquaddieTemplate";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
@@ -8,7 +7,6 @@ import {ProcessedActionMovementEffectService} from "./processedActionMovementEff
 import {DecidedActionMovementEffectService} from "../decided/decidedActionMovementEffect";
 import {ProcessedActionSquaddieEffectService} from "./processedActionSquaddieEffect";
 import {DecidedActionSquaddieEffectService} from "../decided/decidedActionSquaddieEffect";
-import {TargetingShape} from "../../battle/targeting/targetingShapeGenerator";
 
 describe('ProcessedAction', () => {
     it('creates default values as needed', () => {

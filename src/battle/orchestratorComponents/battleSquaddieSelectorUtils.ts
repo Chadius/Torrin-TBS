@@ -9,7 +9,9 @@ import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffe
 import {OrchestratorUtilities, ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct} from "./orchestratorUtils";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {TODODELETEMECurrentlySelectedSquaddieDecisionService} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
+import {
+    TODODELETEMECurrentlySelectedSquaddieDecisionService
+} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
 import {ObjectRepositoryService} from "../objectRepository";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
