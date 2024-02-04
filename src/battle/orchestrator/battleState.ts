@@ -148,7 +148,7 @@ interface BattleStateConstructorParameters {
     missionMap?: MissionMap;
     camera?: BattleCamera;
     battlePhaseState?: BattlePhaseState;
-    squaddieCurrentlyActing?: TODODELETEMECurrentlySelectedSquaddieDecision;
+    TODODELETEMEsquaddieCurrentlyActing?: TODODELETEMECurrentlySelectedSquaddieDecision;
     recording?: Recording;
     teams?: BattleSquaddieTeam[];
     teamStrategiesById?: { [key: string]: TeamStrategy[] };
@@ -174,7 +174,7 @@ const newBattleState = ({
                             missionMap,
                             camera,
                             battlePhaseState,
-                            squaddieCurrentlyActing,
+                            TODODELETEMEsquaddieCurrentlyActing,
                             recording,
                             missionStatistics,
                             missionCompletionStatus,
@@ -204,7 +204,7 @@ const newBattleState = ({
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        TODODELETEMEsquaddieCurrentlyActing: squaddieCurrentlyActing || TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        TODODELETEMEsquaddieCurrentlyActing: TODODELETEMEsquaddieCurrentlyActing || TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: undefined,
         }),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,

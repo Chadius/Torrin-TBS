@@ -221,7 +221,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateService.newBattleState({
                 missionId: "test mission",
-                squaddieCurrentlyActing: monkMeditatesInstruction,
+                TODODELETEMEsquaddieCurrentlyActing: monkMeditatesInstruction,
                 missionMap,
                 recording: battleEventRecording,
             }),
@@ -465,7 +465,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
-                        squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                        TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                             squaddieActionsForThisRound: moveDecisions,
                         })
                     }),

@@ -372,7 +372,7 @@ describe("Orchestration Utils", () => {
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.defaultBattleState({
-                    squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
+                    TODODELETEMEsquaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
                 }),
             });
@@ -400,7 +400,7 @@ describe("Orchestration Utils", () => {
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.defaultBattleState({
-                    squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
+                    TODODELETEMEsquaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
                 }),
             });
@@ -435,7 +435,7 @@ describe("Orchestration Utils", () => {
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.defaultBattleState({
-                    squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
+                    TODODELETEMEsquaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
                 }),
             })
@@ -476,7 +476,7 @@ describe("Orchestration Utils", () => {
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.defaultBattleState({
-                    squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
+                    TODODELETEMEsquaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
                 }),
             });
@@ -514,10 +514,10 @@ describe("Orchestration Utils", () => {
 
             const state = BattleOrchestratorStateService.newOrchestratorState({
                 battleState: BattleStateService.defaultBattleState({
-                    squaddieCurrentlyActing: currentlySelectedSquaddieDecision,
+                    TODODELETEMEsquaddieCurrentlyActing: currentlySelectedSquaddieDecision,
                     missionId: "da mission",
                 }),
-                decisionActionEffectIterator: DecisionActionEffectIteratorService.new({decision: decision1}),
+                TODODELETEMEdecisionActionEffectIterator: DecisionActionEffectIteratorService.new({decision: decision1}),
             });
             expect(DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator)).toEqual(squaddieActionEffect);
 

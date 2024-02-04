@@ -75,12 +75,12 @@ export const BattleOrchestratorStateService = {
                                battleSquaddieSelectedHUD,
                                numberGenerator,
                                battleState,
-                               decisionActionEffectIterator,
+                               TODODELETEMEdecisionActionEffectIterator,
                            }: {
         battleSquaddieSelectedHUD?: BattleSquaddieSelectedHUD,
         numberGenerator?: NumberGeneratorStrategy,
         battleState?: BattleState,
-        decisionActionEffectIterator?: DecisionActionEffectIterator,
+        TODODELETEMEdecisionActionEffectIterator?: DecisionActionEffectIterator,
     }): BattleOrchestratorState => {
         return new BattleOrchestratorState({
             battleSquaddieSelectedHUD: battleSquaddieSelectedHUD ?? new BattleSquaddieSelectedHUD(),
@@ -93,7 +93,7 @@ export const BattleOrchestratorStateService = {
                 battleCompletionStatus: BattleCompletionStatus.IN_PROGRESS,
             }),
             numberGenerator: numberGenerator ?? new RandomNumberGenerator(),
-            decisionActionEffectIterator: decisionActionEffectIterator,
+            decisionActionEffectIterator: TODODELETEMEdecisionActionEffectIterator,
         });
     },
 };

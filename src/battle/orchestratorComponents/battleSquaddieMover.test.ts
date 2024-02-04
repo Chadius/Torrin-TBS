@@ -127,7 +127,7 @@ describe('BattleSquaddieMover', () => {
                     missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
-                    squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                    TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: moveAction,
                     }),
                 }),
@@ -186,11 +186,11 @@ describe('BattleSquaddieMover', () => {
                     missionId: "test mission",
                     missionMap: map,
                     searchPath: movePath,
-                    squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                    TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                         squaddieActionsForThisRound: newInstruction,
                     }),
                 }),
-                decisionActionEffectIterator,
+                TODODELETEMEdecisionActionEffectIterator: decisionActionEffectIterator,
             });
         }
 
@@ -371,7 +371,7 @@ describe('BattleSquaddieMover', () => {
                 battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
                     battleState: BattleStateService.newBattleState({
                         missionId: "the mission",
-                        squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+                        TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                             squaddieActionsForThisRound: moveDecisions,
                         })
                     })
