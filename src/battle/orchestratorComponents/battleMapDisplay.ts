@@ -154,7 +154,7 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 }
 
 const getCurrentlyMovingBattleSquaddieIds = (state: GameEngineState) => {
-    if (state.battleOrchestratorState.battleState.squaddieCurrentlyActing === undefined) {
+    if (state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing === undefined) {
         return [];
     }
 
@@ -165,7 +165,7 @@ const getCurrentlyMovingBattleSquaddieIds = (state: GameEngineState) => {
 
     let battleSquaddieIdsToOmit: string[] = [];
     if (nextActionEffect.type === TODODELETEMEActionEffectType.MOVEMENT) {
-        battleSquaddieIdsToOmit.push(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId);
+        battleSquaddieIdsToOmit.push(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId);
     }
 
     return battleSquaddieIdsToOmit;

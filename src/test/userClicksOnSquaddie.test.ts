@@ -133,7 +133,6 @@ describe('User clicks on a squaddie', () => {
         })).toBeTruthy();
     });
 
-
     describe('BattlePlayerSquaddieSelector clicks on a squaddie to start their turn', () => {
         let gameEngineState: GameEngineState;
         beforeEach(() => {

@@ -21,6 +21,7 @@ import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {TODODELETEMESquaddieActionsForThisRoundService} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {BattleEventService} from "../history/battleEvent";
 
 export function createSearchPath(state: GameEngineState, squaddieTemplate: SquaddieTemplate, battleSquaddie: BattleSquaddie, clickedHexCoordinate: HexCoordinate) {
     const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
@@ -89,12 +90,13 @@ export function AddMovementInstruction(state: GameEngineState, squaddieTemplate:
             moveAction
         ]
     });
-    TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision)
+    TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing, decision)
 
-    RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, {
-        instruction: state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
-        results: undefined,
-    });
+    RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, BattleEventService.new({
+            instruction: state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing,
+            results: undefined,
+        })
+    );
     return moveAction;
 }
 
@@ -103,7 +105,7 @@ export function MaybeCreateSquaddieInstruction(state: GameEngineState, battleSqu
         const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
         const battleSquaddieId = battleSquaddie.battleSquaddieId;
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId,
@@ -117,11 +119,11 @@ export function MaybeCreateSquaddieInstruction(state: GameEngineState, battleSqu
 }
 
 export function MaybeEndSquaddieTurn(state: GameEngineState) {
-    if (!state.battleOrchestratorState.battleState.squaddieCurrentlyActing) {
+    if (!state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing) {
         return;
     }
 
-    if (!TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
+    if (!TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)) {
         return;
     }
 
@@ -129,7 +131,7 @@ export function MaybeEndSquaddieTurn(state: GameEngineState) {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
     } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-        TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+        TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
     ));
     ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(actingBattleSquaddie, actingSquaddieTemplate, state.repository);

@@ -225,17 +225,17 @@ describe("Orchestration Utils", () => {
         });
 
         it('is not if there is no squaddie is currently acting', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = undefined;
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = undefined;
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
 
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.default()
             });
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
 
         it('is if the squaddie is previewing a decision', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -248,7 +248,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('is if the squaddie already made a decision that does not end the turn', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -260,7 +260,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('will agree with the squaddie service after finishing its checks', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -281,7 +281,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('is not if the squaddie already made a decision that does end the turn', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -301,7 +301,7 @@ describe("Orchestration Utils", () => {
         });
 
         it('is not if the squaddie cancels their first decision before confirming it', () => {
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
                 squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                     battleSquaddieId: "battle",
                     squaddieTemplateId: "templateId",
@@ -310,7 +310,7 @@ describe("Orchestration Utils", () => {
                 }),
                 currentlySelectedDecision: moveDecision,
             });
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing);
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
     });

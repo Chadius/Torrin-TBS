@@ -82,11 +82,11 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         OrchestratorUtilities.nextActionEffect(
             state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
         const nextActionEffect = OrchestratorUtilities.peekActionEffect(
             state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
 
         const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
@@ -118,7 +118,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     state.repository,
-                    state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
+                    state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
                 )
             )
             DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
@@ -130,7 +130,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             });
             DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
 
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing);
             OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
             this.sawResultAftermath = true;
         }

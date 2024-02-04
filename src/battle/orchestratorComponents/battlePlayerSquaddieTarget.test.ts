@@ -277,7 +277,7 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
         });
     });
 
@@ -288,7 +288,7 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
 
             squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
@@ -321,7 +321,7 @@ describe('BattleSquaddieTarget', () => {
             mouseY: ScreenDimensions.SCREEN_HEIGHT,
         };
 
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
 
             squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                 battleSquaddieId: knightDynamic.battleSquaddieId,
@@ -404,7 +404,7 @@ describe('BattleSquaddieTarget', () => {
 
             expect(targetComponent.hasCompleted(state)).toBeFalsy();
             expect(targetComponent.shouldDrawConfirmWindow()).toBeFalsy();
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
         });
     });
 

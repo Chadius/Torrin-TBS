@@ -225,7 +225,7 @@ describe('BattleSquaddieMover', () => {
                 repository: squaddieRepo,
                 resourceHandler: mockResourceHandler,
             });
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).not.toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing).not.toBeUndefined();
             player1BattleSquaddie.squaddieTurn.remainingActionPoints = 0;
 
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
@@ -235,7 +235,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing).toBeUndefined();
         });
 
         it('should open the HUD if the squaddie turn has actions remaining', () => {
@@ -401,7 +401,7 @@ describe('BattleSquaddieMover', () => {
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             const recommendedChanges = mover.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
             expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
         });
 
@@ -420,7 +420,7 @@ describe('BattleSquaddieMover', () => {
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             const recommendedChanges = mover.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
             expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
         });
 
@@ -439,7 +439,7 @@ describe('BattleSquaddieMover', () => {
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             const recommendedChanges = mover.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
             expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
         });
 
@@ -453,7 +453,7 @@ describe('BattleSquaddieMover', () => {
             const mover: BattleSquaddieMover = new BattleSquaddieMover();
             const recommendedChanges = mover.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeUndefined();
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBeUndefined();
             expect(recommendedChanges.nextMode).toBeUndefined();
         });
     });

@@ -157,7 +157,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
         ));
 
         let actionEffectSquaddieTemplate: TODODELETEMEActionEffectSquaddieTemplate;
-        let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+        let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
         if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }
@@ -264,7 +264,7 @@ export class SquaddieTargetsOtherSquaddiesAnimator implements SquaddieActionAnim
     private drawActionAnimation(state: BattleOrchestratorState, graphicsContext: GraphicsContext) {
         this.actorTextWindow.draw(graphicsContext, this.actionAnimationTimer);
 
-        let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+        let squaddieActionEffect = state.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
         if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
             return;
         }

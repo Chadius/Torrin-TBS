@@ -11,6 +11,11 @@ import {SquaddieIdService} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ActionTemplateService} from "../../action/template/actionTemplate";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
+import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
+import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
+import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
+import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 
 describe('Actions This Round', () => {
     it('can create object with actor Id and starting location', () => {
@@ -289,6 +294,115 @@ describe('Actions This Round', () => {
                 penaltyMultiplier: 2,
                 multipleAttackPenalty: -6,
             });
+        });
+    });
+
+    describe('getProcessedActionEffectToShow', () => {
+        it('returns undefined if there is no action', () => {
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(undefined)).toBeUndefined();
+        });
+
+        it('returns undefined if there are no processed actions', () => {
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battle squaddie",
+                startingLocation: {q:0, r:0},
+            });
+
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toBeUndefined();
+        });
+
+        it('returns undefined if there are no processed action effects', () => {
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battle squaddie",
+                startingLocation: {q:0, r:0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: undefined,
+                        processedActionEffects: []
+                    })
+                ]
+            });
+
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toBeUndefined();
+        });
+
+        it('returns the first processed action effect when it has never been called before', () => {
+            const endTurnEffect = ProcessedActionEndTurnEffectService.new({
+                decidedActionEffect: DecidedActionEndTurnEffectService.new({
+                    template: ActionEffectEndTurnTemplateService.new({}),
+                }),
+            })
+
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battle squaddie",
+                startingLocation: {q:0, r:0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: undefined,
+                        processedActionEffects: [
+                            endTurnEffect
+                        ]
+                    })
+                ]
+            });
+
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toEqual(endTurnEffect);
+        });
+
+        it('can advance and iterate the next processed action effect to show', () => {
+            const moveTurnEffect = ProcessedActionMovementEffectService.new({
+                decidedActionEffect: DecidedActionMovementEffectService.new({
+                    template: undefined,
+                    destination: {q:0, r:1},
+                }),
+            })
+
+            const endTurnEffect = ProcessedActionEndTurnEffectService.new({
+                decidedActionEffect: DecidedActionEndTurnEffectService.new({
+                    template: ActionEffectEndTurnTemplateService.new({}),
+                }),
+            })
+
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battle squaddie",
+                startingLocation: {q:0, r:0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: undefined,
+                        processedActionEffects: [
+                            moveTurnEffect,
+                            endTurnEffect
+                        ]
+                    })
+                ]
+            });
+
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toEqual(moveTurnEffect);
+            ActionsThisRoundService.nextProcessedActionEffectToShow(actionsThisRound);
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toEqual(endTurnEffect);
+        });
+
+        it('will return undefined if it iterates past all actions', () => {
+            const endTurnEffect = ProcessedActionEndTurnEffectService.new({
+                decidedActionEffect: DecidedActionEndTurnEffectService.new({
+                    template: ActionEffectEndTurnTemplateService.new({}),
+                }),
+            })
+
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battle squaddie",
+                startingLocation: {q:0, r:0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: undefined,
+                        processedActionEffects: [
+                            endTurnEffect
+                        ]
+                    })
+                ]
+            });
+            ActionsThisRoundService.nextProcessedActionEffectToShow(actionsThisRound);
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toBeUndefined();
         });
     });
 });

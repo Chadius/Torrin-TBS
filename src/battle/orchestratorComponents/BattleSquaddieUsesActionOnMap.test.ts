@@ -171,7 +171,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
             const recommendedChanges = mapAction.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
             expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
         });
 
@@ -190,7 +190,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
             const recommendedChanges = mapAction.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
             expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
         });
 
@@ -209,7 +209,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
             const recommendedChanges = mapAction.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
             expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
         });
 
@@ -223,7 +223,7 @@ describe('BattleSquaddieUsesActionOnMap', () => {
             const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
             const recommendedChanges = mapAction.recommendStateChanges(state);
 
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeUndefined();
+            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBeUndefined();
             expect(recommendedChanges.nextMode).toBeUndefined();
         });
     });

@@ -272,7 +272,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeFalsy();
-        expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe("");
+        expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe("");
     });
 
     it('recommends computer squaddie selector if the player cannot control the squaddies', () => {
@@ -455,12 +455,12 @@ describe('BattleSquaddieSelector', () => {
                 mouseY,
             });
             expect(selector.hasCompleted(state)).toBeTruthy();
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(2);
+            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(2);
             const actionEffectMovement = ActionEffectMovementService.new({
                 destination: {q: 0, r: 2},
                 numberOfActionPointsSpent: 1,
             });
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1]).toStrictEqual(
+            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1]).toStrictEqual(
                 DecisionService.new({
                     actionEffects: [
                         actionEffectMovement
@@ -663,7 +663,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe("player_soldier_0");
+        expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe("player_soldier_0");
 
         const expectedInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
             battleSquaddieId: "player_soldier_0",
@@ -671,7 +671,7 @@ describe('BattleSquaddieSelector', () => {
             startingLocation: {q: 0, r: 0},
         });
 
-        expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
+        expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
         //expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0] as TODODELETEMEactionEffectSquaddie).template).toStrictEqual(longswordAction);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
@@ -800,7 +800,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores movement commands issued to other squaddies', () => {
-            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(
+            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe(
                 TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(soldierCurrentlyActing)
             );
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
@@ -824,7 +824,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: endingMouseY
             });
 
-            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(
+            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe(
                 TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(soldierCurrentlyActing)
             );
             expect(selector.hasCompleted(state)).toBeFalsy();
@@ -857,8 +857,8 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: 0,
                 mouseY: 0
             });
-            expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
-            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBe(
+            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
+            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe(
                 TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(soldierCurrentlyActing)
             );
             expect(selector.hasCompleted(state)).toBeFalsy();

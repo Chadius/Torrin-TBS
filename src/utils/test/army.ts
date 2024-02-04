@@ -5,6 +5,8 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {DamageType, HealingType} from "../../squaddie/squaddieService";
+import {ActionTemplateService} from "../../action/template/actionTemplate";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 
 export const TestArmyPlayerData = () => {
     const playerArmy: PlayerArmy = {
@@ -39,6 +41,47 @@ export const TestArmyPlayerData = () => {
                         "traits": TraitStatusStorageService.newUsingTraitValues(),
                     }),
                 },
+                "actionTemplates": [
+                    ActionTemplateService.new({
+                        "name": "water cannon",
+                        "id": "torrin_water_cannon",
+                        "actionEffectTemplates": [
+                            ActionEffectSquaddieTemplateService.new({
+                                "minimumRange": 0,
+                                "maximumRange": 2,
+                                "traits": {
+                                    "booleanTraits": {
+                                        "ATTACK": true
+                                    }
+                                },
+                                "damageDescriptions": {
+                                    "BODY": 2
+                                }
+                            })
+                        ]
+                    }),
+                    ActionTemplateService.new({
+                        "name": "healing touch",
+                        "id": "young_torrin_healing_touch",
+                        "actionPoints": 2,
+                        "actionEffectTemplates": [
+                            ActionEffectSquaddieTemplateService.new({
+                                "minimumRange": 0,
+                                "maximumRange": 1,
+                                "traits": {
+                                    "booleanTraits": {
+                                        "ALWAYS_SUCCEEDS": true,
+                                        "TARGETS_ALLIES": true,
+                                        "HEALING": true
+                                    }
+                                },
+                                "healingDescriptions": {
+                                    "LOST_HIT_POINTS": 2
+                                }
+                            })
+                        ]
+                    })
+                ],
                 "TODODELETEMEactions": [
                     TODODELETEMEActionEffectSquaddieTemplateService.new({
                         name: "water cannon",
@@ -97,6 +140,26 @@ export const TestArmyPlayerData = () => {
                     }),
                     affiliation: SquaddieAffiliation.PLAYER,
                 },
+                "actionTemplates": [
+                    ActionTemplateService.new({
+                        "name": "longsword",
+                        "id": "sir_camil_longsword",
+                        "actionEffectTemplates": [
+                            ActionEffectSquaddieTemplateService.new({
+                                "minimumRange": 0,
+                                "maximumRange": 1,
+                                "traits": {
+                                    "booleanTraits": {
+                                        "ATTACK": true
+                                    }
+                                },
+                                "damageDescriptions": {
+                                    "BODY": 2
+                                }
+                            })
+                        ]
+                    })
+                ],
                 TODODELETEMEactions: [
                     TODODELETEMEActionEffectSquaddieTemplateService.new({
                         name: "longsword",

@@ -53,11 +53,11 @@ function calculateResults({
     } = getTargetedBattleSquaddieIds(state.battleOrchestratorState, validTargetLocation);
 
     let actingSquaddieRoll: RollResult;
-    let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+    let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
     if (squaddieActionEffect.type === TODODELETEMEActionEffectType.SQUADDIE) {
         actingSquaddieRoll = maybeMakeAttackRoll(squaddieActionEffect.template, state.battleOrchestratorState);
     }
-    let {multipleAttackPenalty} = TODODELETEMESquaddieActionsForThisRoundService.currentMultipleAttackPenalty(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase);
+    let {multipleAttackPenalty} = TODODELETEMESquaddieActionsForThisRoundService.currentMultipleAttackPenalty(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase);
     let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
 
     if (multipleAttackPenalty !== 0) {
@@ -160,7 +160,7 @@ const calculateTotalDamageDealt = (
     let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE;
 
     let actionEffectTemplate: TODODELETEMEActionEffectSquaddieTemplate = undefined;
-    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+    let squaddieActionEffect = state.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
     if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
         return;
     }
@@ -199,7 +199,7 @@ const calculateTotalDamageDealt = (
 
 function calculateTotalHealingReceived(state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) {
     let healingReceived = 0;
-    let squaddieActionEffect = state.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+    let squaddieActionEffect = state.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
     if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
         return 0;
     }

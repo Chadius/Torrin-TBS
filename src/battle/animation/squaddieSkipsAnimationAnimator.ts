@@ -57,7 +57,7 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
     private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
-            let squaddieActionEffect = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
+            let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
             if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
                 return;
             }

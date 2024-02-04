@@ -50,6 +50,7 @@ import {MissionMapService} from "../../missionMap/missionMap";
 import {isValidValue} from "../../utils/validityCheck";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {DecidedAction} from "../../action/decided/decidedAction";
+import {BattleEventService} from "../history/battleEvent";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -114,7 +115,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         if (this.mostRecentDecision !== undefined) {
             const nextActionEffect = OrchestratorUtilities.peekActionEffect(
                 state.battleOrchestratorState,
-                state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+                state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
             );
 
             nextMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
@@ -260,7 +261,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     }
 
     private panToSquaddieIfOffscreen(state: GameEngineState) {
-        const battleSquaddieId: string = TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing);
+        const battleSquaddieId: string = TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing);
         const datum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddieId);
 
         const squaddieScreenLocation: number[] = convertMapCoordinatesToScreenCoordinates(
@@ -300,12 +301,12 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             });
         }
         populateCurrentlySelectedSquaddie(state, battleSquaddie.battleSquaddieId);
-        TODODELETEMECurrentlySelectedSquaddieDecisionService.selectCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, newDecision);
+        TODODELETEMECurrentlySelectedSquaddieDecisionService.selectCurrentDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing, newDecision);
         state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
 
         let results: SquaddieSquaddieResults;
         newDecision.actionEffects.forEach(actionEffect => {
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, newDecision)
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing, newDecision)
 
             switch (actionEffect.type) {
                 case TODODELETEMEActionEffectType.MOVEMENT:
@@ -338,10 +339,10 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             }
         });
 
-        RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, {
-            instruction: state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
+        RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, BattleEventService.new({
+            instruction: state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing,
             results,
-        });
+        }));
         this.mostRecentDecision = newDecision;
     }
 }
@@ -353,10 +354,10 @@ const populateCurrentlySelectedSquaddie = (state: GameEngineState, battleSquaddi
     } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieId));
     let {mapLocation} = MissionMapService.getByBattleSquaddieId(state.battleOrchestratorState.battleState.missionMap, battleSquaddie.battleSquaddieId);
     if (
-        !isValidValue(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
-        || state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId !== battleSquaddieId
+        !isValidValue(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
+        || state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId !== battleSquaddieId
     ) {
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
                 squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -370,8 +371,8 @@ const populateCurrentlySelectedSquaddie = (state: GameEngineState, battleSquaddi
 };
 
 const drawSquaddieAtInitialPositionAsCameraPans = (state: GameEngineState, graphicsContext: GraphicsContext) => {
-    const startLocation = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.startingLocation;
-    const battleSquaddieId = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;
+    const startLocation = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.startingLocation;
+    const battleSquaddieId = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;
     const {battleSquaddie} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(
         state.repository,
         battleSquaddieId

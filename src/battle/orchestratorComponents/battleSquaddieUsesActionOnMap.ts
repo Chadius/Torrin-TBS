@@ -12,8 +12,10 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {isValidValue} from "../../utils/validityCheck";
 
-const ACTION_COMPLETED_WAIT_TIME_MS = 500;
+export const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
 export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponent {
     animationCompleteStartTime?: number;
@@ -41,13 +43,22 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
+
+        // TODO move to OrchUtils function
+        ActionsThisRoundService.nextProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+        const nextProcessedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound)
+        if (!isValidValue(nextProcessedActionEffectToShow)) {
+            state.battleOrchestratorState.battleState.actionsThisRound = undefined;
+        }
+        // TODO move to OrchUtils function
+
         OrchestratorUtilities.nextActionEffect(
             state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
         const nextActionEffect = OrchestratorUtilities.peekActionEffect(
             state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
 
         const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
@@ -61,12 +72,12 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
     reset(state: GameEngineState): void {
         this.animationCompleteStartTime = undefined;
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = undefined;
+        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = undefined;
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
         if (this.animationCompleteStartTime === undefined) {
-            const battleSquaddieId = state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId;
+            const battleSquaddieId = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
             const {
                 battleSquaddie,
                 squaddieTemplate

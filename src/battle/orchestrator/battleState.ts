@@ -47,7 +47,7 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     recording: Recording;
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
-    squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision;
+    TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision;
     actionsThisRound: ActionsThisRound;
 }
 
@@ -204,7 +204,7 @@ const newBattleState = ({
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        squaddieCurrentlyActing: squaddieCurrentlyActing || TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
+        TODODELETEMEsquaddieCurrentlyActing: squaddieCurrentlyActing || TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
             squaddieActionsForThisRound: undefined,
         }),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,

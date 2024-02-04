@@ -2,12 +2,14 @@ import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
 import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {MULTIPLE_ATTACK_PENALTY, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../modifierConstants";
+import {ProcessedActionEffect} from "../../action/processed/processedActionEffect";
 
 export interface ActionsThisRound {
     battleSquaddieId: string;
     startingLocation: HexCoordinate;
     processedActions: ProcessedAction[];
     previewedActionTemplateId: string;
+    previewActionEffectIteratorIndex: number;
 }
 
 export const ActionsThisRoundService = {
@@ -27,6 +29,7 @@ export const ActionsThisRoundService = {
             startingLocation,
             processedActions,
             previewedActionTemplateId: previewedActionTemplateId,
+            previewActionEffectIteratorIndex: 0,
         })
     },
     getMultipleAttackPenaltyForProcessedActions:
@@ -36,6 +39,33 @@ export const ActionsThisRoundService = {
         } => {
             return getMultipleAttackPenaltyForProcessedActions(actionsForThisRound);
         },
+    getProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound): ProcessedActionEffect => {
+        if (!isValidValue(actionsThisRound)) {
+            return undefined;
+        }
+
+        if (actionsThisRound.processedActions.length < 1) {
+            return undefined;
+        }
+
+        let countDown = actionsThisRound.previewActionEffectIteratorIndex;
+        for (const processedAction of actionsThisRound.processedActions) {
+            if (countDown < processedAction.processedActionEffects.length) {
+                return processedAction.processedActionEffects[countDown];
+            }
+
+            countDown -= processedAction.processedActionEffects.length;
+        }
+
+        return undefined;
+    },
+    nextProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound) => {
+        if (!isValidValue(actionsThisRound)) {
+            return;
+        }
+
+        actionsThisRound.previewActionEffectIteratorIndex++;
+    }
 }
 
 const sanitize = (actions: ActionsThisRound): ActionsThisRound => {
@@ -52,11 +82,15 @@ const sanitize = (actions: ActionsThisRound): ActionsThisRound => {
     return actions;
 }
 
-const getMultipleAttackPenaltyForProcessedActions = (actionsForThisRound: ActionsThisRound): {
+const getMultipleAttackPenaltyForProcessedActions = (actionsThisRound: ActionsThisRound): {
     penaltyMultiplier: number,
     multipleAttackPenalty: number,
 } => {
-    let penaltyMultiplier = actionsForThisRound.processedActions.reduce(
+    if (!isValidValue(actionsThisRound)) {
+        return convertRawPenaltyMultiplier(0);
+    }
+
+    let penaltyMultiplier = actionsThisRound.processedActions.reduce(
         (accumulator: number, processedAction: ProcessedAction) => {
             return accumulator + ProcessedActionService.multipleAttackPenaltyMultiplier(processedAction)
         },

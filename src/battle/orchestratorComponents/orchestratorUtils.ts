@@ -144,7 +144,7 @@ const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
     return SquaddieService.isSquaddieCurrentlyTakingATurn({
         squaddieTemplate,
         battleSquaddie,
-        currentlySelectedSquaddieDecision: state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
+        currentlySelectedSquaddieDecision: state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing,
     });
 }
 
@@ -188,12 +188,12 @@ const maybeCreateDecisionActionEffectIterator = (state: BattleOrchestratorState,
 
 export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: GameEngineState) => {
     if (
-        !state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        !state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         || isSquaddieCurrentlyTakingATurn(state)
     ) {
         return;
     }
-    const currentlyActingBattleSquaddieId = TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+    const currentlyActingBattleSquaddieId = TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
     if (!isValidValue(currentlyActingBattleSquaddieId) || currentlyActingBattleSquaddieId === "") {
         return;
     }
@@ -203,13 +203,13 @@ export const ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct = (state: GameEn
     );
     const actInfo = SquaddieService.canSquaddieActRightNow({battleSquaddie, squaddieTemplate})
     if (!actInfo.canAct) {
-        state.battleOrchestratorState.battleState.squaddieCurrentlyActing = undefined;
+        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = undefined;
     }
 }
 
 export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngineState) => {
     if (
-        !state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        !state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         || !isSquaddieCurrentlyTakingATurn(state)
     ) {
         state.battleOrchestratorState.battleSquaddieSelectedHUD.reset();
@@ -218,7 +218,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngin
 
     const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
         )
     );
 
@@ -228,7 +228,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngin
     });
     if (playerCanControlThisSquaddieRightNow) {
         state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            battleId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
+            battleId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing),
             state,
         });
     } else {
@@ -238,20 +238,20 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngin
 
 export const DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation = (state: GameEngineState) => {
     if (
-        !state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+        !state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         || isSquaddieCurrentlyTakingATurn(state)
     ) {
         return;
     }
 
-    const currentlyActingBattleSquaddieId = TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+    const currentlyActingBattleSquaddieId = TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
     if (!isValidValue(currentlyActingBattleSquaddieId) || currentlyActingBattleSquaddieId === "") {
         return;
     }
 
     const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
         )
     );
 

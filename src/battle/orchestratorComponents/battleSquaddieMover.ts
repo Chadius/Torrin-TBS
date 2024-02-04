@@ -65,11 +65,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         OrchestratorUtilities.nextActionEffect(
             state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
         const nextActionEffect = OrchestratorUtilities.peekActionEffect(
             state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.squaddieCurrentlyActing
+            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
 
         const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
@@ -93,7 +93,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         const {
             battleSquaddie,
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
         ));
 
         moveSquaddieAlongPath(state.repository, battleSquaddie, this.animationStartTime, state.battleOrchestratorState.battleState.squaddieMovePath, state.battleOrchestratorState.battleState.camera);
@@ -108,7 +108,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             squaddieTemplate,
             battleSquaddie,
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
+            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
         ));
         state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
         updateIconAndMapBasedOnWhetherSquaddieCanAct(state, battleSquaddie, squaddieTemplate, graphicsContext);
