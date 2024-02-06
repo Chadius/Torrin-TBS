@@ -21,7 +21,7 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {FindValidTargets} from "../targeting/targetingService";
+import {FindValidTargets, TargetingResultsService} from "../targeting/targetingService";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
@@ -35,6 +35,8 @@ import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
 import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
+import {isValidValue} from "../../utils/validityCheck";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -147,23 +149,31 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private highlightTargetRange(state: GameEngineState) {
-        let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
+        const {
+            squaddieTemplate,
+            battleSquaddie,
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(
+            state.repository,
+            state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+        ));
+
+        const previewedActionTemplateId = state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId;
+        const previewedActionTemplate = squaddieTemplate.actionTemplates.find(template => template.id === previewedActionTemplateId);
+
+        if (!isValidValue(previewedActionTemplate)) {
             return;
         }
-        const action = squaddieActionEffect.template;
 
-        const {
-            squaddieTemplate: actingSquaddieTemplate,
-            battleSquaddie: actingBattleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
-        ));
-        const targetingResults = FindValidTargets({
+        const actionEffectSquaddieTemplate = previewedActionTemplate.actionEffectTemplates[0];
+        if (actionEffectSquaddieTemplate.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
+
+        const targetingResults = TargetingResultsService.findValidTargets({
             map: state.battleOrchestratorState.battleState.missionMap,
-            action: action,
-            actingSquaddieTemplate,
-            actingBattleSquaddie,
+            actionEffectSquaddieTemplate,
+            actingSquaddieTemplate: squaddieTemplate,
+            actingBattleSquaddie: battleSquaddie,
             squaddieRepository: state.repository,
         })
         const actionRange: HexCoordinate[] = targetingResults.locationsInRange;

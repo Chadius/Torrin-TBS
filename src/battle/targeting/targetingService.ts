@@ -40,16 +40,44 @@ export class TargetingResults {
     }
 }
 
+export const TargetingResultsService = {
+    findValidTargets: ({
+                            map,
+                            actingSquaddieTemplate,
+                            actingBattleSquaddie,
+                            squaddieRepository,
+                            sourceTiles,
+                            actionEffectSquaddieTemplate,
+                        }: {
+        map: MissionMap,
+        actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
+        actingSquaddieTemplate: SquaddieTemplate,
+        actingBattleSquaddie: BattleSquaddie,
+        squaddieRepository: ObjectRepository,
+        sourceTiles?: HexCoordinate[],
+    }): TargetingResults => {
+        return FindValidTargets({
+            map,
+            actingSquaddieTemplate,
+            actingBattleSquaddie,
+            squaddieRepository,
+            sourceTiles,
+            actionEffectSquaddieTemplate,
+        })
+    }
+}
+
 export const FindValidTargets = ({
                                      map,
-                                     action,
+                                     TODODELETEMEaction,
                                      actingSquaddieTemplate,
                                      actingBattleSquaddie,
                                      squaddieRepository,
                                      sourceTiles,
+                                     actionEffectSquaddieTemplate,
                                  }: {
     map: MissionMap,
-    action?: TODODELETEMEActionEffectSquaddieTemplate,
+    TODODELETEMEaction?: TODODELETEMEActionEffectSquaddieTemplate,
     actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
     actingSquaddieTemplate: SquaddieTemplate,
     actingBattleSquaddie: BattleSquaddie,
@@ -70,8 +98,8 @@ export const FindValidTargets = ({
             squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
             canStopOnSquaddies: true,
             ignoreTerrainCost: true,
-            minimumDistanceMoved: action.minimumRange,
-            maximumDistanceMoved: action.maximumRange,
+            minimumDistanceMoved: TODODELETEMEaction ? TODODELETEMEaction.minimumRange : actionEffectSquaddieTemplate.minimumRange,
+            maximumDistanceMoved: TODODELETEMEaction ? TODODELETEMEaction.maximumRange : actionEffectSquaddieTemplate.maximumRange,
             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
             movementPerAction: undefined,
             canPassOverPits: false,

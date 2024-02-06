@@ -2,6 +2,7 @@ import {RectArea} from "./rectArea";
 import * as p5 from "p5";
 import {HORIZ_ALIGN_LEFT, VERT_ALIGN_BASELINE} from "./constants";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
+import {isValidValue} from "../utils/validityCheck";
 
 export type TextBoxArguments = {
     text: string;
@@ -79,6 +80,7 @@ export const TextBoxHelper = {
 
 const isDone = (textBox: TextBox): boolean => {
     return (
-        Date.now() - textBox.lastTimeDrawn >= textBox.duration
+        !isValidValue(textBox)
+        || Date.now() - textBox.lastTimeDrawn >= textBox.duration
     );
 }

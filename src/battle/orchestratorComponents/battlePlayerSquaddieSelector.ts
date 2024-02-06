@@ -61,6 +61,7 @@ import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {MissionMapService} from "../../missionMap/missionMap";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -421,18 +422,19 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             this.processEndTurnAction(state, battleSquaddie);
         } else if (state.battleOrchestratorState.battleSquaddieSelectedHUD.didPlayerSelectSquaddieAction()) {
             const newAction = state.battleOrchestratorState.battleSquaddieSelectedHUD.getSquaddieSquaddieAction();
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.selectCurrentDecision(
-                state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing,
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectSquaddieService.new({
-                            template: undefined, // TODO
-                            targetLocation: undefined,
-                            numberOfActionPointsSpent: 0,
-                        })
-                    ]
+
+            if (!isValidValue(state.battleOrchestratorState.battleState.actionsThisRound)) {
+                const {mapLocation} = MissionMapService.getByBattleSquaddieId(
+                    state.battleOrchestratorState.battleState.missionMap,
+                    battleSquaddie.battleSquaddieId,
+                );
+
+                state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
+                    battleSquaddieId: battleSquaddie.battleSquaddieId,
+                    startingLocation: mapLocation,
                 })
-            );
+            }
+            state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = newAction.id;
             this.gaveInstructionThatNeedsATarget = true;
         }
 

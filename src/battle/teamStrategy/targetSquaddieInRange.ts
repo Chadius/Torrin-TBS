@@ -135,7 +135,7 @@ export class TargetSquaddieInRange implements TeamStrategyCalculator {
         let actionsWithTargets = actions.map((action) => {
             const results: TargetingResults = FindValidTargets({
                 map: state.missionMap,
-                action: action,
+                TODODELETEMEaction: action,
                 actingSquaddieTemplate: squaddieTemplate,
                 actingBattleSquaddie: battleSquaddie,
                 squaddieRepository: state.repository,
