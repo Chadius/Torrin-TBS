@@ -6,7 +6,7 @@ import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddie
 import {SquaddieIdService} from "../../squaddie/id";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ArmyAttributesService} from "../../squaddie/armyAttributes";
-import {SquaddieMovementHelper} from "../../squaddie/movement";
+import {SquaddieMovementService} from "../../squaddie/movement";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {HighlightPulseBlueColor, HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {MapHighlightHelper} from "./mapHighlight";
@@ -126,7 +126,7 @@ describe('map highlight generator', () => {
                 affiliation: SquaddieAffiliation.UNKNOWN,
             }),
             attributes: ArmyAttributesService.new({
-                movement: SquaddieMovementHelper.new({
+                movement: SquaddieMovementService.new({
                     movementPerAction: 2,
                 })
             })
@@ -198,7 +198,7 @@ describe('map highlight generator', () => {
                     affiliation: SquaddieAffiliation.UNKNOWN,
                 }),
                 attributes: ArmyAttributesService.new({
-                    movement: SquaddieMovementHelper.new({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 1,
                     })
                 })
@@ -328,7 +328,7 @@ describe('map highlight generator', () => {
                     affiliation: SquaddieAffiliation.UNKNOWN,
                 }),
                 attributes: ArmyAttributesService.new({
-                    movement: SquaddieMovementHelper.new({
+                    movement: SquaddieMovementService.new({
                         movementPerAction: 1,
                     })
                 }),

@@ -311,7 +311,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
             switch (actionEffect.type) {
                 case TODODELETEMEActionEffectType.MOVEMENT:
                     createSearchPath(state, squaddieTemplate, battleSquaddie, actionEffect.destination);
-                    OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
+                    OrchestratorUtilities.TODODELETEMEupdateSquaddieBasedOnActionEffect({
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
                         missionMap: state.battleOrchestratorState.battleState.missionMap,
                         repository: state.repository,
@@ -326,7 +326,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                     });
                     this.showSelectedActionWaitTime = Date.now();
                     this.highlightTargetRange(state, actionEffect);
-                    OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
+                    OrchestratorUtilities.TODODELETEMEupdateSquaddieBasedOnActionEffect({
                         battleSquaddieId: battleSquaddie.battleSquaddieId,
                         missionMap: state.battleOrchestratorState.battleState.missionMap,
                         repository: state.repository,

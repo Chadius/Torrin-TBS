@@ -43,14 +43,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
-
-        // TODO move to OrchUtils function
-        ActionsThisRoundService.nextProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-        const nextProcessedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound)
-        if (!isValidValue(nextProcessedActionEffectToShow)) {
-            state.battleOrchestratorState.battleState.actionsThisRound = undefined;
-        }
-        // TODO move to OrchUtils function
+        OrchestratorUtilities.goToNextProcessedActionThisRound(state);
 
         OrchestratorUtilities.nextActionEffect(
             state.battleOrchestratorState,

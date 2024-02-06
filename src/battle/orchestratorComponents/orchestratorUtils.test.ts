@@ -317,7 +317,7 @@ describe("Orchestration Utils", () => {
 
     describe('updateSquaddieBasedOnActionEffect', () => {
         it('will move the squaddie and spend action points based on the movement actionEffect', () => {
-            OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
+            OrchestratorUtilities.TODODELETEMEupdateSquaddieBasedOnActionEffect({
                 actionEffect: ActionEffectMovementService.new({
                     destination: {q: 0, r: 2},
                     numberOfActionPointsSpent: 2,
@@ -349,7 +349,7 @@ describe("Orchestration Utils", () => {
             expect(knightBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1);
         });
         it('will spend all action points when an end turn actionEffect is used', () => {
-            OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
+            OrchestratorUtilities.TODODELETEMEupdateSquaddieBasedOnActionEffect({
                 actionEffect: ActionEffectEndTurnService.new(),
                 missionMap: map,
                 repository: squaddieRepository,

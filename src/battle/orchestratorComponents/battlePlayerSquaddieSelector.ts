@@ -16,9 +16,17 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {GetSquaddieAtMapLocation, OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {AddMovementInstruction, createSearchPath} from "./battleSquaddieSelectorUtils";
+import {
+    TODODELETEMEAddMovementInstruction,
+    createSearchPath,
+    BattleSquaddieSelectorService
+} from "./battleSquaddieSelectorUtils";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {CanPlayerControlSquaddieRightNow, GetNumberOfActionPoints} from "../../squaddie/squaddieService";
+import {
+    CanPlayerControlSquaddieRightNow,
+    GetNumberOfActionPoints,
+    SquaddieService
+} from "../../squaddie/squaddieService";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
@@ -48,6 +56,11 @@ import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
 import {RecordingService} from "../history/recording";
 import {BattleEventService} from "../history/battleEvent";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
+import {SquaddieTurnService} from "../../squaddie/turn";
+import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
+import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 
 export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent {
     private gaveCompleteInstruction: boolean;
@@ -156,7 +169,6 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         let nextMode: BattleOrchestratorMode = undefined;
 
         if (this.gaveCompleteInstruction) {
-            // TODO move into new function
             let newAction: TODODELETEMEactionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
             if (isValidValue(newAction)) {
                 const typeToMode: { [t in TODODELETEMEActionEffectType]: BattleOrchestratorMode } = {
@@ -168,8 +180,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             }
 
             switch (ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound).type) {
+                case ActionEffectType.MOVEMENT:
+                    nextMode = BattleOrchestratorMode.SQUADDIE_MOVER;
+                    break;
                 case ActionEffectType.END_TURN:
                     nextMode = BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
+                    break;
             }
 
         } else if (this.gaveInstructionThatNeedsATarget) {
@@ -338,9 +354,12 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         if (!canPlayerControlSquaddieRightNow.playerCanControlThisSquaddieRightNow) {
             return;
         }
+        this.moveSquaddieAndCompleteInstruction(state, battleSquaddie, squaddieTemplate, clickedHexCoordinate);
+    }
 
+    private moveSquaddieAndCompleteInstruction(state: GameEngineState, battleSquaddie: BattleSquaddie, squaddieTemplate: SquaddieTemplate, clickedHexCoordinate: HexCoordinate) {
         const squaddieDatum = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(battleSquaddie.battleSquaddieId);
-        const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie})
+        const {actionPointsRemaining} = SquaddieService.getNumberOfActionPoints({squaddieTemplate, battleSquaddie})
         const searchResults: SearchResult = PathfinderHelper.search({
             searchParameters: SearchParametersHelper.new({
                 startLocations: [squaddieDatum.mapLocation],
@@ -361,26 +380,23 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         });
 
         const closestRoute: SearchPath = SearchResultsHelper.getShortestPathToLocation(searchResults, clickedHexCoordinate.q, clickedHexCoordinate.r);
-        if (closestRoute != null) {
-            createSearchPath(state, squaddieTemplate, battleSquaddie, clickedHexCoordinate);
-            const actionEffectMovement = AddMovementInstruction(state, squaddieTemplate, battleSquaddie, clickedHexCoordinate);
-            OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                missionMap: state.battleOrchestratorState.battleState.missionMap,
-                repository: state.repository,
-                actionEffect: actionEffectMovement
-            });
-
-            if (state.battleOrchestratorState.decisionActionEffectIterator === undefined) {
-                state.battleOrchestratorState.decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
-                    decision: DecisionService.new({
-                        actionEffects: [actionEffectMovement],
-                    })
-                });
-            }
-
-            this.gaveCompleteInstruction = true;
+        if (closestRoute == null) {
+            return;
         }
+
+        BattleSquaddieSelectorService.createSearchPath({
+            state,
+            squaddieTemplate,
+            battleSquaddie,
+            clickedHexCoordinate
+        });
+        BattleSquaddieSelectorService.moveSquaddieAndCompleteInstruction({
+            state,
+            squaddieTemplate,
+            battleSquaddie,
+            clickedHexCoordinate
+        });
+        this.gaveCompleteInstruction = true;
     }
 
     private isHudInstructingTheCurrentlyActingSquaddie(state: GameEngineState): boolean {
@@ -388,7 +404,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         const squaddieShownInHUD = state.battleOrchestratorState.battleSquaddieSelectedHUD.getSelectedBattleSquaddieId();
 
         return startOfANewSquaddieTurn
-            || squaddieShownInHUD === TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing);
+            || squaddieShownInHUD === state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
     }
 
     private reactToPlayerSelectedAction(state: GameEngineState) {

@@ -21,12 +21,14 @@ import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterato
 import {TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {DecidedActionEffect} from "../../action/decided/decidedActionEffect";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
         return isSquaddieCurrentlyTakingATurn(state);
     },
-    updateSquaddieBasedOnActionEffect: ({battleSquaddieId, repository, actionEffect, missionMap}: {
+    TODODELETEMEupdateSquaddieBasedOnActionEffect: ({battleSquaddieId, repository, actionEffect, missionMap}: {
         battleSquaddieId: string,
         repository: ObjectRepository,
         actionEffect: TODODELETEMEactionEffect;
@@ -88,6 +90,16 @@ export const OrchestratorUtilities = {
     },
     drawSquaddieReachBasedOnSquaddieTurnAndAffiliation: (state: GameEngineState) => {
         return DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
+    },
+    drawOrResetHUDBasedOnSquaddieTurnAndAffiliation: (state: GameEngineState) => {
+        return DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state)
+    },
+    goToNextProcessedActionThisRound: (state: GameEngineState) => {
+        ActionsThisRoundService.nextProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+        const nextProcessedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+        if (!isValidValue(nextProcessedActionEffectToShow)) {
+            state.battleOrchestratorState.battleState.actionsThisRound = undefined;
+        }
     }
 }
 
@@ -217,8 +229,9 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngin
     }
 
     const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
+        ObjectRepositoryService.getSquaddieByBattleId(
+            state.repository,
+            state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
         )
     );
 
@@ -228,7 +241,7 @@ export const DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation = (state: GameEngin
     });
     if (playerCanControlThisSquaddieRightNow) {
         state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
-            battleId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing),
+            battleId: state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
             state,
         });
     } else {

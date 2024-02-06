@@ -10,7 +10,7 @@ import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities} from "./orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {MaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
+import {TODODELETEMEMaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieActionAnimator} from "../animation/squaddieActionAnimator";
 import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionAnimator";
@@ -104,7 +104,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
-        MaybeEndSquaddieTurn(state);
+        TODODELETEMEMaybeEndSquaddieTurn(state);
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {

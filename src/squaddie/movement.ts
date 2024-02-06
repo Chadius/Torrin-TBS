@@ -7,7 +7,7 @@ export interface SquaddieMovement {
     crossOverPits: boolean;
 }
 
-export const SquaddieMovementHelper = {
+export const SquaddieMovementService = {
     new: ({movementPerAction, traits}: {
         movementPerAction?: number;
         traits?: TraitStatusStorage;

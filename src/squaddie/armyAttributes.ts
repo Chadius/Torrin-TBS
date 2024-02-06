@@ -1,4 +1,4 @@
-import {CreateNewSquaddieMovementWithTraits, SquaddieMovement, SquaddieMovementHelper} from "./movement";
+import {CreateNewSquaddieMovementWithTraits, SquaddieMovement, SquaddieMovementService} from "./movement";
 import {isValidValue} from "../utils/validityCheck";
 
 export interface ArmyAttributes {
@@ -37,7 +37,7 @@ const sanitize = (data: ArmyAttributes): ArmyAttributes => {
     if (!isValidValue(data.movement)) {
         data.movement = defaultAttributes.movement;
     }
-    SquaddieMovementHelper.sanitize(data.movement);
+    SquaddieMovementService.sanitize(data.movement);
 
     if (!isValidValue(data.maxHitPoints) || data.maxHitPoints <= 0) {
         data.maxHitPoints = defaultAttributes.maxHitPoints;

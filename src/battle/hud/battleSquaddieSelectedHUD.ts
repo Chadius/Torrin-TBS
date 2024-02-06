@@ -115,6 +115,7 @@ export class BattleSquaddieSelectedHUD {
                                 }
     ) {
         this.selectedBattleSquaddieId = battleId;
+
         if (this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX !== undefined) {
             TextBoxHelper.stop(this.graphicsObjects.textBoxes.INVALID_COMMAND_WARNING_TEXT_BOX);
         }

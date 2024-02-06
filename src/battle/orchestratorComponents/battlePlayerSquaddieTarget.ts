@@ -364,7 +364,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing, decision);
         state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision = decision;
 
-        OrchestratorUtilities.updateSquaddieBasedOnActionEffect({
+        OrchestratorUtilities.TODODELETEMEupdateSquaddieBasedOnActionEffect({
             battleSquaddieId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing),
             missionMap: state.battleOrchestratorState.battleState.missionMap,
             repository: state.repository,
