@@ -45,8 +45,6 @@ import {ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 
-// TODO review and figure out how to build ActionsThisRound through previews
-
 describe('BattleSquaddieTarget', () => {
     let squaddieRepo: ObjectRepository = ObjectRepositoryService.new();
     let targetComponent: BattlePlayerSquaddieTarget;
@@ -277,85 +275,9 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
             const recommendedInfo = targetComponent.recommendStateChanges(state);
             expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
+            expect(state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
+            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
-    });
-
-    it('should clear whoever is acting if they cancel at the start of the turn', () => {
-        const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
-        };
-
-        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-
-            squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                battleSquaddieId: knightDynamic.battleSquaddieId,
-                squaddieTemplateId: knightStatic.squaddieId.templateId,
-                startingLocation: {q: 1, r: 1},
-            }),
-        });
-
-        // TODO
-        // const decision = DecisionService.new({
-        //     actionEffects: [
-        //         ActionEffectSquaddieService.new({
-        //             template: longswordAction,
-        //             targetLocation: {q: 0, r: 0},
-        //             numberOfActionPointsSpent: 1,
-        //         })
-        //     ]
-        // });
-        // TODODELETEMECurrentlySelectedSquaddieDecisionService.selectCurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing, decision);
-
-        targetComponent.mouseEventHappened(state, mouseEvent);
-        // expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeFalsy();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
-    });
-
-    it('should remember the squaddie is still acting if they cancel midway through their turn', () => {
-        const mouseEvent: OrchestratorComponentMouseEvent = {
-            eventType: OrchestratorComponentMouseEventType.CLICKED,
-            mouseX: ScreenDimensions.SCREEN_WIDTH,
-            mouseY: ScreenDimensions.SCREEN_HEIGHT,
-        };
-
-        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-
-            squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                battleSquaddieId: knightDynamic.battleSquaddieId,
-                squaddieTemplateId: knightStatic.squaddieId.templateId,
-                startingLocation: {q: 1, r: 1},
-                decisions: [
-                    DecisionService.new({
-                        actionEffects: [
-                            ActionEffectMovementService.new({
-                                destination: {q: 0, r: 1},
-                                numberOfActionPointsSpent: 1,
-                            })
-                        ],
-                    })
-                ],
-            }),
-        });
-
-        // TODO
-        // TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing,
-        //     DecisionService.new({
-        //         actionEffects: [
-        //             ActionEffectSquaddieService.new({
-        //                 template: longswordAction,
-        //                 targetLocation: {q: 0, r: 0},
-        //                 numberOfActionPointsSpent: 1,
-        //             })
-        //         ]
-        //     }),
-        // );
-
-        targetComponent.mouseEventHappened(state, mouseEvent);
-        // expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.squaddieHasActedThisTurn(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)).toBeTruthy();
-        expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeTruthy();
     });
 
     it('should ignore if the user does not click off of the map', () => {

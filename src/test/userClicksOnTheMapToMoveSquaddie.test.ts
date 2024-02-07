@@ -179,7 +179,7 @@ describe("user clicks on the map to move", () => {
             const actionsThisRound = gameEngineState.battleOrchestratorState.battleState.actionsThisRound;
             expect(actionsThisRound.startingLocation).toEqual({q: 0, r: 0});
             expect(actionsThisRound.processedActions).toHaveLength(1);
-            expect(actionsThisRound.previewActionEffectIteratorIndex).toEqual(0);
+            expect(actionsThisRound.processedActionEffectIteratorIndex).toEqual(0);
 
             const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
                 destination: {q: 0, r: 3},

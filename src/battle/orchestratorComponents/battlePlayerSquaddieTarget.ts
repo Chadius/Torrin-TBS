@@ -21,13 +21,12 @@ import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {FindValidTargets, TargetingResultsService} from "../targeting/targetingService";
+import {TargetingResultsService} from "../targeting/targetingService";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
 import {GetSquaddieAtScreenLocation, OrchestratorUtilities} from "./orchestratorUtils";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
-import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {Trait} from "../../trait/traitStatusStorage";
 import {LabelHelper} from "../../ui/label";
 import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
@@ -37,6 +36,10 @@ import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {isValidValue} from "../../utils/validityCheck";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
+import {ActionResultTextService} from "../animation/actionResultTextService";
+import {ActionTemplate} from "../../action/template/actionTemplate";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -44,7 +47,7 @@ const MESSAGE_TEXT_SIZE = 24;
 
 export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     private cancelAbility: boolean;
-    private hasSelectedValidTarget: boolean;
+    hasSelectedValidTarget: boolean;
     private hasConfirmedAction: boolean;
     private validTargetLocation?: HexCoordinate;
     private highlightedTargetRange: HexCoordinate[];
@@ -68,7 +71,7 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             if (!this.hasSelectedValidTarget) {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
-                    TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing);
+                    state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
                     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
                     return;
                 } else {
@@ -78,7 +81,6 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
             if (!this.hasConfirmedAction) {
                 if (event.mouseY > BUTTON_TOP) {
-                    TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing);
                     return this.cancelTargetSelection(state.battleOrchestratorState);
                 }
 
@@ -104,11 +106,11 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
             return this.highlightTargetRange(state);
         }
 
-        if (this.hasHighlightedTargetRange && !this.hasSelectedValidTarget) {
+        if (!this.hasSelectedValidTarget) {
             this.drawCancelAbilityButton(state.battleOrchestratorState, graphicsContext);
         }
 
-        if (this.hasHighlightedTargetRange && this.hasSelectedValidTarget && !this.hasConfirmedAction) {
+        if (this.hasSelectedValidTarget && !this.hasConfirmedAction) {
             this.drawConfirmWindow(state, graphicsContext);
         }
         return;
@@ -236,22 +238,29 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-                TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
+            ObjectRepositoryService.getSquaddieByBattleId(
+                state.repository,
+                state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
             )
         );
 
         const actorAndTargetAreFriends: boolean = FriendlyAffiliationsByAffiliation[actingSquaddieTemplate.squaddieId.affiliation][targetSquaddieTemplate.squaddieId.affiliation];
-        let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
-            return;
-        }
-        const actionConsidered: TODODELETEMEActionEffectSquaddieTemplate = squaddieActionEffect.template;
 
-        if (actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
+        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId);
+
+        if (!isValidValue(actionTemplate)) {
             return;
         }
-        if (!actorAndTargetAreFriends && actionConsidered.traits.booleanTraits[Trait.TARGETS_ALLIES] === true) {
+
+        const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
+        if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+            return;
+        }
+
+        if (actorAndTargetAreFriends && actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] !== true) {
+            return;
+        }
+        if (!actorAndTargetAreFriends && actionEffectTemplate.traits.booleanTraits[Trait.TARGETS_ALLIES] === true) {
             return;
         }
 
@@ -274,26 +283,29 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         );
 
         let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
-        let {multipleAttackPenalty} = TODODELETEMESquaddieActionsForThisRoundService.previewMultipleAttackPenalty(
-            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase,
-            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision,
-        );
+        let {multipleAttackPenalty} = ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(
+            state.battleOrchestratorState.battleState.actionsThisRound
+        )
         if (multipleAttackPenalty !== 0) {
             actingSquaddieModifiers[ATTACK_MODIFIER.MULTIPLE_ATTACK_PENALTY] = multipleAttackPenalty;
         }
 
-        let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
+        const {
+            found,
+            actionTemplate,
+            actionEffectSquaddieTemplate
+        } = getActionEffectSquaddieTemplate({gameEngineState: state});
+        if (!found) {
             return;
         }
 
-        const intentMessages: string[] = [];
-        // const intentMessages = ActionResultTextService.outputIntentForTextOnly({
-        //     currentActionEffectSquaddieTemplate: undefined, // TODO
-        //     actingBattleSquaddieId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing),
-        //     squaddieRepository: state.repository,
-        //     actingSquaddieModifiers,
-        // });
+        const intentMessages = ActionResultTextService.outputIntentForTextOnly({
+            currentActionEffectSquaddieTemplate: actionEffectSquaddieTemplate,
+            actionTemplate,
+            actingBattleSquaddieId: state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+            squaddieRepository: state.repository,
+            actingSquaddieModifiers,
+        });
 
         intentMessages.push(...[
             "",
@@ -394,5 +406,45 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
 
         RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, newEvent);
         this.hasConfirmedAction = true;
+    }
+}
+
+const getActionEffectSquaddieTemplate = ({
+                                             gameEngineState
+                                         }: {
+    gameEngineState: GameEngineState
+}): {
+    found: boolean,
+    actionTemplate: ActionTemplate,
+    actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
+} => {
+    const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(
+        ObjectRepositoryService.getSquaddieByBattleId(
+            gameEngineState.repository,
+            gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
+        )
+    );
+    const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId);
+    if (!isValidValue(actionTemplate)) {
+        return {
+            found: false,
+            actionTemplate,
+            actionEffectSquaddieTemplate: undefined,
+        };
+    }
+
+    const actionEffectTemplate = actionTemplate.actionEffectTemplates[0]
+    if (actionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
+        return {
+            found: false,
+            actionTemplate,
+            actionEffectSquaddieTemplate: undefined,
+        };
+    }
+
+    return {
+        found: true,
+        actionTemplate,
+        actionEffectSquaddieTemplate: actionEffectTemplate
     }
 }

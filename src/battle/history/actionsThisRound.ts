@@ -9,7 +9,7 @@ export interface ActionsThisRound {
     startingLocation: HexCoordinate;
     processedActions: ProcessedAction[];
     previewedActionTemplateId: string;
-    previewActionEffectIteratorIndex: number;
+    processedActionEffectIteratorIndex: number;
 }
 
 export const ActionsThisRoundService = {
@@ -29,7 +29,7 @@ export const ActionsThisRoundService = {
             startingLocation,
             processedActions,
             previewedActionTemplateId: previewedActionTemplateId,
-            previewActionEffectIteratorIndex: 0,
+            processedActionEffectIteratorIndex: 0,
         })
     },
     getMultipleAttackPenaltyForProcessedActions:
@@ -48,7 +48,7 @@ export const ActionsThisRoundService = {
             return undefined;
         }
 
-        let countDown = actionsThisRound.previewActionEffectIteratorIndex;
+        let countDown = actionsThisRound.processedActionEffectIteratorIndex;
         for (const processedAction of actionsThisRound.processedActions) {
             if (countDown < processedAction.processedActionEffects.length) {
                 return processedAction.processedActionEffects[countDown];
@@ -64,7 +64,7 @@ export const ActionsThisRoundService = {
             return;
         }
 
-        actionsThisRound.previewActionEffectIteratorIndex++;
+        actionsThisRound.processedActionEffectIteratorIndex++;
     }
 }
 
