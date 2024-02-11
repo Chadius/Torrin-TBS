@@ -16,7 +16,7 @@ export class ActorTextWindow {
     results: SquaddieSquaddieResults;
     actorTemplate: SquaddieTemplate;
     actorBattle: BattleSquaddie;
-    actionTemplate: ActionTemplate;
+    actionTemplateName: string;
 
     constructor() {
 
@@ -43,29 +43,28 @@ export class ActorTextWindow {
     reset() {
         this.actorTemplate = undefined;
         this.actorBattle = undefined;
-        this.actionTemplate = undefined;
+        this.actionTemplateName = undefined;
         this.results = undefined;
         this._actorLabel = undefined;
         this._actorUsesActionDescriptionText = "";
     }
 
-    start({actorTemplate, actorBattle, actionTemplate, results}: {
+    start({actorTemplate, actorBattle, actionTemplateName, results}: {
         actorTemplate: SquaddieTemplate,
         actorBattle: BattleSquaddie,
-        actionTemplate: ActionTemplate,
+        actionTemplateName: string,
         results: SquaddieSquaddieResults,
     }) {
         this.reset();
 
         this.actorTemplate = actorTemplate;
         this.actorBattle = actorBattle;
-        this.actionTemplate = actionTemplate;
+        this.actionTemplateName = actionTemplateName;
         this.results = results;
 
         const actorName: string = actorTemplate.squaddieId.name;
-        const actionName: string = actionTemplate.name;
 
-        this._actorUsesActionDescriptionText = `${actorName} uses\n${actionName}`;
+        this._actorUsesActionDescriptionText = `${actorName} uses\n${actionTemplateName}`;
         this._backgroundHue = HUE_BY_SQUADDIE_AFFILIATION[actorTemplate.squaddieId.affiliation];
         this.results = results;
 
@@ -84,7 +83,7 @@ export class ActorTextWindow {
     private updateActorLabel({timer}: { timer?: ActionTimer }) {
         const actorUsesActionDescriptionText = ActionResultTextService.calculateActorUsesActionDescriptionText({
             timer,
-            actionTemplate: this.actionTemplate,
+            actionTemplateName: this.actionTemplateName,
             actorTemplate: this.actorTemplate,
             results: this.results,
         });

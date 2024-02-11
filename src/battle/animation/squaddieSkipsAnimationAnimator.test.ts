@@ -3,12 +3,12 @@ import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
-import {Recording} from "../history/recording";
+import {Recording, RecordingService} from "../history/recording";
 import {ANIMATE_TEXT_WINDOW_WAIT_TIME, SquaddieSkipsAnimationAnimator} from "./squaddieSkipsAnimationAnimator";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {BattleEvent} from "../history/battleEvent";
+import {BattleEvent, BattleEventService} from "../history/battleEvent";
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {
     OrchestratorComponentMouseEvent,
@@ -27,6 +27,7 @@ import {ProcessedActionService} from "../../action/processed/processedAction";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
+import {DecidedActionService} from "../../action/decided/decidedAction";
 
 describe('SquaddieSkipsAnimationAnimator', () => {
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -75,7 +76,11 @@ describe('SquaddieSkipsAnimationAnimator', () => {
 
         battleEventRecording = {history: []};
         const oneDecisionInstruction = ProcessedActionService.new({
-            decidedAction: undefined,
+            decidedAction: DecidedActionService.new({
+                actionPointCost: 1,
+                battleSquaddieId: monkBattleSquaddieId,
+                actionTemplateName: monkKoanAction.name,
+            }),
             processedActionEffects: [
                 ProcessedActionSquaddieEffectService.new({
                     decidedActionEffect: DecidedActionSquaddieEffectService.new({
@@ -93,21 +98,20 @@ describe('SquaddieSkipsAnimationAnimator', () => {
             processedActions: [oneDecisionInstruction],
         })
 
-        // TODO BattleEvent needs to take in ActionsThisRound and avoid raw results.
-        // monkMeditatesEvent = {
-        //     instruction: monkMeditatesInstruction,
-        //     results: {
-        //         actingBattleSquaddieId: monkBattleSquaddieId,
-        //         targetedBattleSquaddieIds: [],
-        //         resultPerTarget: {},
-        //         actingSquaddieRoll: {
-        //             occurred: false,
-        //             rolls: [],
-        //         },
-        //         actingSquaddieModifiers: {},
-        //     }
-        // };
-        // RecordingService.addEvent(battleEventRecording, monkMeditatesEvent);
+        monkMeditatesEvent = BattleEventService.new({
+            processedAction: oneDecisionInstruction,
+            results: {
+                actingBattleSquaddieId: monkBattleSquaddieId,
+                targetedBattleSquaddieIds: [],
+                resultPerTarget: {},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
+                actingSquaddieModifiers: {},
+            }
+        });
+        RecordingService.addEvent(battleEventRecording, monkMeditatesEvent);
 
         animator = new SquaddieSkipsAnimationAnimator();
         mockedP5GraphicsContext = new MockedP5GraphicsContext();
@@ -136,9 +140,10 @@ describe('SquaddieSkipsAnimationAnimator', () => {
         expect(animator.outputTextDisplay).not.toBeUndefined();
         expect(outputResultForTextOnlySpy).toBeCalled();
         expect(outputResultForTextOnlySpy).toBeCalledWith({
-            currentActionEffectTemplate: monkKoanAction,
-            result: monkMeditatesEvent.results,
+            currentActionEffectSquaddieTemplate: monkKoanAction.actionEffectTemplates[0],
             squaddieRepository,
+            actionTemplateName: monkKoanAction.name,
+            result: monkMeditatesEvent.results,
         });
         expect(drawLabelSpy).toBeCalled();
     });

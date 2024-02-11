@@ -18,14 +18,14 @@ import {
 import {ActionTemplate} from "../../action/template/actionTemplate";
 
 export const ActionResultTextService = {
-    outputResultForTextOnly: ({currentActionEffectSquaddieTemplate, result, squaddieRepository, actionTemplate}: {
+    outputResultForTextOnly: ({currentActionEffectSquaddieTemplate, result, squaddieRepository, actionTemplateName}: {
         currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         result: SquaddieSquaddieResults,
         squaddieRepository: ObjectRepository,
-        actionTemplate: ActionTemplate,
+        actionTemplateName: string,
     }): string[] => {
         return outputResultForTextOnly({
-            actionTemplate,
+            actionTemplateName,
             currentActionEffectSquaddieTemplate,
             result,
             squaddieRepository
@@ -52,12 +52,12 @@ export const ActionResultTextService = {
             actingSquaddieModifiers
         });
     },
-    getSquaddieUsesActionString: ({squaddieTemplate, actionTemplate, newline}: {
+    getSquaddieUsesActionString: ({squaddieTemplate, actionTemplateName, newline}: {
         squaddieTemplate: SquaddieTemplate,
-        actionTemplate: ActionTemplate,
+        actionTemplateName: string,
         newline: boolean
     }): string => {
-        return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${actionTemplate.name}`;
+        return `${squaddieTemplate.squaddieId.name} uses${newline ? '\n' : ' '}${actionTemplateName}`;
     },
     getRollsDescriptionString: ({rolls, addSpacing}: { rolls: number[], addSpacing: boolean }): string => {
         return `${addSpacing ? '   ' : ''}rolls (${rolls[0]}, ${rolls[1]})`;
@@ -92,17 +92,17 @@ export const ActionResultTextService = {
     calculateActorUsesActionDescriptionText: ({
                                                   timer,
                                                   actorTemplate,
-                                                  actionTemplate,
+                                                  actionTemplateName,
                                                   results,
                                               }: {
         timer?: ActionTimer
         actorTemplate: SquaddieTemplate,
-        actionTemplate: ActionTemplate,
+        actionTemplateName: string,
         results: SquaddieSquaddieResults,
     }): string => {
         let actorUsesActionDescriptionText = ActionResultTextService.getSquaddieUsesActionString({
             squaddieTemplate: actorTemplate,
-            actionTemplate: actionTemplate,
+            actionTemplateName: actionTemplateName,
             newline: true,
         });
         if (!timer) {
@@ -193,18 +193,18 @@ export const ActionResultTextService = {
     }
 };
 
-const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, squaddieRepository, actionTemplate}: {
+const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, squaddieRepository, actionTemplateName}: {
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     result: SquaddieSquaddieResults,
     squaddieRepository: ObjectRepository,
-    actionTemplate: ActionTemplate,
+    actionTemplateName: string,
 }): string[] => {
     const {squaddieTemplate: actingSquaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(squaddieRepository, result.actingBattleSquaddieId))
 
     let output: string[] = [];
     let actorUsesActionDescriptionText = ActionResultTextService.getSquaddieUsesActionString({
         squaddieTemplate: actingSquaddieTemplate,
-        actionTemplate: actionTemplate,
+        actionTemplateName,
         newline: false,
     });
     output.push(actorUsesActionDescriptionText);

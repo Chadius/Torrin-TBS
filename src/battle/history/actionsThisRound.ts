@@ -3,6 +3,7 @@ import {ProcessedAction, ProcessedActionService} from "../../action/processed/pr
 import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {MULTIPLE_ATTACK_PENALTY, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../modifierConstants";
 import {ProcessedActionEffect} from "../../action/processed/processedActionEffect";
+import {ActionTemplate} from "../../action/template/actionTemplate";
 
 export interface ActionsThisRound {
     battleSquaddieId: string;
@@ -39,6 +40,28 @@ export const ActionsThisRoundService = {
         } => {
             return getMultipleAttackPenaltyForProcessedActions(actionsForThisRound);
         },
+    // TODO test this
+    // TODO refactor because the logic is exactly the same
+    getProcessedActionToShow: (actionsThisRound: ActionsThisRound): ProcessedAction => {
+        if (!isValidValue(actionsThisRound)) {
+            return undefined;
+        }
+
+        if (actionsThisRound.processedActions.length < 1) {
+            return undefined;
+        }
+
+        let countDown = actionsThisRound.processedActionEffectIteratorIndex;
+        for (const processedAction of actionsThisRound.processedActions) {
+            if (countDown < processedAction.processedActionEffects.length) {
+                return processedAction;
+            }
+
+            countDown -= processedAction.processedActionEffects.length;
+        }
+
+        return undefined;
+    },
     getProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound): ProcessedActionEffect => {
         if (!isValidValue(actionsThisRound)) {
             return undefined;

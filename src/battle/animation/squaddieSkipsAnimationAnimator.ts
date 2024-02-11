@@ -7,8 +7,13 @@ import {Label, LabelHelper} from "../../ui/label";
 import {RectAreaService} from "../../ui/rectArea";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
-import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {GameEngineState} from "../../gameEngine/gameEngine";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {ActionResultTextService} from "./actionResultTextService";
+import {RecordingService} from "../history/recording";
+import {ObjectRepositoryService} from "../objectRepository";
+import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 
@@ -57,18 +62,24 @@ export class SquaddieSkipsAnimationAnimator implements SquaddieActionAnimator {
 
     private drawActionDescription(state: GameEngineState, graphicsContext: GraphicsContext) {
         if (this.outputTextDisplay === undefined) {
-            let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-            if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
+            const processedActionToShow = ActionsThisRoundService.getProcessedActionToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+            const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+            if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
                 return;
             }
 
+            if (processedActionEffectToShow.decidedActionEffect.type !== ActionEffectType.SQUADDIE) {
+                return;
+            }
+            const currentActionEffectSquaddieTemplate = processedActionEffectToShow.decidedActionEffect.template;
+
             this.outputTextStrings = [];
-            // TODO
-            // this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
-            //     squaddieRepository: state.repository,
-            //     currentActionEffectTemplate: squaddieActionEffect.template,
-            //     result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
-            // });
+            this.outputTextStrings = ActionResultTextService.outputResultForTextOnly({
+                squaddieRepository: state.repository,
+                actionTemplateName: processedActionToShow.decidedAction.actionTemplateName,
+                currentActionEffectSquaddieTemplate,
+                result: RecordingService.mostRecentEvent(state.battleOrchestratorState.battleState.recording).results,
+            });
 
             const textToDraw = this.outputTextStrings.join("\n");
 

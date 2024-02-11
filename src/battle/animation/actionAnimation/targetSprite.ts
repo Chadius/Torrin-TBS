@@ -67,14 +67,14 @@ export class TargetSprite {
     start({
               targetBattleSquaddieId,
               squaddieRepository,
-              actionEffectSquaddieTemplateService,
+              actionEffectSquaddieTemplate,
               result,
               startingPosition,
               resourceHandler
           }: {
         targetBattleSquaddieId: string,
         squaddieRepository: ObjectRepository,
-        actionEffectSquaddieTemplateService: ActionEffectSquaddieTemplate,
+        actionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
         result: ActionResultPerSquaddie,
         startingPosition: number,
         resourceHandler: ResourceHandler,

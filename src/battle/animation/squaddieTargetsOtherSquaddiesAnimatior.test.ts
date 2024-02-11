@@ -12,7 +12,7 @@ import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewKnightSquaddie, CreateNewThiefSquaddie} from "../../utils/test/squaddie";
 import {Recording, RecordingService} from "../history/recording";
-import {BattleEvent} from "../history/battleEvent";
+import {BattleEvent, BattleEventService} from "../history/battleEvent";
 import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "./squaddieTargetsOtherSquaddiesAnimatior";
 import {ActionAnimationPhase} from "./actionAnimation/actionAnimationConstants";
@@ -28,17 +28,19 @@ import {
 import {ProcessedActionService} from "../../action/processed/processedAction";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
+import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {DecidedActionService} from "../../action/decided/decidedAction";
 
 describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
     let squaddieRepository: ObjectRepository;
     let knightBattleSquaddie: BattleSquaddie;
-    let knightDynamicId = "knight_0";
+    let knightBattleSquaddieId = "knight_0";
     let knightTemplateId = "knight_0";
     let thiefBattleSquaddie: BattleSquaddie;
     let thiefDynamicId = "thief_0";
     let thiefStaticId = "thief_0";
 
-    let longswordAction: ActionTemplate;
+    let longswordActionTemplate: ActionTemplate;
     let powerAttackLongswordAction: ActionTemplate;
     let animator: SquaddieTargetsOtherSquaddiesAnimator;
     let mockResourceHandler: jest.Mocked<ResourceHandler>;
@@ -61,7 +63,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             battleId: thiefDynamicId,
         }));
 
-        longswordAction = ActionTemplateService.new({
+        longswordActionTemplate = ActionTemplateService.new({
             name: "longsword",
             id: "longsword",
             actionEffectTemplates: [
@@ -85,18 +87,22 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         } = CreateNewKnightSquaddie({
             squaddieRepository,
             templateId: knightTemplateId,
-            battleId: knightDynamicId,
-            actionTemplates: [longswordAction],
+            battleId: knightBattleSquaddieId,
+            actionTemplates: [longswordActionTemplate],
         }));
 
         animator = new SquaddieTargetsOtherSquaddiesAnimator();
 
         const oneDecisionInstruction = ProcessedActionService.new({
-            decidedAction: undefined,
+            decidedAction: DecidedActionService.new({
+                actionPointCost: 1,
+                battleSquaddieId: knightBattleSquaddieId,
+                actionTemplateName: longswordActionTemplate.name,
+            }),
             processedActionEffects: [
                 ProcessedActionSquaddieEffectService.new({
                     decidedActionEffect: DecidedActionSquaddieEffectService.new({
-                        template: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                        template: longswordActionTemplate.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
                         target: {q: 0, r: 0},
                     }),
                     results: undefined,
@@ -113,26 +119,25 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
             processedActions: [oneDecisionInstruction],
         });
 
-        // TODO Update Battle Events and results
-        // knightHitsThiefWithLongswordEvent = {
-        //     instruction: knightHitsThiefWithLongswordInstructionInProgress,
-        //     results: {
-        //         actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
-        //         targetedBattleSquaddieIds: [thiefDynamicId],
-        //         resultPerTarget: {
-        //             [thiefDynamicId]: {
-        //                 damageTaken: 1,
-        //                 healingReceived: 0,
-        //                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
-        //             }
-        //         },
-        //         actingSquaddieRoll: {
-        //             occurred: false,
-        //             rolls: [],
-        //         },
-        //         actingSquaddieModifiers: {},
-        //     }
-        // };
+        knightHitsThiefWithLongswordEvent = BattleEventService.new({
+            processedAction: oneDecisionInstruction,
+            results: {
+                actingBattleSquaddieId: knightBattleSquaddie.battleSquaddieId,
+                targetedBattleSquaddieIds: [thiefDynamicId],
+                resultPerTarget: {
+                    [thiefDynamicId]: {
+                        damageTaken: 1,
+                        healingReceived: 0,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+                    }
+                },
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
+                actingSquaddieModifiers: {},
+            }
+        });
         battleEventRecording = {history: []};
     });
 
@@ -159,7 +164,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
         animator.update(state, mockedP5GraphicsContext);
 
         expect(animator.actorSprite).not.toBeUndefined();
-        expect(animator.actorSprite.battleSquaddieId).toBe(knightDynamicId);
+        expect(animator.actorSprite.battleSquaddieId).toBe(knightBattleSquaddieId);
 
         expect(animator.targetSprites).not.toBeUndefined();
         expect(animator.targetSprites).toHaveLength(1);

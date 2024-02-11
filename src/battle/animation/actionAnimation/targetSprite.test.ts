@@ -123,7 +123,7 @@ describe('Target Sprite', () => {
         const getSquaddieEmotionSpy = jest.spyOn(sprite, "getSquaddieEmotion").mockReturnValue(SquaddieEmotion.NEUTRAL);
 
         sprite.start({
-            actionEffectSquaddieTemplateService: undefined,
+            actionEffectSquaddieTemplate: undefined,
             resourceHandler: undefined,
             result: resultTookDamage,
             squaddieRepository,
