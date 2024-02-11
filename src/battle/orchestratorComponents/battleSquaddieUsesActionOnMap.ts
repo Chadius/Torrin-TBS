@@ -54,7 +54,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
             state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
 
-        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(nextActionEffect);
 
         return {
             nextMode,

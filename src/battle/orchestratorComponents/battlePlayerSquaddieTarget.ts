@@ -1,11 +1,7 @@
 import {HORIZ_ALIGN_CENTER, VERT_ALIGN_CENTER} from "../../ui/constants";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {RecordingService} from "../history/recording";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {TODODELETEMESquaddieActionsForThisRoundService} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {ScreenDimensions} from "../../utils/graphics/graphicsConfig";
 import {
@@ -25,21 +21,25 @@ import {TargetingResultsService} from "../targeting/targetingService";
 import {HighlightPulseRedColor} from "../../hexMap/hexDrawingUtils";
 import {RectArea, RectAreaService} from "../../ui/rectArea";
 import {convertScreenCoordinatesToMapCoordinates} from "../../hexMap/convertCoordinates";
-import {GetSquaddieAtScreenLocation, OrchestratorUtilities} from "./orchestratorUtils";
+import {GetSquaddieAtScreenLocation} from "./orchestratorUtils";
 import {FriendlyAffiliationsByAffiliation} from "../../squaddie/squaddieAffiliation";
 import {Trait} from "../../trait/traitStatusStorage";
 import {LabelHelper} from "../../ui/label";
-import {ActionEffectSquaddieService} from "../../decision/TODODELETEMEactionEffectSquaddie";
 import {ActionCalculator} from "../actionCalculator/calculator";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
-import {DecisionService} from "../../decision/TODODELETEMEdecision";
-import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {isValidValue} from "../../utils/validityCheck";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
-import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
 import {ActionResultTextService} from "../animation/actionResultTextService";
 import {ActionTemplate} from "../../action/template/actionTemplate";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
+import {SquaddieTurnService} from "../../squaddie/turn";
+import {ProcessedActionSquaddieEffect} from "../../action/processed/processedActionSquaddieEffect";
+import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
+import {BattleSquaddie} from "../battleSquaddie";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
@@ -350,61 +350,29 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
     }
 
     private confirmTargetSelection(state: GameEngineState) {
+        let actionsThisRound = state.battleOrchestratorState.battleState.actionsThisRound;
         const {squaddieTemplate: actingSquaddieTemplate, battleSquaddie: actingBattleSquaddie} = getResultOrThrowError(
-            ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-                TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)
+            ObjectRepositoryService.getSquaddieByBattleId(
+                state.repository,
+                actionsThisRound.battleSquaddieId
             )
         );
-        const actingSquaddieInfo = state.battleOrchestratorState.battleState.missionMap.getSquaddieByBattleId(actingBattleSquaddie.battleSquaddieId);
 
-        if (!OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
-            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing =
-                TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                    squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                        battleSquaddieId: actingBattleSquaddie.battleSquaddieId,
-                        squaddieTemplateId: actingSquaddieTemplate.squaddieId.templateId,
-                        startingLocation: actingSquaddieInfo.mapLocation,
-                    }),
-                });
-        }
-
-        let squaddieActionEffect = state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0];
-        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
+        const actionTemplate = actingSquaddieTemplate.actionTemplates.find(template => template.id === actionsThisRound.previewedActionTemplateId);
+        let firstActionEffectTemplate = actionTemplate.actionEffectTemplates[0];
+        if (firstActionEffectTemplate.type !== ActionEffectType.SQUADDIE) {
             return;
         }
 
-        const decision = DecisionService.new({
-            actionEffects: [
-                ActionEffectSquaddieService.new({
-                        targetLocation: this.validTargetLocation,
-                        template: squaddieActionEffect.template,
-                        numberOfActionPointsSpent: squaddieActionEffect.numberOfActionPointsSpent,
-                    }
-                )
-            ]
-        });
-        TODODELETEMECurrentlySelectedSquaddieDecisionService.addConfirmedDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing, decision);
-        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision = decision;
+        SquaddieTurnService.spendActionPoints(actingBattleSquaddie.squaddieTurn, actionTemplate.actionPoints);
+        const decidedAction = createDecidedAction(actionsThisRound, actionTemplate, firstActionEffectTemplate, this.validTargetLocation);
+        AddDecidedActionToProcessedActions(actionsThisRound, decidedAction);
+        state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
 
-        OrchestratorUtilities.TODODELETEMEupdateSquaddieBasedOnActionEffect({
-            battleSquaddieId: TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing),
-            missionMap: state.battleOrchestratorState.battleState.missionMap,
-            repository: state.repository,
-            actionEffect: squaddieActionEffect,
-        });
+        let results: SquaddieSquaddieResults = undefined;
+        results = calculateSquaddieSquaddieResults(results, state, actingBattleSquaddie, this.validTargetLocation, actionsThisRound);
+        addEventToRecording(actionsThisRound, results, state);
 
-        const instructionResults = ActionCalculator.calculateResults({
-            state,
-            actingBattleSquaddie,
-            validTargetLocation: this.validTargetLocation,
-        });
-
-        const newEvent: BattleEvent = BattleEventService.new({
-            instruction: state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing,
-            results: instructionResults,
-        });
-
-        RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, newEvent);
         this.hasConfirmedAction = true;
     }
 }
@@ -448,3 +416,47 @@ const getActionEffectSquaddieTemplate = ({
         actionEffectSquaddieTemplate: actionEffectTemplate
     }
 }
+
+const createDecidedAction = (actionsThisRound: ActionsThisRound, actionTemplate: ActionTemplate, firstActionEffectTemplate: ActionEffectSquaddieTemplate, targetLocation: HexCoordinate) => {
+    return DecidedActionService.new({
+        battleSquaddieId: actionsThisRound.battleSquaddieId,
+        actionTemplateName: actionTemplate.name,
+        actionPointCost: actionTemplate.actionPoints,
+        actionEffects: [
+            DecidedActionSquaddieEffectService.new({
+                template: firstActionEffectTemplate,
+                target: targetLocation,
+            })
+        ]
+    });
+};
+
+const AddDecidedActionToProcessedActions = (actionsThisRound: ActionsThisRound, decidedAction: DecidedAction) => {
+    if (actionsThisRound.processedActions === undefined || actionsThisRound.processedActions.length === 0) {
+        actionsThisRound.processedActions = [
+            ProcessedActionService.new({
+                decidedAction
+            })
+        ];
+    } else {
+        actionsThisRound.processedActions[actionsThisRound.processedActions.length - 1].decidedAction = decidedAction;
+    }
+};
+
+const calculateSquaddieSquaddieResults = (results: SquaddieSquaddieResults, state: GameEngineState, actingBattleSquaddie: BattleSquaddie, validTargetLocation: HexCoordinate, actionsThisRound: ActionsThisRound) => {
+    results = ActionCalculator.calculateResults({
+        state,
+        actingBattleSquaddie,
+        validTargetLocation: validTargetLocation,
+    });
+    (actionsThisRound.processedActions[actionsThisRound.processedActions.length - 1].processedActionEffects[0] as ProcessedActionSquaddieEffect).results = results.resultPerTarget;
+    return results;
+};
+
+const addEventToRecording = (actionsThisRound: ActionsThisRound, results: SquaddieSquaddieResults, state: GameEngineState) => {
+    const newEvent: BattleEvent = BattleEventService.new({
+        processedAction: actionsThisRound.processedActions[actionsThisRound.processedActions.length - 1],
+        results,
+    });
+    RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, newEvent);
+};

@@ -21,13 +21,10 @@ import {RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {TODODELETEMEactionEffect, TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -80,6 +77,8 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
+        ActionsThisRoundService.nextProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+
         OrchestratorUtilities.nextActionEffect(
             state.battleOrchestratorState,
             state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
@@ -88,8 +87,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             state.battleOrchestratorState,
             state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
-
-        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(nextActionEffect);
 
         return {
             nextMode,
@@ -118,7 +116,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
             const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
                 ObjectRepositoryService.getSquaddieByBattleId(
                     state.repository,
-                    state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId,
+                    state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId,
                 )
             )
             DrawSquaddieUtilities.highlightPlayableSquaddieReachIfTheyCanAct({
@@ -129,8 +127,6 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
                 campaign: state.campaign,
             });
             DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(battleSquaddie, squaddieTemplate, state.repository);
-
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.cancelSelectedCurrentDecision(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing);
             OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
             this.sawResultAftermath = true;
         }
@@ -158,25 +154,19 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         const mostRecentEvent: BattleEvent = RecordingService.mostRecentEvent(state.battleState.recording);
         if (
             mostRecentEvent === undefined
-            || mostRecentEvent.instruction === undefined
-            || mostRecentEvent.instruction.currentlySelectedDecision === undefined
+            || mostRecentEvent.processedAction === undefined
         ) {
             this._squaddieActionAnimator = new DefaultSquaddieActionAnimator();
             return;
         }
 
-        if (state.decisionActionEffectIterator === undefined) {
-            state.decisionActionEffectIterator = DecisionActionEffectIteratorService.new({
-                decision: mostRecentEvent.instruction.currentlySelectedDecision
-            })
-        }
+        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleState.actionsThisRound);
 
-        let squaddieActionEffect: TODODELETEMEactionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.decisionActionEffectIterator);
-        if (squaddieActionEffect.type !== TODODELETEMEActionEffectType.SQUADDIE) {
+        if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
             return;
         }
 
-        if (squaddieActionEffect.template.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
+        if (processedActionEffectToShow.decidedActionEffect.template.traits.booleanTraits[Trait.SKIP_ANIMATION] === true) {
             this._squaddieActionAnimator = this.squaddieSkipsAnimationAnimator;
             return;
         }

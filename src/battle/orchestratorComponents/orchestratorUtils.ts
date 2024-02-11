@@ -69,7 +69,7 @@ export const OrchestratorUtilities = {
         DecisionActionEffectIteratorService.nextActionEffect(state.decisionActionEffectIterator);
         return peekedActionEffect;
     },
-    getNextModeBasedOnActionEffect: (actionEffect: TODODELETEMEactionEffect): BattleOrchestratorMode => {
+    TODODELETEMEgetNextModeBasedOnActionEffect: (actionEffect: TODODELETEMEactionEffect): BattleOrchestratorMode => {
         if (!isValidValue(actionEffect)) {
             return undefined;
         }

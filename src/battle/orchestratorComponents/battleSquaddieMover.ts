@@ -67,7 +67,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
             state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
         );
 
-        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(nextActionEffect);
 
         return {
             nextMode,

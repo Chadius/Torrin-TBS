@@ -118,7 +118,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                 state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
             );
 
-            nextMode = OrchestratorUtilities.getNextModeBasedOnActionEffect(nextActionEffect);
+            nextMode = OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(nextActionEffect);
         } else if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
             nextMode = BattleOrchestratorMode.PHASE_CONTROLLER;
         }

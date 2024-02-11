@@ -528,16 +528,16 @@ describe("Orchestration Utils", () => {
 
     describe('recommendNewModeBasedOnActionEffect', () => {
         it('will recommend moving a squaddie if the next action effect is movement type', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnActionEffect(movementActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
+            expect(OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(movementActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
         });
         it('will recommend using an action effect on a squaddie if the next action effect is squaddie type', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnActionEffect(squaddieActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
+            expect(OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(squaddieActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
         });
         it('will recommend acting on the map if the next action effect is end turn', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnActionEffect(endTurnActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
+            expect(OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(endTurnActionEffect)).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
         });
         it('will return undefined if there is no action effect', () => {
-            expect(OrchestratorUtilities.getNextModeBasedOnActionEffect(undefined)).toBeUndefined();
+            expect(OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(undefined)).toBeUndefined();
         });
     });
 });
