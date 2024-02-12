@@ -44,6 +44,7 @@ import {SquaddieTargetsOtherSquaddiesAnimator} from "../battle/animation/squaddi
 import {BattleSquaddieUsesActionOnSquaddie} from "../battle/orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
 import {DamageType} from "../squaddie/squaddieService";
 import {SquaddieSkipsAnimationAnimator} from "../battle/animation/squaddieSkipsAnimationAnimator";
+import {DecidedActionService} from "../action/decided/decidedAction";
 
 describe('User Selects Target and Confirms', () => {
     let repository: ObjectRepository;
@@ -171,6 +172,21 @@ describe('User Selects Target and Confirms', () => {
 
         expect(targeting.hasSelectedValidTarget).toBeTruthy();
         expect(targeting.shouldDrawConfirmWindow()).toBeTruthy();
+        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(1);
+        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions[0].decidedAction).toEqual(
+            DecidedActionService.new({
+                battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                actionTemplateName: attackAction.name,
+                actionPointCost: attackAction.actionPoints,
+                actionEffects: [
+                    DecidedActionSquaddieEffectService.new({
+                        template: attackAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
+                        target: {q: 0, r: 2},
+                    })
+                ]
+            })
+        );
+        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions[0].processedActionEffects).toHaveLength(0);
     });
 
     describe('Confirming attack', () => {
@@ -342,16 +358,18 @@ const useActionTemplateOnLocation = ({
         previewedActionTemplateId: actionTemplate.name,
         processedActions: [
             ProcessedActionService.new({
-                decidedAction: undefined,
-                processedActionEffects: [
-                    ProcessedActionSquaddieEffectService.new({
-                        decidedActionEffect: DecidedActionSquaddieEffectService.new({
+                decidedAction: DecidedActionService.new({
+                    battleSquaddieId: attackerBattleSquaddieId,
+                    actionTemplateName: actionTemplate.name,
+                    actionPointCost: actionTemplate.actionPoints,
+                    actionEffects: [
+                        DecidedActionSquaddieEffectService.new({
                             template: actionTemplate.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
-                            target: targetLocation,
-                        }),
-                        results: undefined,
-                    }),
-                ]
+                            target: {q: 0, r: 2},
+                        })
+                    ]
+                }),
+                processedActionEffects: [],
             }),
         ],
     });

@@ -174,6 +174,8 @@ describe('calculator', () => {
                         }),
                     }),
                 }),
+                actionsThisRound,
+                actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                 actingBattleSquaddie: actingBattleSquaddie ?? player1BattleSquaddie,
                 validTargetLocation: validTargetLocation ?? {q: 0, r: 1},
             }
@@ -285,6 +287,8 @@ describe('calculator', () => {
                         }),
                         repository: squaddieRepository,
                     }),
+                actionsThisRound,
+                actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 2},
                 }
@@ -324,6 +328,8 @@ describe('calculator', () => {
                         }),
                         repository: squaddieRepository,
                     }),
+                actionsThisRound,
+                actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 0},
                 }
@@ -435,6 +441,8 @@ describe('calculator', () => {
                             }),
                         }),
                     }),
+                actionsThisRound,
+                actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound).decidedActionEffect,
                     actingBattleSquaddie: player1BattleSquaddie,
                     validTargetLocation: {q: 0, r: 1},
                 }

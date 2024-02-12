@@ -19,22 +19,33 @@ import {ObjectRepositoryService} from "../objectRepository";
 import {ATTACK_MODIFIER} from "../modifierConstants";
 import {DegreeOfSuccess, DegreeOfSuccessService} from "./degreeOfSuccess";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
+import {DecidedActionEffect} from "../../action/decided/decidedActionEffect";
 
 export const ActionCalculator = {
     calculateResults: ({
                            state,
                            actingBattleSquaddie,
                            validTargetLocation,
+                           actionEffect,
+                           actionsThisRound,
                        }: {
                            state: GameEngineState,
                            actingBattleSquaddie: BattleSquaddie,
-                           validTargetLocation: HexCoordinate
+                           validTargetLocation: HexCoordinate,
+                           actionsThisRound: ActionsThisRound,
+                           actionEffect: DecidedActionEffect,
                        }
     ): SquaddieSquaddieResults => {
-        return calculateResults({state, actingBattleSquaddie, validTargetLocation});
+        return calculateResults({
+            state,
+            actingBattleSquaddie,
+            validTargetLocation,
+            actionsThisRound,
+            actionEffect,
+        });
     }
 }
 
@@ -42,10 +53,14 @@ const calculateResults = ({
                               state,
                               actingBattleSquaddie,
                               validTargetLocation,
+                              actionsThisRound,
+                              actionEffect,
                           }: {
                               state: GameEngineState,
                               actingBattleSquaddie: BattleSquaddie,
-                              validTargetLocation: HexCoordinate
+                              validTargetLocation: HexCoordinate,
+                              actionsThisRound: ActionsThisRound,
+                              actionEffect: DecidedActionEffect,
                           }
 ): SquaddieSquaddieResults => {
     const {
@@ -53,11 +68,10 @@ const calculateResults = ({
     } = getTargetedBattleSquaddieIds(state.battleOrchestratorState, validTargetLocation);
 
     let actingSquaddieRoll: RollResult;
-    let processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-    if (processedActionEffectToShow.decidedActionEffect.type === ActionEffectType.SQUADDIE) {
-        actingSquaddieRoll = maybeMakeAttackRoll(processedActionEffectToShow.decidedActionEffect.template, state.battleOrchestratorState);
+    if (actionEffect && actionEffect.type === ActionEffectType.SQUADDIE) {
+        actingSquaddieRoll = maybeMakeAttackRoll(actionEffect.template, state.battleOrchestratorState);
     }
-    let {multipleAttackPenalty} = ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(state.battleOrchestratorState.battleState.actionsThisRound);
+    let {multipleAttackPenalty} = ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(actionsThisRound);
     let actingSquaddieModifiers: { [modifier in ATTACK_MODIFIER]?: number } = {};
 
     if (multipleAttackPenalty !== 0) {
@@ -72,8 +86,14 @@ const calculateResults = ({
             battleSquaddie: targetedBattleSquaddie
         } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, targetedBattleSquaddieId));
 
-        let healingReceived = calculateTotalHealingReceived(state.battleOrchestratorState, targetedSquaddieTemplate, targetedBattleSquaddie);
+        let healingReceived = calculateTotalHealingReceived({
+            targetedSquaddieTemplate,
+            targetedBattleSquaddie,
+            actionEffect: actionEffect,
+        });
+
         let {damageDealt, degreeOfSuccess} = calculateTotalDamageDealt({
+            actionEffect: actionEffect,
             state: state.battleOrchestratorState,
             actingBattleSquaddie,
             targetedSquaddieTemplate,
@@ -146,6 +166,7 @@ const calculateTotalDamageDealt = (
         targetedBattleSquaddie,
         actingSquaddieRoll,
         actingSquaddieModifierTotal,
+        actionEffect,
     }
         : {
         state: BattleOrchestratorState,
@@ -154,16 +175,16 @@ const calculateTotalDamageDealt = (
         actingBattleSquaddie: BattleSquaddie,
         actingSquaddieRoll: RollResult,
         actingSquaddieModifierTotal: number,
+        actionEffect: DecidedActionEffect,
     }
 ): { damageDealt: number, degreeOfSuccess: DegreeOfSuccess } => {
     let damageDealt = 0;
     let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE;
 
-    let processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleState.actionsThisRound);
-    if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
+    if (actionEffect === undefined || actionEffect.type !== ActionEffectType.SQUADDIE) {
         return;
     }
-    const actionEffectSquaddieTemplate = processedActionEffectToShow.decidedActionEffect.template;
+    const actionEffectSquaddieTemplate = actionEffect.template;
 
     degreeOfSuccess = compareAttackRollToGetDegreeOfSuccess({
         actionEffectSquaddieTemplate,
@@ -196,13 +217,23 @@ const calculateTotalDamageDealt = (
     };
 };
 
-const calculateTotalHealingReceived = (state: BattleOrchestratorState, targetedSquaddieTemplate: SquaddieTemplate, targetedBattleSquaddie: BattleSquaddie) => {
-    let healingReceived = 0;
-    let processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleState.actionsThisRound);
-    if (processedActionEffectToShow.type !== ActionEffectType.SQUADDIE) {
+const calculateTotalHealingReceived = (
+    {
+        targetedSquaddieTemplate,
+        targetedBattleSquaddie,
+        actionEffect,
+    }: {
+        targetedSquaddieTemplate: SquaddieTemplate,
+        targetedBattleSquaddie: BattleSquaddie,
+        actionEffect: DecidedActionEffect,
+    }
+) => {
+    if (actionEffect.type !== ActionEffectType.SQUADDIE) {
         return 0;
     }
-    const actionEffectSquaddieTemplate = processedActionEffectToShow.decidedActionEffect.template;
+
+    let healingReceived = 0;
+    const actionEffectSquaddieTemplate = actionEffect.template;
 
     if (actionEffectSquaddieTemplate.healingDescriptions.LOST_HIT_POINTS) {
         ({healingReceived} = GiveHealingToTheSquaddie({

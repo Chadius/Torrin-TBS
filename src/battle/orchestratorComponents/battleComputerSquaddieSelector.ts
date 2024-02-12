@@ -51,6 +51,7 @@ import {isValidValue} from "../../utils/validityCheck";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {DecidedAction} from "../../action/decided/decidedAction";
 import {BattleEventService} from "../history/battleEvent";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
 
 export const SQUADDIE_SELECTOR_PANNING_TIME = 1000;
 export const SHOW_SELECTED_ACTION_TIME = 500;
@@ -323,6 +324,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
                         state: state,
                         actingBattleSquaddie: battleSquaddie,
                         validTargetLocation: actionEffect.targetLocation,
+                        actionsThisRound: state.battleOrchestratorState.battleState.actionsThisRound,
+                        actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound).decidedActionEffect,
                     });
                     this.showSelectedActionWaitTime = Date.now();
                     this.highlightTargetRange(state, actionEffect);

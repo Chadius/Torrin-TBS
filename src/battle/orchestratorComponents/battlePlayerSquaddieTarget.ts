@@ -37,7 +37,10 @@ import {ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 import {SquaddieTurnService} from "../../squaddie/turn";
-import {ProcessedActionSquaddieEffect} from "../../action/processed/processedActionSquaddieEffect";
+import {
+    ProcessedActionSquaddieEffect,
+    ProcessedActionSquaddieEffectService
+} from "../../action/processed/processedActionSquaddieEffect";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {BattleSquaddie} from "../battleSquaddie";
 
@@ -448,8 +451,18 @@ const calculateSquaddieSquaddieResults = (results: SquaddieSquaddieResults, stat
         state,
         actingBattleSquaddie,
         validTargetLocation: validTargetLocation,
+        actionsThisRound: state.battleOrchestratorState.battleState.actionsThisRound,
+        actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound).decidedActionEffect,
     });
-    (actionsThisRound.processedActions[actionsThisRound.processedActions.length - 1].processedActionEffects[0] as ProcessedActionSquaddieEffect).results = results.resultPerTarget;
+
+    const {decidedActionEffect: decidedButNotProcessedActionEffect, processedAction} = ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound);
+    if (decidedButNotProcessedActionEffect.type === ActionEffectType.SQUADDIE) {
+        const processedActionSquaddieEffect = ProcessedActionSquaddieEffectService.new({
+            results: results.resultPerTarget,
+            decidedActionEffect: decidedButNotProcessedActionEffect,
+        });
+        processedAction.processedActionEffects.push(processedActionSquaddieEffect);
+    }
     return results;
 };
 

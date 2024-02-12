@@ -3,7 +3,7 @@ import {ProcessedAction, ProcessedActionService} from "../../action/processed/pr
 import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {MULTIPLE_ATTACK_PENALTY, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../modifierConstants";
 import {ProcessedActionEffect} from "../../action/processed/processedActionEffect";
-import {ActionTemplate} from "../../action/template/actionTemplate";
+import {DecidedActionEffect} from "../../action/decided/decidedActionEffect";
 
 export interface ActionsThisRound {
     battleSquaddieId: string;
@@ -61,6 +61,35 @@ export const ActionsThisRoundService = {
         }
 
         return undefined;
+    },
+    // TODO Test this
+    getDecidedButNotProcessedActionEffect: (actionsThisRound: ActionsThisRound): {
+        processedAction: ProcessedAction,
+        decidedActionEffect: DecidedActionEffect,
+    } => {
+        if (!isValidValue(actionsThisRound)) {
+            return {
+                processedAction: undefined,
+                decidedActionEffect: undefined,
+            };
+        }
+
+        const firstPendingProcessedAction = actionsThisRound.processedActions.find(processedAction =>
+            processedAction.decidedAction
+            && processedAction.processedActionEffects.length < processedAction.decidedAction.actionEffects.length
+        );
+
+        if (firstPendingProcessedAction === undefined) {
+            return {
+                processedAction: undefined,
+                decidedActionEffect: undefined,
+            };
+        }
+
+        return {
+            processedAction: firstPendingProcessedAction,
+            decidedActionEffect: firstPendingProcessedAction.decidedAction.actionEffects[firstPendingProcessedAction.processedActionEffects.length],
+        }
     },
     getProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound): ProcessedActionEffect => {
         if (!isValidValue(actionsThisRound)) {
