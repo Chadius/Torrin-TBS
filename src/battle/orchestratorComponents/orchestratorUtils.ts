@@ -57,35 +57,8 @@ export const OrchestratorUtilities = {
                 break;
         }
     },
-    peekActionEffect: (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {
+    TODODELETEMEpeekActionEffect: (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {
         return peekActionEffect(state, currentlySelectedSquaddieDecision);
-    },
-    nextActionEffect: (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {
-        const peekedActionEffect = peekActionEffect(state, currentlySelectedSquaddieDecision);
-        const decision = TODODELETEMECurrentlySelectedSquaddieDecisionService.peekDecision(currentlySelectedSquaddieDecision);
-
-        maybeCreateDecisionActionEffectIterator(state, decision);
-        if (!isValidValue(state.decisionActionEffectIterator)) {
-            return undefined;
-        }
-        DecisionActionEffectIteratorService.nextActionEffect(state.decisionActionEffectIterator);
-        return peekedActionEffect;
-    },
-    TODODELETEMEgetNextModeBasedOnActionEffect: (actionEffect: TODODELETEMEactionEffect): BattleOrchestratorMode => {
-        if (!isValidValue(actionEffect)) {
-            return undefined;
-        }
-
-        switch (actionEffect.type) {
-            case TODODELETEMEActionEffectType.SQUADDIE:
-                return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE;
-            case TODODELETEMEActionEffectType.MOVEMENT:
-                return BattleOrchestratorMode.SQUADDIE_MOVER;
-            case TODODELETEMEActionEffectType.END_TURN:
-                return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
-            default:
-                return undefined;
-        }
     },
     getNextModeBasedOnProcessedActionEffect: (processedActionEffect: ProcessedActionEffect): BattleOrchestratorMode => {
         if (!isValidValue(processedActionEffect)) {

@@ -11,9 +11,9 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {BattleSquaddie} from "../battleSquaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
 
 export class BattleSquaddieMover implements BattleOrchestratorComponent {
     animationStartTime?: number;
@@ -57,17 +57,11 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         OrchestratorUtilities.goToNextProcessedActionThisRound(state);
-
-        OrchestratorUtilities.nextActionEffect(
-            state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
-        );
-        const nextActionEffect = OrchestratorUtilities.peekActionEffect(
-            state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
-        );
-
-        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(nextActionEffect);
+        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+        if (processedActionEffectToShow === undefined) {
+            state.battleOrchestratorState.battleState.actionsThisRound = undefined;
+        }
+        const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
 
         return {
             nextMode,

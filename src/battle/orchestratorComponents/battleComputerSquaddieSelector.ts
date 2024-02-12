@@ -114,12 +114,8 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         let nextMode: BattleOrchestratorMode;
         if (this.mostRecentDecision !== undefined) {
-            const nextActionEffect = OrchestratorUtilities.peekActionEffect(
-                state.battleOrchestratorState,
-                state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
-            );
-
-            nextMode = OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(nextActionEffect);
+            const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+            nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
         } else if (!this.atLeastOneSquaddieOnCurrentTeamCanAct(state)) {
             nextMode = BattleOrchestratorMode.PHASE_CONTROLLER;
         }

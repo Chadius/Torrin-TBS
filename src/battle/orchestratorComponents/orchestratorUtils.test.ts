@@ -10,7 +10,7 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {ArmyAttributesService} from "../../squaddie/armyAttributes";
 import {SquaddieIdService} from "../../squaddie/id";
-import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
+import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattleStateService} from "../orchestrator/battleState";
 import {SquaddieService} from "../../squaddie/squaddieService";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
@@ -23,19 +23,29 @@ import {
     ProcessedActionMovementEffect,
     ProcessedActionMovementEffectService
 } from "../../action/processed/processedActionMovementEffect";
-import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {
+    DecidedActionMovementEffect,
+    DecidedActionMovementEffectService
+} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 import {
     ProcessedActionEndTurnEffect,
     ProcessedActionEndTurnEffectService
 } from "../../action/processed/processedActionEndTurnEffect";
-import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
+import {
+    DecidedActionSquaddieEffect,
+    DecidedActionSquaddieEffectService
+} from "../../action/decided/decidedActionSquaddieEffect";
 import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
-import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
+import {
+    DecidedActionEndTurnEffect,
+    DecidedActionEndTurnEffectService
+} from "../../action/decided/decidedActionEndTurnEffect";
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
+import {BattleSquaddieMover} from "./battleSquaddieMover";
 
 describe("Orchestration Utils", () => {
     let knightSquaddieStatic: SquaddieTemplate;

@@ -9,14 +9,7 @@ import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {getResultOrThrowError, makeResult} from "../../utils/ResultOrError";
 import {TIME_TO_MOVE} from "../animation/squaddieMoveAnimationUtils";
-import {
-    TODODELETEMESquaddieActionsForThisRoundService,
-    TODODELETEMESquaddieDecisionsDuringThisPhase
-} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -26,20 +19,38 @@ import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
-import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
-import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
-import {OrchestratorUtilities} from "./orchestratorUtils";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
-import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
-import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {
+    DecidedActionMovementEffect,
+    DecidedActionMovementEffectService
+} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
-import {ProcessedActionService} from "../../action/processed/processedAction";
+import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
-import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
+import {
+    ProcessedActionMovementEffect,
+    ProcessedActionMovementEffectService
+} from "../../action/processed/processedActionMovementEffect";
 import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
-import {isValidValue} from "../../utils/validityCheck";
+import {
+    ProcessedActionSquaddieEffect,
+    ProcessedActionSquaddieEffectService
+} from "../../action/processed/processedActionSquaddieEffect";
+import {
+    ProcessedActionEndTurnEffect,
+    ProcessedActionEndTurnEffectService
+} from "../../action/processed/processedActionEndTurnEffect";
+import {
+    DecidedActionSquaddieEffect,
+    DecidedActionSquaddieEffectService
+} from "../../action/decided/decidedActionSquaddieEffect";
+import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
+import {
+    DecidedActionEndTurnEffect,
+    DecidedActionEndTurnEffectService
+} from "../../action/decided/decidedActionEndTurnEffect";
+import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 
 describe('BattleSquaddieMover', () => {
     let squaddieRepo: ObjectRepository;
@@ -350,132 +361,6 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             mover.reset(state);
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
-        });
-    });
-
-    describe('will determine the next mode based on the next action effect', () => {
-        let movementActionEffect: TODODELETEMEactionEffect;
-        let squaddieActionEffect: TODODELETEMEactionEffect;
-        let endTurnActionEffect: TODODELETEMEactionEffect;
-
-        beforeEach(() => {
-            movementActionEffect = ActionEffectMovementService.new({
-                destination: {q: 0, r: 2},
-                numberOfActionPointsSpent: 2,
-            });
-
-            // squaddieActionEffect = ActionEffectSquaddieService.new({
-            //     targetLocation: {q: 0, r: 2},
-            //     numberOfActionPointsSpent: 1,
-            //     template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-            //         id: "shout",
-            //         name: "shout"
-            //     })
-            // });
-
-            endTurnActionEffect = ActionEffectEndTurnService.new();
-        });
-
-        const setupStateWithDecisions = (decision: TODODELETEMEdecision, decision1: TODODELETEMEdecision): GameEngineState => {
-            const moveDecisions: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-                squaddieTemplateId: "enemy_1",
-                battleSquaddieId: "enemy_1",
-                startingLocation: {q: 0, r: 0},
-                decisions: [
-                    decision,
-                    decision1,
-                ].filter(x => x)
-            });
-
-            return GameEngineStateService.new({
-                resourceHandler: undefined,
-                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "the mission",
-                        TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                            squaddieActionsForThisRound: moveDecisions,
-                        })
-                    })
-                }),
-            });
-        }
-
-        it('will suggest the squaddie mover if it has a movement action', () => {
-            const decision = DecisionService.new({
-                actionEffects: [
-                    ActionEffectMovementService.new({
-                        destination: {q: 1, r: 1},
-                        numberOfActionPointsSpent: 1,
-                    })
-                ]
-            });
-            const decision1 = DecisionService.new({
-                actionEffects: [
-                    ActionEffectMovementService.new({
-                        destination: {q: 1, r: 2},
-                        numberOfActionPointsSpent: 1,
-                    })
-                ]
-            });
-
-            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
-            const mover: BattleSquaddieMover = new BattleSquaddieMover();
-            const recommendedChanges = mover.recommendStateChanges(state);
-
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
-            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
-        });
-
-        it('will suggest the squaddie act on squaddie mode if it has a squaddie action', () => {
-            const decision = DecisionService.new({
-                actionEffects: [
-                    movementActionEffect
-                ]
-            });
-            const decision1 = DecisionService.new({
-                actionEffects: [
-                    squaddieActionEffect
-                ]
-            });
-            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
-            const mover: BattleSquaddieMover = new BattleSquaddieMover();
-            const recommendedChanges = mover.recommendStateChanges(state);
-
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
-            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
-        });
-
-        it('will suggest the squaddie act on map mode if it has an end turn action', () => {
-            const decision = DecisionService.new({
-                actionEffects: [
-                    movementActionEffect
-                ]
-            });
-            const decision1 = DecisionService.new({
-                actionEffects: [
-                    endTurnActionEffect
-                ]
-            });
-            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
-            const mover: BattleSquaddieMover = new BattleSquaddieMover();
-            const recommendedChanges = mover.recommendStateChanges(state);
-
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
-            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
-        });
-
-        it('will not suggest a mode if there are no more decisions to process', () => {
-            const decision = DecisionService.new({
-                actionEffects: [
-                    movementActionEffect
-                ]
-            });
-            const state: GameEngineState = setupStateWithDecisions(decision, undefined);
-            const mover: BattleSquaddieMover = new BattleSquaddieMover();
-            const recommendedChanges = mover.recommendStateChanges(state);
-
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBeUndefined();
-            expect(recommendedChanges.nextMode).toBeUndefined();
         });
     });
 });

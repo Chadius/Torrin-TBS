@@ -78,21 +78,11 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
         ActionsThisRoundService.nextProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-        // TODO move this into getNextModeBasedOnActionEffect
         const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
         if (processedActionEffectToShow === undefined) {
             state.battleOrchestratorState.battleState.actionsThisRound = undefined;
         }
-
-        OrchestratorUtilities.nextActionEffect(
-            state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
-        );
-        const nextActionEffect = OrchestratorUtilities.peekActionEffect(
-            state.battleOrchestratorState,
-            state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing
-        );
-        const nextMode: BattleOrchestratorMode = OrchestratorUtilities.TODODELETEMEgetNextModeBasedOnActionEffect(nextActionEffect);
+        const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
 
         return {
             nextMode,

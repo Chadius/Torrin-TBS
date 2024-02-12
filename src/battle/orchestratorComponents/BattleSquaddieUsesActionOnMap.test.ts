@@ -9,37 +9,19 @@ import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
 import {BattleSquaddieUsesActionOnMap} from "./battleSquaddieUsesActionOnMap";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
+import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {OrchestratorUtilities} from "./orchestratorUtils";
-import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
-import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedActionService} from "../../action/processed/processedAction";
-import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
-import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
-import {
-    ProcessedActionEndTurnEffect,
-    ProcessedActionEndTurnEffectService
-} from "../../action/processed/processedActionEndTurnEffect";
-import {
-    ProcessedActionMovementEffect,
-    ProcessedActionMovementEffectService
-} from "../../action/processed/processedActionMovementEffect";
-import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
-import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
+import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
 
 describe('BattleSquaddieUsesActionOnMap', () => {
     let squaddieRepository: ObjectRepository;
@@ -131,152 +113,5 @@ describe('BattleSquaddieUsesActionOnMap', () => {
         mapAction.reset(state);
         expect(mapAction.animationCompleteStartTime).toBeUndefined();
         expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
-    });
-
-    describe('will determine the next mode based on the next action effect', () => {
-        let movementActionEffect: TODODELETEMEactionEffect;
-        let squaddieActionEffect: TODODELETEMEactionEffect;
-        let endTurnActionEffect: TODODELETEMEactionEffect;
-        // TODO add a move and squaddie action effect here
-        let processedActionMovementEffect: ProcessedActionMovementEffect;
-        let processedActionEndTurnEffect: ProcessedActionEndTurnEffect;
-
-        beforeEach(() => {
-            movementActionEffect = ActionEffectMovementService.new({
-                destination: {q: 0, r: 2},
-                numberOfActionPointsSpent: 2,
-            });
-
-            // squaddieActionEffect = ActionEffectSquaddieService.new({
-            //     targetLocation: {q: 0, r: 2},
-            //     numberOfActionPointsSpent: 1,
-            //     template: TODODELETEMEActionEffectSquaddieTemplateService.new({
-            //         id: "shout",
-            //         name: "shout"
-            //     })
-            // });
-
-            endTurnActionEffect = ActionEffectEndTurnService.new();
-
-            processedActionEndTurnEffect = ProcessedActionEndTurnEffectService.new({
-                decidedActionEffect: DecidedActionEndTurnEffectService.new({
-                    template: ActionEffectEndTurnTemplateService.new({})
-                })
-            });
-
-            processedActionMovementEffect = ProcessedActionMovementEffectService.new({
-                decidedActionEffect: DecidedActionMovementEffectService.new({
-                    template: ActionEffectMovementTemplateService.new({}),
-                    destination: {q: 0, r: 1},
-                })
-            });
-        });
-
-        const setupStateWithDecisions = (decision: TODODELETEMEdecision, decision1: TODODELETEMEdecision): GameEngineState => {
-            const moveDecisions: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-                squaddieTemplateId: "enemy_1",
-                battleSquaddieId: "enemy_1",
-                startingLocation: {q: 0, r: 0},
-                decisions: [
-                    decision,
-                    decision1,
-                ].filter(x => x),
-            });
-
-            return GameEngineStateService.new({
-                resourceHandler: undefined,
-                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "the mission",
-                        TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                            squaddieActionsForThisRound: moveDecisions,
-                        })
-                    }),
-                }),
-            });
-        }
-
-        it('will suggest the squaddie mover if it has a movement action', () => {
-            const decision = DecisionService.new({
-                actionEffects: [
-                    endTurnActionEffect
-                ]
-            });
-            const decision1 = DecisionService.new({
-                actionEffects: [
-                    movementActionEffect
-                ]
-            });
-
-            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
-            const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
-            const recommendedChanges = mapAction.recommendStateChanges(state);
-
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
-            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_MOVER);
-        });
-
-        it('will suggest the squaddie act on squaddie mode if it has a squaddie action', () => {
-            const decision = DecisionService.new({
-                actionEffects: [
-                    endTurnActionEffect
-                ]
-            });
-            const decision1 = DecisionService.new({
-                actionEffects: [
-                    squaddieActionEffect
-                ]
-            });
-            const state: GameEngineState = setupStateWithDecisions(decision, decision1);
-            const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
-            const recommendedChanges = mapAction.recommendStateChanges(state);
-
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(decision1.actionEffects[0]);
-            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
-        });
-
-        it('will suggest the squaddie act on map mode if it has an end turn action', () => {
-            const state: GameEngineState = GameEngineStateService.new({
-                resourceHandler: undefined,
-                battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-                    battleState: BattleStateService.newBattleState({
-                        missionId: "the mission",
-                        actionsThisRound: ActionsThisRoundService.new({
-                            battleSquaddieId: "dynamic_squaddie",
-                            startingLocation: {q: 0, r: 0},
-                            processedActions: [
-                                ProcessedActionService.new({
-                                    decidedAction: undefined,
-                                    processedActionEffects: [
-                                        processedActionMovementEffect,
-                                        processedActionEndTurnEffect,
-                                    ]
-                                })
-                            ]
-                        })
-                    }),
-                }),
-            });
-            const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
-            expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound)).toEqual(processedActionMovementEffect);
-
-            const recommendedChanges = mapAction.recommendStateChanges(state);
-            expect(recommendedChanges.nextMode).toEqual(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
-            expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound)).toEqual(processedActionEndTurnEffect);
-        });
-
-        it('will not suggest a mode if there are no more decisions to process', () => {
-            const decision = DecisionService.new({
-                actionEffects: [
-                    squaddieActionEffect
-                ]
-            });
-            const state: GameEngineState = setupStateWithDecisions(decision, undefined);
-            const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
-            const recommendedChanges = mapAction.recommendStateChanges(state);
-
-            expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBeUndefined();
-            expect(recommendedChanges.nextMode).toBeUndefined();
-        });
     });
 });

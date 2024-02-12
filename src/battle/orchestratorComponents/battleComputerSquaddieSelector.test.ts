@@ -608,7 +608,7 @@ describe('BattleComputerSquaddieSelector', () => {
                 expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE);
 
                 expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeTruthy();
-                expect(OrchestratorUtilities.peekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(demonBiteDecision);
+                expect(OrchestratorUtilities.TODODELETEMEpeekActionEffect(state.battleOrchestratorState, state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toEqual(demonBiteDecision);
             });
 
             it('player can click to complete the component if an action is selected', () => {
