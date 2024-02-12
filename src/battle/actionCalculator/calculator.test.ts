@@ -31,9 +31,6 @@ import {ProcessedActionSquaddieEffectService} from "../../action/processed/proce
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 
-// TODO After calculating the caller needs to convert the decided action into processed action effects
-// TODO After calculating the caller needs to convert the ActionTemplate into a DecidedAction
-
 describe('calculator', () => {
     let squaddieRepository: ObjectRepository;
     let missionMap: MissionMap;

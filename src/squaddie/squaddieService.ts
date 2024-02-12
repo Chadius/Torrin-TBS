@@ -69,27 +69,6 @@ export const SquaddieService = {
     } => {
         return GetHitPoints({squaddieTemplate, battleSquaddie});
     },
-    isSquaddieCurrentlyTakingATurn: ({squaddieTemplate, battleSquaddie, currentlySelectedSquaddieDecision}: {
-        squaddieTemplate: SquaddieTemplate;
-        battleSquaddie: BattleSquaddie;
-        currentlySelectedSquaddieDecision?: TODODELETEMECurrentlySelectedSquaddieDecision
-    }): boolean => {
-        let {
-            canAct,
-            isDead,
-        } = SquaddieService.canSquaddieActRightNow({squaddieTemplate, battleSquaddie})
-
-        if (isDead || !canAct) {
-            return false;
-        }
-
-        if (currentlySelectedSquaddieDecision === undefined) {
-            return false;
-        }
-
-        return TODODELETEMECurrentlySelectedSquaddieDecisionService.hasSquaddieMadeADecision(currentlySelectedSquaddieDecision)
-            || TODODELETEMECurrentlySelectedSquaddieDecisionService.hasACurrentDecision(currentlySelectedSquaddieDecision);
-    },
     canSquaddieActRightNow: ({
                                  squaddieTemplate,
                                  battleSquaddie,

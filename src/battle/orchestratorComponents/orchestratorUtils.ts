@@ -23,6 +23,8 @@ import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {DecidedActionEffect} from "../../action/decided/decidedActionEffect";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ProcessedActionEffect} from "../../action/processed/processedActionEffect";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 
 export const OrchestratorUtilities = {
     isSquaddieCurrentlyTakingATurn: (state: GameEngineState): boolean => {
@@ -85,6 +87,22 @@ export const OrchestratorUtilities = {
                 return undefined;
         }
     },
+    getNextModeBasedOnProcessedActionEffect: (processedActionEffect: ProcessedActionEffect): BattleOrchestratorMode => {
+        if (!isValidValue(processedActionEffect)) {
+            return undefined;
+        }
+
+        switch (processedActionEffect.type) {
+            case ActionEffectType.SQUADDIE:
+                return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_SQUADDIE;
+            case ActionEffectType.MOVEMENT:
+                return BattleOrchestratorMode.SQUADDIE_MOVER;
+            case ActionEffectType.END_TURN:
+                return BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP;
+            default:
+                return undefined;
+        }
+    },
     resetCurrentlyActingSquaddieIfTheSquaddieCannotAct: (state: GameEngineState) => {
         return ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     },
@@ -116,7 +134,6 @@ const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
         return false;
     }
 
-    // TODO test this logic out
     const actionsThisRound = state.battleOrchestratorState.battleState.actionsThisRound;
     if (!isValidValue(actionsThisRound)) {
         return false;
@@ -130,34 +147,20 @@ const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
         return true;
     }
 
+    if (isValidValue(actionsThisRound.previewedActionTemplateId)) {
+        return true;
+    }
+
     const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
         ObjectRepositoryService.getSquaddieByBattleId(state.repository, actionsThisRound.battleSquaddieId)
     );
 
-    // TODO
-    // if (!state.battleOrchestratorState.battleState.squaddieCurrentlyActing) {
-    //     return false;
-    // }
-    //
-    // if (TODODELETEMECurrentlySelectedSquaddieDecisionService.isDefault(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
-    //     return false;
-    // }
-    //
-    // if (TODODELETEMECurrentlySelectedSquaddieDecisionService.hasACurrentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)) {
-    //     return true;
-    // }
-    //
-    // const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
-    //     ObjectRepositoryService.getSquaddieByBattleId(state.repository,
-    //         TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.squaddieCurrentlyActing)
-    //     )
-    // );
+    let {
+        canAct,
+        isDead,
+    } = SquaddieService.canSquaddieActRightNow({squaddieTemplate, battleSquaddie})
 
-    return SquaddieService.isSquaddieCurrentlyTakingATurn({
-        squaddieTemplate,
-        battleSquaddie,
-        currentlySelectedSquaddieDecision: state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing,
-    });
+    return !isDead && canAct;
 }
 
 const peekActionEffect = (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {

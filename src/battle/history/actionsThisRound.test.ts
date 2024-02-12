@@ -15,7 +15,12 @@ import {ProcessedActionEndTurnEffectService} from "../../action/processed/proces
 import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
-import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {
+    DecidedActionMovementEffect,
+    DecidedActionMovementEffectService
+} from "../../action/decided/decidedActionMovementEffect";
+import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
 describe('Actions This Round', () => {
     it('can create object with actor Id and starting location', () => {
@@ -89,6 +94,36 @@ describe('Actions This Round', () => {
                 startingLocation: {q: 0, r: 0},
             });
             expect(ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(noActionsThisRound)).toEqual({
+                penaltyMultiplier: 0,
+                multipleAttackPenalty: 0,
+            });
+        });
+        it('will not apply MAP if the attack was decided but not processed', () => {
+            const attack = ActionsThisRoundService.new({
+                battleSquaddieId: "soldier",
+                startingLocation: {q: 0, r: 0},
+                processedActions:
+                    [
+                        ProcessedActionService.new({
+                            decidedAction: DecidedActionService.new({
+                                actionPointCost: 1,
+                                battleSquaddieId: "soldier",
+                                actionTemplateName: "Attack",
+                                actionEffects: [
+                                    DecidedActionSquaddieEffectService.new({
+                                        template: ActionEffectSquaddieTemplateService.new({
+                                            maximumRange: 1,
+                                            damageDescriptions: {[DamageType.BODY]: 2},
+                                            traits: TraitStatusStorageService.newUsingTraitValues({[Trait.ATTACK]: true})
+                                        })
+                                    })
+                                ],
+                            }),
+                            processedActionEffects: []
+                        }),
+                    ],
+            });
+            expect(ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(attack)).toEqual({
                 penaltyMultiplier: 0,
                 multipleAttackPenalty: 0,
             });
@@ -297,24 +332,26 @@ describe('Actions This Round', () => {
         });
     });
 
-    describe('getProcessedActionEffectToShow', () => {
+    describe('getProcessedActionEffectToShow and getProcessedActionToShow', () => {
         it('returns undefined if there is no action', () => {
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(undefined)).toBeUndefined();
+            expect(ActionsThisRoundService.getProcessedActionToShow(undefined)).toBeUndefined();
         });
 
         it('returns undefined if there are no processed actions', () => {
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
-                startingLocation: {q:0, r:0},
+                startingLocation: {q: 0, r: 0},
             });
 
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toBeUndefined();
+            expect(ActionsThisRoundService.getProcessedActionToShow(actionsThisRound)).toBeUndefined();
         });
 
         it('returns undefined if there are no processed action effects', () => {
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
-                startingLocation: {q:0, r:0},
+                startingLocation: {q: 0, r: 0},
                 processedActions: [
                     ProcessedActionService.new({
                         decidedAction: undefined,
@@ -324,6 +361,7 @@ describe('Actions This Round', () => {
             });
 
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toBeUndefined();
+            expect(ActionsThisRoundService.getProcessedActionToShow(actionsThisRound)).toBeUndefined();
         });
 
         it('returns the first processed action effect when it has never been called before', () => {
@@ -333,27 +371,29 @@ describe('Actions This Round', () => {
                 }),
             })
 
+            const processedAction = ProcessedActionService.new({
+                decidedAction: undefined,
+                processedActionEffects: [
+                    endTurnEffect
+                ]
+            });
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
-                startingLocation: {q:0, r:0},
+                startingLocation: {q: 0, r: 0},
                 processedActions: [
-                    ProcessedActionService.new({
-                        decidedAction: undefined,
-                        processedActionEffects: [
-                            endTurnEffect
-                        ]
-                    })
+                    processedAction
                 ]
             });
 
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toEqual(endTurnEffect);
+            expect(ActionsThisRoundService.getProcessedActionToShow(actionsThisRound)).toEqual(processedAction);
         });
 
         it('can advance and iterate the next processed action effect to show', () => {
             const moveTurnEffect = ProcessedActionMovementEffectService.new({
                 decidedActionEffect: DecidedActionMovementEffectService.new({
                     template: undefined,
-                    destination: {q:0, r:1},
+                    destination: {q: 0, r: 1},
                 }),
             })
 
@@ -363,23 +403,26 @@ describe('Actions This Round', () => {
                 }),
             })
 
+            const processedAction = ProcessedActionService.new({
+                decidedAction: undefined,
+                processedActionEffects: [
+                    moveTurnEffect,
+                    endTurnEffect
+                ]
+            });
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
-                startingLocation: {q:0, r:0},
+                startingLocation: {q: 0, r: 0},
                 processedActions: [
-                    ProcessedActionService.new({
-                        decidedAction: undefined,
-                        processedActionEffects: [
-                            moveTurnEffect,
-                            endTurnEffect
-                        ]
-                    })
+                    processedAction
                 ]
             });
 
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toEqual(moveTurnEffect);
+            expect(ActionsThisRoundService.getProcessedActionToShow(actionsThisRound)).toEqual(processedAction);
             ActionsThisRoundService.nextProcessedActionEffectToShow(actionsThisRound);
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toEqual(endTurnEffect);
+            expect(ActionsThisRoundService.getProcessedActionToShow(actionsThisRound)).toEqual(processedAction);
         });
 
         it('will return undefined if it iterates past all actions', () => {
@@ -391,7 +434,7 @@ describe('Actions This Round', () => {
 
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
-                startingLocation: {q:0, r:0},
+                startingLocation: {q: 0, r: 0},
                 processedActions: [
                     ProcessedActionService.new({
                         decidedAction: undefined,
@@ -403,6 +446,97 @@ describe('Actions This Round', () => {
             });
             ActionsThisRoundService.nextProcessedActionEffectToShow(actionsThisRound);
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toBeUndefined();
+            expect(ActionsThisRoundService.getProcessedActionToShow(actionsThisRound)).toBeUndefined();
+        });
+    });
+
+    describe('getDecidedButNotProcessedActionEffect', () => {
+        let decidedActionMovementEffect: DecidedActionMovementEffect;
+        let decidedAction: DecidedAction;
+
+        beforeEach(() => {
+            decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+                template: ActionEffectMovementTemplateService.new({}),
+            });
+            decidedAction = DecidedActionService.new({
+                battleSquaddieId: "battleSquaddieId",
+                actionTemplateName: "End Turn",
+                actionEffects: [
+                    decidedActionMovementEffect
+                ]
+            });
+        });
+
+        it('returns undefined objects if there is no actionThisRound', () => {
+            expect(ActionsThisRoundService.getDecidedButNotProcessedActionEffect(undefined)).toEqual({
+                processedAction: undefined,
+                decidedActionEffect: undefined,
+            });
+        });
+        it('returns undefined objects if no decisions have been made', () => {
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battleSquaddieId",
+                startingLocation: {q: 0, r: 0},
+            });
+            expect(ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound)).toEqual({
+                processedAction: undefined,
+                decidedActionEffect: undefined,
+            });
+        });
+        it('returns undefined objects if all decisions have been processed', () => {
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battleSquaddieId",
+                startingLocation: {q: 0, r: 0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction,
+                        processedActionEffects: [
+                            ProcessedActionMovementEffectService.new({
+                                decidedActionEffect: decidedActionMovementEffect,
+                            })
+                        ]
+                    }),
+                    ProcessedActionService.new({
+                        decidedAction,
+                        processedActionEffects: [
+                            ProcessedActionMovementEffectService.new({
+                                decidedActionEffect: decidedActionMovementEffect,
+                            })
+                        ]
+                    }),
+                ]
+            });
+
+            expect(ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound)).toEqual({
+                processedAction: undefined,
+                decidedActionEffect: undefined,
+            });
+        });
+        it('returns first decision that has not been processed and its containing processed action', () => {
+            const decidedButNotProcessedAction = ProcessedActionService.new({
+                decidedAction,
+                processedActionEffects: []
+            });
+            const actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "battleSquaddieId",
+                startingLocation: {q: 0, r: 0},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction,
+                        processedActionEffects: [
+                            ProcessedActionMovementEffectService.new({
+                                decidedActionEffect: decidedActionMovementEffect,
+                            })
+                        ]
+                    }),
+                    decidedButNotProcessedAction,
+                ]
+            });
+
+            expect(ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound)).toEqual({
+                processedAction: decidedButNotProcessedAction,
+                decidedActionEffect: decidedActionMovementEffect,
+            });
         });
     });
 });

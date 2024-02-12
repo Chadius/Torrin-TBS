@@ -25,6 +25,10 @@ import {
 import {
     TODODELETEMESquaddieActionsForThisRoundService
 } from "../battle/history/TODODELETEMESquaddieDecisionsDuringThisPhase";
+import {ProcessedAction, ProcessedActionService} from "../action/processed/processedAction";
+import {DecidedActionService} from "../action/decided/decidedAction";
+import {DecidedActionMovementEffectService} from "../action/decided/decidedActionMovementEffect";
+import {ActionEffectMovementTemplateService} from "../action/template/actionEffectMovementTemplate";
 
 describe('Squaddie Service', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
@@ -321,80 +325,6 @@ describe('Squaddie Service', () => {
             expect(squaddieHasThePlayerControlledAffiliation).toBeTruthy();
             expect(squaddieCanCurrentlyAct).toBeFalsy();
             expect(playerCanControlThisSquaddieRightNow).toBeFalsy();
-        });
-    });
-
-    describe('Is the Squaddies taking their turn', () => {
-        let moveDecision: TODODELETEMEdecision;
-
-        beforeEach(() => {
-            moveDecision = DecisionService.new({
-                actionEffects: [
-                    ActionEffectMovementService.new({
-                        numberOfActionPointsSpent: 1,
-                        destination: {q: 0, r: 0},
-                    }),
-                ]
-            });
-        });
-
-        it('when squaddie is previewing an action, it is their turn', () => {
-            let currentDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                    squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                    startingLocation: {q: 0, r: 0},
-                }),
-                currentlySelectedDecision: moveDecision,
-            });
-
-            expect(SquaddieService.isSquaddieCurrentlyTakingATurn({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                currentlySelectedSquaddieDecision: currentDecision,
-            })).toBeTruthy();
-        });
-
-        it('when squaddie still has made a decision and has actions remaining, they are taking their turn', () => {
-            let currentDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                    squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                    startingLocation: {q: 0, r: 0},
-                    decisions: [moveDecision],
-                }),
-            });
-
-            expect(SquaddieService.isSquaddieCurrentlyTakingATurn({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                currentlySelectedSquaddieDecision: currentDecision,
-            })).toBeTruthy();
-        });
-
-        it('when squaddie has not made any decisions and is not previewing a decision, they are not taking their turn', () => {
-            expect(SquaddieService.isSquaddieCurrentlyTakingATurn({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-            })).toBeFalsy();
-        });
-
-        it('when squaddie does not have actions remaining, they are not taking their turn', () => {
-            let currentDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                    squaddieTemplateId: playerBattleSquaddie.squaddieTemplateId,
-                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                    startingLocation: {q: 0, r: 0},
-                }),
-                currentlySelectedDecision: moveDecision,
-            });
-            SquaddieTurnService.endTurn(playerBattleSquaddie.squaddieTurn);
-
-            expect(SquaddieService.isSquaddieCurrentlyTakingATurn({
-                squaddieTemplate: playerSquaddieTemplate,
-                battleSquaddie: playerBattleSquaddie,
-                currentlySelectedSquaddieDecision: currentDecision,
-            })).toBeFalsy();
         });
     });
 });

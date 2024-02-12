@@ -40,29 +40,12 @@ export const ActionsThisRoundService = {
         } => {
             return getMultipleAttackPenaltyForProcessedActions(actionsForThisRound);
         },
-    // TODO test this
-    // TODO refactor because the logic is exactly the same
     getProcessedActionToShow: (actionsThisRound: ActionsThisRound): ProcessedAction => {
-        if (!isValidValue(actionsThisRound)) {
-            return undefined;
-        }
-
-        if (actionsThisRound.processedActions.length < 1) {
-            return undefined;
-        }
-
-        let countDown = actionsThisRound.processedActionEffectIteratorIndex;
-        for (const processedAction of actionsThisRound.processedActions) {
-            if (countDown < processedAction.processedActionEffects.length) {
-                return processedAction;
-            }
-
-            countDown -= processedAction.processedActionEffects.length;
-        }
-
-        return undefined;
+        return getProcessedActionAndActionEffectToShow(actionsThisRound).processedAction;
     },
-    // TODO Test this
+    getProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound): ProcessedActionEffect => {
+        return getProcessedActionAndActionEffectToShow(actionsThisRound).processedActionEffect;
+    },
     getDecidedButNotProcessedActionEffect: (actionsThisRound: ActionsThisRound): {
         processedAction: ProcessedAction,
         decidedActionEffect: DecidedActionEffect,
@@ -90,26 +73,6 @@ export const ActionsThisRoundService = {
             processedAction: firstPendingProcessedAction,
             decidedActionEffect: firstPendingProcessedAction.decidedAction.actionEffects[firstPendingProcessedAction.processedActionEffects.length],
         }
-    },
-    getProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound): ProcessedActionEffect => {
-        if (!isValidValue(actionsThisRound)) {
-            return undefined;
-        }
-
-        if (actionsThisRound.processedActions.length < 1) {
-            return undefined;
-        }
-
-        let countDown = actionsThisRound.processedActionEffectIteratorIndex;
-        for (const processedAction of actionsThisRound.processedActions) {
-            if (countDown < processedAction.processedActionEffects.length) {
-                return processedAction.processedActionEffects[countDown];
-            }
-
-            countDown -= processedAction.processedActionEffects.length;
-        }
-
-        return undefined;
     },
     nextProcessedActionEffectToShow: (actionsThisRound: ActionsThisRound) => {
         if (!isValidValue(actionsThisRound)) {
@@ -167,3 +130,39 @@ const convertRawPenaltyMultiplier = (penaltyMultiplier: number): {
         multipleAttackPenalty,
     }
 }
+
+const getProcessedActionAndActionEffectToShow = (actionsThisRound: ActionsThisRound): {
+    processedAction: ProcessedAction,
+    processedActionEffect: ProcessedActionEffect,
+} => {
+    if (!isValidValue(actionsThisRound)) {
+        return {
+            processedAction: undefined,
+            processedActionEffect: undefined,
+        };
+    }
+
+    if (actionsThisRound.processedActions.length < 1) {
+        return {
+            processedAction: undefined,
+            processedActionEffect: undefined,
+        };
+    }
+
+    let countDown = actionsThisRound.processedActionEffectIteratorIndex;
+    for (const processedAction of actionsThisRound.processedActions) {
+        if (countDown < processedAction.processedActionEffects.length) {
+            return {
+                processedAction,
+                processedActionEffect: processedAction.processedActionEffects[countDown],
+            };
+        }
+
+        countDown -= processedAction.processedActionEffects.length;
+    }
+
+    return {
+        processedAction: undefined,
+        processedActionEffect: undefined,
+    };
+};
