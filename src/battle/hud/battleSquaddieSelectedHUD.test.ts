@@ -490,10 +490,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        actionsThisRound: ActionsThisRoundService.new({
-                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                            startingLocation: {q: 0, r: 0},
-                        }),
                     }),
                 }),
                 repository: squaddieRepository,
@@ -595,11 +591,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                                         currentAffiliation: BattlePhase.PLAYER,
                                         turnCount: 0,
                                     },
-                                    actionsThisRound: ActionsThisRoundService.new({
-                                        battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                                        startingLocation: {q: 0, r: 0},
-                                        previewedActionTemplateId: "purifying_stream",
-                                    }),
                                 }),
                             })
                     });
@@ -707,11 +698,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                             currentAffiliation: BattlePhase.PLAYER,
                             turnCount: 0,
                         },
-                        actionsThisRound: ActionsThisRoundService.new({
-                            battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                            startingLocation: {q: 0, r: 0},
-                            previewedActionTemplateId: "purifying_stream",
-                        }),
                     }),
                 })
             });
@@ -747,11 +733,6 @@ describe('BattleSquaddieSelectedHUD', () => {
                                     currentAffiliation: BattlePhase.PLAYER,
                                     turnCount: 0,
                                 },
-                                actionsThisRound: ActionsThisRoundService.new({
-                                    battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
-                                    startingLocation: {q: 0, r: 0},
-                                    previewedActionTemplateId: "purifying_stream",
-                                }),
                             }),
                         })
                 });
