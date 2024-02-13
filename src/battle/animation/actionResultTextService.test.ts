@@ -154,7 +154,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: longswordSweepAction,
+            actionTemplateName: longswordSweepAction.name,
             currentActionEffectSquaddieTemplate: longswordSweepAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: damagingResult,
             squaddieRepository,
@@ -192,7 +192,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: bandageWoundsAction,
+            actionTemplateName: bandageWoundsAction.name,
             currentActionEffectSquaddieTemplate: bandageWoundsAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: healingResult,
             squaddieRepository,
@@ -271,7 +271,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: longswordSweepAction,
+            actionTemplateName: longswordSweepAction.name,
             currentActionEffectSquaddieTemplate: longswordSweepAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: damagingResult,
             squaddieRepository,
@@ -309,7 +309,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: longswordSweepAction,
+            actionTemplateName: longswordSweepAction.name,
             currentActionEffectSquaddieTemplate: longswordSweepAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: damagingResult,
             squaddieRepository,
@@ -342,7 +342,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: longswordSweepAction,
+            actionTemplateName: longswordSweepAction.name,
             currentActionEffectSquaddieTemplate: longswordSweepAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: damagingResult,
             squaddieRepository,
@@ -374,7 +374,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: longswordSweepAction,
+            actionTemplateName: longswordSweepAction.name,
             currentActionEffectSquaddieTemplate: longswordSweepAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: damagingResult,
             squaddieRepository,
@@ -413,7 +413,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: longswordSweepAction,
+            actionTemplateName: longswordSweepAction.name,
             currentActionEffectSquaddieTemplate: longswordSweepAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: damagingResult,
             squaddieRepository,
@@ -454,7 +454,7 @@ describe('Action Result Text Writer', () => {
         });
 
         const outputStrings: string[] = ActionResultTextService.outputResultForTextOnly({
-            actionTemplate: longswordSweepAction,
+            actionTemplateName: longswordSweepAction.name,
             currentActionEffectSquaddieTemplate: longswordSweepAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             result: damagingResult,
             squaddieRepository,

@@ -25,7 +25,7 @@ import {BattleEventService} from "../history/battleEvent";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
-import {ProcessedActionService} from "../../action/processed/processedAction";
+import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 
@@ -53,13 +53,7 @@ export const BattleSquaddieSelectorService = {
                                              battleSquaddie: BattleSquaddie,
                                              squaddieTemplate: SquaddieTemplate,
                                              clickedHexCoordinate: HexCoordinate
-                                         }) => {
-        BattleSquaddieSelectorService.createSearchPath({
-            state,
-            squaddieTemplate,
-            battleSquaddie,
-            clickedHexCoordinate
-        });
+                                         }): ProcessedAction => {
         const locationsByMoveActions: {
             [movementActions: number]: LocationTraveled[]
         } = SquaddieService.searchPathLocationsByNumberOfMovementActions({
@@ -88,8 +82,8 @@ export const BattleSquaddieSelectorService = {
             ]
         });
         state.battleOrchestratorState.battleState.actionsThisRound.processedActions.push(processedAction);
-
         state.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(battleSquaddie.battleSquaddieId, decidedActionMovementEffect.destination);
+        return processedAction;
     }
 }
 

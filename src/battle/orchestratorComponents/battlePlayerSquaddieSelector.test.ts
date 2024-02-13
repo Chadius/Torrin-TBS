@@ -13,25 +13,15 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
-import {
-    TODODELETEMESquaddieActionsForThisRoundService,
-    TODODELETEMESquaddieDecisionsDuringThisPhase
-} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
-import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {BattleCamera} from "../battleCamera";
 import {
     convertMapCoordinatesToScreenCoordinates,
     convertMapCoordinatesToWorldCoordinates
 } from "../../hexMap/convertCoordinates";
-import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {makeResult} from "../../utils/ResultOrError";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {TargetingShape} from "../targeting/targetingShapeGenerator";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecision,
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
@@ -39,12 +29,21 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService} from "../../decision/TODODELETEMEdecision";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
 import {CampaignService} from "../../campaign/campaign";
 import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
 import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 import {DamageType} from "../../squaddie/squaddieService";
+import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
+import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
+import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
+import {ProcessedActionEndTurnEffectService} from "../../action/processed/processedActionEndTurnEffect";
+import {BattlePhaseState} from "./battlePhaseController";
 import SpyInstance = jest.SpyInstance;
 
 describe('BattleSquaddieSelector', () => {
@@ -272,7 +271,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeFalsy();
-        expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe("");
+        expect(state.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
     });
 
     it('recommends computer squaddie selector if the player cannot control the squaddies', () => {
@@ -353,31 +352,32 @@ describe('BattleSquaddieSelector', () => {
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
 
-        const expectedSquaddieInstruction: TODODELETEMECurrentlySelectedSquaddieDecision =
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-
-                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                    squaddieTemplateId: "player_soldier",
-                    battleSquaddieId: "player_soldier_0",
-                    startingLocation: {q: 0, r: 0},
-                    decisions: [
-                        DecisionService.new({
-                            actionEffects: [
-                                ActionEffectMovementService.new({
-                                    destination: {q: 0, r: 1},
-                                    numberOfActionPointsSpent: 1,
-                                })
-                            ]
-                        })
-                    ]
-                }),
-            });
+        const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+            template: ActionEffectMovementTemplateService.new({}),
+            destination: {q: 0, r: 1},
+        });
+        const processedAction = ProcessedActionService.new({
+            decidedAction: DecidedActionService.new({
+                battleSquaddieId: "player_soldier_0",
+                actionPointCost: 1,
+                actionTemplateName: "Move",
+                actionEffects: [
+                    decidedActionMovementEffect
+                ]
+            }),
+            processedActionEffects: [
+                ProcessedActionMovementEffectService.new({
+                    decidedActionEffect: decidedActionMovementEffect,
+                })
+            ]
+        });
 
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual({
-            instruction: expectedSquaddieInstruction,
+            instruction: undefined,
             results: undefined,
+            processedAction: processedAction,
         });
 
         expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1);
@@ -386,7 +386,7 @@ describe('BattleSquaddieSelector', () => {
     describe('adding movement mid turn instruction', () => {
         let camera: BattleCamera;
         let state: GameEngineState;
-        let squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision;
+        let actionsThisRound: ActionsThisRound;
 
         beforeEach(() => {
             const missionMap: MissionMap = new MissionMap({
@@ -402,22 +402,33 @@ describe('BattleSquaddieSelector', () => {
             let mockResourceHandler = mocks.mockResourceHandler();
             mockResourceHandler.getResource = jest.fn().mockReturnValue(makeResult(null));
 
-            squaddieCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
+            const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+                template: ActionEffectMovementTemplateService.new({}),
+                destination: {q: 0, r: 1},
+            });
+            const processedAction = ProcessedActionService.new({
+                decidedAction: DecidedActionService.new({
                     battleSquaddieId: "player_soldier_0",
-                    squaddieTemplateId: "player_soldier",
-                    startingLocation: {q: 0, r: 0},
-                    decisions: [
-                        DecisionService.new({
-                            actionEffects: [
-                                ActionEffectMovementService.new({
-                                    destination: {q: 0, r: 1},
-                                    numberOfActionPointsSpent: 1,
-                                })
-                            ]
-                        })
+                    actionPointCost: 1,
+                    actionTemplateName: "Move",
+                    actionEffects: [
+                        decidedActionMovementEffect
                     ]
                 }),
+                processedActionEffects: [
+                    ProcessedActionMovementEffectService.new({
+                        decidedActionEffect: decidedActionMovementEffect,
+                    })
+                ]
+            });
+
+            actionsThisRound = ActionsThisRoundService.new({
+                battleSquaddieId: "player_soldier_0",
+                startingLocation: {q: 0, r: 0},
+                previewedActionTemplateId: undefined,
+                processedActions: [
+                    processedAction
+                ]
             });
 
             state = GameEngineStateService.new({
@@ -430,7 +441,7 @@ describe('BattleSquaddieSelector', () => {
                         camera,
                         battlePhaseState,
                         teams,
-                        TODODELETEMEsquaddieCurrentlyActing: squaddieCurrentlyActing,
+                        actionsThisRound,
                         recording: {history: []},
                     }),
                 }),
@@ -455,20 +466,34 @@ describe('BattleSquaddieSelector', () => {
                 mouseY,
             });
             expect(selector.hasCompleted(state)).toBeTruthy();
-            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(2);
-            const actionEffectMovement = ActionEffectMovementService.new({
+            expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(2);
+            const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+                template: ActionEffectMovementTemplateService.new({}),
                 destination: {q: 0, r: 2},
-                numberOfActionPointsSpent: 1,
             });
-            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1]).toStrictEqual(
-                DecisionService.new({
+            const processedAction = ProcessedActionService.new({
+                decidedAction: DecidedActionService.new({
+                    actionPointCost: 1,
+                    battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                    actionTemplateName: "Move",
                     actionEffects: [
-                        actionEffectMovement
+                        decidedActionMovementEffect
                     ]
-                })
+                }),
+                processedActionEffects: [
+                    ProcessedActionMovementEffectService.new({
+                        decidedActionEffect: decidedActionMovementEffect,
+                    })
+                ]
+            });
+            expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions[1]).toEqual(
+                processedAction
             );
-            expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator)).toEqual(
-                actionEffectMovement
+            ActionsThisRoundService.nextProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound)).toEqual(
+                ProcessedActionMovementEffectService.new({
+                    decidedActionEffect: decidedActionMovementEffect,
+                })
             );
         });
         it('will update squaddie location to destination and spend action points', () => {
@@ -487,8 +512,7 @@ describe('BattleSquaddieSelector', () => {
                     mapLocation: {q: 0, r: 2},
                 });
             expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(DEFAULT_ACTION_POINTS_PER_TURN - 1);
-            // TODO
-            // expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(TODODELETEMEActionEffectType.MOVEMENT);
+            expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound).type).toEqual(ActionEffectType.MOVEMENT);
         });
     });
 
@@ -496,24 +520,28 @@ describe('BattleSquaddieSelector', () => {
         const battlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
 
         const camera: BattleCamera = new BattleCamera();
-        const squaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision =
-            TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-                    battleSquaddieId: "player_soldier_0",
-                    squaddieTemplateId: "player_soldier",
-                    startingLocation: {q: 0, r: 0},
-                    decisions: [
-                        DecisionService.new({
-                            actionEffects: [
-                                ActionEffectMovementService.new({
-                                    destination: {q: 0, r: 1},
-                                    numberOfActionPointsSpent: 1,
-                                })
-                            ]
-                        })
-                    ]
-                }),
-            });
+        const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+            template: ActionEffectMovementTemplateService.new({}),
+            destination: {q: 0, r: 1},
+        });
+        const actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+            startingLocation: {q: 0, r: 0},
+            previewedActionTemplateId: undefined,
+            processedActions: [
+                ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        actionPointCost: 1,
+                        battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                        actionTemplateName: "Move",
+                        actionEffects: [
+                            decidedActionMovementEffect
+                        ]
+                    }),
+                    processedActionEffects: []
+                })
+            ]
+        });
 
         let mockHud = mocks.battleSquaddieSelectedHUD();
         mockHud.getSelectedBattleSquaddieId = jest.fn().mockReturnValue("player_soldier_0");
@@ -529,7 +557,7 @@ describe('BattleSquaddieSelector', () => {
                     camera,
                     battlePhaseState,
                     teams,
-                    TODODELETEMEsquaddieCurrentlyActing: squaddieCurrentlyActing,
+                    actionsThisRound,
                     recording: {history: []},
                 }),
             }),
@@ -543,12 +571,10 @@ describe('BattleSquaddieSelector', () => {
         });
         selector.update(state, mockedP5GraphicsContext);
         expect(selector.hasCompleted(state)).toBeTruthy();
-        // TODO
-        // expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(2);
-        // expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[1].actionEffects[0].type).toBe(TODODELETEMEActionEffectType.END_TURN);
-        // expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toEqual(
-        //     TODODELETEMEActionEffectType.END_TURN
-        // );
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(2);
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions[1].processedActionEffects).toHaveLength(1);
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions[1].processedActionEffects[0].type).toEqual(ActionEffectType.END_TURN);
+        expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound).type).toEqual(ActionEffectType.END_TURN);
     });
 
     it('can instruct squaddie to end turn when player clicks on End Turn button', () => {
@@ -583,23 +609,26 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        const endTurnInstruction: TODODELETEMECurrentlySelectedSquaddieDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-            squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
+        const decidedActionEndTurnEffect = DecidedActionEndTurnEffectService.new({
+            template: ActionEffectEndTurnTemplateService.new({}),
+        });
+        const processedAction = ProcessedActionService.new({
+            decidedAction: DecidedActionService.new({
+                actionPointCost: 1,
                 battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
-                squaddieTemplateId: playerSoldierBattleSquaddie.squaddieTemplateId,
-                startingLocation: {q: 0, r: 0},
-                decisions: [
-                    DecisionService.new({
-                        actionEffects: [
-                            ActionEffectEndTurnService.new()
-                        ]
-                    })
+                actionTemplateName: "End Turn",
+                actionEffects: [
+                    decidedActionEndTurnEffect
                 ]
             }),
+            processedActionEffects: [
+                ProcessedActionEndTurnEffectService.new({
+                    decidedActionEffect: decidedActionEndTurnEffect,
+                })
+            ]
         });
 
-        // TODO
-        // expect(TODODELETEMESquaddieActionsForThisRoundService.getMostRecentDecision(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).actionEffects[0].type).toBe(TODODELETEMEActionEffectType.END_TURN);
+        expect(ActionsThisRoundService.getProcessedActionToShow(state.battleOrchestratorState.battleState.actionsThisRound).processedActionEffects[0].type).toEqual(ActionEffectType.END_TURN);
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.SQUADDIE_USES_ACTION_ON_MAP);
@@ -607,12 +636,11 @@ describe('BattleSquaddieSelector', () => {
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual({
-            instruction: endTurnInstruction,
+            instruction: undefined,
             results: undefined,
+            processedAction,
         });
         expect(playerSoldierBattleSquaddie.squaddieTurn.remainingActionPoints).toEqual(0);
-        // TODO
-        // expect(DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator).type).toBe(TODODELETEMEActionEffectType.END_TURN);
     });
 
     it('will recommend squaddie target if a SquaddieAction is selected that requires a target', () => {
@@ -663,34 +691,22 @@ describe('BattleSquaddieSelector', () => {
         });
 
         expect(selector.hasCompleted(state)).toBeTruthy();
-        expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe("player_soldier_0");
-
-        const expectedInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-            battleSquaddieId: "player_soldier_0",
-            squaddieTemplateId: "player_soldier",
-            startingLocation: {q: 0, r: 0},
-        });
-
-        expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
-        //expect((state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0] as TODODELETEMEactionEffectSquaddie).template).toStrictEqual(longswordAction);
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual("player_soldier_0");
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.startingLocation).toEqual({q: 0, r: 0});
 
         const recommendation: BattleOrchestratorChanges = selector.recommendStateChanges(state);
         expect(recommendation.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_TARGET);
 
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(0);
-
-        // TODO
-        // expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.currentlySelectedDecision.actionEffects[0].type).toEqual(
-        //     TODODELETEMEActionEffectType.SQUADDIE
-        // );
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId).toEqual(longswordAction.id);
     });
 
     describe('squaddie must complete their turn before moving other squaddies', () => {
         let missionMap: MissionMap;
         let interruptSquaddieStatic: SquaddieTemplate;
         let interruptBattleSquaddie: BattleSquaddie;
-        let soldierCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision;
+        let actionsThisRound: ActionsThisRound;
         let mockHud: BattleSquaddieSelectedHUD;
         let selectSquaddieAndDrawWindowSpy: SpyInstance;
         let camera: BattleCamera;
@@ -724,25 +740,31 @@ describe('BattleSquaddieSelector', () => {
 
             const soldierSquaddieInfo = missionMap.getSquaddieByBattleId("player_soldier_0");
 
-            const movingInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-                squaddieTemplateId: soldierSquaddieInfo.squaddieTemplateId,
+            const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+                template: ActionEffectMovementTemplateService.new({}),
+                destination: {q: 0, r: 2},
+            });
+            actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: soldierSquaddieInfo.battleSquaddieId,
                 startingLocation: soldierSquaddieInfo.mapLocation,
-                decisions: [
-                    DecisionService.new({
-                        actionEffects: [
-                            ActionEffectMovementService.new({
-                                destination: {q: 0, r: 2},
-                                numberOfActionPointsSpent: 1,
+                previewedActionTemplateId: undefined,
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            actionPointCost: 1,
+                            battleSquaddieId: soldierSquaddieInfo.battleSquaddieId,
+                            actionTemplateName: "Move",
+                            actionEffects: [
+                                decidedActionMovementEffect
+                            ]
+                        }),
+                        processedActionEffects: [
+                            ProcessedActionMovementEffectService.new({
+                                decidedActionEffect: decidedActionMovementEffect,
                             })
                         ]
                     })
                 ]
-            });
-
-            soldierCurrentlyActing = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-                squaddieActionsForThisRound: movingInstruction,
-
             });
 
             let mockResourceHandler = mocks.mockResourceHandler();
@@ -764,7 +786,7 @@ describe('BattleSquaddieSelector', () => {
                         battlePhaseState,
                         teams,
                         recording: {history: []},
-                        TODODELETEMEsquaddieCurrentlyActing: soldierCurrentlyActing,
+                        actionsThisRound,
                     }),
                 }),
                 repository: squaddieRepo,
@@ -800,9 +822,7 @@ describe('BattleSquaddieSelector', () => {
         });
 
         it('ignores movement commands issued to other squaddies', () => {
-            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe(
-                TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(soldierCurrentlyActing)
-            );
+            expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual(actionsThisRound.battleSquaddieId);
             expect(selectSquaddieAndDrawWindowSpy).toBeCalledWith({
                 battleId: interruptBattleSquaddie.battleSquaddieId,
                 repositionWindow: {
@@ -824,9 +844,7 @@ describe('BattleSquaddieSelector', () => {
                 mouseY: endingMouseY
             });
 
-            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe(
-                TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(soldierCurrentlyActing)
-            );
+            expect(state.battleOrchestratorState.battleState.actionsThisRound).toEqual(actionsThisRound);
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
 
@@ -857,10 +875,8 @@ describe('BattleSquaddieSelector', () => {
                 mouseX: 0,
                 mouseY: 0
             });
-            expect(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.currentlySelectedDecision).toBeUndefined();
-            expect(TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing)).toBe(
-                TODODELETEMECurrentlySelectedSquaddieDecisionService.battleSquaddieId(soldierCurrentlyActing)
-            );
+            expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual(actionsThisRound.battleSquaddieId);
+            expect(state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
             expect(selector.hasCompleted(state)).toBeFalsy();
         });
     });
@@ -896,59 +912,76 @@ describe('BattleSquaddieSelector', () => {
         expect(mockHud.keyPressed).toHaveBeenCalled();
     });
 
-    // TODO
-    // it('will accept commands even after canceling', () => {
-    //     const missionMap: MissionMap = new MissionMap({
-    //         terrainTileMap: new TerrainTileMap({
-    //             movementCost: ["1 1 "]
-    //         })
-    //     });
-    //     const battlePhaseState: BattlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
-    //     const currentlySelectedDecision = TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-    //         squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-    //             squaddieTemplateId: "player_soldier",
-    //             battleSquaddieId: "player_soldier_0",
-    //             startingLocation: {q: 0, r: 0},
-    //             decisions: [],
-    //         }),
-    //         currentlySelectedDecision: undefined,
-    //     });
-    //
-    //     const camera: BattleCamera = new BattleCamera();
-    //
-    //     const state: GameEngineState = GameEngineStateService.new({
-    //         resourceHandler: mocks.mockResourceHandler(),
-    //         battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
-    //             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
-    //             battleState: BattleStateService.newBattleState({
-    //                 missionId: "test mission",
-    //                 missionMap,
-    //                 camera,
-    //                 battlePhaseState,
-    //                 teams,
-    //                 squaddieCurrentlyActing: currentlySelectedDecision,
-    //                 recording: {history: []},
-    //             }),
-    //         }),
-    //         repository: squaddieRepo,
-    //         campaign: CampaignService.default({}),
-    //     });
-    //
-    //     let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
-    //     selector.mouseEventHappened(state, {
-    //         eventType: OrchestratorComponentMouseEventType.CLICKED,
-    //         mouseX,
-    //         mouseY
-    //     });
-    //
-    //     ([mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates()));
-    //     selector.mouseEventHappened(state, {
-    //         eventType: OrchestratorComponentMouseEventType.CLICKED,
-    //         mouseX,
-    //         mouseY
-    //     });
-    //
-    //     expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions).toHaveLength(1);
-    //     expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.decisions[0].actionEffects[0].type).toEqual(TODODELETEMEActionEffectType.MOVEMENT);
-    // });
-});
+    it('will accept commands even after canceling', () => {
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({
+                movementCost: ["1 1 "]
+            })
+        });
+        const battlePhaseState: BattlePhaseState = makeBattlePhaseTrackerWithPlayerTeam(missionMap);
+        const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
+            template: ActionEffectMovementTemplateService.new({}),
+            destination: {q: 0, r: 1},
+        });
+        const actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+            startingLocation: {q: 0, r: 0},
+            previewedActionTemplateId: undefined,
+            processedActions: [
+                ProcessedActionService.new({
+                    decidedAction: DecidedActionService.new({
+                        actionPointCost: 1,
+                        battleSquaddieId: playerSoldierBattleSquaddie.battleSquaddieId,
+                        actionTemplateName: "Move",
+                        actionEffects: [
+                            decidedActionMovementEffect
+                        ]
+                    }),
+                    processedActionEffects: [
+                        ProcessedActionMovementEffectService.new({
+                            decidedActionEffect: decidedActionMovementEffect,
+                        })
+                    ]
+                })
+            ]
+        });
+
+        const camera: BattleCamera = new BattleCamera();
+
+        const state: GameEngineState = GameEngineStateService.new({
+            resourceHandler: mocks.mockResourceHandler(),
+            battleOrchestratorState: BattleOrchestratorStateService.newOrchestratorState({
+                battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
+                battleState: BattleStateService.newBattleState({
+                    missionId: "test mission",
+                    missionMap,
+                    camera,
+                    battlePhaseState,
+                    teams,
+                    actionsThisRound,
+                    recording: {history: []},
+                }),
+            }),
+            repository: squaddieRepo,
+            campaign: CampaignService.default({}),
+        });
+
+        let [mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 0, ...camera.getCoordinates());
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY
+        });
+
+        ([mouseX, mouseY] = convertMapCoordinatesToScreenCoordinates(0, 1, ...camera.getCoordinates()));
+        selector.mouseEventHappened(state, {
+            eventType: OrchestratorComponentMouseEventType.CLICKED,
+            mouseX,
+            mouseY
+        });
+
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(2);
+        expect(ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound).type).toEqual(ActionEffectType.MOVEMENT);
+    });
+})
+;
