@@ -1,16 +1,9 @@
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
-import {
-    TODODELETEMESquaddieActionsForThisRoundService,
-    TODODELETEMESquaddieDecisionsDuringThisPhase
-} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {BattleSquaddieUsesActionOnSquaddie} from "./battleSquaddieUsesActionOnSquaddie";
 import {
     OrchestratorComponentMouseEvent,
@@ -21,7 +14,6 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as orchestratorUtils from "./orchestratorUtils";
-import {OrchestratorUtilities} from "./orchestratorUtils";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -37,11 +29,6 @@ import {SquaddieTurnService} from "../../squaddie/turn";
 import {BattleStateService} from "../orchestrator/battleState";
 import {BattleSquaddieSelectedHUD} from "../hud/battleSquaddieSelectedHUD";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService, TODODELETEMEdecision} from "../../decision/TODODELETEMEdecision";
-import {TODODELETEMEactionEffect} from "../../decision/TODODELETEMEactionEffect";
-import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
-import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
 import {
     ActionEffectSquaddieTemplate,

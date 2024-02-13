@@ -7,10 +7,13 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities} from "./orchestratorUtils";
+import {
+    DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
+    OrchestratorUtilities,
+    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
+} from "./orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
-import {TODODELETEMEMaybeEndSquaddieTurn} from "./battleSquaddieSelectorUtils";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieActionAnimator} from "../animation/squaddieActionAnimator";
 import {DefaultSquaddieActionAnimator} from "../animation/defaultSquaddieActionAnimator";
@@ -21,10 +24,10 @@ import {RecordingService} from "../history/recording";
 import {BattleEvent} from "../history/battleEvent";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
+import {isValidValue} from "../../utils/validityCheck";
 
 export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorComponent {
     private sawResultAftermath: boolean;
@@ -97,7 +100,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
         this.resetInternalState();
         DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
         OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
-        TODODELETEMEMaybeEndSquaddieTurn(state);
+        MaybeEndSquaddieTurn(state);
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {
@@ -168,4 +171,22 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
 
         this._squaddieActionAnimator = this.squaddieTargetsOtherSquaddiesAnimator;
     }
+}
+
+const MaybeEndSquaddieTurn = (state: GameEngineState) => {
+    if (!isValidValue(state.battleOrchestratorState.battleState.actionsThisRound)) {
+        return;
+    }
+
+    const battleSquaddieId = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+    if (!isValidValue(battleSquaddieId) || battleSquaddieId === "") {
+        return;
+    }
+
+    const {
+        battleSquaddie: actingBattleSquaddie,
+        squaddieTemplate: actingSquaddieTemplate
+    } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieId));
+    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+    DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(actingBattleSquaddie, actingSquaddieTemplate, state.repository);
 }
