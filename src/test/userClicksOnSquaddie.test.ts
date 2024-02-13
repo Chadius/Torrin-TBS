@@ -161,14 +161,11 @@ describe('User clicks on a squaddie', () => {
             });
         };
 
-        it('BattlePlayerSquaddieSelector creates an ActionsThsRound when the player clicks on a squaddie to start their turn', () => {
+        it('BattlePlayerSquaddieSelector does not create an ActionsThsRound object when the player clicks on a squaddie to start their turn', () => {
             selectorClicksOnSquaddie(gameEngineState);
 
             const battleState = gameEngineState.battleOrchestratorState.battleState;
-            expect(battleState.actionsThisRound.battleSquaddieId).toEqual(playerBattleSquaddie.battleSquaddieId);
-            expect(battleState.actionsThisRound.startingLocation).toEqual({q: 0, r: 0});
-            expect(battleState.actionsThisRound.processedActions).toHaveLength(0);
-            expect(battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
+            expect(battleState.actionsThisRound).toBeUndefined();
         });
 
         it('Map should highlight all the tiles it can reach when BattlePlayerSquaddieSelector selects a squaddie', () => {
@@ -178,7 +175,7 @@ describe('User clicks on a squaddie', () => {
         });
     });
 
-    it('BattlePlayerSquaddieSelector creates an ActionsThsRound when the player clicks on a different squaddie to start their turn', () => {
+    it('BattlePlayerSquaddieSelector does not create an ActionsThsRound when the player clicks on a different squaddie to start their turn', () => {
         const player2 = BattleSquaddieService.new({
             battleSquaddieId: "player 2",
             squaddieTemplateId: playerSquaddieTemplate.squaddieId.templateId,
@@ -219,10 +216,7 @@ describe('User clicks on a squaddie', () => {
         });
 
         const battleState = gameEngineState.battleOrchestratorState.battleState;
-        expect(battleState.actionsThisRound.battleSquaddieId).toEqual(player2.battleSquaddieId);
-        expect(battleState.actionsThisRound.startingLocation).toEqual({q: 0, r: 1});
-        expect(battleState.actionsThisRound.processedActions).toHaveLength(0);
-        expect(battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
+        expect(battleState.actionsThisRound).toBeUndefined();
     });
 
     it('HUD presents a warning if the squaddie is out of actions', () => {

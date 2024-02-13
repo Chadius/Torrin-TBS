@@ -75,6 +75,9 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
                 if (event.mouseY > BUTTON_TOP) {
                     this.cancelAbility = true;
                     state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
+                    if (state.battleOrchestratorState.battleState.actionsThisRound.processedActions.length === 0) {
+                        state.battleOrchestratorState.battleState.actionsThisRound = undefined;
+                    }
                     state.battleOrchestratorState.battleState.missionMap.terrainTileMap.stopHighlightingTiles();
                     return;
                 } else {

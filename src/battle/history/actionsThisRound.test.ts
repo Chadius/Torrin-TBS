@@ -23,16 +23,17 @@ import {DecidedAction, DecidedActionService} from "../../action/decided/decidedA
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
 describe('Actions This Round', () => {
-    it('can create object with actor Id and starting location', () => {
+    it('can create object with actor Id, starting location and a previewTemplateId', () => {
         const actionsThisRound = ActionsThisRoundService.new({
             battleSquaddieId: "soldier",
             startingLocation: {q: 0, r: 0},
+            previewedActionTemplateId: "consider using this action",
         });
 
         expect(actionsThisRound.battleSquaddieId).toEqual("soldier");
         expect(actionsThisRound.startingLocation).toEqual({q: 0, r: 0});
         expect(actionsThisRound.processedActions).toHaveLength(0);
-        expect(actionsThisRound.previewedActionTemplateId).toBeUndefined();
+        expect(actionsThisRound.previewedActionTemplateId).toEqual("consider using this action");
     });
 
     describe('sanitize', () => {
@@ -49,6 +50,14 @@ describe('Actions This Round', () => {
                 ActionsThisRoundService.new({
                     battleSquaddieId: "soldier",
                     startingLocation: undefined,
+                });
+            }).toThrow("cannot sanitize");
+        });
+        it('will throw an error if previewed template and processed actions are missing', () => {
+            expect(() => {
+                ActionsThisRoundService.new({
+                    battleSquaddieId: "soldier",
+                    startingLocation: {q:0, r: 0},
                 });
             }).toThrow("cannot sanitize");
         });
@@ -92,6 +101,7 @@ describe('Actions This Round', () => {
             const noActionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "soldier",
                 startingLocation: {q: 0, r: 0},
+                previewedActionTemplateId: "previewing the first attack",
             });
             expect(ActionsThisRoundService.getMultipleAttackPenaltyForProcessedActions(noActionsThisRound)).toEqual({
                 penaltyMultiplier: 0,
@@ -342,6 +352,7 @@ describe('Actions This Round', () => {
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battle squaddie",
                 startingLocation: {q: 0, r: 0},
+                previewedActionTemplateId: "previewing the first attack",
             });
 
             expect(ActionsThisRoundService.getProcessedActionEffectToShow(actionsThisRound)).toBeUndefined();
@@ -477,6 +488,7 @@ describe('Actions This Round', () => {
             const actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "battleSquaddieId",
                 startingLocation: {q: 0, r: 0},
+                previewedActionTemplateId: "previewing the first attack",
             });
             expect(ActionsThisRoundService.getDecidedButNotProcessedActionEffect(actionsThisRound)).toEqual({
                 processedAction: undefined,

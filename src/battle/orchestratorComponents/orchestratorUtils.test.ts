@@ -257,14 +257,6 @@ describe("Orchestration Utils", () => {
         it('is not if there is no squaddie is currently acting', () => {
             state.battleOrchestratorState.battleState.actionsThisRound = undefined;
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
-
-            state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "",
-                startingLocation: {q: 0, r: 0},
-                processedActions: [],
-                previewedActionTemplateId: undefined,
-            });
-            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
         });
 
         it('is if the squaddie is previewing a decision', () => {
@@ -287,29 +279,12 @@ describe("Orchestration Utils", () => {
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeTruthy();
         });
 
-        it('is not if the squaddie is dead and cannot act', () => {
-            state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "battle",
-                startingLocation: {q: 0, r: 0},
-                processedActions: [],
-                previewedActionTemplateId: undefined,
-            });
-
-            let squaddieServiceSpy = jest.spyOn(SquaddieService, 'canSquaddieActRightNow').mockReturnValue({
-                canAct: false,
-                hasActionPointsRemaining: true,
-                isDead: true
-            });
-            expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();
-            expect(squaddieServiceSpy).toBeCalled();
-        });
-
         it('is not taking a turn if there is no battle squaddie Id', () => {
             state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: "",
                 startingLocation: {q: 0, r: 0},
                 processedActions: [],
-                previewedActionTemplateId: "",
+                previewedActionTemplateId: "forgot to set the battle squaddie id",
             });
 
             expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)).toBeFalsy();

@@ -238,8 +238,7 @@ describe('BattleComputerSquaddieSelector', () => {
         );
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);
-        jest.spyOn(DrawSquaddieUtilities, 'drawSquaddieMapIconAtMapLocation').mockImplementation(() => {
-        });
+        jest.spyOn(DrawSquaddieUtilities, 'drawSquaddieMapIconAtMapLocation').mockImplementation(() => {});
 
         camera.moveCamera();
         selector.update(state, mockedP5GraphicsContext);

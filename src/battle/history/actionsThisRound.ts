@@ -92,6 +92,13 @@ const sanitize = (actions: ActionsThisRound): ActionsThisRound => {
         throw new Error("ActionsThisRound cannot sanitize, missing startingLocation")
     }
 
+    const hasPreviewedActionTemplateId = isValidValue(actions.previewedActionTemplateId) && actions.previewedActionTemplateId !== "";
+    const hasProcessedActions = isValidValue(actions.processedActions) && actions.processedActions.length > 0;
+
+    if (!(hasPreviewedActionTemplateId || hasProcessedActions)) {
+        throw new Error("ActionsThisRound cannot sanitize, needs either previewedActionTemplateId OR processedActions");
+    }
+
     actions.processedActions = getValidValueOrDefault(actions.processedActions, []);
 
     return actions;

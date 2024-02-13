@@ -146,20 +146,14 @@ describe("user clicks on the map to move", () => {
                 r: 2
             });
             selectorClicksOnMapLocation(selector, gameEngineState, 0, 2);
-            const battleState = gameEngineState.battleOrchestratorState.battleState;
-            expect(battleState.actionsThisRound.battleSquaddieId).toEqual(anotherPlayer.battleSquaddieId);
-            expect(battleState.actionsThisRound.processedActions).toHaveLength(0);
-            expect(battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
-            expect(selector.hasCompleted(gameEngineState)).toBeFalsy();
+            commonExpectations();
             expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
             expect(gameEngineState.battleOrchestratorState.battleSquaddieSelectedHUD.selectedBattleSquaddieId).toEqual(anotherPlayer.battleSquaddieId);
         });
 
         const commonExpectations = () => {
             const battleState = gameEngineState.battleOrchestratorState.battleState;
-            expect(battleState.actionsThisRound.battleSquaddieId).toEqual(playerBattleSquaddie.battleSquaddieId);
-            expect(battleState.actionsThisRound.processedActions).toHaveLength(0);
-            expect(battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
+            expect(battleState.actionsThisRound).toBeUndefined();
             expect(selector.hasCompleted(gameEngineState)).toBeFalsy();
         };
     });

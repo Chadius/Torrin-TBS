@@ -152,10 +152,7 @@ describe('User ends their turn', () => {
             mouseY,
         });
 
-        const actionsThisRound = gameEngineState.battleOrchestratorState.battleState.actionsThisRound;
-        expect(actionsThisRound.battleSquaddieId).toEqual(playerBattleSquaddie.battleSquaddieId);
-        expect(actionsThisRound.startingLocation).toEqual({q: 0, r: 0});
-        expect(actionsThisRound.processedActions).toHaveLength(0);
+        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
 
         selector.mouseEventHappened(gameEngineState, {
             eventType: OrchestratorComponentMouseEventType.CLICKED,
@@ -163,6 +160,7 @@ describe('User ends their turn', () => {
             mouseY: RectAreaService.centerY(battleSquaddieSelectedHUD.endTurnButton.rectangle.area),
         });
 
+        const actionsThisRound = gameEngineState.battleOrchestratorState.battleState.actionsThisRound;
         expect(actionsThisRound.processedActions).toHaveLength(1);
 
         const processedAction = actionsThisRound.processedActions[0];
@@ -179,6 +177,7 @@ describe('User ends their turn', () => {
         expect(processedAction.decidedAction).toEqual(
             DecidedActionService.new({
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                actionTemplateName: "End Turn",
                 actionEffects: [
                     decidedActionEndTurnEffect
                 ]
@@ -243,6 +242,7 @@ describe('User ends their turn', () => {
                     processedAction: ProcessedActionService.new({
                         decidedAction: DecidedActionService.new({
                             battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
+                            actionTemplateName: "End Turn",
                             actionEffects: [
                                 decidedActionEndTurnEffect
                             ]

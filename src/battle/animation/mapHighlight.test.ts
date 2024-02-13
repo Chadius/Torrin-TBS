@@ -317,11 +317,11 @@ describe('map highlight generator', () => {
     });
 
     describe('shows attack tiles when squaddie cannot move to location but can attack', () => {
-        let squaddieWithNoMovement: SquaddieTemplate;
+        let squaddieWithOneMovement: SquaddieTemplate;
         let battleSquaddie: BattleSquaddie;
 
         beforeEach(() => {
-            squaddieWithNoMovement = SquaddieTemplateService.new({
+            squaddieWithOneMovement = SquaddieTemplateService.new({
                 squaddieId: SquaddieIdService.new({
                     templateId: "templateId",
                     name: "template",
@@ -334,11 +334,11 @@ describe('map highlight generator', () => {
                 }),
                 actionTemplates: [rangedAction],
             });
-            ObjectRepositoryService.addSquaddieTemplate(repository, squaddieWithNoMovement);
+            ObjectRepositoryService.addSquaddieTemplate(repository, squaddieWithOneMovement);
 
             battleSquaddie = BattleSquaddieService.new({
                 battleSquaddieId: "battleId",
-                squaddieTemplate: squaddieWithNoMovement,
+                squaddieTemplate: squaddieWithOneMovement,
             })
             ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie);
         });

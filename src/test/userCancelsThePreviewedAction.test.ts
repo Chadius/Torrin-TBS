@@ -131,9 +131,7 @@ describe('User cancels the previewed action', () => {
         expect(targeting.hasCompleted(gameEngineState)).toBeTruthy();
         const recommendedInfo = targeting.recommendStateChanges(gameEngineState);
         expect(recommendedInfo.nextMode).toBe(BattleOrchestratorMode.PLAYER_SQUADDIE_SELECTOR);
-        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).toEqual(playerBattleSquaddie.battleSquaddieId);
-        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId).toBeUndefined();
-        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(0);
+        expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
         expect(OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(gameEngineState)).toBeFalsy();
     });
 

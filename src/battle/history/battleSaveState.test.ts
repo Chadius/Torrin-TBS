@@ -8,7 +8,7 @@ import {BattleCamera} from "../battleCamera";
 import {Recording} from "./recording";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
-import {BattleEvent} from "./battleEvent";
+import {BattleEvent, BattleEventService} from "./battleEvent";
 import {Trait} from "../../trait/traitStatusStorage";
 import {MissionMap} from "../../missionMap/missionMap";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
@@ -31,6 +31,10 @@ import {SAVE_VERSION} from "../../utils/fileHandling/saveFile";
 import {BattleStateService} from "../orchestrator/battleState";
 import {ActionTemplate, ActionTemplateService} from "../../action/template/actionTemplate";
 import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
+import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {ProcessedActionService} from "../../action/processed/processedAction";
+import {DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -61,66 +65,48 @@ describe("BattleSaveState", () => {
             ]
         });
 
-        // const firstSquaddieDecisions: SquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new(
-        //     {
-        //         squaddieTemplateId: "actor 1 template",
-        //         battleSquaddieId: "actor 1",
-        //         startingLocation: {q: 1, r: -2},
-        //         decisions: [
-        //             {
-        //                 actionEffects: [
-        //                     ActionEffectMovementService.new({
-        //                         destination: {q: 2, r: -5},
-        //                         numberOfActionPointsSpent: 1,
-        //                     })
-        //                 ]
-        //             },
-        //             {
-        //                 actionEffects: [
-        //                     ActionEffectSquaddieService.new({
-        //                         numberOfActionPointsSpent: 1,
-        //                         template: action,
-        //                         targetLocation: {q: 3, r: 4},
-        //                     })
-        //                 ]
-        //             }
-        //         ],
-        //     });
-
         eventRecording0 = {history: []};
 
-        // TODO generate a battle event
-        // firstBattleEvent = {
-        //     instruction: CurrentlySelectedSquaddieDecisionService.new({
-        //         squaddieActionsForThisRound: firstSquaddieDecisions,
-        //
-        //         currentlySelectedDecision: undefined,
-        //     }),
-        //     results: {
-        //         actingBattleSquaddieId: "actor 1",
-        //         targetedBattleSquaddieIds: ["target 0, target 1"],
-        //         resultPerTarget: {
-        //             "target 0": {
-        //                 damageTaken: 2,
-        //                 healingReceived: 0,
-        //                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
-        //             },
-        //             "target 1": {
-        //                 damageTaken: 1,
-        //                 healingReceived: 3,
-        //                 actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
-        //             },
-        //         },
-        //         actingSquaddieRoll: {
-        //             occurred: true,
-        //             rolls: [3, 5],
-        //         },
-        //         actingSquaddieModifiers: {},
-        //     }
-        // };
-        // eventRecording0.history.push(
-        //     firstBattleEvent
-        // );
+        firstBattleEvent = BattleEventService.new({
+            processedAction: ProcessedActionService.new({
+                decidedAction: DecidedActionService.new({
+                    actionPointCost: 1,
+                    battleSquaddieId: "actor 1",
+                    actionTemplateName: "attack",
+                    actionEffects: [
+                        DecidedActionSquaddieEffectService.new({
+                            template: ActionEffectSquaddieTemplateService.new({}),
+                            target: {q: 0, r: 0},
+                        })
+                    ]
+                }),
+                processedActionEffects: []
+            }),
+            results: {
+                actingBattleSquaddieId: "actor 1",
+                targetedBattleSquaddieIds: ["target 0, target 1"],
+                resultPerTarget: {
+                    "target 0": {
+                        damageTaken: 2,
+                        healingReceived: 0,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+                    },
+                    "target 1": {
+                        damageTaken: 1,
+                        healingReceived: 3,
+                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+                    },
+                },
+                actingSquaddieRoll: {
+                    occurred: true,
+                    rolls: [3, 5],
+                },
+                actingSquaddieModifiers: {},
+            }
+        });
+        eventRecording0.history.push(
+            firstBattleEvent
+        );
 
         missionStatistics = {
             timeElapsedInMilliseconds: 9001,

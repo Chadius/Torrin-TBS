@@ -120,20 +120,7 @@ const isSquaddieCurrentlyTakingATurn = (state: GameEngineState): boolean => {
         return true;
     }
 
-    if (isValidValue(actionsThisRound.previewedActionTemplateId)) {
-        return true;
-    }
-
-    const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(
-        ObjectRepositoryService.getSquaddieByBattleId(state.repository, actionsThisRound.battleSquaddieId)
-    );
-
-    let {
-        canAct,
-        isDead,
-    } = SquaddieService.canSquaddieActRightNow({squaddieTemplate, battleSquaddie})
-
-    return !isDead && canAct;
+    return isValidValue(actionsThisRound.previewedActionTemplateId);
 }
 
 const peekActionEffect = (state: BattleOrchestratorState, currentlySelectedSquaddieDecision: TODODELETEMECurrentlySelectedSquaddieDecision): TODODELETEMEactionEffect => {

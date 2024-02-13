@@ -30,48 +30,6 @@ export const BattleSquaddieSelectorService = {
         clickedHexCoordinate: HexCoordinate,
     }) => {
         return createSearchPath(state, squaddieTemplate, battleSquaddie, clickedHexCoordinate);
-    },
-    moveSquaddieAndCompleteInstruction: ({
-                                             state,
-                                             battleSquaddie,
-                                             squaddieTemplate,
-                                             clickedHexCoordinate,
-                                         }: {
-        state: GameEngineState,
-        battleSquaddie: BattleSquaddie,
-        squaddieTemplate: SquaddieTemplate,
-        clickedHexCoordinate: HexCoordinate
-    }): ProcessedAction => {
-        const locationsByMoveActions: {
-            [movementActions: number]: LocationTraveled[]
-        } = SquaddieService.searchPathLocationsByNumberOfMovementActions({
-            searchPath: state.battleOrchestratorState.battleState.squaddieMovePath,
-            battleSquaddieId: battleSquaddie.battleSquaddieId,
-            repository: state.repository,
-        });
-        const numberOfActionPointsSpentMoving: number = Math.max(...Object.keys(locationsByMoveActions).map(str => Number(str))) || 1;
-        SquaddieTurnService.spendActionPoints(battleSquaddie.squaddieTurn, numberOfActionPointsSpentMoving);
-
-        const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
-            template: undefined,
-            destination: clickedHexCoordinate,
-        });
-        const processedAction = ProcessedActionService.new({
-            decidedAction: DecidedActionService.new({
-                actionTemplateName: "Move",
-                battleSquaddieId: battleSquaddie.battleSquaddieId,
-                actionPointCost: numberOfActionPointsSpentMoving,
-                actionEffects: [decidedActionMovementEffect],
-            }),
-            processedActionEffects: [
-                ProcessedActionMovementEffectService.new({
-                    decidedActionEffect: decidedActionMovementEffect,
-                })
-            ]
-        });
-        state.battleOrchestratorState.battleState.actionsThisRound.processedActions.push(processedAction);
-        state.battleOrchestratorState.battleState.missionMap.updateSquaddieLocation(battleSquaddie.battleSquaddieId, decidedActionMovementEffect.destination);
-        return processedAction;
     }
 }
 

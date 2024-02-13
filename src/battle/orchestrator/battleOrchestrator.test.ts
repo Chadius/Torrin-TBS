@@ -432,26 +432,6 @@ describe('Battle Orchestrator', () => {
             ]
         });
 
-        // TODO DELETE ME
-        // nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing =
-        //     CurrentlySelectedSquaddieDecisionService.new({
-        //         squaddieActionsForThisRound: TODODELETEMESquaddieActionsForThisRoundService.new({
-        //             squaddieTemplateId: "new static squaddie",
-        //             battleSquaddieId: "new dynamic squaddie",
-        //             startingLocation: {q: 0, r: 0},
-        //         }),
-        //     });
-        //
-        // TODODELETEMESquaddieActionsForThisRoundService.addDecision(nullState.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase,
-        //     DecisionService.new({
-        //         actionEffects: [
-        //             ActionEffectMovementService.new({
-        //                 destination: {q: 1, r: 2},
-        //                 numberOfActionPointsSpent: 2,
-        //             })
-        //         ]
-        //     }));
-
         orchestrator.update(nullState, mockedP5GraphicsContext);
         expect(orchestrator.getCurrentMode()).toBe(BattleOrchestratorMode.SQUADDIE_MOVER);
         expect(orchestrator.getCurrentComponent()).toBe(mockSquaddieMover);
