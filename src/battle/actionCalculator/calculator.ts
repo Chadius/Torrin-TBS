@@ -23,6 +23,7 @@ import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisR
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
 import {DecidedActionEffect} from "../../action/decided/decidedActionEffect";
+import {isValidValue} from "../../utils/validityCheck";
 
 export const ActionCalculator = {
     calculateResults: ({
@@ -182,7 +183,7 @@ const calculateTotalDamageDealt = (
     let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE;
 
     if (actionEffect === undefined || actionEffect.type !== ActionEffectType.SQUADDIE) {
-        return;
+        return { damageDealt: 0, degreeOfSuccess: DegreeOfSuccess.NONE };
     }
     const actionEffectSquaddieTemplate = actionEffect.template;
 
@@ -228,9 +229,8 @@ const calculateTotalHealingReceived = (
         actionEffect: DecidedActionEffect,
     }
 ) => {
-    if (actionEffect.type !== ActionEffectType.SQUADDIE) {
-        return 0;
-    }
+    if (!isValidValue(actionEffect)) { return 0; }
+    if (actionEffect.type !== ActionEffectType.SQUADDIE) { return 0; }
 
     let healingReceived = 0;
     const actionEffectSquaddieTemplate = actionEffect.template;
