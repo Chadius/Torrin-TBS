@@ -1,4 +1,3 @@
-import {TODODELETEMEActionEffectSquaddieTemplate} from "../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ActionTemplate} from "../action/template/actionTemplate";
 
 export const DEFAULT_ACTION_POINTS_PER_TURN = 3;
@@ -16,9 +15,6 @@ export const SquaddieTurnService = {
     new: (): SquaddieTurn => {
         return {remainingActionPoints: DEFAULT_ACTION_POINTS_PER_TURN};
     },
-    spendActionPointsOnActionTemplate: (data: SquaddieTurn, action: TODODELETEMEActionEffectSquaddieTemplate) => {
-        data.remainingActionPoints = (data.remainingActionPoints - action.actionPointCost);
-    },
     spendActionPoints: (data: SquaddieTurn, number: number) => {
         data.remainingActionPoints = (data.remainingActionPoints - number);
     },
@@ -28,22 +24,6 @@ export const SquaddieTurnService = {
         reason: ACTION_PERFORM_FAILURE_REASON
     } => {
         if (data.remainingActionPoints < actionTemplate.actionPoints) {
-            return {
-                canPerform: false,
-                reason: ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING
-            }
-        }
-
-        return {
-            canPerform: true,
-            reason: ACTION_PERFORM_FAILURE_REASON.UNKNOWN
-        }
-    },
-    TODODELETEMEcanPerformAction: (data: SquaddieTurn, action: TODODELETEMEActionEffectSquaddieTemplate): {
-        canPerform: boolean,
-        reason: ACTION_PERFORM_FAILURE_REASON
-    } => {
-        if (data.remainingActionPoints < action.actionPointCost) {
             return {
                 canPerform: false,
                 reason: ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING

@@ -3,8 +3,6 @@ import {SquaddieEmotion} from "../../battle/animation/actionAnimation/actionAnim
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {CreateNewSquaddieMovementWithTraits} from "../../squaddie/movement";
-import {TODODELETEMEActionEffectSquaddieTemplateService} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
-import {DamageType, HealingType} from "../../squaddie/squaddieService";
 import {ActionTemplateService} from "../../action/template/actionTemplate";
 import {ActionEffectSquaddieTemplateService} from "../../action/template/actionEffectSquaddieTemplate";
 
@@ -82,34 +80,6 @@ export const TestArmyPlayerData = () => {
                         ]
                     })
                 ],
-                "TODODELETEMEactions": [
-                    TODODELETEMEActionEffectSquaddieTemplateService.new({
-                        name: "water cannon",
-                        id: "torrin_water_cannon",
-                        minimumRange: 0,
-                        maximumRange: 2,
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.ATTACK]: true,
-                        }),
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2
-                        }
-                    }),
-                    TODODELETEMEActionEffectSquaddieTemplateService.new({
-                        name: "healing touch",
-                        id: "young_torrin_healing_touch",
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.SKIP_ANIMATION]: true,
-                            [Trait.ALWAYS_SUCCEEDS]: true,
-                            [Trait.TARGETS_ALLIES]: true,
-                            [Trait.HEALING]: true,
-                        }),
-                        actionPointCost: 2,
-                        healingDescriptions: {[HealingType.LOST_HIT_POINTS]: 2}
-                    })
-                ],
             },
             {
                 attributes: {
@@ -158,20 +128,6 @@ export const TestArmyPlayerData = () => {
                                 }
                             })
                         ]
-                    })
-                ],
-                TODODELETEMEactions: [
-                    TODODELETEMEActionEffectSquaddieTemplateService.new({
-                        name: "longsword",
-                        id: "sir_camil_longsword",
-                        minimumRange: 0,
-                        maximumRange: 1,
-                        traits: TraitStatusStorageService.newUsingTraitValues({
-                            [Trait.ATTACK]: true,
-                        }),
-                        damageDescriptions: {
-                            [DamageType.BODY]: 2
-                        }
                     })
                 ],
             },

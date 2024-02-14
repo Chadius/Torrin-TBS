@@ -217,7 +217,6 @@ describe("Orchestration Utils", () => {
                         missionId: "missionId"
                     }),
                     battleSquaddieSelectedHUD: undefined,
-                    decisionActionEffectIterator: undefined,
                     numberGenerator: undefined,
                 }),
                 resourceHandler: undefined,
@@ -246,7 +245,6 @@ describe("Orchestration Utils", () => {
                     battleOrchestratorState: new BattleOrchestratorState({
                         battleState: undefined,
                         battleSquaddieSelectedHUD: undefined,
-                        decisionActionEffectIterator: undefined,
                         numberGenerator: undefined,
                     }),
                     resourceHandler: undefined,

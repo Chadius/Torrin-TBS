@@ -5,7 +5,7 @@ import {
     InBattleAttributesAndTurn
 } from "./battleSaveState";
 import {BattleCamera} from "../battleCamera";
-import {Recording} from "./recording";
+import {Recording, RecordingService} from "./recording";
 import {BattleOrchestratorState, BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
 import {BattlePhase} from "../orchestratorComponents/battlePhaseTracker";
 import {BattleEvent, BattleEventService} from "./battleEvent";
@@ -35,6 +35,9 @@ import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedActionService} from "../../action/decided/decidedAction";
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
+import {ActionsThisRound, ActionsThisRoundService} from "./actionsThisRound";
+import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
+import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
 describe("BattleSaveState", () => {
     let eventRecording0: Recording;
@@ -290,86 +293,87 @@ describe("BattleSaveState", () => {
         expect(newBattleState.battleState.battlePhaseState.turnCount).toBe(3);
     });
 
-    // it("Can read the event recording and create a similar one", () => {
-    //     const secondSquaddieDecisions: SquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new(
-    //         {
-    //             squaddieTemplateId: "actor 2 template",
-    //             battleSquaddieId: "actor 2",
-    //             startingLocation: {q: 0, r: 4},
-    //             decisions: [
-    //                 {
-    //                     actionEffects: [
-    //                         ActionEffectMovementService.new({
-    //                             destination: {q: 1, r: 6},
-    //                             numberOfActionPointsSpent: 3,
-    //                         })
-    //                     ]
-    //                 },
-    //             ],
-    //         });
-    //
-    //     const secondBattleEvent: BattleEvent = {
-    //         instruction: CurrentlySelectedSquaddieDecisionService.new({
-    //             squaddieActionsForThisRound: secondSquaddieDecisions,
-    //             currentlySelectedDecision: undefined,
-    //         }),
-    //         results: {
-    //             actingBattleSquaddieId: undefined,
-    //             targetedBattleSquaddieIds: [],
-    //             resultPerTarget: {},
-    //             actingSquaddieRoll: {
-    //                 occurred: false,
-    //                 rolls: [],
-    //             },
-    //             actingSquaddieModifiers: {},
-    //         }
-    //     };
-    //     eventRecording0.history.push(
-    //         secondBattleEvent
-    //     );
-    //
-    //     const battleState = BattleOrchestratorStateService.newOrchestratorState({
-    //         battleSquaddieSelectedHUD: undefined,
-    //         battleState: BattleStateService.newBattleState({
-    //             missionId: "test mission",
-    //             missionMap: NullMissionMap(),
-    //             recording: eventRecording0,
-    //             battlePhaseState: {
-    //                 turnCount: 0,
-    //                 currentAffiliation: BattlePhase.UNKNOWN,
-    //             },
-    //         }),
-    //     });
-    //
-    //     const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
-    //         missionId: "test",
-    //         saveVersion: SAVE_VERSION,
-    //         battleOrchestratorState: battleState,
-    //         repository: ObjectRepositoryService.new(),
-    //     });
-    //     expect(saveState.battleEventRecording.history).toHaveLength(2);
-    //
-    //     const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
-    //         battleSquaddieSelectedHUD: undefined,
-    //         battleState: BattleStateService.newBattleState({
-    //             missionId: "test mission",
-    //             missionMap: NullMissionMap(),
-    //             battlePhaseState: {
-    //                 turnCount: 0,
-    //                 currentAffiliation: BattlePhase.UNKNOWN,
-    //             },
-    //         }),
-    //     });
-    //     BattleSaveStateService.applySaveStateToOrchestratorState({
-    //         battleSaveState: saveState,
-    //         battleOrchestratorState: newBattleState,
-    //         squaddieRepository: newSquaddieRepository
-    //     });
-    //     expect(newBattleState.battleState.recording.history).toHaveLength(2);
-    //     expect(newBattleState.battleState.recording.history[0]).toStrictEqual(firstBattleEvent);
-    //     expect(newBattleState.battleState.recording.history[1]).toStrictEqual(secondBattleEvent);
-    //     expect(RecordingService.mostRecentEvent(newBattleState.battleState.recording)).toStrictEqual(secondBattleEvent);
-    // });
+    it("Can read the event recording and create a similar one", () => {
+        const actionsThisRound: ActionsThisRound = ActionsThisRoundService.new(
+            {
+                battleSquaddieId: "actor 2",
+                startingLocation: {q: 0, r: 4},
+                processedActions: [
+                    ProcessedActionService.new({
+                        decidedAction: DecidedActionService.new({
+                            actionPointCost: 3,
+                            actionTemplateName: "Move",
+                            battleSquaddieId: "actor 2",
+                            actionEffects: [
+                                DecidedActionMovementEffectService.new({
+                                    destination: {q: 1, r: 6},
+                                    template: ActionEffectMovementTemplateService.new({})
+                                })
+                            ]
+                        })
+                    })
+                ],
+            });
+
+        const secondBattleEvent: BattleEvent = {
+            processedAction: actionsThisRound.processedActions[0],
+            results: {
+                actingBattleSquaddieId: undefined,
+                targetedBattleSquaddieIds: [],
+                resultPerTarget: {},
+                actingSquaddieRoll: {
+                    occurred: false,
+                    rolls: [],
+                },
+                actingSquaddieModifiers: {},
+            }
+        };
+        eventRecording0.history.push(
+            secondBattleEvent
+        );
+
+        const battleState = BattleOrchestratorStateService.newOrchestratorState({
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                missionMap: NullMissionMap(),
+                recording: eventRecording0,
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
+            }),
+        });
+
+        const saveState: BattleSaveState = BattleSaveStateService.newUsingBattleOrchestratorState({
+            missionId: "test",
+            saveVersion: SAVE_VERSION,
+            battleOrchestratorState: battleState,
+            repository: ObjectRepositoryService.new(),
+        });
+        expect(saveState.battleEventRecording.history).toHaveLength(2);
+
+        const newBattleState: BattleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
+            battleSquaddieSelectedHUD: undefined,
+            battleState: BattleStateService.newBattleState({
+                missionId: "test mission",
+                missionMap: NullMissionMap(),
+                battlePhaseState: {
+                    turnCount: 0,
+                    currentAffiliation: BattlePhase.UNKNOWN,
+                },
+            }),
+        });
+        BattleSaveStateService.applySaveStateToOrchestratorState({
+            battleSaveState: saveState,
+            battleOrchestratorState: newBattleState,
+            squaddieRepository: newSquaddieRepository
+        });
+        expect(newBattleState.battleState.recording.history).toHaveLength(2);
+        expect(newBattleState.battleState.recording.history[0]).toStrictEqual(firstBattleEvent);
+        expect(newBattleState.battleState.recording.history[1]).toStrictEqual(secondBattleEvent);
+        expect(RecordingService.mostRecentEvent(newBattleState.battleState.recording)).toStrictEqual(secondBattleEvent);
+    });
 
     it("Can read the squaddie placement on a mission map and create a similar one", () => {
         const missionMap = new MissionMap({

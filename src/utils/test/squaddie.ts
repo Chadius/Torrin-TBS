@@ -1,15 +1,10 @@
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
+import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieId} from "../../squaddie/id";
 import {ObjectRepository, ObjectRepositoryService} from "../../battle/objectRepository";
 import {BattleSquaddie, BattleSquaddieService} from "../../battle/battleSquaddie";
 import {SquaddieTurnService} from "../../squaddie/turn";
-import {
-    TODODELETEMEActionEffectSquaddieTemplate,
-    TODODELETEMEActionEffectSquaddieTemplateService
-} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {ArmyAttributes, DefaultArmyAttributes} from "../../squaddie/armyAttributes";
-import {DamageType} from "../../squaddie/squaddieService";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {ActionTemplate} from "../../action/template/actionTemplate";
 import {getValidValueOrDefault} from "../validityCheck";
@@ -22,7 +17,6 @@ export const SquaddieAndObjectRepositoryService = {
             battleId,
             affiliation,
             squaddieRepository,
-            actions,
             attributes,
         }: {
             name: string,
@@ -30,7 +24,6 @@ export const SquaddieAndObjectRepositoryService = {
             battleId: string,
             affiliation: SquaddieAffiliation,
             squaddieRepository: ObjectRepository,
-            actions?: TODODELETEMEActionEffectSquaddieTemplate[],
             attributes?: ArmyAttributes,
         }
     ): {
@@ -43,7 +36,6 @@ export const SquaddieAndObjectRepositoryService = {
             battleId,
             affiliation,
             squaddieRepository,
-            actions,
             attributes,
         });
     }
@@ -69,7 +61,6 @@ export const CreateNewSquaddieAndAddToRepository: (
         battleId: string,
         affiliation: SquaddieAffiliation,
         squaddieRepository: ObjectRepository,
-        actions?: TODODELETEMEActionEffectSquaddieTemplate[],
         attributes?: ArmyAttributes,
         actionTemplates?: ActionTemplate[],
     }
@@ -82,7 +73,6 @@ export const CreateNewSquaddieAndAddToRepository: (
          battleId,
          affiliation,
          squaddieRepository,
-         actions,
          attributes,
          actionTemplates,
      }: {
@@ -91,7 +81,6 @@ export const CreateNewSquaddieAndAddToRepository: (
          battleId: string,
          affiliation: SquaddieAffiliation,
          squaddieRepository: ObjectRepository,
-         actions?: TODODELETEMEActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
          actionTemplates?: ActionTemplate[],
      }
@@ -107,7 +96,6 @@ export const CreateNewSquaddieAndAddToRepository: (
             traits: TraitStatusStorageService.newUsingTraitValues(),
             affiliation
         },
-        TODODELETEMEactions: actions || [],
         actionTemplates: getValidValueOrDefault(actionTemplates, []),
         attributes: attributes || DefaultArmyAttributes(),
     };
@@ -131,7 +119,6 @@ export const CreateNewThiefSquaddie: (
         templateId?: string,
         battleId?: string,
         affiliation?: SquaddieAffiliation,
-        actions?: TODODELETEMEActionEffectSquaddieTemplate[],
         attributes?: ArmyAttributes,
     }
 ) => {
@@ -143,7 +130,6 @@ export const CreateNewThiefSquaddie: (
          templateId,
          battleId,
          affiliation,
-         actions,
          attributes,
      }: {
          squaddieRepository: ObjectRepository,
@@ -151,27 +137,9 @@ export const CreateNewThiefSquaddie: (
          templateId?: string,
          battleId?: string,
          affiliation?: SquaddieAffiliation,
-         actions?: TODODELETEMEActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
      }
 ) => {
-
-    const defaultAttackAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
-        name: "knife",
-        id: "knife",
-        traits: TraitStatusStorageService.newUsingTraitValues({
-            [Trait.ATTACK]: true,
-            [Trait.TARGET_ARMOR]: true,
-            [Trait.TARGETS_FOE]: true,
-        }),
-        minimumRange: 1,
-        maximumRange: 1,
-        actionPointCost: 1,
-        damageDescriptions: {
-            [DamageType.BODY]: 1,
-        },
-    });
-
     const {
         squaddieTemplate: thiefSquaddieTemplate,
         battleSquaddie: thiefBattleSquaddie,
@@ -181,7 +149,6 @@ export const CreateNewThiefSquaddie: (
         battleId: battleId || "Thief 0",
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.ENEMY,
         squaddieRepository: squaddieRepository,
-        actions: actions || [defaultAttackAction],
         attributes: attributes || DefaultArmyAttributes(),
     });
 
@@ -210,7 +177,6 @@ export const CreateNewKnightSquaddie: (
          templateId,
          battleId,
          affiliation,
-         actions,
          attributes,
      }: {
          squaddieRepository: ObjectRepository,
@@ -218,43 +184,9 @@ export const CreateNewKnightSquaddie: (
          templateId?: string,
          battleId?: string,
          affiliation?: SquaddieAffiliation,
-         actions?: TODODELETEMEActionEffectSquaddieTemplate[],
          attributes?: ArmyAttributes,
      }
 ) => {
-
-    const defaultAttackAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
-        name: "longsword",
-        id: "longsword",
-        traits: TraitStatusStorageService.newUsingTraitValues({
-            [Trait.ATTACK]: true,
-            [Trait.TARGET_ARMOR]: true,
-            [Trait.TARGETS_FOE]: true,
-        }),
-        minimumRange: 1,
-        maximumRange: 1,
-        actionPointCost: 1,
-        damageDescriptions: {
-            [DamageType.BODY]: 2,
-        },
-    });
-
-    const powerAttackLongswordAction = TODODELETEMEActionEffectSquaddieTemplateService.new({
-        name: "power attack longsword",
-        id: "powerAttackLongsword",
-        traits: TraitStatusStorageService.newUsingTraitValues({
-            [Trait.ATTACK]: true,
-            [Trait.TARGET_ARMOR]: true,
-            [Trait.TARGETS_FOE]: true,
-        }),
-        minimumRange: 1,
-        maximumRange: 1,
-        actionPointCost: 3,
-        damageDescriptions: {
-            [DamageType.BODY]: 9001,
-        },
-    });
-
     const {
         squaddieTemplate: knightSquaddieTemplate,
         battleSquaddie: knightBattleSquaddie,
@@ -264,7 +196,6 @@ export const CreateNewKnightSquaddie: (
         battleId: battleId || "Knight 0",
         affiliation: affiliation && affiliation !== SquaddieAffiliation.UNKNOWN ? affiliation : SquaddieAffiliation.PLAYER,
         squaddieRepository: squaddieRepository,
-        actions: actions || [defaultAttackAction, powerAttackLongswordAction],
         attributes: attributes || DefaultArmyAttributes(),
     });
 

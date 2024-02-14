@@ -1,4 +1,3 @@
-import {TODODELETEMEActionEffectSquaddieTemplate} from "../../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddie} from "../battleSquaddie";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
@@ -42,13 +41,13 @@ export class TargetingResults {
 
 export const TargetingResultsService = {
     findValidTargets: ({
-                            map,
-                            actingSquaddieTemplate,
-                            actingBattleSquaddie,
-                            squaddieRepository,
-                            sourceTiles,
-                            actionEffectSquaddieTemplate,
-                        }: {
+                           map,
+                           actingSquaddieTemplate,
+                           actingBattleSquaddie,
+                           squaddieRepository,
+                           sourceTiles,
+                           actionEffectSquaddieTemplate,
+                       }: {
         map: MissionMap,
         actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
         actingSquaddieTemplate: SquaddieTemplate,
@@ -68,13 +67,13 @@ export const TargetingResultsService = {
 }
 
 const findValidTargets = ({
-                                     map,
-                                     actingSquaddieTemplate,
-                                     actingBattleSquaddie,
-                                     squaddieRepository,
-                                     sourceTiles,
-                                     actionEffectSquaddieTemplate,
-                                 }: {
+                              map,
+                              actingSquaddieTemplate,
+                              actingBattleSquaddie,
+                              squaddieRepository,
+                              sourceTiles,
+                              actionEffectSquaddieTemplate,
+                          }: {
     map: MissionMap,
     actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
     actingSquaddieTemplate: SquaddieTemplate,

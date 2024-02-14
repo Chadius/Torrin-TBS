@@ -513,8 +513,7 @@ export const TestMissionData = () => {
                     }
                 ]
             }
-        ],
-        "TODODELETEMEactions": []
+        ]
     };
     const enemyDemonSlitherTemplate2: SquaddieTemplate = {
         ...enemyDemonSlitherTemplate,

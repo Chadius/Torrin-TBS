@@ -1,13 +1,11 @@
 import {SquaddieId, SquaddieIdService} from "../squaddie/id";
 import {ArmyAttributes, ArmyAttributesService, DefaultArmyAttributes} from "../squaddie/armyAttributes";
-import {TODODELETEMEActionEffectSquaddieTemplate} from "../decision/TODODELETEMEActionEffectSquaddieTemplate";
 import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
 import {ActionTemplate} from "../action/template/actionTemplate";
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId;
     attributes: ArmyAttributes;
-    TODODELETEMEactions: TODODELETEMEActionEffectSquaddieTemplate[];
     actionTemplates: ActionTemplate[];
 }
 
@@ -19,7 +17,6 @@ export const SquaddieTemplateService = {
     }) => {
         const data: SquaddieTemplate = {
             squaddieId,
-            TODODELETEMEactions: [],
             attributes: isValidValue(attributes) ? attributes : ArmyAttributesService.default(),
             actionTemplates: getValidValueOrDefault(actionTemplates, [])
         };
@@ -36,9 +33,6 @@ const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
         throw new Error("Squaddie Action cannot sanitize, missing squaddieId ");
     }
     SquaddieIdService.sanitize(data.squaddieId);
-
-    data.TODODELETEMEactions = [];
-
     data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
     return data;
 }
