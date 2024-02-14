@@ -225,12 +225,21 @@ describe('User Selects Target and Confirms', () => {
                                 ProcessedActionSquaddieEffectService.new({
                                     decidedActionEffect: actionsThisRound.processedActions[0].decidedAction.actionEffects[0] as DecidedActionSquaddieEffect,
                                     results: {
-                                        [enemyBattleSquaddie.battleSquaddieId]: {
-                                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                                            damageTaken: 1,
-                                            healingReceived: 0,
+                                        actingBattleSquaddieId: "player 0",
+                                        actingSquaddieModifiers: {},
+                                        actingSquaddieRoll: {
+                                            occurred: false,
+                                            rolls: [],
                                         },
-                                    }
+                                        resultPerTarget: {
+                                            [enemyBattleSquaddie.battleSquaddieId]: {
+                                                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                                                damageTaken: 1,
+                                                healingReceived: 0,
+                                            },
+                                        },
+                                        targetedBattleSquaddieIds: ["enemy 0",],
+                                    },
                                 })
                             ]
                         })

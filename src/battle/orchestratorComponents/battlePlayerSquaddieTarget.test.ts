@@ -392,11 +392,22 @@ describe('BattleSquaddieTarget', () => {
                             ProcessedActionSquaddieEffectService.new({
                                 decidedActionEffect: decidedActionSquaddieEffect,
                                 results: {
-                                    "Thief 0": {
-                                        actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
-                                        damageTaken: 2,
-                                        healingReceived: 0,
-                                    },
+                                    actingBattleSquaddieId: "Knight 0",
+                                    actingSquaddieModifiers: {},
+                                    actingSquaddieRoll:
+                                        {
+                                            occurred: false,
+                                            rolls: [],
+                                        },
+                                    resultPerTarget: {
+                                        "Thief 0": {
+                                            actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS,
+                                            damageTaken: 2,
+                                            healingReceived: 0,
+                                        },
+                                    }
+                                    ,
+                                    targetedBattleSquaddieIds: ["Thief 0",],
                                 },
                             })
                         ]

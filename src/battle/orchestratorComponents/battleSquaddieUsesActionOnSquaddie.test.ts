@@ -38,6 +38,7 @@ import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedActionService} from "../../action/processed/processedAction";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
+import {SquaddieSquaddieResults, SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
@@ -210,13 +211,22 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
     function usePowerAttackLongswordAndReturnState({missionMap}: {
         missionMap?: MissionMap
     }): GameEngineState {
-        const results = {
-            ["target_dynamic_squaddie"]: {
-                damageTaken: 9001,
-                healingReceived: 0,
-                actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
-            }
-        };
+        const results: SquaddieSquaddieResults = SquaddieSquaddieResultsService.sanitize({
+            actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
+            actingSquaddieModifiers: {},
+            targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
+            actingSquaddieRoll: {
+                occurred: false,
+                rolls: [],
+            },
+            resultPerTarget: {
+                ["target_dynamic_squaddie"]: {
+                    damageTaken: 9001,
+                    healingReceived: 0,
+                    actorDegreeOfSuccess: DegreeOfSuccess.SUCCESS
+                }
+            },
+        });
         const processedAction = ProcessedActionService.new({
             decidedAction: undefined,
             processedActionEffects: [
@@ -241,16 +251,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         const newEvent: BattleEvent = BattleEventService.new({
             processedAction,
-            results: {
-                resultPerTarget: results,
-                actingSquaddieRoll: {
-                    occurred: false,
-                    rolls: [],
-                },
-                actingBattleSquaddieId: battleSquaddieBase.battleSquaddieId,
-                actingSquaddieModifiers: {},
-                targetedBattleSquaddieIds: ["target_dynamic_squaddie"],
-            },
+            results,
         });
         RecordingService.addEvent(battleEventRecording, newEvent);
 
