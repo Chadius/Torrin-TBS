@@ -2,6 +2,7 @@ import {TODODELETEMESquaddieDecisionsDuringThisPhase} from "../history/TODODELET
 import {MissionMap} from "../../missionMap/missionMap";
 import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {ObjectRepository} from "../objectRepository";
+import {ActionsThisRound} from "../history/actionsThisRound";
 
 export type TeamStrategyStateRequiredOptions = {
     missionMap: MissionMap;
@@ -13,7 +14,7 @@ export type TeamStrategyStateOptionalOptions = {
     instruction: TODODELETEMESquaddieDecisionsDuringThisPhase;
 };
 
-export class TeamStrategyState {
+export class TODODELTEMETeamStrategyState {
     private readonly _missionMap: MissionMap;
     private readonly _team: BattleSquaddieTeam;
     private readonly _repository: ObjectRepository;

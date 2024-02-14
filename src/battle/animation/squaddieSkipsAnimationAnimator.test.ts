@@ -80,6 +80,7 @@ describe('SquaddieSkipsAnimationAnimator', () => {
                 actionPointCost: 1,
                 battleSquaddieId: monkBattleSquaddieId,
                 actionTemplateName: monkKoanAction.name,
+                actionTemplateId: monkKoanAction.id,
             }),
             processedActionEffects: [
                 ProcessedActionSquaddieEffectService.new({

@@ -382,7 +382,8 @@ describe('BattleSquaddieTarget', () => {
                         decidedAction: DecidedActionService.new({
                             actionPointCost: 1,
                             battleSquaddieId: knightDynamic.battleSquaddieId,
-                            actionTemplateName: longswordActionId,
+                            actionTemplateName: longswordAction.name,
+                            actionTemplateId: longswordAction.id,
                             actionEffects: [
                                 decidedActionSquaddieEffect
                             ]
@@ -434,7 +435,8 @@ describe('BattleSquaddieTarget', () => {
                         decidedAction: DecidedActionService.new({
                             battleSquaddieId: knightDynamic.battleSquaddieId,
                             actionPointCost: longswordAction.actionPoints,
-                            actionTemplateName: longswordActionId,
+                            actionTemplateName: longswordAction.name,
+                            actionTemplateId: longswordActionId,
                             actionEffects: [
                                 DecidedActionSquaddieEffectService.new({
                                     template: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
@@ -558,6 +560,7 @@ describe('BattleSquaddieTarget', () => {
                             battleSquaddieId: knightDynamic.battleSquaddieId,
                             actionPointCost: action.actionPoints,
                             actionTemplateName: name,
+                            actionTemplateId: name,
                             actionEffects: [
                                 DecidedActionSquaddieEffectService.new({
                                     template: action.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,

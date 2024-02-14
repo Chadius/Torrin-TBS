@@ -1,8 +1,3 @@
-import {
-    TODODELETEMESquaddieActionsForThisRoundService,
-    TODODELETEMESquaddieDecisionsDuringThisPhase
-} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
-import {TeamStrategyState} from "./teamStrategyState";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
@@ -14,18 +9,19 @@ import {EndTurnTeamStrategy} from "./endTurn";
 import {TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
 import {DefaultArmyAttributes} from "../../squaddie/armyAttributes";
-import {DecisionService} from "../../decision/TODODELETEMEdecision";
-import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
+import {DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
+import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 
 describe('end turn team strategy', () => {
     let playerSquaddieTemplate: SquaddieTemplate;
     let playerBattleSquaddie: BattleSquaddie;
-    let squaddieRepository: ObjectRepository;
+    let repository: ObjectRepository;
     let squaddieTeam: BattleSquaddieTeam;
     let missionMap: MissionMap;
 
     beforeEach(() => {
-        squaddieRepository = ObjectRepositoryService.new();
+        repository = ObjectRepositoryService.new();
         playerSquaddieTemplate = SquaddieTemplateService.new({
             squaddieId: {
                 templateId: "new_static_squaddie",
@@ -40,7 +36,7 @@ describe('end turn team strategy', () => {
             attributes: DefaultArmyAttributes(),
         });
 
-        ObjectRepositoryService.addSquaddieTemplate(squaddieRepository,
+        ObjectRepositoryService.addSquaddieTemplate(repository,
             playerSquaddieTemplate
         );
 
@@ -51,17 +47,17 @@ describe('end turn team strategy', () => {
                 squaddieTurn: SquaddieTurnService.new(),
             });
 
-        ObjectRepositoryService.addBattleSquaddie(squaddieRepository,
+        ObjectRepositoryService.addBattleSquaddie(repository,
             playerBattleSquaddie
         );
 
-        squaddieTeam = {
+        squaddieTeam = BattleSquaddieTeamService.new({
             id: "playerTeamId",
             name: "team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
             iconResourceKey: "icon_player_team",
-        };
+        });
         BattleSquaddieTeamService.addBattleSquaddieIds(squaddieTeam, ["new_dynamic_squaddie"]);
 
         missionMap = new MissionMap({
@@ -70,64 +66,56 @@ describe('end turn team strategy', () => {
     });
 
     it('determines it should end its turn', () => {
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: squaddieTeam,
-            squaddieRepository: squaddieRepository,
-        });
         missionMap.addSquaddie("new_static_squaddie", "new_dynamic_squaddie", {q: 0, r: 0});
 
-        const expectedInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: "new_static_squaddie",
+        const expectedInstruction = DecidedActionService.new({
+            actionTemplateName: "End Turn",
             battleSquaddieId: "new_dynamic_squaddie",
-            startingLocation: {q: 0, r: 0},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectEndTurnService.new()
-                    ]
+            actionEffects: [
+                DecidedActionEndTurnEffectService.new({
+                    template: ActionEffectEndTurnTemplateService.new({})
                 })
             ]
         });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = undefined; // TODO strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: squaddieTeam,
+            missionMap,
+            repository
+        });
 
         expect(actualInstruction).toStrictEqual(expectedInstruction);
-        expect(state.instruction).toStrictEqual(expectedInstruction);
     });
 
     it('is undefined when there are no squaddies', () => {
-        const noSquaddieTeam: BattleSquaddieTeam = {
+        const noSquaddieTeam: BattleSquaddieTeam = BattleSquaddieTeamService.new({
             id: "playerTeamId",
             name: "no squaddies team",
             affiliation: SquaddieAffiliation.PLAYER,
             battleSquaddieIds: [],
             iconResourceKey: "icon_player_team",
-
-        };
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: noSquaddieTeam,
-            squaddieRepository: squaddieRepository,
         });
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = undefined; // TODO strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: noSquaddieTeam,
+            missionMap,
+            repository
+        });
+
         expect(actualInstruction).toBeUndefined();
     });
 
     it('is undefined when squaddies have no actions', () => {
-        const state = new TeamStrategyState({
-            missionMap: missionMap,
-            team: squaddieTeam,
-            squaddieRepository: squaddieRepository,
-        });
-
         BattleSquaddieService.endTurn(playerBattleSquaddie);
 
         const strategy: EndTurnTeamStrategy = new EndTurnTeamStrategy({});
-        const actualInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = undefined; // TODO strategy.DetermineNextInstruction(state, squaddieRepository);
+        const actualInstruction = strategy.DetermineNextInstruction({
+            team: squaddieTeam,
+            missionMap,
+            repository
+        });
 
         expect(actualInstruction).toBeUndefined();
     });

@@ -427,6 +427,7 @@ const createDecidedAction = (actionsThisRound: ActionsThisRound, actionTemplate:
     return DecidedActionService.new({
         battleSquaddieId: actionsThisRound.battleSquaddieId,
         actionTemplateName: actionTemplate.name,
+        actionTemplateId: actionTemplate.id,
         actionPointCost: actionTemplate.actionPoints,
         actionEffects: [
             DecidedActionSquaddieEffectService.new({
@@ -461,7 +462,7 @@ const calculateSquaddieSquaddieResults = (results: SquaddieSquaddieResults, stat
     const {decidedActionEffect: decidedButNotProcessedActionEffect, processedAction} = ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound);
     if (decidedButNotProcessedActionEffect.type === ActionEffectType.SQUADDIE) {
         const processedActionSquaddieEffect = ProcessedActionSquaddieEffectService.new({
-            results: results.resultPerTarget,
+            results,
             decidedActionEffect: decidedButNotProcessedActionEffect,
         });
         processedAction.processedActionEffects.push(processedActionSquaddieEffect);

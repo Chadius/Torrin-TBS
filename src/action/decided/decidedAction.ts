@@ -8,6 +8,7 @@ import {DecidedActionEndTurnEffectService} from "./decidedActionEndTurnEffect";
 export interface DecidedAction {
     actionPointCost: number;
     actionTemplateName: string;
+    actionTemplateId: string;
     battleSquaddieId: string;
     actionEffects: DecidedActionEffect[];
 }
@@ -16,17 +17,20 @@ export const DecidedActionService = {
     new: ({
               actionPointCost,
               actionTemplateName,
+        actionTemplateId,
               battleSquaddieId,
               actionEffects
           }: {
         actionPointCost?: number;
         actionTemplateName?: string;
+        actionTemplateId?: string;
         battleSquaddieId: string;
         actionEffects?: DecidedActionEffect[];
     }): DecidedAction => {
         return sanitize({
             actionPointCost,
             actionTemplateName,
+            actionTemplateId,
             battleSquaddieId,
             actionEffects
         })

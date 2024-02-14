@@ -1,50 +1,54 @@
-import {TeamStrategyCalculator} from "./teamStrategyCalculator";
-import {TeamStrategyState} from "./teamStrategyState";
+import {TeamStrategyCalculator, TeamStrategyService} from "./teamStrategyCalculator";
+import {TODODELTEMETeamStrategyState} from "./TODODELTEMETeamStrategyState";
 import {
     TODODELETEMESquaddieActionsForThisRoundService,
     TODODELETEMESquaddieDecisionsDuringThisPhase
 } from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {BattleSquaddieTeamService} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {DecisionService} from "../../decision/TODODELETEMEdecision";
 import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
-import {DecidedAction} from "../../action/decided/decidedAction";
+import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
+import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
+import {ActionsThisRound} from "../history/actionsThisRound";
+import {isValidValue} from "../../utils/validityCheck";
+import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
+import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 
 export class EndTurnTeamStrategy implements TeamStrategyCalculator {
     constructor(options: TeamStrategyOptions) {
     }
 
-    DetermineNextInstruction(state: TeamStrategyState, repository: ObjectRepository): DecidedAction | undefined {
-        const squaddiesWhoCanAct: string[] = BattleSquaddieTeamService.getBattleSquaddiesThatCanAct(state.team, repository);
-        if (squaddiesWhoCanAct.length === 0) {
+    DetermineNextInstruction({
+                                 team,
+                                 missionMap,
+                                 repository,
+                                 actionsThisRound,
+                             }: {
+        team: BattleSquaddieTeam,
+        missionMap: MissionMap,
+        repository: ObjectRepository,
+        actionsThisRound?: ActionsThisRound,
+    }): DecidedAction {
+        const battleSquaddieIdToAct = TeamStrategyService.getBattleSquaddieWhoCanAct(team, repository);
+        if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined;
         }
 
-        const squaddieToAct = squaddiesWhoCanAct[0];
-        const {
-            squaddieTemplate,
-            battleSquaddie,
-        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, squaddieToAct));
-
-        const datum = state.missionMap.getSquaddieByBattleId(squaddieToAct);
-        const endTurnAction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: squaddieTemplate.squaddieId.templateId,
-            battleSquaddieId: squaddieToAct,
-            startingLocation: datum.mapLocation,
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectEndTurnService.new()
-                    ]
-                })
-            ]
+        const endTurnDecidedActionEffect = DecidedActionEndTurnEffectService.new({
+            template: ActionEffectEndTurnTemplateService.new({})
         });
+        return DecidedActionService.new({
+            actionTemplateName: "End Turn",
+            battleSquaddieId: battleSquaddieIdToAct,
+            actionEffects: [endTurnDecidedActionEffect],
+        });
+    }
 
-        state.setInstruction(endTurnAction);
-
-        //return endTurnAction;
-        return undefined; // TODO
+    TODODELTEMEDetermineNextInstruction(state: TODODELTEMETeamStrategyState, repository: ObjectRepository): DecidedAction | undefined {
+        return undefined;
     }
 }
+

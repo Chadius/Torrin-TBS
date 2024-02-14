@@ -98,6 +98,7 @@ describe('SquaddieTargetsOtherSquaddiesAnimation', () => {
                 actionPointCost: 1,
                 battleSquaddieId: knightBattleSquaddieId,
                 actionTemplateName: longswordActionTemplate.name,
+                actionTemplateId: longswordActionTemplate.id,
             }),
             processedActionEffects: [
                 ProcessedActionSquaddieEffectService.new({

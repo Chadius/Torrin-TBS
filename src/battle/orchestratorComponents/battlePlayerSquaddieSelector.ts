@@ -252,6 +252,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         this.selectedBattleSquaddieId = battleSquaddie.battleSquaddieId;
     }
 
+    // TODO extract to common function
     private updateActionsThisRound({
                                        state,
                                        battleSquaddieId,
@@ -278,6 +279,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
 
         const processedActions = processedAction ? [processedAction] : undefined;
 
+        // TODO before extracting to common function, move this line out
         this.selectedBattleSquaddieId = battleSquaddieId;
         state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
             battleSquaddieId: battleSquaddieId,
@@ -371,6 +373,7 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             battleSquaddie,
             clickedHexCoordinate
         });
+        SquaddieTurnService.spendActionPoints(battleSquaddie.squaddieTurn, processedAction.decidedAction.actionPointCost);
         this.updateActionsThisRound({
             state,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
@@ -519,7 +522,6 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             repository: state.repository,
         });
         const numberOfActionPointsSpentMoving: number = Math.max(...Object.keys(locationsByMoveActions).map(str => Number(str))) || 1;
-        SquaddieTurnService.spendActionPoints(battleSquaddie.squaddieTurn, numberOfActionPointsSpentMoving);
 
         const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
             template: undefined,
@@ -543,5 +545,4 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
             destination: decidedActionMovementEffect.destination,
         }
     }
-
 }

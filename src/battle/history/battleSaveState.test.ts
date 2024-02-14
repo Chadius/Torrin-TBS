@@ -73,6 +73,7 @@ describe("BattleSaveState", () => {
                     actionPointCost: 1,
                     battleSquaddieId: "actor 1",
                     actionTemplateName: "attack",
+                    actionTemplateId: "attackId",
                     actionEffects: [
                         DecidedActionSquaddieEffectService.new({
                             template: ActionEffectSquaddieTemplateService.new({}),

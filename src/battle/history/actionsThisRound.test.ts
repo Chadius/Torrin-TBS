@@ -119,6 +119,7 @@ describe('Actions This Round', () => {
                                 actionPointCost: 1,
                                 battleSquaddieId: "soldier",
                                 actionTemplateName: "Attack",
+                                actionTemplateId: "id",
                                 actionEffects: [
                                     DecidedActionSquaddieEffectService.new({
                                         template: ActionEffectSquaddieTemplateService.new({

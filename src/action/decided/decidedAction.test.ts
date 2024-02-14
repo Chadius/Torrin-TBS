@@ -13,6 +13,7 @@ describe('DecidedAction', () => {
             battleSquaddieId: "soldier",
             actionPointCost: 3,
             actionTemplateName: "action",
+            actionTemplateId: "id",
             actionEffects: [
                 DecidedActionEndTurnEffectService.new({
                     template: ActionEffectEndTurnTemplateService.new({})
@@ -23,6 +24,7 @@ describe('DecidedAction', () => {
         expect(decidedAction.battleSquaddieId).toEqual("soldier");
         expect(decidedAction.actionPointCost).toEqual(3);
         expect(decidedAction.actionTemplateName).toEqual("action");
+        expect(decidedAction.actionTemplateId).toEqual("id");
         expect(decidedAction.actionEffects).toHaveLength(1);
         expect(decidedAction.actionEffects[0]).toEqual(
             DecidedActionEndTurnEffectService.new({
@@ -38,6 +40,7 @@ describe('DecidedAction', () => {
 
             expect(decidedAction.actionPointCost).toEqual(1);
             expect(decidedAction.actionEffects).toHaveLength(0);
+            expect(decidedAction.actionTemplateId).toBeUndefined();
             expect(decidedAction.actionTemplateName).toBeUndefined();
         });
         it('will throw an error if no battleSquaddieId is provided', () => {
@@ -138,6 +141,7 @@ describe('DecidedAction', () => {
             const attack = DecidedActionService.new({
                 battleSquaddieId: "soldier",
                 actionTemplateName: "Sword",
+                actionTemplateId: "SwordId",
                 actionEffects: [
                     DecidedActionMovementEffectService.new({
                         template: ActionEffectMovementTemplateService.new({}),
@@ -160,6 +164,7 @@ describe('DecidedAction', () => {
             const heal = DecidedActionService.new({
                 battleSquaddieId: "soldier",
                 actionTemplateName: "Sword",
+                actionTemplateId: "SwordId",
                 actionEffects: [
                     DecidedActionMovementEffectService.new({
                         template: ActionEffectMovementTemplateService.new({}),
@@ -179,6 +184,7 @@ describe('DecidedAction', () => {
             const quickAttack = DecidedActionService.new({
                 battleSquaddieId: "soldier",
                 actionTemplateName: "Sword",
+                actionTemplateId: "SwordId",
                 actionEffects: [
                     DecidedActionMovementEffectService.new({
                         template: ActionEffectMovementTemplateService.new({}),

@@ -1,17 +1,17 @@
 import {ActionEffectType} from "../template/actionEffectTemplate";
 import {DecidedActionSquaddieEffect, DecidedActionSquaddieEffectService} from "../decided/decidedActionSquaddieEffect";
-import {ActionResultPerSquaddie} from "../../battle/history/actionResultPerSquaddie";
+import {SquaddieSquaddieResults} from "../../battle/history/squaddieSquaddieResults";
 
 export interface ProcessedActionSquaddieEffect {
     type: ActionEffectType.SQUADDIE;
     decidedActionEffect: DecidedActionSquaddieEffect;
-    results: { [battleSquaddieId: string]: ActionResultPerSquaddie };
+    results: SquaddieSquaddieResults;
 }
 
 export const ProcessedActionSquaddieEffectService = {
     new: ({decidedActionEffect, results}: {
         decidedActionEffect: DecidedActionSquaddieEffect,
-        results?: { [_: string]: ActionResultPerSquaddie },
+        results?: SquaddieSquaddieResults,
     }): ProcessedActionSquaddieEffect => {
         return sanitize({
             type: ActionEffectType.SQUADDIE,

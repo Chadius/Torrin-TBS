@@ -157,6 +157,7 @@ describe('calculator', () => {
                 ProcessedActionService.new({
                     decidedAction: DecidedActionService.new({
                         actionTemplateName: currentlySelectedAction.name,
+                        actionTemplateId: currentlySelectedAction.id,
                         battleSquaddieId,
                         actionPointCost: currentlySelectedAction.actionPoints,
                         actionEffects: [
@@ -291,6 +292,7 @@ describe('calculator', () => {
                         decidedAction: DecidedActionService.new({
                             battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
                             actionTemplateName: healsLostHitPoints.name,
+                            actionTemplateId: healsLostHitPoints.id,
                             actionEffects: [
                                 DecidedActionSquaddieEffectService.new({
                                     template: healsLostHitPoints.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
@@ -344,6 +346,7 @@ describe('calculator', () => {
                         decidedAction: DecidedActionService.new({
                             battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
                             actionTemplateName: healsLostHitPoints.name,
+                            actionTemplateId: healsLostHitPoints.id,
                             actionEffects: [
                                 DecidedActionSquaddieEffectService.new({
                                     template: healsLostHitPoints.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
@@ -456,6 +459,7 @@ describe('calculator', () => {
                         decidedAction: DecidedActionService.new({
                             battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
                             actionTemplateName: actionNeedsAnAttackRollToDealBodyDamage.name,
+                            actionTemplateId: actionNeedsAnAttackRollToDealBodyDamage.id,
                             actionPointCost: 1,
                             actionEffects: [
                                 DecidedActionSquaddieEffectService.new({
@@ -469,6 +473,7 @@ describe('calculator', () => {
                         decidedAction: DecidedActionService.new({
                             battleSquaddieId: player1BattleSquaddie.battleSquaddieId,
                             actionTemplateName: actionNeedsAnAttackRollToDealBodyDamage.name,
+                            actionTemplateId: actionNeedsAnAttackRollToDealBodyDamage.id,
                             actionEffects: [
                                 DecidedActionSquaddieEffectService.new({
                                     template: actionNeedsAnAttackRollToDealBodyDamage.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,

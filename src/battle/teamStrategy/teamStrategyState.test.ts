@@ -1,4 +1,4 @@
-import {TeamStrategyState} from "./teamStrategyState";
+import {TODODELTEMETeamStrategyState} from "./TODODELTEMETeamStrategyState";
 import {
     TODODELETEMESquaddieActionsForThisRoundService,
     TODODELETEMESquaddieDecisionsDuringThisPhase
@@ -9,8 +9,8 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {ObjectRepositoryService} from "../objectRepository";
 
 describe('Team Strategy State', () => {
-    const createDummyState = (instruction?: TODODELETEMESquaddieDecisionsDuringThisPhase): TeamStrategyState => {
-        return new TeamStrategyState({
+    const createDummyState = (instruction?: TODODELETEMESquaddieDecisionsDuringThisPhase): TODODELTEMETeamStrategyState => {
+        return new TODODELTEMETeamStrategyState({
             squaddieRepository: ObjectRepositoryService.new(),
             missionMap: new MissionMap({
                 terrainTileMap: new TerrainTileMap({
@@ -35,7 +35,7 @@ describe('Team Strategy State', () => {
             startingLocation: {q: 0, r: 0},
         });
 
-        const state: TeamStrategyState = createDummyState(newInstruction);
+        const state: TODODELTEMETeamStrategyState = createDummyState(newInstruction);
         expect(state.instruction).toStrictEqual(newInstruction);
 
         state.reset();
@@ -43,7 +43,7 @@ describe('Team Strategy State', () => {
     });
 
     it('can set the instruction afterward', () => {
-        const state: TeamStrategyState = createDummyState();
+        const state: TODODELTEMETeamStrategyState = createDummyState();
         expect(state.instruction).toBeUndefined();
 
         const newInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({

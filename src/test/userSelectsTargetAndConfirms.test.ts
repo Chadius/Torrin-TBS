@@ -177,6 +177,7 @@ describe('User Selects Target and Confirms', () => {
             DecidedActionService.new({
                 battleSquaddieId: playerBattleSquaddie.battleSquaddieId,
                 actionTemplateName: attackAction.name,
+                actionTemplateId: attackAction.id,
                 actionPointCost: attackAction.actionPoints,
                 actionEffects: [
                     DecidedActionSquaddieEffectService.new({
@@ -361,6 +362,7 @@ const useActionTemplateOnLocation = ({
                 decidedAction: DecidedActionService.new({
                     battleSquaddieId: attackerBattleSquaddieId,
                     actionTemplateName: actionTemplate.name,
+                    actionTemplateId: actionTemplate.id,
                     actionPointCost: actionTemplate.actionPoints,
                     actionEffects: [
                         DecidedActionSquaddieEffectService.new({
