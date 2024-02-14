@@ -1,4 +1,3 @@
-import {TODODELTEMETeamStrategyState} from "./TODODELTEMETeamStrategyState";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {DecidedAction} from "../../action/decided/decidedAction";
 import {MissionMap} from "../../missionMap/missionMap";
@@ -20,8 +19,6 @@ export interface TeamStrategyCalculator {
         repository: ObjectRepository,
         actionsThisRound: ActionsThisRound,
     }): DecidedAction;
-
-    TODODELTEMEDetermineNextInstruction(state: TODODELTEMETeamStrategyState, squaddieRepository: ObjectRepository): DecidedAction | undefined;
 }
 
 // TODO Test this
@@ -33,7 +30,10 @@ export const TeamStrategyService = {
         }
 
         if (isValidValue(actionsThisRound) && isValidValue(actionsThisRound.battleSquaddieId)) {
-            const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, actionsThisRound.battleSquaddieId))
+            const {
+                battleSquaddie,
+                squaddieTemplate
+            } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, actionsThisRound.battleSquaddieId))
             const {canAct} = SquaddieService.canSquaddieActRightNow({battleSquaddie, squaddieTemplate});
             if (canAct) {
                 return battleSquaddie.battleSquaddieId;

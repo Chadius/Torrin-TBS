@@ -365,7 +365,7 @@ const useActionTemplateOnLocation = ({
     return ActionsThisRoundService.new({
         battleSquaddieId: attackerBattleSquaddieId,
         startingLocation: {q: 0, r: 0},
-        previewedActionTemplateId: actionTemplate.name,
+        previewedActionTemplateId: actionTemplate.id,
         processedActions: [
             ProcessedActionService.new({
                 decidedAction: DecidedActionService.new({
@@ -405,10 +405,10 @@ const clickOnEnemy = ({
     missionMap: MissionMap,
     graphicsContext: GraphicsContext
 }) => {
-    const actionsThisRound = useActionTemplateOnLocation({
-        actionTemplate,
-        attackerBattleSquaddieId,
-        targetLocation: {q: 0, r: 2},
+    const actionsThisRound = ActionsThisRoundService.new({
+        battleSquaddieId: attackerBattleSquaddieId,
+        startingLocation: {q: 0, r: 0},
+        previewedActionTemplateId: actionTemplate.id,
     });
     const gameEngineState = getGameEngineState({
         repository,

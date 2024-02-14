@@ -13,7 +13,6 @@ import {LabelHelper} from "../../ui/label";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
-import * as orchestratorUtils from "./orchestratorUtils";
 import * as mocks from "../../utils/test/mocks";
 import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -40,6 +39,7 @@ import {ProcessedActionSquaddieEffectService} from "../../action/processed/proce
 import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
 import {SquaddieSquaddieResults, SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -133,8 +133,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         });
 
         jest.spyOn(LabelHelper, "draw").mockReturnValue(null);
-        jest.spyOn(orchestratorUtils, "DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
-        });
+        jest.spyOn(OrchestratorUtilities, "drawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {});
 
         squaddieUsesActionOnSquaddie = new BattleSquaddieUsesActionOnSquaddie();
 

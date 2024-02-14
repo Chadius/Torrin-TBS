@@ -59,7 +59,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
 
     reset(state: GameEngineState): void {
         this.animationCompleteStartTime = undefined;
-        state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing = undefined;
+        state.battleOrchestratorState.battleState.actionsThisRound = undefined;
     }
 
     update(state: GameEngineState, graphicsContext: GraphicsContext): void {

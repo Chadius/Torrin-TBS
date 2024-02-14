@@ -375,7 +375,6 @@ describe('BattleSquaddieSelector', () => {
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual({
-            instruction: undefined,
             results: undefined,
             processedAction: processedAction,
         });
@@ -636,7 +635,6 @@ describe('BattleSquaddieSelector', () => {
         const history = state.battleOrchestratorState.battleState.recording.history;
         expect(history).toHaveLength(1);
         expect(history[0]).toStrictEqual({
-            instruction: undefined,
             results: undefined,
             processedAction,
         });

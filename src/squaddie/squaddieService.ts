@@ -6,10 +6,6 @@ import {SearchPath} from "../hexMap/pathfinder/searchPath";
 import {LocationTraveled} from "../hexMap/pathfinder/locationTraveled";
 import {getResultOrThrowError} from "../utils/ResultOrError";
 import {ObjectRepository, ObjectRepositoryService} from "../battle/objectRepository";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecision,
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../battle/history/TODODELETEMECurrentlySelectedSquaddieDecision";
 
 export const SquaddieService = {
     dealDamageToTheSquaddie: ({

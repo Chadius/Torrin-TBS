@@ -1,16 +1,11 @@
 import {TeamStrategyCalculator, TeamStrategyService} from "./teamStrategyCalculator";
-import {TODODELTEMETeamStrategyState} from "./TODODELTEMETeamStrategyState";
-import {
-    TODODELETEMESquaddieActionsForThisRoundService,
-    TODODELETEMESquaddieDecisionsDuringThisPhase
-} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
-import {GetNumberOfActionPoints, SquaddieService} from "../../squaddie/squaddieService";
+import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
-import {BattleSquaddieTeam, BattleSquaddieTeamService} from "../battleSquaddieTeam";
+import {BattleSquaddieTeam} from "../battleSquaddieTeam";
 import {TeamStrategyOptions} from "./teamStrategy";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
@@ -19,14 +14,10 @@ import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {MissionMapSquaddieLocation} from "../../missionMap/squaddieLocation";
 import {SearchPath} from "../../hexMap/pathfinder/searchPath";
 import {BattleSquaddie} from "../battleSquaddie";
-import {DecisionService} from "../../decision/TODODELETEMEdecision";
-import {ActionEffectMovementService} from "../../decision/TODODELETEMEactionEffectMovement";
 import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
 import {ActionsThisRound} from "../history/actionsThisRound";
 import {isValidValue} from "../../utils/validityCheck";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
-import {DecidedActionEndTurnEffectService} from "../../action/decided/decidedActionEndTurnEffect";
-import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
 import {ActionEffectMovementTemplateService} from "../../action/template/actionEffectMovementTemplate";
 
@@ -58,7 +49,10 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined;
         }
-        const {battleSquaddie, squaddieTemplate} = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieIdToAct));
+        const {
+            battleSquaddie,
+            squaddieTemplate
+        } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(repository, battleSquaddieIdToAct));
 
         const {mapLocation} = MissionMapService.getByBattleSquaddieId(missionMap, battleSquaddieIdToAct);
         const {actionPointsRemaining} = GetNumberOfActionPoints({squaddieTemplate, battleSquaddie});
@@ -104,10 +98,6 @@ export class MoveCloserToSquaddie implements TeamStrategyCalculator {
             battleSquaddieId: battleSquaddieIdToAct,
             actionEffects: [movementDecidedActionEffect],
         });
-    }
-
-    TODODELTEMEDetermineNextInstruction(state: TODODELTEMETeamStrategyState, repository: ObjectRepository): DecidedAction | undefined {
-        return undefined;
     }
 }
 
@@ -239,7 +229,7 @@ const getAllPossibleMovements = (
         actionPointsRemaining,
         missionMap,
         repository,
-    }:{
+    }: {
         mapLocation: HexCoordinate,
         squaddieTemplate: SquaddieTemplate,
         movementPerActionThisRound: number,

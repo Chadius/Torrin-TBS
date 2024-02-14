@@ -7,11 +7,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {BattleOrchestratorState} from "../orchestrator/battleOrchestratorState";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {
-    DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation,
-    OrchestratorUtilities,
-    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct
-} from "./orchestratorUtils";
+import {DrawOrResetHUDBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities} from "./orchestratorUtils";
 import {IsSquaddieAlive} from "../../squaddie/squaddieService";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
@@ -187,6 +183,6 @@ const MaybeEndSquaddieTurn = (state: GameEngineState) => {
         battleSquaddie: actingBattleSquaddie,
         squaddieTemplate: actingSquaddieTemplate
     } = getResultOrThrowError(ObjectRepositoryService.getSquaddieByBattleId(state.repository, battleSquaddieId));
-    ResetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
+    OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
     DrawSquaddieUtilities.tintSquaddieMapIconIfTheyCannotAct(actingBattleSquaddie, actingSquaddieTemplate, state.repository);
 }

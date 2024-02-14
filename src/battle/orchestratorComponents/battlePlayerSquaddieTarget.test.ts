@@ -466,27 +466,20 @@ describe('BattleSquaddieTarget', () => {
             expect(targetComponent.hasCompleted(state)).toBeTruthy();
         });
 
-        // TODO
-        // it('should add to existing instruction when confirmed mid turn', () => {
-        //     const expectedInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-        //         squaddieTemplateId: knightStatic.squaddieId.templateId,
-        //         battleSquaddieId: knightDynamic.battleSquaddieId,
-        //         startingLocation: {q: 1, r: 1},
-        //         decisions: [
-        //             DecisionService.new({
-        //                 actionEffects: [
-        //                     ActionEffectSquaddieService.new({
-        //                         targetLocation: {q: 1, r: 2},
-        //                         template: longswordAction,
-        //                         numberOfActionPointsSpent: 1,
-        //                     })
-        //                 ]
-        //             })
-        //         ]
-        //     });
-        //
-        //     expect(state.battleOrchestratorState.battleState.squaddieCurrentlyActing.squaddieDecisionsDuringThisPhase).toStrictEqual(expectedInstruction);
-        // });
+        it('should add to existing instruction when confirmed mid turn', () => {
+            expect(state.battleOrchestratorState.battleState.actionsThisRound.processedActions).toHaveLength(2);
+            const newProcessedAction = state.battleOrchestratorState.battleState.actionsThisRound.processedActions[1];
+            expect(newProcessedAction.decidedAction.actionTemplateId).toEqual(longswordAction.id);
+            expect(newProcessedAction.decidedAction.actionTemplateName).toEqual(longswordAction.name);
+            expect(newProcessedAction.decidedAction.battleSquaddieId).toEqual(knightDynamic.battleSquaddieId);
+
+            expect(newProcessedAction.decidedAction.actionEffects).toHaveLength(1);
+            expect(newProcessedAction.decidedAction.actionEffects[0].type).toEqual(ActionEffectType.SQUADDIE);
+            const newDecidedActionEffect = newProcessedAction.decidedAction.actionEffects[0] as DecidedActionSquaddieEffect;
+            expect(newDecidedActionEffect.target).toEqual({q: 1, r: 2});
+            expect(newDecidedActionEffect.type).toEqual(ActionEffectType.SQUADDIE);
+            expect(newDecidedActionEffect.template).toEqual(longswordAction.actionEffectTemplates[0]);
+        });
 
         it('should spend the action resource cost after confirming but before showing results', () => {
             const {actionPointsRemaining} = GetNumberOfActionPoints({

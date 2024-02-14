@@ -15,9 +15,9 @@ import {MissionMapSquaddieLocationHandler} from "../../missionMap/squaddieLocati
 import {RectAreaService} from "../../ui/rectArea";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {DecisionActionEffectIteratorService} from "./decisionActionEffectIterator";
-import {TODODELETEMEActionEffectType} from "../../decision/TODODELETEMEactionEffect";
 import {isValidValue} from "../../utils/validityCheck";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 
 export class BattleMapDisplay implements BattleOrchestratorComponent {
     draw(state: GameEngineState, graphicsContext: GraphicsContext): void {
@@ -154,18 +154,18 @@ export class BattleMapDisplay implements BattleOrchestratorComponent {
 }
 
 const getCurrentlyMovingBattleSquaddieIds = (state: GameEngineState) => {
-    if (state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing === undefined) {
+    if (state.battleOrchestratorState.battleState.actionsThisRound === undefined) {
         return [];
     }
 
-    const nextActionEffect = DecisionActionEffectIteratorService.peekActionEffect(state.battleOrchestratorState.decisionActionEffectIterator);
-    if (!isValidValue(nextActionEffect)) {
+    const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
+    if (!isValidValue(processedActionEffectToShow)) {
         return [];
     }
 
     let battleSquaddieIdsToOmit: string[] = [];
-    if (nextActionEffect.type === TODODELETEMEActionEffectType.MOVEMENT) {
-        battleSquaddieIdsToOmit.push(state.battleOrchestratorState.battleState.TODODELETEMEsquaddieCurrentlyActing.squaddieDecisionsDuringThisPhase.battleSquaddieId);
+    if (processedActionEffectToShow.type === ActionEffectType.MOVEMENT) {
+        battleSquaddieIdsToOmit.push(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId);
     }
 
     return battleSquaddieIdsToOmit;

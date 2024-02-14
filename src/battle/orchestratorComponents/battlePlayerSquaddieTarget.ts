@@ -33,14 +33,14 @@ import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisR
 import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSquaddieTemplate";
 import {ActionResultTextService} from "../animation/actionResultTextService";
 import {ActionTemplate} from "../../action/template/actionTemplate";
-import {ProcessedActionService} from "../../action/processed/processedAction";
+import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
 import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
-import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedActionSquaddieEffect";
-import {SquaddieTurnService} from "../../squaddie/turn";
 import {
-    ProcessedActionSquaddieEffect,
-    ProcessedActionSquaddieEffectService
-} from "../../action/processed/processedActionSquaddieEffect";
+    DecidedActionSquaddieEffect,
+    DecidedActionSquaddieEffectService
+} from "../../action/decided/decidedActionSquaddieEffect";
+import {SquaddieTurnService} from "../../squaddie/turn";
+import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {BattleSquaddie} from "../battleSquaddie";
 
@@ -371,13 +371,28 @@ export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
         }
 
         SquaddieTurnService.spendActionPoints(actingBattleSquaddie.squaddieTurn, actionTemplate.actionPoints);
-        const decidedAction = createDecidedAction(actionsThisRound, actionTemplate, firstActionEffectTemplate, this.validTargetLocation);
-        AddDecidedActionToProcessedActions(actionsThisRound, decidedAction);
         state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = undefined;
 
-        let results: SquaddieSquaddieResults = undefined;
-        results = calculateSquaddieSquaddieResults(results, state, actingBattleSquaddie, this.validTargetLocation, actionsThisRound);
-        addEventToRecording(actionsThisRound, results, state);
+        const decidedAction = createDecidedAction(actionsThisRound, actionTemplate, firstActionEffectTemplate, this.validTargetLocation);
+        const processedAction = ProcessedActionService.new({
+            decidedAction
+        });
+        actionsThisRound.processedActions.push(processedAction);
+
+        let results: SquaddieSquaddieResults = ActionCalculator.calculateResults({
+            state,
+            actingBattleSquaddie,
+            validTargetLocation: this.validTargetLocation,
+            actionsThisRound: state.battleOrchestratorState.battleState.actionsThisRound,
+            actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound).decidedActionEffect,
+        });
+        processedAction.processedActionEffects.push(
+            ProcessedActionSquaddieEffectService.new({
+                decidedActionEffect: decidedAction.actionEffects.find(actionEffect => actionEffect.type === ActionEffectType.SQUADDIE) as DecidedActionSquaddieEffect,
+                results,
+            })
+        )
+        addEventToRecording(processedAction, results, state);
 
         this.hasConfirmedAction = true;
     }
@@ -438,41 +453,9 @@ const createDecidedAction = (actionsThisRound: ActionsThisRound, actionTemplate:
     });
 };
 
-const AddDecidedActionToProcessedActions = (actionsThisRound: ActionsThisRound, decidedAction: DecidedAction) => {
-    if (actionsThisRound.processedActions === undefined || actionsThisRound.processedActions.length === 0) {
-        actionsThisRound.processedActions = [
-            ProcessedActionService.new({
-                decidedAction
-            })
-        ];
-    } else {
-        actionsThisRound.processedActions[actionsThisRound.processedActions.length - 1].decidedAction = decidedAction;
-    }
-};
-
-const calculateSquaddieSquaddieResults = (results: SquaddieSquaddieResults, state: GameEngineState, actingBattleSquaddie: BattleSquaddie, validTargetLocation: HexCoordinate, actionsThisRound: ActionsThisRound) => {
-    results = ActionCalculator.calculateResults({
-        state,
-        actingBattleSquaddie,
-        validTargetLocation: validTargetLocation,
-        actionsThisRound: state.battleOrchestratorState.battleState.actionsThisRound,
-        actionEffect: ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound).decidedActionEffect,
-    });
-
-    const {decidedActionEffect: decidedButNotProcessedActionEffect, processedAction} = ActionsThisRoundService.getDecidedButNotProcessedActionEffect(state.battleOrchestratorState.battleState.actionsThisRound);
-    if (decidedButNotProcessedActionEffect.type === ActionEffectType.SQUADDIE) {
-        const processedActionSquaddieEffect = ProcessedActionSquaddieEffectService.new({
-            results,
-            decidedActionEffect: decidedButNotProcessedActionEffect,
-        });
-        processedAction.processedActionEffects.push(processedActionSquaddieEffect);
-    }
-    return results;
-};
-
-const addEventToRecording = (actionsThisRound: ActionsThisRound, results: SquaddieSquaddieResults, state: GameEngineState) => {
+const addEventToRecording = (processedAction: ProcessedAction, results: SquaddieSquaddieResults, state: GameEngineState) => {
     const newEvent: BattleEvent = BattleEventService.new({
-        processedAction: actionsThisRound.processedActions[actionsThisRound.processedActions.length - 1],
+        processedAction,
         results,
     });
     RecordingService.addEvent(state.battleOrchestratorState.battleState.recording, newEvent);

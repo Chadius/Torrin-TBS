@@ -13,10 +13,6 @@ import {BattleCamera} from "../battleCamera";
 import {Recording} from "../history/recording";
 import {MissionCompletionStatus} from "../missionResult/missionCompletionStatus";
 import {MissionStatistics, MissionStatisticsHandler} from "../missionStatistics/missionStatistics";
-import {
-    TODODELETEMECurrentlySelectedSquaddieDecision,
-    TODODELETEMECurrentlySelectedSquaddieDecisionService
-} from "../history/TODODELETEMECurrentlySelectedSquaddieDecision";
 import {MissionCutsceneCollection} from "./missionCutsceneCollection";
 import {CutsceneTrigger} from "../../cutscene/cutsceneTrigger";
 import {MissionObjective} from "../missionResult/missionObjective";
@@ -47,7 +43,6 @@ export interface BattleState extends MissionObjectivesAndCutscenes {
     recording: Recording;
     missionCompletionStatus: MissionCompletionStatus;
     missionStatistics: MissionStatistics;
-    TODODELETEMEsquaddieCurrentlyActing: TODODELETEMECurrentlySelectedSquaddieDecision;
     actionsThisRound: ActionsThisRound;
 }
 
@@ -148,7 +143,6 @@ interface BattleStateConstructorParameters {
     missionMap?: MissionMap;
     camera?: BattleCamera;
     battlePhaseState?: BattlePhaseState;
-    TODODELETEMEsquaddieCurrentlyActing?: TODODELETEMECurrentlySelectedSquaddieDecision;
     recording?: Recording;
     teams?: BattleSquaddieTeam[];
     teamStrategiesById?: { [key: string]: TeamStrategy[] };
@@ -174,7 +168,6 @@ const newBattleState = ({
                             missionMap,
                             camera,
                             battlePhaseState,
-                            TODODELETEMEsquaddieCurrentlyActing,
                             recording,
                             missionStatistics,
                             missionCompletionStatus,
@@ -204,9 +197,6 @@ const newBattleState = ({
         camera: camera || new BattleCamera(),
         recording: recording || {history: []},
         missionStatistics: missionStatistics || MissionStatisticsHandler.new(),
-        TODODELETEMEsquaddieCurrentlyActing: TODODELETEMEsquaddieCurrentlyActing || TODODELETEMECurrentlySelectedSquaddieDecisionService.new({
-            squaddieActionsForThisRound: undefined,
-        }),
         battleCompletionStatus: battleCompletionStatus || BattleCompletionStatus.IN_PROGRESS,
         actionsThisRound,
     };

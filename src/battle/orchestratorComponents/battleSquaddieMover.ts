@@ -6,7 +6,7 @@ import {
 } from "../orchestrator/battleOrchestratorComponent";
 import {DrawSquaddieUtilities, hasMovementAnimationFinished} from "../animation/drawSquaddie";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
-import {DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation, OrchestratorUtilities} from "./orchestratorUtils";
+import {OrchestratorUtilities} from "./orchestratorUtils";
 import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GameEngineState} from "../../gameEngine/gameEngine";
@@ -75,7 +75,7 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         this.animationStartTime = undefined;
         OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
         OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
-        DrawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
+        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
     }
 
     private updateWhileAnimationIsInProgress(state: GameEngineState, graphicsContext: GraphicsContext) {

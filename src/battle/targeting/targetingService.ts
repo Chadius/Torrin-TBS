@@ -56,7 +56,7 @@ export const TargetingResultsService = {
         squaddieRepository: ObjectRepository,
         sourceTiles?: HexCoordinate[],
     }): TargetingResults => {
-        return FindValidTargets({
+        return findValidTargets({
             map,
             actingSquaddieTemplate,
             actingBattleSquaddie,
@@ -67,9 +67,8 @@ export const TargetingResultsService = {
     }
 }
 
-export const FindValidTargets = ({
+const findValidTargets = ({
                                      map,
-                                     TODODELETEMEaction,
                                      actingSquaddieTemplate,
                                      actingBattleSquaddie,
                                      squaddieRepository,
@@ -77,7 +76,6 @@ export const FindValidTargets = ({
                                      actionEffectSquaddieTemplate,
                                  }: {
     map: MissionMap,
-    TODODELETEMEaction?: TODODELETEMEActionEffectSquaddieTemplate,
     actionEffectSquaddieTemplate?: ActionEffectSquaddieTemplate,
     actingSquaddieTemplate: SquaddieTemplate,
     actingBattleSquaddie: BattleSquaddie,
@@ -98,8 +96,8 @@ export const FindValidTargets = ({
             squaddieAffiliation: SquaddieAffiliation.UNKNOWN,
             canStopOnSquaddies: true,
             ignoreTerrainCost: true,
-            minimumDistanceMoved: TODODELETEMEaction ? TODODELETEMEaction.minimumRange : actionEffectSquaddieTemplate.minimumRange,
-            maximumDistanceMoved: TODODELETEMEaction ? TODODELETEMEaction.maximumRange : actionEffectSquaddieTemplate.maximumRange,
+            minimumDistanceMoved: actionEffectSquaddieTemplate.minimumRange,
+            maximumDistanceMoved: actionEffectSquaddieTemplate.maximumRange,
             shapeGenerator: getResultOrThrowError(GetTargetingShapeGenerator(TargetingShape.SNAKE)),
             movementPerAction: undefined,
             canPassOverPits: false,

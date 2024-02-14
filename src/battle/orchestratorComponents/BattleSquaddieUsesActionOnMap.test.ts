@@ -1,8 +1,4 @@
 import {BattleOrchestratorStateService} from "../orchestrator/battleOrchestratorState";
-import {
-    TODODELETEMESquaddieActionsForThisRoundService,
-    TODODELETEMESquaddieDecisionsDuringThisPhase
-} from "../history/TODODELETEMESquaddieDecisionsDuringThisPhase";
 import {ObjectRepository, ObjectRepositoryService} from "../objectRepository";
 import {BattleSquaddie} from "../battleSquaddie";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
@@ -14,8 +10,6 @@ import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {BattleStateService} from "../orchestrator/battleState";
 import {GameEngineState, GameEngineStateService} from "../../gameEngine/gameEngine";
-import {DecisionService} from "../../decision/TODODELETEMEdecision";
-import {ActionEffectEndTurnService} from "../../decision/TODODELETEMEactionEffectEndTurn";
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedActionService} from "../../action/processed/processedAction";
@@ -55,19 +49,6 @@ describe('BattleSquaddieUsesActionOnMap', () => {
     });
 
     it('can wait half a second before ending turn', () => {
-        const endTurnInstruction: TODODELETEMESquaddieDecisionsDuringThisPhase = TODODELETEMESquaddieActionsForThisRoundService.new({
-            squaddieTemplateId: "static_squaddie",
-            battleSquaddieId: "dynamic_squaddie",
-            startingLocation: {q: 0, r: 0},
-            decisions: [
-                DecisionService.new({
-                    actionEffects: [
-                        ActionEffectEndTurnService.new()
-                    ]
-                })
-            ]
-        });
-
         const mapAction: BattleSquaddieUsesActionOnMap = new BattleSquaddieUsesActionOnMap();
 
         jest.spyOn(Date, 'now').mockImplementation(() => 0);

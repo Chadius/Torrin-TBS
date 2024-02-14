@@ -5,7 +5,7 @@ import {CreateNewNeighboringCoordinates} from "../../hexMap/hexGridDirection";
 import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
 import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
-import {FindValidTargets, TargetingResults} from "./targetingService";
+import {TargetingResults, TargetingResultsService} from "./targetingService";
 
 import {NewHexCoordinateFromNumberPair} from "../../hexMap/hexCoordinate/hexCoordinate";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
@@ -68,7 +68,7 @@ describe('Targeting Service', () => {
             {q: 1, r: 1},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
             actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
@@ -100,7 +100,7 @@ describe('Targeting Service', () => {
             sirCamilBattleSquaddie.battleSquaddieId,
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
             actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
@@ -156,7 +156,7 @@ describe('Targeting Service', () => {
             {q: 1, r: 1},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
             actionEffectSquaddieTemplate: longbowAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: archerSquaddieTemplate,
@@ -239,7 +239,7 @@ describe('Targeting Service', () => {
             {q: 0, r: 3},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
             actionEffectSquaddieTemplate: longswordAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
@@ -281,7 +281,7 @@ describe('Targeting Service', () => {
             {q: 0, r: 0},
         );
 
-        const results: TargetingResults = FindValidTargets({
+        const results: TargetingResults = TargetingResultsService.findValidTargets({
             map: battleMap,
             actionEffectSquaddieTemplate: longbowAction.actionEffectTemplates[0] as ActionEffectSquaddieTemplate,
             actingSquaddieTemplate: sirCamilSquaddieTemplate,
