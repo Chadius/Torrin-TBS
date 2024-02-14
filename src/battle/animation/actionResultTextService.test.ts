@@ -98,7 +98,6 @@ describe('Action Result Text Writer', () => {
             battleId: "Citizen 0",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository: squaddieRepository,
-            actions: [],
         }));
 
         ({
@@ -110,7 +109,6 @@ describe('Action Result Text Writer', () => {
             battleId: "Thief 0",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepository,
-            actions: [],
         }));
 
         battleMap.addSquaddie(thiefStatic.squaddieId.templateId, thiefDynamic.battleSquaddieId, {q: 1, r: 2});
@@ -124,7 +122,6 @@ describe('Action Result Text Writer', () => {
             battleId: "Rogue 1",
             affiliation: SquaddieAffiliation.ENEMY,
             squaddieRepository: squaddieRepository,
-            actions: [],
         }));
 
         battleMap.addSquaddie(rogueStatic.squaddieId.templateId, rogueDynamic.battleSquaddieId, {q: 1, r: 2});

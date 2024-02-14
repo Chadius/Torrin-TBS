@@ -136,7 +136,6 @@ describe('BattleSquaddieTarget', () => {
             battleId: "Citizen 0",
             affiliation: SquaddieAffiliation.ALLY,
             squaddieRepository: squaddieRepo,
-            actions: [],
         }));
         battleMap.addSquaddie(citizenStatic.squaddieId.templateId, citizenDynamic.battleSquaddieId, {
             q: 0,
