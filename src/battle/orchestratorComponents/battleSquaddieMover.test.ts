@@ -208,7 +208,7 @@ describe('BattleSquaddieMover', () => {
             });
         }
 
-        it('resets squaddie currently acting when it runs out of actions and finishes moving', () => {
+        it('clear the expected actions and hide the HUD when the squaddie currently acting runs out of actions and finishes moving', () => {
             map.addSquaddie("player_1", "player_1", {q: 0, r: 0});
 
             const decidedActionMovementEffect = DecidedActionMovementEffectService.new({
@@ -359,6 +359,7 @@ describe('BattleSquaddieMover', () => {
             mover.update(state, mockedP5GraphicsContext);
             jest.spyOn(Date, 'now').mockImplementation(() => 1 + TIME_TO_MOVE);
             mover.update(state, mockedP5GraphicsContext);
+            mover.recommendStateChanges(state);
             mover.reset(state);
             expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeFalsy();
         });

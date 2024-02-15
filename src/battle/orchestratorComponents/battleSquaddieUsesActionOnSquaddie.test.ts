@@ -14,12 +14,12 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
-import {MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {battleSquaddieSelectedHUD, MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {Recording, RecordingService} from "../history/recording";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
 import {DamageType, IsSquaddieAlive} from "../../squaddie/squaddieService";
-import {MissionMap} from "../../missionMap/missionMap";
+import {MissionMap, MissionMapService} from "../../missionMap/missionMap";
 import {SquaddieTargetsOtherSquaddiesAnimator} from "../animation/squaddieTargetsOtherSquaddiesAnimatior";
 import {SquaddieSkipsAnimationAnimator} from "../animation/squaddieSkipsAnimationAnimator";
 import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
@@ -40,6 +40,8 @@ import {DecidedActionSquaddieEffectService} from "../../action/decided/decidedAc
 import {SquaddieSquaddieResults, SquaddieSquaddieResultsService} from "../history/squaddieSquaddieResults";
 import {DegreeOfSuccess} from "../actionCalculator/degreeOfSuccess";
 import {OrchestratorUtilities} from "./orchestratorUtils";
+import {CampaignService} from "../../campaign/campaign";
+import {isValidValue} from "../../utils/validityCheck";
 
 describe('BattleSquaddieUsesActionOnSquaddie', () => {
     let squaddieRepository: ObjectRepository;
@@ -254,6 +256,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         });
         RecordingService.addEvent(battleEventRecording, newEvent);
 
+        if (isValidValue(missionMap)) {
+            MissionMapService.addSquaddie(missionMap, squaddieTemplateBase.squaddieId.templateId, battleSquaddieBase.battleSquaddieId, {q:0, r:0});
+        }
+
         const battleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
             battleSquaddieSelectedHUD: new BattleSquaddieSelectedHUD(),
             battleState: BattleStateService.newBattleState({
@@ -268,6 +274,7 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
             battleOrchestratorState,
             repository: squaddieRepository,
             resourceHandler: mockResourceHandler,
+            campaign: CampaignService.default({}),
         });
 
         battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
@@ -318,6 +325,26 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy();
 
         squaddieUsesActionOnSquaddie.recommendStateChanges(state);
+        expect(state.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+    });
+
+    it('reopens HUD on squaddie when it finishes animating and can still act', () => {
+        const missionMap: MissionMap = new MissionMap({
+            terrainTileMap: new TerrainTileMap({movementCost: ["1 1 1 "]}),
+        })
+
+        const state = usePowerAttackLongswordAndReturnState({missionMap});
+        battleSquaddieBase.squaddieTurn.remainingActionPoints = 1;
+
+        jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "update").mockImplementation();
+        const squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy = jest.spyOn(squaddieUsesActionOnSquaddie.squaddieTargetsOtherSquaddiesAnimator, "hasCompleted").mockReturnValue(true);
+
+        squaddieUsesActionOnSquaddie.update(state, mockedP5GraphicsContext);
+        expect(squaddieTargetsOtherSquaddiesAnimatorHasCompletedSpy).toBeCalled();
+        expect(squaddieUsesActionOnSquaddie.hasCompleted(state)).toBeTruthy();
+
+        squaddieUsesActionOnSquaddie.recommendStateChanges(state);
+        squaddieUsesActionOnSquaddie.reset(state);
         expect(state.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
     });
 

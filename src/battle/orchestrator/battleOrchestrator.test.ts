@@ -147,8 +147,6 @@ describe('Battle Orchestrator', () => {
         mockSquaddieUsesActionOnSquaddie.uiControlSettings = jest.fn().mockReturnValue(new UIControlSettings({}));
         mockSquaddieUsesActionOnSquaddie.mouseEventHappened = jest.fn();
         mockSquaddieUsesActionOnSquaddie.hasCompleted = jest.fn().mockReturnValue(true);
-        (mockSquaddieUsesActionOnSquaddie as any).maybeEndSquaddieTurn = jest.fn();
-        (mockSquaddieUsesActionOnSquaddie as any).consumeSquaddieActionPointsAndMaybeEndTheirTurn = jest.fn();
 
         defaultBattleOrchestrator = new DefaultBattleOrchestrator();
         defaultBattleOrchestrator.update = jest.fn();

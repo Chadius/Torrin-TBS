@@ -55,13 +55,14 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         }
     }
 
-    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
-        OrchestratorUtilities.goToNextProcessedActionThisRound(state);
-        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-        if (processedActionEffectToShow === undefined) {
-            state.battleOrchestratorState.battleState.actionsThisRound = undefined;
-        }
+    recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined {
+        OrchestratorUtilities.goToNextProcessedActionThisRound(gameEngineState);
+        OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
+        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
+        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(gameEngineState);
+        OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(gameEngineState);
+        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(gameEngineState);
 
         return {
             nextMode,
@@ -70,12 +71,9 @@ export class BattleSquaddieMover implements BattleOrchestratorComponent {
         }
     }
 
-    reset(state: GameEngineState) {
-        state.battleOrchestratorState.battleState.squaddieMovePath = undefined;
+    reset(gameEngineState: GameEngineState) {
+        gameEngineState.battleOrchestratorState.battleState.squaddieMovePath = undefined;
         this.animationStartTime = undefined;
-        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(state);
-        OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state);
-        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(state);
     }
 
     private updateWhileAnimationIsInProgress(state: GameEngineState, graphicsContext: GraphicsContext) {

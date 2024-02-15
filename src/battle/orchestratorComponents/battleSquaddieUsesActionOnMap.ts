@@ -42,13 +42,14 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
         });
     }
 
-    recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {
-        OrchestratorUtilities.goToNextProcessedActionThisRound(state);
-        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-        if (processedActionEffectToShow === undefined) {
-            state.battleOrchestratorState.battleState.actionsThisRound = undefined;
-        }
+    recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined {
+        OrchestratorUtilities.goToNextProcessedActionThisRound(gameEngineState);
+        OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
+        const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);
+        OrchestratorUtilities.resetCurrentlyActingSquaddieIfTheSquaddieCannotAct(gameEngineState);
+        OrchestratorUtilities.drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(gameEngineState);
+        OrchestratorUtilities.drawSquaddieReachBasedOnSquaddieTurnAndAffiliation(gameEngineState);
 
         return {
             nextMode,

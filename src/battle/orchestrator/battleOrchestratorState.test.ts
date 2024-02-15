@@ -47,6 +47,10 @@ import {ActionEffectSquaddieTemplateService} from "../../action/template/actionE
 import {ActionEffectEndTurnTemplateService} from "../../action/template/actionEffectEndTurnTemplate";
 import {BattleSquaddieUsesActionOnMap} from "../orchestratorComponents/battleSquaddieUsesActionOnMap";
 import {BattleSquaddieUsesActionOnSquaddie} from "../orchestratorComponents/battleSquaddieUsesActionOnSquaddie";
+import {ObjectRepositoryService} from "../objectRepository";
+import {SquaddieTemplate, SquaddieTemplateService} from "../../campaign/squaddieTemplate";
+import {SquaddieIdService} from "../../squaddie/id";
+import {BattleSquaddieService} from "../battleSquaddie";
 
 describe('orchestratorState', () => {
     let validBattleState: BattleState;
@@ -250,13 +254,30 @@ describe('orchestratorState', () => {
 
         const setupStateWithProcessedActionEffects = (processedAction0: ProcessedAction, processedAction1: ProcessedAction): GameEngineState => {
             const actionsThisRound = ActionsThisRoundService.new({
-                battleSquaddieId: "enemy_1",
+                battleSquaddieId: "battleSquaddieId",
                 startingLocation: {q: 0, r: 0},
                 previewedActionTemplateId: undefined,
                 processedActions: [
                     processedAction0, processedAction1
                 ].filter(x => x)
             });
+
+            const repository = ObjectRepositoryService.new();
+            const squaddieTemplate: SquaddieTemplate = SquaddieTemplateService.new({
+                squaddieId: SquaddieIdService.new({
+                    templateId: "squaddieTemplateId",
+                    name: "squaddieTemplateName",
+                    affiliation: SquaddieAffiliation.PLAYER,
+                })
+            });
+
+            const battleSquaddie = BattleSquaddieService.new({
+                battleSquaddieId: "battleSquaddieId",
+                squaddieTemplate,
+            });
+
+            ObjectRepositoryService.addSquaddieTemplate(repository, squaddieTemplate);
+            ObjectRepositoryService.addBattleSquaddie(repository, battleSquaddie);
 
             return GameEngineStateService.new({
                 resourceHandler: undefined,
@@ -266,6 +287,7 @@ describe('orchestratorState', () => {
                         actionsThisRound,
                     })
                 }),
+                repository,
             });
         }
 
