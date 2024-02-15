@@ -30,6 +30,7 @@
       "id": "demon_slither_bite",
       "actionEffectTemplates": [
         {
+          "type": "SQUADDIE",
           "minimumRange": 0,
           "maximumRange": 1,
           "traits": {

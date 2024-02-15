@@ -39,6 +39,7 @@
           "id": "torrin_water_cannon",
           "actionEffectTemplates": [
             {
+              "type": "SQUADDIE",
               "minimumRange": 0,
               "maximumRange": 2,
               "traits": {
@@ -58,6 +59,7 @@
           "actionPoints": 2,
           "actionEffectTemplates": [
             {
+              "type": "SQUADDIE",
               "minimumRange": 0,
               "maximumRange": 1,
               "traits": {
@@ -113,6 +115,7 @@
           "id": "sir_camil_longsword",
           "actionEffectTemplates": [
             {
+              "type": "SQUADDIE",
               "minimumRange": 0,
               "maximumRange": 1,
               "traits": {
@@ -167,6 +170,7 @@
           "id": "petra-shard-stab",
           "actionEffectTemplates": [
             {
+              "type": "SQUADDIE",
               "minimumRange": 0,
               "maximumRange": 1,
               "traits": {

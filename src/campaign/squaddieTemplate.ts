@@ -1,7 +1,7 @@
 import {SquaddieId, SquaddieIdService} from "../squaddie/id";
 import {ArmyAttributes, ArmyAttributesService, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {getValidValueOrDefault, isValidValue} from "../utils/validityCheck";
-import {ActionTemplate} from "../action/template/actionTemplate";
+import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
 
 export interface SquaddieTemplate {
     squaddieId: SquaddieId;
@@ -33,6 +33,7 @@ const sanitize = (data: SquaddieTemplate): SquaddieTemplate => {
         throw new Error("Squaddie Action cannot sanitize, missing squaddieId ");
     }
     SquaddieIdService.sanitize(data.squaddieId);
+    data.actionTemplates.forEach(actionTemplate => ActionTemplateService.sanitize(actionTemplate));
     data.attributes = isValidValue(data.attributes) ? data.attributes : DefaultArmyAttributes();
     return data;
 }

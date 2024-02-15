@@ -1,6 +1,7 @@
 import {ActionEffectTemplate, ActionEffectType} from "./actionEffectTemplate";
 import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {Trait, TraitStatusStorageService} from "../../trait/traitStatusStorage";
+import {ActionEffectSquaddieTemplateService} from "./actionEffectSquaddieTemplate";
 
 export interface ActionTemplate {
     id: string;
@@ -46,6 +47,9 @@ export const ActionTemplateService = {
             getMAPFromActionEffectTemplate,
             0
         );
+    },
+    sanitize: (template: ActionTemplate): ActionTemplate => {
+        return sanitize(template);
     }
 }
 
@@ -56,5 +60,18 @@ const sanitize = (template: ActionTemplate): ActionTemplate => {
 
     template.actionPoints = getValidValueOrDefault(template.actionPoints, 1);
     template.actionEffectTemplates = getValidValueOrDefault(template.actionEffectTemplates, []);
+    template.actionEffectTemplates.forEach((actionEffectTemplate, index) => {
+        switch (actionEffectTemplate.type) {
+            case ActionEffectType.SQUADDIE:
+                ActionEffectSquaddieTemplateService.sanitize(actionEffectTemplate);
+                break;
+            case ActionEffectType.MOVEMENT:
+                break;
+            case ActionEffectType.END_TURN:
+                break;
+            default:
+                throw new Error(`ActionTemplate ${template.id} cannot sanitize, actionEffectTemplate ${index} is missing type`);
+        }
+    });
     return template;
 }
