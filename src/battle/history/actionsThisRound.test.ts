@@ -536,11 +536,7 @@ describe('Actions This Round', () => {
                 processedActions: [
                     ProcessedActionService.new({
                         decidedAction,
-                        processedActionEffects: [
-                            ProcessedActionMovementEffectService.new({
-                                decidedActionEffect: decidedActionMovementEffect,
-                            })
-                        ]
+                        processedActionEffects: []
                     }),
                     decidedButNotProcessedAction,
                 ]

@@ -21,9 +21,12 @@ export interface TeamStrategyCalculator {
     }): DecidedAction;
 }
 
-// TODO Test this
 export const TeamStrategyService = {
     getCurrentlyActingSquaddieWhoCanAct: (team: BattleSquaddieTeam, actionsThisRound: ActionsThisRound, repository: ObjectRepository): string => {
+        if (!isValidValue(team)) {
+            return undefined;
+        }
+
         let battleSquaddieIdToAct = getBattleSquaddieWhoCanAct(team, repository);
         if (!isValidValue(battleSquaddieIdToAct)) {
             return undefined;

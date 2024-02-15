@@ -292,7 +292,7 @@ export class BattleComputerSquaddieSelector implements BattleOrchestratorCompone
         } else {
             SquaddieTurnService.spendActionPoints(battleSquaddie.squaddieTurn, actionPointCost);
         }
-        updateActionsThisRound({
+        ActionsThisRoundService.updateActionsThisRound({
             state,
             battleSquaddieId: battleSquaddie.battleSquaddieId,
             startingLocation,
@@ -436,37 +436,3 @@ const drawSquaddieAtInitialPositionAsCameraPans = (gameEngineState: GameEngineSt
         gameEngineState.battleOrchestratorState.battleState.camera
     );
 };
-
-// TODO extract to common library?
-const updateActionsThisRound = ({
-                                    state,
-                                    battleSquaddieId,
-                                    startingLocation,
-                                    processedAction,
-                                    previewedActionTemplateId,
-                                }: {
-                                    state: GameEngineState,
-                                    battleSquaddieId: string,
-                                    startingLocation: HexCoordinate
-                                    processedAction?: ProcessedAction,
-                                    previewedActionTemplateId?: string,
-                                }
-) => {
-    if (OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
-        if (isValidValue(processedAction)) {
-            state.battleOrchestratorState.battleState.actionsThisRound.processedActions.push(processedAction);
-        }
-        if (isValidValue(previewedActionTemplateId)) {
-            state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = previewedActionTemplateId;
-        }
-        return;
-    }
-
-    const processedActions = processedAction ? [processedAction] : undefined;
-    state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
-        battleSquaddieId: battleSquaddieId,
-        startingLocation: startingLocation,
-        processedActions,
-        previewedActionTemplateId,
-    });
-}

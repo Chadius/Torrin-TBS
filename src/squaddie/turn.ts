@@ -18,7 +18,6 @@ export const SquaddieTurnService = {
     spendActionPoints: (data: SquaddieTurn, number: number) => {
         data.remainingActionPoints = (data.remainingActionPoints - number);
     },
-    // TODO Test this
     canPerformAction: (data: SquaddieTurn, actionTemplate: ActionTemplate): {
         canPerform: boolean,
         reason: ACTION_PERFORM_FAILURE_REASON

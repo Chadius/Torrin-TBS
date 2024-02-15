@@ -4,6 +4,8 @@ import {getValidValueOrDefault, isValidValue} from "../../utils/validityCheck";
 import {MULTIPLE_ATTACK_PENALTY, MULTIPLE_ATTACK_PENALTY_MULTIPLIER_MAX} from "../modifierConstants";
 import {ProcessedActionEffect} from "../../action/processed/processedActionEffect";
 import {DecidedActionEffect} from "../../action/decided/decidedActionEffect";
+import {GameEngineState} from "../../gameEngine/gameEngine";
+import {OrchestratorUtilities} from "../orchestratorComponents/orchestratorUtils";
 
 export interface ActionsThisRound {
     battleSquaddieId: string;
@@ -59,7 +61,7 @@ export const ActionsThisRoundService = {
 
         const firstPendingProcessedAction = actionsThisRound.processedActions.find(processedAction =>
             processedAction.decidedAction
-            && processedAction.processedActionEffects.length < processedAction.decidedAction.actionEffects.length
+            && processedAction.processedActionEffects.length === 0
         );
 
         if (firstPendingProcessedAction === undefined) {
@@ -80,6 +82,38 @@ export const ActionsThisRoundService = {
         }
 
         actionsThisRound.processedActionEffectIteratorIndex++;
+    },
+    updateActionsThisRound: ({
+                                 state,
+                                 battleSquaddieId,
+                                 startingLocation,
+                                 processedAction,
+                                 previewedActionTemplateId,
+                             }: {
+                                 state: GameEngineState,
+                                 battleSquaddieId: string,
+                                 startingLocation: HexCoordinate
+                                 processedAction?: ProcessedAction,
+                                 previewedActionTemplateId?: string,
+                             }
+    ) => {
+        if (OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)) {
+            if (isValidValue(processedAction)) {
+                state.battleOrchestratorState.battleState.actionsThisRound.processedActions.push(processedAction);
+            }
+            if (isValidValue(previewedActionTemplateId)) {
+                state.battleOrchestratorState.battleState.actionsThisRound.previewedActionTemplateId = previewedActionTemplateId;
+            }
+            return;
+        }
+
+        const processedActions = processedAction ? [processedAction] : undefined;
+        state.battleOrchestratorState.battleState.actionsThisRound = ActionsThisRoundService.new({
+            battleSquaddieId: battleSquaddieId,
+            startingLocation: startingLocation,
+            processedActions,
+            previewedActionTemplateId,
+        });
     }
 }
 

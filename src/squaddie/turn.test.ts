@@ -1,4 +1,4 @@
-import {SquaddieTurn, SquaddieTurnService} from "./turn";
+import {ACTION_PERFORM_FAILURE_REASON, SquaddieTurn, SquaddieTurnService} from "./turn";
 import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
 import {ActionEffectSquaddieTemplateService} from "../action/template/actionEffectSquaddieTemplate";
@@ -44,10 +44,9 @@ describe('Squaddie turn and resources', () => {
         });
         it('should report when an action cannot be spent', () => {
             SquaddieTurnService.spendActionPoints(turn, actionSpends2ActionPoints.actionPoints);
-            // TODO
-            //const query = SquaddieTurnService.canPerformAction(turn, actionSpends2ActionPoints);
-            //expect(query.canPerform).toBeFalsy();
-            //expect(query.reason).toBe(ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING);
+            const query = SquaddieTurnService.canPerformAction(turn, actionSpends2ActionPoints);
+            expect(query.canPerform).toBeFalsy();
+            expect(query.reason).toBe(ACTION_PERFORM_FAILURE_REASON.TOO_FEW_ACTIONS_REMAINING);
         });
         it('should give 3 action points upon starting a new round', () => {
             SquaddieTurnService.spendActionPoints(turn, actionSpends2ActionPoints.actionPoints);
