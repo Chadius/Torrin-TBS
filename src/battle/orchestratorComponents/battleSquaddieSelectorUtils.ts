@@ -1,6 +1,6 @@
 import {BattleSquaddie} from "../battleSquaddie";
 import {HexCoordinate} from "../../hexMap/hexCoordinate/hexCoordinate";
-import {GetNumberOfActionPoints, SquaddieService} from "../../squaddie/squaddieService";
+import {GetNumberOfActionPoints} from "../../squaddie/squaddieService";
 import {getResultOrThrowError} from "../../utils/ResultOrError";
 import {SearchParametersHelper} from "../../hexMap/pathfinder/searchParams";
 import {GetTargetingShapeGenerator, TargetingShape} from "../targeting/targetingShapeGenerator";
@@ -9,13 +9,7 @@ import {SquaddieTemplate} from "../../campaign/squaddieTemplate";
 import {SearchResult, SearchResultsHelper} from "../../hexMap/pathfinder/searchResults/searchResult";
 import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinder";
 import {MapHighlightHelper} from "../animation/mapHighlight";
-import {LocationTraveled} from "../../hexMap/pathfinder/locationTraveled";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {SquaddieTurnService} from "../../squaddie/turn";
-import {DecidedActionMovementEffectService} from "../../action/decided/decidedActionMovementEffect";
-import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
-import {DecidedActionService} from "../../action/decided/decidedAction";
-import {ProcessedActionMovementEffectService} from "../../action/processed/processedActionMovementEffect";
 
 export const BattleSquaddieSelectorService = {
     createSearchPath: ({

@@ -3,7 +3,6 @@ import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import {ArmyAttributes, DefaultArmyAttributes} from "../squaddie/armyAttributes";
 import {NewDummySquaddieID} from "../utils/test/squaddie";
 import {ActionTemplate, ActionTemplateService} from "../action/template/actionTemplate";
-import {ActionEffectTemplate} from "../action/template/actionEffectTemplate";
 
 describe('Squaddie Template', () => {
     describe('attributes', () => {

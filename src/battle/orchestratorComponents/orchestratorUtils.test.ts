@@ -346,7 +346,7 @@ describe("Orchestration Utils", () => {
 
             actionsThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: battleSquaddie.battleSquaddieId,
-                startingLocation: {q:0, r:0},
+                startingLocation: {q: 0, r: 0},
                 processedActions: [
                     ProcessedActionService.new({
                         decidedAction: DecidedActionService.new({
@@ -396,7 +396,10 @@ describe("Orchestration Utils", () => {
             InBattleAttributesHandler.takeDamage(battleSquaddie.inBattleAttributes, battleSquaddie.inBattleAttributes.currentHitPoints, DamageType.UNKNOWN);
             const {
                 isDead
-            } = SquaddieService.canSquaddieActRightNow({squaddieTemplate: squaddieTemplate, battleSquaddie: battleSquaddie})
+            } = SquaddieService.canSquaddieActRightNow({
+                squaddieTemplate: squaddieTemplate,
+                battleSquaddie: battleSquaddie
+            })
             expect(isDead).toBeTruthy();
 
             OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);

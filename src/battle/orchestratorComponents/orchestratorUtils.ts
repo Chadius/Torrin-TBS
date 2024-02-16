@@ -12,7 +12,6 @@ import {MapHighlightHelper} from "../animation/mapHighlight";
 import {isValidValue} from "../../utils/validityCheck";
 import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {GameEngineState} from "../../gameEngine/gameEngine";
-import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ProcessedActionEffect} from "../../action/processed/processedActionEffect";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 
@@ -44,13 +43,6 @@ export const OrchestratorUtilities = {
     },
     drawOrResetHUDBasedOnSquaddieTurnAndAffiliation: (state: GameEngineState) => {
         return drawOrResetHUDBasedOnSquaddieTurnAndAffiliation(state)
-    },
-    goToNextProcessedActionThisRound: (state: GameEngineState) => {
-        ActionsThisRoundService.nextProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-        const nextProcessedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(state.battleOrchestratorState.battleState.actionsThisRound);
-        if (!isValidValue(nextProcessedActionEffectToShow)) {
-            state.battleOrchestratorState.battleState.actionsThisRound = undefined;
-        }
     },
     clearActionsThisRoundIfSquaddieCannotAct: (gameEngineState: GameEngineState) => {
         if (!

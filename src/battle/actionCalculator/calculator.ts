@@ -183,7 +183,7 @@ const calculateTotalDamageDealt = (
     let degreeOfSuccess: DegreeOfSuccess = DegreeOfSuccess.NONE;
 
     if (actionEffect === undefined || actionEffect.type !== ActionEffectType.SQUADDIE) {
-        return { damageDealt: 0, degreeOfSuccess: DegreeOfSuccess.NONE };
+        return {damageDealt: 0, degreeOfSuccess: DegreeOfSuccess.NONE};
     }
     const actionEffectSquaddieTemplate = actionEffect.template;
 
@@ -229,8 +229,12 @@ const calculateTotalHealingReceived = (
         actionEffect: DecidedActionEffect,
     }
 ) => {
-    if (!isValidValue(actionEffect)) { return 0; }
-    if (actionEffect.type !== ActionEffectType.SQUADDIE) { return 0; }
+    if (!isValidValue(actionEffect)) {
+        return 0;
+    }
+    if (actionEffect.type !== ActionEffectType.SQUADDIE) {
+        return 0;
+    }
 
     let healingReceived = 0;
     const actionEffectSquaddieTemplate = actionEffect.template;

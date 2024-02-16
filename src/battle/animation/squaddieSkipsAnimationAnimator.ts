@@ -12,8 +12,6 @@ import {ActionsThisRoundService} from "../history/actionsThisRound";
 import {ActionEffectType} from "../../action/template/actionEffectTemplate";
 import {ActionResultTextService} from "./actionResultTextService";
 import {RecordingService} from "../history/recording";
-import {ObjectRepositoryService} from "../objectRepository";
-import {getResultOrThrowError} from "../../utils/ResultOrError";
 
 export const ANIMATE_TEXT_WINDOW_WAIT_TIME = 5000;
 

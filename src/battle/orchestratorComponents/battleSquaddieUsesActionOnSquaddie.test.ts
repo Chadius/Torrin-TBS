@@ -14,7 +14,7 @@ import {TerrainTileMap} from "../../hexMap/terrainTileMap";
 import {ResourceHandler} from "../../resource/resourceHandler";
 import {makeResult} from "../../utils/ResultOrError";
 import * as mocks from "../../utils/test/mocks";
-import {battleSquaddieSelectedHUD, MockedP5GraphicsContext} from "../../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../../utils/test/mocks";
 import {CreateNewSquaddieAndAddToRepository} from "../../utils/test/squaddie";
 import {Recording, RecordingService} from "../history/recording";
 import {BattleEvent, BattleEventService} from "../history/battleEvent";
@@ -135,7 +135,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         });
 
         jest.spyOn(LabelHelper, "draw").mockReturnValue(null);
-        jest.spyOn(OrchestratorUtilities, "drawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {});
+        jest.spyOn(OrchestratorUtilities, "drawSquaddieReachBasedOnSquaddieTurnAndAffiliation").mockImplementation(() => {
+        });
 
         squaddieUsesActionOnSquaddie = new BattleSquaddieUsesActionOnSquaddie();
 
@@ -257,7 +258,10 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
         RecordingService.addEvent(battleEventRecording, newEvent);
 
         if (isValidValue(missionMap)) {
-            MissionMapService.addSquaddie(missionMap, squaddieTemplateBase.squaddieId.templateId, battleSquaddieBase.battleSquaddieId, {q:0, r:0});
+            MissionMapService.addSquaddie(missionMap, squaddieTemplateBase.squaddieId.templateId, battleSquaddieBase.battleSquaddieId, {
+                q: 0,
+                r: 0
+            });
         }
 
         const battleOrchestratorState = BattleOrchestratorStateService.newOrchestratorState({
@@ -345,7 +349,8 @@ describe('BattleSquaddieUsesActionOnSquaddie', () => {
 
         squaddieUsesActionOnSquaddie.recommendStateChanges(state);
         squaddieUsesActionOnSquaddie.reset(state);
-        expect(state.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
+        expect(state.battleOrchestratorState.battleSquaddieSelectedHUD.shouldDrawTheHUD()).toBeTruthy();
+        expect(state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId).not.toBeUndefined();
     });
 
     it('uses the SquaddieTargetsOtherSquaddiesAnimator for appropriate situations and waits after it completes', () => {

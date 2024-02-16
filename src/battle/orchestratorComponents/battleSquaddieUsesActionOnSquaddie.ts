@@ -75,7 +75,7 @@ export class BattleSquaddieUsesActionOnSquaddie implements BattleOrchestratorCom
     }
 
     recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined {
-        OrchestratorUtilities.goToNextProcessedActionThisRound(gameEngineState);
+        ActionsThisRoundService.nextProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
         const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);

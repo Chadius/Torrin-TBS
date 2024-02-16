@@ -11,9 +11,7 @@ import {UIControlSettings} from "../orchestrator/uiControlSettings";
 import {GraphicsContext} from "../../utils/graphics/graphicsContext";
 import {GameEngineState} from "../../gameEngine/gameEngine";
 import {ObjectRepositoryService} from "../objectRepository";
-import {BattleOrchestratorMode} from "../orchestrator/battleOrchestrator";
 import {ActionsThisRoundService} from "../history/actionsThisRound";
-import {isValidValue} from "../../utils/validityCheck";
 
 export const ACTION_COMPLETED_WAIT_TIME_MS = 500;
 
@@ -43,7 +41,7 @@ export class BattleSquaddieUsesActionOnMap implements BattleOrchestratorComponen
     }
 
     recommendStateChanges(gameEngineState: GameEngineState): BattleOrchestratorChanges | undefined {
-        OrchestratorUtilities.goToNextProcessedActionThisRound(gameEngineState);
+        ActionsThisRoundService.nextProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         OrchestratorUtilities.clearActionsThisRoundIfSquaddieCannotAct(gameEngineState);
         const processedActionEffectToShow = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
         const nextMode = OrchestratorUtilities.getNextModeBasedOnProcessedActionEffect(processedActionEffectToShow);

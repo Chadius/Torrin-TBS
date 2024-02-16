@@ -111,13 +111,13 @@ export const DrawSquaddieUtilities = {
                                 squaddieMovePath,
                                 camera,
                             }: {
-                                squaddieRepository: ObjectRepository,
-                                battleSquaddie: BattleSquaddie,
-                                timeMovementStarted: number,
-                                squaddieMovePath: SearchPath,
-                                camera: BattleCamera
-                            }) => {
-        return moveSquaddieAlongPath (squaddieRepository, battleSquaddie, timeMovementStarted, squaddieMovePath, camera);
+        squaddieRepository: ObjectRepository,
+        battleSquaddie: BattleSquaddie,
+        timeMovementStarted: number,
+        squaddieMovePath: SearchPath,
+        camera: BattleCamera
+    }) => {
+        return moveSquaddieAlongPath(squaddieRepository, battleSquaddie, timeMovementStarted, squaddieMovePath, camera);
     }
 }
 

@@ -17,7 +17,7 @@ export const DecidedActionService = {
     new: ({
               actionPointCost,
               actionTemplateName,
-        actionTemplateId,
+              actionTemplateId,
               battleSquaddieId,
               actionEffects
           }: {

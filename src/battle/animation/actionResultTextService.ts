@@ -193,7 +193,12 @@ export const ActionResultTextService = {
     }
 };
 
-const outputResultForTextOnly = ({currentActionEffectSquaddieTemplate, result, squaddieRepository, actionTemplateName}: {
+const outputResultForTextOnly = ({
+                                     currentActionEffectSquaddieTemplate,
+                                     result,
+                                     squaddieRepository,
+                                     actionTemplateName
+                                 }: {
     currentActionEffectSquaddieTemplate: ActionEffectSquaddieTemplate,
     result: SquaddieSquaddieResults,
     squaddieRepository: ObjectRepository,

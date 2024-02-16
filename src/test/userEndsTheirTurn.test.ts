@@ -11,6 +11,7 @@ import {Trait, TraitStatusStorageService} from "../trait/traitStatusStorage";
 import {SquaddieIdService} from "../squaddie/id";
 import {SquaddieAffiliation} from "../squaddie/squaddieAffiliation";
 import * as mocks from "../utils/test/mocks";
+import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {makeResult} from "../utils/ResultOrError";
 import {TerrainTileMap} from "../hexMap/terrainTileMap";
 import {BattlePhaseState, BattlePhaseStateService} from "../battle/orchestratorComponents/battlePhaseController";
@@ -41,7 +42,6 @@ import {
 import {ProcessedActionEndTurnEffectService} from "../action/processed/processedActionEndTurnEffect";
 import {ProcessedActionService} from "../action/processed/processedAction";
 import {GraphicsContext} from "../utils/graphics/graphicsContext";
-import {MockedP5GraphicsContext} from "../utils/test/mocks";
 import {DrawSquaddieUtilities} from "../battle/animation/drawSquaddie";
 import {BattleEventService} from "../battle/history/battleEvent";
 
@@ -321,11 +321,13 @@ describe('User ends their turn', () => {
                 })
             );
             mapAction.recommendStateChanges(gameEngineState);
+            mapAction.reset(gameEngineState);
             nextAction = ActionsThisRoundService.getProcessedActionEffectToShow(gameEngineState.battleOrchestratorState.battleState.actionsThisRound);
             expect(nextAction).toBeUndefined();
         });
         it('It clears ActionsThisRound when there are no more actions to process', () => {
             mapAction.recommendStateChanges(gameEngineState);
+            mapAction.reset(gameEngineState);
             expect(gameEngineState.battleOrchestratorState.battleState.actionsThisRound).toBeUndefined();
         });
         it('The squaddie is grayed out since it is out of actions', () => {

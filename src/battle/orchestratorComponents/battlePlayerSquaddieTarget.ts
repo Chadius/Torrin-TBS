@@ -34,7 +34,7 @@ import {ActionEffectSquaddieTemplate} from "../../action/template/actionEffectSq
 import {ActionResultTextService} from "../animation/actionResultTextService";
 import {ActionTemplate} from "../../action/template/actionTemplate";
 import {ProcessedAction, ProcessedActionService} from "../../action/processed/processedAction";
-import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
+import {DecidedActionService} from "../../action/decided/decidedAction";
 import {
     DecidedActionSquaddieEffect,
     DecidedActionSquaddieEffectService
@@ -42,15 +42,14 @@ import {
 import {SquaddieTurnService} from "../../squaddie/turn";
 import {ProcessedActionSquaddieEffectService} from "../../action/processed/processedActionSquaddieEffect";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
-import {BattleSquaddie} from "../battleSquaddie";
 
 const BUTTON_TOP = ScreenDimensions.SCREEN_HEIGHT * 0.90;
 const BUTTON_MIDDLE_DIVIDER = ScreenDimensions.SCREEN_WIDTH / 2;
 const MESSAGE_TEXT_SIZE = 24;
 
 export class BattlePlayerSquaddieTarget implements BattleOrchestratorComponent {
-    private cancelAbility: boolean;
     hasSelectedValidTarget: boolean;
+    private cancelAbility: boolean;
     private hasConfirmedAction: boolean;
     private validTargetLocation?: HexCoordinate;
     private highlightedTargetRange: HexCoordinate[];

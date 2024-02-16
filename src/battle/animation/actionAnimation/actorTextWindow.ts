@@ -10,7 +10,6 @@ import {GraphicsContext} from "../../../utils/graphics/graphicsContext";
 import {SquaddieTemplate} from "../../../campaign/squaddieTemplate";
 import {SquaddieSquaddieResults} from "../../history/squaddieSquaddieResults";
 import {ActionResultTextService} from "../actionResultTextService";
-import {ActionTemplate} from "../../../action/template/actionTemplate";
 
 export class ActorTextWindow {
     results: SquaddieSquaddieResults;

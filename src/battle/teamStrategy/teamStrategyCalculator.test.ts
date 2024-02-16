@@ -6,7 +6,7 @@ import {SquaddieAffiliation} from "../../squaddie/squaddieAffiliation";
 import {BattleSquaddie, BattleSquaddieService} from "../battleSquaddie";
 import {TeamStrategyService} from "./teamStrategyCalculator";
 import {SquaddieTurnService} from "../../squaddie/turn";
-import {ActionsThisRound, ActionsThisRoundService} from "../history/actionsThisRound";
+import {ActionsThisRoundService} from "../history/actionsThisRound";
 
 describe('team strategy calculator', () => {
     describe('getCurrentlyActingSquaddieWhoCanAct', () => {
@@ -54,15 +54,15 @@ describe('team strategy calculator', () => {
         it('returns undefined if there are no squaddies', () => {
             expect(TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct(undefined, undefined, repository)).toBeUndefined();
         });
-        it ('returns undefined if all squaddies ended their turn', () => {
+        it('returns undefined if all squaddies ended their turn', () => {
             SquaddieTurnService.endTurn(battleSquaddie0.squaddieTurn);
             SquaddieTurnService.endTurn(battleSquaddie1.squaddieTurn);
             expect(TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct(team, undefined, repository)).toBeUndefined();
         });
-        it ('returns a squaddie who can act if no one has started their turn', () => {
+        it('returns a squaddie who can act if no one has started their turn', () => {
             expect(TeamStrategyService.getCurrentlyActingSquaddieWhoCanAct(team, undefined, repository)).not.toBeUndefined();
         });
-        it ('returns the squaddie who started their turn', () => {
+        it('returns the squaddie who started their turn', () => {
             const actionThisRound = ActionsThisRoundService.new({
                 battleSquaddieId: battleSquaddie0Id,
                 startingLocation: {q: 0, r: 0},

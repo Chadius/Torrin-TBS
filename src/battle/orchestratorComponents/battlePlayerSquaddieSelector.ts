@@ -146,6 +146,16 @@ export class BattlePlayerSquaddieSelector implements BattleOrchestratorComponent
         ) {
             return;
         }
+
+        if (this.selectedBattleSquaddieId === ""
+            && OrchestratorUtilities.isSquaddieCurrentlyTakingATurn(state)
+        ) {
+            this.selectedBattleSquaddieId = state.battleOrchestratorState.battleState.actionsThisRound.battleSquaddieId;
+            state.battleOrchestratorState.battleSquaddieSelectedHUD.selectSquaddieAndDrawWindow({
+                battleId: this.selectedBattleSquaddieId,
+                state,
+            });
+        }
     }
 
     recommendStateChanges(state: GameEngineState): BattleOrchestratorChanges | undefined {

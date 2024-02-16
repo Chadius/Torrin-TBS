@@ -33,7 +33,6 @@ import {PathfinderHelper} from "../../hexMap/pathfinder/pathGeneration/pathfinde
 import {OrchestratorUtilities} from "./orchestratorUtils";
 import {SquaddieSquaddieResults} from "../history/squaddieSquaddieResults";
 import {MissionMapService} from "../../missionMap/missionMap";
-import {isValidValue} from "../../utils/validityCheck";
 import {DrawSquaddieUtilities} from "../animation/drawSquaddie";
 import {DecidedAction, DecidedActionService} from "../../action/decided/decidedAction";
 import {BattleEventService} from "../history/battleEvent";

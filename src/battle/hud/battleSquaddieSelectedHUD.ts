@@ -376,6 +376,26 @@ export class BattleSquaddieSelectedHUD {
         this.maybeCreateInvalidCommandWarningTextBox(differentSquaddieWarningText, undefined);
     }
 
+    checkForActionButtonClick(state: GameEngineState, mouseX: number, mouseY: number) {
+        const selectedUseActionButton = this.makeDecisionButtons.find((button) =>
+            RectAreaService.isInside(button.buttonArea, mouseX, mouseY)
+        );
+
+        if (!selectedUseActionButton) {
+            return
+        }
+
+        const actionValidityCheck = this.checkIfActionIsValid(
+            selectedUseActionButton.actionTemplate,
+            state,
+        );
+        if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
+            this.selectedActionTemplate = selectedUseActionButton.actionTemplate;
+            return;
+        }
+        this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.actionTemplate);
+    }
+
     private generateUseActionButtons(
         squaddieTemplate: SquaddieTemplate,
         battleSquaddie: BattleSquaddie,
@@ -1014,25 +1034,5 @@ export class BattleSquaddieSelectedHUD {
         }
 
         this.selectedEndTurn = true;
-    }
-
-    checkForActionButtonClick(state: GameEngineState, mouseX: number, mouseY: number) {
-        const selectedUseActionButton = this.makeDecisionButtons.find((button) =>
-            RectAreaService.isInside(button.buttonArea, mouseX, mouseY)
-        );
-
-        if (!selectedUseActionButton) {
-            return
-        }
-
-        const actionValidityCheck = this.checkIfActionIsValid(
-            selectedUseActionButton.actionTemplate,
-            state,
-        );
-        if (actionValidityCheck === ActionValidityCheck.IS_VALID) {
-            this.selectedActionTemplate = selectedUseActionButton.actionTemplate;
-            return;
-        }
-        this.warnUserNotEnoughActionPointsToPerformAction(selectedUseActionButton.actionTemplate);
     }
 }

@@ -57,7 +57,7 @@ describe('Actions This Round', () => {
             expect(() => {
                 ActionsThisRoundService.new({
                     battleSquaddieId: "soldier",
-                    startingLocation: {q:0, r: 0},
+                    startingLocation: {q: 0, r: 0},
                 });
             }).toThrow("cannot sanitize");
         });
